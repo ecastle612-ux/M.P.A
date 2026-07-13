@@ -1,0 +1,9 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+overrides:
+  typescript: 5.9.2
+  eslint: 9.39.5
+allowBuilds:
+  sharp: true
+  unrs-resolver: true

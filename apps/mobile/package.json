@@ -1,0 +1,14 @@
+{
+  "name": "@mpa/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Phase 2 placeholder for future native mobile app",
+  "scripts": {
+    "dev": "echo \"Mobile placeholder only in Phase 2\"",
+    "build": "echo \"Mobile placeholder only in Phase 2\"",
+    "lint": "echo \"Mobile placeholder only in Phase 2\"",
+    "typecheck": "echo \"Mobile placeholder only in Phase 2\"",
+    "format": "echo \"Mobile placeholder only in Phase 2\"",
+    "format:check": "echo \"Mobile placeholder only in Phase 2\""
+  }
+}

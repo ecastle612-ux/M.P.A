@@ -1,0 +1,34 @@
+---
+description: M.P.A. mandatory Implementation Gate — no code before design, docs, and approval
+alwaysApply: true
+---
+
+# M.P.A. Implementation Gate
+
+Nothing in M.P.A. gets implemented until it has been **designed**, **documented**, and **approved**.
+
+Sequence (mandatory):
+
+```
+Design → Document → Approve → Implement
+```
+
+## Rules for this agent
+
+1. **Do not** write application code, UI components, migrations, or scaffolding for work that is still Draft / Proposed / awaiting approval.
+2. **Do** write or refine Blueprint docs and ADRs when the user is in a design/documentation phase.
+3. If asked to “just build” something unapproved, refuse implementation and point to the missing gate step.
+4. Bug fixes that do not change product or architecture patterns may proceed; new patterns require the full gate.
+5. After approval, implement only the approved scope; material changes restart Design → Document → Approve.
+
+## Authoritative docs
+
+- `docs/00-governance/implementation-gate.md`
+- `docs/18-decision-log/adr-012-design-document-approve-implement.md`
+- Design language: `docs/06-design-language/` (Canopy must be approved before UI)
+
+## Current reminder
+
+- Canopy (Phase 1.5) is approved.
+- Experience Architecture (Phase 1.6) is approved.
+- New material changes to either require Design → Document → Approve again.

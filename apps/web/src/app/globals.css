@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --mpa-font-display: Satoshi, "IBM Plex Sans", system-ui, sans-serif;
+  --mpa-font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mpa-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --mpa-color-bg-app: #f3f4f6;
+  --mpa-color-bg-sidebar: #12151a;
+  --mpa-color-bg-sidebar-elevated: #1a1e25;
+  --mpa-color-bg-surface: #ffffff;
+  --mpa-color-bg-overlay: #12151a99;
+
+  --mpa-color-border-default: #d1d5db;
+  --mpa-color-border-subtle: #e5e7eb;
+  --mpa-color-border-sidebar: #2a2f38;
+
+  --mpa-color-text-primary: #12151a;
+  --mpa-color-text-secondary: #4b5563;
+  --mpa-color-text-muted: #6b7280;
+  --mpa-color-text-sidebar: #c4c9d1;
+  --mpa-color-text-sidebar-active: #ffffff;
+
+  --mpa-color-brand-primary: #0f6b56;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--mpa-font-sans);
+  background: var(--mpa-color-bg-app);
+  color: var(--mpa-color-text-primary);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--mpa-color-brand-primary), white 35%);
+  outline-offset: 1px;
+}
+
+[data-theme="dark"] {
+  /* Dark mode token architecture exists, disabled by default in provider. */
+  --mpa-color-bg-app: #0b0d10;
+  --mpa-color-bg-surface: #14181e;
+  --mpa-color-text-primary: #f3f4f6;
+  --mpa-color-text-secondary: #9ca3af;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
