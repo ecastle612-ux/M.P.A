@@ -10,7 +10,11 @@ module.exports = {
     {
       name: "no-orphans",
       severity: "warn",
-      from: { orphan: true, pathNot: "\\.(test|spec)\\.(ts|tsx)$" },
+      from: {
+        orphan: true,
+        pathNot:
+          "\\.(test|spec)\\.(ts|tsx)$|apps/web/src/app/manifest\\.ts$|packages/email/src/index\\.ts$"
+      },
       to: {}
     },
     {

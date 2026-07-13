@@ -1,7 +1,7 @@
 import base from "../../packages/config/eslint.base.mjs";
 import nextVitals from "eslint-config-next/core-web-vitals";
 
-export default [
+const config = [
   ...nextVitals,
   ...base,
   {
@@ -25,3 +25,5 @@ export default [
     }
   }
 ];
+
+export default config;
