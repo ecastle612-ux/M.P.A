@@ -81,10 +81,10 @@ Every phase produces something a property manager can use to eliminate a real he
 
 ---
 
-## Phase 2.1: Foundation Hardening (Current)
+## Phase 2.1: Foundation Hardening
 
 **Goal:** Production-quality hardening before business features.  
-**Status:** In progress.
+**Status:** ✅ Completed.
 
 | Deliverable | Status |
 |-------------|--------|
@@ -97,6 +97,30 @@ Every phase produces something a property manager can use to eliminate a real he
 | Foundation Readiness Assessment | ✅ Published |
 
 **Docs:** [22 Phase 2 Foundation Hardening](../22-phase-2-scaffold-review/index.md)
+
+---
+
+## Phase 3: Identity & Multi-Tenant Foundation
+
+**Goal:** Production-grade identity, organization, role, and authorization
+foundation before business module implementation.  
+**Status:** ✅ Completed (ADR-014 accepted and implemented).
+
+| Deliverable | Status |
+|-------------|--------|
+| Authentication baseline (email/password, reset, persistence, logout, guards) | ✅ Implemented |
+| Organization foundation (create/switch/invite/membership/active context) | ✅ Implemented |
+| Multi-role support (PM/Owner/Tenant/Vendor across orgs) | ✅ Implemented |
+| Extensible authorization + RLS-ready policy model | ✅ Implemented |
+| Four portal shell foundation (no business pages) | ✅ Implemented |
+| User profile foundation + org membership display | ✅ Implemented |
+| Route guards + unauthorized + not-found handling | ✅ Implemented |
+| Security verification and deterministic CI gate | ✅ Implemented |
+
+**Out of scope:** Properties, leases, maintenance, payments, documents, messaging,
+AI features, accounting, and workflow modules.
+
+**Docs:** [23 Phase 3 Identity Foundation](../23-phase-3-identity-foundation/index.md)
 
 ---
 

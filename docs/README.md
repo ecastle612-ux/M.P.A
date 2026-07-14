@@ -4,7 +4,8 @@ The permanent source of truth for M.P.A. (My Property Assistant).
 
 This blueprint defines how M.P.A. is designed, built, and evolved. Every engineer, designer, and product contributor should treat these documents as authoritative until superseded by an approved Decision Log entry.
 
-**Current status:** Phase 2.1 Foundation Hardening in progress. Implementation Gate in force.
+**Current status:** Phase 2.1 Foundation Hardening complete; Phase 3 Identity
+Foundation documented and awaiting approval. Implementation Gate in force.
 
 ---
 
@@ -44,6 +45,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 07 | [UX Principles](./07-ux-principles/index.md) | Interaction patterns and experience rules |
 | 21 | [Experience Architecture](./21-experience-architecture/index.md) | How M.P.A. should *feel* (Phase 1.6) |
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
+| 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

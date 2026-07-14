@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import type { UserRole } from "@mpa/shared";
-import { RoleProvider } from "./role-context";
+import type { OrganizationSummary } from "../../lib/organization/contracts";
+import { AuthenticatedContextProviders } from "./authenticated-context-providers";
 import { Sidebar } from "./sidebar";
 import { TopNavigation } from "./top-navigation";
 import { ResponsiveNavigation } from "./responsive-navigation";
@@ -10,14 +11,23 @@ import { ResponsiveNavigation } from "./responsive-navigation";
 export function ApplicationShell({
   children,
   availableRoles,
-  defaultRole
+  defaultRole,
+  organizations,
+  defaultOrganizationId
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
   defaultRole: UserRole;
+  organizations: OrganizationSummary[];
+  defaultOrganizationId: string | null;
 }) {
   return (
-    <RoleProvider availableRoles={availableRoles} defaultRole={defaultRole}>
+    <AuthenticatedContextProviders
+      availableRoles={availableRoles}
+      defaultRole={defaultRole}
+      organizations={organizations}
+      defaultOrganizationId={defaultOrganizationId}
+    >
       <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)]">
         <Sidebar />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
@@ -29,6 +39,6 @@ export function ApplicationShell({
           {children}
         </div>
       </div>
-    </RoleProvider>
+    </AuthenticatedContextProviders>
   );
 }

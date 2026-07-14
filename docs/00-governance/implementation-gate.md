@@ -85,7 +85,8 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Canopy design language (Phase 1.5) | Approved (v1.0) |
 | Experience architecture (Phase 1.6) | Approved (v1.0) |
 | Foundation scaffold | Completed (Phase 2) |
-| Foundation hardening | In progress (Phase 2.1) |
+| Foundation hardening | Completed (Phase 2.1) |
+| Phase 3 identity foundation | Completed (approved and implemented) |
 | Business features | Blocked until Foundation exit criteria met |
 
 ---

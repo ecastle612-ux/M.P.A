@@ -30,7 +30,7 @@ The permanent source of truth for this project is:
 
 Prerequisites:
 
-- Node.js 20+
+- Node.js 22+
 - pnpm
 - Supabase CLI (for local backend and generated types)
 

@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import { Input } from "@mpa/ui";
+import { OrganizationSwitcher } from "./organization-switcher";
 import { RoleSwitcher } from "./role-switcher";
 import { NotificationCenter } from "./notification-center";
 import { ProfileMenu } from "./profile-menu";
@@ -28,6 +29,7 @@ export function TopNavigation() {
       <div className="hidden min-w-[260px] flex-1 md:block">
         <Input aria-label="Search placeholder" placeholder="Search placeholder..." />
       </div>
+      <OrganizationSwitcher />
       <RoleSwitcher />
       <CommandPalette />
       <NotificationCenter />

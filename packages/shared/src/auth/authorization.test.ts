@@ -30,6 +30,7 @@ describe("authorization helpers", () => {
   it("checks role access against one or more required roles", () => {
     const context: AuthorizationContext = {
       userId: "user-1",
+      organizationId: "org-1",
       roles: ["property_manager", "vendor"],
       activeRole: "property_manager"
     };

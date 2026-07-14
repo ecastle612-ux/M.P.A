@@ -1,5 +1,6 @@
 import { Card, Skeleton } from "@mpa/ui";
 import { Breadcrumbs } from "./breadcrumbs";
+import { OrganizationFoundationPanel } from "../organization/organization-foundation-panel";
 
 export function DashboardShellPlaceholder() {
   return (
@@ -31,6 +32,7 @@ export function DashboardShellPlaceholder() {
           <Skeleton className="h-40" />
         </Card>
       </section>
+      <OrganizationFoundationPanel />
     </main>
   );
 }

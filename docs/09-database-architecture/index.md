@@ -6,6 +6,27 @@ PostgreSQL (via Supabase) is the **system of record**. All operational data, aut
 
 ---
 
+## Phase 3 Implemented Identity Schema
+
+Implemented foundation tables (Supabase migrations `2026071401*`-`2026071404*`):
+
+- `organizations`
+- `organization_memberships`
+- `organization_invitations`
+- `permission_capabilities`
+- `role_permission_grants`
+- `organization_permission_overrides`
+- `user_profiles`
+- `user_preferences`
+
+Implemented security functions:
+
+- `is_org_manager(target_org_id)` for compatibility
+- `has_org_capability(target_org_id, required_capability)` for capability-based
+  RLS checks across organization resources
+
+---
+
 ## Schema Strategy
 
 ### Decision: Single Schema with Table Prefix Namespacing

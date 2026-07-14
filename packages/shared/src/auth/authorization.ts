@@ -5,6 +5,7 @@ const roleArraySchema = z.array(z.enum(USER_ROLES)).default([]);
 
 export type AuthorizationContext = {
   userId: string;
+  organizationId: string | null;
   roles: UserRole[];
   activeRole: UserRole | null;
 };

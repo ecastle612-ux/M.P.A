@@ -195,6 +195,27 @@ Each portal is a Next.js route group with:
 
 ---
 
+## Phase 3 Identity Routing Snapshot
+
+Implemented foundation routing in the Next.js app includes:
+
+- Auth routes: `/login`, `/forgot-password`, `/reset-password`,
+  `/accept-invitation/[token]`
+- Foundation app routes: `/dashboard`, `/profile`
+- Portal routes: `/portal`, `/portal/manager`, `/portal/owner`,
+  `/portal/tenant`, `/portal/vendor`
+- Guard outcomes: `/unauthorized`, custom `not-found`
+
+Route guard behavior:
+
+- Middleware enforces authenticated access for protected route families.
+- Server layouts enforce role-aware and organization-aware access for each
+  portal shell.
+- API route guards enforce capability checks using permission grants and
+  organization-scoped overrides.
+
+---
+
 ## State Management
 
 | State | Tool |

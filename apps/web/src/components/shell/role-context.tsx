@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { isUserRole, toRoleLabel, type UserRole } from "@mpa/shared";
+import { useOrganizationContext } from "./organization-context";
 
 type RoleContextValue = {
   availableRoles: UserRole[];
@@ -16,14 +17,20 @@ const STORAGE_KEY = "mpa_active_role";
 
 export function RoleProvider({
   children,
-  availableRoles,
+  fallbackRoles,
   defaultRole
 }: {
   children: ReactNode;
-  availableRoles: UserRole[];
+  fallbackRoles: UserRole[];
   defaultRole: UserRole;
 }) {
-  const [activeRole, setActiveRoleState] = useState<UserRole>(() => {
+  const { activeOrganization } = useOrganizationContext();
+  const availableRoles =
+    activeOrganization?.roles && activeOrganization.roles.length > 0
+      ? activeOrganization.roles
+      : fallbackRoles;
+
+  const [preferredRole, setPreferredRole] = useState<UserRole>(() => {
     if (typeof window === "undefined") {
       return defaultRole;
     }
@@ -36,13 +43,16 @@ export function RoleProvider({
     }
   });
 
+  const activeRole =
+    availableRoles.includes(preferredRole) ? preferredRole : (availableRoles[0] ?? defaultRole);
+
   const value = useMemo<RoleContextValue>(
     () => ({
       availableRoles,
       activeRole,
       activeRoleLabel: toRoleLabel(activeRole),
       setActiveRole: (role) => {
-        setActiveRoleState(role);
+        setPreferredRole(role);
         try {
           window.localStorage.setItem(STORAGE_KEY, role);
         } catch {
