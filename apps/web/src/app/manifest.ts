@@ -1,24 +1,32 @@
 import type { MetadataRoute } from "next";
+import {
+  MPA_APP_ICON_192_PATH,
+  MPA_APP_ICON_512_PATH,
+  MPA_BRAND_NAME,
+  MPA_BRAND_TAGLINE
+} from "../lib/branding";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "M.P.A.",
+    name: `${MPA_BRAND_NAME} ${MPA_BRAND_TAGLINE}`,
     short_name: "MPA",
-    description: "M.P.A. AI Property Operations Platform",
-    start_url: "/dashboard",
+    description: `${MPA_BRAND_NAME} enterprise property management platform`,
+    start_url: "/",
     display: "standalone",
-    background_color: "#F3F4F6",
-    theme_color: "#0F6B56",
+    background_color: "#F8FAFC",
+    theme_color: "#102B4E",
     icons: [
       {
-        src: "/icons/icon-192.png",
+        src: MPA_APP_ICON_192_PATH,
         sizes: "192x192",
-        type: "image/png"
+        type: "image/png",
+        purpose: "maskable"
       },
       {
-        src: "/icons/icon-512.png",
+        src: MPA_APP_ICON_512_PATH,
         sizes: "512x512",
-        type: "image/png"
+        type: "image/png",
+        purpose: "maskable"
       }
     ]
   };

@@ -87,7 +87,10 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Foundation scaffold | Completed (Phase 2) |
 | Foundation hardening | Completed (Phase 2.1) |
 | Phase 3 identity foundation | Completed (approved and implemented) |
-| Business features | Blocked until Foundation exit criteria met |
+| Phase 4 core property foundation design package | Approved and implemented |
+| Phase 4 implementation | Completed; release hardening + verification gate in progress |
+| Phase 5 Tenant & Lease Foundation design package | Approved (docs/25 + ADR-016 accepted) |
+| Phase 5 implementation | Approved — implementation authorized within approved Phase 5 scope |
 
 ---
 

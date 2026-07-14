@@ -1,47 +1,47 @@
-import Link from "next/link";
+"use client";
 
-const NAV_GROUPS = [
-  {
-    title: "Operations",
-    items: [
-      { href: "/dashboard", label: "Dashboard" },
-      { href: "#", label: "Queue (placeholder)" },
-      { href: "#", label: "Search (placeholder)" }
-    ]
-  },
-  {
-    title: "Platform",
-    items: [
-      { href: "#", label: "Notifications (placeholder)" },
-      { href: "#", label: "Settings (placeholder)" }
-    ]
-  }
-];
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { MpaLogo } from "../branding/mpa-logo";
+import { SHELL_NAVIGATION_GROUPS, isRouteActive } from "./navigation-config";
 
 export function Sidebar() {
+  const pathname = usePathname();
+
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] lg:block">
-      <div className="border-b border-[var(--mpa-color-border-sidebar)] px-4 py-4">
-        <p className="font-display text-lg font-semibold text-[var(--mpa-color-text-sidebar-active)]">M.P.A.</p>
-        <p className="text-xs text-[var(--mpa-color-text-sidebar)]">Foundation shell</p>
+    <aside
+      className="hidden w-[17rem] shrink-0 border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] lg:block"
+      aria-label="Primary application sidebar"
+    >
+      <div className="border-b border-[var(--mpa-color-border-sidebar)] px-5 py-5">
+        <MpaLogo className="h-9 w-auto" alt="M.P.A. logo" />
       </div>
-      <nav className="space-y-6 px-3 py-4">
-        {NAV_GROUPS.map((group) => (
+      <nav className="space-y-7 px-3 py-5" aria-label="Primary">
+        {SHELL_NAVIGATION_GROUPS.map((group) => (
           <div key={group.title}>
-            <p className="mb-2 px-2 text-xs uppercase tracking-wide text-[var(--mpa-color-text-sidebar)]/80">
+            <p className="mb-2 px-2 text-xs uppercase tracking-[0.08em] text-[var(--mpa-color-text-sidebar)]/70">
               {group.title}
             </p>
             <ul className="space-y-1">
-              {group.items.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="block rounded-md px-2 py-2 text-sm hover:bg-[var(--mpa-color-bg-sidebar-elevated)] hover:text-[var(--mpa-color-text-sidebar-active)]"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+              {group.items.map((item) => {
+                const active = isRouteActive(pathname, item.href);
+                return (
+                  <li key={item.label}>
+                    <Link
+                      href={item.href}
+                      aria-current={active ? "page" : undefined}
+                      className={[
+                        "block rounded-md px-3 py-2 text-sm transition-colors",
+                        active
+                          ? "bg-[var(--mpa-color-bg-sidebar-elevated)] font-medium text-[var(--mpa-color-text-sidebar-active)]"
+                          : "text-[var(--mpa-color-text-sidebar)] hover:bg-[var(--mpa-color-bg-sidebar-elevated)] hover:text-[var(--mpa-color-text-sidebar-active)]"
+                      ].join(" ")}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}

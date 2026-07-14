@@ -6,6 +6,7 @@ import { Badge, Card } from "@mpa/ui";
 import { OrganizationSwitcher } from "../shell/organization-switcher";
 import { RoleSwitcher } from "../shell/role-switcher";
 import { ProfileMenu } from "../shell/profile-menu";
+import { MpaLogo } from "../branding/mpa-logo";
 
 type PortalNavigationItem = {
   href: string;
@@ -29,6 +30,7 @@ export function PortalShell({
     <div className="min-h-screen bg-[var(--mpa-color-bg-app)]">
       <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3">
+          <MpaLogo className="h-12 w-auto" alt="M.P.A. logo" />
           <p className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{title}</p>
           <Badge>{roleBadgeLabel}</Badge>
           <div className="ml-auto flex flex-wrap items-center gap-2">

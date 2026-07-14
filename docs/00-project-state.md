@@ -1,0 +1,27 @@
+# M.P.A. Project State
+
+- Project Name: M.P.A. (My Property Assistant)
+- Current Version: 1.0.0 (repository package version)
+- Current Branch: `main`
+- Current Phase: Phase 5 Tenant & Lease Foundation (Approved — Implementation Authorized)
+- Completed Phases: Phase 0, Phase 1.5, Phase 1.6, Phase 1, Phase 2.1, Phase 3
+- Pending Phases: Phase 6 through Phase 12
+- Database Migration Version: `20260714103000_phase4_core_property_foundation.sql` (latest in repository)
+- Latest ADR: ADR-016 (`Accepted`)
+- Latest Verification Date: 2026-07-14
+- Known Risks:
+  - Next.js middleware convention warning persists (`middleware` -> `proxy` migration pending)
+  - Command palette and notification center include non-operational shell-only interactions
+- Open Technical Debt:
+  - Dashboard "Expiring Leases" metric is currently a zero-value stub due to Phase 4 scope
+  - API integration coverage for route/auth edge cases is still limited (unit-level parser regression added in hardening)
+- Metadata Validation:
+  - Property update metadata remains unchanged when omitted from payload
+  - Property update metadata changes only when explicitly provided
+  - Regression test coverage added in `apps/web/src/lib/property/contracts.test.ts`
+- Next Approved Objective:
+  - Implement Phase 5 Tenant & Lease Foundation within approved scope (`docs/25` + ADR-016), without Phase 6 scope leakage
+- Current Repository Health:
+  - Verification suite passes (`check:boundaries`, `check:circular`, `deps:validate`, `lint`, `typecheck`, `build`, `test`)
+  - No blocking lint/type/build/test failures in current workspace state
+  - Phase 4 governance documentation reflects implemented scope

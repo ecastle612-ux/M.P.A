@@ -4,6 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { Button, Card, Input, Select } from "@mpa/ui";
 import { USER_ROLES, isUserRole } from "@mpa/shared";
 import { useOrganizationContext } from "../shell/organization-context";
+import { MpaLogo } from "../branding/mpa-logo";
 
 type PendingInvitation = {
   id: string;
@@ -144,8 +145,8 @@ export function OrganizationFoundationPanel() {
             {loading ? "Creating..." : "Create organization"}
           </Button>
         </form>
-        {error ? <p className="mt-2 text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="mt-2 text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? <p className="mt-2 text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
+        {notice ? <p className="mt-2 text-sm text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}
         {hasOrganizations ? (
           <Button className="mt-4" variant="secondary" onClick={() => void refreshOrganizationDetails()}>
             Refresh organization details
@@ -185,7 +186,10 @@ export function OrganizationFoundationPanel() {
           <div>
             <p className="font-semibold text-[var(--mpa-color-text-primary)]">Pending invitations</p>
             {invitations.length === 0 ? (
-              <p className="text-[var(--mpa-color-text-secondary)]">No invitations yet.</p>
+              <div className="mt-2 flex items-center gap-3">
+                <MpaLogo className="h-10 w-auto" alt="M.P.A. logo" />
+                <p className="text-[var(--mpa-color-text-secondary)]">No invitations yet.</p>
+              </div>
             ) : (
               <ul className="mt-1 space-y-1 text-[var(--mpa-color-text-secondary)]">
                 {invitations.map((invitation) => (
@@ -199,7 +203,10 @@ export function OrganizationFoundationPanel() {
           <div>
             <p className="font-semibold text-[var(--mpa-color-text-primary)]">Memberships</p>
             {memberships.length === 0 ? (
-              <p className="text-[var(--mpa-color-text-secondary)]">No memberships loaded.</p>
+              <div className="mt-2 flex items-center gap-3">
+                <MpaLogo className="h-10 w-auto" alt="M.P.A. logo" />
+                <p className="text-[var(--mpa-color-text-secondary)]">No memberships loaded.</p>
+              </div>
             ) : (
               <ul className="mt-1 space-y-1 text-[var(--mpa-color-text-secondary)]">
                 {memberships.map((membership) => (

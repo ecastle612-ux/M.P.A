@@ -1,5 +1,5 @@
 /**
- * Phase 3 foundation generated type placeholder.
+ * Phase 4 foundation generated type placeholder.
  * Run:
  *   supabase gen types typescript --local > supabase/types/database.generated.ts
  * after linking Supabase CLI.
@@ -56,6 +56,40 @@ export type Database = {
           updated_at: string;
         };
       };
+      properties: {
+        Row: {
+          address_line_1: string;
+          address_line_2: string | null;
+          archived_at: string | null;
+          archived_by: string | null;
+          city: string;
+          code: string | null;
+          country_code: string;
+          cover_image_url: string | null;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          description: string | null;
+          id: string;
+          latitude: number | null;
+          longitude: number | null;
+          metadata: unknown;
+          name: string;
+          organization_id: string;
+          owner_contact_email: string | null;
+          owner_contact_name: string | null;
+          owner_contact_phone: string | null;
+          ownership_entity_name: string | null;
+          postal_code: string;
+          property_type: "apartment" | "commercial" | "condo" | "hoa" | "multi_family" | "residential" | "townhome";
+          state_region: string;
+          status: "active" | "archived" | "draft" | "inactive";
+          timezone: string | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+      };
       permission_capabilities: {
         Row: {
           created_at: string;
@@ -90,6 +124,33 @@ export type Database = {
           phone: string | null;
           updated_at: string;
           user_id: string;
+        };
+      };
+      units: {
+        Row: {
+          archived_at: string | null;
+          archived_by: string | null;
+          bathrooms: number | null;
+          bedrooms: number | null;
+          created_at: string;
+          created_by: string;
+          currency_code: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          deposit_amount: number | null;
+          floor: string | null;
+          id: string;
+          metadata: unknown;
+          occupancy_status: "notice" | "occupied" | "offline" | "vacant_not_ready" | "vacant_ready";
+          organization_id: string;
+          property_id: string;
+          rent_amount: number | null;
+          square_feet: number | null;
+          status: "active" | "archived" | "inactive";
+          unit_label: string | null;
+          unit_number: string;
+          updated_at: string;
+          updated_by: string | null;
         };
       };
     };

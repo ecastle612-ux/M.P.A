@@ -4,8 +4,9 @@ The permanent source of truth for M.P.A. (My Property Assistant).
 
 This blueprint defines how M.P.A. is designed, built, and evolved. Every engineer, designer, and product contributor should treat these documents as authoritative until superseded by an approved Decision Log entry.
 
-**Current status:** Phase 2.1 Foundation Hardening complete; Phase 3 Identity
-Foundation documented and awaiting approval. Implementation Gate in force.
+**Current status:** Phase 4 Core Property Foundation completed. Phase 5 Tenant &
+Lease Foundation planning package is now proposed and awaiting approval.
+Implementation Gate remains in force.
 
 ---
 
@@ -46,6 +47,9 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 21 | [Experience Architecture](./21-experience-architecture/index.md) | How M.P.A. should *feel* (Phase 1.6) |
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
+| 24 | [Phase 4 Core Property Foundation](./24-phase-4-core-property-foundation/index.md) | Property/unit/dashboard phase design package |
+| 25 | [Phase 5 Tenant & Lease Foundation](./25-phase-5-tenant-lease-foundation/index.md) | Tenant and lease phase planning package |
+| 30 | [Product Experience Initiative (PX-001)](./30-product-experience/01-product-vision.md) | Dashboard experience and design system foundation package |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -114,6 +118,6 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Field | Value |
 |-------|-------|
-| Blueprint version | 0.4.0 |
-| Last updated | 2026-07-13 |
-| Phase | 2.1 Foundation Hardening |
+| Blueprint version | 0.6.0 |
+| Last updated | 2026-07-14 |
+| Phase | 5 Tenant & Lease Foundation (Planning / Proposed) |

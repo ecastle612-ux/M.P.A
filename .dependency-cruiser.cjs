@@ -13,7 +13,7 @@ module.exports = {
       from: {
         orphan: true,
         pathNot:
-          "\\.(test|spec)\\.(ts|tsx)$|apps/web/src/app/manifest\\.ts$|packages/email/src/index\\.ts$"
+          "\\.(test|spec)\\.(ts|tsx)$|apps/web/src/app/manifest\\.ts$|packages/email/src/index\\.ts$|apps/web/src/app/(page|layout|loading|error|not-found|template|route)\\.(ts|tsx)$|apps/web/src/app/.*/(page|layout|loading|error|not-found|template|route)\\.(ts|tsx)$"
       },
       to: {}
     },

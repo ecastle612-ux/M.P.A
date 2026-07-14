@@ -1,4 +1,5 @@
 import { AcceptInvitationCard } from "../../../../components/auth/accept-invitation-card";
+import { AuthBrandShell } from "../../../../components/branding/auth-brand-shell";
 
 export default async function AcceptInvitationPage({
   params
@@ -8,7 +9,9 @@ export default async function AcceptInvitationPage({
   const { token } = await params;
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
-      <AcceptInvitationCard token={token} />
+      <AuthBrandShell>
+        <AcceptInvitationCard token={token} />
+      </AuthBrandShell>
     </main>
   );
 }

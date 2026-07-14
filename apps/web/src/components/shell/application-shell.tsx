@@ -7,6 +7,7 @@ import { AuthenticatedContextProviders } from "./authenticated-context-providers
 import { Sidebar } from "./sidebar";
 import { TopNavigation } from "./top-navigation";
 import { ResponsiveNavigation } from "./responsive-navigation";
+import { MpaLogo } from "../branding/mpa-logo";
 
 export function ApplicationShell({
   children,
@@ -28,15 +29,23 @@ export function ApplicationShell({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
     >
-      <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)]">
+      <a
+        href="#app-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-3 focus:py-2"
+      >
+        Skip to content
+      </a>
+      <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)]">
         <Sidebar />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-          <div className="flex items-center justify-between px-4 pt-3 lg:hidden">
-            <p className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">M.P.A.</p>
+          <header className="flex h-14 items-center justify-between border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 lg:hidden">
+            <MpaLogo className="h-8 w-auto" alt="M.P.A. logo" />
             <ResponsiveNavigation />
-          </div>
+          </header>
           <TopNavigation />
-          {children}
+          <div id="app-content" className="flex min-h-0 min-w-0 flex-1 flex-col">
+            {children}
+          </div>
         </div>
       </div>
     </AuthenticatedContextProviders>

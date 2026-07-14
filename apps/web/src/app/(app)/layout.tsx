@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { createAuthServerClient } from "../../lib/auth/server";
+import { createAuthServerComponentClient } from "../../lib/auth/server";
 import { ApplicationShell } from "../../components/shell/application-shell";
 import { resolveAuthenticatedShellContext } from "../../lib/auth/get-shell-context";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
-  const supabase = await createAuthServerClient();
+  const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();

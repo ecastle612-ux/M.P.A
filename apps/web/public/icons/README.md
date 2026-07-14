@@ -1,8 +1,13 @@
-# PWA Icons Placeholder
+# M.P.A. Official Icon Set
 
-Add the approved Canopy app icons here:
+These icons are generated from the official logo asset:
 
+- Source: `/public/branding/mpa-logo.png`
+
+Generated files:
+
+- `favicon-16.png`
+- `favicon-32.png`
+- `apple-touch-icon.png`
 - `icon-192.png`
 - `icon-512.png`
-
-These are intentionally placeholders in Phase 2 scaffold.

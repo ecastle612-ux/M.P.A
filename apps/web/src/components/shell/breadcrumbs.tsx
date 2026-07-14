@@ -13,13 +13,18 @@ export function Breadcrumbs({
           return (
             <li key={item.label} className="flex items-center gap-2">
               {item.href && !isLast ? (
-                <Link className="hover:text-[var(--mpa-color-text-primary)]" href={item.href}>
+                <Link
+                  className="rounded-sm px-1 py-0.5 transition-colors hover:text-[var(--mpa-color-text-primary)]"
+                  href={item.href}
+                >
                   {item.label}
                 </Link>
               ) : (
-                <span className={isLast ? "text-[var(--mpa-color-text-primary)]" : ""}>{item.label}</span>
+                <span aria-current={isLast ? "page" : undefined} className={isLast ? "font-medium text-[var(--mpa-color-text-primary)]" : ""}>
+                  {item.label}
+                </span>
               )}
-              {!isLast ? <span aria-hidden>/</span> : null}
+              {!isLast ? <span aria-hidden className="text-[var(--mpa-color-text-muted)]">/</span> : null}
             </li>
           );
         })}

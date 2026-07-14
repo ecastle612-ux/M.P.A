@@ -55,8 +55,8 @@ export function ForgotPasswordForm() {
             onChange={(event) => setEmail(event.target.value)}
           />
         </div>
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
+        {notice ? <p className="text-sm text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}
         <Button className="w-full" disabled={loading} type="submit">
           {loading ? "Sending link..." : "Send reset link"}
         </Button>

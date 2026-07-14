@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, Button } from "@mpa/ui";
+import { MPA_BRAND_NAME } from "../../lib/branding";
 
 export function ProfileMenu() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [displayName, setDisplayName] = useState("M.P.A.");
+  const [displayName, setDisplayName] = useState(MPA_BRAND_NAME);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,12 +24,32 @@ export function ProfileMenu() {
       if (!isMounted) {
         return;
       }
-      setDisplayName(payload.profile?.displayName || "M.P.A.");
+      setDisplayName(payload.profile?.displayName || MPA_BRAND_NAME);
       setAvatarUrl(payload.profile?.avatarUrl || null);
     })();
 
     return () => {
       isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleKeydown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest("[data-profile-menu]")) {
+        setOpen(false);
+      }
+    }
+    window.addEventListener("keydown", handleKeydown);
+    window.addEventListener("mousedown", handlePointerDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener("mousedown", handlePointerDown);
     };
   }, []);
 
@@ -52,19 +73,21 @@ export function ProfileMenu() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" data-profile-menu>
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="rounded-full"
+        aria-controls="profile-menu"
+        className="rounded-full ring-offset-2"
         aria-label="Open profile menu"
       >
         <Avatar src={avatarUrl || undefined} fallback={avatarFallback} />
       </button>
       {open ? (
         <div
+          id="profile-menu"
           role="menu"
           aria-label="Profile menu"
           className="absolute right-0 top-10 z-40 w-56 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-2 shadow-lg"

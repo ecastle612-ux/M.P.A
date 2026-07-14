@@ -10,13 +10,13 @@ export default function DashboardError({
   reset: () => void;
 }) {
   return (
-    <main className="p-6">
+    <main className="mpa-page">
       <Card className="max-w-xl">
         <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
           Something went wrong
         </h2>
         <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          {error.message || "Unknown error in dashboard shell."}
+          {error.message || "Unknown error in dashboard."}
         </p>
         <Button className="mt-4" onClick={reset}>
           Retry

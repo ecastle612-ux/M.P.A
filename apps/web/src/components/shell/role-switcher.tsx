@@ -4,15 +4,20 @@ import { Select } from "@mpa/ui";
 import { isUserRole, toRoleLabel } from "@mpa/shared";
 import { useRoleContext } from "./role-context";
 
-export function RoleSwitcher() {
+export function RoleSwitcher({ compact = false }: { compact?: boolean }) {
   const { availableRoles, activeRole, setActiveRole } = useRoleContext();
 
   return (
-    <label className="inline-flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-      Role
+    <label
+      className={[
+        "inline-flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]",
+        compact ? "w-full" : ""
+      ].join(" ")}
+    >
+      <span className={compact ? "w-24 shrink-0" : ""}>Role</span>
       <Select
         aria-label="Active role"
-        className="w-44"
+        className={compact ? "w-full" : "w-44"}
         value={activeRole}
         onChange={(event) => {
           const nextRole = event.target.value;

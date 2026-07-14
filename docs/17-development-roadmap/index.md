@@ -124,200 +124,193 @@ AI features, accounting, and workflow modules.
 
 ---
 
-## Phase 2: Property Lifecycle Core
+## Phase 4: Core Property Foundation
 
-**Goal:** Property setup workflow complete.
+**Goal:** First production property management operating surface on top of the
+completed identity foundation.  
+**Status:** ✅ Completed (ADR-015 accepted and implemented).
 
 | Deliverable | Workflow Served |
 |-------------|-----------------|
-| Property + unit CRUD | Property Setup |
-| Owner account + property access | Property Setup, Owner Reporting |
-| Document upload (Storage) | Property Setup |
-| Property timeline view | Property Setup |
-| Owner portal shell (view property) | Owner Reporting |
-| Basic property search | All |
+| Production operations dashboard (organization-scoped) | ✅ Operations |
+| Property foundation (create/read/update/archive/soft-delete) | ✅ Property Operations |
+| Unit foundation (create/read/update/archive/soft-delete) | ✅ Property Operations |
+| Property-manager information architecture | ✅ Operations |
+| UX quality baseline for business module surfaces | ✅ All |
+| Property/unit API and security architecture | ✅ Platform Safety |
 
-**Exit criteria:** PM can add property, define units, link owner, upload documents. Owner can view their property.
+**Exit criteria:** Property Manager can sign in, access a professional dashboard,
+manage properties and units, and navigate polished business surfaces with no
+identity/tenant regressions.
 
 **Duration estimate:** 2–3 weeks
 
+**Docs:** [24 Phase 4 Core Property Foundation](../24-phase-4-core-property-foundation/index.md)
+
 ---
 
-## Phase 3: Maintenance + Vendor Marketplace (P0 Pain)
+## Phase 5: Tenant & Lease Foundation
 
-**Goal:** Core maintenance workflow with marketplace foundation.
+**Goal:** Establish tenant and lease as canonical operational contracts after
+property and unit foundations.  
+**Status:** ✅ Approved (ADR-016 accepted).  
+**Gate:** Closed — implementation authorized.
 
 | Deliverable | Workflow Served |
 |-------------|-----------------|
-| Work order creation (PM + tenant) | Maintenance |
-| Work order triage queue | Maintenance |
-| Vendor marketplace profiles | Vendor Marketplace |
-| Vendor onboarding + compliance docs | Vendor Marketplace |
-| Vendor assignment (manual) | Maintenance, Vendor Assignment |
+| Tenant domain model + lifecycle | Tenant Operations |
+| Tenant CRUD surface (list/detail/create/edit/archive) | Tenant Operations |
+| Lease domain model + lifecycle | Leasing |
+| Lease CRUD surface (draft/upcoming/active/expired/terminated) | Leasing |
+| Tenant/lease API + RLS architecture | Platform Safety |
+| Dashboard occupancy and expiration extensions | Operations |
+
+**Dependency rationale:** Properties and units must exist first so leases can be
+anchored to a real inventory model and tenants can be tied to actual occupancy.
+
+**Docs:** [25 Phase 5 Tenant & Lease Foundation](../25-phase-5-tenant-lease-foundation/index.md)
+
+---
+
+## Phase 6: Maintenance Operations Foundation
+
+**Goal:** Introduce maintenance workflow after lease context exists.
+
+| Deliverable | Workflow Served |
+|-------------|-----------------|
+| Work order creation (PM + resident context) | Maintenance |
+| Work order triage and assignment queue | Maintenance |
 | Work order status lifecycle | Maintenance |
-| Vendor portal (job inbox) | Vendor Marketplace |
-| Tenant maintenance request portal | Maintenance |
-| Domain events: work order lifecycle | Maintenance |
-| AI: maintenance prioritization (basic) | Maintenance |
+| Maintenance request intake in resident context | Maintenance |
+| Domain events for maintenance lifecycle | Maintenance |
 
-**Exit criteria:** Tenant submits request → PM triages → assigns vendor → vendor completes → work order closed.
-
-**Duration estimate:** 4–5 weeks
+**Dependency rationale:** Maintenance priorities and accountability depend on
+knowing active tenancy, lease dates, and unit occupancy context from Phase 5.
 
 ---
 
-## Phase 4: Vendor Marketplace Operations
+## Phase 7: Vendor Management Foundation
 
-**Goal:** Marketplace becomes a connected economic system.
+**Goal:** Add vendor operations once maintenance demand and workflows exist.
 
 | Deliverable | Workflow Served |
 |-------------|-----------------|
-| Vendor matching (AI-ranked) | Vendor Assignment |
-| Bid workflow | Vendor Marketplace |
-| Vendor ratings + reputation | Vendor Marketplace |
-| Stripe Connect vendor onboarding | Vendor Marketplace |
-| Vendor invoicing | Vendor Assignment |
-| Vendor payment (Connect payout) | Vendor Marketplace |
-| PM-vendor communication (contextual) | Maintenance, Vendor Marketplace |
-| AI: vendor matching | Vendor Assignment |
+| Vendor profiles and onboarding | Vendor Management |
+| Vendor assignment and dispatch baseline | Maintenance, Vendor Management |
+| Vendor portal job inbox | Vendor Management |
+| Vendor quality and compliance tracking | Vendor Management |
 
-**Exit criteria:** PM posts job → vendors bid → PM selects → vendor completes → invoices → gets paid through platform.
-
-**Duration estimate:** 4–5 weeks
+**Dependency rationale:** Vendor workflows should be driven by real maintenance
+jobs rather than speculative marketplace activity.
 
 ---
 
-## Phase 5: Leasing Pipeline
+## Phase 8: Accounting & Rent Operations Foundation
 
-**Goal:** Vacancy-to-lease workflow.
+**Goal:** Introduce financial operations after lease and vendor obligations are
+defined.
 
 | Deliverable | Workflow Served |
 |-------------|-----------------|
-| Listing creation | Marketing |
-| Application intake | Application |
-| Application pipeline view | Application → Screening |
-| Screening integration (build vs partner TBD) | Tenant Screening |
-| Lease template + generation | Lease Signing |
-| eSignature integration | Lease Signing |
-| Move-in checklist workflow | Move In |
-| AI: lease clause review | Lease Signing |
-| AI: screening risk summary | Tenant Screening |
+| Rent schedules per lease | Accounting, Rent Operations |
+| Charge and payment lifecycle baseline | Accounting, Rent Operations |
+| Ledger foundation (append-only) | Accounting |
+| Payables baseline for vendor work | Accounting |
+| Delinquency visibility and reminders | Accounting, Rent Operations |
 
-**Exit criteria:** PM lists unit → applicant applies → screening → lease signed → move-in completed.
-
-**Duration estimate:** 5–6 weeks
+**Dependency rationale:** Accurate accounting requires validated lease terms,
+tenant occupancy, and vendor job obligations from earlier phases.
 
 ---
 
-## Phase 6: Rent Collection
+## Phase 9: Owner Portal & Reporting Foundation
 
-**Goal:** Recurring financial operations.
+**Goal:** Deliver owner transparency powered by operational and financial truth.
 
 | Deliverable | Workflow Served |
 |-------------|-----------------|
-| Rent schedule per lease | Rent Collection |
-| Stripe payment collection | Rent Collection |
-| Tenant payment portal | Rent Collection |
-| Late detection + reminders | Rent Collection |
-| Delinquency workflow | Rent Collection |
-| Financial ledger (append-only) | Rent Collection, Owner Reporting |
-| AI: communication drafting (rent reminders) | Rent Collection |
-| AI: delinquency risk detection | Rent Collection |
+| Owner reporting model (operational + financial) | Owner Portal |
+| Publish/review workflow for owner updates | Owner Portal |
+| Owner portal dashboards and approvals | Owner Portal |
+| Reporting data mart/materialized views | Owner Portal |
 
-**Exit criteria:** Rent auto-charged → tenant pays → late tenants get reminders → PM sees collection status.
-
-**Duration estimate:** 4–5 weeks
+**Dependency rationale:** Owner visibility depends on stable accounting,
+maintenance, leasing, and occupancy data pipelines.
 
 ---
 
-## Phase 7: Owner Reporting
+## Phase 10: Resident Portal Foundation
 
-**Goal:** Owner communication and transparency.
+**Goal:** Deliver resident self-service once lease, maintenance, and account
+contracts are stable.
 
 | Deliverable | Workflow Served |
 |-------------|-----------------|
-| Report period scheduling | Owner Reporting |
-| Data aggregation (financial + maintenance) | Owner Reporting |
-| AI-generated owner summary drafts | Owner Reporting |
-| PM review + publish workflow | Owner Reporting |
-| Owner portal (reports + approvals) | Owner Reporting |
-| Expense approval flow | Owner Reporting |
-| Materialized views for report data | Owner Reporting |
+| Resident lease visibility surfaces | Resident Portal |
+| Resident maintenance request and tracking | Resident Portal |
+| Resident account/balance visibility | Resident Portal |
+| Resident profile and communication preferences | Resident Portal |
 
-**Exit criteria:** PM generates monthly report → reviews AI draft → publishes → owner views in portal.
-
-**Duration estimate:** 3–4 weeks
+**Dependency rationale:** Resident portal quality depends on upstream domain
+stability to avoid fragmented or contradictory resident experiences.
 
 ---
 
-## Phase 8: Move Out & Turnover
+## Phase 11: AI Operations Foundation
 
-**Goal:** Complete the lifecycle loop.
+**Goal:** Embed AI assistance after core operations generate consistent data.
 
 | Deliverable | Workflow Served |
 |-------------|-----------------|
-| Move-out notice workflow | Move Out |
-| Move-out inspection + comparison | Move Out |
-| Security deposit accounting | Move Out |
-| Unit turn workflow (links to maintenance) | Move Out → Marketing |
-| Re-list trigger | Marketing |
+| Cross-workflow operational copilots | AI Operations |
+| Predictive risk and prioritization models | AI Operations |
+| Recommendation and automation rules | AI Operations |
+| Natural language operations search | AI Operations |
 
-**Exit criteria:** Tenant moves out → inspection → deposit settled → unit turned → re-listed.
-
-**Duration estimate:** 2–3 weeks
-
----
-
-## Phase 9: AI Platform Maturity
-
-**Goal:** Embedded AI across all workflows.
-
-| Deliverable | Workflow Served |
-|-------------|-----------------|
-| Natural language search (⌘K) | All |
-| Knowledge base + embeddings | All |
-| Automation rules engine | All |
-| Predictive maintenance | Maintenance |
-| Advanced recommendations | All |
-| AI feedback analytics | All |
-
-**Duration estimate:** 4–6 weeks (ongoing)
+**Dependency rationale:** AI quality depends on mature structured workflows and
+historical data from prior phases; implementing AI earlier increases noise and
+hallucinated guidance risk.
 
 ---
 
-## Phase 10: PWA + Production Hardening
+## Phase 12: Production Hardening & Launch Readiness
 
-**Goal:** Commercial launch readiness.
+**Goal:** Commercial launch readiness and operational reliability.
 
 | Deliverable | Detail |
 |-------------|--------|
-| PWA manifest + service worker | Desktop install |
+| PWA manifest + service worker hardening | Desktop install + resilience |
 | Performance optimization pass | Meet 15 Performance Standards |
-| Security audit | RLS pen-test |
-| Observability (Sentry, monitoring) | Production alerts |
-| Feature flags | Safe rollout |
-| Staging → production deployment | First paying customers |
+| Security audit | RLS + auth + abuse resistance |
+| Observability and on-call readiness | Production alerts and triage |
+| Feature flags and staged rollout controls | Safe deployment |
+| Staging → production deployment gate | First paying customers |
 
-**Duration estimate:** 3–4 weeks
+**Dependency rationale:** Launch hardening is most effective after full workflow
+surface is present and measurable.
 
 ---
 
 ## Timeline Summary
 
 ```
-Phase 0: Blueprint          ████ (current)
-Phase 1: Foundation         ████████
-Phase 2: Property Core      ██████
-Phase 3: Maintenance        ██████████
-Phase 4: Marketplace Ops    ██████████
-Phase 5: Leasing            ████████████
-Phase 6: Rent Collection    ██████████
-Phase 7: Owner Reporting    ████████
-Phase 8: Move Out           ██████
-Phase 9: AI Maturity        ████████████
-Phase 10: Production        ████████
-                            ──────────────────
-                            ~35-45 weeks to commercial launch
+Phase 0: Blueprint Approved                  ████
+Phase 1.5: Design Language Approved          ███
+Phase 1.6: Experience Architecture Approved  ███
+Phase 1: Foundation Completed                ████████
+Phase 2.1: Hardening Completed               ████
+Phase 3: Identity Completed                  ██████
+Phase 4: Core Property Foundation Completed   ██████
+Phase 5: Tenants + Leases                    ████████
+Phase 6: Maintenance Ops                     ██████████
+Phase 7: Vendor Management                   ████████
+Phase 8: Accounting + Rent Ops               ██████████
+Phase 9: Owner Portal                        ████████
+Phase 10: Resident Portal                    ████████
+Phase 11: AI Operations                      ████████████
+Phase 12: Production Hardening               ████████
+                                              ──────────────────
+                                              ~35-45 weeks to commercial launch
 ```
 
 ---
@@ -326,11 +319,11 @@ Phase 10: Production        ████████
 
 | Decision | Needed By | Options |
 |----------|-----------|---------|
-| Screening provider | Phase 5 | Build vs TransUnion vs RentPrep |
-| eSignature provider | Phase 5 | DocuSign vs PandaDoc vs HelloSign |
-| Listing syndication | Phase 5 | Zillow API vs manual |
-| Accounting integration | Phase 6+ | QuickBooks vs Xero |
-| Monorepo extraction | Phase 10+ | When mobile development begins |
+| Lease signing provider | Phase 5+ | DocuSign vs PandaDoc vs HelloSign |
+| Tenant screening provider | Phase 5+ | Build vs TransUnion vs RentPrep |
+| Vendor payout model | Phase 7/8 | Internal ledger vs external payout rail |
+| Accounting integration strategy | Phase 8+ | Native ledger-first vs QuickBooks/Xero bridge |
+| Monorepo extraction | Phase 12+ | When mobile development begins |
 
 ---
 

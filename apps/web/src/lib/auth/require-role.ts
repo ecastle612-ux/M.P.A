@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { canAccessRole, type UserRole } from "@mpa/shared";
-import { createAuthServerClient } from "./server";
+import { createAuthServerComponentClient } from "./server";
 import { buildAuthorizationContext } from "./session";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../organization/contracts";
 
 export async function requireRole(requiredRole: UserRole | UserRole[]) {
-  const supabase = await createAuthServerClient();
+  const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();

@@ -10,7 +10,23 @@ export const FOUNDATION_CAPABILITIES = [
   "profile:read",
   "profile:update",
   "navigation:access",
-  "authorization:manage"
+  "authorization:manage",
+  "dashboard:read",
+  "property:create",
+  "property:read",
+  "property:update",
+  "property:archive",
+  "property:delete",
+  "unit:create",
+  "unit:read",
+  "unit:update",
+  "unit:archive",
+  "unit:delete",
+  "tenant:create",
+  "tenant:read",
+  "tenant:update",
+  "tenant:archive",
+  "tenant:delete"
 ] as const;
 
 export type PermissionCapability = (typeof FOUNDATION_CAPABILITIES)[number] | `${string}:${string}`;

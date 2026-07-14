@@ -37,8 +37,8 @@ export function AcceptInvitationCard({ token }: { token: string }) {
       <p className="text-sm text-[var(--mpa-color-text-secondary)]">
         Confirm to join this organization and activate your membership context.
       </p>
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-      {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
+      {notice ? <p className="text-sm text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}
       <Button disabled={loading} onClick={acceptInvitation}>
         {loading ? "Accepting..." : "Accept invitation"}
       </Button>

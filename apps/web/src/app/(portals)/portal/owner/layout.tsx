@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { createAuthServerClient } from "../../../../lib/auth/server";
+import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { resolveAuthenticatedShellContext } from "../../../../lib/auth/get-shell-context";
 import { OWNER_PORTAL_NAVIGATION } from "../../../../components/portal/navigation";
 import { RolePortalFrame } from "../../../../components/portal/role-portal-frame";
 
 export default async function OwnerPortalLayout({ children }: { children: ReactNode }) {
-  const supabase = await createAuthServerClient();
+  const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();

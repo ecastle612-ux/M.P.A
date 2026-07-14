@@ -69,7 +69,7 @@ export function LoginForm() {
         {mode === "sign_in" ? "Sign In" : "Create Account"}
       </h1>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        Foundation authentication.
+        Secure access to your property operations platform.
       </p>
       <div className="mt-4 grid grid-cols-2 gap-2">
         <Button
@@ -134,8 +134,8 @@ export function LoginForm() {
             />
           </div>
         ) : null}
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
+        {notice ? <p className="text-sm text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}
         <Button className="w-full" disabled={loading} type="submit">
           {loading
             ? mode === "sign_in"
