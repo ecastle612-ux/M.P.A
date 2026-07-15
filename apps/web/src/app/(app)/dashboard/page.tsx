@@ -32,7 +32,14 @@ export default async function DashboardPage() {
   const organizationName = organizations.find((organization) => organization.id === organizationId)?.name ?? null;
   const permissions = {
     canCreateProperty: evaluatePermission(authorization, "property:create"),
-    canCreateUnit: evaluatePermission(authorization, "unit:create")
+    canCreateUnit: evaluatePermission(authorization, "unit:create"),
+    canCreateTenant: evaluatePermission(authorization, "tenant:create"),
+    canCreateMaintenance: evaluatePermission(authorization, "maintenance:create"),
+    canReadMaintenance: evaluatePermission(authorization, "maintenance:read"),
+    canCreateVendor: evaluatePermission(authorization, "vendor:create"),
+    canReadVendors: evaluatePermission(authorization, "vendor:read"),
+    canCreateLease: evaluatePermission(authorization, "lease:create"),
+    canReadLeases: evaluatePermission(authorization, "lease:read")
   };
 
   return <DashboardShell organizationName={organizationName} snapshot={snapshot} permissions={permissions} />;

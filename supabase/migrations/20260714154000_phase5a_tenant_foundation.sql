@@ -3,16 +3,23 @@
 create table if not exists public.tenants (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations (id) on delete cascade,
+  property_id uuid references public.properties (id) on delete set null,
+  unit_id uuid references public.units (id) on delete set null,
   first_name text not null,
   last_name text not null,
   preferred_name text,
   email text not null,
+  avatar_url text,
   phone text,
   date_of_birth date,
+  move_in_date date,
+  move_out_date date,
+  documents_placeholder text,
   emergency_contact_name text,
   emergency_contact_phone text,
   notes text,
   status text not null default 'active' check (status in ('active', 'inactive', 'archived')),
+  check (move_in_date is null or move_out_date is null or move_out_date >= move_in_date),
   metadata jsonb not null default '{}'::jsonb,
   created_by uuid not null references auth.users (id) on delete cascade,
   updated_by uuid references auth.users (id) on delete set null,
@@ -35,6 +42,18 @@ create index if not exists tenants_org_status_idx
 
 create index if not exists tenants_org_name_idx
   on public.tenants (organization_id, last_name, first_name)
+  where deleted_at is null;
+
+create index if not exists tenants_org_property_idx
+  on public.tenants (organization_id, property_id)
+  where deleted_at is null;
+
+create index if not exists tenants_org_unit_idx
+  on public.tenants (organization_id, unit_id)
+  where deleted_at is null;
+
+create index if not exists tenants_org_move_out_idx
+  on public.tenants (organization_id, move_out_date)
   where deleted_at is null;
 
 drop trigger if exists trg_tenants_updated_at on public.tenants;

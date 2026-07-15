@@ -26,7 +26,24 @@ export const FOUNDATION_CAPABILITIES = [
   "tenant:read",
   "tenant:update",
   "tenant:archive",
-  "tenant:delete"
+  "tenant:delete",
+  "maintenance:create",
+  "maintenance:read",
+  "maintenance:update",
+  "maintenance:assign",
+  "maintenance:archive",
+  "maintenance:delete",
+  "vendor:create",
+  "vendor:read",
+  "vendor:update",
+  "vendor:archive",
+  "vendor:delete",
+  "vendor:assign",
+  "lease:create",
+  "lease:read",
+  "lease:update",
+  "lease:archive",
+  "lease:delete"
 ] as const;
 
 export type PermissionCapability = (typeof FOUNDATION_CAPABILITIES)[number] | `${string}:${string}`;

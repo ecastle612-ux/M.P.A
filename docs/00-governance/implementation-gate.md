@@ -24,7 +24,15 @@ Design  →  Document  →  Approve  →  Implement
 | **Design** | Intentional product/UX/technical design exists | Problem, approach, and constraints are clear |
 | **Document** | Written in the MPA Blueprint (or ADR) | Another senior engineer can execute without tribal knowledge |
 | **Approve** | Explicit stakeholder / gate-owner sign-off | Status moves from Draft/Proposed → Approved/Accepted |
-| **Implement** | Code, migrations, UI, infrastructure | Only against approved docs; PRs cite them |
+| **Implement** | Code, migrations, UI, infrastructure | Only against approved docs; PRs cite them; [PRR checklist](../31-product-requirements/implementation-checklist.md) passed |
+
+### Product Requirements Registry (before Implement)
+
+Before entering **Implement**, verify alignment with the [Product Requirements Registry](../31-product-requirements/index.md):
+
+1. Complete the [Implementation Checklist](../31-product-requirements/implementation-checklist.md).
+2. List satisfied and deferred PRR IDs (MHF, FEH, INT, AUT, AI, MOB) in phase or PR notes.
+3. If proposed work violates a **CRITICAL** must-have (MHF-001–005), stop and recommend an alternative — do not write code.
 
 **Forbidden:** Code-first exploration that becomes the de facto design. Spikes must be disposable and labeled; they do not ship without going through this sequence.
 
@@ -74,6 +82,7 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 2. PRs must reference the approving doc/ADR.
 3. Material deviation from approved design requires a new Design → Document → Approve cycle (or superseding ADR).
 4. Bug fixes that do not change product/architecture behavior may proceed without a new design doc; if a fix implies a new pattern, document it.
+5. Phase or feature closeout requires [Definition of Done](./definition-of-done.md) evidence before marking complete.
 
 ---
 
@@ -104,6 +113,9 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 
 ## Related
 
+- [Product Requirements Registry](../31-product-requirements/index.md)
+- [Implementation Checklist](../31-product-requirements/implementation-checklist.md)
+- [Definition of Done](./definition-of-done.md)
 - [Product Principles](../product-principles/index.md)
 - [06 Design Language](../06-design-language/index.md)
 - [18 Decision Log](../18-decision-log/index.md)

@@ -75,21 +75,34 @@ export function PropertyForm({
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    setNotice(null);
 
-    if (!values.name || !values.addressLine1 || !values.city || !values.stateRegion || !values.postalCode) {
+    if (
+      !values.name.trim() ||
+      !values.addressLine1.trim() ||
+      !values.city.trim() ||
+      !values.stateRegion.trim() ||
+      !values.postalCode.trim()
+    ) {
       setError("Name and address fields are required.");
+      return;
+    }
+    if (values.ownerContactEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.ownerContactEmail.trim())) {
+      setError("Owner contact email must be valid.");
       return;
     }
 
     setSubmitting(true);
     const payload = {
       ...values,
+      name: values.name.trim(),
+      addressLine1: values.addressLine1.trim(),
+      city: values.city.trim(),
+      stateRegion: values.stateRegion.trim(),
+      postalCode: values.postalCode.trim(),
       countryCode: values.countryCode.toUpperCase()
     };
 
@@ -111,9 +124,12 @@ export function PropertyForm({
 
     const success = (await response.json()) as { property?: PropertyRecord };
     const savedId = success.property?.id ?? property?.id;
-    setNotice(mode === "create" ? "Property created." : "Property updated.");
     if (savedId) {
-      router.push(`/properties/${savedId}`);
+      if (mode === "create") {
+        router.push(`/units/new?propertyId=${savedId}&from=property-created`);
+      } else {
+        router.push(`/properties/${savedId}`);
+      }
       router.refresh();
       return;
     }
@@ -129,9 +145,14 @@ export function PropertyForm({
             {mode === "create" ? "Create Property" : "Edit Property"}
           </h1>
           <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-            Configure a normalized property record with location, ownership, and operational status.
+            Configure location and ownership once, then continue directly to unit onboarding.
           </p>
         </div>
+        {mode === "create" ? (
+          <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] px-3 py-2 text-xs text-[var(--mpa-color-text-secondary)]">
+            Workflow: Property -&gt; Unit -&gt; Tenant. After save, unit creation opens with this property preselected.
+          </p>
+        ) : null}
 
         <div className="grid gap-3 md:grid-cols-2">
           <Input
@@ -139,6 +160,7 @@ export function PropertyForm({
             placeholder="Property name"
             value={values.name}
             onChange={(event) => setValues((current) => ({ ...current, name: event.target.value }))}
+            autoFocus={mode === "create"}
             required
           />
           <Input
@@ -255,8 +277,11 @@ export function PropertyForm({
           onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
         />
 
-        {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}
+        {error ? (
+          <p className="text-sm text-[var(--mpa-color-feedback-error)]" role="alert" aria-live="assertive">
+            {error}
+          </p>
+        ) : null}
         <div className="flex flex-wrap gap-2">
           <Button type="submit" disabled={submitting}>
             {submitting ? "Saving..." : mode === "create" ? "Create Property" : "Save Property"}

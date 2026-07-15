@@ -30,6 +30,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 4. Consult **17 Development Roadmap** for sequencing.
 5. Check **18 Decision Log** before proposing architectural changes.
 6. Reference **19** and **20** for long-term platform direction.
+7. Consult **31 Product Requirements Registry** before implementing any phase — verify [Implementation Checklist](./31-product-requirements/implementation-checklist.md).
 
 ---
 
@@ -50,6 +51,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 24 | [Phase 4 Core Property Foundation](./24-phase-4-core-property-foundation/index.md) | Property/unit/dashboard phase design package |
 | 25 | [Phase 5 Tenant & Lease Foundation](./25-phase-5-tenant-lease-foundation/index.md) | Tenant and lease phase planning package |
 | 30 | [Product Experience Initiative (PX-001)](./30-product-experience/01-product-vision.md) | Dashboard experience and design system foundation package |
+| 31 | [Product Requirements Registry (PRR)](./31-product-requirements/index.md) | Permanent registry of agreed product requirements |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -81,6 +83,23 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | Document | Purpose |
 |----------|---------|
 | [Implementation Gate](./00-governance/implementation-gate.md) | Design → Document → Approve → Implement (permanent) |
+| [Product Requirements Registry](./31-product-requirements/index.md) | Must-have features, roadmaps, competitive advantages |
+| [Definition of Done](./00-governance/definition-of-done.md) | Mandatory completion criteria for every phase/feature |
+
+### 31 Product Requirements Registry
+
+| Document | Purpose |
+|----------|---------|
+| [PRR Index](./31-product-requirements/index.md) | Registry overview and ID conventions |
+| [Must-Have Features](./31-product-requirements/must-have-features.md) | Binding requirements (MHF-001–015) |
+| [Future Enhancements](./31-product-requirements/future-enhancements.md) | Approved backlog (FEH-*) |
+| [Integration Roadmap](./31-product-requirements/integration-roadmap.md) | Third-party integration requirements (INT-*) |
+| [Automation Roadmap](./31-product-requirements/automation-roadmap.md) | Workflow automation requirements (AUT-*) |
+| [Communication Platform](./31-product-requirements/communication-platform.md) | MHF-001 resident communication specification |
+| [AI Roadmap](./31-product-requirements/ai-roadmap.md) | Embedded AI capability requirements (AI-*) |
+| [Mobile Roadmap](./31-product-requirements/mobile-roadmap.md) | Mobile and PWA requirements (MOB-*) |
+| [Competitive Advantages](./31-product-requirements/competitive-advantages.md) | Strategic differentiators (CA-001–011) |
+| [Implementation Checklist](./31-product-requirements/implementation-checklist.md) | Pre-implementation gate for agents and engineers |
 
 ### 06 Design Language — Canopy (Phase 1.5)
 
@@ -106,7 +125,9 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | Action | Requirement |
 |--------|-------------|
 | **Any implementation** | Designed → Documented → Approved ([Implementation Gate](./00-governance/implementation-gate.md)) |
-| New feature | Must map to a workflow in **05** and a goal in **02** |
+| **Before every phase** | [Implementation Checklist](./31-product-requirements/implementation-checklist.md) + relevant [PRR](./31-product-requirements/index.md) IDs |
+| **Before marking complete** | [Definition of Done](../00-governance/definition-of-done.md) — all applicable criteria pass |
+| New feature | Must map to a workflow in **05**, a goal in **02**, and a PRR requirement ID in **31** |
 | Schema change | Migration + RLS tests + Decision Log if structural |
 | New dependency | ADR if it affects architecture or bundle size materially |
 | AI capability | Must align with **13** — no standalone chatbot features |
@@ -118,6 +139,6 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Field | Value |
 |-------|-------|
-| Blueprint version | 0.6.0 |
+| Blueprint version | 0.7.0 |
 | Last updated | 2026-07-14 |
 | Phase | 5 Tenant & Lease Foundation (Planning / Proposed) |

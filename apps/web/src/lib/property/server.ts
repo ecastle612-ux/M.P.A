@@ -33,6 +33,9 @@ type PropertyRow = {
 
 export type PropertyListItem = PropertyRecord & {
   unitCount: number;
+  occupiedUnits: number;
+  vacancyUnits: number;
+  tenantCount: number;
 };
 
 type SupabaseClientType = Awaited<ReturnType<typeof createAuthServerComponentClient>>;
@@ -69,10 +72,17 @@ export async function getPropertiesForOrganization(
   }
 
   const propertyRows = (data ?? []) as PropertyRow[];
-  const unitCounts = await getUnitCountsByPropertyId(organizationId, propertyRows.map((row) => row.id), supabase);
+  const operationalCounts = await getOperationalCountsByPropertyId(
+    organizationId,
+    propertyRows.map((row) => row.id),
+    supabase
+  );
   return propertyRows.map((row) => ({
     ...toPropertyRecord(row),
-    unitCount: unitCounts.get(row.id) ?? 0
+    unitCount: operationalCounts.get(row.id)?.unitCount ?? 0,
+    occupiedUnits: operationalCounts.get(row.id)?.occupiedUnits ?? 0,
+    vacancyUnits: operationalCounts.get(row.id)?.vacancyUnits ?? 0,
+    tenantCount: operationalCounts.get(row.id)?.tenantCount ?? 0
   }));
 }
 
@@ -282,31 +292,87 @@ export async function softDeleteProperty(
   return data ? toPropertyRecord(data as PropertyRow) : null;
 }
 
-async function getUnitCountsByPropertyId(
+async function getOperationalCountsByPropertyId(
   organizationId: string,
   propertyIds: string[],
   client?: SupabaseClientType
-): Promise<Map<string, number>> {
+): Promise<
+  Map<
+    string,
+    {
+      unitCount: number;
+      occupiedUnits: number;
+      vacancyUnits: number;
+      tenantCount: number;
+    }
+  >
+> {
   if (propertyIds.length === 0) {
     return new Map();
   }
 
   const supabase = await resolveClient(client);
-  const { data, error } = await supabase
-    .from("units")
-    .select("property_id")
-    .eq("organization_id", organizationId)
-    .in("property_id", propertyIds)
-    .is("deleted_at", null);
+  const [{ data: units, error: unitsError }, { data: tenants, error: tenantsError }] = await Promise.all([
+    supabase
+      .from("units")
+      .select("property_id, occupancy_status, status")
+      .eq("organization_id", organizationId)
+      .in("property_id", propertyIds)
+      .is("deleted_at", null),
+    supabase
+      .from("tenants")
+      .select("property_id, status")
+      .eq("organization_id", organizationId)
+      .in("property_id", propertyIds)
+      .is("deleted_at", null)
+  ]);
 
-  if (error) {
-    throw new Error(error.message);
+  if (unitsError) {
+    throw new Error(unitsError.message);
+  }
+  if (tenantsError) {
+    throw new Error(tenantsError.message);
   }
 
-  const counts = new Map<string, number>();
-  ((data ?? []) as Array<{ property_id: string }>).forEach((row) => {
-    counts.set(row.property_id, (counts.get(row.property_id) ?? 0) + 1);
+  const counts = new Map<
+    string,
+    {
+      unitCount: number;
+      occupiedUnits: number;
+      vacancyUnits: number;
+      tenantCount: number;
+    }
+  >();
+  ((units ?? []) as Array<{ property_id: string; occupancy_status: string; status: string }>).forEach((row) => {
+    const existing = counts.get(row.property_id) ?? {
+      unitCount: 0,
+      occupiedUnits: 0,
+      vacancyUnits: 0,
+      tenantCount: 0
+    };
+    existing.unitCount += 1;
+    if (row.status === "active" && row.occupancy_status === "occupied") {
+      existing.occupiedUnits += 1;
+    }
+    if (row.status === "active" && ["vacant_ready", "vacant_not_ready"].includes(row.occupancy_status)) {
+      existing.vacancyUnits += 1;
+    }
+    counts.set(row.property_id, existing);
   });
+
+  ((tenants ?? []) as Array<{ property_id: string | null; status: string }>).forEach((row) => {
+    if (!row.property_id) return;
+    if (row.status === "archived") return;
+    const existing = counts.get(row.property_id) ?? {
+      unitCount: 0,
+      occupiedUnits: 0,
+      vacancyUnits: 0,
+      tenantCount: 0
+    };
+    existing.tenantCount += 1;
+    counts.set(row.property_id, existing);
+  });
+
   return counts;
 }
 

@@ -139,6 +139,267 @@ export type Database = {
           }
         ];
       };
+      maintenance_activity_events: {
+        Row: {
+          actor_user_id: string | null;
+          created_at: string;
+          details: Json;
+          event_type: string;
+          id: string;
+          organization_id: string;
+          summary: string;
+          work_order_id: string;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          details?: Json;
+          event_type: string;
+          id?: string;
+          organization_id: string;
+          summary: string;
+          work_order_id: string;
+        };
+        Update: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          details?: Json;
+          event_type?: string;
+          id?: string;
+          organization_id?: string;
+          summary?: string;
+          work_order_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_activity_events_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_activity_work_order_fk";
+            columns: ["work_order_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_work_orders";
+            referencedColumns: ["id", "organization_id"];
+          }
+        ];
+      };
+      maintenance_work_orders: {
+        Row: {
+          archived_at: string | null;
+          archived_by: string | null;
+          assigned_to_user_id: string | null;
+          category: string;
+          completed_at: string | null;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          description: string | null;
+          document_placeholder: string | null;
+          due_date: string | null;
+          current_vendor_assignment_id: string | null;
+          id: string;
+          internal_notes: string | null;
+          metadata: Json;
+          organization_id: string;
+          photo_placeholder: string | null;
+          preventive_maintenance_placeholder: string | null;
+          priority: string;
+          property_id: string;
+          recurring_maintenance_placeholder: string | null;
+          status: string;
+          tenant_id: string | null;
+          tenant_notes: string | null;
+          title: string;
+          unit_id: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          vendor_id: string | null;
+          work_order_number: string;
+        };
+        Insert: {
+          archived_at?: string | null;
+          archived_by?: string | null;
+          assigned_to_user_id?: string | null;
+          category?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          description?: string | null;
+          document_placeholder?: string | null;
+          due_date?: string | null;
+          current_vendor_assignment_id?: string | null;
+          id?: string;
+          internal_notes?: string | null;
+          metadata?: Json;
+          organization_id: string;
+          photo_placeholder?: string | null;
+          preventive_maintenance_placeholder?: string | null;
+          priority?: string;
+          property_id: string;
+          recurring_maintenance_placeholder?: string | null;
+          status?: string;
+          tenant_id?: string | null;
+          tenant_notes?: string | null;
+          title: string;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          vendor_id?: string | null;
+          work_order_number: string;
+        };
+        Update: {
+          archived_at?: string | null;
+          archived_by?: string | null;
+          assigned_to_user_id?: string | null;
+          category?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          description?: string | null;
+          document_placeholder?: string | null;
+          due_date?: string | null;
+          current_vendor_assignment_id?: string | null;
+          id?: string;
+          internal_notes?: string | null;
+          metadata?: Json;
+          organization_id?: string;
+          photo_placeholder?: string | null;
+          preventive_maintenance_placeholder?: string | null;
+          priority?: string;
+          property_id?: string;
+          recurring_maintenance_placeholder?: string | null;
+          status?: string;
+          tenant_id?: string | null;
+          tenant_notes?: string | null;
+          title?: string;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          vendor_id?: string | null;
+          work_order_number?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_work_orders_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_work_orders_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_work_orders_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_work_orders_unit_id_fkey";
+            columns: ["unit_id"];
+            isOneToOne: false;
+            referencedRelation: "units";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      maintenance_vendor_assignments: {
+        Row: {
+          accepted_at: string | null;
+          arrived_at: string | null;
+          assigned_at: string;
+          assignment_status: string;
+          cancellation_reason: string | null;
+          cancelled_at: string | null;
+          completed_at: string | null;
+          completion_notes: string | null;
+          created_at: string;
+          created_by: string;
+          id: string;
+          is_current: boolean;
+          organization_id: string;
+          updated_at: string;
+          updated_by: string | null;
+          vendor_id: string;
+          work_order_id: string;
+        };
+        Insert: {
+          accepted_at?: string | null;
+          arrived_at?: string | null;
+          assigned_at?: string;
+          assignment_status?: string;
+          cancellation_reason?: string | null;
+          cancelled_at?: string | null;
+          completed_at?: string | null;
+          completion_notes?: string | null;
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          is_current?: boolean;
+          organization_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          vendor_id: string;
+          work_order_id: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          arrived_at?: string | null;
+          assigned_at?: string;
+          assignment_status?: string;
+          cancellation_reason?: string | null;
+          cancelled_at?: string | null;
+          completed_at?: string | null;
+          completion_notes?: string | null;
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          is_current?: boolean;
+          organization_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          vendor_id?: string;
+          work_order_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_vendor_assignments_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_vendor_assignments_vendor_fk";
+            columns: ["vendor_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "vendors";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "maintenance_vendor_assignments_work_order_fk";
+            columns: ["work_order_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_work_orders";
+            referencedColumns: ["id", "organization_id"];
+          }
+        ];
+      };
       organizations: {
         Row: {
           created_at: string;
@@ -381,11 +642,13 @@ export type Database = {
         Row: {
           archived_at: string | null;
           archived_by: string | null;
+          avatar_url: string | null;
           created_at: string;
           created_by: string;
           date_of_birth: string | null;
           deleted_at: string | null;
           deleted_by: string | null;
+          documents_placeholder: string | null;
           email: string;
           emergency_contact_name: string | null;
           emergency_contact_phone: string | null;
@@ -393,22 +656,28 @@ export type Database = {
           id: string;
           last_name: string;
           metadata: Json;
+          move_in_date: string | null;
+          move_out_date: string | null;
           notes: string | null;
           organization_id: string;
           phone: string | null;
+          property_id: string | null;
           preferred_name: string | null;
           status: "active" | "archived" | "inactive";
+          unit_id: string | null;
           updated_at: string;
           updated_by: string | null;
         };
         Insert: {
           archived_at?: string | null;
           archived_by?: string | null;
+          avatar_url?: string | null;
           created_at?: string;
           created_by: string;
           date_of_birth?: string | null;
           deleted_at?: string | null;
           deleted_by?: string | null;
+          documents_placeholder?: string | null;
           email: string;
           emergency_contact_name?: string | null;
           emergency_contact_phone?: string | null;
@@ -416,22 +685,28 @@ export type Database = {
           id?: string;
           last_name: string;
           metadata?: Json;
+          move_in_date?: string | null;
+          move_out_date?: string | null;
           notes?: string | null;
           organization_id: string;
           phone?: string | null;
+          property_id?: string | null;
           preferred_name?: string | null;
           status?: "active" | "archived" | "inactive";
+          unit_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
         };
         Update: {
           archived_at?: string | null;
           archived_by?: string | null;
+          avatar_url?: string | null;
           created_at?: string;
           created_by?: string;
           date_of_birth?: string | null;
           deleted_at?: string | null;
           deleted_by?: string | null;
+          documents_placeholder?: string | null;
           email?: string;
           emergency_contact_name?: string | null;
           emergency_contact_phone?: string | null;
@@ -439,20 +714,505 @@ export type Database = {
           id?: string;
           last_name?: string;
           metadata?: Json;
+          move_in_date?: string | null;
+          move_out_date?: string | null;
           notes?: string | null;
           organization_id?: string;
           phone?: string | null;
+          property_id?: string | null;
           preferred_name?: string | null;
           status?: "active" | "archived" | "inactive";
+          unit_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
         };
         Relationships: [
           {
+            foreignKeyName: "tenants_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "tenants_organization_id_fkey";
             columns: ["organization_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tenants_unit_id_fkey";
+            columns: ["unit_id"];
+            isOneToOne: false;
+            referencedRelation: "units";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      vendor_contacts: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          email: string | null;
+          id: string;
+          is_primary: boolean;
+          name: string;
+          notes: string | null;
+          organization_id: string;
+          phone: string | null;
+          role_title: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          vendor_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          email?: string | null;
+          id?: string;
+          is_primary?: boolean;
+          name: string;
+          notes?: string | null;
+          organization_id: string;
+          phone?: string | null;
+          role_title?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          vendor_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          email?: string | null;
+          id?: string;
+          is_primary?: boolean;
+          name?: string;
+          notes?: string | null;
+          organization_id?: string;
+          phone?: string | null;
+          role_title?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "vendor_contacts_vendor_fk";
+            columns: ["vendor_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "vendors";
+            referencedColumns: ["id", "organization_id"];
+          }
+        ];
+      };
+      vendor_service_areas: {
+        Row: {
+          city: string | null;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          id: string;
+          label: string;
+          notes: string | null;
+          organization_id: string;
+          postal_code: string | null;
+          state_region: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          vendor_id: string;
+        };
+        Insert: {
+          city?: string | null;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          id?: string;
+          label: string;
+          notes?: string | null;
+          organization_id: string;
+          postal_code?: string | null;
+          state_region?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          vendor_id: string;
+        };
+        Update: {
+          city?: string | null;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          id?: string;
+          label?: string;
+          notes?: string | null;
+          organization_id?: string;
+          postal_code?: string | null;
+          state_region?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "vendor_service_areas_vendor_fk";
+            columns: ["vendor_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "vendors";
+            referencedColumns: ["id", "organization_id"];
+          }
+        ];
+      };
+      vendors: {
+        Row: {
+          address_line_1: string | null;
+          address_line_2: string | null;
+          after_hours_availability: string | null;
+          archived_at: string | null;
+          archived_by: string | null;
+          business_name: string;
+          city: string | null;
+          country_code: string;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          email: string | null;
+          emergency_availability: string | null;
+          id: string;
+          insurance_expiration: string | null;
+          internal_notes: string | null;
+          license_number: string | null;
+          metadata: Json;
+          organization_id: string;
+          phone: string | null;
+          postal_code: string | null;
+          preferred_vendor: boolean;
+          primary_contact_name: string | null;
+          rating: number | null;
+          services: string[];
+          state_region: string | null;
+          status: string;
+          tax_id_placeholder: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          website: string | null;
+        };
+        Insert: {
+          address_line_1?: string | null;
+          address_line_2?: string | null;
+          after_hours_availability?: string | null;
+          archived_at?: string | null;
+          archived_by?: string | null;
+          business_name: string;
+          city?: string | null;
+          country_code?: string;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          email?: string | null;
+          emergency_availability?: string | null;
+          id?: string;
+          insurance_expiration?: string | null;
+          internal_notes?: string | null;
+          license_number?: string | null;
+          metadata?: Json;
+          organization_id: string;
+          phone?: string | null;
+          postal_code?: string | null;
+          preferred_vendor?: boolean;
+          primary_contact_name?: string | null;
+          rating?: number | null;
+          services?: string[];
+          state_region?: string | null;
+          status?: string;
+          tax_id_placeholder?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          website?: string | null;
+        };
+        Update: {
+          address_line_1?: string | null;
+          address_line_2?: string | null;
+          after_hours_availability?: string | null;
+          archived_at?: string | null;
+          archived_by?: string | null;
+          business_name?: string;
+          city?: string | null;
+          country_code?: string;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          email?: string | null;
+          emergency_availability?: string | null;
+          id?: string;
+          insurance_expiration?: string | null;
+          internal_notes?: string | null;
+          license_number?: string | null;
+          metadata?: Json;
+          organization_id?: string;
+          phone?: string | null;
+          postal_code?: string | null;
+          preferred_vendor?: boolean;
+          primary_contact_name?: string | null;
+          rating?: number | null;
+          services?: string[];
+          state_region?: string | null;
+          status?: string;
+          tax_id_placeholder?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          website?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "vendors_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      leases: {
+        Row: {
+          activated_at: string | null;
+          archived_at: string | null;
+          archived_by: string | null;
+          co_tenant_placeholder: string | null;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          end_date: string;
+          expired_at: string | null;
+          id: string;
+          internal_notes: string | null;
+          late_fee_placeholder: string | null;
+          lease_number: string;
+          lease_type: string;
+          metadata: Json;
+          move_in_date: string | null;
+          move_out_date: string | null;
+          notice_period_days: number | null;
+          organization_id: string;
+          primary_tenant_id: string;
+          property_id: string;
+          renewal_option: boolean;
+          renewal_status: string;
+          rent_amount: number;
+          security_deposit: number;
+          signed_at: string | null;
+          start_date: string;
+          status: string;
+          terminated_at: string | null;
+          unit_id: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          activated_at?: string | null;
+          archived_at?: string | null;
+          archived_by?: string | null;
+          co_tenant_placeholder?: string | null;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          end_date: string;
+          expired_at?: string | null;
+          id?: string;
+          internal_notes?: string | null;
+          late_fee_placeholder?: string | null;
+          lease_number: string;
+          lease_type?: string;
+          metadata?: Json;
+          move_in_date?: string | null;
+          move_out_date?: string | null;
+          notice_period_days?: number | null;
+          organization_id: string;
+          primary_tenant_id: string;
+          property_id: string;
+          renewal_option?: boolean;
+          renewal_status?: string;
+          rent_amount: number;
+          security_deposit?: number;
+          signed_at?: string | null;
+          start_date: string;
+          status?: string;
+          terminated_at?: string | null;
+          unit_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          activated_at?: string | null;
+          archived_at?: string | null;
+          archived_by?: string | null;
+          co_tenant_placeholder?: string | null;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          end_date?: string;
+          expired_at?: string | null;
+          id?: string;
+          internal_notes?: string | null;
+          late_fee_placeholder?: string | null;
+          lease_number?: string;
+          lease_type?: string;
+          metadata?: Json;
+          move_in_date?: string | null;
+          move_out_date?: string | null;
+          notice_period_days?: number | null;
+          organization_id?: string;
+          primary_tenant_id?: string;
+          property_id?: string;
+          renewal_option?: boolean;
+          renewal_status?: string;
+          rent_amount?: number;
+          security_deposit?: number;
+          signed_at?: string | null;
+          start_date?: string;
+          status?: string;
+          terminated_at?: string | null;
+          unit_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "leases_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leases_unit_id_fkey";
+            columns: ["unit_id"];
+            isOneToOne: false;
+            referencedRelation: "units";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leases_primary_tenant_id_fkey";
+            columns: ["primary_tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      lease_documents: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          document_type: string;
+          file_url_placeholder: string | null;
+          id: string;
+          lease_id: string;
+          metadata: Json;
+          notes: string | null;
+          ocr_ready: boolean;
+          organization_id: string;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          document_type: string;
+          file_url_placeholder?: string | null;
+          id?: string;
+          lease_id: string;
+          metadata?: Json;
+          notes?: string | null;
+          ocr_ready?: boolean;
+          organization_id: string;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          document_type?: string;
+          file_url_placeholder?: string | null;
+          id?: string;
+          lease_id?: string;
+          metadata?: Json;
+          notes?: string | null;
+          ocr_ready?: boolean;
+          organization_id?: string;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lease_documents_lease_id_fkey";
+            columns: ["lease_id"];
+            isOneToOne: false;
+            referencedRelation: "leases";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      lease_events: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          event_type: string;
+          id: string;
+          lease_id: string;
+          organization_id: string;
+          payload: Json;
+          summary: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          event_type: string;
+          id?: string;
+          lease_id: string;
+          organization_id: string;
+          payload?: Json;
+          summary: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          event_type?: string;
+          id?: string;
+          lease_id?: string;
+          organization_id?: string;
+          payload?: Json;
+          summary?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lease_events_lease_id_fkey";
+            columns: ["lease_id"];
+            isOneToOne: false;
+            referencedRelation: "leases";
             referencedColumns: ["id"];
           }
         ];

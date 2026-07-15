@@ -2,11 +2,29 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Badge, Button, Card, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@mpa/ui";
+import {
+  Badge,
+  Button,
+  Card,
+  Input,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow
+} from "@mpa/ui";
 import { toPropertyStatusLabel, toPropertyTypeLabel, type PropertyRecord } from "../../lib/property/contracts";
 import { MpaLogo } from "../branding/mpa-logo";
 
-type PropertyListItem = PropertyRecord & { unitCount: number };
+type PropertyListItem = PropertyRecord & {
+  unitCount: number;
+  occupiedUnits: number;
+  vacancyUnits: number;
+  tenantCount: number;
+};
+const PAGE_SIZE = 10;
 
 export function PropertiesTable({
   initialItems,
@@ -21,10 +39,34 @@ export function PropertiesTable({
   };
 }) {
   const [items, setItems] = useState(initialItems);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | PropertyRecord["status"]>("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | PropertyRecord["propertyType"]>("all");
+  const [page, setPage] = useState(1);
   const [submittingAction, setSubmittingAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const visibleItems = useMemo(() => items.filter((item) => item.deletedAt === null), [items]);
+  const filteredItems = useMemo(() => {
+    const trimmed = query.trim().toLowerCase();
+    return visibleItems.filter((item) => {
+      if (statusFilter !== "all" && item.status !== statusFilter) return false;
+      if (typeFilter !== "all" && item.propertyType !== typeFilter) return false;
+      if (!trimmed) return true;
+      return (
+        item.name.toLowerCase().includes(trimmed) ||
+        item.city.toLowerCase().includes(trimmed) ||
+        item.stateRegion.toLowerCase().includes(trimmed) ||
+        (item.code ?? "").toLowerCase().includes(trimmed)
+      );
+    });
+  }, [visibleItems, query, statusFilter, typeFilter]);
+  const pageCount = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pagedItems = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredItems.slice(start, start + PAGE_SIZE);
+  }, [filteredItems, currentPage]);
 
   async function runAction(propertyId: string, action: "archive" | "restore" | "soft_delete") {
     setError(null);
@@ -78,7 +120,54 @@ export function PropertiesTable({
           </Link>
         ) : null}
       </div>
+      <div className="grid gap-2 lg:grid-cols-[2fr_1fr_1fr]">
+        <Input
+          aria-label="Search properties"
+          placeholder="Search by name, code, city, state"
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setPage(1);
+          }}
+        />
+        <Select
+          aria-label="Filter property status"
+          value={statusFilter}
+          onChange={(event) => {
+            setStatusFilter(event.target.value as "all" | PropertyRecord["status"]);
+            setPage(1);
+          }}
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="draft">Draft</option>
+          <option value="inactive">Inactive</option>
+          <option value="archived">Archived</option>
+        </Select>
+        <Select
+          aria-label="Filter property type"
+          value={typeFilter}
+          onChange={(event) => {
+            setTypeFilter(event.target.value as "all" | PropertyRecord["propertyType"]);
+            setPage(1);
+          }}
+        >
+          <option value="all">All types</option>
+          <option value="residential">Residential</option>
+          <option value="commercial">Commercial</option>
+          <option value="apartment">Apartment</option>
+          <option value="condo">Condo</option>
+          <option value="hoa">HOA</option>
+          <option value="townhome">Townhome</option>
+          <option value="multi_family">Multi-family</option>
+        </Select>
+      </div>
       {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
+      {filteredItems.length === 0 ? (
+        <p className="rounded-md border border-dashed border-[var(--mpa-color-border-default)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">
+          No properties match your filters. Adjust search or filters to continue.
+        </p>
+      ) : null}
       <div className="overflow-x-auto">
         <Table>
           <TableHead>
@@ -87,12 +176,13 @@ export function PropertiesTable({
               <TableHeaderCell>Type</TableHeaderCell>
               <TableHeaderCell>Status</TableHeaderCell>
               <TableHeaderCell>Units</TableHeaderCell>
-              <TableHeaderCell>Updated</TableHeaderCell>
+              <TableHeaderCell>Occupancy</TableHeaderCell>
+              <TableHeaderCell>Tenants</TableHeaderCell>
               <TableHeaderCell className="text-right">Actions</TableHeaderCell>
             </tr>
           </TableHead>
           <TableBody>
-            {visibleItems.map((item) => {
+            {pagedItems.map((item) => {
               const busyArchive =
                 submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
               const busyDelete = submittingAction === `${item.id}:soft_delete`;
@@ -112,7 +202,11 @@ export function PropertiesTable({
                     </Badge>
                   </TableCell>
                   <TableCell>{item.unitCount}</TableCell>
-                  <TableCell>{formatDate(item.updatedAt)}</TableCell>
+                  <TableCell>
+                    {item.occupiedUnits}/{item.unitCount || 0} occupied
+                    <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.vacancyUnits} vacancies</p>
+                  </TableCell>
+                  <TableCell>{item.tenantCount}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex flex-wrap justify-end gap-2">
                       <Link href={`/properties/${item.id}`}>
@@ -155,12 +249,36 @@ export function PropertiesTable({
           </TableBody>
         </Table>
       </div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+          {filteredItems.length === 0
+            ? "Showing 0 of 0"
+            : `Showing ${(currentPage - 1) * PAGE_SIZE + 1}-${Math.min(currentPage * PAGE_SIZE, filteredItems.length)} of ${filteredItems.length}`}
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={currentPage <= 1}
+            onClick={() => setPage((value) => Math.max(1, value - 1))}
+          >
+            Previous
+          </Button>
+          <span className="text-xs text-[var(--mpa-color-text-secondary)]">
+            Page {currentPage} of {pageCount}
+          </span>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={currentPage >= pageCount}
+            onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
     </Card>
   );
-}
-
-function formatDate(value: string): string {
-  const timestamp = Date.parse(value);
-  if (Number.isNaN(timestamp)) return "recently";
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(timestamp);
 }

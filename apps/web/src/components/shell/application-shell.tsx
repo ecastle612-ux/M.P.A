@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { UserRole } from "@mpa/shared";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
 import { AuthenticatedContextProviders } from "./authenticated-context-providers";
+import { CommandCenterTracker } from "./command-center-tracker";
 import { Sidebar } from "./sidebar";
 import { TopNavigation } from "./top-navigation";
 import { ResponsiveNavigation } from "./responsive-navigation";
@@ -35,6 +36,7 @@ export function ApplicationShell({
       >
         Skip to content
       </a>
+      <CommandCenterTracker />
       <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)]">
         <Sidebar />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">

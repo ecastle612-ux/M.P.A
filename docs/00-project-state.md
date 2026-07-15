@@ -8,6 +8,7 @@
 - Pending Phases: Phase 6 through Phase 12
 - Database Migration Version: `20260714103000_phase4_core_property_foundation.sql` (latest in repository)
 - Latest ADR: ADR-016 (`Accepted`)
+- Product Requirements Registry: `docs/31-product-requirements/` (permanent governance — consult before every phase)
 - Latest Verification Date: 2026-07-14
 - Known Risks:
   - Next.js middleware convention warning persists (`middleware` -> `proxy` migration pending)

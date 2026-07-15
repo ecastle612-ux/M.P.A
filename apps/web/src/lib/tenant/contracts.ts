@@ -5,12 +5,18 @@ export type TenantStatus = (typeof TENANT_STATUSES)[number];
 export type TenantRecord = {
   id: string;
   organizationId: string;
+  propertyId: string | null;
+  unitId: string | null;
   firstName: string;
   lastName: string;
   preferredName: string | null;
   email: string;
+  avatarUrl: string | null;
   phone: string | null;
   dateOfBirth: string | null;
+  moveInDate: string | null;
+  moveOutDate: string | null;
+  documentsPlaceholder: string | null;
   emergencyContactName: string | null;
   emergencyContactPhone: string | null;
   notes: string | null;
@@ -49,13 +55,30 @@ export function parseCreateTenantInput(payload: unknown): CreateTenantInput | nu
     return null;
   }
 
+  const propertyId = readUuid(value["propertyId"]);
+  const unitId = readUuid(value["unitId"]);
+  const moveInDate = readDate(value["moveInDate"]);
+  const moveOutDate = readDate(value["moveOutDate"]);
+  if (moveInDate && moveOutDate && moveOutDate < moveInDate) {
+    return null;
+  }
+  if (unitId && !propertyId) {
+    return null;
+  }
+
   return {
+    propertyId,
+    unitId,
     firstName,
     lastName,
     preferredName: readString(value["preferredName"], 0, 120),
     email,
+    avatarUrl: readUrl(value["avatarUrl"]),
     phone: readString(value["phone"], 0, 40),
     dateOfBirth: readDate(value["dateOfBirth"]),
+    moveInDate,
+    moveOutDate,
+    documentsPlaceholder: readString(value["documentsPlaceholder"], 0, 2000),
     emergencyContactName: readString(value["emergencyContactName"], 0, 160),
     emergencyContactPhone: readString(value["emergencyContactPhone"], 0, 40),
     notes: readString(value["notes"], 0, 4000),
@@ -93,6 +116,20 @@ export function toTenantStatusLabel(status: TenantStatus): string {
 function parseUpdateTenantInput(value: Record<string, unknown>): UpdateTenantInput | null {
   const updates: UpdateTenantInput = {};
 
+  if (value["propertyId"] === null) {
+    updates.propertyId = null;
+  } else {
+    const propertyId = readUuid(value["propertyId"]);
+    if (propertyId !== null) updates.propertyId = propertyId;
+  }
+
+  if (value["unitId"] === null) {
+    updates.unitId = null;
+  } else {
+    const unitId = readUuid(value["unitId"]);
+    if (unitId !== null) updates.unitId = unitId;
+  }
+
   const firstName = readString(value["firstName"], 1, 120);
   if (firstName !== null) updates.firstName = firstName;
 
@@ -105,11 +142,23 @@ function parseUpdateTenantInput(value: Record<string, unknown>): UpdateTenantInp
   const email = readEmail(value["email"]);
   if (email !== null) updates.email = email;
 
+  const avatarUrl = readUrl(value["avatarUrl"]);
+  if (avatarUrl !== null) updates.avatarUrl = avatarUrl;
+
   const phone = readString(value["phone"], 0, 40);
   if (phone !== null) updates.phone = phone;
 
   const dateOfBirth = readDate(value["dateOfBirth"]);
   if (dateOfBirth !== null) updates.dateOfBirth = dateOfBirth;
+
+  const moveInDate = readDate(value["moveInDate"]);
+  if (moveInDate !== null) updates.moveInDate = moveInDate;
+
+  const moveOutDate = readDate(value["moveOutDate"]);
+  if (moveOutDate !== null) updates.moveOutDate = moveOutDate;
+
+  const documentsPlaceholder = readString(value["documentsPlaceholder"], 0, 2000);
+  if (documentsPlaceholder !== null) updates.documentsPlaceholder = documentsPlaceholder;
 
   const emergencyContactName = readString(value["emergencyContactName"], 0, 160);
   if (emergencyContactName !== null) updates.emergencyContactName = emergencyContactName;
@@ -124,6 +173,16 @@ function parseUpdateTenantInput(value: Record<string, unknown>): UpdateTenantInp
 
   if (value["metadata"] !== undefined) {
     updates.metadata = readJsonObject(value["metadata"]);
+  }
+
+  const nextMoveInDate = updates.moveInDate ?? null;
+  const nextMoveOutDate = updates.moveOutDate ?? null;
+  if (nextMoveInDate && nextMoveOutDate && nextMoveOutDate < nextMoveInDate) {
+    return null;
+  }
+
+  if (updates.unitId && updates.propertyId === null) {
+    return null;
   }
 
   return Object.keys(updates).length > 0 ? updates : null;
@@ -150,6 +209,25 @@ function readDate(value: unknown): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
   return /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? trimmed : null;
+}
+
+function readUrl(value: unknown): string | null {
+  const candidate = readString(value, 0, 400);
+  if (candidate === null) return null;
+  try {
+    const parsed = new URL(candidate);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function readUuid(value: unknown): string | null {
+  if (value === undefined || value === null) return null;
+  if (typeof value !== "string") return null;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+    ? value
+    : null;
 }
 
 function readJsonObject(value: unknown): Record<string, unknown> {

@@ -11,9 +11,9 @@ import { getPropertiesForOrganization } from "../../../../lib/property/server";
 export default async function NewUnitPage({
   searchParams
 }: {
-  searchParams: Promise<{ propertyId?: string }>;
+  searchParams: Promise<{ propertyId?: string; from?: string }>;
 }) {
-  const { propertyId } = await searchParams;
+  const { propertyId, from } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -67,6 +67,13 @@ export default async function NewUnitPage({
           { label: "Create" }
         ]}
       />
+      {from === "property-created" ? (
+        <Card className="border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-bg-surface-muted)]">
+          <p className="text-sm text-[var(--mpa-color-text-primary)]">
+            Property saved. Continue the workflow by adding your first unit.
+          </p>
+        </Card>
+      ) : null}
       <UnitForm mode="create" properties={propertyOptions} initialPropertyId={propertyId ?? null} />
     </main>
   );

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseTenantMutationInput } from "./contracts";
+import { parseCreateTenantInput, parseTenantMutationInput } from "./contracts";
 
 describe("parseTenantMutationInput metadata behavior", () => {
   it("keeps metadata unchanged when metadata is omitted", () => {
@@ -46,5 +46,30 @@ describe("parseTenantMutationInput metadata behavior", () => {
     }
 
     expect(mutation.updates.metadata).toEqual({});
+  });
+});
+
+describe("tenant date and assignment validation", () => {
+  it("rejects create payload when move-out date is before move-in date", () => {
+    const parsed = parseCreateTenantInput({
+      firstName: "Jordan",
+      lastName: "Rivera",
+      email: "jordan.rivera@example.com",
+      moveInDate: "2026-08-10",
+      moveOutDate: "2026-08-01"
+    });
+
+    expect(parsed).toBeNull();
+  });
+
+  it("rejects create payload when unit is set without property", () => {
+    const parsed = parseCreateTenantInput({
+      firstName: "Jordan",
+      lastName: "Rivera",
+      email: "jordan.rivera@example.com",
+      unitId: "550e8400-e29b-41d4-a716-446655440000"
+    });
+
+    expect(parsed).toBeNull();
   });
 });

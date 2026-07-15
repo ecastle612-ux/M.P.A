@@ -88,11 +88,26 @@ export function UnitForm({
       setError("Property and unit number are required.");
       return;
     }
+    const numericFields = [
+      ["Bedrooms", values.bedrooms],
+      ["Bathrooms", values.bathrooms],
+      ["Square feet", values.squareFeet],
+      ["Rent amount", values.rentAmount],
+      ["Deposit amount", values.depositAmount]
+    ] as const;
+    for (const [label, value] of numericFields) {
+      if (!value.trim()) continue;
+      const parsed = Number.parseFloat(value);
+      if (!Number.isFinite(parsed) || parsed < 0) {
+        setError(`${label} must be zero or greater.`);
+        return;
+      }
+    }
 
     setSubmitting(true);
     const payload = {
       propertyId: values.propertyId,
-      unitNumber: values.unitNumber,
+      unitNumber: values.unitNumber.trim(),
       unitLabel: values.unitLabel,
       bedrooms: values.bedrooms,
       bathrooms: values.bathrooms,
@@ -100,7 +115,7 @@ export function UnitForm({
       floor: values.floor,
       rentAmount: values.rentAmount,
       depositAmount: values.depositAmount,
-      currencyCode: values.currencyCode,
+      currencyCode: values.currencyCode.toUpperCase(),
       occupancyStatus: values.occupancyStatus,
       status: values.status
     };
@@ -120,7 +135,11 @@ export function UnitForm({
     const success = (await response.json()) as { unit?: UnitRecord };
     const savedId = success.unit?.id ?? unit?.id;
     if (savedId) {
-      router.push(`/units/${savedId}`);
+      if (mode === "create") {
+        router.push(`/tenants/new?propertyId=${payload.propertyId}&unitId=${savedId}&from=unit-created`);
+      } else {
+        router.push(`/units/${savedId}`);
+      }
       router.refresh();
       return;
     }
@@ -136,9 +155,14 @@ export function UnitForm({
             {mode === "create" ? "Create Unit" : "Edit Unit"}
           </h1>
           <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-            Manage residential and commercial inventory with occupancy-aware operational fields.
+            Capture unit readiness and occupancy, then continue directly to tenant assignment.
           </p>
         </div>
+        {mode === "create" ? (
+          <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] px-3 py-2 text-xs text-[var(--mpa-color-text-secondary)]">
+            Next step after save: assign a tenant for this unit and update occupancy in one flow.
+          </p>
+        ) : null}
 
         <div className="grid gap-3 md:grid-cols-2">
           <Select
@@ -157,6 +181,7 @@ export function UnitForm({
             placeholder="Unit number"
             value={values.unitNumber}
             onChange={(event) => setValues((current) => ({ ...current, unitNumber: event.target.value }))}
+            autoFocus={mode === "create"}
             required
           />
           <Input
@@ -243,7 +268,11 @@ export function UnitForm({
           </Select>
         </div>
 
-        {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
+        {error ? (
+          <p className="text-sm text-[var(--mpa-color-feedback-error)]" role="alert" aria-live="assertive">
+            {error}
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap gap-2">
           <Button type="submit" disabled={submitting}>

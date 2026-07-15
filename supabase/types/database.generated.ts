@@ -126,6 +126,37 @@ export type Database = {
           user_id: string;
         };
       };
+      tenants: {
+        Row: {
+          archived_at: string | null;
+          archived_by: string | null;
+          avatar_url: string | null;
+          created_at: string;
+          created_by: string;
+          date_of_birth: string | null;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          documents_placeholder: string | null;
+          email: string;
+          emergency_contact_name: string | null;
+          emergency_contact_phone: string | null;
+          first_name: string;
+          id: string;
+          last_name: string;
+          metadata: unknown;
+          move_in_date: string | null;
+          move_out_date: string | null;
+          notes: string | null;
+          organization_id: string;
+          phone: string | null;
+          preferred_name: string | null;
+          property_id: string | null;
+          status: "active" | "archived" | "inactive";
+          unit_id: string | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+      };
       units: {
         Row: {
           archived_at: string | null;

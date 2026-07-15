@@ -2,11 +2,27 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Badge, Button, Card, Input, Select, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@mpa/ui";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Input,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow
+} from "@mpa/ui";
 import { toTenantStatusLabel, type TenantRecord } from "../../lib/tenant/contracts";
 import { MpaLogo } from "../branding/mpa-logo";
 
-type TenantListItem = TenantRecord;
+type TenantListItem = TenantRecord & {
+  propertyName: string | null;
+  unitNumber: string | null;
+};
 
 const PAGE_SIZE = 10;
 
@@ -27,6 +43,7 @@ export function TenantsTable({
   const [sortBy, setSortBy] = useState<"name" | "status" | "updated">("updated");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
+  const [selectedTenantId, setSelectedTenantId] = useState<string | null>(initialItems[0]?.id ?? null);
   const [error, setError] = useState<string | null>(null);
   const [submittingAction, setSubmittingAction] = useState<string | null>(null);
 
@@ -40,7 +57,9 @@ export function TenantsTable({
             fullName.includes(trimmed) ||
             (item.preferredName ?? "").toLowerCase().includes(trimmed) ||
             item.email.toLowerCase().includes(trimmed) ||
-            (item.phone ?? "").toLowerCase().includes(trimmed)
+            (item.phone ?? "").toLowerCase().includes(trimmed) ||
+            (item.propertyName ?? "").toLowerCase().includes(trimmed) ||
+            (item.unitNumber ?? "").toLowerCase().includes(trimmed)
           );
         })
       : visibleItems;
@@ -65,6 +84,8 @@ export function TenantsTable({
     const start = (currentPage - 1) * PAGE_SIZE;
     return filteredItems.slice(start, start + PAGE_SIZE);
   }, [currentPage, filteredItems]);
+  const selectedTenant =
+    filteredItems.find((item) => item.id === selectedTenantId) ?? pagedItems[0] ?? filteredItems[0] ?? null;
 
   async function runAction(tenantId: string, action: "archive" | "restore" | "soft_delete") {
     setError(null);
@@ -155,84 +176,149 @@ export function TenantsTable({
         </Select>
       </div>
       {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHead>
-            <tr>
-              <TableHeaderCell>Tenant</TableHeaderCell>
-              <TableHeaderCell>Contact</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell>Updated</TableHeaderCell>
-              <TableHeaderCell className="text-right">Actions</TableHeaderCell>
-            </tr>
-          </TableHead>
-          <TableBody>
-            {pagedItems.map((item) => {
-              const busyArchive =
-                submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
-              const busyDelete = submittingAction === `${item.id}:soft_delete`;
-              const isArchived = item.status === "archived";
-              return (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <p className="font-medium text-[var(--mpa-color-text-primary)]">
-                      {item.preferredName || `${item.firstName} ${item.lastName}`}
-                    </p>
-                    <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                      Legal: {item.firstName} {item.lastName}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <p>{item.email}</p>
-                    <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.phone ?? "No phone"}</p>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}>
-                      {toTenantStatusLabel(item.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{formatDate(item.updatedAt)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <Link href={`/tenants/${item.id}`}>
-                        <Button variant="secondary" size="sm">
-                          View
-                        </Button>
-                      </Link>
-                      {permissions.canUpdate ? (
-                        <Link href={`/tenants/${item.id}/edit`}>
+      <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHead>
+              <tr>
+                <TableHeaderCell>Tenant</TableHeaderCell>
+                <TableHeaderCell>Assignment</TableHeaderCell>
+                <TableHeaderCell>Contact</TableHeaderCell>
+                <TableHeaderCell>Timeline</TableHeaderCell>
+                <TableHeaderCell>Status</TableHeaderCell>
+                <TableHeaderCell className="text-right">Actions</TableHeaderCell>
+              </tr>
+            </TableHead>
+            <TableBody>
+              {pagedItems.map((item) => {
+                const busyArchive =
+                  submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
+                const busyDelete = submittingAction === `${item.id}:soft_delete`;
+                const isArchived = item.status === "archived";
+                const isSelected = selectedTenant?.id === item.id;
+                return (
+                  <TableRow key={item.id} className={isSelected ? "bg-[var(--mpa-color-bg-surface-muted)]" : undefined}>
+                    <TableCell>
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 text-left"
+                        onClick={() => setSelectedTenantId(item.id)}
+                      >
+                        <Avatar
+                          src={item.avatarUrl ?? undefined}
+                          fallback={`${item.firstName[0] ?? "T"}${item.lastName[0] ?? ""}`}
+                        />
+                        <span>
+                          <span className="block font-medium text-[var(--mpa-color-text-primary)]">
+                            {item.preferredName || `${item.firstName} ${item.lastName}`}
+                          </span>
+                          <span className="block text-xs text-[var(--mpa-color-text-secondary)]">
+                            Legal: {item.firstName} {item.lastName}
+                          </span>
+                        </span>
+                      </button>
+                    </TableCell>
+                    <TableCell>
+                      <p>{item.propertyName ?? "No property"}</p>
+                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        {item.unitNumber ? `Unit ${item.unitNumber}` : "No unit"}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <p>{item.email}</p>
+                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.phone ?? "No phone"}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">Move-in: {item.moveInDate ?? "—"}</p>
+                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">Move-out: {item.moveOutDate ?? "—"}</p>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}>
+                        {toTenantStatusLabel(item.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Link href={`/tenants/${item.id}`}>
                           <Button variant="secondary" size="sm">
-                            Edit
+                            View
                           </Button>
                         </Link>
-                      ) : null}
-                      {permissions.canArchive ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={busyArchive}
-                          onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
-                        >
-                          {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
-                        </Button>
-                      ) : null}
-                      {permissions.canDelete ? (
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          disabled={busyDelete}
-                          onClick={() => runAction(item.id, "soft_delete")}
-                        >
-                          {busyDelete ? "Deleting..." : "Delete"}
-                        </Button>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                        {permissions.canUpdate ? (
+                          <Link href={`/tenants/${item.id}/edit`}>
+                            <Button variant="secondary" size="sm">
+                              Edit
+                            </Button>
+                          </Link>
+                        ) : null}
+                        {permissions.canArchive ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={busyArchive}
+                            onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
+                          >
+                            {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
+                          </Button>
+                        ) : null}
+                        {permissions.canDelete ? (
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            disabled={busyDelete}
+                            onClick={() => runAction(item.id, "soft_delete")}
+                          >
+                            {busyDelete ? "Deleting..." : "Delete"}
+                          </Button>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+        {selectedTenant ? (
+          <Card className="space-y-3">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">Details panel</h3>
+            <div className="flex items-center gap-2">
+              <Avatar
+                src={selectedTenant.avatarUrl ?? undefined}
+                fallback={`${selectedTenant.firstName[0] ?? "T"}${selectedTenant.lastName[0] ?? ""}`}
+              />
+              <div>
+                <p className="font-medium text-[var(--mpa-color-text-primary)]">
+                  {selectedTenant.preferredName || `${selectedTenant.firstName} ${selectedTenant.lastName}`}
+                </p>
+                <p className="text-xs text-[var(--mpa-color-text-secondary)]">{selectedTenant.email}</p>
+              </div>
+            </div>
+            <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+              Assignment: {selectedTenant.propertyName ?? "No property"} /{" "}
+              {selectedTenant.unitNumber ? `Unit ${selectedTenant.unitNumber}` : "No unit"}
+            </p>
+            <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+              Emergency: {selectedTenant.emergencyContactName ?? "None"}{" "}
+              {selectedTenant.emergencyContactPhone ? `(${selectedTenant.emergencyContactPhone})` : ""}
+            </p>
+            <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+              Documents placeholder: {selectedTenant.documentsPlaceholder ?? "No document notes yet"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Link href={`/tenants/${selectedTenant.id}`}>
+                <Button size="sm">Open Profile</Button>
+              </Link>
+              {permissions.canUpdate ? (
+                <Link href={`/tenants/${selectedTenant.id}/edit`}>
+                  <Button size="sm" variant="secondary">
+                    Quick Edit
+                  </Button>
+                </Link>
+              ) : null}
+            </div>
+          </Card>
+        ) : null}
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs text-[var(--mpa-color-text-secondary)]">
@@ -267,8 +353,3 @@ export function TenantsTable({
   );
 }
 
-function formatDate(value: string): string {
-  const timestamp = Date.parse(value);
-  if (Number.isNaN(timestamp)) return "recently";
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(timestamp);
-}

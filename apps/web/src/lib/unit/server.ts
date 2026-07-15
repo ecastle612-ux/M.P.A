@@ -26,6 +26,7 @@ type UnitRow = {
 
 export type UnitListItem = UnitRecord & {
   propertyName: string | null;
+  assignedTenantName: string | null;
 };
 
 type SupabaseClientType = Awaited<ReturnType<typeof createAuthServerComponentClient>>;
@@ -65,9 +66,16 @@ export async function getUnitsForOrganization(
     throw new Error(error.message);
   }
 
-  return ((data ?? []) as Array<UnitRow & { properties: { name: string } | null }>).map((row) => ({
+  const rows = (data ?? []) as Array<UnitRow & { properties: { name: string } | null }>;
+  const assignedTenants = await getAssignedTenantNamesByUnitId(
+    organizationId,
+    rows.map((row) => row.id),
+    supabase
+  );
+  return rows.map((row) => ({
     ...toUnitRecord(row),
-    propertyName: row.properties?.name ?? null
+    propertyName: row.properties?.name ?? null,
+    assignedTenantName: assignedTenants.get(row.id) ?? null
   }));
 }
 
@@ -284,4 +292,40 @@ function toUnitRecord(row: UnitRow): UnitRecord {
 
 async function resolveClient(client?: SupabaseClientType): Promise<SupabaseClientType> {
   return client ?? (await createAuthServerComponentClient());
+}
+
+async function getAssignedTenantNamesByUnitId(
+  organizationId: string,
+  unitIds: string[],
+  client?: SupabaseClientType
+): Promise<Map<string, string>> {
+  if (unitIds.length === 0) {
+    return new Map();
+  }
+  const supabase = await resolveClient(client);
+  const { data, error } = await supabase
+    .from("tenants")
+    .select("unit_id, first_name, last_name, preferred_name, status")
+    .eq("organization_id", organizationId)
+    .in("unit_id", unitIds)
+    .is("deleted_at", null);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const assigned = new Map<string, string>();
+  ((data ?? []) as Array<{
+    unit_id: string | null;
+    first_name: string;
+    last_name: string;
+    preferred_name: string | null;
+    status: string;
+  }>).forEach((tenant) => {
+    if (!tenant.unit_id) return;
+    if (tenant.status !== "active") return;
+    if (assigned.has(tenant.unit_id)) return;
+    assigned.set(tenant.unit_id, tenant.preferred_name || `${tenant.first_name} ${tenant.last_name}`);
+  });
+  return assigned;
 }
