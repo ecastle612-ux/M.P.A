@@ -1,7 +1,9 @@
+import type { PermissionCapability } from "@mpa/shared";
+
 export type NavigationItem = {
   href: string;
   label: string;
-  requiredCapability?: string;
+  requiredCapability?: PermissionCapability;
 };
 
 export const NAVIGATION_PERMISSIONS: Record<string, string> = {

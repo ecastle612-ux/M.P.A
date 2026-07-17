@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { evaluateCapability } from "@mpa/shared";
+import { evaluateCapability, type PermissionCapability } from "@mpa/shared";
 
 export function useSessionPermissions() {
   const [permissions, setPermissions] = useState<string[]>([]);
@@ -30,7 +30,7 @@ export function useSessionPermissions() {
     };
   }, []);
 
-  function canAccess(requiredCapability?: string) {
+  function canAccess(requiredCapability?: PermissionCapability) {
     if (!requiredCapability) return true;
     return evaluateCapability(permissions, requiredCapability);
   }
