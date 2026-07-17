@@ -52,6 +52,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 25 | [Phase 5 Tenant & Lease Foundation](./25-phase-5-tenant-lease-foundation/index.md) | Tenant and lease phase planning package |
 | 30 | [Product Experience Initiative (PX-001)](./30-product-experience/01-product-vision.md) | Dashboard experience and design system foundation package |
 | 31 | [Product Requirements Registry (PRR)](./31-product-requirements/index.md) | Permanent registry of agreed product requirements |
+| 43 | [MHF-001 Unified Communication Platform](./43-mhf-001-unified-communication-platform/README.md) | Messaging + in-app notification foundation (OneSignal deferred) |
+| 44 | [API-001 OneSignal Notification Foundation](./44-api-001-onesignal-notification-foundation/README.md) | Push provider design package (Draft — awaiting Approve) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

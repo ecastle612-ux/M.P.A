@@ -58,7 +58,7 @@ Pattern reference: [20 Future Integrations](../20-future-integrations/index.md)
 
 | ID | Integration | Priority | Workflow touchpoints | Phase |
 |----|-------------|----------|---------------------|-------|
-| INT-301 | Firebase / APNs push delivery | CRITICAL | MHF-001 all channels | 10 |
+| INT-301 | Push delivery (OneSignal default via abstraction; Firebase/APNs adapters future) — see [API-001](../44-api-001-onesignal-notification-foundation/README.md) + [ADR-017](../18-decision-log/adr-017-onesignal-as-primary-push-provider.md) (Proposed) | CRITICAL | MHF-001 all channels | 10 |
 | INT-302 | Twilio SMS | CRITICAL | Emergency, fallback | 10 |
 | INT-303 | SendGrid / Resend email | CRITICAL | Announcements, receipts | 10 |
 | INT-304 | Translation API (multi-language) | HIGH | MHF-001 | 10 |
@@ -68,6 +68,7 @@ Pattern reference: [20 Future Integrations](../20-future-integrations/index.md)
 - Unified notification orchestration layer — not per-feature ad hoc sends
 - Resident preferences honored before delivery (MHF-001)
 - Read receipts and delivery analytics stored for PM visibility
+- **API-001 (Draft):** OneSignal proposed as default push adapter behind `NotificationProvider` — [design package](../44-api-001-onesignal-notification-foundation/README.md), [ADR-017](../18-decision-log/adr-017-onesignal-as-primary-push-provider.md)
 
 ---
 

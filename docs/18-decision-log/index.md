@@ -52,6 +52,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-014](./adr-014-phase-3-identity-multitenant-foundation.md) | Phase 3 Identity & Multi-Tenant Foundation | Accepted | 2026-07-13 |
 | [ADR-015](./adr-015-phase-4-core-property-foundation.md) | Phase 4 Core Property Foundation | Accepted | 2026-07-14 |
 | [ADR-016](./adr-016-phase-5-tenant-lease-foundation.md) | Phase 5 Tenant & Lease Foundation | Accepted | 2026-07-14 |
+| [ADR-017](./adr-017-onesignal-as-primary-push-provider.md) | OneSignal as Primary Push Notification Provider | Proposed | 2026-07-17 |
 
 ---
 
