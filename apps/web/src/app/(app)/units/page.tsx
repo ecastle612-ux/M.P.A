@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
-import { Breadcrumbs } from "../../../components/shell/breadcrumbs";
+import { AppPage } from "../../../components/presentation/app-page";
 import { UnitsTable } from "../../../components/unit/units-table";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
@@ -23,15 +23,14 @@ export default async function UnitsPage({
   const organizationId = await resolveActiveOrganizationIdForUser(user.id);
   if (!organizationId) {
     return (
-      <main className="mpa-page flex-1 space-y-5">
-        <Breadcrumbs items={[{ href: "/dashboard", label: "Dashboard" }, { label: "Units" }]} />
+      <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Units" }]}>
         <Card>
           <h1 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">No active organization</h1>
           <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
             Select or create an organization before managing units.
           </p>
         </Card>
-      </main>
+      </AppPage>
     );
   }
 
@@ -49,9 +48,8 @@ export default async function UnitsPage({
   };
 
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs items={[{ href: "/dashboard", label: "Dashboard" }, { label: "Units" }]} />
+    <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Units" }]}>
       <UnitsTable initialItems={items} permissions={permissions} />
-    </main>
+    </AppPage>
   );
 }

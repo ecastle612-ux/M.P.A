@@ -4,7 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { Button, Card, Input, Select } from "@mpa/ui";
 import { USER_ROLES, isUserRole } from "@mpa/shared";
 import { useOrganizationContext } from "../shell/organization-context";
-import { MpaLogo } from "../branding/mpa-logo";
+import { Logo } from "../branding/logo";
 
 type PendingInvitation = {
   id: string;
@@ -187,8 +187,10 @@ export function OrganizationFoundationPanel() {
             <p className="font-semibold text-[var(--mpa-color-text-primary)]">Pending invitations</p>
             {invitations.length === 0 ? (
               <div className="mt-2 flex items-center gap-3">
-                <MpaLogo className="h-10 w-auto" alt="M.P.A. logo" />
-                <p className="text-[var(--mpa-color-text-secondary)]">No invitations yet.</p>
+                <Logo size="sidebarCollapsed" />
+                <p className="text-[var(--mpa-color-text-secondary)]">
+                  Invite your team so everyone can collaborate in one place.
+                </p>
               </div>
             ) : (
               <ul className="mt-1 space-y-1 text-[var(--mpa-color-text-secondary)]">
@@ -204,7 +206,7 @@ export function OrganizationFoundationPanel() {
             <p className="font-semibold text-[var(--mpa-color-text-primary)]">Memberships</p>
             {memberships.length === 0 ? (
               <div className="mt-2 flex items-center gap-3">
-                <MpaLogo className="h-10 w-auto" alt="M.P.A. logo" />
+                <Logo size="sidebarCollapsed" />
                 <p className="text-[var(--mpa-color-text-secondary)]">No memberships loaded.</p>
               </div>
             ) : (

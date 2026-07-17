@@ -117,12 +117,12 @@ export function CommandPaletteShell({
         aria-labelledby={titleId}
         onMouseDown={(event) => event.stopPropagation()}
         onKeyDown={handleKeyDown}
-        className="w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl"
+        className="w-full max-w-2xl overflow-hidden rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-lg)]"
       >
         <h2 id={titleId} className="sr-only">
           Universal Command Center
         </h2>
-        <div className="border-b border-[var(--mpa-color-border-default)] p-3">
+        <div className="border-b border-[var(--mpa-color-border-subtle)] p-4">
           <Input
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
@@ -167,8 +167,8 @@ export function CommandPaletteShell({
                         className={[
                           "flex w-full items-start gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--mpa-color-brand-primary)]",
                           isActive
-                            ? "bg-[var(--mpa-color-brand-primary)]/10"
-                            : "text-[var(--mpa-color-text-primary)] hover:bg-gray-100",
+                            ? "bg-[var(--mpa-color-interactive-selected)]"
+                            : "text-[var(--mpa-color-text-primary)] hover:bg-[var(--mpa-color-interactive-row-hover)]",
                           item.disabled ? "cursor-not-allowed opacity-50" : ""
                         ].join(" ")}
                       >

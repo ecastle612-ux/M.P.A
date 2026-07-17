@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { Breadcrumbs } from "../../../../../components/shell/breadcrumbs";
+import { CreatePageLayout } from "../../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../../components/presentation/create-form-context-rail";
 import { PropertyForm } from "../../../../../components/property/property-form";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
@@ -30,16 +31,29 @@ export default async function EditPropertyPage({ params }: { params: Promise<{ p
   }
 
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/properties", label: "Properties" },
-          { href: `/properties/${property.id}`, label: property.name },
-          { label: "Edit" }
-        ]}
-      />
-      <PropertyForm mode="edit" property={property} />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/properties", label: "Properties" },
+        { href: `/properties/${property.id}`, label: property.name },
+        { label: "Edit" }
+      ]}
+      form={<PropertyForm mode="edit" property={property} />}
+      contextRail={
+        <CreateFormContextRail
+          module="property"
+          setupSteps={[
+            { id: "property", label: "Property configured", complete: true },
+            { id: "units", label: "Add or update units", complete: false },
+            { id: "tenant", label: "Assign tenants", complete: false },
+            { id: "lease", label: "Manage leases", complete: false }
+          ]}
+          relatedLinks={[
+            { label: property.name, href: `/properties/${property.id}` },
+            { label: "Create unit", href: `/units/new?propertyId=${property.id}` }
+          ]}
+        />
+      }
+    />
   );
 }

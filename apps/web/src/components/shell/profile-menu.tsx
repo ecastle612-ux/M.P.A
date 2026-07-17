@@ -15,19 +15,14 @@ export function ProfileMenu() {
     let isMounted = true;
     void (async () => {
       const response = await fetch("/api/profile");
-      if (!response.ok) {
-        return;
-      }
+      if (!response.ok) return;
       const payload = (await response.json()) as {
         profile?: { displayName?: string; avatarUrl?: string };
       };
-      if (!isMounted) {
-        return;
-      }
+      if (!isMounted) return;
       setDisplayName(payload.profile?.displayName || MPA_BRAND_NAME);
       setAvatarUrl(payload.profile?.avatarUrl || null);
     })();
-
     return () => {
       isMounted = false;
     };
@@ -35,15 +30,11 @@ export function ProfileMenu() {
 
   useEffect(() => {
     function handleKeydown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
+      if (event.key === "Escape") setOpen(false);
     }
     function handlePointerDown(event: MouseEvent) {
       const target = event.target as HTMLElement | null;
-      if (!target?.closest("[data-profile-menu]")) {
-        setOpen(false);
-      }
+      if (!target?.closest("[data-profile-menu]")) setOpen(false);
     }
     window.addEventListener("keydown", handleKeydown);
     window.addEventListener("mousedown", handlePointerDown);
@@ -64,10 +55,7 @@ export function ProfileMenu() {
   }, [displayName]);
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "same-origin"
-    });
+    await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
     router.replace("/login");
     setOpen(false);
   }
@@ -80,7 +68,7 @@ export function ProfileMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls="profile-menu"
-        className="rounded-full ring-offset-2"
+        className="rounded-full ring-offset-2 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-border-focus)]"
         aria-label="Open profile menu"
       >
         <Avatar src={avatarUrl || undefined} fallback={avatarFallback} />
@@ -90,14 +78,14 @@ export function ProfileMenu() {
           id="profile-menu"
           role="menu"
           aria-label="Profile menu"
-          className="absolute right-0 top-10 z-40 w-56 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-2 shadow-lg"
+          className="absolute right-0 top-11 z-40 w-56 rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-2 shadow-[var(--mpa-shadow-lg)]"
         >
-          <p className="px-2 py-2 text-xs text-[var(--mpa-color-text-secondary)]">{displayName}</p>
-          <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/profile")}>
+          <p className="truncate px-2 py-2 text-xs font-medium text-[var(--mpa-color-text-primary)]">{displayName}</p>
+          <Button className="mb-2 w-full" variant="secondary" size="sm" onClick={() => router.push("/profile")}>
             Profile
           </Button>
-          <Button className="w-full" variant="secondary" onClick={handleLogout}>
-            Logout
+          <Button className="w-full" variant="ghost" size="sm" onClick={handleLogout}>
+            Log out
           </Button>
         </div>
       ) : null}

@@ -8,20 +8,23 @@ import { CommandCenterTracker } from "./command-center-tracker";
 import { Sidebar } from "./sidebar";
 import { TopNavigation } from "./top-navigation";
 import { ResponsiveNavigation } from "./responsive-navigation";
-import { MpaLogo } from "../branding/mpa-logo";
+import { Logo } from "../branding/logo";
+import { SetupGate } from "../setup/setup-gate";
 
 export function ApplicationShell({
   children,
   availableRoles,
   defaultRole,
   organizations,
-  defaultOrganizationId
+  defaultOrganizationId,
+  isSetupComplete
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
   defaultRole: UserRole;
   organizations: OrganizationSummary[];
   defaultOrganizationId: string | null;
+  isSetupComplete: boolean;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -30,6 +33,7 @@ export function ApplicationShell({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
     >
+      <SetupGate isSetupComplete={isSetupComplete} />
       <a
         href="#app-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-3 focus:py-2"
@@ -40,12 +44,12 @@ export function ApplicationShell({
       <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)]">
         <Sidebar />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-          <header className="flex h-14 items-center justify-between border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 lg:hidden">
-            <MpaLogo className="h-8 w-auto" alt="M.P.A. logo" />
+          <header className="flex h-16 items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 lg:hidden">
+            <Logo size="mobile" priority />
             <ResponsiveNavigation />
           </header>
           <TopNavigation />
-          <div id="app-content" className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div id="app-content" className="mpa-app-main flex min-h-0 min-w-0 flex-col">
             {children}
           </div>
         </div>

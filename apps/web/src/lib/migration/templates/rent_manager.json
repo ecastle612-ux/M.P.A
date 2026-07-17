@@ -1,0 +1,29 @@
+{
+  "sourceSoftware": "rent_manager",
+  "label": "Rent Manager",
+  "entityTypes": {
+    "property": {
+      "columnMap": {
+        "name": ["PropertyName", "Property Name"],
+        "addressLine1": ["Address1", "Street Address"],
+        "city": ["City"],
+        "stateRegion": ["State"],
+        "postalCode": ["Zip", "PostalCode"]
+      }
+    },
+    "unit": {
+      "columnMap": {
+        "propertyName": ["PropertyName"],
+        "unitNumber": ["UnitNumber", "Unit"]
+      }
+    },
+    "tenant": {
+      "columnMap": {
+        "firstName": ["FirstName"],
+        "lastName": ["LastName"],
+        "email": ["Email"],
+        "phone": ["Phone"]
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { Breadcrumbs } from "../../../../../components/shell/breadcrumbs";
+import { CreatePageLayout } from "../../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../../components/presentation/create-form-context-rail";
 import { UnitForm } from "../../../../../components/unit/unit-form";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
@@ -35,16 +36,24 @@ export default async function EditUnitPage({ params }: { params: Promise<{ unitI
 
   const propertyOptions = properties.map((property) => ({ id: property.id, name: property.name }));
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/units", label: "Units" },
-          { href: `/units/${unit.id}`, label: unit.unitNumber },
-          { label: "Edit" }
-        ]}
-      />
-      <UnitForm mode="edit" unit={unit} properties={propertyOptions} />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/units", label: "Units" },
+        { href: `/units/${unit.id}`, label: unit.unitNumber },
+        { label: "Edit" }
+      ]}
+      form={<UnitForm mode="edit" unit={unit} properties={propertyOptions} />}
+      contextRail={
+        <CreateFormContextRail
+          module="unit"
+          relatedLinks={[
+            { label: `Unit ${unit.unitNumber}`, href: `/units/${unit.id}` },
+            { label: "Property", href: `/properties/${unit.propertyId}` },
+            { label: "Assign tenant", href: `/tenants/new?unitId=${unit.id}&propertyId=${unit.propertyId}` }
+          ]}
+        />
+      }
+    />
   );
 }

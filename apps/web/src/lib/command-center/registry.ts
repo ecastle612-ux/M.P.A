@@ -7,13 +7,26 @@ import { favoritesProvider, recentProvider } from "./providers/local-history-pro
 import {
   organizationsProvider,
   propertiesProvider,
+  applicantsProvider,
+  screeningProvider,
+  signaturesProvider,
   tenantsProvider,
   maintenanceProvider,
   vendorsProvider,
   leasesProvider,
+  announcementsProvider,
+  messagesProvider,
+  conversationsProvider,
+  rentChargesProvider,
+  paymentsProvider,
+  expensesProvider,
+  ownerStatementsProvider,
+  migrationJobsProvider,
+  migrationReviewProvider,
+  migrationHistoryProvider,
   unitsProvider
 } from "./providers/api-providers";
-import { aiSearchProviderStub } from "./providers/ai-search-provider.stub";
+import { aiSearchProvider } from "./providers/ai-search-provider";
 import type {
   CommandCenterProvider,
   CommandCenterProviderRegistration,
@@ -27,14 +40,27 @@ const CORE_PROVIDERS: CommandCenterProviderRegistration[] = [
   { ...recentProvider, source: "core" },
   { ...propertiesProvider, source: "core" },
   { ...unitsProvider, source: "core" },
+  { ...applicantsProvider, source: "core" },
+  { ...screeningProvider, source: "core" },
+  { ...signaturesProvider, source: "core" },
   { ...tenantsProvider, source: "core" },
   { ...maintenanceProvider, source: "core" },
   { ...vendorsProvider, source: "core" },
   { ...leasesProvider, source: "core" },
+  { ...announcementsProvider, source: "core" },
+  { ...messagesProvider, source: "core" },
+  { ...conversationsProvider, source: "core" },
+  { ...rentChargesProvider, source: "core" },
+  { ...paymentsProvider, source: "core" },
+  { ...expensesProvider, source: "core" },
+  { ...ownerStatementsProvider, source: "core" },
+  { ...migrationJobsProvider, source: "core" },
+  { ...migrationReviewProvider, source: "core" },
+  { ...migrationHistoryProvider, source: "core" },
   { ...organizationsProvider, source: "core" },
   { ...actionsProvider, source: "core" },
   { ...navigationProvider, source: "core" },
-  { ...aiSearchProviderStub, source: "extension" }
+  { ...aiSearchProvider, source: "core" }
 ];
 
 const extensionProviders: CommandCenterProviderRegistration[] = [];
@@ -92,4 +118,4 @@ export function toPaletteSections(sections: CommandCenterSection[]) {
 }
 
 export type { CommandCenterResult } from "./types";
-export { registerFutureAiSearchProvider } from "./providers/ai-search-provider.stub";
+export { registerFutureAiSearchProvider } from "./providers/ai-search-provider";

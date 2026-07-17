@@ -74,6 +74,7 @@ export async function GET() {
       contactEmail: profileResponse.data?.contact_email ?? "",
       timezone: preferencesResponse.data?.timezone ?? "UTC",
       notificationPreferences,
+      jobTitle: notificationPreferences.jobTitle ?? "",
       memberships: (membershipsResponse.data ?? []).map((membership) => ({
         organizationId: membership.organization_id,
         organizationName: membership.organizations?.name ?? "",

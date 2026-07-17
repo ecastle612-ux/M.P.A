@@ -88,6 +88,8 @@ This registry was synthesized from authoritative repository documentation includ
 - [24 Phase 4 Extension Points](../24-phase-4-core-property-foundation/extension-points-future-phases.md)
 - [25 Phase 5 Tenant & Lease Foundation](../25-phase-5-tenant-lease-foundation/index.md)
 - [30 Product Experience (PX-001)](../30-product-experience/01-product-vision.md)
+- [38 PX-006 Product Experience & Workflow](../38-px-006-workflow-experience-enterprise-ux/README.md) — **Complete**
+- [39 PX-007 Competitive Audit & Beta Readiness](../39-px-007-competitive-product-audit-beta-readiness/README.md) — **Draft** (audit phase)
 - [Implementation Gate](../00-governance/implementation-gate.md)
 
 ## Current Implementation Snapshot (Reference Only)
@@ -100,10 +102,10 @@ As of registry creation, the following foundation is **implemented or in progres
 | Property, unit, dashboard (Phase 4) | Implemented |
 | Tenant foundation (Phase 5A) | Implemented |
 | Lease foundation (Phase 5B) | Planned — approved, not yet implemented |
-| Resident communication platform (MHF-001) | **Not implemented** — documented requirement |
-| Maintenance, vendor, accounting (Phases 6–8) | Not implemented |
-| Resident portal (Phase 10) | Not implemented |
-| AI operations (Phase 11) | Not implemented |
+| Resident communication platform (MHF-001) | Phase 9 foundation implemented — see [29-phase-9](../29-phase-9-resident-communication-foundation/README.md) |
+| Maintenance, vendor, financial, AI (Phases 6–11) | Foundation implemented per codebase |
+| Resident Experience — RX-001 Applicant Lifecycle | **Implemented** — [RX-001](../41-phase-12-resident-experience-digital-operations/RX-001-applicant-lifecycle.md); broader Phase 12 remains partial |
+| Customer Migration Center — MX-001 | **Implemented** — [MX-001](../42-mx-001-customer-migration-center/README.md); CSV/Excel/ZIP import wizard, mapping, review queue, rollback |
 
 This snapshot is informational. Authoritative delivery status remains in [00 Project State](../00-project-state.md) and [17 Development Roadmap](../17-development-roadmap/index.md).
 

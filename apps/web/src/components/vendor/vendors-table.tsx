@@ -5,12 +5,12 @@ import { useMemo, useState } from "react";
 import {
   Badge,
   Button,
-  Card,
   Input,
   Select,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableHeaderCell,
   TableRow
@@ -22,7 +22,10 @@ import {
   toVendorStatusLabel,
   type VendorRecord
 } from "../../lib/vendor/contracts";
-import { MpaLogo } from "../branding/mpa-logo";
+import { DataTableLayout } from "../presentation/data-table-layout";
+import { ListWorkspaceHeader } from "../presentation/list-workspace-header";
+import { ExperienceEmptyState } from "../experience/experience-empty-state";
+import { getFilteredEmptyMessage } from "../../lib/experience/empty-states";
 
 const PAGE_SIZE = 10;
 
@@ -103,214 +106,208 @@ export function VendorsTable({
   }
 
   if (visibleItems.length === 0) {
-    return (
-      <Card>
-        <MpaLogo className="mb-2 h-12 w-auto" alt="M.P.A. logo" />
-        <h1 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">Vendors</h1>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Build your vendor directory to assign trades to maintenance work orders.
-        </p>
-        <div className="mt-4 rounded-lg border border-dashed border-[var(--mpa-color-border-default)] p-6 text-center">
-          <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">No vendors yet</p>
-          {permissions.canCreate ? (
-            <Link href="/vendors/new" className="mt-4 inline-block">
-              <Button>Create Vendor</Button>
-            </Link>
-          ) : null}
-        </div>
-      </Card>
-    );
+    return <ExperienceEmptyState module="vendors" canCreate={permissions.canCreate} />;
   }
 
+  const activeVendors = visibleItems.filter((item) => item.status === "active").length;
+  const preferredVendors = visibleItems.filter((item) => item.preferredVendor).length;
+  const ratedVendors = visibleItems.filter((item) => item.rating !== null);
+  const avgRating =
+    ratedVendors.length > 0
+      ? (ratedVendors.reduce((sum, item) => sum + (item.rating ?? 0), 0) / ratedVendors.length).toFixed(1)
+      : null;
+
   return (
-    <Card className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">Vendors</h1>
-          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-            {filteredItems.length} vendor{filteredItems.length === 1 ? "" : "s"} · Service provider directory
-          </p>
-        </div>
-        {permissions.canCreate ? (
+    <div className="space-y-5">
+      <ListWorkspaceHeader
+        metrics={[
+          { label: "Vendors", value: visibleItems.length.toString(), hint: `${activeVendors} active` },
+          ...(preferredVendors > 0 ? [{ label: "Preferred", value: preferredVendors.toString() }] : []),
+          ...(avgRating ? [{ label: "Avg rating", value: avgRating }] : [])
+        ]}
+        {...(visibleItems.length > 0 && preferredVendors === 0
+          ? {
+              recommendationsPlaceholder:
+                "Mark go-to contractors as preferred so your team finds them quickly during emergencies."
+            }
+          : {})}
+      />
+    <DataTableLayout
+      overline="Operations"
+      title="Vendors"
+      description="Manage service providers, ratings, and preferred vendor relationships."
+      actions={
+        permissions.canCreate ? (
           <Link href="/vendors/new">
-            <Button>Create Vendor</Button>
+            <Button>Create vendor</Button>
           </Link>
-        ) : null}
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-4">
-        <Input
-          aria-label="Search vendors"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setPage(1);
-          }}
-          placeholder="Business name, contact, email…"
-        />
-        <Select
-          aria-label="Status filter"
-          value={statusFilter}
-          onChange={(event) => {
-            setStatusFilter(event.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="active">Active vendors</option>
-          <option value="all">All statuses</option>
-          {VENDOR_STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {toVendorStatusLabel(status)}
-            </option>
-          ))}
-        </Select>
-        <Select
-          aria-label="Service filter"
-          value={serviceFilter}
-          onChange={(event) => {
-            setServiceFilter(event.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="all">All services</option>
-          {VENDOR_SERVICE_TYPES.map((service) => (
-            <option key={service} value={service}>
-              {toVendorServiceLabel(service)}
-            </option>
-          ))}
-        </Select>
-        <Select
-          aria-label="Preferred filter"
-          value={preferredFilter}
-          onChange={(event) => {
-            setPreferredFilter(event.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="all">All vendors</option>
-          <option value="preferred">Preferred only</option>
-          <option value="standard">Non-preferred</option>
-        </Select>
-      </div>
-
-      {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
-
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Business</TableHeaderCell>
-              <TableHeaderCell>Services</TableHeaderCell>
-              <TableHeaderCell>Rating</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell>Actions</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {pagedItems.map((item) => {
-              const busyArchive =
-                submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
-              const busyDelete = submittingAction === `${item.id}:soft_delete`;
-              const isArchived = item.status === "archived";
-              return (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <Link
-                      href={`/vendors/${item.id}`}
-                      className="font-medium text-[var(--mpa-color-brand-primary)] hover:underline"
-                    >
-                      {item.businessName}
-                    </Link>
-                    {item.preferredVendor ? (
-                      <Badge variant="success" className="ml-2">
-                        Preferred
-                      </Badge>
-                    ) : null}
-                    <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                      {item.primaryContactName ?? item.email ?? item.phone ?? "No contact"}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm">
-                      {item.services.length > 0
-                        ? item.services.slice(0, 3).map(toVendorServiceLabel).join(", ")
-                        : "—"}
-                    </p>
-                    {item.services.length > 3 ? (
-                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">+{item.services.length - 3} more</p>
-                    ) : null}
-                  </TableCell>
-                  <TableCell>{item.rating !== null ? `${item.rating.toFixed(1)} / 5` : "—"}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}
-                    >
-                      {toVendorStatusLabel(item.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-2">
-                      <Link href={`/vendors/${item.id}`}>
-                        <Button variant="secondary" size="sm">
-                          View
-                        </Button>
+        ) : null
+      }
+      filters={
+        <>
+          <Input
+            aria-label="Search vendors"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Business name, contact, email…"
+          />
+          <Select
+            aria-label="Status filter"
+            value={statusFilter}
+            onChange={(event) => {
+              setStatusFilter(event.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="active">Active vendors</option>
+            <option value="all">All statuses</option>
+            {VENDOR_STATUSES.map((status) => (
+              <option key={status} value={status}>
+                {toVendorStatusLabel(status)}
+              </option>
+            ))}
+          </Select>
+          <Select
+            aria-label="Service filter"
+            value={serviceFilter}
+            onChange={(event) => {
+              setServiceFilter(event.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="all">All services</option>
+            {VENDOR_SERVICE_TYPES.map((service) => (
+              <option key={service} value={service}>
+                {toVendorServiceLabel(service)}
+              </option>
+            ))}
+          </Select>
+          <Select
+            aria-label="Preferred filter"
+            value={preferredFilter}
+            onChange={(event) => {
+              setPreferredFilter(event.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="all">All vendors</option>
+            <option value="preferred">Preferred only</option>
+            <option value="standard">Non-preferred</option>
+          </Select>
+        </>
+      }
+      error={error}
+      showEmptyFiltered={filteredItems.length === 0}
+      emptyFilteredMessage={getFilteredEmptyMessage("vendors")}
+      page={currentPage}
+      pageCount={pageCount}
+      totalItems={filteredItems.length}
+      pageSize={PAGE_SIZE}
+      onPreviousPage={() => setPage((value) => Math.max(1, value - 1))}
+      onNextPage={() => setPage((value) => Math.min(pageCount, value + 1))}
+    >
+      <TableContainer className="rounded-none border-0 shadow-none">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell>Business</TableHeaderCell>
+                <TableHeaderCell>Services</TableHeaderCell>
+                <TableHeaderCell>Rating</TableHeaderCell>
+                <TableHeaderCell>Status</TableHeaderCell>
+                <TableHeaderCell className="text-right">Actions</TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {pagedItems.map((item) => {
+                const busyArchive =
+                  submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
+                const busyDelete = submittingAction === `${item.id}:soft_delete`;
+                const isArchived = item.status === "archived";
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <Link
+                        href={`/vendors/${item.id}`}
+                        className="font-medium text-[var(--mpa-color-brand-primary)] hover:underline"
+                      >
+                        {item.businessName}
                       </Link>
-                      {permissions.canUpdate ? (
-                        <Link href={`/vendors/${item.id}/edit`}>
+                      {item.preferredVendor ? (
+                        <Badge showDot variant="success" className="ml-2">
+                          Preferred
+                        </Badge>
+                      ) : null}
+                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        {item.primaryContactName ?? item.email ?? item.phone ?? "No contact"}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm">
+                        {item.services.length > 0
+                          ? item.services.slice(0, 3).map(toVendorServiceLabel).join(", ")
+                          : "—"}
+                      </p>
+                      {item.services.length > 3 ? (
+                        <p className="text-xs text-[var(--mpa-color-text-secondary)]">+{item.services.length - 3} more</p>
+                      ) : null}
+                    </TableCell>
+                    <TableCell>{item.rating !== null ? `${item.rating.toFixed(1)} / 5` : "—"}</TableCell>
+                    <TableCell>
+                      <Badge
+                        showDot
+                        variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}
+                      >
+                        {toVendorStatusLabel(item.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Link href={`/vendors/${item.id}`}>
                           <Button variant="secondary" size="sm">
-                            Edit
+                            View
                           </Button>
                         </Link>
-                      ) : null}
-                      {permissions.canArchive ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={busyArchive}
-                          onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
-                        >
-                          {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
-                        </Button>
-                      ) : null}
-                      {permissions.canDelete ? (
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          disabled={busyDelete}
-                          onClick={() => runAction(item.id, "soft_delete")}
-                        >
-                          {busyDelete ? "Deleting..." : "Delete"}
-                        </Button>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
-
-      {pageCount > 1 ? (
-        <div className="flex items-center justify-between text-sm">
-          <p className="text-[var(--mpa-color-text-secondary)]">
-            Page {currentPage} of {pageCount}
-          </p>
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" disabled={currentPage <= 1} onClick={() => setPage((value) => value - 1)}>
-              Previous
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={currentPage >= pageCount}
-              onClick={() => setPage((value) => value + 1)}
-            >
-              Next
-            </Button>
-          </div>
+                        {permissions.canUpdate ? (
+                          <Link href={`/vendors/${item.id}/edit`}>
+                            <Button variant="secondary" size="sm">
+                              Edit
+                            </Button>
+                          </Link>
+                        ) : null}
+                        {permissions.canArchive ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={busyArchive}
+                            onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
+                          >
+                            {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
+                          </Button>
+                        ) : null}
+                        {permissions.canDelete ? (
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            disabled={busyDelete}
+                            onClick={() => runAction(item.id, "soft_delete")}
+                          >
+                            {busyDelete ? "Deleting..." : "Delete"}
+                          </Button>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
-      ) : null}
-    </Card>
+      </TableContainer>
+    </DataTableLayout>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
-import { Breadcrumbs } from "../../../components/shell/breadcrumbs";
+import { AppPage } from "../../../components/presentation/app-page";
 import { LeasesTable } from "../../../components/lease/leases-table";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
@@ -19,15 +19,14 @@ export default async function LeasesPage() {
   const organizationId = await resolveActiveOrganizationIdForUser(user.id);
   if (!organizationId) {
     return (
-      <main className="mpa-page flex-1 space-y-5">
-        <Breadcrumbs items={[{ href: "/dashboard", label: "Dashboard" }, { label: "Leases" }]} />
+      <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Leases" }]}>
         <Card>
           <h1 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">No active organization</h1>
           <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
             Select or create an organization before managing leases.
           </p>
         </Card>
-      </main>
+      </AppPage>
     );
   }
 
@@ -45,9 +44,8 @@ export default async function LeasesPage() {
   };
 
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs items={[{ href: "/dashboard", label: "Dashboard" }, { label: "Leases" }]} />
+    <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Leases" }]}>
       <LeasesTable initialItems={items} permissions={permissions} />
-    </main>
+    </AppPage>
   );
 }

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { Breadcrumbs } from "../../../../../components/shell/breadcrumbs";
+import { CreatePageLayout } from "../../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../../components/presentation/create-form-context-rail";
 import { WorkOrderForm } from "../../../../../components/maintenance/work-order-form";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
@@ -44,28 +45,37 @@ export default async function EditWorkOrderPage({ params }: { params: Promise<{ 
   ]);
 
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/maintenance", label: "Maintenance" },
-          { href: `/maintenance/${workOrderId}`, label: workOrder.workOrderNumber },
-          { label: "Edit" }
-        ]}
-      />
-      <WorkOrderForm
-        mode="edit"
-        workOrder={workOrder}
-        properties={properties.map((property) => ({ id: property.id, name: property.name }))}
-        units={units.map((unit) => ({ id: unit.id, propertyId: unit.propertyId, unitNumber: unit.unitNumber }))}
-        tenants={tenants.map((tenant) => ({
-          id: tenant.id,
-          propertyId: tenant.propertyId,
-          unitId: tenant.unitId,
-          name: tenant.preferredName || `${tenant.firstName} ${tenant.lastName}`
-        }))}
-        assignees={assignees}
-      />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/maintenance", label: "Maintenance" },
+        { href: `/maintenance/${workOrderId}`, label: workOrder.workOrderNumber },
+        { label: "Edit" }
+      ]}
+      form={
+        <WorkOrderForm
+          mode="edit"
+          workOrder={workOrder}
+          properties={properties.map((property) => ({ id: property.id, name: property.name }))}
+          units={units.map((unit) => ({ id: unit.id, propertyId: unit.propertyId, unitNumber: unit.unitNumber }))}
+          tenants={tenants.map((tenant) => ({
+            id: tenant.id,
+            propertyId: tenant.propertyId,
+            unitId: tenant.unitId,
+            name: tenant.preferredName || `${tenant.firstName} ${tenant.lastName}`
+          }))}
+          assignees={assignees}
+        />
+      }
+      contextRail={
+        <CreateFormContextRail
+          module="maintenance"
+          relatedLinks={[
+            { label: workOrder.workOrderNumber, href: `/maintenance/${workOrder.id}` },
+            { label: workOrder.propertyName ?? "Property", href: `/properties/${workOrder.propertyId}` }
+          ]}
+        />
+      }
+    />
   );
 }

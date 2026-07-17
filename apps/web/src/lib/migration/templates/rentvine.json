@@ -1,0 +1,22 @@
+{
+  "sourceSoftware": "rentvine",
+  "label": "Rentvine",
+  "entityTypes": {
+    "property": {
+      "columnMap": {
+        "name": ["Property Name"],
+        "addressLine1": ["Address"],
+        "city": ["City"],
+        "stateRegion": ["State"],
+        "postalCode": ["Zip"]
+      }
+    },
+    "tenant": {
+      "columnMap": {
+        "firstName": ["First Name"],
+        "lastName": ["Last Name"],
+        "email": ["Email"]
+      }
+    }
+  }
+}

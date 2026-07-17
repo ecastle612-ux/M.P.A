@@ -411,6 +411,8 @@ export async function applyLeaseMutation(
 
   if (mutation.action === "activate") {
     await syncUnitOccupancyFromLease(organizationId, lease.unitId, "occupied", userId, supabase);
+    const { generateRentChargesForActiveLease } = await import("../financial/server");
+    await generateRentChargesForActiveLease(organizationId, leaseId, userId, supabase).catch(() => undefined);
   }
   if (mutation.action === "expire" || mutation.action === "terminate" || mutation.action === "move_out") {
     await syncUnitOccupancyFromActiveLeases(organizationId, lease.unitId, userId, supabase);

@@ -5,18 +5,21 @@ import Link from "next/link";
 import {
   Badge,
   Button,
-  Card,
   Input,
   Select,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableHeaderCell,
   TableRow
 } from "@mpa/ui";
+import { DataTableLayout } from "../presentation/data-table-layout";
+import { ListWorkspaceHeader } from "../presentation/list-workspace-header";
+import { ExperienceEmptyState } from "../experience/experience-empty-state";
+import { getFilteredEmptyMessage } from "../../lib/experience/empty-states";
 import { toPropertyStatusLabel, toPropertyTypeLabel, type PropertyRecord } from "../../lib/property/contracts";
-import { MpaLogo } from "../branding/mpa-logo";
 
 type PropertyListItem = PropertyRecord & {
   unitCount: number;
@@ -94,191 +97,175 @@ export function PropertiesTable({
   }
 
   if (visibleItems.length === 0) {
-    return (
-      <Card>
-        <MpaLogo className="mb-2 h-12 w-auto" alt="M.P.A. logo" />
-        <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">No properties yet</h2>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Create your first property to start organizing your portfolio.
-        </p>
-        {permissions.canCreate ? (
-          <Link href="/properties/new" className="mt-3 inline-block">
-            <Button>Create Property</Button>
-          </Link>
-        ) : null}
-      </Card>
-    );
+    return <ExperienceEmptyState module="properties" canCreate={permissions.canCreate} />;
   }
 
+  const totalUnits = visibleItems.reduce((sum, item) => sum + item.unitCount, 0);
+  const totalOccupied = visibleItems.reduce((sum, item) => sum + item.occupiedUnits, 0);
+  const totalVacancies = visibleItems.reduce((sum, item) => sum + item.vacancyUnits, 0);
+  const activeProperties = visibleItems.filter((item) => item.status === "active").length;
+  const occupancyRate = totalUnits === 0 ? 0 : Math.round((totalOccupied / totalUnits) * 100);
+
   return (
-    <Card className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Property Portfolio</h2>
-        {permissions.canCreate ? (
+    <div className="space-y-5">
+      <ListWorkspaceHeader
+        metrics={[
+          { label: "Properties", value: visibleItems.length.toString(), hint: `${activeProperties} active` },
+          { label: "Total units", value: totalUnits.toString() },
+          { label: "Occupancy", value: `${occupancyRate}%`, hint: `${totalOccupied}/${totalUnits || 0} occupied` },
+          { label: "Vacancies", value: totalVacancies.toString() }
+        ]}
+        recommendationsPlaceholder="AI recommendations for portfolio optimization will appear here as your data grows."
+      />
+    <DataTableLayout
+      overline="Portfolio"
+      title="Properties"
+      description="Manage buildings, occupancy, and operational context across your organization."
+      actions={
+        permissions.canCreate ? (
           <Link href="/properties/new">
-            <Button>Create Property</Button>
+            <Button>Create property</Button>
           </Link>
-        ) : null}
-      </div>
-      <div className="grid gap-2 lg:grid-cols-[2fr_1fr_1fr]">
-        <Input
-          aria-label="Search properties"
-          placeholder="Search by name, code, city, state"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setPage(1);
-          }}
-        />
-        <Select
-          aria-label="Filter property status"
-          value={statusFilter}
-          onChange={(event) => {
-            setStatusFilter(event.target.value as "all" | PropertyRecord["status"]);
-            setPage(1);
-          }}
-        >
-          <option value="all">All statuses</option>
-          <option value="active">Active</option>
-          <option value="draft">Draft</option>
-          <option value="inactive">Inactive</option>
-          <option value="archived">Archived</option>
-        </Select>
-        <Select
-          aria-label="Filter property type"
-          value={typeFilter}
-          onChange={(event) => {
-            setTypeFilter(event.target.value as "all" | PropertyRecord["propertyType"]);
-            setPage(1);
-          }}
-        >
-          <option value="all">All types</option>
-          <option value="residential">Residential</option>
-          <option value="commercial">Commercial</option>
-          <option value="apartment">Apartment</option>
-          <option value="condo">Condo</option>
-          <option value="hoa">HOA</option>
-          <option value="townhome">Townhome</option>
-          <option value="multi_family">Multi-family</option>
-        </Select>
-      </div>
-      {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
-      {filteredItems.length === 0 ? (
-        <p className="rounded-md border border-dashed border-[var(--mpa-color-border-default)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">
-          No properties match your filters. Adjust search or filters to continue.
-        </p>
-      ) : null}
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHead>
-            <tr>
-              <TableHeaderCell>Property</TableHeaderCell>
-              <TableHeaderCell>Type</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell>Units</TableHeaderCell>
-              <TableHeaderCell>Occupancy</TableHeaderCell>
-              <TableHeaderCell>Tenants</TableHeaderCell>
-              <TableHeaderCell className="text-right">Actions</TableHeaderCell>
-            </tr>
-          </TableHead>
-          <TableBody>
-            {pagedItems.map((item) => {
-              const busyArchive =
-                submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
-              const busyDelete = submittingAction === `${item.id}:soft_delete`;
-              const isArchived = item.status === "archived";
-              return (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <p className="font-medium text-[var(--mpa-color-text-primary)]">{item.name}</p>
-                    <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                      {item.city}, {item.stateRegion}
-                    </p>
-                  </TableCell>
-                  <TableCell>{toPropertyTypeLabel(item.propertyType)}</TableCell>
-                  <TableCell>
-                    <Badge variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}>
-                      {toPropertyStatusLabel(item.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{item.unitCount}</TableCell>
-                  <TableCell>
-                    {item.occupiedUnits}/{item.unitCount || 0} occupied
-                    <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.vacancyUnits} vacancies</p>
-                  </TableCell>
-                  <TableCell>{item.tenantCount}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <Link href={`/properties/${item.id}`}>
-                        <Button variant="secondary" size="sm">
-                          View
-                        </Button>
-                      </Link>
-                      {permissions.canUpdate ? (
-                        <Link href={`/properties/${item.id}/edit`}>
+        ) : null
+      }
+      filters={
+        <>
+          <Input
+            aria-label="Search properties"
+            placeholder="Search by name, code, city, state"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(1);
+            }}
+          />
+          <Select
+            aria-label="Filter property status"
+            value={statusFilter}
+            onChange={(event) => {
+              setStatusFilter(event.target.value as "all" | PropertyRecord["status"]);
+              setPage(1);
+            }}
+          >
+            <option value="all">All statuses</option>
+            <option value="active">Active</option>
+            <option value="draft">Draft</option>
+            <option value="inactive">Inactive</option>
+            <option value="archived">Archived</option>
+          </Select>
+          <Select
+            aria-label="Filter property type"
+            value={typeFilter}
+            onChange={(event) => {
+              setTypeFilter(event.target.value as "all" | PropertyRecord["propertyType"]);
+              setPage(1);
+            }}
+          >
+            <option value="all">All types</option>
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+            <option value="apartment">Apartment</option>
+            <option value="condo">Condo</option>
+            <option value="hoa">HOA</option>
+            <option value="townhome">Townhome</option>
+            <option value="multi_family">Multi-family</option>
+          </Select>
+        </>
+      }
+      error={error}
+      showEmptyFiltered={filteredItems.length === 0}
+      emptyFilteredMessage={getFilteredEmptyMessage("properties")}
+      page={currentPage}
+      pageCount={pageCount}
+      totalItems={filteredItems.length}
+      pageSize={PAGE_SIZE}
+      onPreviousPage={() => setPage((value) => Math.max(1, value - 1))}
+      onNextPage={() => setPage((value) => Math.min(pageCount, value + 1))}
+    >
+      <TableContainer className="rounded-none border-0 shadow-none">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHead>
+              <tr>
+                <TableHeaderCell>Property</TableHeaderCell>
+                <TableHeaderCell>Type</TableHeaderCell>
+                <TableHeaderCell>Status</TableHeaderCell>
+                <TableHeaderCell>Units</TableHeaderCell>
+                <TableHeaderCell>Occupancy</TableHeaderCell>
+                <TableHeaderCell>Tenants</TableHeaderCell>
+                <TableHeaderCell className="text-right">Actions</TableHeaderCell>
+              </tr>
+            </TableHead>
+            <TableBody>
+              {pagedItems.map((item) => {
+                const busyArchive =
+                  submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
+                const busyDelete = submittingAction === `${item.id}:soft_delete`;
+                const isArchived = item.status === "archived";
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <p className="font-medium text-[var(--mpa-color-text-primary)]">{item.name}</p>
+                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        {item.city}, {item.stateRegion}
+                      </p>
+                    </TableCell>
+                    <TableCell>{toPropertyTypeLabel(item.propertyType)}</TableCell>
+                    <TableCell>
+                      <Badge showDot variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}>
+                        {toPropertyStatusLabel(item.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{item.unitCount}</TableCell>
+                    <TableCell>
+                      {item.occupiedUnits}/{item.unitCount || 0} occupied
+                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.vacancyUnits} vacancies</p>
+                    </TableCell>
+                    <TableCell>{item.tenantCount}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Link href={`/properties/${item.id}`}>
                           <Button variant="secondary" size="sm">
-                            Edit
+                            View
                           </Button>
                         </Link>
-                      ) : null}
-                      {permissions.canArchive ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={busyArchive}
-                          onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
-                        >
-                          {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
-                        </Button>
-                      ) : null}
-                      {permissions.canDelete ? (
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          disabled={busyDelete}
-                          onClick={() => runAction(item.id, "soft_delete")}
-                        >
-                          {busyDelete ? "Deleting..." : "Delete"}
-                        </Button>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-          {filteredItems.length === 0
-            ? "Showing 0 of 0"
-            : `Showing ${(currentPage - 1) * PAGE_SIZE + 1}-${Math.min(currentPage * PAGE_SIZE, filteredItems.length)} of ${filteredItems.length}`}
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={currentPage <= 1}
-            onClick={() => setPage((value) => Math.max(1, value - 1))}
-          >
-            Previous
-          </Button>
-          <span className="text-xs text-[var(--mpa-color-text-secondary)]">
-            Page {currentPage} of {pageCount}
-          </span>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={currentPage >= pageCount}
-            onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
-          >
-            Next
-          </Button>
+                        {permissions.canUpdate ? (
+                          <Link href={`/properties/${item.id}/edit`}>
+                            <Button variant="secondary" size="sm">
+                              Edit
+                            </Button>
+                          </Link>
+                        ) : null}
+                        {permissions.canArchive ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={busyArchive}
+                            onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
+                          >
+                            {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
+                          </Button>
+                        ) : null}
+                        {permissions.canDelete ? (
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            disabled={busyDelete}
+                            onClick={() => runAction(item.id, "soft_delete")}
+                          >
+                            {busyDelete ? "Deleting..." : "Delete"}
+                          </Button>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
-      </div>
-    </Card>
+      </TableContainer>
+    </DataTableLayout>
+    </div>
   );
 }

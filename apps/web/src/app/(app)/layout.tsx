@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createAuthServerComponentClient } from "../../lib/auth/server";
 import { ApplicationShell } from "../../components/shell/application-shell";
 import { resolveAuthenticatedShellContext } from "../../lib/auth/get-shell-context";
+import { getSetupStatus } from "../../lib/setup/server";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const supabase = await createAuthServerComponentClient();
@@ -14,7 +15,13 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     redirect("/login");
   }
 
-  const shellContext = await resolveAuthenticatedShellContext(user);
+  const [shellContext, setupStatus] = await Promise.all([
+    resolveAuthenticatedShellContext(user),
+    getSetupStatus(user.id, false, {
+      email: user.email ?? null,
+      appMetadata: user.app_metadata
+    })
+  ]);
 
   return (
     <ApplicationShell
@@ -22,6 +29,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       defaultRole={shellContext.defaultRole}
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
+      isSetupComplete={setupStatus.isComplete}
     >
       {children}
     </ApplicationShell>

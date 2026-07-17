@@ -4,6 +4,7 @@ export type NotificationPreferences = {
   email: boolean;
   in_app: boolean;
   sms: boolean;
+  jobTitle?: string;
 };
 
 export type ProfileUpdateInput = {
@@ -50,17 +51,24 @@ export function parseNotificationPreferences(value: unknown): NotificationPrefer
   const email = typeof raw["email"] === "boolean" ? raw["email"] : null;
   const inApp = typeof raw["in_app"] === "boolean" ? raw["in_app"] : null;
   const sms = typeof raw["sms"] === "boolean" ? raw["sms"] : null;
+  const jobTitle = typeof raw["job_title"] === "string" ? raw["job_title"].trim() : undefined;
   if (email === null || inApp === null || sms === null) {
     return null;
   }
-  return { email, in_app: inApp, sms };
+  return {
+    email,
+    in_app: inApp,
+    sms,
+    ...(jobTitle ? { jobTitle } : {})
+  };
 }
 
 export function toNotificationPreferencesJson(preferences: NotificationPreferences): Json {
   return {
     email: preferences.email,
     in_app: preferences.in_app,
-    sms: preferences.sms
+    sms: preferences.sms,
+    ...(preferences.jobTitle ? { job_title: preferences.jobTitle } : {})
   };
 }
 

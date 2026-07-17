@@ -35,7 +35,10 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/tenants") ||
     request.nextUrl.pathname.startsWith("/leases") ||
     request.nextUrl.pathname.startsWith("/maintenance") ||
-    request.nextUrl.pathname.startsWith("/vendors");
+    request.nextUrl.pathname.startsWith("/vendors") ||
+    request.nextUrl.pathname.startsWith("/communications") ||
+    request.nextUrl.pathname.startsWith("/financials") ||
+    request.nextUrl.pathname.startsWith("/ai-operations");
 
   if (isRootRoute) {
     const url = request.nextUrl.clone();
@@ -70,6 +73,10 @@ export const config = {
     "/leases/:path*",
     "/maintenance/:path*",
     "/vendors/:path*",
+    "/communications/:path*",
+    "/financials/:path*",
+    "/ai-operations/:path*",
+    "/join/:path*",
     "/login",
     "/forgot-password",
     "/reset-password",

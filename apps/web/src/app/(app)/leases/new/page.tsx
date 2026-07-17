@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { Breadcrumbs } from "../../../../components/shell/breadcrumbs";
+import { CreatePageLayout } from "../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../components/presentation/create-form-context-rail";
 import { LeaseForm } from "../../../../components/lease/lease-form";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -38,34 +39,58 @@ export default async function NewLeasePage({
     getTenantsForOrganization(organizationId)
   ]);
 
+  const selectedTenant = tenantId ? tenants.find((tenant) => tenant.id === tenantId) : null;
+
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/leases", label: "Leases" },
-          { label: "Create" }
-        ]}
-      />
-      <LeaseForm
-        mode="create"
-        properties={properties.map((property) => ({ id: property.id, name: property.name }))}
-        units={units.map((unit) => ({
-          id: unit.id,
-          propertyId: unit.propertyId,
-          unitNumber: unit.unitNumber,
-          unitLabel: unit.unitLabel
-        }))}
-        tenants={tenants.map((tenant) => ({
-          id: tenant.id,
-          propertyId: tenant.propertyId,
-          unitId: tenant.unitId,
-          name: tenant.preferredName || `${tenant.firstName} ${tenant.lastName}`
-        }))}
-        initialPropertyId={propertyId ?? null}
-        initialUnitId={unitId ?? null}
-        initialTenantId={tenantId ?? null}
-      />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/leases", label: "Leases" },
+        { label: "Create" }
+      ]}
+      form={
+        <LeaseForm
+          mode="create"
+          properties={properties.map((property) => ({ id: property.id, name: property.name }))}
+          units={units.map((unit) => ({
+            id: unit.id,
+            propertyId: unit.propertyId,
+            unitNumber: unit.unitNumber,
+            unitLabel: unit.unitLabel
+          }))}
+          tenants={tenants.map((tenant) => ({
+            id: tenant.id,
+            propertyId: tenant.propertyId,
+            unitId: tenant.unitId,
+            name: tenant.preferredName || `${tenant.firstName} ${tenant.lastName}`
+          }))}
+          initialPropertyId={propertyId ?? null}
+          initialUnitId={unitId ?? null}
+          initialTenantId={tenantId ?? null}
+        />
+      }
+      contextRail={
+        <CreateFormContextRail
+          module="lease"
+          setupSteps={[
+            { id: "property", label: "Property linked", complete: Boolean(propertyId) },
+            { id: "units", label: "Unit linked", complete: Boolean(unitId) },
+            { id: "tenant", label: "Tenant linked", complete: Boolean(tenantId) },
+            { id: "lease", label: "Create lease", complete: false }
+          ]}
+          relatedLinks={[
+            ...(selectedTenant
+              ? [
+                  {
+                    label: selectedTenant.preferredName || `${selectedTenant.firstName} ${selectedTenant.lastName}`,
+                    href: `/tenants/${selectedTenant.id}`
+                  }
+                ]
+              : []),
+            { label: "Leases list", href: "/leases" }
+          ]}
+        />
+      }
+    />
   );
 }

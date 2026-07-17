@@ -6,7 +6,7 @@ import { Badge, Card } from "@mpa/ui";
 import { OrganizationSwitcher } from "../shell/organization-switcher";
 import { RoleSwitcher } from "../shell/role-switcher";
 import { ProfileMenu } from "../shell/profile-menu";
-import { MpaLogo } from "../branding/mpa-logo";
+import { Logo } from "../branding/logo";
 
 type PortalNavigationItem = {
   href: string;
@@ -28,11 +28,14 @@ export function PortalShell({
 }) {
   return (
     <div className="min-h-screen bg-[var(--mpa-color-bg-app)]">
-      <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
+      <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 px-4 py-3 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3">
-          <MpaLogo className="h-12 w-auto" alt="M.P.A. logo" />
-          <p className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{title}</p>
-          <Badge>{roleBadgeLabel}</Badge>
+          <Logo size="sidebarExpanded" />
+          <div className="min-w-0">
+            <p className="truncate font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">{title}</p>
+            <p className="truncate text-xs text-[var(--mpa-color-text-secondary)]">{subtitle}</p>
+          </div>
+          <Badge variant="neutral">{roleBadgeLabel}</Badge>
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <OrganizationSwitcher />
             <RoleSwitcher />
@@ -41,15 +44,17 @@ export function PortalShell({
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-4 lg:grid-cols-[260px_1fr]">
-        <Card className="h-fit">
-          <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">Navigation</p>
-          <nav className="mt-3 space-y-1">
+      <div className="mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[15rem_1fr]">
+        <Card variant="elevated" className="h-fit p-1">
+          <p className="px-2 pt-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
+            Navigation
+          </p>
+          <nav className="mt-1 space-y-0.5 p-1">
             {navigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="block rounded-md px-2 py-2 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-sidebar-elevated)] hover:text-[var(--mpa-color-text-primary)]"
+                className="block rounded-[var(--mpa-radius-md)] px-2.5 py-2 text-sm text-[var(--mpa-color-text-secondary)] transition-colors hover:bg-[var(--mpa-color-bg-muted)] hover:text-[var(--mpa-color-text-primary)]"
               >
                 {item.label}
               </Link>
@@ -57,13 +62,7 @@ export function PortalShell({
           </nav>
         </Card>
 
-        <main className="space-y-4">
-          <Card>
-            <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">{title}</h1>
-            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{subtitle}</p>
-          </Card>
-          {children}
-        </main>
+        <main className="space-y-5">{children}</main>
       </div>
     </div>
   );

@@ -315,6 +315,22 @@ Phase 12: Production Hardening               ████████
 
 ---
 
+## PX Initiatives (Presentation Layer)
+
+Cross-cutting UX sprints that do not add business modules. Each follows the Implementation Gate.
+
+| Initiative | Status | Focus |
+|------------|--------|-------|
+| [PX-001](../30-product-experience/01-product-vision.md) | Approved | Design system + dashboard experience foundation |
+| [PX-003](../33-px-003-enterprise-ui-overhaul/README.md) | Implemented | Enterprise UI overhaul |
+| [PX-005](../37-px-005-official-brand-asset-replacement/README.md) | Implemented | Official SVG brand asset |
+| **[PX-006](../38-px-006-workflow-experience-enterprise-ux/README.md)** | **Complete** | **Product experience & workflow — setup wizard, continuity, density, context, human audit** |
+| **[PX-007](../39-px-007-competitive-product-audit-beta-readiness/README.md)** | **Draft** | **Competitive product audit & beta readiness — no feature scope** |
+
+**Recommended sequencing:** PX-007 audit → approve beta scope → Phase 12 production hardening for commercial launch.
+
+---
+
 ## Decision Points
 
 | Decision | Needed By | Options |

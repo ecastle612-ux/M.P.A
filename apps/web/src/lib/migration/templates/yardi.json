@@ -1,0 +1,28 @@
+{
+  "sourceSoftware": "yardi",
+  "label": "Yardi",
+  "entityTypes": {
+    "property": {
+      "columnMap": {
+        "name": ["Property Name", "Property Code"],
+        "addressLine1": ["Address Line 1"],
+        "city": ["City"],
+        "stateRegion": ["State"],
+        "postalCode": ["Zip Code"]
+      }
+    },
+    "unit": {
+      "columnMap": {
+        "propertyName": ["Property Name"],
+        "unitNumber": ["Unit Code", "Unit"]
+      }
+    },
+    "tenant": {
+      "columnMap": {
+        "firstName": ["Tenant First Name"],
+        "lastName": ["Tenant Last Name"],
+        "email": ["Email"]
+      }
+    }
+  }
+}

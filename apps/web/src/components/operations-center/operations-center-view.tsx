@@ -2,33 +2,59 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { DashboardSnapshot, DashboardLeaseSummary, DashboardVendorSummary } from "../../lib/dashboard/server";
+import type { DashboardSnapshot, DashboardLeaseSummary, DashboardVendorSummary, DashboardFinancialSummary, DashboardApplicantSummary } from "../../lib/dashboard/server";
+import type { MigrationDashboardMetrics } from "../../lib/migration/server";
+import type { CommunicationDashboardMetrics } from "../../lib/communication/server";
+import { formatCurrency } from "../../lib/financial/contracts";
+import { formatRefreshTime } from "../../lib/format/time";
+import { AiOperationsWidget } from "../ai/ai-operations-widget";
+import { PortfolioSetupHealth } from "../setup/portfolio-setup-health";
+import { Button, KpiMetric } from "@mpa/ui";
 
 const REFRESH_INTERVAL_MS = 30000;
+const OPS_PANEL =
+  "rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)]";
+const OPS_PANEL_PAD_SM = `${OPS_PANEL} p-4`;
 
 type OperationsPermissions = {
   canCreateProperty: boolean;
   canCreateUnit: boolean;
   canCreateTenant: boolean;
+  canCreateApplicant: boolean;
+  canReadApplicants: boolean;
   canCreateMaintenance: boolean;
   canReadMaintenance: boolean;
   canCreateVendor: boolean;
   canReadVendors: boolean;
   canCreateLease: boolean;
   canReadLeases: boolean;
+  canCreateCommunication: boolean;
+  canReadCommunications: boolean;
+  canCreateFinancial: boolean;
+  canReadFinancials: boolean;
+  canReadAi: boolean;
+  canUseAi: boolean;
+  canReadMigration: boolean;
+  canCreateMigration: boolean;
 };
 
 export function OperationsCenterView({
   initialSnapshot,
   organizationName,
-  permissions
+  userGreetingName,
+  timeGreeting,
+  permissions,
+  initialRefreshedAt
 }: {
   initialSnapshot: DashboardSnapshot;
   organizationName: string | null;
+  userGreetingName: string | null;
+  timeGreeting: string;
   permissions: OperationsPermissions;
+  initialRefreshedAt: string;
 }) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState(() => formatTime(new Date()));
+  const [lastRefreshedAt, setLastRefreshedAt] = useState(initialRefreshedAt);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const refreshSnapshot = useCallback(async () => {
@@ -39,7 +65,7 @@ export function OperationsCenterView({
       const payload = (await response.json()) as { snapshot?: DashboardSnapshot };
       if (payload.snapshot) {
         setSnapshot(payload.snapshot);
-        setLastRefreshedAt(formatTime(new Date()));
+        setLastRefreshedAt(formatRefreshTime(new Date()));
       }
     } finally {
       setIsRefreshing(false);
@@ -75,6 +101,8 @@ export function OperationsCenterView({
     <OperationsCenterLayout
       snapshot={snapshot}
       organizationName={organizationName}
+      userGreetingName={userGreetingName}
+      timeGreeting={timeGreeting}
       permissions={permissions}
       visibleTasks={visibleTasks}
       lastRefreshedAt={lastRefreshedAt}
@@ -87,6 +115,8 @@ export function OperationsCenterView({
 function OperationsCenterLayout({
   snapshot,
   organizationName,
+  userGreetingName,
+  timeGreeting,
   permissions,
   visibleTasks,
   lastRefreshedAt,
@@ -95,6 +125,8 @@ function OperationsCenterLayout({
 }: {
   snapshot: DashboardSnapshot;
   organizationName: string | null;
+  userGreetingName: string | null;
+  timeGreeting: string;
   permissions: OperationsPermissions;
   visibleTasks: DashboardSnapshot["operationalTasks"];
   lastRefreshedAt: string;
@@ -105,36 +137,37 @@ function OperationsCenterLayout({
   const occupancyPercent = Math.round(snapshot.occupancyRate * 100);
 
   return (
-    <main className="mpa-page flex-1 space-y-6">
+    <main className="mpa-page-wide flex-1 space-y-8">
+      <PortfolioSetupHealth />
       <header className="mpa-page-header">
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--mpa-color-brand-primary)]">
-            Operations Center
-          </p>
-          <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-            Good morning{organizationName ? `, ${organizationName}` : ""}
+          <p className="mpa-section-label text-[var(--mpa-color-brand-primary)]">Operations Center</p>
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)] md:text-[2rem]">
+            {userGreetingName ? `${timeGreeting}, ${userGreetingName}.` : `${timeGreeting}.`}
           </h1>
-          <p className="max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-            Your live portfolio command surface — review tasks, occupancy, and recent changes in one place.
+          {organizationName ? (
+            <p className="text-base font-medium text-[var(--mpa-color-text-secondary)]">{organizationName}</p>
+          ) : null}
+          <p className="max-w-2xl text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
+            Portfolio command surface — what needs attention, what changed, and what to do next.
           </p>
           <div
-            className="flex flex-wrap items-center gap-2 text-xs text-[var(--mpa-color-text-secondary)]"
+            className="flex flex-wrap items-center gap-3 text-xs text-[var(--mpa-color-text-muted)]"
             aria-live="polite"
           >
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[var(--mpa-color-brand-primary-subtle)] px-2.5 py-1 font-medium text-[var(--mpa-color-brand-primary)]">
               <span
-                className={`inline-block h-2 w-2 rounded-full ${isRefreshing ? "animate-pulse bg-[var(--mpa-color-brand-primary)]" : "bg-emerald-500"}`}
+                className={`inline-block h-1.5 w-1.5 rounded-full ${isRefreshing ? "animate-pulse bg-[var(--mpa-color-brand-primary)]" : "bg-[var(--mpa-color-status-success)]"}`}
                 aria-hidden="true"
               />
-              Live data
+              Live portfolio data
             </span>
-            <span aria-hidden="true">•</span>
             <span>Updated {lastRefreshedAt || "just now"}</span>
             <button
               type="button"
               onClick={onRefresh}
               disabled={isRefreshing}
-              className="rounded-md px-2 py-1 font-medium text-[var(--mpa-color-brand-primary)] hover:bg-[var(--mpa-color-bg-app)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)] disabled:opacity-60"
+              className="rounded-[var(--mpa-radius-md)] px-2 py-1 font-medium text-[var(--mpa-color-text-link)] transition-colors hover:bg-[var(--mpa-color-interactive-row-hover)] disabled:opacity-60"
             >
               {isRefreshing ? "Refreshing…" : "Refresh"}
             </button>
@@ -143,25 +176,26 @@ function OperationsCenterLayout({
         <QuickActionsBar permissions={permissions} />
       </header>
 
-      <section aria-labelledby="portfolio-summary-heading" className="space-y-3">
-        <h2 id="portfolio-summary-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-          Portfolio Summary
+      <section aria-labelledby="portfolio-summary-heading" className="space-y-4">
+        <h2 id="portfolio-summary-heading" className="mpa-section-title">
+          Portfolio summary
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          <SummaryMetric
+          <KpiMetric
             label="Total Properties"
             value={snapshot.propertiesTotal}
             href="/properties"
             hint="View all properties"
           />
-          <SummaryMetric label="Total Units" value={snapshot.unitsTotal} href="/units" hint="View all units" />
-          <SummaryMetric
+          <KpiMetric label="Total Units" value={snapshot.unitsTotal} href="/units" hint="View all units" />
+          <KpiMetric
             label="Occupied Units"
             value={snapshot.occupiedUnits}
             href="/units"
             hint="Review occupied inventory"
+            tone="success"
           />
-          <SummaryMetric
+          <KpiMetric
             label="Vacant Units"
             value={snapshot.vacanciesTotal}
             href="/units"
@@ -181,6 +215,14 @@ function OperationsCenterLayout({
         <MaintenanceOperationsCard snapshot={snapshot.maintenance} canCreate={permissions.canCreateMaintenance} />
       ) : null}
 
+      {snapshot.applicants && permissions.canReadApplicants ? (
+        <ApplicantOperationsCard snapshot={snapshot.applicants} canCreate={permissions.canCreateApplicant} />
+      ) : null}
+
+      {snapshot.migration && permissions.canReadMigration ? (
+        <MigrationOperationsCard snapshot={snapshot.migration} canCreate={permissions.canCreateMigration} />
+      ) : null}
+
       {snapshot.vendors && permissions.canReadVendors ? (
         <VendorOperationsCard snapshot={snapshot.vendors} canCreate={permissions.canCreateVendor} />
       ) : null}
@@ -188,6 +230,16 @@ function OperationsCenterLayout({
       {snapshot.leases && permissions.canReadLeases ? (
         <LeaseOperationsCard snapshot={snapshot.leases} canCreate={permissions.canCreateLease} />
       ) : null}
+
+      {snapshot.communications && permissions.canReadCommunications ? (
+        <CommunicationOperationsCard snapshot={snapshot.communications} canCreate={permissions.canCreateCommunication} />
+      ) : null}
+
+      {snapshot.financial && permissions.canReadFinancials ? (
+        <FinancialOperationsCard snapshot={snapshot.financial} canCreate={permissions.canCreateFinancial} />
+      ) : null}
+
+      {permissions.canReadAi ? <AiOperationsWidget canUse={permissions.canUseAi} /> : null}
 
       {!hasPortfolio ? <PortfolioEmptyState permissions={permissions} /> : null}
 
@@ -201,6 +253,7 @@ function QuickActionsBar({ permissions }: { permissions: OperationsPermissions }
     { label: "Create Property", href: "/properties/new", show: permissions.canCreateProperty, variant: "primary" as const },
     { label: "Create Unit", href: "/units/new", show: permissions.canCreateUnit, variant: "secondary" as const },
     { label: "Create Tenant", href: "/tenants/new", show: permissions.canCreateTenant, variant: "secondary" as const },
+    { label: "Create Applicant", href: "/applicants/new", show: permissions.canCreateApplicant, variant: "secondary" as const },
     {
       label: "Create Work Order",
       href: "/maintenance/new",
@@ -219,77 +272,42 @@ function QuickActionsBar({ permissions }: { permissions: OperationsPermissions }
       show: permissions.canCreateLease,
       variant: "secondary" as const
     },
-    { label: "Search", href: "#search", show: true, variant: "ghost" as const, isSearch: true }
+    {
+      label: "Create Announcement",
+      href: "/communications/new",
+      show: permissions.canCreateCommunication,
+      variant: "secondary" as const
+    },
+    {
+      label: "Record Payment",
+      href: "/financials/charges",
+      show: permissions.canCreateFinancial,
+      variant: "secondary" as const
+    },
+    {
+      label: "Record Expense",
+      href: "/financials/expenses/new",
+      show: permissions.canCreateFinancial,
+      variant: "secondary" as const
+    }
   ].filter((action) => action.show);
 
   return (
-    <nav aria-label="Quick actions" className="flex flex-wrap gap-2">
+    <nav aria-label="Quick actions" className="flex w-full flex-wrap justify-start gap-2.5 lg:w-auto lg:justify-end">
       {actions.map((action) =>
-        action.isSearch ? (
-          <button
-            key={action.label}
-            type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent("mpa:open-command-center"))}
-            className="inline-flex items-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm font-medium text-[var(--mpa-color-text-primary)] transition-colors hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]"
-          >
-            Search
-            <kbd className="ml-2 hidden rounded border border-[var(--mpa-color-border-default)] px-1 text-[10px] sm:inline">
-              ⌘K
-            </kbd>
-          </button>
+        action.variant === "primary" ? (
+          <Link key={action.label} href={action.href}>
+            <Button size="sm">{action.label}</Button>
+          </Link>
         ) : (
-          <Link
-            key={action.label}
-            href={action.href}
-            className={[
-              "inline-flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]",
-              action.variant === "primary"
-                ? "bg-[var(--mpa-color-brand-primary)] text-white hover:opacity-90"
-                : action.variant === "secondary"
-                  ? "border border-[var(--mpa-color-border-default)] bg-white text-[var(--mpa-color-text-primary)] hover:bg-gray-50"
-                  : "text-[var(--mpa-color-text-secondary)] hover:bg-gray-50"
-            ].join(" ")}
-          >
-            {action.label}
+          <Link key={action.label} href={action.href}>
+            <Button size="sm" variant="secondary">
+              {action.label}
+            </Button>
           </Link>
         )
       )}
     </nav>
-  );
-}
-
-function SummaryMetric({
-  label,
-  value,
-  href,
-  hint,
-  tone = "default"
-}: {
-  label: string;
-  value: number;
-  href: string;
-  hint: string;
-  tone?: "default" | "warning";
-}) {
-  return (
-    <Link
-      href={href}
-      aria-label={`${label}: ${value}. ${hint}`}
-      className="group rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]"
-    >
-      <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{label}</p>
-      <p
-        className={[
-          "mt-2 text-3xl font-semibold tabular-nums",
-          tone === "warning" ? "text-amber-700" : "text-[var(--mpa-color-text-primary)]"
-        ].join(" ")}
-      >
-        {value}
-      </p>
-      <p className="mt-2 text-xs text-[var(--mpa-color-brand-primary)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-        {hint} →
-      </p>
-    </Link>
   );
 }
 
@@ -303,18 +321,16 @@ function OccupancyCard({
   total: number;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-sm sm:col-span-2 xl:col-span-1">
-      <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-        Occupancy Rate
-      </p>
-      <p className="mt-2 text-3xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">
+    <div className={`${OPS_PANEL_PAD_SM} sm:col-span-2 xl:col-span-1`}>
+      <p className="mpa-section-label">Occupancy rate</p>
+      <p className="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight text-[var(--mpa-color-text-primary)]">
         {occupancyPercent}%
       </p>
       <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
         {occupied} of {total} units occupied
       </p>
       <div
-        className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100"
+        className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--mpa-color-bg-surface-muted)]"
         role="img"
         aria-label={`Occupancy ${occupancyPercent} percent`}
       >
@@ -356,7 +372,7 @@ function TenantOverviewCard({ snapshot }: { snapshot: DashboardSnapshot }) {
   ];
 
   return (
-    <article className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-sm xl:col-span-1">
+    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5 xl:col-span-1">
       <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Tenant Overview</h2>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
         Occupancy health and move-in momentum across your portfolio.
@@ -390,7 +406,7 @@ function TenantOverviewCard({ snapshot }: { snapshot: DashboardSnapshot }) {
 
 function OperationalTasksCard({ tasks }: { tasks: DashboardSnapshot["operationalTasks"] }) {
   return (
-    <article className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-sm xl:col-span-2">
+    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5 xl:col-span-2">
       <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Operational Tasks</h2>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
         Actionable next steps generated from your current portfolio state.
@@ -440,10 +456,17 @@ function TaskPriorityBadge({ priority }: { priority: DashboardSnapshot["operatio
 function PortfolioEmptyState({ permissions }: { permissions: OperationsPermissions }) {
   return (
     <section className="rounded-xl border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-6">
-      <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Start your portfolio foundation</h2>
+      <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Build your portfolio foundation</h2>
       <p className="mt-1 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-        Add properties and units to unlock occupancy intelligence, tenant overview, and operational task generation.
+        Properties are the starting point for everything in M.P.A. — units, tenants, leases, maintenance, and
+        financials all connect from here. Create your first property to unlock occupancy intelligence and operational
+        tasks.
       </p>
+      <ul className="mt-4 max-w-2xl space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
+        <li>· Apartment buildings, HOAs, and commercial properties</li>
+        <li>· Add units, assign tenants, and activate leases</li>
+        <li>· Track maintenance, vendors, and financial activity</li>
+      </ul>
       <div className="mt-4 flex flex-wrap gap-2">
         {permissions.canCreateProperty ? (
           <Link
@@ -474,7 +497,7 @@ function ActivityTimelineCard({
   hasPortfolio: boolean;
 }) {
   return (
-    <article className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-sm">
+    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Recent Activity</h2>
@@ -488,9 +511,9 @@ function ActivityTimelineCard({
       </div>
       {!hasPortfolio || activity.length === 0 ? (
         <div className="mt-4 rounded-lg border border-dashed border-[var(--mpa-color-border-default)] p-6 text-center">
-          <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Activity will appear here</p>
+          <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Your activity timeline starts here</p>
           <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-            Create or update properties, units, and tenants to populate your live timeline.
+            Create a property, add units, or log maintenance — updates appear in this feed as your portfolio grows.
           </p>
         </div>
       ) : (
@@ -590,7 +613,7 @@ function MaintenanceOperationsCard({
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-sm transition-shadow hover:shadow-md"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p
@@ -647,7 +670,7 @@ function MaintenanceListCard({
   emptyLabel: string;
 }) {
   return (
-    <article className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-sm">
+    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5">
       <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">{title}</h3>
       {items.length === 0 ? (
         <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">{emptyLabel}</p>
@@ -727,7 +750,7 @@ function VendorOperationsCard({
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-sm transition-shadow hover:shadow-md"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p
@@ -747,7 +770,7 @@ function VendorOperationsCard({
       </div>
 
       {snapshot.assignmentSamples.length > 0 ? (
-        <article className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-sm">
+        <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5">
           <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Open vendor assignments</h3>
           <ul className="mt-3 space-y-2">
             {snapshot.assignmentSamples.map((item) => (
@@ -827,7 +850,7 @@ function LeaseOperationsCard({
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-sm transition-shadow hover:shadow-md"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p
@@ -847,7 +870,7 @@ function LeaseOperationsCard({
       </div>
 
       {snapshot.expirationSample.length > 0 ? (
-        <article className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-sm">
+        <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5">
           <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Upcoming expirations</h3>
           <ul className="mt-3 space-y-2">
             {snapshot.expirationSample.map((item) => (
@@ -872,12 +895,392 @@ function LeaseOperationsCard({
   );
 }
 
-function formatTime(value: Date): string {
-  return new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit"
-  }).format(value);
+function ApplicantOperationsCard({
+  snapshot,
+  canCreate
+}: {
+  snapshot: NonNullable<DashboardApplicantSummary>;
+  canCreate: boolean;
+}) {
+  const metrics = [
+    {
+      label: "Pending applications",
+      value: snapshot.pendingApplications,
+      href: "/applicants?status=submitted",
+      tone: snapshot.pendingApplications > 0 ? ("warning" as const) : ("default" as const)
+    },
+    {
+      label: "Screening queue",
+      value: snapshot.screeningQueue,
+      href: "/applicants?status=screening_in_progress",
+      tone: snapshot.screeningQueue > 0 ? ("info" as const) : ("default" as const)
+    },
+    {
+      label: "Awaiting documents",
+      value: snapshot.awaitingDocuments,
+      href: "/applicants?status=awaiting_documents",
+      tone: snapshot.awaitingDocuments > 0 ? ("warning" as const) : ("default" as const)
+    },
+    {
+      label: "Awaiting signatures",
+      value: snapshot.awaitingSignatures,
+      href: "/applicants",
+      tone: snapshot.awaitingSignatures > 0 ? ("warning" as const) : ("default" as const)
+    },
+    {
+      label: "Recently approved",
+      value: snapshot.recentlyApproved,
+      href: "/applicants?status=approved",
+      tone: "success" as const
+    },
+    {
+      label: "Move-ins this week",
+      value: snapshot.moveInsThisWeek,
+      href: "/applicants?status=approved",
+      tone: snapshot.moveInsThisWeek > 0 ? ("info" as const) : ("default" as const)
+    }
+  ];
+
+  const sampleItems = [
+    ...snapshot.pendingSample,
+    ...snapshot.screeningSample,
+    ...snapshot.awaitingDocumentsSample
+  ].slice(0, 5);
+
+  return (
+    <section aria-labelledby="applicant-ops-heading" className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 id="applicant-ops-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+            Applicant Operations
+          </h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Application pipeline, screening, documents, signatures, and move-in readiness.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/applicants" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+            View applicants
+          </Link>
+          {canCreate ? (
+            <Link href="/applicants/new" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+              New application
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+        {metrics.map((metric) => (
+          <Link
+            key={metric.label}
+            href={metric.href}
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
+            <p
+              className={[
+                "mt-2 text-3xl font-semibold tabular-nums",
+                metric.tone === "warning"
+                  ? "text-amber-700"
+                  : metric.tone === "info"
+                    ? "text-sky-700"
+                    : metric.tone === "success"
+                      ? "text-emerald-700"
+                      : "text-[var(--mpa-color-text-primary)]"
+              ].join(" ")}
+            >
+              {metric.value}
+            </p>
+          </Link>
+        ))}
+      </div>
+
+      {sampleItems.length > 0 ? (
+        <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[var(--mpa-shadow-xs)]">
+          <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Applications needing attention</h3>
+          <ul className="mt-3 space-y-2">
+            {sampleItems.map((item) => (
+              <li key={item.id}>
+                <Link
+                  href={item.href}
+                  className="block rounded-lg border border-[var(--mpa-color-border-default)] px-3 py-2.5 transition-colors hover:bg-[var(--mpa-color-bg-app)]"
+                >
+                  <p className="text-xs font-semibold text-[var(--mpa-color-brand-primary)]">
+                    {item.applicationNumber} · {item.applicantName}
+                  </p>
+                  <p className="text-sm text-[var(--mpa-color-text-primary)]">{item.propertyName ?? "Unassigned property"}</p>
+                  <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.status.replaceAll("_", " ")}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ) : null}
+    </section>
+  );
+}
+
+function CommunicationOperationsCard({
+  snapshot,
+  canCreate
+}: {
+  snapshot: CommunicationDashboardMetrics;
+  canCreate: boolean;
+}) {
+  const metrics = [
+    { label: "Unread messages", value: snapshot.unreadMessages, href: "/communications/inbox", tone: "warning" as const },
+    { label: "Awaiting resident", value: snapshot.awaitingResidentReply, href: "/communications/inbox", tone: "warning" as const },
+    { label: "Vendor replies", value: snapshot.vendorReplies, href: "/communications/inbox", tone: "default" as const },
+    { label: "Pending threads", value: snapshot.pendingConversations, href: "/communications/inbox", tone: "info" as const },
+    { label: "Emergency unread", value: snapshot.emergencyUnread, href: "/communications/inbox", tone: "danger" as const },
+    { label: "Unread announcements", value: snapshot.unreadAnnouncements, href: "/communications", tone: "warning" as const },
+    { label: "Scheduled", value: snapshot.scheduledAnnouncements, href: "/communications", tone: "default" as const },
+    { label: "Read rate", value: `${snapshot.averageReadPercentage}%`, href: "/communications", tone: "info" as const }
+  ];
+
+  return (
+    <section aria-labelledby="communication-ops-heading" className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 id="communication-ops-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+            Communication Platform
+          </h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Unified inbox, resident announcements, readership, and community activity.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/communications/inbox" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+            Open inbox
+          </Link>
+          <Link href="/communications" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+            View announcements
+          </Link>
+          {canCreate ? (
+            <Link href="/communications/new" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+              Create announcement
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((metric) => (
+          <Link
+            key={metric.label}
+            href={metric.href}
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
+            <p
+              className={[
+                "mt-2 text-3xl font-semibold tabular-nums",
+                metric.tone === "warning"
+                  ? "text-amber-700"
+                  : metric.tone === "danger"
+                    ? "text-red-700"
+                    : metric.tone === "info"
+                      ? "text-sky-700"
+                      : "text-[var(--mpa-color-text-primary)]"
+              ].join(" ")}
+            >
+              {metric.value}
+            </p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function FinancialOperationsCard({
+  snapshot,
+  canCreate
+}: {
+  snapshot: DashboardFinancialSummary;
+  canCreate: boolean;
+}) {
+  const metrics = [
+    { label: "Rent due today", value: snapshot.rentDueToday, href: "/financials/charges", tone: "warning" as const },
+    { label: "Late rent", value: snapshot.lateRentCount, href: "/financials/charges", tone: "danger" as const },
+    {
+      label: "Outstanding",
+      value: formatCurrency(snapshot.outstandingBalancesTotal),
+      href: "/financials/charges",
+      tone: "warning" as const
+    },
+    {
+      label: "Owner statements",
+      value: snapshot.ownerStatementsGenerated,
+      href: "/financials/owner-statements",
+      tone: "info" as const
+    },
+    {
+      label: "Draft statements",
+      value: snapshot.ownerStatementsDraft,
+      href: "/financials/owner-statements",
+      tone: "default" as const
+    }
+  ];
+
+  return (
+    <section aria-labelledby="financial-ops-heading" className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 id="financial-ops-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+            Financial Operations
+          </h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Rent collection, expenses, owner statements, and outstanding balances.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/financials" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+            View financials
+          </Link>
+          {canCreate ? (
+            <Link href="/financials/expenses/new" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+              Record expense
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {metrics.map((metric) => (
+          <Link
+            key={metric.label}
+            href={metric.href}
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
+            <p
+              className={[
+                "mt-2 text-3xl font-semibold tabular-nums",
+                metric.tone === "warning"
+                  ? "text-amber-700"
+                  : metric.tone === "danger"
+                    ? "text-red-700"
+                    : metric.tone === "info"
+                      ? "text-sky-700"
+                      : "text-[var(--mpa-color-text-primary)]"
+              ].join(" ")}
+            >
+              {metric.value}
+            </p>
+          </Link>
+        ))}
+      </div>
+
+      {(snapshot.recentPaymentSample.length > 0 || snapshot.recentExpenseSample.length > 0) && (
+        <div className="grid gap-4 md:grid-cols-2">
+          {snapshot.recentPaymentSample.length > 0 ? (
+            <article className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
+              <h3 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Recent payments</h3>
+              <ul className="mt-2 space-y-2">
+                {snapshot.recentPaymentSample.map((payment) => (
+                  <li key={payment.id} className="text-sm">
+                    <Link href={payment.href} className="font-medium text-[var(--mpa-color-brand-primary)] hover:underline">
+                      {payment.paymentNumber}
+                    </Link>
+                    <span className="text-[var(--mpa-color-text-secondary)]">
+                      {" "}
+                      · {formatCurrency(payment.amount)} · {payment.paymentDate}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ) : null}
+          {snapshot.recentExpenseSample.length > 0 ? (
+            <article className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
+              <h3 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Recent expenses</h3>
+              <ul className="mt-2 space-y-2">
+                {snapshot.recentExpenseSample.map((expense) => (
+                  <li key={expense.id} className="text-sm">
+                    <Link href={expense.href} className="font-medium text-[var(--mpa-color-brand-primary)] hover:underline">
+                      {expense.description}
+                    </Link>
+                    <span className="text-[var(--mpa-color-text-secondary)]">
+                      {" "}
+                      · {formatCurrency(expense.amount)} · {expense.expenseDate}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ) : null}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function MigrationOperationsCard({
+  snapshot,
+  canCreate
+}: {
+  snapshot: MigrationDashboardMetrics;
+  canCreate: boolean;
+}) {
+  const metrics = [
+    { label: "Active jobs", value: snapshot.activeJobs, href: "/migration" },
+    { label: "Completed", value: snapshot.completedJobs, href: "/migration" },
+    { label: "Pending review", value: snapshot.pendingReview, href: "/migration" },
+    { label: "Import errors", value: snapshot.recentErrors, href: "/migration" },
+    { label: "Avg completion", value: `${snapshot.averageCompletionPct}%`, href: "/migration" }
+  ];
+
+  return (
+    <section aria-labelledby="migration-ops-heading" className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 id="migration-ops-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+            Migration Center
+          </h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Portfolio imports, pending reviews, and recent migration activity.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/migration" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+            Open Migration Center
+          </Link>
+          {canCreate ? (
+            <Link href="/migration/new" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+              New migration
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {metrics.map((metric) => (
+          <Link
+            key={metric.label}
+            href={metric.href}
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
+            <p className="mt-2 text-3xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">{metric.value}</p>
+          </Link>
+        ))}
+      </div>
+
+      {snapshot.pendingReviewSample.length > 0 ? (
+        <ul className="space-y-2 rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4">
+          {snapshot.pendingReviewSample.map((item) => (
+            <li key={item.id}>
+              <Link href={item.href} className="text-sm text-[var(--mpa-color-brand-primary)] hover:underline">
+                {item.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </section>
+  );
 }
 
 function formatRelativeTime(value: string): string {

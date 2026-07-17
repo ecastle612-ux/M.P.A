@@ -278,6 +278,25 @@ export async function createWorkOrder(
     });
   }
 
+  try {
+    const { ensureMaintenanceThread } = await import("../messaging/server");
+    await ensureMaintenanceThread(
+      organizationId,
+      userId,
+      {
+        id: workOrder.id,
+        workOrderNumber: workOrder.workOrderNumber,
+        title: workOrder.title,
+        propertyId: workOrder.propertyId,
+        unitId: workOrder.unitId,
+        tenantId: workOrder.tenantId
+      },
+      supabase
+    );
+  } catch {
+    // Thread creation is best-effort; work order creation must still succeed.
+  }
+
   return workOrder;
 }
 

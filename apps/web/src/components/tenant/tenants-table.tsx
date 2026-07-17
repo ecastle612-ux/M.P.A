@@ -12,12 +12,16 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableHeaderCell,
   TableRow
 } from "@mpa/ui";
 import { toTenantStatusLabel, type TenantRecord } from "../../lib/tenant/contracts";
-import { MpaLogo } from "../branding/mpa-logo";
+import { DataTableLayout } from "../presentation/data-table-layout";
+import { ListWorkspaceHeader } from "../presentation/list-workspace-header";
+import { ExperienceEmptyState } from "../experience/experience-empty-state";
+import { getFilteredEmptyMessage } from "../../lib/experience/empty-states";
 
 type TenantListItem = TenantRecord & {
   propertyName: string | null;
@@ -115,170 +119,191 @@ export function TenantsTable({
   }
 
   if (visibleItems.length === 0) {
-    return (
-      <Card>
-        <MpaLogo className="mb-2 h-12 w-auto" alt="M.P.A. logo" />
-        <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">No tenants yet</h2>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Build your canonical tenant records to power leases, messaging, and future AI workflows.
-        </p>
-        {permissions.canCreate ? (
-          <Link href="/tenants/new" className="mt-3 inline-block">
-            <Button>Create Tenant</Button>
-          </Link>
-        ) : null}
-      </Card>
-    );
+    return <ExperienceEmptyState module="tenants" canCreate={permissions.canCreate} />;
   }
 
+  const activeTenants = visibleItems.filter((item) => item.status === "active").length;
+  const assignedTenants = visibleItems.filter((item) => item.propertyId).length;
+
   return (
-    <Card className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Tenants</h2>
-        {permissions.canCreate ? (
+    <div className="space-y-5">
+      <ListWorkspaceHeader
+        metrics={[
+          { label: "Tenants", value: visibleItems.length.toString(), hint: `${activeTenants} active` },
+          { label: "Assigned", value: assignedTenants.toString(), hint: "Linked to properties" },
+          {
+            label: "Unassigned",
+            value: (visibleItems.length - assignedTenants).toString(),
+            hint: "Need property/unit"
+          }
+        ]}
+        recommendationsPlaceholder="Add lease and renewal guidance here as your resident records grow."
+      />
+    <DataTableLayout
+      overline="Residents"
+      title="Tenants"
+      description="Manage tenant profiles, assignments, and contact information across your portfolio."
+      actions={
+        permissions.canCreate ? (
           <Link href="/tenants/new">
-            <Button>Create Tenant</Button>
+            <Button>Create tenant</Button>
           </Link>
-        ) : null}
-      </div>
-      <div className="grid gap-2 md:grid-cols-[2fr_1fr_1fr]">
-        <Input
-          aria-label="Search tenants"
-          placeholder="Search by name, email, phone"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setPage(1);
-          }}
-        />
-        <Select
-          aria-label="Sort tenants"
-          value={sortBy}
-          onChange={(event) => {
-            setSortBy(event.target.value as "name" | "status" | "updated");
-            setPage(1);
-          }}
-        >
-          <option value="updated">Sort by updated</option>
-          <option value="name">Sort by name</option>
-          <option value="status">Sort by status</option>
-        </Select>
-        <Select
-          aria-label="Sort order"
-          value={sortOrder}
-          onChange={(event) => {
-            setSortOrder(event.target.value as "asc" | "desc");
-            setPage(1);
-          }}
-        >
-          <option value="desc">Descending</option>
-          <option value="asc">Ascending</option>
-        </Select>
-      </div>
-      {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
+        ) : null
+      }
+      filters={
+        <>
+          <Input
+            aria-label="Search tenants"
+            placeholder="Search by name, email, phone"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(1);
+            }}
+          />
+          <Select
+            aria-label="Sort tenants"
+            value={sortBy}
+            onChange={(event) => {
+              setSortBy(event.target.value as "name" | "status" | "updated");
+              setPage(1);
+            }}
+          >
+            <option value="updated">Sort by updated</option>
+            <option value="name">Sort by name</option>
+            <option value="status">Sort by status</option>
+          </Select>
+          <Select
+            aria-label="Sort order"
+            value={sortOrder}
+            onChange={(event) => {
+              setSortOrder(event.target.value as "asc" | "desc");
+              setPage(1);
+            }}
+          >
+            <option value="desc">Descending</option>
+            <option value="asc">Ascending</option>
+          </Select>
+        </>
+      }
+      error={error}
+      showEmptyFiltered={filteredItems.length === 0}
+      emptyFilteredMessage={getFilteredEmptyMessage("tenants")}
+      page={currentPage}
+      pageCount={pageCount}
+      totalItems={filteredItems.length}
+      pageSize={PAGE_SIZE}
+      onPreviousPage={() => setPage((value) => Math.max(1, value - 1))}
+      onNextPage={() => setPage((value) => Math.min(pageCount, value + 1))}
+    >
       <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHead>
-              <tr>
-                <TableHeaderCell>Tenant</TableHeaderCell>
-                <TableHeaderCell>Assignment</TableHeaderCell>
-                <TableHeaderCell>Contact</TableHeaderCell>
-                <TableHeaderCell>Timeline</TableHeaderCell>
-                <TableHeaderCell>Status</TableHeaderCell>
-                <TableHeaderCell className="text-right">Actions</TableHeaderCell>
-              </tr>
-            </TableHead>
-            <TableBody>
-              {pagedItems.map((item) => {
-                const busyArchive =
-                  submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
-                const busyDelete = submittingAction === `${item.id}:soft_delete`;
-                const isArchived = item.status === "archived";
-                const isSelected = selectedTenant?.id === item.id;
-                return (
-                  <TableRow key={item.id} className={isSelected ? "bg-[var(--mpa-color-bg-surface-muted)]" : undefined}>
-                    <TableCell>
-                      <button
-                        type="button"
-                        className="flex w-full items-center gap-2 text-left"
-                        onClick={() => setSelectedTenantId(item.id)}
-                      >
-                        <Avatar
-                          src={item.avatarUrl ?? undefined}
-                          fallback={`${item.firstName[0] ?? "T"}${item.lastName[0] ?? ""}`}
-                        />
-                        <span>
-                          <span className="block font-medium text-[var(--mpa-color-text-primary)]">
-                            {item.preferredName || `${item.firstName} ${item.lastName}`}
+        <TableContainer className="rounded-none border-0 shadow-none">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHead>
+                <tr>
+                  <TableHeaderCell>Tenant</TableHeaderCell>
+                  <TableHeaderCell>Assignment</TableHeaderCell>
+                  <TableHeaderCell>Contact</TableHeaderCell>
+                  <TableHeaderCell>Timeline</TableHeaderCell>
+                  <TableHeaderCell>Status</TableHeaderCell>
+                  <TableHeaderCell className="text-right">Actions</TableHeaderCell>
+                </tr>
+              </TableHead>
+              <TableBody>
+                {pagedItems.map((item) => {
+                  const busyArchive =
+                    submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
+                  const busyDelete = submittingAction === `${item.id}:soft_delete`;
+                  const isArchived = item.status === "archived";
+                  const isSelected = selectedTenant?.id === item.id;
+                  return (
+                    <TableRow key={item.id} className={isSelected ? "bg-[var(--mpa-color-bg-surface-muted)]" : undefined}>
+                      <TableCell>
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-2 text-left"
+                          onClick={() => setSelectedTenantId(item.id)}
+                        >
+                          <Avatar
+                            src={item.avatarUrl ?? undefined}
+                            fallback={`${item.firstName[0] ?? "T"}${item.lastName[0] ?? ""}`}
+                          />
+                          <span>
+                            <span className="block font-medium text-[var(--mpa-color-text-primary)]">
+                              {item.preferredName || `${item.firstName} ${item.lastName}`}
+                            </span>
+                            <span className="block text-xs text-[var(--mpa-color-text-secondary)]">
+                              Legal: {item.firstName} {item.lastName}
+                            </span>
                           </span>
-                          <span className="block text-xs text-[var(--mpa-color-text-secondary)]">
-                            Legal: {item.firstName} {item.lastName}
-                          </span>
-                        </span>
-                      </button>
-                    </TableCell>
-                    <TableCell>
-                      <p>{item.propertyName ?? "No property"}</p>
-                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                        {item.unitNumber ? `Unit ${item.unitNumber}` : "No unit"}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <p>{item.email}</p>
-                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.phone ?? "No phone"}</p>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">Move-in: {item.moveInDate ?? "—"}</p>
-                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">Move-out: {item.moveOutDate ?? "—"}</p>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}>
-                        {toTenantStatusLabel(item.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex flex-wrap justify-end gap-2">
-                        <Link href={`/tenants/${item.id}`}>
-                          <Button variant="secondary" size="sm">
-                            View
-                          </Button>
-                        </Link>
-                        {permissions.canUpdate ? (
-                          <Link href={`/tenants/${item.id}/edit`}>
+                        </button>
+                      </TableCell>
+                      <TableCell>
+                        <p>{item.propertyName ?? "No property"}</p>
+                        <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                          {item.unitNumber ? `Unit ${item.unitNumber}` : "No unit"}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <p>{item.email}</p>
+                        <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.phone ?? "No phone"}</p>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-xs text-[var(--mpa-color-text-secondary)]">Move-in: {item.moveInDate ?? "—"}</p>
+                        <p className="text-xs text-[var(--mpa-color-text-secondary)]">Move-out: {item.moveOutDate ?? "—"}</p>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          showDot
+                          variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}
+                        >
+                          {toTenantStatusLabel(item.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <Link href={`/tenants/${item.id}`}>
                             <Button variant="secondary" size="sm">
-                              Edit
+                              View
                             </Button>
                           </Link>
-                        ) : null}
-                        {permissions.canArchive ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={busyArchive}
-                            onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
-                          >
-                            {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
-                          </Button>
-                        ) : null}
-                        {permissions.canDelete ? (
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            disabled={busyDelete}
-                            onClick={() => runAction(item.id, "soft_delete")}
-                          >
-                            {busyDelete ? "Deleting..." : "Delete"}
-                          </Button>
-                        ) : null}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                          {permissions.canUpdate ? (
+                            <Link href={`/tenants/${item.id}/edit`}>
+                              <Button variant="secondary" size="sm">
+                                Edit
+                              </Button>
+                            </Link>
+                          ) : null}
+                          {permissions.canArchive ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={busyArchive}
+                              onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
+                            >
+                              {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
+                            </Button>
+                          ) : null}
+                          {permissions.canDelete ? (
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              disabled={busyDelete}
+                              onClick={() => runAction(item.id, "soft_delete")}
+                            >
+                              {busyDelete ? "Deleting..." : "Delete"}
+                            </Button>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </TableContainer>
         {selectedTenant ? (
           <Card className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">Details panel</h3>
@@ -307,12 +332,14 @@ export function TenantsTable({
             </p>
             <div className="flex flex-wrap gap-2">
               <Link href={`/tenants/${selectedTenant.id}`}>
-                <Button size="sm">Open Profile</Button>
+                <Button size="sm" variant="secondary">
+                  Open profile
+                </Button>
               </Link>
               {permissions.canUpdate ? (
                 <Link href={`/tenants/${selectedTenant.id}/edit`}>
-                  <Button size="sm" variant="secondary">
-                    Quick Edit
+                  <Button size="sm" variant="ghost">
+                    Quick edit
                   </Button>
                 </Link>
               ) : null}
@@ -320,36 +347,7 @@ export function TenantsTable({
           </Card>
         ) : null}
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-          Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filteredItems.length)} of{" "}
-          {filteredItems.length}
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={currentPage <= 1}
-            onClick={() => setPage((value) => Math.max(1, value - 1))}
-          >
-            Previous
-          </Button>
-          <span className="text-xs text-[var(--mpa-color-text-secondary)]">
-            Page {currentPage} of {pageCount}
-          </span>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={currentPage >= pageCount}
-            onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    </Card>
+    </DataTableLayout>
+    </div>
   );
 }
-

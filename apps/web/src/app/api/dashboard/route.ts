@@ -51,7 +51,7 @@ export async function GET() {
       return apiError(403, "FORBIDDEN", "Forbidden");
     }
 
-    const snapshot = await getDashboardSnapshot(organizationId, supabase);
+    const snapshot = await getDashboardSnapshot(organizationId, supabase, user.id);
     return NextResponse.json({ organizationId, snapshot }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return apiInternalError();

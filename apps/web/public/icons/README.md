@@ -1,13 +1,7 @@
-# M.P.A. Official Icon Set
+# M.P.A. PWA / favicon assets
 
-These icons are generated from the official logo asset:
+Derived from the official logo at `/public/branding/mpa-logo.svg`.
 
-- Source: `/public/branding/mpa-logo.png`
+PNG fallbacks for browsers and PWA manifest: 16, 32, 48, 64, 128, 192, 256, 512.
 
-Generated files:
-
-- `favicon-16.png`
-- `favicon-32.png`
-- `apple-touch-icon.png`
-- `icon-192.png`
-- `icon-512.png`
+UI surfaces must use the React `<Logo />` component.

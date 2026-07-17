@@ -400,6 +400,426 @@ export type Database = {
           }
         ];
       };
+      migration_activity: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          event_type: string;
+          id: string;
+          job_id: string;
+          organization_id: string;
+          payload: Json;
+          summary: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          event_type: string;
+          id?: string;
+          job_id: string;
+          organization_id: string;
+          payload?: Json;
+          summary: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          event_type?: string;
+          id?: string;
+          job_id?: string;
+          organization_id?: string;
+          payload?: Json;
+          summary?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "migration_activity_job_fk";
+            columns: ["job_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "migration_jobs";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "migration_activity_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      migration_checkpoints: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          id: string;
+          job_id: string;
+          label: string;
+          organization_id: string;
+          snapshot: Json;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          job_id: string;
+          label: string;
+          organization_id: string;
+          snapshot?: Json;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          job_id?: string;
+          label?: string;
+          organization_id?: string;
+          snapshot?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "migration_checkpoints_job_fk";
+            columns: ["job_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "migration_jobs";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "migration_checkpoints_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      migration_import_files: {
+        Row: {
+          column_headers: Json;
+          created_at: string;
+          created_by: string;
+          entity_type: string | null;
+          file_type: string;
+          id: string;
+          job_id: string;
+          metadata: Json;
+          organization_id: string;
+          original_filename: string;
+          parse_status: string;
+          row_count: number;
+          storage_path: string | null;
+        };
+        Insert: {
+          column_headers?: Json;
+          created_at?: string;
+          created_by: string;
+          entity_type?: string | null;
+          file_type: string;
+          id?: string;
+          job_id: string;
+          metadata?: Json;
+          organization_id: string;
+          original_filename: string;
+          parse_status?: string;
+          row_count?: number;
+          storage_path?: string | null;
+        };
+        Update: {
+          column_headers?: Json;
+          created_at?: string;
+          created_by?: string;
+          entity_type?: string | null;
+          file_type?: string;
+          id?: string;
+          job_id?: string;
+          metadata?: Json;
+          organization_id?: string;
+          original_filename?: string;
+          parse_status?: string;
+          row_count?: number;
+          storage_path?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "migration_import_files_job_fk";
+            columns: ["job_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "migration_jobs";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "migration_import_files_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      migration_jobs: {
+        Row: {
+          checkpoint_id: string | null;
+          completed_at: string | null;
+          completion_pct: number;
+          created_at: string;
+          created_by: string;
+          current_step: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          id: string;
+          job_number: string;
+          metadata: Json;
+          name: string;
+          organization_id: string;
+          progress_errors: number;
+          progress_imported: number;
+          progress_total: number;
+          progress_warnings: number;
+          rolled_back_at: string | null;
+          source_software: string;
+          started_at: string | null;
+          status: string;
+          summary: Json;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          checkpoint_id?: string | null;
+          completed_at?: string | null;
+          completion_pct?: number;
+          created_at?: string;
+          created_by: string;
+          current_step?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          id?: string;
+          job_number: string;
+          metadata?: Json;
+          name: string;
+          organization_id: string;
+          progress_errors?: number;
+          progress_imported?: number;
+          progress_total?: number;
+          progress_warnings?: number;
+          rolled_back_at?: string | null;
+          source_software?: string;
+          started_at?: string | null;
+          status?: string;
+          summary?: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          checkpoint_id?: string | null;
+          completed_at?: string | null;
+          completion_pct?: number;
+          created_at?: string;
+          created_by?: string;
+          current_step?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          id?: string;
+          job_number?: string;
+          metadata?: Json;
+          name?: string;
+          organization_id?: string;
+          progress_errors?: number;
+          progress_imported?: number;
+          progress_total?: number;
+          progress_warnings?: number;
+          rolled_back_at?: string | null;
+          source_software?: string;
+          started_at?: string | null;
+          status?: string;
+          summary?: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "migration_jobs_checkpoint_fk";
+            columns: ["checkpoint_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "migration_checkpoints";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "migration_jobs_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      migration_mapping_templates: {
+        Row: {
+          column_map: Json;
+          created_at: string;
+          entity_type: string;
+          id: string;
+          is_system: boolean;
+          label: string;
+          organization_id: string | null;
+          source_software: string;
+          updated_at: string;
+        };
+        Insert: {
+          column_map?: Json;
+          created_at?: string;
+          entity_type: string;
+          id?: string;
+          is_system?: boolean;
+          label: string;
+          organization_id?: string | null;
+          source_software: string;
+          updated_at?: string;
+        };
+        Update: {
+          column_map?: Json;
+          created_at?: string;
+          entity_type?: string;
+          id?: string;
+          is_system?: boolean;
+          label?: string;
+          organization_id?: string | null;
+          source_software?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "migration_mapping_templates_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      migration_record_links: {
+        Row: {
+          created_at: string;
+          entity_id: string;
+          entity_type: string;
+          id: string;
+          import_file_id: string | null;
+          job_id: string;
+          organization_id: string;
+          rolled_back_at: string | null;
+          source_key: string | null;
+          source_row_index: number | null;
+        };
+        Insert: {
+          created_at?: string;
+          entity_id: string;
+          entity_type: string;
+          id?: string;
+          import_file_id?: string | null;
+          job_id: string;
+          organization_id: string;
+          rolled_back_at?: string | null;
+          source_key?: string | null;
+          source_row_index?: number | null;
+        };
+        Update: {
+          created_at?: string;
+          entity_id?: string;
+          entity_type?: string;
+          id?: string;
+          import_file_id?: string | null;
+          job_id?: string;
+          organization_id?: string;
+          rolled_back_at?: string | null;
+          source_key?: string | null;
+          source_row_index?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "migration_record_links_import_file_fk";
+            columns: ["import_file_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "migration_import_files";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "migration_record_links_job_fk";
+            columns: ["job_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "migration_jobs";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "migration_record_links_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      migration_review_items: {
+        Row: {
+          candidate_records: Json;
+          created_at: string;
+          description: string | null;
+          id: string;
+          item_type: string;
+          job_id: string;
+          organization_id: string;
+          resolution: Json;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          source_row: Json;
+          status: string;
+          title: string;
+        };
+        Insert: {
+          candidate_records?: Json;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          item_type: string;
+          job_id: string;
+          organization_id: string;
+          resolution?: Json;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          source_row?: Json;
+          status?: string;
+          title: string;
+        };
+        Update: {
+          candidate_records?: Json;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          item_type?: string;
+          job_id?: string;
+          organization_id?: string;
+          resolution?: Json;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          source_row?: Json;
+          status?: string;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "migration_review_items_job_fk";
+            columns: ["job_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "migration_jobs";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "migration_review_items_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       organizations: {
         Row: {
           created_at: string;
@@ -1216,6 +1636,757 @@ export type Database = {
             referencedColumns: ["id"];
           }
         ];
+      };
+      applicants: {
+        Row: {
+          application_group_id: string;
+          application_number: string;
+          approved_at: string | null;
+          archived_at: string | null;
+          archived_by: string | null;
+          assigned_pm_id: string | null;
+          converted_at: string | null;
+          created_at: string;
+          created_by: string;
+          date_of_birth: string | null;
+          declined_at: string | null;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          email: string;
+          first_name: string;
+          id: string;
+          internal_notes: string | null;
+          is_primary: boolean;
+          last_name: string;
+          metadata: Json;
+          organization_id: string;
+          phone: string | null;
+          planned_move_in_date: string | null;
+          preferred_name: string | null;
+          profile: Json;
+          property_id: string | null;
+          status: string;
+          submitted_at: string | null;
+          tenant_id: string | null;
+          unit_id: string | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          application_group_id?: string;
+          application_number: string;
+          approved_at?: string | null;
+          archived_at?: string | null;
+          archived_by?: string | null;
+          assigned_pm_id?: string | null;
+          converted_at?: string | null;
+          created_at?: string;
+          created_by: string;
+          date_of_birth?: string | null;
+          declined_at?: string | null;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          email: string;
+          first_name: string;
+          id?: string;
+          internal_notes?: string | null;
+          is_primary?: boolean;
+          last_name: string;
+          metadata?: Json;
+          organization_id: string;
+          phone?: string | null;
+          planned_move_in_date?: string | null;
+          preferred_name?: string | null;
+          profile?: Json;
+          property_id?: string | null;
+          status?: string;
+          submitted_at?: string | null;
+          tenant_id?: string | null;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          application_group_id?: string;
+          application_number?: string;
+          approved_at?: string | null;
+          archived_at?: string | null;
+          archived_by?: string | null;
+          assigned_pm_id?: string | null;
+          converted_at?: string | null;
+          created_at?: string;
+          created_by?: string;
+          date_of_birth?: string | null;
+          declined_at?: string | null;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          email?: string;
+          first_name?: string;
+          id?: string;
+          internal_notes?: string | null;
+          is_primary?: boolean;
+          last_name?: string;
+          metadata?: Json;
+          organization_id?: string;
+          phone?: string | null;
+          planned_move_in_date?: string | null;
+          preferred_name?: string | null;
+          profile?: Json;
+          property_id?: string | null;
+          status?: string;
+          submitted_at?: string | null;
+          tenant_id?: string | null;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "applicants_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "applicants_unit_id_fkey";
+            columns: ["unit_id"];
+            isOneToOne: false;
+            referencedRelation: "units";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "applicants_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "applicants_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      applicant_events: {
+        Row: {
+          applicant_id: string;
+          created_at: string;
+          created_by: string;
+          event_type: string;
+          id: string;
+          organization_id: string;
+          payload: Json;
+          summary: string;
+        };
+        Insert: {
+          applicant_id: string;
+          created_at?: string;
+          created_by: string;
+          event_type: string;
+          id?: string;
+          organization_id: string;
+          payload?: Json;
+          summary: string;
+        };
+        Update: {
+          applicant_id?: string;
+          created_at?: string;
+          created_by?: string;
+          event_type?: string;
+          id?: string;
+          organization_id?: string;
+          payload?: Json;
+          summary?: string;
+        };
+        Relationships: [];
+      };
+      applicant_notes: {
+        Row: {
+          applicant_id: string;
+          body: string;
+          created_at: string;
+          created_by: string;
+          id: string;
+          organization_id: string;
+        };
+        Insert: {
+          applicant_id: string;
+          body: string;
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          organization_id: string;
+        };
+        Update: {
+          applicant_id?: string;
+          body?: string;
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          organization_id?: string;
+        };
+        Relationships: [];
+      };
+      applicant_tasks: {
+        Row: {
+          applicant_id: string;
+          assigned_to: string | null;
+          completed_at: string | null;
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          due_date: string | null;
+          id: string;
+          organization_id: string;
+          status: string;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          applicant_id: string;
+          assigned_to?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by: string;
+          description?: string | null;
+          due_date?: string | null;
+          id?: string;
+          organization_id: string;
+          status?: string;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          applicant_id?: string;
+          assigned_to?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          due_date?: string | null;
+          id?: string;
+          organization_id?: string;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      vault_documents: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          document_type: string;
+          entity_id: string;
+          entity_type: string;
+          file_url: string | null;
+          id: string;
+          metadata: Json;
+          notes: string | null;
+          organization_id: string;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          document_type: string;
+          entity_id: string;
+          entity_type: string;
+          file_url?: string | null;
+          id?: string;
+          metadata?: Json;
+          notes?: string | null;
+          organization_id: string;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          document_type?: string;
+          entity_id?: string;
+          entity_type?: string;
+          file_url?: string | null;
+          id?: string;
+          metadata?: Json;
+          notes?: string | null;
+          organization_id?: string;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      screening_cases: {
+        Row: {
+          applicant_id: string;
+          case_number: string;
+          created_at: string;
+          created_by: string;
+          external_reference: string | null;
+          id: string;
+          metadata: Json;
+          organization_id: string;
+          provider: string;
+          result_summary: string | null;
+          status: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          applicant_id: string;
+          case_number: string;
+          created_at?: string;
+          created_by: string;
+          external_reference?: string | null;
+          id?: string;
+          metadata?: Json;
+          organization_id: string;
+          provider?: string;
+          result_summary?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          applicant_id?: string;
+          case_number?: string;
+          created_at?: string;
+          created_by?: string;
+          external_reference?: string | null;
+          id?: string;
+          metadata?: Json;
+          organization_id?: string;
+          provider?: string;
+          result_summary?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      signature_requests: {
+        Row: {
+          applicant_id: string;
+          created_at: string;
+          created_by: string;
+          external_reference: string | null;
+          id: string;
+          metadata: Json;
+          organization_id: string;
+          provider: string;
+          request_number: string;
+          request_type: string;
+          signed_at: string | null;
+          status: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          applicant_id: string;
+          created_at?: string;
+          created_by: string;
+          external_reference?: string | null;
+          id?: string;
+          metadata?: Json;
+          organization_id: string;
+          provider?: string;
+          request_number: string;
+          request_type?: string;
+          signed_at?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          applicant_id?: string;
+          created_at?: string;
+          created_by?: string;
+          external_reference?: string | null;
+          id?: string;
+          metadata?: Json;
+          organization_id?: string;
+          provider?: string;
+          request_number?: string;
+          request_type?: string;
+          signed_at?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "signature_requests_applicant_fk";
+            columns: ["applicant_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "applicants";
+            referencedColumns: ["id", "organization_id"];
+          }
+        ];
+      };
+      communication_messages: {
+        Row: {
+          body: string;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          delivery_status: "delivered" | "read" | "sent";
+          id: string;
+          metadata: Json;
+          organization_id: string;
+          sender_id: string;
+          thread_id: string;
+          updated_at: string;
+          updated_by: string | null;
+          visibility: "internal" | "resident" | "vendor";
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          delivery_status?: "delivered" | "read" | "sent";
+          id?: string;
+          metadata?: Json;
+          organization_id: string;
+          sender_id: string;
+          thread_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          visibility?: "internal" | "resident" | "vendor";
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          delivery_status?: "delivered" | "read" | "sent";
+          id?: string;
+          metadata?: Json;
+          organization_id?: string;
+          sender_id?: string;
+          thread_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          visibility?: "internal" | "resident" | "vendor";
+        };
+        Relationships: [];
+      };
+      community_events: {
+        Row: {
+          archived_at: string | null;
+          archived_by: string | null;
+          body: string;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          ends_at: string | null;
+          event_type: "emergency" | "event" | "holiday" | "office_hours" | "package" | "pool";
+          id: string;
+          metadata: Json;
+          organization_id: string;
+          property_id: string | null;
+          starts_at: string;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          archived_at?: string | null;
+          archived_by?: string | null;
+          body?: string;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          ends_at?: string | null;
+          event_type?: "emergency" | "event" | "holiday" | "office_hours" | "package" | "pool";
+          id?: string;
+          metadata?: Json;
+          organization_id: string;
+          property_id?: string | null;
+          starts_at: string;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          archived_at?: string | null;
+          archived_by?: string | null;
+          body?: string;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          ends_at?: string | null;
+          event_type?: "emergency" | "event" | "holiday" | "office_hours" | "package" | "pool";
+          id?: string;
+          metadata?: Json;
+          organization_id?: string;
+          property_id?: string | null;
+          starts_at?: string;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      conversation_participants: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          id: string;
+          last_read_at: string | null;
+          metadata: Json;
+          muted: boolean;
+          organization_id: string;
+          participant_role: "applicant" | "owner" | "pm" | "resident" | "staff" | "vendor";
+          pinned: boolean;
+          thread_id: string;
+          updated_at: string;
+          updated_by: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          last_read_at?: string | null;
+          metadata?: Json;
+          muted?: boolean;
+          organization_id: string;
+          participant_role: "applicant" | "owner" | "pm" | "resident" | "staff" | "vendor";
+          pinned?: boolean;
+          thread_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          last_read_at?: string | null;
+          metadata?: Json;
+          muted?: boolean;
+          organization_id?: string;
+          participant_role?: "applicant" | "owner" | "pm" | "resident" | "staff" | "vendor";
+          pinned?: boolean;
+          thread_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      conversation_threads: {
+        Row: {
+          archived_at: string | null;
+          archived_by: string | null;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          id: string;
+          last_message_at: string | null;
+          metadata: Json;
+          organization_id: string;
+          property_id: string | null;
+          source_entity_id: string | null;
+          source_entity_type:
+            | "announcement_reply"
+            | "applicant"
+            | "financial"
+            | "general"
+            | "inspection"
+            | "lease"
+            | "maintenance"
+            | "resident"
+            | "vendor_assignment";
+          status: "active" | "archived" | "read" | "resolved" | "unread";
+          subject: string;
+          thread_type:
+            | "applicant_leasing"
+            | "internal_staff"
+            | "pm_owner"
+            | "pm_vendor"
+            | "resident_maintenance"
+            | "resident_pm";
+          unit_id: string | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          archived_at?: string | null;
+          archived_by?: string | null;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          id?: string;
+          last_message_at?: string | null;
+          metadata?: Json;
+          organization_id: string;
+          property_id?: string | null;
+          source_entity_id?: string | null;
+          source_entity_type:
+            | "announcement_reply"
+            | "applicant"
+            | "financial"
+            | "general"
+            | "inspection"
+            | "lease"
+            | "maintenance"
+            | "resident"
+            | "vendor_assignment";
+          status?: "active" | "archived" | "read" | "resolved" | "unread";
+          subject: string;
+          thread_type:
+            | "applicant_leasing"
+            | "internal_staff"
+            | "pm_owner"
+            | "pm_vendor"
+            | "resident_maintenance"
+            | "resident_pm";
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          archived_at?: string | null;
+          archived_by?: string | null;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          id?: string;
+          last_message_at?: string | null;
+          metadata?: Json;
+          organization_id?: string;
+          property_id?: string | null;
+          source_entity_id?: string | null;
+          source_entity_type?:
+            | "announcement_reply"
+            | "applicant"
+            | "financial"
+            | "general"
+            | "inspection"
+            | "lease"
+            | "maintenance"
+            | "resident"
+            | "vendor_assignment";
+          status?: "active" | "archived" | "read" | "resolved" | "unread";
+          subject?: string;
+          thread_type?:
+            | "applicant_leasing"
+            | "internal_staff"
+            | "pm_owner"
+            | "pm_vendor"
+            | "resident_maintenance"
+            | "resident_pm";
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      in_app_notifications: {
+        Row: {
+          body: string;
+          category: "ai" | "announcement" | "applicant" | "financial" | "lease" | "maintenance" | "message";
+          created_at: string;
+          created_by: string | null;
+          href: string | null;
+          id: string;
+          metadata: Json;
+          organization_id: string;
+          read_at: string | null;
+          source_entity_id: string | null;
+          source_entity_type: string | null;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          category: "ai" | "announcement" | "applicant" | "financial" | "lease" | "maintenance" | "message";
+          created_at?: string;
+          created_by?: string | null;
+          href?: string | null;
+          id?: string;
+          metadata?: Json;
+          organization_id: string;
+          read_at?: string | null;
+          source_entity_id?: string | null;
+          source_entity_type?: string | null;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          category?: "ai" | "announcement" | "applicant" | "financial" | "lease" | "maintenance" | "message";
+          created_at?: string;
+          created_by?: string | null;
+          href?: string | null;
+          id?: string;
+          metadata?: Json;
+          organization_id?: string;
+          read_at?: string | null;
+          source_entity_id?: string | null;
+          source_entity_type?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      message_read_receipts: {
+        Row: {
+          created_at: string;
+          id: string;
+          message_id: string;
+          organization_id: string;
+          read_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          message_id: string;
+          organization_id: string;
+          read_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          message_id?: string;
+          organization_id?: string;
+          read_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
       };
       units: {
         Row: {

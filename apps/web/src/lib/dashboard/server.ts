@@ -1,7 +1,12 @@
 import { createAuthServerComponentClient } from "../auth/server";
+import { getApplicantDashboardMetrics, type ApplicantDashboardMetrics } from "../applicant/server";
 import { getLeaseDashboardMetrics } from "../lease/server";
 import { getMaintenanceDashboardMetrics } from "../maintenance/server";
 import { getVendorDashboardMetrics } from "../vendor/server";
+import { getCommunicationDashboardMetrics, type CommunicationDashboardMetrics } from "../communication/server";
+import { getMessagingDashboardMetrics } from "../messaging/server";
+import { getFinancialDashboardMetrics, getFinancialActivityForOrganization, type FinancialDashboardMetrics } from "../financial/server";
+import { getMigrationDashboardMetrics, type MigrationDashboardMetrics } from "../migration/server";
 
 export type DashboardTask = {
   id: string;
@@ -14,7 +19,7 @@ export type DashboardTask = {
 
 export type DashboardActivity = {
   id: string;
-  type: "property" | "unit" | "tenant" | "maintenance" | "lease";
+  type: "property" | "unit" | "tenant" | "maintenance" | "lease" | "communication" | "financial" | "applicant";
   title: string;
   subtitle: string | null;
   timestamp: string;
@@ -100,6 +105,31 @@ export type DashboardLeaseSummary = {
   }>;
 };
 
+export type DashboardFinancialSummary = {
+  rentDueToday: number;
+  lateRentCount: number;
+  outstandingBalancesTotal: number;
+  ownerStatementsDraft: number;
+  ownerStatementsGenerated: number;
+  recentPaymentSample: Array<{
+    id: string;
+    paymentNumber: string;
+    amount: number;
+    paymentDate: string;
+    href: string;
+  }>;
+  recentExpenseSample: Array<{
+    id: string;
+    expenseNumber: string;
+    description: string;
+    amount: number;
+    expenseDate: string;
+    href: string;
+  }>;
+};
+
+export type DashboardApplicantSummary = ApplicantDashboardMetrics;
+
 export type DashboardSnapshot = {
   propertiesTotal: number;
   unitsTotal: number;
@@ -119,6 +149,10 @@ export type DashboardSnapshot = {
   maintenance: DashboardMaintenanceSummary | null;
   vendors: DashboardVendorSummary | null;
   leases: DashboardLeaseSummary | null;
+  communications: CommunicationDashboardMetrics | null;
+  financial: DashboardFinancialSummary | null;
+  applicants: DashboardApplicantSummary | null;
+  migration: MigrationDashboardMetrics | null;
 };
 
 export type DashboardVendorSummary = {
@@ -145,7 +179,8 @@ const RECENT_MOVE_IN_WINDOW_DAYS = 30;
 
 export async function getDashboardSnapshot(
   organizationId: string,
-  client?: SupabaseClientType
+  client?: SupabaseClientType,
+  userId?: string
 ): Promise<DashboardSnapshot> {
   const supabase = await resolveClient(client);
   const now = Date.now();
@@ -254,13 +289,32 @@ export async function getDashboardSnapshot(
   const recentTenantsCreated = recentTenantsCreatedCount ?? 0;
   const recentMoveIns = recentMoveInsCount ?? 0;
 
-  const [recentActivity, vacantUnitSample, maintenanceMetrics, vendorMetrics, leaseMetrics] = await Promise.all([
+  const [recentActivity, vacantUnitSample, maintenanceMetrics, vendorMetrics, leaseMetrics, communicationMetrics, messagingMetrics, financialMetrics, financialActivityRows, applicantMetrics, migrationMetrics] =
+    await Promise.all([
     getRecentActivity(organizationId, supabase),
     getVacantUnitSample(organizationId, supabase),
     getMaintenanceDashboardMetrics(organizationId, supabase).catch(() => null),
     getVendorDashboardMetrics(organizationId, supabase).catch(() => null),
-    getLeaseDashboardMetrics(organizationId, supabase).catch(() => null)
+    getLeaseDashboardMetrics(organizationId, supabase).catch(() => null),
+    getCommunicationDashboardMetrics(organizationId, supabase).catch(() => null),
+    userId ? getMessagingDashboardMetrics(organizationId, userId, supabase).catch(() => null) : Promise.resolve(null),
+    getFinancialDashboardMetrics(organizationId, supabase).catch(() => null),
+    getFinancialActivityForOrganization(organizationId, { limit: 6 }, supabase).catch(() => []),
+    getApplicantDashboardMetrics(organizationId, supabase).catch(() => null),
+    getMigrationDashboardMetrics(organizationId, supabase).catch(() => null)
   ]);
+
+  const mergedCommunications: CommunicationDashboardMetrics | null = communicationMetrics
+    ? {
+        ...communicationMetrics,
+        unreadMessages: messagingMetrics?.unreadMessages ?? 0,
+        awaitingResidentReply: messagingMetrics?.awaitingResidentReply ?? 0,
+        vendorReplies: messagingMetrics?.vendorReplies ?? 0,
+        emergencyUnread: messagingMetrics?.emergencyUnread ?? 0,
+        pendingConversations: messagingMetrics?.pendingConversations ?? 0,
+        recentThreads: messagingMetrics?.recentThreads ?? []
+      }
+    : null;
 
   const occupiedUnits = leaseMetrics?.activeLeases ?? occupiedUnitsCount ?? 0;
   const vacanciesTotal = Math.max(activeUnits - occupiedUnits, 0);
@@ -311,7 +365,65 @@ export async function getDashboardSnapshot(
       )
     : [];
 
-  const mergedActivity = [...recentActivity, ...maintenanceActivity, ...leaseActivity]
+  const communicationActivity = mergedCommunications
+    ? mergedCommunications.recentActivity.map(
+        (event): DashboardActivity => ({
+          id: `communication:${event.id}`,
+          type: "communication",
+          title: event.title,
+          subtitle: event.status,
+          timestamp: event.timestamp,
+          status: event.status,
+          action: "event",
+          href: event.href
+        })
+      )
+    : [];
+
+  const financialActivity = financialActivityRows.map(
+    (event): DashboardActivity => ({
+      id: `financial:${event.id}`,
+      type: "financial",
+      title: event.summary,
+      subtitle: event.activityType.replaceAll("_", " "),
+      timestamp: event.createdAt,
+      status: event.activityType,
+      action: "event",
+      href: financialActivityHref(event.entityType, event.entityId)
+    })
+  );
+
+  const applicantActivity = applicantMetrics
+    ? applicantMetrics.recentEvents.map(
+        (event): DashboardActivity => ({
+          id: `applicant-event:${event.id}`,
+          type: "applicant",
+          title: event.summary,
+          subtitle: event.applicationNumber,
+          timestamp: event.createdAt,
+          status: event.eventType,
+          action: "event",
+          href: event.href
+        })
+      )
+    : [];
+
+  const migrationActivity = migrationMetrics
+    ? migrationMetrics.recentActivity.map(
+        (event): DashboardActivity => ({
+          id: `migration-event:${event.id}`,
+          type: "property",
+          title: event.summary,
+          subtitle: event.jobNumber,
+          timestamp: event.createdAt,
+          status: event.eventType,
+          action: "event",
+          href: event.href
+        })
+      )
+    : [];
+
+  const mergedActivity = [...recentActivity, ...maintenanceActivity, ...leaseActivity, ...communicationActivity, ...financialActivity, ...applicantActivity, ...migrationActivity]
     .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
     .slice(0, 12);
 
@@ -427,7 +539,44 @@ export async function getDashboardSnapshot(
             href: `/leases/${item.id}`
           }))
         }
-      : null
+      : null,
+    communications: mergedCommunications,
+    financial: financialMetrics ? toDashboardFinancialSummary(financialMetrics) : null,
+    applicants: applicantMetrics,
+    migration: migrationMetrics
+  };
+}
+
+function financialActivityHref(entityType: string, entityId: string): string {
+  if (entityType === "rent_charge") return `/financials/charges/${entityId}`;
+  if (entityType === "payment") return `/financials/charges`;
+  if (entityType === "expense") return `/financials/expenses`;
+  if (entityType === "owner_statement") return `/financials/owner-statements/${entityId}`;
+  return "/financials";
+}
+
+function toDashboardFinancialSummary(metrics: FinancialDashboardMetrics): DashboardFinancialSummary {
+  return {
+    rentDueToday: metrics.rentDueToday,
+    lateRentCount: metrics.lateRentCount,
+    outstandingBalancesTotal: metrics.outstandingBalancesTotal,
+    ownerStatementsDraft: metrics.ownerStatementStatusCounts.draft,
+    ownerStatementsGenerated: metrics.ownerStatementStatusCounts.generated + metrics.ownerStatementStatusCounts.sent,
+    recentPaymentSample: metrics.recentPayments.map((payment) => ({
+      id: payment.id,
+      paymentNumber: payment.paymentNumber,
+      amount: payment.amount,
+      paymentDate: payment.paymentDate,
+      href: payment.rentChargeId ? `/financials/charges/${payment.rentChargeId}` : "/financials/charges"
+    })),
+    recentExpenseSample: metrics.recentExpenses.map((expense) => ({
+      id: expense.id,
+      expenseNumber: expense.expenseNumber,
+      description: expense.description,
+      amount: expense.amount,
+      expenseDate: expense.expenseDate,
+      href: `/financials/expenses`
+    }))
   };
 }
 

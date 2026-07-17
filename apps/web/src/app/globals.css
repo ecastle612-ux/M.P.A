@@ -1,39 +1,105 @@
+@import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --mpa-font-display: Inter, "Segoe UI", system-ui, sans-serif;
-  --mpa-font-sans: Inter, "Segoe UI", system-ui, sans-serif;
-  --mpa-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  /* Typography — Canopy */
+  --mpa-font-display: "Satoshi", var(--font-ibm-plex-sans), system-ui, sans-serif;
+  --mpa-font-sans: var(--font-ibm-plex-sans), "Segoe UI", system-ui, sans-serif;
+  --mpa-font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
 
-  --mpa-color-bg-app: #f8fafc;
-  --mpa-color-bg-sidebar: #102b4e;
-  --mpa-color-bg-sidebar-elevated: #163b69;
+  /* Brand */
+  --mpa-color-brand-primary: #0f6b56;
+  --mpa-color-brand-primary-hover: #0c5a48;
+  --mpa-color-brand-primary-active: #094839;
+  --mpa-color-brand-primary-subtle: #e6f4ef;
+  --mpa-color-brand-secondary: #3a4150;
+
+  /* Surfaces */
+  --mpa-color-bg-app: #f3f4f6;
+  --mpa-color-bg-sidebar: #12151a;
+  --mpa-color-bg-sidebar-elevated: #1a1e25;
   --mpa-color-bg-surface: #ffffff;
-  --mpa-color-bg-overlay: #102b4e99;
+  --mpa-color-bg-surface-elevated: #ffffff;
+  --mpa-color-bg-surface-muted: #eef0f3;
+  --mpa-color-bg-surface-sunken: #e5e7eb;
+  --mpa-color-bg-overlay: #12151a99;
 
-  --mpa-color-border-default: #e5e7eb;
+  /* Borders */
   --mpa-color-border-subtle: #e5e7eb;
-  --mpa-color-border-sidebar: #284f79;
+  --mpa-color-border-default: #d1d5db;
+  --mpa-color-border-strong: #9ca3af;
+  --mpa-color-border-focus: #0f6b56;
+  --mpa-color-border-sidebar: #2a2f38;
 
-  --mpa-color-text-primary: #1b2430;
-  --mpa-color-text-secondary: #6b7280;
+  /* Text */
+  --mpa-color-text-primary: #12151a;
+  --mpa-color-text-secondary: #4b5563;
   --mpa-color-text-muted: #6b7280;
-  --mpa-color-text-sidebar: #d5e3f1;
+  --mpa-color-text-inverse: #f9fafb;
+  --mpa-color-text-sidebar: #c4c9d1;
   --mpa-color-text-sidebar-active: #ffffff;
+  --mpa-color-text-link: #0f6b56;
 
-  --mpa-color-brand-primary: #1fa971;
+  /* Status */
+  --mpa-color-status-success: #0e7a57;
+  --mpa-color-status-success-subtle: #e3f5ee;
+  --mpa-color-status-warning: #b45309;
+  --mpa-color-status-warning-subtle: #fef3c7;
+  --mpa-color-status-danger: #c0392b;
+  --mpa-color-status-danger-subtle: #fce8e6;
+  --mpa-color-status-info: #1d6aa5;
+  --mpa-color-status-info-subtle: #e5f1fa;
+
+  /* Interactive */
+  --mpa-color-interactive-row-hover: #f7f8fa;
+  --mpa-color-interactive-selected: #e6f4ef;
+  --mpa-color-interactive-focus-ring: #0f6b5640;
+  --mpa-color-interactive-disabled-bg: #e5e7eb;
+  --mpa-color-interactive-disabled-text: #9ca3af;
+
+  /* Sidebar accent */
+  --mpa-color-sidebar-accent: #1fa87a;
+
+  /* Feedback aliases */
   --mpa-color-feedback-error: #b42318;
 
-  --mpa-shell-max-width: 1600px;
-  --mpa-content-max-width: 1200px;
+  /* Elevation */
+  --mpa-shadow-xs: 0 1px 2px rgb(18 21 26 / 0.04);
+  --mpa-shadow-sm: 0 1px 3px rgb(18 21 26 / 0.06), 0 1px 2px rgb(18 21 26 / 0.04);
+  --mpa-shadow-md: 0 4px 12px rgb(18 21 26 / 0.08), 0 2px 4px rgb(18 21 26 / 0.04);
+  --mpa-shadow-lg: 0 12px 32px rgb(18 21 26 / 0.1), 0 4px 8px rgb(18 21 26 / 0.04);
+  --mpa-shadow-focus: 0 0 0 3px var(--mpa-color-interactive-focus-ring);
+
+  /* Radius */
+  --mpa-radius-sm: 4px;
+  --mpa-radius-md: 8px;
+  --mpa-radius-lg: 12px;
+  --mpa-radius-xl: 16px;
+
+  /* Motion */
+  --mpa-duration-fast: 120ms;
+  --mpa-duration-normal: 200ms;
+  --mpa-duration-moderate: 280ms;
+  --mpa-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Layout — fluid workspace */
+  --mpa-shell-max-width: none;
+  --mpa-content-max-width: none;
+  --mpa-sidebar-width: 16.5rem;
+  --mpa-sidebar-collapsed-width: 4.5rem;
+  --mpa-topbar-height: 3.5rem;
   --mpa-content-padding-x: 1rem;
   --mpa-content-padding-y: 1.25rem;
   --mpa-content-padding-x-md: 1.5rem;
-  --mpa-content-padding-y-md: 1.5rem;
+  --mpa-content-padding-y-md: 1.75rem;
   --mpa-content-padding-x-lg: 2rem;
-  --mpa-content-padding-y-lg: 2rem;
+  --mpa-content-padding-y-lg: 2.25rem;
+  --mpa-workspace-max-width: 1920px;
+  --mpa-workspace-min-ratio: 0.92;
+  --mpa-workspace-rail-top: calc(var(--mpa-topbar-height) + 1rem);
 }
 
 html,
@@ -41,8 +107,12 @@ body {
   margin: 0;
   padding: 0;
   font-family: var(--mpa-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
   background: var(--mpa-color-bg-app);
   color: var(--mpa-color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 *,
@@ -52,16 +122,85 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--mpa-color-brand-primary), white 35%);
+  outline: 2px solid var(--mpa-color-border-focus);
   outline-offset: 2px;
 }
 
+.font-display {
+  font-family: var(--mpa-font-display);
+  letter-spacing: -0.02em;
+}
+
+.font-mono {
+  font-family: var(--mpa-font-mono);
+}
+
+/* Page layout — enterprise workspace (PX-006 Stage C) */
 .mpa-page {
   width: 100%;
-  max-width: var(--mpa-content-max-width);
-  margin: 0 auto;
+  min-width: 0;
+  max-width: min(var(--mpa-workspace-max-width), calc(100vw * var(--mpa-workspace-min-ratio)));
   padding: var(--mpa-content-padding-y) var(--mpa-content-padding-x);
-  background: var(--mpa-color-bg-app);
+}
+
+.mpa-page-wide {
+  width: 100%;
+  min-width: 0;
+  max-width: min(var(--mpa-workspace-max-width), calc(100vw * 0.95));
+  padding: var(--mpa-content-padding-y) var(--mpa-content-padding-x);
+}
+
+.mpa-workspace-grid {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.mpa-workspace-main {
+  min-width: 0;
+}
+
+.mpa-workspace-rail {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .mpa-workspace-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+    gap: 1.5rem;
+  }
+
+  .mpa-workspace-rail {
+    position: sticky;
+    top: var(--mpa-workspace-rail-top);
+    max-height: calc(100vh - var(--mpa-workspace-rail-top) - 1.5rem);
+    overflow-y: auto;
+    padding-right: 0.125rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .mpa-page-wide {
+    max-width: min(var(--mpa-workspace-max-width), calc(100vw * 0.94));
+  }
+}
+
+@media (min-width: 1600px) {
+  .mpa-page-wide {
+    max-width: min(var(--mpa-workspace-max-width), calc(100vw * 0.93));
+  }
+}
+
+@media (min-width: 1920px) {
+  .mpa-page-wide {
+    max-width: min(var(--mpa-workspace-max-width), calc(100vw * 0.92));
+  }
+}
+
+.mpa-app-main {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
 }
 
 .mpa-page-header {
@@ -69,27 +208,50 @@ body {
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 1rem;
+}
+
+.mpa-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mpa-color-text-muted);
+}
+
+.mpa-section-title {
+  font-family: var(--mpa-font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--mpa-color-text-primary);
 }
 
 @media (min-width: 768px) {
-  .mpa-page {
+  .mpa-page,
+  .mpa-page-wide {
     padding: var(--mpa-content-padding-y-md) var(--mpa-content-padding-x-md);
   }
 }
 
 @media (min-width: 1024px) {
-  .mpa-page {
+  .mpa-page,
+  .mpa-page-wide {
     padding: var(--mpa-content-padding-y-lg) var(--mpa-content-padding-x-lg);
   }
 }
 
 [data-theme="dark"] {
-  --mpa-color-bg-app: #0f2038;
-  --mpa-color-bg-surface: #102b4e;
-  --mpa-color-border-default: #284f79;
-  --mpa-color-text-primary: #f8fafc;
-  --mpa-color-text-secondary: #c8d3de;
+  --mpa-color-bg-app: #0b0d10;
+  --mpa-color-bg-surface: #14181e;
+  --mpa-color-bg-surface-muted: #1b2028;
+  --mpa-color-border-default: #2a313c;
+  --mpa-color-border-subtle: #2a313c;
+  --mpa-color-text-primary: #f3f4f6;
+  --mpa-color-text-secondary: #9ca3af;
+  --mpa-color-text-muted: #6b7280;
+  --mpa-color-brand-primary: #1fa87a;
+  --mpa-color-interactive-row-hover: #1b2028;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -101,4 +263,22 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  .mpa-brand-loading {
+    animation: none !important;
+  }
+}
+
+@keyframes mpa-brand-fade {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.mpa-brand-loading {
+  animation: mpa-brand-fade 2.4s ease-in-out infinite;
 }

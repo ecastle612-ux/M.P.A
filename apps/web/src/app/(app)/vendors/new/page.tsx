@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { Breadcrumbs } from "../../../../components/shell/breadcrumbs";
+import { CreatePageLayout } from "../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../components/presentation/create-form-context-rail";
 import { VendorForm } from "../../../../components/vendor/vendor-form";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -25,15 +26,19 @@ export default async function NewVendorPage() {
   }
 
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/vendors", label: "Vendors" },
-          { label: "Create" }
-        ]}
-      />
-      <VendorForm mode="create" />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/vendors", label: "Vendors" },
+        { label: "Create" }
+      ]}
+      form={<VendorForm mode="create" />}
+      contextRail={
+        <CreateFormContextRail
+          module="vendor"
+          relatedLinks={[{ label: "Vendors list", href: "/vendors" }, { label: "Maintenance", href: "/maintenance" }]}
+        />
+      }
+    />
   );
 }

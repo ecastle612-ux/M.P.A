@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button, Card } from "@mpa/ui";
-import { Breadcrumbs } from "../../../../components/shell/breadcrumbs";
+import { AppPage } from "../../../../components/presentation/app-page";
+import { CreatePageLayout } from "../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../components/presentation/create-form-context-rail";
 import { UnitForm } from "../../../../components/unit/unit-form";
+import { WorkflowSuccessPanel } from "../../../../components/presentation/workflow-success-panel";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { getPropertiesForOrganization } from "../../../../lib/property/server";
+import { buildPropertyCreatedOnUnitFormSuccess } from "../../../../lib/workflow/shared/success-configs";
 
 export default async function NewUnitPage({
   searchParams
@@ -33,16 +37,19 @@ export default async function NewUnitPage({
 
   const properties = await getPropertiesForOrganization(organizationId);
   const propertyOptions = properties.map((property) => ({ id: property.id, name: property.name }));
+  const preselectedProperty = propertyId ? properties.find((property) => property.id === propertyId) : null;
+  const propertyCreatedSuccess =
+    from === "property-created" ? buildPropertyCreatedOnUnitFormSuccess(preselectedProperty?.name) : null;
+
   if (propertyOptions.length === 0) {
     return (
-      <main className="mpa-page flex-1 space-y-5">
-        <Breadcrumbs
-          items={[
-            { href: "/dashboard", label: "Dashboard" },
-            { href: "/units", label: "Units" },
-            { label: "Create" }
-          ]}
-        />
+      <AppPage
+        breadcrumbs={[
+          { href: "/dashboard", label: "Dashboard" },
+          { href: "/units", label: "Units" },
+          { label: "Create" }
+        ]}
+      >
         <Card className="space-y-3">
           <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">Create Unit</h1>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
@@ -54,27 +61,44 @@ export default async function NewUnitPage({
             </Link>
           ) : null}
         </Card>
-      </main>
+      </AppPage>
     );
   }
 
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/units", label: "Units" },
-          { label: "Create" }
-        ]}
-      />
-      {from === "property-created" ? (
-        <Card className="border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-bg-surface-muted)]">
-          <p className="text-sm text-[var(--mpa-color-text-primary)]">
-            Property saved. Continue the workflow by adding your first unit.
-          </p>
-        </Card>
-      ) : null}
-      <UnitForm mode="create" properties={propertyOptions} initialPropertyId={propertyId ?? null} />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/units", label: "Units" },
+        { label: "Create" }
+      ]}
+      banner={
+        propertyCreatedSuccess ? (
+          <WorkflowSuccessPanel {...propertyCreatedSuccess} primaryAction={propertyCreatedSuccess.primaryAction} />
+        ) : null
+      }
+      form={
+        <div id="unit-form">
+          <UnitForm mode="create" properties={propertyOptions} initialPropertyId={propertyId ?? null} />
+        </div>
+      }
+      contextRail={
+        <CreateFormContextRail
+          module="unit"
+          setupSteps={[
+            { id: "property", label: "Property selected", complete: Boolean(propertyId) },
+            { id: "units", label: "Create unit", complete: false },
+            { id: "tenant", label: "Assign tenant", complete: false },
+            { id: "lease", label: "Create lease", complete: false }
+          ]}
+          relatedLinks={[
+            ...(preselectedProperty
+              ? [{ label: preselectedProperty.name, href: `/properties/${preselectedProperty.id}` }]
+              : []),
+            { label: "Units list", href: "/units" }
+          ]}
+        />
+      }
+    />
   );
 }

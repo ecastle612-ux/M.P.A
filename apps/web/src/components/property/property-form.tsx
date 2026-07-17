@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Card, Input, Select, Textarea } from "@mpa/ui";
 import { PROPERTY_STATUSES, PROPERTY_TYPES, toPropertyTypeLabel, type PropertyRecord } from "../../lib/property/contracts";
 
@@ -51,6 +51,8 @@ export function PropertyForm({
   property?: PropertyRecord | null;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const setupMode = searchParams.get("setup") === "1";
   const [values, setValues] = useState<PropertyFormValues>(() =>
     property
       ? {
@@ -126,7 +128,11 @@ export function PropertyForm({
     const savedId = success.property?.id ?? property?.id;
     if (savedId) {
       if (mode === "create") {
-        router.push(`/units/new?propertyId=${savedId}&from=property-created`);
+        if (setupMode) {
+          router.push("/setup");
+        } else {
+          router.push(`/properties/${savedId}?from=property-created`);
+        }
       } else {
         router.push(`/properties/${savedId}`);
       }

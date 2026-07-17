@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Card, Input, Select } from "@mpa/ui";
 import {
   UNIT_OCCUPANCY_STATUSES,
@@ -52,6 +52,8 @@ export function UnitForm({
   initialPropertyId?: string | null;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const setupMode = searchParams.get("setup") === "1";
   const [values, setValues] = useState<UnitFormValues>(() =>
     unit
       ? {
@@ -136,7 +138,11 @@ export function UnitForm({
     const savedId = success.unit?.id ?? unit?.id;
     if (savedId) {
       if (mode === "create") {
-        router.push(`/tenants/new?propertyId=${payload.propertyId}&unitId=${savedId}&from=unit-created`);
+        if (setupMode) {
+          router.push("/setup");
+        } else {
+          router.push(`/units/${savedId}?from=unit-created`);
+        }
       } else {
         router.push(`/units/${savedId}`);
       }

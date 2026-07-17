@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Card, Input, Select, Textarea } from "@mpa/ui";
 import {
   LEASE_TYPES,
@@ -88,6 +88,8 @@ export function LeaseForm({
   initialTenantId?: string | null;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const setupMode = searchParams.get("setup") === "1";
   const [values, setValues] = useState<LeaseFormValues>(() =>
     lease
       ? toFormValues(lease)
@@ -203,7 +205,11 @@ export function LeaseForm({
     const success = (await response.json()) as { lease?: LeaseRecord };
     const savedId = success.lease?.id ?? lease?.id;
     if (savedId) {
-      router.push(`/leases/${savedId}?from=lease-created`);
+      if (setupMode) {
+        router.push("/setup");
+      } else {
+        router.push(`/leases/${savedId}?from=lease-created`);
+      }
       router.refresh();
       return;
     }

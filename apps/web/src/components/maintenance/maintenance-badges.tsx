@@ -12,7 +12,11 @@ export function PriorityBadge({ priority }: { priority: MaintenancePriority }) {
           ? "info"
           : "neutral";
 
-  return <Badge variant={variant}>{toMaintenancePriorityLabel(priority)}</Badge>;
+  return (
+    <Badge showDot variant={variant}>
+      {toMaintenancePriorityLabel(priority)}
+    </Badge>
+  );
 }
 
 export function StatusBadge({ status }: { status: MaintenanceStatus }) {
@@ -27,7 +31,11 @@ export function StatusBadge({ status }: { status: MaintenanceStatus }) {
             ? "info"
             : "neutral";
 
-  return <Badge variant={variant}>{toMaintenanceStatusLabel(status)}</Badge>;
+  return (
+    <Badge showDot variant={variant}>
+      {toMaintenanceStatusLabel(status)}
+    </Badge>
+  );
 }
 
 export function isWorkOrderOverdue(dueDate: string | null, status: MaintenanceStatus): boolean {

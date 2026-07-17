@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Input } from "@mpa/ui";
+import { Button, FormSection, Input } from "@mpa/ui";
 import { createAuthClient } from "../../lib/auth/client";
 
 type AuthMode = "sign_in" | "sign_up";
@@ -64,14 +64,12 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-        {mode === "sign_in" ? "Sign In" : "Create Account"}
-      </h1>
-      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        Secure access to your property operations platform.
-      </p>
-      <div className="mt-4 grid grid-cols-2 gap-2">
+    <FormSection
+      className="w-full max-w-md"
+      title={mode === "sign_in" ? "Sign In" : "Create Account"}
+      description="Secure access to your property operations platform."
+    >
+      <div className="grid grid-cols-2 gap-2">
         <Button
           type="button"
           variant={mode === "sign_in" ? "primary" : "secondary"}
@@ -95,9 +93,10 @@ export function LoginForm() {
           Sign up
         </Button>
       </div>
-      <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-        <div className="space-y-1">
-          <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="email">
+
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="email">
             Email
           </label>
           <Input
@@ -108,8 +107,8 @@ export function LoginForm() {
             onChange={(event) => setEmail(event.target.value)}
           />
         </div>
-        <div className="space-y-1">
-          <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="password">
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="password">
             Password
           </label>
           <Input
@@ -121,8 +120,8 @@ export function LoginForm() {
           />
         </div>
         {mode === "sign_up" ? (
-          <div className="space-y-1">
-            <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="confirm-password">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="confirm-password">
               Confirm password
             </label>
             <Input
@@ -147,12 +146,12 @@ export function LoginForm() {
         </Button>
         {mode === "sign_in" ? (
           <p className="text-center text-sm text-[var(--mpa-color-text-secondary)]">
-            <Link className="underline" href="/forgot-password">
+            <Link className="underline hover:text-[var(--mpa-color-text-primary)]" href="/forgot-password">
               Forgot your password?
             </Link>
           </p>
         ) : null}
       </form>
-    </Card>
+    </FormSection>
   );
 }

@@ -6,11 +6,21 @@ export const COMMAND_CENTER_CATEGORIES = [
   "recent",
   "properties",
   "units",
+  "applicants",
   "tenants",
   "maintenance",
   "vendors",
   "leases",
+  "announcements",
+  "messages",
+  "conversations",
+  "rent-charges",
+  "payments",
+  "expenses",
+  "owner-statements",
   "organizations",
+  "migration",
+  "ai",
   "actions",
   "navigation"
 ] as const;
@@ -20,11 +30,21 @@ export type CommandCenterCategory = (typeof COMMAND_CENTER_CATEGORIES)[number];
 export type CommandCenterItemKind =
   | "property"
   | "unit"
+  | "applicant"
   | "tenant"
   | "maintenance"
   | "vendor"
   | "lease"
+  | "announcement"
+  | "message"
+  | "conversation"
+  | "rent-charge"
+  | "payment"
+  | "expense"
+  | "owner-statement"
   | "organization"
+  | "migration"
+  | "ai"
   | "navigation"
   | "action"
   | "recent"

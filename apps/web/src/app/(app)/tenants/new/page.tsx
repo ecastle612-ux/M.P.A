@@ -1,12 +1,14 @@
 import { redirect } from "next/navigation";
-import { Card } from "@mpa/ui";
-import { Breadcrumbs } from "../../../../components/shell/breadcrumbs";
+import { CreatePageLayout } from "../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../components/presentation/create-form-context-rail";
 import { TenantForm } from "../../../../components/tenant/tenant-form";
+import { WorkflowSuccessPanel } from "../../../../components/presentation/workflow-success-panel";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { getPropertiesForOrganization } from "../../../../lib/property/server";
 import { getUnitsForOrganization } from "../../../../lib/unit/server";
+import { buildUnitCreatedOnTenantFormSuccess } from "../../../../lib/workflow/shared/success-configs";
 
 export default async function NewTenantPage({
   searchParams
@@ -44,29 +46,51 @@ export default async function NewTenantPage({
     unitLabel: unit.unitLabel
   }));
 
+  const selectedProperty = propertyId ? properties.find((property) => property.id === propertyId) : null;
+  const selectedUnit = unitId ? units.find((unit) => unit.id === unitId) : null;
+  const unitCreatedSuccess = from === "unit-created" ? buildUnitCreatedOnTenantFormSuccess() : null;
+
+  const relatedLinks = [
+    ...(selectedProperty ? [{ label: selectedProperty.name, href: `/properties/${selectedProperty.id}` }] : []),
+    ...(selectedUnit ? [{ label: `Unit ${selectedUnit.unitNumber}`, href: `/units/${selectedUnit.id}` }] : []),
+    { label: "Tenants list", href: "/tenants" }
+  ];
+
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/tenants", label: "Tenants" },
-          { label: "Create" }
-        ]}
-      />
-      {from === "unit-created" ? (
-        <Card className="border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-bg-surface-muted)]">
-          <p className="text-sm text-[var(--mpa-color-text-primary)]">
-            Unit saved. Finalize the workflow by assigning a tenant and move-in timeline.
-          </p>
-        </Card>
-      ) : null}
-      <TenantForm
-        mode="create"
-        properties={propertyOptions}
-        units={unitOptions}
-        initialPropertyId={propertyId ?? null}
-        initialUnitId={unitId ?? null}
-      />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/tenants", label: "Tenants" },
+        { label: "Create" }
+      ]}
+      banner={
+        unitCreatedSuccess ? (
+          <WorkflowSuccessPanel {...unitCreatedSuccess} primaryAction={unitCreatedSuccess.primaryAction} />
+        ) : null
+      }
+      form={
+        <div id="tenant-form">
+          <TenantForm
+            mode="create"
+            properties={propertyOptions}
+            units={unitOptions}
+            initialPropertyId={propertyId ?? null}
+            initialUnitId={unitId ?? null}
+          />
+        </div>
+      }
+      contextRail={
+        <CreateFormContextRail
+          module="tenant"
+          setupSteps={[
+            { id: "property", label: "Property ready", complete: Boolean(propertyId) },
+            { id: "units", label: "Unit selected", complete: Boolean(unitId) },
+            { id: "tenant", label: "Create tenant", complete: false },
+            { id: "lease", label: "Create lease", complete: false }
+          ]}
+          relatedLinks={relatedLinks}
+        />
+      }
+    />
   );
 }

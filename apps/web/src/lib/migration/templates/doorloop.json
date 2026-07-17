@@ -1,0 +1,23 @@
+{
+  "sourceSoftware": "doorloop",
+  "label": "DoorLoop",
+  "entityTypes": {
+    "property": {
+      "columnMap": {
+        "name": ["Property Name"],
+        "addressLine1": ["Street"],
+        "city": ["City"],
+        "stateRegion": ["State"],
+        "postalCode": ["Zip Code"]
+      }
+    },
+    "tenant": {
+      "columnMap": {
+        "firstName": ["First Name"],
+        "lastName": ["Last Name"],
+        "email": ["Email"],
+        "phone": ["Phone Number"]
+      }
+    }
+  }
+}

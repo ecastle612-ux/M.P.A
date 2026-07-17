@@ -1,0 +1,22 @@
+{
+  "sourceSoftware": "propertyware",
+  "label": "Propertyware",
+  "entityTypes": {
+    "property": {
+      "columnMap": {
+        "name": ["Building Name", "Property Name"],
+        "addressLine1": ["Address"],
+        "city": ["City"],
+        "stateRegion": ["State"],
+        "postalCode": ["Zip"]
+      }
+    },
+    "tenant": {
+      "columnMap": {
+        "firstName": ["First Name"],
+        "lastName": ["Last Name"],
+        "email": ["Email Address"]
+      }
+    }
+  }
+}

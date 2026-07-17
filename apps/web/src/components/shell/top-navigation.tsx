@@ -11,9 +11,9 @@ const CommandCenter = dynamic(
   },
   {
     ssr: false,
-    loading: () => (
-      <div className="h-10 w-full rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-        Search…
+      loading: () => (
+      <div className="flex h-10 w-full items-center rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)] px-4 text-sm text-[var(--mpa-color-text-muted)]">
+        Search properties, tenants, leases…
       </div>
     )
   }
@@ -23,25 +23,21 @@ export function TopNavigation() {
   return (
     <header
       role="banner"
-      className="sticky top-0 z-30 border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 backdrop-blur"
+      className="sticky top-0 z-30 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]/92 backdrop-blur-md"
     >
-      <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center gap-3 px-4 md:px-6 lg:px-8">
-        <div className="hidden min-w-[280px] flex-1 lg:block">
+      <div className="flex h-[var(--mpa-topbar-height)] w-full items-center gap-3 px-4 md:gap-4 md:px-5 lg:px-6">
+        <div className="hidden min-w-0 flex-1 lg:block">
           <CommandCenter />
         </div>
-        <nav className="ml-auto flex items-center gap-2 md:gap-3" aria-label="Global controls">
-          <div className="hidden min-w-[280px] flex-1 md:block lg:hidden">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2 md:gap-3 lg:flex-none lg:shrink-0">
+          <div className="min-w-0 flex-1 lg:hidden">
             <CommandCenter />
           </div>
-          <div className="hidden xl:block">
-            <OrganizationSwitcher />
-          </div>
-          <div className="hidden xl:block">
-            <RoleSwitcher />
-          </div>
+          <OrganizationSwitcher />
+          <RoleSwitcher />
           <NotificationCenter />
           <ProfileMenu />
-        </nav>
+        </div>
       </div>
     </header>
   );

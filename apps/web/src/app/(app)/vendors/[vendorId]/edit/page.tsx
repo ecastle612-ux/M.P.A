@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { Breadcrumbs } from "../../../../../components/shell/breadcrumbs";
+import { CreatePageLayout } from "../../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../../components/presentation/create-form-context-rail";
 import { VendorForm } from "../../../../../components/vendor/vendor-form";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
@@ -32,16 +33,20 @@ export default async function EditVendorPage({ params }: { params: Promise<{ ven
   }
 
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/vendors", label: "Vendors" },
-          { href: `/vendors/${vendor.id}`, label: vendor.businessName },
-          { label: "Edit" }
-        ]}
-      />
-      <VendorForm mode="edit" vendor={vendor} />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/vendors", label: "Vendors" },
+        { href: `/vendors/${vendor.id}`, label: vendor.businessName },
+        { label: "Edit" }
+      ]}
+      form={<VendorForm mode="edit" vendor={vendor} />}
+      contextRail={
+        <CreateFormContextRail
+          module="vendor"
+          relatedLinks={[{ label: vendor.businessName, href: `/vendors/${vendor.id}` }]}
+        />
+      }
+    />
   );
 }

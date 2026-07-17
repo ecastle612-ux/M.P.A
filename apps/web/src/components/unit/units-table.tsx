@@ -5,18 +5,20 @@ import Link from "next/link";
 import {
   Badge,
   Button,
-  Card,
   Input,
   Select,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableHeaderCell,
   TableRow
 } from "@mpa/ui";
 import { toUnitOccupancyLabel, toUnitStatusLabel, type UnitRecord } from "../../lib/unit/contracts";
-import { MpaLogo } from "../branding/mpa-logo";
+import { DataTableLayout } from "../presentation/data-table-layout";
+import { ExperienceEmptyState } from "../experience/experience-empty-state";
+import { getFilteredEmptyMessage } from "../../lib/experience/empty-states";
 
 type UnitListItem = UnitRecord & { propertyName: string | null; assignedTenantName: string | null };
 const PAGE_SIZE = 10;
@@ -86,200 +88,176 @@ export function UnitsTable({
   }
 
   if (visibleItems.length === 0) {
-    return (
-      <Card>
-        <MpaLogo className="mb-2 h-12 w-auto" alt="M.P.A. logo" />
-        <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">No units yet</h2>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Add units to track occupancy, vacancy, and operational readiness.
-        </p>
-        {permissions.canCreate ? (
-          <Link href="/units/new" className="mt-3 inline-block">
-            <Button>Create Unit</Button>
-          </Link>
-        ) : null}
-      </Card>
-    );
+    return <ExperienceEmptyState module="units" canCreate={permissions.canCreate} />;
   }
 
   return (
-    <Card className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Units</h2>
-        {permissions.canCreate ? (
+    <DataTableLayout
+      overline="Portfolio"
+      title="Units"
+      description="Track occupancy, vacancy, and unit readiness across properties."
+      actions={
+        permissions.canCreate ? (
           <Link href="/units/new">
-            <Button>Create Unit</Button>
+            <Button>Create unit</Button>
           </Link>
-        ) : null}
-      </div>
-      <div className="grid gap-2 lg:grid-cols-[2fr_1fr_1fr]">
-        <Input
-          aria-label="Search units"
-          placeholder="Search by unit, property, tenant"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setPage(1);
-          }}
-        />
-        <Select
-          aria-label="Filter unit status"
-          value={statusFilter}
-          onChange={(event) => {
-            setStatusFilter(event.target.value as "all" | UnitRecord["status"]);
-            setPage(1);
-          }}
-        >
-          <option value="all">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="archived">Archived</option>
-        </Select>
-        <Select
-          aria-label="Filter occupancy"
-          value={occupancyFilter}
-          onChange={(event) => {
-            setOccupancyFilter(event.target.value as "all" | UnitRecord["occupancyStatus"]);
-            setPage(1);
-          }}
-        >
-          <option value="all">All occupancy</option>
-          <option value="occupied">Occupied</option>
-          <option value="vacant_ready">Vacant ready</option>
-          <option value="vacant_not_ready">Vacant not ready</option>
-          <option value="notice">Notice</option>
-          <option value="offline">Offline</option>
-        </Select>
-      </div>
-      {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
-      {filteredItems.length === 0 ? (
-        <p className="rounded-md border border-dashed border-[var(--mpa-color-border-default)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">
-          No units match your search or filters.
-        </p>
-      ) : null}
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHead>
-            <tr>
-              <TableHeaderCell>Unit</TableHeaderCell>
-              <TableHeaderCell>Property</TableHeaderCell>
-              <TableHeaderCell>Assigned Tenant</TableHeaderCell>
-              <TableHeaderCell>Occupancy</TableHeaderCell>
-              <TableHeaderCell>Availability</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell>Rent</TableHeaderCell>
-              <TableHeaderCell className="text-right">Actions</TableHeaderCell>
-            </tr>
-          </TableHead>
-          <TableBody>
-            {pagedItems.map((item) => {
-              const isArchived = item.status === "archived";
-              const busyArchive =
-                submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
-              const busyDelete = submittingAction === `${item.id}:soft_delete`;
-              const availability =
-                item.status !== "active"
-                  ? "Unavailable"
-                  : item.occupancyStatus === "occupied"
-                    ? "Occupied"
-                    : item.occupancyStatus === "vacant_ready"
-                      ? "Ready"
-                      : item.occupancyStatus === "vacant_not_ready"
-                        ? "Turnover"
-                        : item.occupancyStatus === "notice"
-                          ? "Notice"
-                          : "Offline";
-              return (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <p className="font-medium text-[var(--mpa-color-text-primary)]">{item.unitNumber}</p>
-                    <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                      {item.bedrooms ?? "-"} bd / {item.bathrooms ?? "-"} ba / {item.squareFeet ?? "-"} sf
-                    </p>
-                  </TableCell>
-                  <TableCell>{item.propertyName ?? "Unknown property"}</TableCell>
-                  <TableCell>{item.assignedTenantName ?? "Unassigned"}</TableCell>
-                  <TableCell>
-                    <Badge variant={item.occupancyStatus === "occupied" ? "success" : "warning"}>
-                      {toUnitOccupancyLabel(item.occupancyStatus)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{availability}</TableCell>
-                  <TableCell>{toUnitStatusLabel(item.status)}</TableCell>
-                  <TableCell>{item.rentAmount !== null ? formatCurrency(item.rentAmount, item.currencyCode) : "-"}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <Link href={`/units/${item.id}`}>
-                        <Button variant="secondary" size="sm">
-                          View
-                        </Button>
-                      </Link>
-                      {permissions.canUpdate ? (
-                        <Link href={`/units/${item.id}/edit`}>
+        ) : null
+      }
+      filters={
+        <>
+          <Input
+            aria-label="Search units"
+            placeholder="Search by unit, property, tenant"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(1);
+            }}
+          />
+          <Select
+            aria-label="Filter unit status"
+            value={statusFilter}
+            onChange={(event) => {
+              setStatusFilter(event.target.value as "all" | UnitRecord["status"]);
+              setPage(1);
+            }}
+          >
+            <option value="all">All statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="archived">Archived</option>
+          </Select>
+          <Select
+            aria-label="Filter occupancy"
+            value={occupancyFilter}
+            onChange={(event) => {
+              setOccupancyFilter(event.target.value as "all" | UnitRecord["occupancyStatus"]);
+              setPage(1);
+            }}
+          >
+            <option value="all">All occupancy</option>
+            <option value="occupied">Occupied</option>
+            <option value="vacant_ready">Vacant ready</option>
+            <option value="vacant_not_ready">Vacant not ready</option>
+            <option value="notice">Notice</option>
+            <option value="offline">Offline</option>
+          </Select>
+        </>
+      }
+      error={error}
+      showEmptyFiltered={filteredItems.length === 0}
+      emptyFilteredMessage={getFilteredEmptyMessage("units")}
+      page={currentPage}
+      pageCount={pageCount}
+      totalItems={filteredItems.length}
+      pageSize={PAGE_SIZE}
+      onPreviousPage={() => setPage((value) => Math.max(1, value - 1))}
+      onNextPage={() => setPage((value) => Math.min(pageCount, value + 1))}
+    >
+      <TableContainer className="rounded-none border-0 shadow-none">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHead>
+              <tr>
+                <TableHeaderCell>Unit</TableHeaderCell>
+                <TableHeaderCell>Property</TableHeaderCell>
+                <TableHeaderCell>Assigned Tenant</TableHeaderCell>
+                <TableHeaderCell>Occupancy</TableHeaderCell>
+                <TableHeaderCell>Availability</TableHeaderCell>
+                <TableHeaderCell>Status</TableHeaderCell>
+                <TableHeaderCell>Rent</TableHeaderCell>
+                <TableHeaderCell className="text-right">Actions</TableHeaderCell>
+              </tr>
+            </TableHead>
+            <TableBody>
+              {pagedItems.map((item) => {
+                const isArchived = item.status === "archived";
+                const busyArchive =
+                  submittingAction === `${item.id}:archive` || submittingAction === `${item.id}:restore`;
+                const busyDelete = submittingAction === `${item.id}:soft_delete`;
+                const availability =
+                  item.status !== "active"
+                    ? "Unavailable"
+                    : item.occupancyStatus === "occupied"
+                      ? "Occupied"
+                      : item.occupancyStatus === "vacant_ready"
+                        ? "Ready"
+                        : item.occupancyStatus === "vacant_not_ready"
+                          ? "Turnover"
+                          : item.occupancyStatus === "notice"
+                            ? "Notice"
+                            : "Offline";
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <p className="font-medium text-[var(--mpa-color-text-primary)]">{item.unitNumber}</p>
+                      <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        {item.bedrooms ?? "-"} bd / {item.bathrooms ?? "-"} ba / {item.squareFeet ?? "-"} sf
+                      </p>
+                    </TableCell>
+                    <TableCell>{item.propertyName ?? "Unknown property"}</TableCell>
+                    <TableCell>{item.assignedTenantName ?? "Unassigned"}</TableCell>
+                    <TableCell>
+                      <Badge showDot variant={item.occupancyStatus === "occupied" ? "success" : "warning"}>
+                        {toUnitOccupancyLabel(item.occupancyStatus)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{availability}</TableCell>
+                    <TableCell>
+                      <Badge
+                        showDot
+                        variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}
+                      >
+                        {toUnitStatusLabel(item.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {item.rentAmount !== null ? formatCurrency(item.rentAmount, item.currencyCode) : "-"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Link href={`/units/${item.id}`}>
                           <Button variant="secondary" size="sm">
-                            Edit
+                            View
                           </Button>
                         </Link>
-                      ) : null}
-                      {permissions.canArchive ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={busyArchive}
-                          onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
-                        >
-                          {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
-                        </Button>
-                      ) : null}
-                      {permissions.canDelete ? (
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          disabled={busyDelete}
-                          onClick={() => runAction(item.id, "soft_delete")}
-                        >
-                          {busyDelete ? "Deleting..." : "Delete"}
-                        </Button>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-          {filteredItems.length === 0
-            ? "Showing 0 of 0"
-            : `Showing ${(currentPage - 1) * PAGE_SIZE + 1}-${Math.min(currentPage * PAGE_SIZE, filteredItems.length)} of ${filteredItems.length}`}
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={currentPage <= 1}
-            onClick={() => setPage((value) => Math.max(1, value - 1))}
-          >
-            Previous
-          </Button>
-          <span className="text-xs text-[var(--mpa-color-text-secondary)]">
-            Page {currentPage} of {pageCount}
-          </span>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={currentPage >= pageCount}
-            onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
-          >
-            Next
-          </Button>
+                        {permissions.canUpdate ? (
+                          <Link href={`/units/${item.id}/edit`}>
+                            <Button variant="secondary" size="sm">
+                              Edit
+                            </Button>
+                          </Link>
+                        ) : null}
+                        {permissions.canArchive ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={busyArchive}
+                            onClick={() => runAction(item.id, isArchived ? "restore" : "archive")}
+                          >
+                            {busyArchive ? "Saving..." : isArchived ? "Restore" : "Archive"}
+                          </Button>
+                        ) : null}
+                        {permissions.canDelete ? (
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            disabled={busyDelete}
+                            onClick={() => runAction(item.id, "soft_delete")}
+                          >
+                            {busyDelete ? "Deleting..." : "Delete"}
+                          </Button>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
-      </div>
-    </Card>
+      </TableContainer>
+    </DataTableLayout>
   );
 }
 

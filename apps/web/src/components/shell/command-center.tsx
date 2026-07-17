@@ -178,10 +178,19 @@ export function CommandCenter() {
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label="Open Universal Command Center"
-        className="flex w-full items-center justify-between rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-left text-sm text-[var(--mpa-color-text-secondary)] transition-colors hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]"
+        className="group flex w-full items-center gap-3 rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)]/60 px-4 py-2.5 text-left text-sm text-[var(--mpa-color-text-muted)] shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:border-[var(--mpa-color-border-default)] hover:bg-[var(--mpa-color-bg-surface)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-border-focus)]"
       >
-        <span>Search anything — properties, units, tenants, actions…</span>
-        <kbd className="hidden rounded border border-[var(--mpa-color-border-default)] px-1.5 py-0.5 text-[10px] sm:inline">
+        <svg
+          aria-hidden="true"
+          className="h-4 w-4 shrink-0 text-[var(--mpa-color-text-muted)] group-hover:text-[var(--mpa-color-brand-primary)]"
+          viewBox="0 0 16 16"
+          fill="none"
+        >
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+        <span className="flex-1 truncate">Search properties, tenants, leases…</span>
+        <kbd className="pointer-events-none hidden shrink-0 rounded-[var(--mpa-radius-sm)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--mpa-color-text-muted)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 md:inline">
           ⌘K
         </kbd>
       </button>

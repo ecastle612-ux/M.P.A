@@ -8,16 +8,13 @@ export function RoleSwitcher({ compact = false }: { compact?: boolean }) {
   const { availableRoles, activeRole, setActiveRole } = useRoleContext();
 
   return (
-    <label
-      className={[
-        "inline-flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]",
-        compact ? "w-full" : ""
-      ].join(" ")}
-    >
-      <span className={compact ? "w-24 shrink-0" : ""}>Role</span>
+    <div className={compact ? "w-full space-y-1" : "hidden min-w-0 xl:block"}>
+      {!compact ? (
+        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--mpa-color-text-muted)]">Role</p>
+      ) : null}
       <Select
         aria-label="Active role"
-        className={compact ? "w-full" : "w-44"}
+        className={compact ? "w-full" : "h-9 w-[10.5rem] text-sm"}
         value={activeRole}
         onChange={(event) => {
           const nextRole = event.target.value;
@@ -32,6 +29,6 @@ export function RoleSwitcher({ compact = false }: { compact?: boolean }) {
           </option>
         ))}
       </Select>
-    </label>
+    </div>
   );
 }

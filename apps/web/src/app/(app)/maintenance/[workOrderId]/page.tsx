@@ -1,16 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Button, Card } from "@mpa/ui";
-import { Breadcrumbs } from "../../../../components/shell/breadcrumbs";
-import { MaintenanceActivityTimeline } from "../../../../components/maintenance/activity-timeline";
+import { Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
+import { DetailPageLayout } from "../../../../components/presentation/detail-page-layout";
+import { EntityRelationshipChain } from "../../../../components/presentation/entity-relationship-chain";
+import { MaintenanceContextRail } from "../../../../components/presentation/context-rails/maintenance-context-rail";
 import { isWorkOrderOverdue, PriorityBadge, StatusBadge } from "../../../../components/maintenance/maintenance-badges";
 import { VendorAssignmentPanel } from "../../../../components/vendor/vendor-assignment-panel";
+import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { toMaintenanceCategoryLabel } from "../../../../lib/maintenance/contracts";
 import { getActivityForWorkOrder, getAssigneesForOrganization, getWorkOrderForOrganization } from "../../../../lib/maintenance/server";
+import { getThreadBySourceEntity } from "../../../../lib/messaging/server";
+import { MaintenanceConversationPanel } from "../../../../components/messaging/maintenance-conversation-panel";
 import { getVendorAssignmentsForWorkOrder, getVendorsForOrganization } from "../../../../lib/vendor/server";
+import { buildWorkOrderCreatedSuccess } from "../../../../lib/workflow/shared/success-configs";
 
 export default async function WorkOrderDetailPage({
   params,
@@ -41,17 +46,28 @@ export default async function WorkOrderDetailPage({
 
   const canAssignVendor = evaluatePermission(authorization, "vendor:assign");
 
-  const [workOrder, activity, assignees, vendorAssignments, vendors] = await Promise.all([
+  const [workOrder, activity, assignees, vendorAssignments, vendors, maintenanceThread] = await Promise.all([
     getWorkOrderForOrganization(organizationId, workOrderId, supabase),
     getActivityForWorkOrder(organizationId, workOrderId, supabase),
     getAssigneesForOrganization(organizationId, supabase),
     canAssignVendor ? getVendorAssignmentsForWorkOrder(organizationId, workOrderId, supabase) : Promise.resolve([]),
-    canAssignVendor ? getVendorsForOrganization(organizationId, { status: "active" }, supabase) : Promise.resolve([])
+    canAssignVendor ? getVendorsForOrganization(organizationId, { status: "active" }, supabase) : Promise.resolve([]),
+    getThreadBySourceEntity(organizationId, "maintenance", workOrderId, supabase)
   ]);
 
   if (!workOrder) {
     redirect("/maintenance");
   }
+
+  const { data: relatedHistoryRows } = await supabase
+    .from("maintenance_work_orders")
+    .select("id, work_order_number, title")
+    .eq("organization_id", organizationId)
+    .eq("property_id", workOrder.propertyId)
+    .neq("id", workOrder.id)
+    .is("deleted_at", null)
+    .order("updated_at", { ascending: false })
+    .limit(5);
 
   const canUpdate = evaluatePermission(authorization, "maintenance:update");
   const canAssign = evaluatePermission(authorization, "maintenance:assign");
@@ -65,137 +81,204 @@ export default async function WorkOrderDetailPage({
   const assigneeLabel =
     assignees.find((assignee) => assignee.userId === workOrder.assignedToUserId)?.label ?? "Unassigned";
 
+  const assignedVendor = currentVendorAssignment
+    ? vendors.find((vendor) => vendor.id === currentVendorAssignment.vendorId)
+    : null;
+
+  const workOrderSuccess =
+    from === "work-order-created"
+      ? buildWorkOrderCreatedSuccess({
+          id: workOrder.id,
+          workOrderNumber: workOrder.workOrderNumber,
+          propertyId: workOrder.propertyId,
+          unitId: workOrder.unitId,
+          tenantId: workOrder.tenantId
+        })
+      : null;
+
+  const relatedHistory = (
+    (relatedHistoryRows ?? []) as Array<{ id: string; work_order_number: string; title: string }>
+  ).map((row) => ({
+    id: row.id,
+    workOrderNumber: row.work_order_number,
+    title: row.title
+  }));
+
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/maintenance", label: "Maintenance" },
-          { label: workOrder.workOrderNumber }
-        ]}
-      />
-
-      {from === "work-order-created" ? (
-        <Card className="border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-bg-surface-muted)]">
-          <p className="text-sm text-[var(--mpa-color-text-primary)]">
-            Work order created. Assign internal staff and track progress from this detail view.
-          </p>
-        </Card>
-      ) : null}
-
-      <section className="grid gap-4 xl:grid-cols-[2fr_1fr]">
-        <Card className="space-y-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-                {workOrder.workOrderNumber}
-              </p>
-              <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">{workOrder.title}</h1>
-              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                {toMaintenanceCategoryLabel(workOrder.category)}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
+    <DetailPageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/maintenance", label: "Maintenance" },
+        { label: workOrder.workOrderNumber }
+      ]}
+      banner={
+        workOrderSuccess ? (
+          <WorkflowSuccessBanner dismissPath={`/maintenance/${workOrderId}`} {...workOrderSuccess} />
+        ) : null
+      }
+      relationshipChain={
+        <EntityRelationshipChain
+          links={[
+            { href: "/maintenance", label: "Maintenance" },
+            { href: `/properties/${workOrder.propertyId}`, label: workOrder.propertyName ?? "Property" },
+            ...(workOrder.unitId && workOrder.unitNumber
+              ? [{ href: `/units/${workOrder.unitId}`, label: `Unit ${workOrder.unitNumber}` }]
+              : []),
+            ...(workOrder.tenantId && workOrder.tenantName
+              ? [{ href: `/tenants/${workOrder.tenantId}`, label: workOrder.tenantName }]
+              : []),
+            { label: workOrder.workOrderNumber }
+          ]}
+        />
+      }
+      hero={
+        <DetailHero
+          title={workOrder.title}
+          subtitle={`${workOrder.workOrderNumber} · ${toMaintenanceCategoryLabel(workOrder.category)}`}
+          badges={
+            <>
               <PriorityBadge priority={workOrder.priority} />
               <StatusBadge status={workOrder.status} />
-            </div>
-          </div>
-
-          {workOrder.description ? (
-            <p className="text-sm text-[var(--mpa-color-text-secondary)]">{workOrder.description}</p>
-          ) : null}
-
-          <div className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2">
-            <p>
-              Property:{" "}
-              <Link href={`/properties/${workOrder.propertyId}`} className="font-medium text-[var(--mpa-color-brand-primary)]">
-                {workOrder.propertyName ?? workOrder.propertyId}
-              </Link>
-            </p>
-            <p>
-              Unit:{" "}
-              {workOrder.unitId ? (
-                <Link href={`/units/${workOrder.unitId}`} className="font-medium text-[var(--mpa-color-brand-primary)]">
-                  {workOrder.unitNumber ? `Unit ${workOrder.unitNumber}` : workOrder.unitId}
+            </>
+          }
+          metrics={
+            <>
+              <DetailMetric label="Property" value={workOrder.propertyName ?? "—"} />
+              <DetailMetric
+                label="Unit"
+                value={workOrder.unitNumber ? `Unit ${workOrder.unitNumber}` : "Not assigned"}
+              />
+              <DetailMetric label="Assigned staff" value={workOrder.assignedToUserId ? assigneeLabel : "Unassigned"} />
+              <DetailMetric label="Due date" value={workOrder.dueDate ?? "—"} />
+              <DetailMetric
+                label="Completed"
+                value={workOrder.completedAt ? new Date(workOrder.completedAt).toLocaleDateString() : "—"}
+              />
+            </>
+          }
+          actions={
+            <>
+              {canUpdate || canAssign ? (
+                <Link href={`/maintenance/${workOrder.id}/edit`}>
+                  <Button>Edit Work Order</Button>
                 </Link>
-              ) : (
-                "Not assigned"
-              )}
-            </p>
-            <p>
-              Tenant:{" "}
-              {workOrder.tenantId ? (
-                <Link href={`/tenants/${workOrder.tenantId}`} className="font-medium text-[var(--mpa-color-brand-primary)]">
-                  {workOrder.tenantName ?? workOrder.tenantId}
-                </Link>
-              ) : (
-                "Not linked"
-              )}
-            </p>
-            <p className={overdue ? "font-medium text-red-700" : ""}>Due date: {workOrder.dueDate ?? "—"}</p>
-            <p>Assigned staff: {workOrder.assignedToUserId ? assigneeLabel : "Unassigned"}</p>
-            <p>Completed: {workOrder.completedAt ? new Date(workOrder.completedAt).toLocaleString() : "—"}</p>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
-              <h2 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Internal notes</h2>
-              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                {workOrder.internalNotes ?? "No internal notes."}
-              </p>
-            </div>
-            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
-              <h2 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Tenant notes</h2>
-              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                {workOrder.tenantNotes ?? "No tenant notes."}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {canUpdate || canAssign ? (
-              <Link href={`/maintenance/${workOrder.id}/edit`}>
-                <Button>Edit Work Order</Button>
+              ) : null}
+              <Link href="/maintenance">
+                <Button variant="ghost">Back to Maintenance</Button>
               </Link>
+            </>
+          }
+        />
+      }
+      main={
+        <>
+          <Card variant="elevated" className="space-y-4">
+            <h2 className="mpa-section-title">Work order details</h2>
+
+            {workOrder.description ? (
+              <p className="text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">{workOrder.description}</p>
             ) : null}
-            <Link href="/maintenance">
-              <Button variant="ghost">Back to Maintenance</Button>
-            </Link>
-          </div>
-        </Card>
 
-        <div className="space-y-4">
+            <div className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">
+              <p>
+                Property:{" "}
+                <Link
+                  href={`/properties/${workOrder.propertyId}`}
+                  className="font-medium text-[var(--mpa-color-brand-primary)]"
+                >
+                  {workOrder.propertyName ?? workOrder.propertyId}
+                </Link>
+              </p>
+              <p>
+                Unit:{" "}
+                {workOrder.unitId ? (
+                  <Link href={`/units/${workOrder.unitId}`} className="font-medium text-[var(--mpa-color-brand-primary)]">
+                    {workOrder.unitNumber ? `Unit ${workOrder.unitNumber}` : workOrder.unitId}
+                  </Link>
+                ) : (
+                  "Not assigned"
+                )}
+              </p>
+              <p>
+                Tenant:{" "}
+                {workOrder.tenantId ? (
+                  <Link href={`/tenants/${workOrder.tenantId}`} className="font-medium text-[var(--mpa-color-brand-primary)]">
+                    {workOrder.tenantName ?? workOrder.tenantId}
+                  </Link>
+                ) : (
+                  "Not linked"
+                )}
+              </p>
+              <p className={overdue ? "font-medium text-red-700" : ""}>Due date: {workOrder.dueDate ?? "—"}</p>
+              <p>Assigned staff: {workOrder.assignedToUserId ? assigneeLabel : "Unassigned"}</p>
+              <p>Completed: {workOrder.completedAt ? new Date(workOrder.completedAt).toLocaleString() : "—"}</p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] p-4">
+                <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Internal notes</h3>
+                <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                  {workOrder.internalNotes ?? "No internal notes."}
+                </p>
+              </div>
+              <div className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] p-4">
+                <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Tenant notes</h3>
+                <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                  {workOrder.tenantNotes ?? "No tenant notes."}
+                </p>
+              </div>
+            </div>
+          </Card>
+
           {canAssignVendor ? (
-            <VendorAssignmentPanel
-              workOrderId={workOrder.id}
-              vendors={vendorOptions}
-              initialAssignments={vendorAssignments}
-              initialCurrentAssignment={currentVendorAssignment}
-            />
+            <div id="vendor">
+              <VendorAssignmentPanel
+                workOrderId={workOrder.id}
+                vendors={vendorOptions}
+                initialAssignments={vendorAssignments}
+                initialCurrentAssignment={currentVendorAssignment}
+              />
+            </div>
           ) : null}
 
-          <Card className="space-y-3">
-            <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Future modules</h2>
+          <MaintenanceConversationPanel thread={maintenanceThread} />
+
+          <Card variant="elevated" className="space-y-3">
+            <h2 className="mpa-section-title">Future modules</h2>
             <PlaceholderBlock label="Photos" value={workOrder.photoPlaceholder} />
             <PlaceholderBlock label="Documents" value={workOrder.documentPlaceholder} />
             <PlaceholderBlock label="Recurring maintenance" value={workOrder.recurringMaintenancePlaceholder} />
             <PlaceholderBlock label="Preventive maintenance" value={workOrder.preventiveMaintenancePlaceholder} />
           </Card>
-
-          <Card className="space-y-3">
-            <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Activity history</h2>
-            <MaintenanceActivityTimeline events={activity} />
-          </Card>
-        </div>
-      </section>
-    </main>
+        </>
+      }
+      contextRail={
+        <MaintenanceContextRail
+          propertyId={workOrder.propertyId}
+          propertyName={workOrder.propertyName}
+          unitId={workOrder.unitId}
+          unitNumber={workOrder.unitNumber}
+          tenantId={workOrder.tenantId}
+          tenantName={workOrder.tenantName}
+          vendorName={assignedVendor?.businessName ?? null}
+          vendorId={assignedVendor?.id ?? null}
+          priority={workOrder.priority}
+          status={workOrder.status}
+          dueDate={workOrder.dueDate}
+          overdue={overdue}
+          category={workOrder.category}
+          events={activity}
+          relatedHistory={relatedHistory}
+        />
+      }
+    />
   );
 }
 
 function PlaceholderBlock({ label, value }: { label: string; value: string | null }) {
   return (
-    <div className="rounded-md border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] p-3">
-      <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-muted)]">{label}</p>
+    <div className="rounded-[var(--mpa-radius-lg)] border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] p-3">
+      <p className="mpa-section-label">{label}</p>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{value ?? "Reserved for a future phase."}</p>
     </div>
   );

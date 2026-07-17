@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Avatar, Button, Card, Input, Select, Textarea } from "@mpa/ui";
 import { TENANT_STATUSES, toTenantStatusLabel, type TenantRecord } from "../../lib/tenant/contracts";
 
@@ -59,6 +59,8 @@ export function TenantForm({
   initialUnitId?: string | null;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const setupMode = searchParams.get("setup") === "1";
   const [values, setValues] = useState<TenantFormValues>(() =>
     tenant
       ? {
@@ -151,7 +153,11 @@ export function TenantForm({
     const success = (await response.json()) as { tenant?: TenantRecord };
     const savedId = success.tenant?.id ?? tenant?.id;
     if (savedId) {
-      router.push(`/tenants/${savedId}?from=tenant-created`);
+      if (setupMode) {
+        router.push("/setup");
+      } else {
+        router.push(`/tenants/${savedId}?from=tenant-created`);
+      }
       router.refresh();
       return;
     }

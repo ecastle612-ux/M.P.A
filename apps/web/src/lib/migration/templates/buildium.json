@@ -1,0 +1,54 @@
+{
+  "sourceSoftware": "buildium",
+  "label": "Buildium",
+  "entityTypes": {
+    "property": {
+      "columnMap": {
+        "name": ["Property Name"],
+        "addressLine1": ["Address"],
+        "city": ["City"],
+        "stateRegion": ["State"],
+        "postalCode": ["Postal Code"],
+        "propertyType": ["Property Type"]
+      }
+    },
+    "unit": {
+      "columnMap": {
+        "propertyName": ["Property"],
+        "unitNumber": ["Unit #"],
+        "bedrooms": ["Bedrooms"],
+        "bathrooms": ["Bathrooms"],
+        "rentAmount": ["Rent"]
+      }
+    },
+    "tenant": {
+      "columnMap": {
+        "firstName": ["First Name"],
+        "lastName": ["Last Name"],
+        "email": ["Email"],
+        "phone": ["Phone"],
+        "propertyName": ["Property"],
+        "unitNumber": ["Unit"]
+      }
+    },
+    "lease": {
+      "columnMap": {
+        "leaseNumber": ["Lease ID"],
+        "propertyName": ["Property"],
+        "unitNumber": ["Unit"],
+        "tenantEmail": ["Tenant Email"],
+        "startDate": ["Start Date"],
+        "endDate": ["End Date"],
+        "rentAmount": ["Rent Amount"]
+      }
+    },
+    "vendor": {
+      "columnMap": {
+        "businessName": ["Company Name"],
+        "email": ["Email Address"],
+        "phone": ["Phone Number"],
+        "primaryContactName": ["Contact Name"]
+      }
+    }
+  }
+}

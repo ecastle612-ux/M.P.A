@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { Breadcrumbs } from "../../../../../components/shell/breadcrumbs";
+import { CreatePageLayout } from "../../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../../components/presentation/create-form-context-rail";
 import { TenantForm } from "../../../../../components/tenant/tenant-form";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
@@ -36,6 +37,7 @@ export default async function EditTenantPage({ params }: { params: Promise<{ ten
   if (!tenant) {
     redirect("/tenants");
   }
+  const displayName = tenant.preferredName || `${tenant.firstName} ${tenant.lastName}`;
   const propertyOptions = properties.map((property) => ({ id: property.id, name: property.name }));
   const unitOptions = units.map((unit) => ({
     id: unit.id,
@@ -45,16 +47,24 @@ export default async function EditTenantPage({ params }: { params: Promise<{ ten
   }));
 
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/tenants", label: "Tenants" },
-          { href: `/tenants/${tenant.id}`, label: `${tenant.firstName} ${tenant.lastName}` },
-          { label: "Edit" }
-        ]}
-      />
-      <TenantForm mode="edit" tenant={tenant} properties={propertyOptions} units={unitOptions} />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/tenants", label: "Tenants" },
+        { href: `/tenants/${tenant.id}`, label: displayName },
+        { label: "Edit" }
+      ]}
+      form={<TenantForm mode="edit" tenant={tenant} properties={propertyOptions} units={unitOptions} />}
+      contextRail={
+        <CreateFormContextRail
+          module="tenant"
+          relatedLinks={[
+            { label: displayName, href: `/tenants/${tenant.id}` },
+            ...(tenant.propertyId ? [{ label: "Property", href: `/properties/${tenant.propertyId}` }] : []),
+            ...(tenant.unitId ? [{ label: `Unit ${tenant.unitNumber}`, href: `/units/${tenant.unitId}` }] : [])
+          ]}
+        />
+      }
+    />
   );
 }

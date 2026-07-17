@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { Breadcrumbs } from "../../../../components/shell/breadcrumbs";
+import { CreatePageLayout } from "../../../../components/presentation/create-page-layout";
+import { CreateFormContextRail } from "../../../../components/presentation/create-form-context-rail";
 import { PropertyForm } from "../../../../components/property/property-form";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -15,7 +16,7 @@ export default async function NewPropertyPage() {
   }
   const organizationId = await resolveActiveOrganizationIdForUser(user.id);
   if (!organizationId) {
-    redirect("/dashboard");
+    redirect("/setup");
   }
   const authorization = await resolveAuthorizationContext(user, organizationId);
   if (!evaluatePermission(authorization, "property:create")) {
@@ -23,15 +24,25 @@ export default async function NewPropertyPage() {
   }
 
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Breadcrumbs
-        items={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/properties", label: "Properties" },
-          { label: "Create" }
-        ]}
-      />
-      <PropertyForm mode="create" />
-    </main>
+    <CreatePageLayout
+      breadcrumbs={[
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/properties", label: "Properties" },
+        { label: "Create" }
+      ]}
+      form={<PropertyForm mode="create" />}
+      contextRail={
+        <CreateFormContextRail
+          module="property"
+          setupSteps={[
+            { id: "property", label: "Create property", complete: false },
+            { id: "units", label: "Add units", complete: false },
+            { id: "tenant", label: "Create tenant", complete: false },
+            { id: "lease", label: "Create lease", complete: false }
+          ]}
+          relatedLinks={[{ label: "Properties list", href: "/properties" }]}
+        />
+      }
+    />
   );
 }

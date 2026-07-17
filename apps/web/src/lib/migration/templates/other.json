@@ -1,0 +1,22 @@
+{
+  "sourceSoftware": "other",
+  "label": "Other software",
+  "entityTypes": {
+    "property": {
+      "columnMap": {
+        "name": ["Property Name", "Name"],
+        "addressLine1": ["Address", "Street"],
+        "city": ["City"],
+        "stateRegion": ["State"],
+        "postalCode": ["Zip", "Postal Code"]
+      }
+    },
+    "tenant": {
+      "columnMap": {
+        "firstName": ["First Name"],
+        "lastName": ["Last Name"],
+        "email": ["Email"]
+      }
+    }
+  }
+}

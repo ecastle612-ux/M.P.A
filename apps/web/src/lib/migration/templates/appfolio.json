@@ -1,0 +1,54 @@
+{
+  "sourceSoftware": "appfolio",
+  "label": "AppFolio",
+  "entityTypes": {
+    "property": {
+      "columnMap": {
+        "name": ["Property Name", "Property"],
+        "addressLine1": ["Street Address 1", "Address"],
+        "city": ["City"],
+        "stateRegion": ["State"],
+        "postalCode": ["Zip"],
+        "propertyType": ["Property Type"]
+      }
+    },
+    "unit": {
+      "columnMap": {
+        "propertyName": ["Property Name"],
+        "unitNumber": ["Unit Name", "Unit"],
+        "bedrooms": ["Bedrooms"],
+        "bathrooms": ["Bathrooms"],
+        "rentAmount": ["Market Rent"]
+      }
+    },
+    "tenant": {
+      "columnMap": {
+        "firstName": ["Tenant First Name"],
+        "lastName": ["Tenant Last Name"],
+        "email": ["Tenant Email"],
+        "phone": ["Tenant Phone"],
+        "propertyName": ["Property Name"],
+        "unitNumber": ["Unit"]
+      }
+    },
+    "lease": {
+      "columnMap": {
+        "leaseNumber": ["Lease ID"],
+        "propertyName": ["Property Name"],
+        "unitNumber": ["Unit"],
+        "tenantEmail": ["Tenant Email"],
+        "startDate": ["Lease From"],
+        "endDate": ["Lease To"],
+        "rentAmount": ["Rent"]
+      }
+    },
+    "vendor": {
+      "columnMap": {
+        "businessName": ["Vendor Name"],
+        "email": ["Email"],
+        "phone": ["Phone"],
+        "primaryContactName": ["Contact"]
+      }
+    }
+  }
+}
