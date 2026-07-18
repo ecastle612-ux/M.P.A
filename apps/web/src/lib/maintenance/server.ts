@@ -1,8 +1,11 @@
 import { createAuthServerComponentClient } from "../auth/server";
+import { notify } from "../notifications/service";
+import type { NotificationPriority } from "../notifications/contracts";
 import type { Database, Json } from "@mpa/supabase";
 import type {
   CreateWorkOrderInput,
   MaintenanceActivityEvent,
+  MaintenancePriority,
   MaintenanceStatus,
   UpdateWorkOrderInput,
   WorkOrderRecord
@@ -297,6 +300,33 @@ export async function createWorkOrder(
     // Thread creation is best-effort; work order creation must still succeed.
   }
 
+  const managerIds = await listPropertyManagerUserIds(organizationId, supabase);
+  const recipientUserIds = [
+    ...new Set(
+      [...managerIds, workOrder.assignedToUserId].filter((id): id is string => Boolean(id) && id !== userId)
+    )
+  ];
+  if (recipientUserIds.length > 0) {
+    await notify(
+      {
+        organizationId,
+        actorUserId: userId,
+        eventKey: `maintenance.created:${workOrder.id}`,
+        recipientUserIds,
+        category: "maintenance",
+        priority: mapMaintenancePriority(workOrder.priority),
+        title: "New maintenance request",
+        body: `${workOrder.workOrderNumber}: ${workOrder.title}`,
+        href: `/maintenance/${workOrder.id}`,
+        sourceEntityType: "maintenance_work_order",
+        sourceEntityId: workOrder.id,
+        propertyId: workOrder.propertyId,
+        unitId: workOrder.unitId
+      },
+      supabase
+    ).catch(() => undefined);
+  }
+
   return workOrder;
 }
 
@@ -401,6 +431,55 @@ export async function updateWorkOrder(
     nextStatus: workOrder.status,
     client: supabase
   });
+
+  if (updates.status && updates.status !== existing.status) {
+    const tenantUserIds = await resolveTenantRecipientUserIds(
+      organizationId,
+      workOrder.tenantId,
+      supabase
+    );
+    const managerIds = await listPropertyManagerUserIds(organizationId, supabase);
+    const recipientUserIds = [
+      ...new Set(
+        [
+          workOrder.createdBy,
+          workOrder.assignedToUserId,
+          ...tenantUserIds,
+          ...managerIds
+        ].filter((id): id is string => Boolean(id) && id !== userId)
+      )
+    ];
+    if (recipientUserIds.length > 0) {
+      const residentIds = new Set(tenantUserIds);
+      const statusCopy = statusNotificationCopy(updates.status);
+      if (statusCopy) {
+        await Promise.all(
+          recipientUserIds.map((recipientUserId) =>
+            notify(
+              {
+                organizationId,
+                actorUserId: userId,
+                eventKey: `maintenance.status:${updates.status}:${workOrder.id}:${recipientUserId}`,
+                recipientUserIds: [recipientUserId],
+                category: "maintenance",
+                priority: mapMaintenancePriority(workOrder.priority),
+                title: statusCopy.title,
+                body: `${workOrder.workOrderNumber}: ${workOrder.title}`,
+                href: residentIds.has(recipientUserId)
+                  ? `/portal/tenant/maintenance/${workOrder.id}`
+                  : `/maintenance/${workOrder.id}`,
+                sourceEntityType: "maintenance_work_order",
+                sourceEntityId: workOrder.id,
+                propertyId: workOrder.propertyId,
+                unitId: workOrder.unitId
+              },
+              supabase
+            ).catch(() => undefined)
+          )
+        );
+      }
+    }
+  }
 
   return workOrder;
 }
@@ -761,6 +840,45 @@ async function assertWorkOrderAssignment({
   }
 }
 
+async function listPropertyManagerUserIds(
+  organizationId: string,
+  client: SupabaseClientType
+): Promise<string[]> {
+  const { data, error } = await client
+    .from("organization_memberships")
+    .select("user_id, roles")
+    .eq("organization_id", organizationId)
+    .eq("status", "active");
+  if (error) return [];
+  return ((data ?? []) as Array<{ user_id: string; roles: string[] | null }>)
+    .filter((row) => Array.isArray(row.roles) && row.roles.includes("property_manager"))
+    .map((row) => row.user_id);
+}
+
+function mapMaintenancePriority(priority: MaintenancePriority): NotificationPriority {
+  if (priority === "emergency") return "emergency";
+  if (priority === "high") return "high";
+  if (priority === "low") return "low";
+  return "normal";
+}
+
+function statusNotificationCopy(status: MaintenanceStatus): { title: string } | null {
+  switch (status) {
+    case "assigned":
+      return { title: "Work order assigned" };
+    case "in_progress":
+      return { title: "Work order in progress" };
+    case "on_hold":
+      return { title: "Work order on hold" };
+    case "completed":
+      return { title: "Work order completed" };
+    case "cancelled":
+      return { title: "Work order cancelled" };
+    default:
+      return null;
+  }
+}
+
 async function recordWorkOrderUpdateEvents({
   organizationId,
   workOrderId,
@@ -924,6 +1042,23 @@ function toWorkOrderListItem(row: WorkOrderRelationRow): WorkOrderListItem {
 
 function escapeLike(value: string): string {
   return value.replaceAll("%", "\\%").replaceAll("_", "\\_");
+}
+
+async function resolveTenantRecipientUserIds(
+  organizationId: string,
+  tenantId: string | null,
+  client: SupabaseClientType
+): Promise<string[]> {
+  if (!tenantId) return [];
+  const { data } = await client
+    .from("tenants")
+    .select("user_id")
+    .eq("organization_id", organizationId)
+    .eq("id", tenantId)
+    .is("deleted_at", null)
+    .maybeSingle();
+  const userId = data?.user_id as string | null | undefined;
+  return userId ? [userId] : [];
 }
 
 function assertNoError(error: { message: string } | null): void {

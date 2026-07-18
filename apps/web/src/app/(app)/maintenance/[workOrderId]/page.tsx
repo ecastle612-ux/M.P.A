@@ -5,6 +5,8 @@ import { DetailPageLayout } from "../../../../components/presentation/detail-pag
 import { EntityRelationshipChain } from "../../../../components/presentation/entity-relationship-chain";
 import { MaintenanceContextRail } from "../../../../components/presentation/context-rails/maintenance-context-rail";
 import { isWorkOrderOverdue, PriorityBadge, StatusBadge } from "../../../../components/maintenance/maintenance-badges";
+import { MaintenanceActivityTimeline } from "../../../../components/maintenance/activity-timeline";
+import { WorkOrderWorkflowPanel } from "../../../../components/maintenance/work-order-workflow-panel";
 import { VendorAssignmentPanel } from "../../../../components/vendor/vendor-assignment-panel";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
@@ -71,12 +73,37 @@ export default async function WorkOrderDetailPage({
 
   const canUpdate = evaluatePermission(authorization, "maintenance:update");
   const canAssign = evaluatePermission(authorization, "maintenance:assign");
+  const canArchive = evaluatePermission(authorization, "maintenance:archive");
   const overdue = isWorkOrderOverdue(workOrder.dueDate, workOrder.status);
   const currentVendorAssignment = vendorAssignments.find((entry) => entry.isCurrent) ?? null;
+  const recentVendorIds = new Set(
+    vendorAssignments
+      .slice()
+      .sort((left, right) => right.assignedAt.localeCompare(left.assignedAt))
+      .map((entry) => entry.vendorId)
+  );
+
+  const { data: openWorkloadRows } = canAssignVendor
+    ? await supabase
+        .from("maintenance_vendor_assignments")
+        .select("vendor_id")
+        .eq("organization_id", organizationId)
+        .eq("is_current", true)
+        .in("assignment_status", ["pending", "awaiting_response", "accepted", "en_route", "arrived", "in_progress"])
+    : { data: [] as Array<{ vendor_id: string }> | null };
+
+  const workloadByVendor = new Map<string, number>();
+  for (const row of (openWorkloadRows ?? []) as Array<{ vendor_id: string }>) {
+    workloadByVendor.set(row.vendor_id, (workloadByVendor.get(row.vendor_id) ?? 0) + 1);
+  }
+
   const vendorOptions = vendors.map((vendor) => ({
     id: vendor.id,
     businessName: vendor.businessName,
-    preferredVendor: vendor.preferredVendor
+    preferredVendor: vendor.preferredVendor,
+    rating: vendor.rating,
+    recentlyUsed: recentVendorIds.has(vendor.id),
+    openWorkload: workloadByVendor.get(vendor.id) ?? 0
   }));
   const assigneeLabel =
     assignees.find((assignee) => assignee.userId === workOrder.assignedToUserId)?.label ?? "Unassigned";
@@ -158,13 +185,19 @@ export default async function WorkOrderDetailPage({
           }
           actions={
             <>
+              {(canUpdate || canAssignVendor) &&
+              (workOrder.status === "submitted" || workOrder.status === "triaged") ? (
+                <Link href="#vendor">
+                  <Button>Assign Vendor</Button>
+                </Link>
+              ) : null}
               {canUpdate || canAssign ? (
                 <Link href={`/maintenance/${workOrder.id}/edit`}>
-                  <Button>Edit Work Order</Button>
+                  <Button variant="ghost">Edit details</Button>
                 </Link>
               ) : null}
               <Link href="/maintenance">
-                <Button variant="ghost">Back to Maintenance</Button>
+                <Button variant="ghost">Back to list</Button>
               </Link>
             </>
           }
@@ -172,6 +205,20 @@ export default async function WorkOrderDetailPage({
       }
       main={
         <>
+          {(canUpdate || canAssign || canAssignVendor) &&
+          workOrder.status !== "cancelled" ? (
+            <WorkOrderWorkflowPanel
+              workOrderId={workOrder.id}
+              status={workOrder.status}
+              priority={workOrder.priority}
+              currentAssignment={currentVendorAssignment}
+              canUpdate={canUpdate || canAssign}
+              canAssignVendor={canAssignVendor}
+              canArchive={canArchive}
+              tenantId={workOrder.tenantId}
+            />
+          ) : null}
+
           <Card variant="elevated" className="space-y-4">
             <h2 className="mpa-section-title">Work order details</h2>
 
@@ -241,14 +288,39 @@ export default async function WorkOrderDetailPage({
             </div>
           ) : null}
 
-          <MaintenanceConversationPanel thread={maintenanceThread} />
+          <Card variant="elevated" className="space-y-3">
+            <h2 className="mpa-section-title">Timeline</h2>
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+              Created → Assigned → Vendor accepted → Work started → Completed → Closed — visible without leaving this page.
+            </p>
+            <MaintenanceActivityTimeline events={activity} />
+          </Card>
+
+          <div id="conversation">
+            <MaintenanceConversationPanel thread={maintenanceThread} />
+          </div>
 
           <Card variant="elevated" className="space-y-3">
-            <h2 className="mpa-section-title">Future modules</h2>
-            <PlaceholderBlock label="Photos" value={workOrder.photoPlaceholder} />
+            <h2 className="mpa-section-title">Attachments & notes</h2>
+            {workOrder.photoPlaceholder?.startsWith("media:") ? (
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Photos</p>
+                <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                  Photo attached to this work order. Open Edit to replace or update the image.
+                </p>
+              </div>
+            ) : (
+              <PlaceholderBlock label="Photos" value={workOrder.photoPlaceholder} />
+            )}
             <PlaceholderBlock label="Documents" value={workOrder.documentPlaceholder} />
-            <PlaceholderBlock label="Recurring maintenance" value={workOrder.recurringMaintenancePlaceholder} />
-            <PlaceholderBlock label="Preventive maintenance" value={workOrder.preventiveMaintenancePlaceholder} />
+            <PlaceholderBlock
+              label="Recurring maintenance"
+              value={workOrder.recurringMaintenancePlaceholder}
+            />
+            <PlaceholderBlock
+              label="Preventive maintenance"
+              value={workOrder.preventiveMaintenancePlaceholder}
+            />
           </Card>
         </>
       }

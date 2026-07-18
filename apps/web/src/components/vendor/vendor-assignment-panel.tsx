@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge, Button, Card, Select, Textarea } from "@mpa/ui";
 import {
   VENDOR_ASSIGNMENT_STATUSES,
@@ -14,6 +14,9 @@ export type VendorOption = {
   id: string;
   businessName: string;
   preferredVendor: boolean;
+  rating: number | null;
+  openWorkload?: number;
+  recentlyUsed?: boolean;
 };
 
 export function VendorAssignmentPanel({
@@ -27,10 +30,18 @@ export function VendorAssignmentPanel({
   initialAssignments: VendorAssignmentListItem[];
   initialCurrentAssignment: VendorAssignmentListItem | null;
 }) {
+  const rankedVendors = useMemo(() => {
+    return [...vendors].sort((left, right) => {
+      if (left.preferredVendor !== right.preferredVendor) return left.preferredVendor ? -1 : 1;
+      if (Boolean(left.recentlyUsed) !== Boolean(right.recentlyUsed)) return left.recentlyUsed ? -1 : 1;
+      return (right.rating ?? 0) - (left.rating ?? 0);
+    });
+  }, [vendors]);
+
   const [assignments, setAssignments] = useState(initialAssignments);
   const [currentAssignment, setCurrentAssignment] = useState(initialCurrentAssignment);
   const [selectedVendorId, setSelectedVendorId] = useState(
-    initialCurrentAssignment?.vendorId ?? vendors[0]?.id ?? ""
+    initialCurrentAssignment?.vendorId ?? rankedVendors[0]?.id ?? ""
   );
   const [assignmentStatus, setAssignmentStatus] = useState(
     initialCurrentAssignment?.assignmentStatus ?? "pending"
@@ -81,31 +92,36 @@ export function VendorAssignmentPanel({
     }
   }
 
-  async function handleAssign() {
-    if (!selectedVendorId) {
+  async function handleAssign(vendorId?: string) {
+    const nextVendorId = vendorId ?? selectedVendorId;
+    if (!nextVendorId) {
       setError("Select a vendor to assign.");
       return;
     }
-    await runMutation(currentAssignment ? "reassign_vendor" : "assign_vendor", { vendorId: selectedVendorId });
+    setSelectedVendorId(nextVendorId);
+    await runMutation(currentAssignment ? "reassign_vendor" : "assign_vendor", { vendorId: nextVendorId });
   }
 
-  async function handleStatusUpdate() {
+  async function handleStatusUpdate(nextStatus?: VendorAssignmentRecord["assignmentStatus"]) {
     if (!currentAssignment) {
       setError("Assign a vendor before updating status.");
       return;
     }
+    const status = nextStatus ?? assignmentStatus;
     await runMutation("update_vendor_status", {
-      assignmentStatus,
+      assignmentStatus: status,
       completionNotes: completionNotes || null
     });
   }
+
+  const quickPicks = rankedVendors.slice(0, 4);
 
   return (
     <Card className="space-y-4">
       <div>
         <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Vendor assignment</h2>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Assign external vendors and track assignment progress on this work order.
+          Preferred and recent vendors first. Assign in one click — no Edit screen.
         </p>
       </div>
 
@@ -125,6 +141,41 @@ export function VendorAssignmentPanel({
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">No vendor assigned yet.</p>
       )}
 
+      {quickPicks.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+            One-click assign
+          </p>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {quickPicks.map((vendor) => (
+              <li key={vendor.id}>
+                <button
+                  type="button"
+                  onClick={() => void handleAssign(vendor.id)}
+                  disabled={submitting !== null}
+                  className="flex w-full flex-col rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)]/40 px-3 py-2.5 text-left transition hover:border-[var(--mpa-color-brand-primary)]/40 disabled:opacity-60"
+                >
+                  <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">
+                    {vendor.businessName}
+                  </span>
+                  <span className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                    {[
+                      vendor.preferredVendor ? "Preferred" : null,
+                      vendor.recentlyUsed ? "Recent" : null,
+                      vendor.rating != null ? `★ ${vendor.rating.toFixed(1)}` : null,
+                      vendor.openWorkload != null ? `${vendor.openWorkload} open` : null
+                    ]
+                      .filter(Boolean)
+                      .join(" · ") || "Available"}
+                  </span>
+                  <span className="mt-2 text-xs font-semibold text-[var(--mpa-color-brand-primary)]">Assign →</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <div className="grid gap-3">
         <Select
           aria-label="Vendor"
@@ -132,24 +183,55 @@ export function VendorAssignmentPanel({
           onChange={(event) => setSelectedVendorId(event.target.value)}
         >
           <option value="">Select vendor</option>
-          {vendors.map((vendor) => (
+          {rankedVendors.map((vendor) => (
             <option key={vendor.id} value={vendor.id}>
               {vendor.businessName}
-              {vendor.preferredVendor ? " (Preferred)" : ""}
+              {vendor.preferredVendor ? " · Preferred" : ""}
+              {vendor.recentlyUsed ? " · Recent" : ""}
+              {vendor.rating != null ? ` · ★ ${vendor.rating.toFixed(1)}` : ""}
+              {vendor.openWorkload != null ? ` · ${vendor.openWorkload} open` : ""}
             </option>
           ))}
         </Select>
-        <Button type="button" disabled={submitting === "assign_vendor" || submitting === "reassign_vendor"} onClick={handleAssign}>
+        <Button
+          type="button"
+          className="w-full sm:w-auto"
+          disabled={submitting === "assign_vendor" || submitting === "reassign_vendor"}
+          onClick={() => void handleAssign()}
+        >
           {submitting === "assign_vendor" || submitting === "reassign_vendor"
             ? "Saving..."
             : currentAssignment
               ? "Reassign vendor"
-              : "Assign vendor"}
+              : "Assign"}
         </Button>
       </div>
 
       {currentAssignment ? (
         <div className="space-y-3 border-t border-[var(--mpa-color-border-subtle)] pt-4">
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                ["awaiting_response", "Notify vendor"],
+                ["accepted", "Vendor accepted"],
+                ["in_progress", "Vendor working"],
+                ["completed", "Vendor complete"]
+              ] as const
+            ).map(([value, label]) => (
+              <Button
+                key={value}
+                size="sm"
+                variant={assignmentStatus === value ? "primary" : "secondary"}
+                disabled={submitting !== null}
+                onClick={() => {
+                  setAssignmentStatus(value);
+                  void handleStatusUpdate(value);
+                }}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
           <Select
             aria-label="Assignment status"
             value={assignmentStatus}
@@ -172,7 +254,7 @@ export function VendorAssignmentPanel({
             type="button"
             variant="secondary"
             disabled={submitting === "update_vendor_status"}
-            onClick={handleStatusUpdate}
+            onClick={() => void handleStatusUpdate()}
           >
             {submitting === "update_vendor_status" ? "Saving..." : "Update assignment status"}
           </Button>

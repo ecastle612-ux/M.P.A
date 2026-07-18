@@ -35,6 +35,28 @@ export function MaintenanceActivityTimeline({ events }: { events: MaintenanceAct
 }
 
 function formatEventType(value: string): string {
+  const labels: Record<string, string> = {
+    created: "Created",
+    assigned: "Assigned",
+    vendor_assigned: "Assigned",
+    vendor_reassigned: "Vendor reassigned",
+    vendor_accepted: "Vendor Accepted",
+    vendor_status_accepted: "Vendor Accepted",
+    status_changed: "Status updated",
+    completed: "Completed",
+    note_added: "Notes added",
+    updated: "Updated",
+    archived: "Closed",
+    restored: "Restored",
+    photo_added: "Photos Added",
+    resident_confirmed: "Resident Confirmed"
+  };
+  if (labels[value]) return labels[value];
+  if (value.includes("accept")) return "Vendor Accepted";
+  if (value.includes("progress") || value.includes("en_route") || value.includes("arrived")) return "Work Started";
+  if (value.includes("confirm")) return "Resident Confirmed";
+  if (value.includes("complete")) return "Completed";
+  if (value.includes("archiv") || value.includes("closed")) return "Closed";
   return value
     .split("_")
     .map((part) => part[0]?.toUpperCase() + part.slice(1))

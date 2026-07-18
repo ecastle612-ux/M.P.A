@@ -330,6 +330,13 @@ export async function getDashboardSnapshot(
     recentTenantsCreated,
     occupancyRate,
     vacantUnitSample,
+    lateRentCount: financialMetrics?.lateRentCount ?? 0,
+    approvedApplicantsReady: applicantMetrics?.recentlyApproved ?? 0,
+    approvedApplicantSample: (applicantMetrics?.recentlyApprovedSample ?? []).map((item) => ({
+      id: item.id,
+      name: item.applicantName
+    })),
+    leasesAwaitingSignature: applicantMetrics?.awaitingSignatures ?? 0,
     maintenanceMetrics,
     vendorMetrics,
     leaseMetrics
@@ -583,10 +590,10 @@ function toDashboardFinancialSummary(metrics: FinancialDashboardMetrics): Dashbo
 async function getVacantUnitSample(
   organizationId: string,
   client: SupabaseClientType
-): Promise<Array<{ id: string; unitNumber: string }>> {
+): Promise<Array<{ id: string; unitNumber: string; propertyId: string }>> {
   const { data, error } = await client
     .from("units")
-    .select("id, unit_number")
+    .select("id, unit_number, property_id")
     .eq("organization_id", organizationId)
     .is("deleted_at", null)
     .eq("status", "active")
@@ -598,9 +605,10 @@ async function getVacantUnitSample(
     throw new Error(error.message);
   }
 
-  return ((data ?? []) as Array<{ id: string; unit_number: string }>).map((unit) => ({
+  return ((data ?? []) as Array<{ id: string; unit_number: string; property_id: string }>).map((unit) => ({
     id: unit.id,
-    unitNumber: unit.unit_number
+    unitNumber: unit.unit_number,
+    propertyId: unit.property_id
   }));
 }
 
@@ -738,6 +746,10 @@ export function buildTasks({
   recentTenantsCreated,
   occupancyRate,
   vacantUnitSample,
+  lateRentCount = 0,
+  approvedApplicantsReady = 0,
+  approvedApplicantSample = [],
+  leasesAwaitingSignature = 0,
   maintenanceMetrics,
   vendorMetrics,
   leaseMetrics
@@ -750,7 +762,11 @@ export function buildTasks({
   propertiesWithoutUnits: number;
   recentTenantsCreated: number;
   occupancyRate: number;
-  vacantUnitSample: Array<{ id: string; unitNumber: string }>;
+  vacantUnitSample: Array<{ id: string; unitNumber: string; propertyId?: string }>;
+  lateRentCount?: number;
+  approvedApplicantsReady?: number;
+  approvedApplicantSample?: Array<{ id: string; name: string }>;
+  leasesAwaitingSignature?: number;
   maintenanceMetrics?: Awaited<ReturnType<typeof getMaintenanceDashboardMetrics>> | null;
   vendorMetrics?: Awaited<ReturnType<typeof getVendorDashboardMetrics>> | null;
   leaseMetrics?: Awaited<ReturnType<typeof getLeaseDashboardMetrics>> | null;
@@ -764,7 +780,7 @@ export function buildTasks({
       description: "Start your portfolio foundation by adding your first managed property.",
       priority: "high",
       href: "/properties/new",
-      actionLabel: "Create property"
+      actionLabel: "Resolve · Create property"
     });
   }
 
@@ -775,7 +791,7 @@ export function buildTasks({
       description: "Define at least one unit to begin occupancy tracking and operational reporting.",
       priority: "high",
       href: "/units/new",
-      actionLabel: "Create unit"
+      actionLabel: "Resolve · Create unit"
     });
   }
 
@@ -789,42 +805,91 @@ export function buildTasks({
       description: "Add units so occupancy and tenant assignment can be tracked per property.",
       priority: "high",
       href: "/properties",
-      actionLabel: "Review properties"
+      actionLabel: "Resolve · Review properties"
+    });
+  }
+
+  if (lateRentCount > 0) {
+    tasks.push({
+      id: "record-late-rent",
+      title: lateRentCount === 1 ? "1 late rent balance needs collection" : `${lateRentCount} late rent balances need collection`,
+      description: "Record a payment against an open charge without hunting the charges list.",
+      priority: "high",
+      href: "/financials/payments/new",
+      actionLabel: "Resolve · Record payment"
+    });
+  }
+
+  if (approvedApplicantsReady > 0) {
+    const sample = approvedApplicantSample[0];
+    tasks.push({
+      id: "approved-applicants-ready",
+      title:
+        approvedApplicantsReady === 1
+          ? "1 approved applicant is ready for Move in"
+          : `${approvedApplicantsReady} approved applicants are ready for Move in`,
+      description: "Continue the one recommended path — Move in wizard, not separate lease creation.",
+      priority: "high",
+      href: sample
+        ? `/residents/move-in?applicantId=${encodeURIComponent(sample.id)}`
+        : "/residents/move-in",
+      actionLabel: sample
+        ? `Resolve · Continue Move in (${sample.name})`
+        : "Resolve · Continue to Move In"
+    });
+  }
+
+  if (leasesAwaitingSignature > 0) {
+    tasks.push({
+      id: "leases-awaiting-signature",
+      title:
+        leasesAwaitingSignature === 1
+          ? "1 lease is waiting on signature"
+          : `${leasesAwaitingSignature} leases are waiting on signature`,
+      description: "Continue signing from draft leases — do not restart onboarding.",
+      priority: "high",
+      href: "/leases?status=draft",
+      actionLabel: "Resolve · Continue signing"
     });
   }
 
   if (unitsTotal > 0 && tenantsTotal === 0) {
     tasks.push({
       id: "create-first-tenant",
-      title: "Create your first tenant",
-      description: "Add a tenant profile and assign them to a unit to complete occupancy setup.",
+      title: "Start your first move-in",
+      description: "Use guided Move in to place a resident in a unit — the primary onboarding path.",
       priority: "high",
-      href: "/tenants/new",
-      actionLabel: "Create tenant"
+      href: "/residents/move-in",
+      actionLabel: "Resolve · Start move-in"
     });
   }
 
   if (vacantReadyUnits > 0) {
     const sample = vacantUnitSample[0];
+    const moveInHref = sample
+      ? sample.propertyId
+        ? `/residents/move-in?propertyId=${encodeURIComponent(sample.propertyId)}&unitId=${encodeURIComponent(sample.id)}`
+        : `/residents/move-in?unitId=${encodeURIComponent(sample.id)}`
+      : "/residents/move-in";
     tasks.push({
       id: "vacant-ready-units",
       title:
         vacantReadyUnits === 1
-          ? "1 move-in ready unit needs a tenant"
-          : `${vacantReadyUnits} move-in ready units need tenants`,
-      description: "Assign tenants to vacant-ready units to improve occupancy coverage.",
+          ? "1 move-in ready unit needs a resident"
+          : `${vacantReadyUnits} move-in ready units need residents`,
+      description: "Start guided Move in for vacant-ready units to improve occupancy coverage.",
       priority: "high",
-      href: sample ? `/tenants/new?unitId=${sample.id}` : "/units",
-      actionLabel: sample ? `Assign tenant to Unit ${sample.unitNumber}` : "Review units"
+      href: moveInHref,
+      actionLabel: sample ? `Resolve · Move in Unit ${sample.unitNumber}` : "Resolve · Start move-in"
     });
   } else if (vacanciesTotal > 0) {
     tasks.push({
       id: "review-vacancies",
       title: vacanciesTotal === 1 ? "1 vacant unit needs attention" : `${vacanciesTotal} vacant units need attention`,
-      description: "Review unit readiness and prepare vacant units for move-in.",
+      description: "Review unit readiness, then start Move in when a unit is ready.",
       priority: "medium",
-      href: "/units",
-      actionLabel: "Review units"
+      href: "/residents/move-in",
+      actionLabel: "Resolve · Start move-in"
     });
   }
 
@@ -838,7 +903,7 @@ export function buildTasks({
       description: "Confirm unit assignments, contact details, and move-in dates are complete.",
       priority: "medium",
       href: "/tenants",
-      actionLabel: "Review tenants"
+      actionLabel: "Resolve · Review tenants"
     });
   }
 
@@ -849,7 +914,7 @@ export function buildTasks({
       description: "Portfolio occupancy is under 80%. Review unit statuses and tenant assignments.",
       priority: "medium",
       href: "/units",
-      actionLabel: "Review occupancy"
+      actionLabel: "Resolve · Review occupancy"
     });
   }
 
@@ -864,7 +929,7 @@ export function buildTasks({
       description: "Review renewal options and tenant notice timelines before expiration.",
       priority: "high",
       href: sample ? `/leases/${sample.id}` : "/leases",
-      actionLabel: sample ? `Review ${sample.leaseNumber}` : "Review leases"
+      actionLabel: sample ? `Resolve · Review ${sample.leaseNumber}` : "Resolve · Review leases"
     });
   }
 
@@ -878,7 +943,7 @@ export function buildTasks({
       description: "Offer renewals or prepare turnover workflows for upcoming expirations.",
       priority: "medium",
       href: "/leases",
-      actionLabel: "Review renewals"
+      actionLabel: "Resolve · Review renewals"
     });
   }
 
@@ -893,7 +958,7 @@ export function buildTasks({
       description: "Confirm lease activation and unit readiness before move-in dates.",
       priority: "medium",
       href: sample ? `/leases/${sample.id}` : "/leases",
-      actionLabel: sample ? `Review ${sample.leaseNumber}` : "Review leases"
+      actionLabel: sample ? `Resolve · Review ${sample.leaseNumber}` : "Resolve · Review move-ins"
     });
   }
 
@@ -907,8 +972,8 @@ export function buildTasks({
           : `${vendorMetrics.awaitingResponse} vendors have not responded`,
       description: "Follow up on vendor assignments awaiting acceptance.",
       priority: "high",
-      href: sample ? `/maintenance/${sample.workOrderId}` : "/vendors",
-      actionLabel: sample ? `Review ${sample.workOrderNumber}` : "Review vendors"
+      href: sample ? `/maintenance/${sample.workOrderId}` : "/maintenance?status=waiting_vendor",
+      actionLabel: sample ? `Resolve · Follow up ${sample.workOrderNumber}` : "Resolve · Waiting for vendor"
     });
   }
 
@@ -922,20 +987,30 @@ export function buildTasks({
           : `${maintenanceMetrics.overdueWorkOrders} overdue work orders`,
       description: "Review due dates and reassign or escalate high-priority maintenance.",
       priority: "high",
-      href: sample ? `/maintenance/${sample.id}` : "/maintenance",
-      actionLabel: sample ? `Review ${sample.workOrderNumber}` : "Review maintenance"
+      href: sample ? `/maintenance/${sample.id}` : "/maintenance?status=open",
+      actionLabel: sample ? `Resolve · Advance ${sample.workOrderNumber}` : "Resolve · Overdue work"
     });
   } else if (maintenanceMetrics?.highPriorityWorkOrders && maintenanceMetrics.highPriorityWorkOrders > 0) {
+    const sample = maintenanceMetrics.highPrioritySample[0];
+    const needsAssign = sample && (sample.status === "submitted" || sample.status === "triaged");
     tasks.push({
       id: "high-priority-maintenance",
       title:
         maintenanceMetrics.highPriorityWorkOrders === 1
           ? "1 high-priority work order open"
           : `${maintenanceMetrics.highPriorityWorkOrders} high-priority work orders open`,
-      description: "Triage emergency and high-priority maintenance requests.",
+      description: "Triage emergency and high-priority maintenance — jump straight to the next workflow action.",
       priority: "high",
-      href: "/maintenance",
-      actionLabel: "Review maintenance"
+      href: sample
+        ? needsAssign
+          ? `/maintenance/${sample.id}#vendor`
+          : `/maintenance/${sample.id}`
+        : "/maintenance?priority=emergency_high",
+      actionLabel: sample
+        ? needsAssign
+          ? `Resolve · Assign ${sample.workOrderNumber}`
+          : `Resolve · Advance ${sample.workOrderNumber}`
+        : "Resolve · Emergency work"
     });
   }
 

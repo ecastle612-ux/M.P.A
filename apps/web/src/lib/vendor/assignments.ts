@@ -1,4 +1,5 @@
 import { createAuthServerComponentClient } from "../auth/server";
+import { notify } from "../notifications/service";
 import type { Database, Json } from "@mpa/supabase";
 import type { VendorAssignmentRecord, VendorAssignmentStatus } from "./contracts";
 import { toVendorAssignmentStatusLabel } from "./contracts";
@@ -121,6 +122,64 @@ export async function assignVendorToWorkOrder(
     client: supabase
   });
 
+  const { data: notifyRow } = await supabase
+    .from("maintenance_work_orders")
+    .select("id, title, work_order_number, created_by, assigned_to_user_id, property_id, unit_id, tenant_id")
+    .eq("organization_id", organizationId)
+    .eq("id", workOrderId)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (notifyRow) {
+    const row = notifyRow as {
+      id: string;
+      title: string;
+      work_order_number: string;
+      created_by: string;
+      assigned_to_user_id: string | null;
+      property_id: string;
+      unit_id: string | null;
+      tenant_id: string | null;
+    };
+    const { data: tenantRow } = row.tenant_id
+      ? await supabase
+          .from("tenants")
+          .select("user_id")
+          .eq("organization_id", organizationId)
+          .eq("id", row.tenant_id)
+          .is("deleted_at", null)
+          .maybeSingle()
+      : { data: null };
+    const tenantUserId = (tenantRow as { user_id: string | null } | null)?.user_id ?? null;
+    const recipientUserIds = [
+      ...new Set(
+        [row.created_by, row.assigned_to_user_id, tenantUserId].filter(
+          (id): id is string => Boolean(id) && id !== userId
+        )
+      )
+    ];
+    if (recipientUserIds.length > 0) {
+      await notify(
+        {
+          organizationId,
+          actorUserId: userId,
+          eventKey: `maintenance.vendor_assigned:${workOrderId}`,
+          recipientUserIds,
+          category: "maintenance",
+          priority: "normal",
+          title: isReassign ? "Vendor reassigned" : "Vendor assigned",
+          body: `${row.work_order_number}: ${vendor} · ${row.title}`,
+          href: `/maintenance/${workOrderId}`,
+          sourceEntityType: "maintenance_work_order",
+          sourceEntityId: workOrderId,
+          propertyId: row.property_id,
+          unitId: row.unit_id
+        },
+        supabase
+      ).catch(() => undefined);
+    }
+  }
+
   return toVendorAssignmentRecord(assignment as VendorAssignmentRow);
 }
 
@@ -215,6 +274,58 @@ export async function updateVendorAssignmentStatus(
     actorUserId: userId,
     client: supabase
   });
+
+  if (input.assignmentStatus === "accepted" || input.assignmentStatus === "completed") {
+    const { data: workOrderRow } = await supabase
+      .from("maintenance_work_orders")
+      .select("id, title, work_order_number, created_by, assigned_to_user_id, property_id, unit_id")
+      .eq("organization_id", organizationId)
+      .eq("id", workOrderId)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (workOrderRow) {
+      const row = workOrderRow as {
+        id: string;
+        title: string;
+        work_order_number: string;
+        created_by: string;
+        assigned_to_user_id: string | null;
+        property_id: string;
+        unit_id: string | null;
+      };
+      const recipientUserIds = [
+        ...new Set(
+          [row.created_by, row.assigned_to_user_id].filter(
+            (id): id is string => Boolean(id) && id !== userId
+          )
+        )
+      ];
+      if (recipientUserIds.length > 0) {
+        const isCompleted = input.assignmentStatus === "completed";
+        await notify(
+          {
+            organizationId,
+            actorUserId: userId,
+            eventKey: isCompleted
+              ? `maintenance.vendor_completed:${workOrderId}`
+              : `maintenance.vendor_accepted:${workOrderId}`,
+            recipientUserIds,
+            category: "maintenance",
+            priority: "normal",
+            title: isCompleted ? "Vendor completed work order" : "Vendor accepted work order",
+            body: `${row.work_order_number}: ${row.title}`,
+            href: `/maintenance/${workOrderId}`,
+            sourceEntityType: "maintenance_work_order",
+            sourceEntityId: workOrderId,
+            propertyId: row.property_id,
+            unitId: row.unit_id
+          },
+          supabase
+        ).catch(() => undefined);
+      }
+    }
+  }
 
   return toVendorAssignmentRecord(updatedAssignment as VendorAssignmentRow);
 }

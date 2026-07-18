@@ -6,8 +6,14 @@ import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
 import { getWorkOrdersForOrganization } from "../../../lib/maintenance/server";
+import { getVendorsForOrganization } from "../../../lib/vendor/server";
 
-export default async function MaintenancePage() {
+export default async function MaintenancePage({
+  searchParams
+}: {
+  searchParams: Promise<{ status?: string; priority?: string }>;
+}) {
+  const { status: statusParam, priority: priorityParam } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -35,18 +41,30 @@ export default async function MaintenancePage() {
     redirect("/unauthorized");
   }
 
-  const items = await getWorkOrdersForOrganization(organizationId, { status: "all" }, supabase);
+  const canAssignVendor = evaluatePermission(authorization, "vendor:assign");
+  const [items, vendors] = await Promise.all([
+    getWorkOrdersForOrganization(organizationId, { status: "all" }, supabase),
+    canAssignVendor ? getVendorsForOrganization(organizationId, { status: "active" }, supabase) : Promise.resolve([])
+  ]);
+
   const permissions = {
     canCreate: evaluatePermission(authorization, "maintenance:create"),
     canUpdate: evaluatePermission(authorization, "maintenance:update"),
     canAssign: evaluatePermission(authorization, "maintenance:assign"),
     canArchive: evaluatePermission(authorization, "maintenance:archive"),
-    canDelete: evaluatePermission(authorization, "maintenance:delete")
+    canDelete: evaluatePermission(authorization, "maintenance:delete"),
+    canAssignVendor
   };
 
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Maintenance" }]}>
-      <WorkOrdersTable initialItems={items} permissions={permissions} />
+      <WorkOrdersTable
+        initialItems={items}
+        permissions={permissions}
+        vendors={vendors.map((vendor) => ({ id: vendor.id, businessName: vendor.businessName }))}
+        {...(statusParam ? { initialStatusFilter: statusParam } : {})}
+        {...(priorityParam ? { initialPriorityFilter: priorityParam } : {})}
+      />
     </AppPage>
   );
 }

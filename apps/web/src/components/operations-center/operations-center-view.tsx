@@ -9,6 +9,11 @@ import { formatCurrency } from "../../lib/financial/contracts";
 import { formatRefreshTime } from "../../lib/format/time";
 import { AiOperationsWidget } from "../ai/ai-operations-widget";
 import { PortfolioSetupHealth } from "../setup/portfolio-setup-health";
+import { NotificationOperationsWidget } from "./notification-operations-widget";
+import { ScreeningOperationsWidget } from "./screening-operations-widget";
+import { SignatureOperationsWidget } from "./signature-operations-widget";
+import { BillingOperationsWidget } from "./billing-operations-widget";
+import { ResidentLifecycleWidget } from "../resident-lifecycle/resident-lifecycle-widget";
 import { Button, KpiMetric } from "@mpa/ui";
 
 const REFRESH_INTERVAL_MS = 30000;
@@ -22,6 +27,8 @@ type OperationsPermissions = {
   canCreateTenant: boolean;
   canCreateApplicant: boolean;
   canReadApplicants: boolean;
+  canReadScreening: boolean;
+  canReadSignatures: boolean;
   canCreateMaintenance: boolean;
   canReadMaintenance: boolean;
   canCreateVendor: boolean;
@@ -149,7 +156,7 @@ function OperationsCenterLayout({
             <p className="text-base font-medium text-[var(--mpa-color-text-secondary)]">{organizationName}</p>
           ) : null}
           <p className="max-w-2xl text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
-            Portfolio command surface — what needs attention, what changed, and what to do next.
+            What needs your attention today — then act on it. Portfolio detail stays below.
           </p>
           <div
             className="flex flex-wrap items-center gap-3 text-xs text-[var(--mpa-color-text-muted)]"
@@ -176,9 +183,56 @@ function OperationsCenterLayout({
         <QuickActionsBar permissions={permissions} />
       </header>
 
+      <section aria-labelledby="attention-today-heading" className="space-y-4">
+        <h2 id="attention-today-heading" className="mpa-section-title">
+          Needs attention today
+        </h2>
+        <div className="grid gap-4 xl:grid-cols-3">
+          <OperationalTasksCard tasks={visibleTasks} />
+          <div className="xl:col-span-2 space-y-4">
+            {permissions.canCreateTenant || permissions.canReadLeases ? <ResidentLifecycleWidget /> : null}
+            {permissions.canReadCommunications ? <NotificationOperationsWidget /> : null}
+          </div>
+        </div>
+        {snapshot.migration && permissions.canReadMigration ? (
+          <MigrationOperationsCard snapshot={snapshot.migration} canCreate={permissions.canCreateMigration} />
+        ) : null}
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-2">
+        {permissions.canReadSignatures ? <SignatureOperationsWidget /> : null}
+        {permissions.canReadFinancials ? <BillingOperationsWidget /> : null}
+      </section>
+
+      {snapshot.maintenance && permissions.canReadMaintenance ? (
+        <MaintenanceOperationsCard snapshot={snapshot.maintenance} canCreate={permissions.canCreateMaintenance} />
+      ) : null}
+
+      {snapshot.leases && permissions.canReadLeases ? (
+        <LeaseOperationsCard snapshot={snapshot.leases} canCreate={permissions.canCreateLease} />
+      ) : null}
+
+      {snapshot.vendors && permissions.canReadVendors ? (
+        <VendorOperationsCard snapshot={snapshot.vendors} canCreate={permissions.canCreateVendor} />
+      ) : null}
+
+      {snapshot.applicants && permissions.canReadApplicants ? (
+        <ApplicantOperationsCard snapshot={snapshot.applicants} canCreate={permissions.canCreateApplicant} />
+      ) : null}
+
+      {snapshot.communications && permissions.canReadCommunications ? (
+        <CommunicationOperationsCard snapshot={snapshot.communications} canCreate={permissions.canCreateCommunication} />
+      ) : null}
+
+      {permissions.canReadScreening ? <ScreeningOperationsWidget /> : null}
+
+      {snapshot.financial && permissions.canReadFinancials ? (
+        <FinancialOperationsCard snapshot={snapshot.financial} canCreate={permissions.canCreateFinancial} />
+      ) : null}
+
       <section aria-labelledby="portfolio-summary-heading" className="space-y-4">
         <h2 id="portfolio-summary-heading" className="mpa-section-title">
-          Portfolio summary
+          Portfolio snapshot
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <KpiMetric
@@ -204,40 +258,10 @@ function OperationsCenterLayout({
           />
           <OccupancyCard occupancyPercent={occupancyPercent} occupied={snapshot.occupiedUnits} total={snapshot.unitsTotal} />
         </div>
+        <div className="grid gap-4 xl:grid-cols-3">
+          <TenantOverviewCard snapshot={snapshot} />
+        </div>
       </section>
-
-      <section className="grid gap-4 xl:grid-cols-3">
-        <TenantOverviewCard snapshot={snapshot} />
-        <OperationalTasksCard tasks={visibleTasks} />
-      </section>
-
-      {snapshot.maintenance && permissions.canReadMaintenance ? (
-        <MaintenanceOperationsCard snapshot={snapshot.maintenance} canCreate={permissions.canCreateMaintenance} />
-      ) : null}
-
-      {snapshot.applicants && permissions.canReadApplicants ? (
-        <ApplicantOperationsCard snapshot={snapshot.applicants} canCreate={permissions.canCreateApplicant} />
-      ) : null}
-
-      {snapshot.migration && permissions.canReadMigration ? (
-        <MigrationOperationsCard snapshot={snapshot.migration} canCreate={permissions.canCreateMigration} />
-      ) : null}
-
-      {snapshot.vendors && permissions.canReadVendors ? (
-        <VendorOperationsCard snapshot={snapshot.vendors} canCreate={permissions.canCreateVendor} />
-      ) : null}
-
-      {snapshot.leases && permissions.canReadLeases ? (
-        <LeaseOperationsCard snapshot={snapshot.leases} canCreate={permissions.canCreateLease} />
-      ) : null}
-
-      {snapshot.communications && permissions.canReadCommunications ? (
-        <CommunicationOperationsCard snapshot={snapshot.communications} canCreate={permissions.canCreateCommunication} />
-      ) : null}
-
-      {snapshot.financial && permissions.canReadFinancials ? (
-        <FinancialOperationsCard snapshot={snapshot.financial} canCreate={permissions.canCreateFinancial} />
-      ) : null}
 
       {permissions.canReadAi ? <AiOperationsWidget canUse={permissions.canUseAi} /> : null}
 
@@ -250,46 +274,23 @@ function OperationsCenterLayout({
 
 function QuickActionsBar({ permissions }: { permissions: OperationsPermissions }) {
   const actions = [
-    { label: "Create Property", href: "/properties/new", show: permissions.canCreateProperty, variant: "primary" as const },
-    { label: "Create Unit", href: "/units/new", show: permissions.canCreateUnit, variant: "secondary" as const },
-    { label: "Create Tenant", href: "/tenants/new", show: permissions.canCreateTenant, variant: "secondary" as const },
-    { label: "Create Applicant", href: "/applicants/new", show: permissions.canCreateApplicant, variant: "secondary" as const },
+    { label: "Move In", href: "/residents/move-in", show: permissions.canCreateTenant, variant: "primary" as const },
     {
-      label: "Create Work Order",
+      label: "Work Order",
       href: "/maintenance/new",
       show: permissions.canCreateMaintenance,
       variant: "secondary" as const
     },
     {
-      label: "Create Vendor",
-      href: "/vendors/new",
-      show: permissions.canCreateVendor,
-      variant: "secondary" as const
-    },
-    {
-      label: "Create Lease",
-      href: "/leases/new",
-      show: permissions.canCreateLease,
-      variant: "secondary" as const
-    },
-    {
-      label: "Create Announcement",
-      href: "/communications/new",
-      show: permissions.canCreateCommunication,
-      variant: "secondary" as const
-    },
-    {
       label: "Record Payment",
-      href: "/financials/charges",
+      href: "/financials/payments/new",
       show: permissions.canCreateFinancial,
       variant: "secondary" as const
     },
-    {
-      label: "Record Expense",
-      href: "/financials/expenses/new",
-      show: permissions.canCreateFinancial,
-      variant: "secondary" as const
-    }
+    { label: "Applicant", href: "/applicants/new", show: permissions.canCreateApplicant, variant: "secondary" as const },
+    { label: "Property", href: "/properties/new", show: permissions.canCreateProperty, variant: "secondary" as const },
+    { label: "Move Out", href: "/residents/move-out", show: permissions.canCreateTenant, variant: "secondary" as const },
+    { label: "Transfer", href: "/residents/transfer", show: permissions.canCreateTenant, variant: "secondary" as const }
   ].filter((action) => action.show);
 
   return (
@@ -365,8 +366,8 @@ function TenantOverviewCard({ snapshot }: { snapshot: DashboardSnapshot }) {
     {
       label: "Vacant-ready units",
       value: snapshot.vacanciesTotal,
-      href: "/units",
-      action: "Fill vacancies",
+      href: "/residents/move-in",
+      action: "Start move-in",
       highlight: snapshot.vacanciesTotal > 0
     }
   ];
@@ -407,9 +408,9 @@ function TenantOverviewCard({ snapshot }: { snapshot: DashboardSnapshot }) {
 function OperationalTasksCard({ tasks }: { tasks: DashboardSnapshot["operationalTasks"] }) {
   return (
     <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5 xl:col-span-2">
-      <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Operational Tasks</h2>
+      <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Do these next</h2>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        Actionable next steps generated from your current portfolio state.
+        Resolve today’s work from here — each item opens the deepest useful action, not a dead-end list.
       </p>
       {tasks.length === 0 ? (
         <p className="mt-4 text-sm text-[var(--mpa-color-text-secondary)]">No actionable tasks for your current role.</p>
@@ -419,15 +420,17 @@ function OperationalTasksCard({ tasks }: { tasks: DashboardSnapshot["operational
             <li key={task.id}>
               <Link
                 href={task.href}
-                className="block rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)]/40 p-3 transition-colors hover:border-[var(--mpa-color-brand-primary)]/30 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)]/40 p-3 transition-colors hover:border-[var(--mpa-color-brand-primary)]/30 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]"
               >
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{task.title}</p>
-                  <TaskPriorityBadge priority={task.priority} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{task.title}</p>
+                    <TaskPriorityBadge priority={task.priority} />
+                  </div>
+                  <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{task.description}</p>
                 </div>
-                <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{task.description}</p>
-                <span className="mt-2 inline-block text-xs font-semibold text-[var(--mpa-color-brand-primary)]">
-                  {task.actionLabel} →
+                <span className="inline-flex shrink-0 items-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-3 py-1.5 text-xs font-semibold text-white">
+                  {task.actionLabel}
                 </span>
               </Link>
             </li>
@@ -568,21 +571,36 @@ function MaintenanceOperationsCard({
   snapshot: NonNullable<DashboardSnapshot["maintenance"]>;
   canCreate: boolean;
 }) {
+  const waitingVendor = snapshot.openWorkOrderSample.filter((item) => item.status === "assigned");
+  const waitingResident = snapshot.completedSample.slice(0, 5);
+  const overdueItems = snapshot.overdueSample.slice(0, 5);
+  const emergencyItems = snapshot.highPrioritySample.filter((item) => item.priority === "emergency" || item.priority === "high");
+
   const metrics = [
-    { label: "Open work orders", value: snapshot.openWorkOrders, href: "/maintenance", tone: "default" as const },
     {
-      label: "High priority",
-      value: snapshot.highPriorityWorkOrders,
-      href: "/maintenance",
-      tone: snapshot.highPriorityWorkOrders > 0 ? ("warning" as const) : ("default" as const)
+      label: "Waiting for vendor",
+      value: waitingVendor.length,
+      href: "/maintenance?status=waiting_vendor",
+      tone: waitingVendor.length > 0 ? ("warning" as const) : ("default" as const)
     },
     {
-      label: "Overdue",
+      label: "Waiting for resident",
+      value: waitingResident.length,
+      href: "/maintenance?status=waiting_resident",
+      tone: waitingResident.length > 0 ? ("warning" as const) : ("default" as const)
+    },
+    {
+      label: "Overdue work",
       value: snapshot.overdueWorkOrders,
-      href: "/maintenance",
+      href: "/maintenance?status=open",
       tone: snapshot.overdueWorkOrders > 0 ? ("danger" as const) : ("default" as const)
     },
-    { label: "Completed (7d)", value: snapshot.recentlyCompleted, href: "/maintenance", tone: "default" as const }
+    {
+      label: "Emergency / high",
+      value: snapshot.highPriorityWorkOrders,
+      href: "/maintenance?priority=emergency_high",
+      tone: snapshot.highPriorityWorkOrders > 0 ? ("danger" as const) : ("default" as const)
+    }
   ];
 
   return (
@@ -590,10 +608,10 @@ function MaintenanceOperationsCard({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 id="maintenance-ops-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-            Maintenance Operations
+            Today&apos;s Work · Maintenance
           </h2>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Open, priority, overdue, and recently completed work orders.
+            Waiting vendor, waiting resident, overdue, and emergency — Resolve jumps to the next workflow step.
           </p>
         </div>
         <div className="flex gap-2">
@@ -634,26 +652,55 @@ function MaintenanceOperationsCard({
 
       <div className="grid gap-4 xl:grid-cols-2">
         <MaintenanceListCard
-          title="Open work orders"
-          items={snapshot.openWorkOrderSample.map((item) => ({
+          title="Waiting for vendor"
+          items={waitingVendor.map((item) => ({
             id: item.id,
             workOrderNumber: item.workOrderNumber,
             title: item.title,
-            href: item.href,
-            meta: item.propertyName
+            href: `${item.href}`,
+            meta: "Resolve · Notify / start work"
           }))}
-          emptyLabel="No open work orders"
+          emptyLabel="No work orders waiting on vendors"
         />
         <MaintenanceListCard
-          title="Recently completed"
-          items={snapshot.completedSample.map((item) => ({
+          title="Waiting for resident"
+          items={waitingResident.map((item) => ({
+            id: item.id,
+            workOrderNumber: item.workOrderNumber,
+            title: item.title,
+            href: `${item.href}#conversation`,
+            meta: "Resolve · Request confirmation"
+          }))}
+          emptyLabel="No completed work awaiting resident confirmation"
+        />
+        <MaintenanceListCard
+          title="Overdue work"
+          items={overdueItems.map((item) => ({
             id: item.id,
             workOrderNumber: item.workOrderNumber,
             title: item.title,
             href: item.href,
-            meta: item.completedAt ? `Completed ${formatRelativeTime(item.completedAt)}` : null
+            meta: item.dueDate ? `Resolve · Due ${item.dueDate}` : "Resolve · Open workflow"
           }))}
-          emptyLabel="No recent completions"
+          emptyLabel="No overdue work orders"
+        />
+        <MaintenanceListCard
+          title="Emergency / high priority"
+          items={emergencyItems.map((item) => ({
+            id: item.id,
+            workOrderNumber: item.workOrderNumber,
+            title: item.title,
+            href: item.status === "submitted" || item.status === "triaged" ? `${item.href}#vendor` : item.href,
+            meta:
+              item.status === "submitted" || item.status === "triaged"
+                ? "Resolve · Assign vendor"
+                : item.status === "assigned"
+                  ? "Resolve · Notify / start work"
+                  : item.status === "in_progress"
+                    ? "Resolve · Complete work"
+                    : `Resolve · ${item.priority}`
+          }))}
+          emptyLabel="No high-priority work orders"
         />
       </div>
     </section>
@@ -838,8 +885,8 @@ function LeaseOperationsCard({
             View leases
           </Link>
           {canCreate ? (
-            <Link href="/leases/new" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
-              Create lease
+            <Link href="/residents/move-in" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
+              Start Move in
             </Link>
           ) : null}
         </div>
@@ -924,24 +971,31 @@ function ApplicantOperationsCard({
     {
       label: "Awaiting signatures",
       value: snapshot.awaitingSignatures,
-      href: "/applicants",
+      href: "/leases?status=draft",
       tone: snapshot.awaitingSignatures > 0 ? ("warning" as const) : ("default" as const)
     },
     {
-      label: "Recently approved",
+      label: "Ready for Move in",
       value: snapshot.recentlyApproved,
-      href: "/applicants?status=approved",
-      tone: "success" as const
+      href: "/residents/move-in",
+      tone: snapshot.recentlyApproved > 0 ? ("success" as const) : ("default" as const)
     },
     {
       label: "Move-ins this week",
       value: snapshot.moveInsThisWeek,
-      href: "/applicants?status=approved",
+      href: "/residents/move-in",
       tone: snapshot.moveInsThisWeek > 0 ? ("info" as const) : ("default" as const)
     }
   ];
 
+  const approvedReady = snapshot.recentlyApprovedSample.map((item) => ({
+    ...item,
+    href: `/residents/move-in?applicantId=${encodeURIComponent(item.id)}`,
+    status: "approved_continue_move_in"
+  }));
+
   const sampleItems = [
+    ...approvedReady,
     ...snapshot.pendingSample,
     ...snapshot.screeningSample,
     ...snapshot.awaitingDocumentsSample
@@ -1010,7 +1064,11 @@ function ApplicantOperationsCard({
                     {item.applicationNumber} · {item.applicantName}
                   </p>
                   <p className="text-sm text-[var(--mpa-color-text-primary)]">{item.propertyName ?? "Unassigned property"}</p>
-                  <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.status.replaceAll("_", " ")}</p>
+                  <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                    {item.status === "approved_continue_move_in"
+                      ? "Continue to Move In"
+                      : item.status.replaceAll("_", " ")}
+                  </p>
                 </Link>
               </li>
             ))}
@@ -1224,12 +1282,21 @@ function MigrationOperationsCard({
   snapshot: MigrationDashboardMetrics;
   canCreate: boolean;
 }) {
+  const goLiveHint =
+    snapshot.pendingReview === 0 && snapshot.activeJobs === 0 && snapshot.completedJobs > 0
+      ? "Go-live checklist available"
+      : snapshot.pendingReview > 0
+        ? "Exceptions blocking go-live"
+        : snapshot.activeJobs > 0
+          ? "Import in progress"
+          : "Start switching when ready";
+
   const metrics = [
-    { label: "Active jobs", value: snapshot.activeJobs, href: "/migration" },
-    { label: "Completed", value: snapshot.completedJobs, href: "/migration" },
-    { label: "Pending review", value: snapshot.pendingReview, href: "/migration" },
-    { label: "Import errors", value: snapshot.recentErrors, href: "/migration" },
-    { label: "Avg completion", value: `${snapshot.averageCompletionPct}%`, href: "/migration" }
+    { label: "Migration health", value: snapshot.averageCompletionPct > 0 ? `${snapshot.averageCompletionPct}%` : "—", href: "/migration" },
+    { label: "Incomplete imports", value: snapshot.activeJobs, href: "/migration" },
+    { label: "Migration warnings", value: snapshot.pendingReview, href: "/migration" },
+    { label: "Migration errors", value: snapshot.recentErrors, href: "/migration" },
+    { label: "Go-live status", value: goLiveHint, href: "/migration#go-live" }
   ];
 
   return (
@@ -1237,15 +1304,15 @@ function MigrationOperationsCard({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 id="migration-ops-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-            Migration Center
+            Switching &amp; go-live
           </h2>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Portfolio imports, pending reviews, and recent migration activity.
+            Migration health, exceptions, and whether you&apos;re ready to operate in M.P.A.
           </p>
         </div>
         <div className="flex gap-2">
           <Link href="/migration" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
-            Open Migration Center
+            Open switching dashboard
           </Link>
           {canCreate ? (
             <Link href="/migration/new" className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline">
@@ -1263,7 +1330,9 @@ function MigrationOperationsCard({
             className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
-            <p className="mt-2 text-3xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">{metric.value}</p>
+            <p className="mt-2 text-xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)] sm:text-2xl">
+              {metric.value}
+            </p>
           </Link>
         ))}
       </div>
