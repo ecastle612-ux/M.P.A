@@ -1,9 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import type { User } from "@supabase/supabase-js";
 import { clientEnv } from "./lib/env/client-env";
+import { REQUEST_ID_HEADER, getRequestId, captureException } from "./lib/observability";
 
 export async function middleware(request: NextRequest) {
+  const requestId = getRequestId(request.headers);
   const response = NextResponse.next({ request });
+  response.headers.set(REQUEST_ID_HEADER, requestId);
 
   const supabase = createServerClient(clientEnv.NEXT_PUBLIC_SUPABASE_URL, clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
     cookieOptions: {
@@ -25,9 +29,16 @@ export async function middleware(request: NextRequest) {
     }
   });
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  // Fail-open: a transient auth-backend error must not 500 every route. Treat as
+  // unauthenticated (protected routes still redirect to /login) and report the error.
+  let user: User | null = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (error) {
+    captureException(error, { module: "web.middleware", requestId, route: request.nextUrl.pathname });
+    user = null;
+  }
 
   const pathname = request.nextUrl.pathname;
   const isLoginRoute = pathname.startsWith("/login");
@@ -40,13 +51,17 @@ export async function middleware(request: NextRequest) {
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    const redirect = NextResponse.redirect(url);
+    redirect.headers.set(REQUEST_ID_HEADER, requestId);
+    return redirect;
   }
 
   if ((isLoginRoute || isForgotPasswordRoute) && user) {
     const url = request.nextUrl.clone();
     url.pathname = "/portal";
-    return NextResponse.redirect(url);
+    const redirect = NextResponse.redirect(url);
+    redirect.headers.set(REQUEST_ID_HEADER, requestId);
+    return redirect;
   }
 
   return response;

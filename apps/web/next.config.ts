@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"]
   },
   async headers() {
+    // NOTE: enforced directives are intentionally unchanged from the Phase 2.1 baseline to
+    // avoid Turbopack/HMR regressions. Production hardening (EP-008 §4.7) adds violation
+    // reporting so the move to a strict, nonce-based CSP can be validated via report data.
+    // Tracked as a gated follow-up in docs/24-production-hardening/security-review-findings.md.
     const cspPolicy = [
       "default-src 'self'",
       "base-uri 'self'",
@@ -19,7 +23,9 @@ const nextConfig: NextConfig = {
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "connect-src 'self' https: wss:",
       "worker-src 'self' blob:",
-      "manifest-src 'self'"
+      "manifest-src 'self'",
+      "report-uri /api/security/csp-report",
+      "report-to csp-endpoint"
     ].join("; ");
 
     return [
@@ -32,6 +38,8 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), usb=(), payment=()" },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Cross-Origin-Resource-Policy", value: "same-site" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+          { key: "Reporting-Endpoints", value: 'csp-endpoint="/api/security/csp-report"' },
           { key: "Content-Security-Policy", value: cspPolicy }
         ]
       }

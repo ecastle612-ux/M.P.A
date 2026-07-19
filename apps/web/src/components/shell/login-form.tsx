@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Input } from "@mpa/ui";
 import { createAuthClient } from "../../lib/auth/client";
+import { reportAuthEvent } from "../../lib/auth/report-auth-event";
 
 type AuthMode = "sign_in" | "sign_up";
 
@@ -56,10 +57,12 @@ export function LoginForm() {
     setLoading(false);
 
     if (signInError) {
+      reportAuthEvent("login_failed");
       setError(signInError.message);
       return;
     }
 
+    reportAuthEvent("login_succeeded");
     router.replace("/dashboard");
   }
 
