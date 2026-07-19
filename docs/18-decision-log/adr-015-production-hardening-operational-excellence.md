@@ -2,15 +2,19 @@
 
 ## Status
 
-Proposed
+Accepted
 
-> **Not approved. No implementation may begin until this ADR is `Accepted` and the
-> associated design package is `Approved`, per the [Implementation Gate](../00-governance/implementation-gate.md)
-> and [ADR-012](./adr-012-design-document-approve-implement.md).**
+> **Accepted 2026-07-19.** The associated [design package](../24-production-hardening/index.md)
+> is Approved. Per the [Implementation Gate](../00-governance/implementation-gate.md) and
+> [ADR-012](./adr-012-design-document-approve-implement.md), implementation is authorized
+> for **Phase 1 (Design-ready-now) scope only**: centralized error-monitoring foundation,
+> authentication rate limiting, authentication audit events, security hardening
+> (headers/CSP/cookie-session review), and backup/deployment runbooks. All Deferred items
+> remain blocked until their target modules exist and pass their own gate cycle.
 
 ## Date
 
-2026-07-19
+2026-07-19 (Proposed and Accepted)
 
 ## Context
 

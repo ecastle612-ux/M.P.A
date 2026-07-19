@@ -1,14 +1,21 @@
 # 24 — Production Hardening & Operational Excellence (EP-008 / PR-003)
 
-**Status:** Draft — Proposed (awaiting approval)
-**Gate:** OPEN — implementation blocked until approved
-**Related ADR:** [ADR-015](../18-decision-log/adr-015-production-hardening-operational-excellence.md) (Proposed)
+**Status:** Approved (2026-07-19)
+**Gate:** Phase 1 implementation authorized (Design-ready-now slices only)
+**Related ADR:** [ADR-015](../18-decision-log/adr-015-production-hardening-operational-excellence.md) (Accepted)
 
-> This is a **design document only**. Per the [Implementation Gate](../00-governance/implementation-gate.md)
-> and [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md), **no
-> application code, UI, or schema may be written** against this package until it is
-> `Approved` and ADR-015 is `Accepted`. This document is the `Design` + `Document`
-> gate step; `Approve` and `Implement` are still pending.
+> **Approved.** ADR-015 is Accepted and Phase 1 scope is authorized for implementation:
+> §4.1 error monitoring, §4.2 rate limiting (auth), §4.5 audit events (auth), §4.6/§4.9
+> runbooks, and §4.7 security hardening. All items marked **Deferred** remain blocked by
+> the [Implementation Gate](../00-governance/implementation-gate.md) until their target
+> module exists and passes its own `Design → Document → Approve` cycle. This remains a
+> **phased program**, not a single implementation.
+>
+> **Delivered artifacts (Phase 1):**
+> [Security Review Findings](./security-review-findings.md) ·
+> [Backup & Recovery Runbook](./backup-recovery-runbook.md) ·
+> [Deployment Readiness Runbook](./deployment-readiness-runbook.md) ·
+> [Production Readiness Assessment](./production-readiness-assessment.md)
 
 ---
 
@@ -74,8 +81,11 @@ Status** (Design-ready now vs Deferred). "Design-ready now" means it *may* be im
 - **Interfaces:** extends `apps/web/src/lib/observability/*` and the documented
   observability placeholder contracts.
 - **Dependencies:** provider selection (ADR needed — e.g. Sentry per Phase 10 roadmap).
-- **Status:** **Design-ready now** for auth/org/profile + app shell; provider adapter
-  requires an ADR. Module-specific capture is Deferred with each module.
+- **Status:** ✅ **Phase 1 implemented** — shared error envelope (`timestamp,
+  organization, user, module, request_id, environment, severity`), PII redaction,
+  request-id propagation, global + browser-runtime capture, and API-route capture, all
+  fail-open. Provider adapter (e.g. Sentry) still requires an ADR; module-specific capture
+  is Deferred with each module.
 
 ### 4.2 Rate Limiting
 
@@ -86,8 +96,12 @@ Status** (Design-ready now vs Deferred). "Design-ready now" means it *may* be im
   quotas per route class.
 - **Applies now:** login/auth routes (brute-force), invitation/org endpoints.
 - **Dependencies:** shared limiter store (e.g. Postgres/Upstash — ADR needed).
-- **Status:** **Design-ready now** for auth/org routes. Announcements, uploads, report
-  generation, notification abuse → **Deferred** (modules absent).
+- **Status:** ✅ **Phase 1 implemented** — shared fixed-window limiter applied to
+  app-owned auth endpoints (`/api/auth/session`, `/api/auth/logout`, `/api/auth/events`)
+  with `429` + `Retry-After`; login-attempt outcomes reported to a rate-limited,
+  audited endpoint (brute-force signal). Announcements, uploads, report generation, and
+  notification abuse → **Deferred** (modules absent). Shared/distributed limiter store
+  remains a documented follow-up (ADR).
 
 ### 4.3 Background Job Reliability
 
@@ -124,8 +138,13 @@ Status** (Design-ready now vs Deferred). "Design-ready now" means it *may* be im
   separate DB design note + RLS plan approval ([09](../09-database-architecture/index.md) /
   [14](../14-security-standards/index.md)). This is the one permitted schema addition and
   still must clear the gate.
-- **Status:** **Design-ready now** for authentication + org/membership events; the rest
-  **Deferred** with their modules.
+- **Status:** ✅ **Phase 1 implemented (authentication events)** — append-only
+  `recordAuditEvent()` foundation with the full immutable field set, fail-open, emitted
+  through the observability sink. Wired for `auth.login_succeeded`, `auth.login_failed`,
+  `auth.logout`, and `auth.rate_limited`. The **DB-backed append-only audit table remains
+  design-only / Deferred** (needs its own DB design note + RLS approval). Note: reliable
+  server-side actor attribution depends on resolving the cookie storage-key finding in
+  [Security Review Findings](./security-review-findings.md).
 
 ### 4.6 Backup & Recovery Readiness
 
@@ -134,8 +153,9 @@ Status** (Design-ready now vs Deferred). "Design-ready now" means it *may* be im
 - **Approach:** **Documentation + verification track** (runbooks), not app code:
   Supabase DB PITR/backup verification, Storage recovery procedure, Document Vault
   protection (once it exists), restore drills, environment recovery, DR guidance.
-- **Status:** **Design-ready now** as runbooks for existing infra (DB/storage/auth);
-  Document Vault portions **Deferred**.
+- **Status:** ✅ **Phase 1 implemented (runbook)** — see
+  [Backup & Recovery Runbook](./backup-recovery-runbook.md). Document Vault portions
+  **Deferred** until the module exists.
 
 ### 4.7 Security Review
 
@@ -149,7 +169,11 @@ Status** (Design-ready now vs Deferred). "Design-ready now" means it *may* be im
 - **Note (already observed):** a browser/server auth-cookie storage-key mismatch exists
   (see repo `AGENTS.md`); tightening CSP and session handling here should resolve it
   through the gate rather than ad hoc.
-- **Status:** **Design-ready now** (highest-value, lowest-dependency area).
+- **Status:** ✅ **Phase 1 implemented** — added HSTS, CSP violation reporting endpoint
+  + `report-to`/`report-uri`, and a full cookie/session/headers/CSP review documented in
+  [Security Review Findings](./security-review-findings.md). Enforced CSP left unchanged
+  (report-only path first) to avoid Turbopack/HMR regressions; nonce-based strict CSP and
+  the cookie storage-key fix are documented, gated follow-ups.
 
 ### 4.8 Production Health Dashboard
 
@@ -170,7 +194,9 @@ Status** (Design-ready now vs Deferred). "Design-ready now" means it *may* be im
 - **Approach:** **Documentation track**: env-var inventory (client vs server per
   `client-env.ts`/`server-env.ts`), domain config, Supabase redirect URLs, OneSignal
   origin (when integrated), caching, build settings, and a deployment runbook.
-- **Status:** **Design-ready now** for the current app; provider-specific items Deferred.
+- **Status:** ✅ **Phase 1 implemented (runbook)** — see
+  [Deployment Readiness Runbook](./deployment-readiness-runbook.md). Provider-specific
+  items (OneSignal origin, etc.) **Deferred**.
 
 ---
 
@@ -198,16 +224,9 @@ gated PR citing this doc. Deferred items are implemented when their module lands
 
 ---
 
-## 7. Readiness Scores (why none are reported yet)
+## 7. Readiness Scores
 
-EP-008 requested "updated Design Partner, Production, and Commercial Readiness scores
-**after completion**." No implementation has occurred (gate blocks it), so there is no
-completion to score, and reporting post-completion numbers would be inaccurate.
-
-- **Current state:** unchanged from Phase 3 Identity Foundation readiness.
-- **Projected effect (contingent on approval + phased implementation):** the
-  Design-ready-now slices (§4.1 error monitoring, §4.2 auth rate limiting, §4.5 auth
-  audit events, §4.6/§4.9 runbooks, §4.7 security) would meaningfully raise Production
-  and Design Partner readiness; Commercial readiness remains bounded by the unbuilt
-  business modules on the roadmap. Concrete scores will be reported per approved,
-  implemented increment.
+Phase 1 (Design-ready-now) slices are now implemented. Updated scores and rationale are
+maintained in the [Production Readiness Assessment](./production-readiness-assessment.md).
+Commercial readiness remains bounded by the unbuilt business modules on the roadmap;
+scores continue to be reported per approved, implemented increment (phased program).
