@@ -3,6 +3,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Input, Select, Textarea } from "@mpa/ui";
+import { MediaUpload } from "../media/media-upload";
 import {
   ANNOUNCEMENT_CATEGORIES,
   ANNOUNCEMENT_PRIORITIES,
@@ -12,6 +13,13 @@ import {
   type AnnouncementRecord,
   type AnnouncementTargetingScope
 } from "../../lib/communication/contracts";
+import { suggestAnnouncementCategoryFromTitle } from "../../lib/workflow/category-suggest";
+import {
+  getWorkspaceMemory,
+  rememberAnnouncementDefaults,
+  rememberPropertyContext,
+  resolveContextId
+} from "../../lib/workflow/workspace-memory";
 
 type AnnouncementFormValues = {
   title: string;
@@ -95,21 +103,32 @@ export function AnnouncementForm({
   initialPropertyId?: string | null;
 }) {
   const router = useRouter();
-  const [values, setValues] = useState<AnnouncementFormValues>(() =>
-    announcement
-      ? toFormValues(announcement)
-      : {
-          ...DEFAULT_VALUES,
-          targetPropertyId:
-            (initialPropertyId && properties.some((propertyOption) => propertyOption.id === initialPropertyId)
-              ? initialPropertyId
-              : null) ??
-            properties[0]?.id ??
-            ""
-        }
-  );
+  const [values, setValues] = useState<AnnouncementFormValues>(() => {
+    if (announcement) return toFormValues(announcement);
+    const memory = typeof window !== "undefined" ? getWorkspaceMemory() : null;
+    const propertyIds = properties.map((p) => p.id);
+    const targetPropertyId = resolveContextId(initialPropertyId, memory?.propertyId, propertyIds);
+    const rememberedScope = memory?.announcementScope;
+    const targetingScope =
+      rememberedScope && ANNOUNCEMENT_TARGETING_SCOPES.includes(rememberedScope as AnnouncementTargetingScope)
+        ? (rememberedScope as AnnouncementTargetingScope)
+        : DEFAULT_VALUES.targetingScope;
+    const rememberedCategory = memory?.announcementCategory;
+    const category =
+      rememberedCategory && ANNOUNCEMENT_CATEGORIES.includes(rememberedCategory as AnnouncementRecord["category"])
+        ? (rememberedCategory as AnnouncementRecord["category"])
+        : DEFAULT_VALUES.category;
+    return {
+      ...DEFAULT_VALUES,
+      targetingScope,
+      category,
+      targetPropertyId
+    };
+  });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attachmentAssetId, setAttachmentAssetId] = useState<string | null>(null);
+  const [categoryHint, setCategoryHint] = useState<string | null>(null);
 
   const showPropertyTarget = useMemo(
     () =>
@@ -153,6 +172,13 @@ export function AnnouncementForm({
     };
 
     setSubmitting(true);
+    rememberAnnouncementDefaults({
+      targetingScope: values.targetingScope,
+      category: values.category
+    });
+    if (values.targetPropertyId) {
+      rememberPropertyContext({ propertyId: values.targetPropertyId });
+    }
     const response = await fetch(
       mode === "create" ? "/api/announcements" : `/api/announcements/${announcement?.id ?? ""}`,
       {
@@ -198,158 +224,220 @@ export function AnnouncementForm({
           </p>
         ) : null}
 
-        <Input
-          aria-label="Announcement title"
-          placeholder="Announcement title"
-          value={values.title}
-          onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
-          required
-        />
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Title</span>
+          <Input
+            aria-label="Announcement title"
+            value={values.title}
+            onChange={(event) => {
+              const title = event.target.value;
+              const suggested = mode === "create" ? suggestAnnouncementCategoryFromTitle(title) : null;
+              setValues((current) => ({
+                ...current,
+                title,
+                category:
+                  suggested && (current.category === "general" || current.category === suggested)
+                    ? suggested
+                    : current.category
+              }));
+              setCategoryHint(
+                suggested ? `Suggested category: ${announcementCategoryLabel(suggested)}` : null
+              );
+            }}
+            required
+          />
+          {categoryHint ? (
+            <p className="text-xs text-[var(--mpa-color-text-secondary)]">{categoryHint}</p>
+          ) : null}
+        </label>
 
-        <Textarea
-          aria-label="Announcement message"
-          placeholder="Message body"
-          rows={6}
-          value={values.message}
-          onChange={(event) => setValues((current) => ({ ...current, message: event.target.value }))}
-          required
-        />
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Message</span>
+          <Textarea
+            aria-label="Announcement message"
+            rows={6}
+            value={values.message}
+            onChange={(event) => setValues((current) => ({ ...current, message: event.target.value }))}
+            required
+          />
+        </label>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <Select
-            aria-label="Priority"
-            value={values.priority}
-            onChange={(event) =>
-              setValues((current) => ({
-                ...current,
-                priority: event.target.value as AnnouncementRecord["priority"]
-              }))
-            }
-          >
-            {ANNOUNCEMENT_PRIORITIES.map((priority) => (
-              <option key={priority} value={priority}>
-                {announcementPriorityLabel(priority)}
-              </option>
-            ))}
-          </Select>
-          <Select
-            aria-label="Category"
-            value={values.category}
-            onChange={(event) =>
-              setValues((current) => ({
-                ...current,
-                category: event.target.value as AnnouncementRecord["category"]
-              }))
-            }
-          >
-            {ANNOUNCEMENT_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {announcementCategoryLabel(category)}
-              </option>
-            ))}
-          </Select>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Priority</span>
+            <Select
+              aria-label="Priority"
+              value={values.priority}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  priority: event.target.value as AnnouncementRecord["priority"]
+                }))
+              }
+            >
+              {ANNOUNCEMENT_PRIORITIES.map((priority) => (
+                <option key={priority} value={priority}>
+                  {announcementPriorityLabel(priority)}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Category</span>
+            <Select
+              aria-label="Category"
+              value={values.category}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  category: event.target.value as AnnouncementRecord["category"]
+                }))
+              }
+            >
+              {ANNOUNCEMENT_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {announcementCategoryLabel(category)}
+                </option>
+              ))}
+            </Select>
+          </label>
         </div>
 
-        <Select
-          aria-label="Targeting scope"
-          value={values.targetingScope}
-          onChange={(event) =>
-            setValues((current) => ({
-              ...current,
-              targetingScope: event.target.value as AnnouncementTargetingScope
-            }))
-          }
-        >
-          {ANNOUNCEMENT_TARGETING_SCOPES.map((scope) => (
-            <option key={scope} value={scope}>
-              {targetingScopeLabel(scope)}
-            </option>
-          ))}
-        </Select>
-
-        {showPropertyTarget ? (
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Audience</span>
           <Select
-            aria-label="Target property"
-            value={values.targetPropertyId}
-            onChange={(event) => setValues((current) => ({ ...current, targetPropertyId: event.target.value }))}
-            required
+            aria-label="Targeting scope"
+            value={values.targetingScope}
+            onChange={(event) =>
+              setValues((current) => ({
+                ...current,
+                targetingScope: event.target.value as AnnouncementTargetingScope
+              }))
+            }
           >
-            <option value="">Select property</option>
-            {properties.map((propertyOption) => (
-              <option key={propertyOption.id} value={propertyOption.id}>
-                {propertyOption.name}
+            {ANNOUNCEMENT_TARGETING_SCOPES.map((scope) => (
+              <option key={scope} value={scope}>
+                {targetingScopeLabel(scope)}
               </option>
             ))}
           </Select>
+        </label>
+
+        {showPropertyTarget ? (
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Property</span>
+            <Select
+              aria-label="Target property"
+              value={values.targetPropertyId}
+              onChange={(event) => setValues((current) => ({ ...current, targetPropertyId: event.target.value }))}
+              required
+            >
+              <option value="">Select property</option>
+              {properties.map((propertyOption) => (
+                <option key={propertyOption.id} value={propertyOption.id}>
+                  {propertyOption.name}
+                </option>
+              ))}
+            </Select>
+          </label>
         ) : null}
 
         {values.targetingScope === "building" ? (
-          <Input
-            aria-label="Target building"
-            placeholder="Building name"
-            value={values.targetBuilding}
-            onChange={(event) => setValues((current) => ({ ...current, targetBuilding: event.target.value }))}
-          />
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Building</span>
+            <Input
+              aria-label="Target building"
+              value={values.targetBuilding}
+              onChange={(event) => setValues((current) => ({ ...current, targetBuilding: event.target.value }))}
+            />
+          </label>
         ) : null}
 
         {values.targetingScope === "floor" ? (
-          <Input
-            aria-label="Target floor placeholder"
-            placeholder="Floor placeholder"
-            value={values.targetFloorPlaceholder}
-            onChange={(event) =>
-              setValues((current) => ({ ...current, targetFloorPlaceholder: event.target.value }))
-            }
-          />
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Floor</span>
+            <Input
+              aria-label="Target floor"
+              value={values.targetFloorPlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, targetFloorPlaceholder: event.target.value }))
+              }
+            />
+          </label>
         ) : null}
 
         {values.targetingScope === "unit" ? (
-          <Input
-            aria-label="Target unit id"
-            placeholder="Target unit ID"
-            value={values.targetUnitId}
-            onChange={(event) => setValues((current) => ({ ...current, targetUnitId: event.target.value }))}
-          />
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Unit ID</span>
+            <Input
+              aria-label="Target unit id"
+              value={values.targetUnitId}
+              onChange={(event) => setValues((current) => ({ ...current, targetUnitId: event.target.value }))}
+            />
+          </label>
         ) : null}
 
         {values.targetingScope === "lease" ? (
-          <Input
-            aria-label="Target lease id"
-            placeholder="Target lease ID"
-            value={values.targetLeaseId}
-            onChange={(event) => setValues((current) => ({ ...current, targetLeaseId: event.target.value }))}
-          />
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Lease ID</span>
+            <Input
+              aria-label="Target lease id"
+              value={values.targetLeaseId}
+              onChange={(event) => setValues((current) => ({ ...current, targetLeaseId: event.target.value }))}
+            />
+          </label>
         ) : null}
 
         {values.targetingScope === "tenant" ? (
-          <Input
-            aria-label="Target tenant id"
-            placeholder="Target tenant ID"
-            value={values.targetTenantId}
-            onChange={(event) => setValues((current) => ({ ...current, targetTenantId: event.target.value }))}
-          />
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Tenant ID</span>
+            <Input
+              aria-label="Target tenant id"
+              value={values.targetTenantId}
+              onChange={(event) => setValues((current) => ({ ...current, targetTenantId: event.target.value }))}
+            />
+          </label>
         ) : null}
 
-        <Input
-          aria-label="Attachment placeholder"
-          placeholder="Attachment placeholder"
-          value={values.attachmentPlaceholder}
-          onChange={(event) => setValues((current) => ({ ...current, attachmentPlaceholder: event.target.value }))}
-        />
+        <div className="space-y-1.5">
+          <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Attachment</span>
+          <MediaUpload
+            label="Upload attachment"
+            intent={{ kind: "property_photo", imageEditor: "optional", cropAspect: 16 / 9 }}
+            value={attachmentAssetId}
+            onChange={(mediaAssetId) => {
+              setAttachmentAssetId(mediaAssetId);
+              setValues((current) => ({
+                ...current,
+                attachmentPlaceholder: mediaAssetId ? `media:${mediaAssetId}` : ""
+              }));
+            }}
+            onClear={() => {
+              setAttachmentAssetId(null);
+              setValues((current) => ({ ...current, attachmentPlaceholder: "" }));
+            }}
+          />
+        </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <Input
-            aria-label="Scheduled at"
-            type="datetime-local"
-            value={values.scheduledAt}
-            onChange={(event) => setValues((current) => ({ ...current, scheduledAt: event.target.value }))}
-          />
-          <Input
-            aria-label="Expires at"
-            type="datetime-local"
-            value={values.expiresAt}
-            onChange={(event) => setValues((current) => ({ ...current, expiresAt: event.target.value }))}
-          />
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Schedule send</span>
+            <Input
+              aria-label="Scheduled at"
+              type="datetime-local"
+              value={values.scheduledAt}
+              onChange={(event) => setValues((current) => ({ ...current, scheduledAt: event.target.value }))}
+            />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Expires</span>
+            <Input
+              aria-label="Expires at"
+              type="datetime-local"
+              value={values.expiresAt}
+              onChange={(event) => setValues((current) => ({ ...current, expiresAt: event.target.value }))}
+            />
+          </label>
         </div>
 
         <label className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
@@ -370,7 +458,7 @@ export function AnnouncementForm({
           </p>
         ) : null}
 
-        <div className="flex flex-wrap gap-2">
+        <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap gap-2 border-t border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]/95 px-1 py-3 backdrop-blur supports-[backdrop-filter]:bg-[var(--mpa-color-bg-surface)]/80 md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
           <Button type="submit" disabled={submitting}>
             {submitting ? "Saving..." : mode === "create" ? "Create Announcement" : "Save Announcement"}
           </Button>

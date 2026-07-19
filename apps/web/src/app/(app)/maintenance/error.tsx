@@ -1,8 +1,8 @@
 "use client";
 
-import { Button, Card } from "@mpa/ui";
+import { ModuleSegmentError } from "../../../components/trust/module-segment-error";
 
-export default function MaintenanceError({
+export default function ModuleError({
   error,
   reset
 }: {
@@ -10,14 +10,10 @@ export default function MaintenanceError({
   reset: () => void;
 }) {
   return (
-    <main className="mpa-page flex-1 space-y-5">
-      <Card>
-        <h1 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Maintenance unavailable</h1>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{error.message}</p>
-        <Button className="mt-4" onClick={reset}>
-          Try again
-        </Button>
-      </Card>
-    </main>
+    <ModuleSegmentError
+      title="Maintenance unavailable"
+      error={error}
+      reset={reset}
+    />
   );
 }

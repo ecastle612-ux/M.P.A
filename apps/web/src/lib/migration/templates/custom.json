@@ -4,50 +4,72 @@
   "entityTypes": {
     "property": {
       "columnMap": {
-        "name": ["Property Name", "Name", "Property", "property_name"],
-        "addressLine1": ["Address", "Street Address", "Address Line 1", "address"],
-        "city": ["City", "city"],
-        "stateRegion": ["State", "Province", "State/Region", "state"],
-        "postalCode": ["Zip", "Postal Code", "ZIP Code", "zip"],
-        "propertyType": ["Property Type", "Type", "property_type"]
+        "name": [
+          "Property Name",
+          "Property",
+          "Building Name",
+          "Building",
+          "Name",
+          "property_name",
+          "Community Name"
+        ],
+        "addressLine1": [
+          "Address",
+          "Street Address",
+          "Address Line 1",
+          "Street",
+          "address",
+          "Property Address"
+        ],
+        "city": ["City", "city", "Town"],
+        "stateRegion": ["State", "Province", "State/Region", "state", "State Code"],
+        "postalCode": ["Zip", "Postal Code", "ZIP Code", "zip", "Zip Code", "Postcode"],
+        "propertyType": ["Property Type", "Type", "property_type", "Asset Type"]
       }
     },
     "unit": {
       "columnMap": {
-        "propertyName": ["Property Name", "Property", "property_name"],
-        "unitNumber": ["Unit Number", "Unit", "Unit #", "unit_number"],
-        "bedrooms": ["Bedrooms", "Beds", "bedrooms"],
-        "bathrooms": ["Bathrooms", "Baths", "bathrooms"],
-        "rentAmount": ["Rent", "Market Rent", "rent_amount"]
+        "propertyName": ["Property Name", "Property", "Building Name", "Building", "property_name"],
+        "unitNumber": ["Unit Number", "Unit", "Unit #", "Apt", "Apartment", "unit_number", "Unit ID"],
+        "bedrooms": ["Bedrooms", "Beds", "BR", "bedrooms"],
+        "bathrooms": ["Bathrooms", "Baths", "BA", "bathrooms"],
+        "rentAmount": ["Rent", "Market Rent", "Asking Rent", "rent_amount", "Monthly Rent"]
       }
     },
     "tenant": {
       "columnMap": {
-        "firstName": ["First Name", "Tenant First Name", "first_name"],
-        "lastName": ["Last Name", "Tenant Last Name", "last_name"],
-        "email": ["Email", "Tenant Email", "email"],
-        "phone": ["Phone", "Mobile", "phone"],
-        "propertyName": ["Property Name", "Property"],
-        "unitNumber": ["Unit Number", "Unit"]
+        "firstName": ["First Name", "Tenant First Name", "Resident First Name", "first_name", "Given Name"],
+        "lastName": ["Last Name", "Tenant Last Name", "Resident Last Name", "last_name", "Surname"],
+        "email": ["Email", "Email Address", "Tenant Email", "Resident Email", "email", "E-mail"],
+        "phone": ["Phone", "Phone Number", "Mobile", "Cell", "phone", "Telephone"],
+        "propertyName": ["Property Name", "Property", "Building Name"],
+        "unitNumber": ["Unit Number", "Unit", "Unit #", "Apt"]
       }
     },
     "lease": {
       "columnMap": {
-        "leaseNumber": ["Lease Number", "Lease ID", "lease_number"],
-        "propertyName": ["Property Name", "Property"],
-        "unitNumber": ["Unit Number", "Unit"],
-        "tenantEmail": ["Tenant Email", "Email"],
-        "startDate": ["Lease Start", "Start Date", "start_date"],
-        "endDate": ["Lease End", "End Date", "end_date"],
-        "rentAmount": ["Rent", "Monthly Rent", "rent_amount"]
+        "leaseNumber": ["Lease Number", "Lease ID", "Lease #", "lease_number", "Contract Number"],
+        "propertyName": ["Property Name", "Property", "Building Name"],
+        "unitNumber": ["Unit Number", "Unit", "Unit #"],
+        "tenantEmail": ["Tenant Email", "Resident Email", "Email", "Email Address"],
+        "startDate": ["Lease Start", "Start Date", "Move In", "Move-In Date", "start_date", "Commencement"],
+        "endDate": ["Lease End", "End Date", "Expiration", "end_date", "Lease Expiration"],
+        "rentAmount": ["Rent", "Monthly Rent", "Lease Rent", "rent_amount", "Base Rent"]
       }
     },
     "vendor": {
       "columnMap": {
-        "businessName": ["Vendor Name", "Company", "business_name"],
-        "email": ["Email", "Vendor Email"],
-        "phone": ["Phone", "Vendor Phone"],
-        "primaryContactName": ["Contact Name", "Primary Contact"]
+        "businessName": [
+          "Vendor Name",
+          "Company",
+          "Business Name",
+          "Contractor",
+          "business_name",
+          "Vendor"
+        ],
+        "email": ["Email", "Vendor Email", "Email Address"],
+        "phone": ["Phone", "Vendor Phone", "Phone Number"],
+        "primaryContactName": ["Contact Name", "Primary Contact", "Property Manager", "Manager Name"]
       }
     }
   }

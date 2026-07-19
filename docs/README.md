@@ -53,7 +53,31 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 30 | [Product Experience Initiative (PX-001)](./30-product-experience/01-product-vision.md) | Dashboard experience and design system foundation package |
 | 31 | [Product Requirements Registry (PRR)](./31-product-requirements/index.md) | Permanent registry of agreed product requirements |
 | 43 | [MHF-001 Unified Communication Platform](./43-mhf-001-unified-communication-platform/README.md) | Messaging + in-app notification foundation (OneSignal deferred) |
-| 44 | [API-001 OneSignal Notification Foundation](./44-api-001-onesignal-notification-foundation/README.md) | Push provider design package (Draft — awaiting Approve) |
+| 44 | [API-001 OneSignal Notification Foundation](./44-api-001-onesignal-notification-foundation/README.md) | Push provider design package (Approved · Implemented) |
+| 45 | [API-001A Push Enrollment & Device Registration](./45-api-001a-push-enrollment-device-registration/README.md) | Enrollment UX extension of API-001 (Approved · Implemented) |
+| 46 | [API-002A Universal Media Upload Foundation](./46-api-002a-universal-media-foundation/README.md) | Storage + MediaUpload platform (Approved · Implemented slices 0–4) |
+| 47 | [QA-001 Automated Quality Assurance](./47-qa-001-automated-quality-assurance/README.md) | Internal Playwright QA platform (Approved · Implemented) |
+| 48 | [API-003 Background Screening](./48-api-003-background-screening/README.md) | ScreeningService / Checkr provider platform (Approved · Implemented) |
+| 49 | [DEV-004A Migration History Reconciliation](./49-dev-004a-migration-history-reconciliation/README.md) | Local↔remote Supabase migration history integrity repair |
+| 50 | [API-004 Electronic Signatures](./50-api-004-electronic-signatures/README.md) | SignatureService / Dropbox Sign platform (Approved · Implemented) |
+| 51 | [API-005 Resident Payments & Billing](./51-api-005-resident-payments-billing/README.md) | BillingService / PaymentProvider / Stripe-first platform (Approved · Implemented) |
+| 52 | [RC-001 Beta Readiness & Design Partner Certification](./52-rc-001-beta-readiness/README.md) | Design Partner GO (constrained) · guides · checklist |
+| 56 | [DX-001 Design Partner Experience Polish](./56-dx-001-design-partner-polish/00-executive-summary.md) | Usability / trust polish (Complete) |
+| 57 | [DX-002 Customer Switching Experience](./57-dx-002-customer-switching/00-executive-summary.md) | Switching / Migration Center experience |
+| 60 | [DX-003 Zero Friction Daily Operations](./60-dx-003-zero-friction-daily-operations/README.md) | Daily ops click audit · workflow elimination (Draft — Ready for Approval) |
+| 61 | [DX-004 Five-Minute Rule (OS UX)](./61-dx-004-five-minute-rule/README.md) | Operating System UX · ≤5 min common jobs (Draft — Ready for Approval) |
+| 62 | [IA-001 Intelligent Property Operations](./62-ia-001-intelligent-property-operations/README.md) | Proactive AI ops manager · human-gated (Draft — Ready for Approval) |
+| 63 | [MOAT-001 Competitive Advantage Blueprint](./63-moat-001-competitive-advantage-blueprint/README.md) | Sustainable moats · why switch / why stay (Draft — Ready for Approval) |
+| 66 | [DP-001 Design Partner Readiness](./66-dp-001-design-partner-readiness/README.md) | OPS-003 P0 readiness surfaces (Complete) |
+| 67 | [PR-001 Production Readiness & Domain Launch](./67-pr-001-production-readiness/README.md) | Domain · env separation · provider audit · Private Beta (EP-006) |
+| 68 | [PR-002 Production Deployment & Domain Activation](./68-pr-002-production-deployment/README.md) | Vercel prod deploy · DNS/SSL · certification (EP-007) |
+| 68 | [PR-003 Production Environment Audit](./68-pr-003-production-environment-audit.md) | Zod/env inventory · Vercel checklist · build failure root cause |
+| 69 | [UX-001 Zero Friction Hardening](./69-ux-001-zero-friction-hardening/README.md) | PM friction · Master Admin Slice A (EP-004 Approved) |
+| 70 | [UX-005 Authentication Experience](./70-ux-005-authentication-experience/README.md) | Auth presentation redesign (EP-004) |
+| 71 | [ADMIN-001 Master Admin Impersonation](./71-admin-001-master-admin-impersonation/README.md) | Impersonation + audit (deferred Slice B) |
+| 72 | [WF-004 Workflow Intelligence](./72-wf-004-workflow-intelligence/README.md) | Context forms · suggestions · completion (EP-006) |
+| 73 | [UX-003 Trust & Validation](./73-ux-003-trust-validation/README.md) | Validation · confirm · undo · loading (EP-007) |
+| 74 | [MIG-001 Design Partner Migration](./74-mig-001-design-partner-migration/README.md) | Guided portfolio import UX (EP-010) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

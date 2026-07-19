@@ -17,7 +17,10 @@ import {
   type AnnouncementRecipientRecord,
   type AnnouncementRecord
 } from "../../../../lib/communication/contracts";
-import { buildAnnouncementCreatedSuccess } from "../../../../lib/workflow/shared/success-configs";
+import {
+  buildAnnouncementCreatedSuccess,
+  buildAnnouncementPublishedSuccess
+} from "../../../../lib/workflow/shared/success-configs";
 
 type AnnouncementDetailResponse = {
   announcement: AnnouncementRecord;
@@ -66,7 +69,9 @@ export default async function AnnouncementDetailPage({
   const announcementSuccess =
     from === "announcement-created"
       ? buildAnnouncementCreatedSuccess({ id: announcement.id, title: announcement.title })
-      : null;
+      : from === "announcement-published"
+        ? buildAnnouncementPublishedSuccess({ id: announcement.id, title: announcement.title })
+        : null;
 
   return (
     <AppPage

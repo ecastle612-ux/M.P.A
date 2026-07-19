@@ -20,21 +20,28 @@ export function MigrationDashboard({
         <div className="space-y-2">
           <p className="mpa-section-label text-[var(--mpa-color-brand-primary)]">Migration Center</p>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
-            Bring your portfolio into M.P.A.
+            Migration jobs
           </h1>
           <p className="max-w-2xl text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
-            Import properties, units, tenants, and more from your previous software. We&apos;ll guide you through
-            each step — upload, map columns, preview, import, and resolve any exceptions.
+            Track each import job below. Use the switching checklist above for overall go-live readiness.
           </p>
         </div>
-        {canCreate ? (
+        <div className="flex flex-wrap gap-2">
           <Link
-            href="/migration/new"
-            className="inline-flex h-9 items-center justify-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-[var(--mpa-color-text-inverse)] shadow-[var(--mpa-shadow-xs)] hover:bg-[var(--mpa-color-brand-primary-hover)]"
+            href="/residents/bulk"
+            className="inline-flex h-9 items-center justify-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 text-sm font-medium text-[var(--mpa-color-text-primary)] shadow-[var(--mpa-shadow-xs)]"
           >
-            Start new migration
+            Bulk resident ops
           </Link>
-        ) : null}
+          {canCreate ? (
+            <Link
+              href="/migration/new"
+              className="inline-flex h-9 items-center justify-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-[var(--mpa-color-text-inverse)] shadow-[var(--mpa-shadow-xs)] hover:bg-[var(--mpa-color-brand-primary-hover)]"
+            >
+              Start new migration
+            </Link>
+          ) : null}
+        </div>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
@@ -49,9 +56,23 @@ export function MigrationDashboard({
         <Card className="p-5">
           <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Recent migrations</h2>
           {metrics.recentImports.length === 0 ? (
-            <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">
-              No migrations yet. Start one to import your portfolio data.
-            </p>
+            <div className="mt-3 space-y-2 rounded-[var(--mpa-radius-md)] border border-dashed border-[var(--mpa-color-border-default)] p-4">
+              <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">
+                Ready when your export files are
+              </p>
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                Start a guided migration to bring Properties, Units, Residents, Leases, and Vendors into M.P.A. with
+                preview and rollback.
+              </p>
+              {canCreate ? (
+                <Link
+                  href="/migration/new"
+                  className="inline-flex text-sm font-semibold text-[var(--mpa-color-brand-primary)] hover:underline"
+                >
+                  Start guided migration →
+                </Link>
+              ) : null}
+            </div>
           ) : (
             <ul className="mt-3 space-y-2">
               {metrics.recentImports.map((item) => (

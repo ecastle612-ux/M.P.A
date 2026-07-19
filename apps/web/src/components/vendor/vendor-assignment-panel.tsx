@@ -9,6 +9,7 @@ import {
   type VendorAssignmentRecord
 } from "../../lib/vendor/contracts";
 import type { VendorAssignmentListItem } from "../../lib/vendor/server";
+import { rememberVendorForCategory } from "../../lib/workflow/workspace-memory";
 
 export type VendorOption = {
   id: string;
@@ -23,25 +24,19 @@ export function VendorAssignmentPanel({
   workOrderId,
   vendors,
   initialAssignments,
-  initialCurrentAssignment
+  initialCurrentAssignment,
+  workOrderCategory
 }: {
   workOrderId: string;
   vendors: VendorOption[];
   initialAssignments: VendorAssignmentListItem[];
   initialCurrentAssignment: VendorAssignmentListItem | null;
+  workOrderCategory?: string | null;
 }) {
-  const rankedVendors = useMemo(() => {
-    return [...vendors].sort((left, right) => {
-      if (left.preferredVendor !== right.preferredVendor) return left.preferredVendor ? -1 : 1;
-      if (Boolean(left.recentlyUsed) !== Boolean(right.recentlyUsed)) return left.recentlyUsed ? -1 : 1;
-      return (right.rating ?? 0) - (left.rating ?? 0);
-    });
-  }, [vendors]);
-
   const [assignments, setAssignments] = useState(initialAssignments);
   const [currentAssignment, setCurrentAssignment] = useState(initialCurrentAssignment);
   const [selectedVendorId, setSelectedVendorId] = useState(
-    initialCurrentAssignment?.vendorId ?? rankedVendors[0]?.id ?? ""
+    initialCurrentAssignment?.vendorId ?? vendors[0]?.id ?? ""
   );
   const [assignmentStatus, setAssignmentStatus] = useState(
     initialCurrentAssignment?.assignmentStatus ?? "pending"
@@ -49,6 +44,14 @@ export function VendorAssignmentPanel({
   const [completionNotes, setCompletionNotes] = useState(initialCurrentAssignment?.completionNotes ?? "");
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const rankedVendors = useMemo(() => {
+    return [...vendors].sort((left, right) => {
+      if (left.preferredVendor !== right.preferredVendor) return left.preferredVendor ? -1 : 1;
+      if (Boolean(left.recentlyUsed) !== Boolean(right.recentlyUsed)) return left.recentlyUsed ? -1 : 1;
+      return (right.rating ?? 0) - (left.rating ?? 0);
+    });
+  }, [vendors]);
 
   async function runMutation(
     action: "assign_vendor" | "reassign_vendor" | "update_vendor_status",
@@ -99,6 +102,9 @@ export function VendorAssignmentPanel({
       return;
     }
     setSelectedVendorId(nextVendorId);
+    if (workOrderCategory) {
+      rememberVendorForCategory(workOrderCategory, nextVendorId);
+    }
     await runMutation(currentAssignment ? "reassign_vendor" : "assign_vendor", { vendorId: nextVendorId });
   }
 

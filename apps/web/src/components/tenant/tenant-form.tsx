@@ -2,8 +2,21 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Avatar, Button, Card, Input, Select, Textarea } from "@mpa/ui";
+import { Button, Card, Input, Select, Textarea } from "@mpa/ui";
+import { EntityAvatarField } from "../media/entity-avatar-field";
 import { TENANT_STATUSES, toTenantStatusLabel, type TenantRecord } from "../../lib/tenant/contracts";
+import { readApiError } from "../../lib/api/client-error";
+import {
+  collectIssues,
+  validateDateOrder,
+  validateEmail,
+  validatePhone,
+  validateRequired,
+  type ValidationIssue
+} from "../../lib/trust/validation";
+import { ApiErrorAlert, ValidationAlert } from "../trust/validation-alert";
+import { OperationalStatus } from "../trust/operational-status";
+import { useSubmissionGuard } from "../../hooks/use-submission-guard";
 
 type TenantFormValues = {
   propertyId: string;
@@ -12,7 +25,7 @@ type TenantFormValues = {
   lastName: string;
   preferredName: string;
   email: string;
-  avatarUrl: string;
+  avatarMediaAssetId: string | null;
   phone: string;
   dateOfBirth: string;
   moveInDate: string;
@@ -31,7 +44,7 @@ const DEFAULT_VALUES: TenantFormValues = {
   lastName: "",
   preferredName: "",
   email: "",
-  avatarUrl: "",
+  avatarMediaAssetId: null,
   phone: "",
   dateOfBirth: "",
   moveInDate: "",
@@ -70,7 +83,7 @@ export function TenantForm({
           lastName: tenant.lastName,
           preferredName: tenant.preferredName ?? "",
           email: tenant.email,
-          avatarUrl: tenant.avatarUrl ?? "",
+          avatarMediaAssetId: tenant.avatarMediaAssetId ?? null,
           phone: tenant.phone ?? "",
           dateOfBirth: tenant.dateOfBirth ?? "",
           moveInDate: tenant.moveInDate ?? "",
@@ -94,7 +107,9 @@ export function TenantForm({
         }
   );
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [issues, setIssues] = useState<ValidationIssue[]>([]);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { busy, run } = useSubmissionGuard();
   const availableUnits = useMemo(
     () => units.filter((unitOption) => unitOption.propertyId === values.propertyId),
     [units, values.propertyId]
@@ -102,22 +117,22 @@ export function TenantForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
+    setIssues([]);
+    setApiError(null);
 
-    if (!values.firstName.trim() || !values.lastName.trim() || !values.email.trim()) {
-      setError("First name, last name, and email are required.");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
-      setError("Email must be valid.");
-      return;
-    }
-    if (values.moveInDate && values.moveOutDate && values.moveOutDate < values.moveInDate) {
-      setError("Move-out date must be on or after move-in date.");
+    const nextIssues = collectIssues(
+      validateRequired(values.firstName, "First name"),
+      validateRequired(values.lastName, "Last name"),
+      validateEmail(values.email, true),
+      validatePhone(values.phone, false),
+      validatePhone(values.emergencyContactPhone, false),
+      validateDateOrder(values.moveInDate, values.moveOutDate, "Move-in date", "Move-out date")
+    );
+    if (nextIssues.length > 0) {
+      setIssues(nextIssues);
       return;
     }
 
-    setSubmitting(true);
     const payload = {
       propertyId: values.propertyId || null,
       unitId: values.unitId || null,
@@ -125,7 +140,7 @@ export function TenantForm({
       lastName: values.lastName.trim(),
       preferredName: values.preferredName,
       email: values.email.trim(),
-      avatarUrl: values.avatarUrl,
+      avatarMediaAssetId: values.avatarMediaAssetId,
       phone: values.phone,
       dateOfBirth: values.dateOfBirth,
       moveInDate: values.moveInDate || (values.unitId ? new Date().toISOString().slice(0, 10) : ""),
@@ -137,32 +152,35 @@ export function TenantForm({
       status: values.status
     };
 
-    const response = await fetch(mode === "create" ? "/api/tenants" : `/api/tenants/${tenant?.id ?? ""}`, {
-      method: mode === "create" ? "POST" : "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mode === "create" ? payload : { action: "update", ...payload })
-    });
-    setSubmitting(false);
+    await run(`tenant:${mode}:${values.email}`, async () => {
+      setSubmitting(true);
+      const response = await fetch(mode === "create" ? "/api/tenants" : `/api/tenants/${tenant?.id ?? ""}`, {
+        method: mode === "create" ? "POST" : "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mode === "create" ? payload : { action: "update", ...payload })
+      });
+      setSubmitting(false);
 
-    if (!response.ok) {
-      const failure = (await response.json()) as { error?: string };
-      setError(failure.error ?? "Unable to save tenant.");
-      return;
-    }
-
-    const success = (await response.json()) as { tenant?: TenantRecord };
-    const savedId = success.tenant?.id ?? tenant?.id;
-    if (savedId) {
-      if (setupMode) {
-        router.push("/setup");
-      } else {
-        router.push(`/tenants/${savedId}?from=tenant-created`);
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({}));
+        setApiError(readApiError(failure, "Unable to save resident. Check contact details and try again."));
+        return;
       }
+
+      const success = (await response.json()) as { tenant?: TenantRecord };
+      const savedId = success.tenant?.id ?? tenant?.id;
+      if (savedId) {
+        if (setupMode) {
+          router.push("/setup");
+        } else {
+          router.push(`/tenants/${savedId}?from=tenant-created`);
+        }
+        router.refresh();
+        return;
+      }
+      router.push("/tenants");
       router.refresh();
-      return;
-    }
-    router.push("/tenants");
-    router.refresh();
+    });
   }
 
   return (
@@ -182,64 +200,60 @@ export function TenantForm({
           </p>
         ) : null}
 
-        <Card className="border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)] p-4">
-          <div className="flex items-center gap-3">
-            <Avatar src={values.avatarUrl || undefined} fallback={`${values.firstName[0] ?? "T"}${values.lastName[0] ?? ""}`} />
-            <div>
-              <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Tenant avatar placeholder</p>
-              <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                Optional photo URL for faster visual scanning in future workflow surfaces.
-              </p>
-            </div>
-          </div>
-          <Input
-            aria-label="Avatar URL"
-            placeholder="https://..."
-            className="mt-3"
-            value={values.avatarUrl}
-            onChange={(event) => setValues((current) => ({ ...current, avatarUrl: event.target.value }))}
-          />
-        </Card>
+        <EntityAvatarField
+          label="Resident photo"
+          initials={`${values.firstName[0] ?? "T"}${values.lastName[0] ?? "R"}`}
+          avatarMediaAssetId={values.avatarMediaAssetId}
+          onMediaChange={(avatarMediaAssetId) => setValues((current) => ({ ...current, avatarMediaAssetId }))}
+        />
 
         <div className="grid gap-3 md:grid-cols-2">
-          <Select
-            aria-label="Assigned property"
-            value={values.propertyId}
-            onChange={(event) => {
-              const nextPropertyId = event.target.value;
-              const nextUnits = units.filter((unitOption) => unitOption.propertyId === nextPropertyId);
-              setValues((current) => ({
-                ...current,
-                propertyId: nextPropertyId,
-                unitId: nextUnits.some((unitOption) => unitOption.id === current.unitId) ? current.unitId : ""
-              }));
-            }}
-          >
-            <option value="">No property assigned</option>
-            {properties.map((propertyOption) => (
-              <option key={propertyOption.id} value={propertyOption.id}>
-                {propertyOption.name}
-              </option>
-            ))}
-          </Select>
-          <Select
-            aria-label="Assigned unit"
-            value={values.unitId}
-            onChange={(event) => setValues((current) => ({ ...current, unitId: event.target.value }))}
-            disabled={!values.propertyId}
-          >
-            <option value="">{values.propertyId ? "No unit assigned" : "Select property first"}</option>
-            {availableUnits.map((unitOption) => (
-              <option key={unitOption.id} value={unitOption.id}>
-                {unitOption.unitLabel
-                  ? `${unitOption.unitNumber} — ${unitOption.unitLabel}`
-                  : unitOption.unitNumber}
-              </option>
-            ))}
-          </Select>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Assigned property</span>
+            <Select
+              aria-label="Assigned property"
+              value={values.propertyId}
+              onChange={(event) => {
+                const nextPropertyId = event.target.value;
+                const nextUnits = units.filter((unitOption) => unitOption.propertyId === nextPropertyId);
+                setValues((current) => ({
+                  ...current,
+                  propertyId: nextPropertyId,
+                  unitId: nextUnits.some((unitOption) => unitOption.id === current.unitId) ? current.unitId : ""
+                }));
+              }}
+            >
+              <option value="">No property assigned</option>
+              {properties.map((propertyOption) => (
+                <option key={propertyOption.id} value={propertyOption.id}>
+                  {propertyOption.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Assigned unit</span>
+            <Select
+              aria-label="Assigned unit"
+              value={values.unitId}
+              onChange={(event) => setValues((current) => ({ ...current, unitId: event.target.value }))}
+              disabled={!values.propertyId}
+            >
+              <option value="">{values.propertyId ? "No unit assigned" : "Select property first"}</option>
+              {availableUnits.map((unitOption) => (
+                <option key={unitOption.id} value={unitOption.id}>
+                  {unitOption.unitLabel
+                    ? `${unitOption.unitNumber} — ${unitOption.unitLabel}`
+                    : unitOption.unitNumber}
+                </option>
+              ))}
+            </Select>
+          </label>
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">First name</span>
           <Input
             aria-label="First name"
             placeholder="First name"
@@ -248,6 +262,9 @@ export function TenantForm({
             autoFocus={mode === "create"}
             required
           />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Last name</span>
           <Input
             aria-label="Last name"
             placeholder="Last name"
@@ -255,12 +272,18 @@ export function TenantForm({
             onChange={(event) => setValues((current) => ({ ...current, lastName: event.target.value }))}
             required
           />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Preferred name</span>
           <Input
             aria-label="Preferred name"
             placeholder="Preferred name"
             value={values.preferredName}
             onChange={(event) => setValues((current) => ({ ...current, preferredName: event.target.value }))}
           />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Email</span>
           <Input
             aria-label="Email"
             placeholder="Email"
@@ -269,80 +292,102 @@ export function TenantForm({
             onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
             required
           />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Phone</span>
           <Input
             aria-label="Phone"
             placeholder="Phone"
             value={values.phone}
             onChange={(event) => setValues((current) => ({ ...current, phone: event.target.value }))}
           />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Date of birth</span>
           <Input
             aria-label="Date of birth"
             type="date"
             value={values.dateOfBirth}
             onChange={(event) => setValues((current) => ({ ...current, dateOfBirth: event.target.value }))}
           />
-          <Input
-            aria-label="Move-in date"
-            type="date"
-            value={values.moveInDate}
-            onChange={(event) => setValues((current) => ({ ...current, moveInDate: event.target.value }))}
-          />
-          <Input
-            aria-label="Move-out date"
-            type="date"
-            value={values.moveOutDate}
-            onChange={(event) => setValues((current) => ({ ...current, moveOutDate: event.target.value }))}
-          />
-          <Input
-            aria-label="Emergency contact name"
-            placeholder="Emergency contact name"
-            value={values.emergencyContactName}
-            onChange={(event) => setValues((current) => ({ ...current, emergencyContactName: event.target.value }))}
-          />
-          <Input
-            aria-label="Emergency contact phone"
-            placeholder="Emergency contact phone"
-            value={values.emergencyContactPhone}
-            onChange={(event) => setValues((current) => ({ ...current, emergencyContactPhone: event.target.value }))}
-          />
-          <Select
-            aria-label="Status"
-            value={values.status}
-            onChange={(event) =>
-              setValues((current) => ({ ...current, status: event.target.value as TenantRecord["status"] }))
-            }
-          >
-            {TENANT_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {toTenantStatusLabel(status)}
-              </option>
-            ))}
-          </Select>
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Move-in date</span>
+            <Input
+              aria-label="Move-in date"
+              type="date"
+              value={values.moveInDate}
+              onChange={(event) => setValues((current) => ({ ...current, moveInDate: event.target.value }))}
+            />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Move-out date</span>
+            <Input
+              aria-label="Move-out date"
+              type="date"
+              value={values.moveOutDate}
+              onChange={(event) => setValues((current) => ({ ...current, moveOutDate: event.target.value }))}
+            />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Emergency contact name</span>
+            <Input
+              aria-label="Emergency contact name"
+              value={values.emergencyContactName}
+              onChange={(event) => setValues((current) => ({ ...current, emergencyContactName: event.target.value }))}
+            />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Emergency contact phone</span>
+            <Input
+              aria-label="Emergency contact phone"
+              value={values.emergencyContactPhone}
+              onChange={(event) => setValues((current) => ({ ...current, emergencyContactPhone: event.target.value }))}
+            />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Status</span>
+            <Select
+              aria-label="Status"
+              value={values.status}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, status: event.target.value as TenantRecord["status"] }))
+              }
+            >
+              {TENANT_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {toTenantStatusLabel(status)}
+                </option>
+              ))}
+            </Select>
+          </label>
         </div>
 
-        <Textarea
-          aria-label="Notes"
-          placeholder="Notes"
-          rows={4}
-          value={values.notes}
-          onChange={(event) => setValues((current) => ({ ...current, notes: event.target.value }))}
-        />
-        <Textarea
-          aria-label="Documents placeholder"
-          placeholder="Documents placeholder (e.g., ID pending, lease packet pending)"
-          rows={3}
-          value={values.documentsPlaceholder}
-          onChange={(event) => setValues((current) => ({ ...current, documentsPlaceholder: event.target.value }))}
-        />
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Notes</span>
+          <Textarea
+            aria-label="Notes"
+            rows={4}
+            value={values.notes}
+            onChange={(event) => setValues((current) => ({ ...current, notes: event.target.value }))}
+          />
+        </label>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Documents notes</span>
+          <Textarea
+            aria-label="Documents notes"
+            rows={3}
+            value={values.documentsPlaceholder}
+            onChange={(event) => setValues((current) => ({ ...current, documentsPlaceholder: event.target.value }))}
+          />
+        </label>
 
-        {error ? (
-          <p className="text-sm text-[var(--mpa-color-feedback-error)]" role="alert" aria-live="assertive">
-            {error}
-          </p>
-        ) : null}
+        <ValidationAlert issues={issues} />
+        {apiError ? <ApiErrorAlert message={apiError} /> : null}
+        {submitting || busy ? <OperationalStatus message="Saving resident…" /> : null}
 
         <div className="flex flex-wrap gap-2">
-          <Button type="submit" disabled={submitting}>
+          <Button type="submit" disabled={submitting || busy}>
             {submitting ? "Saving..." : mode === "create" ? "Create Tenant" : "Save Tenant"}
           </Button>
           <Button type="button" variant="secondary" onClick={() => router.push("/tenants")}>

@@ -19,6 +19,7 @@ export * from "./primitives/tabs";
 export * from "./primitives/toast";
 export * from "./primitives/skeleton";
 export * from "./primitives/spinner";
+export * from "./primitives/progress";
 
 export * from "./components/command-palette-shell";
 export * from "./components/empty-state";

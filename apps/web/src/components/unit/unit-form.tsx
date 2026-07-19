@@ -9,6 +9,17 @@ import {
   toUnitOccupancyLabel,
   type UnitRecord
 } from "../../lib/unit/contracts";
+import { readApiError } from "../../lib/api/client-error";
+import {
+  collectIssues,
+  validateDuplicateValue,
+  validateRequired,
+  type ValidationIssue
+} from "../../lib/trust/validation";
+import { getWorkspaceMemory, rememberPropertyContext, resolveContextId } from "../../lib/workflow/workspace-memory";
+import { ApiErrorAlert, ValidationAlert } from "../trust/validation-alert";
+import { OperationalStatus } from "../trust/operational-status";
+import { useSubmissionGuard } from "../../hooks/use-submission-guard";
 
 type UnitFormValues = {
   propertyId: string;
@@ -44,12 +55,15 @@ export function UnitForm({
   mode,
   unit,
   properties,
-  initialPropertyId
+  initialPropertyId,
+  existingUnitNumbers = []
 }: {
   mode: "create" | "edit";
   unit?: UnitRecord | null;
   properties: Array<{ id: string; name: string }>;
   initialPropertyId?: string | null;
+  /** Unit numbers already on the selected property (create-mode duplicate check). */
+  existingUnitNumbers?: string[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -70,26 +84,39 @@ export function UnitForm({
           occupancyStatus: unit.occupancyStatus,
           status: unit.status
         }
-      : {
-          ...DEFAULT_VALUES,
-          propertyId:
-            (initialPropertyId && properties.some((propertyOption) => propertyOption.id === initialPropertyId)
-              ? initialPropertyId
-              : null) ??
-            properties[0]?.id ??
-            ""
-        }
+      : (() => {
+          const memory = typeof window !== "undefined" ? getWorkspaceMemory() : null;
+          return {
+            ...DEFAULT_VALUES,
+            propertyId: resolveContextId(
+              initialPropertyId,
+              memory?.propertyId,
+              properties.map((propertyOption) => propertyOption.id)
+            )
+          };
+        })()
   );
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [issues, setIssues] = useState<ValidationIssue[]>([]);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { busy, run } = useSubmissionGuard();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
-    if (!values.propertyId || !values.unitNumber.trim()) {
-      setError("Property and unit number are required.");
-      return;
-    }
+    setIssues([]);
+    setApiError(null);
+    const nextIssues = collectIssues(
+      validateRequired(values.propertyId, "Property"),
+      validateRequired(values.unitNumber, "Unit number"),
+      mode === "create"
+        ? validateDuplicateValue(
+            values.unitNumber,
+            existingUnitNumbers,
+            "Unit number",
+            "Choose a different unit number for this property."
+          )
+        : null
+    );
     const numericFields = [
       ["Bedrooms", values.bedrooms],
       ["Bathrooms", values.bathrooms],
@@ -101,12 +128,19 @@ export function UnitForm({
       if (!value.trim()) continue;
       const parsed = Number.parseFloat(value);
       if (!Number.isFinite(parsed) || parsed < 0) {
-        setError(`${label} must be zero or greater.`);
-        return;
+        nextIssues.push({
+          field: label,
+          what: `${label} can’t be negative.`,
+          why: "Unit specs and rent must stay accurate for leasing and reporting.",
+          howToFix: `Enter a ${label.toLowerCase()} of 0 or greater, or leave it blank.`
+        });
       }
     }
+    if (nextIssues.length > 0) {
+      setIssues(nextIssues);
+      return;
+    }
 
-    setSubmitting(true);
     const payload = {
       propertyId: values.propertyId,
       unitNumber: values.unitNumber.trim(),
@@ -122,35 +156,39 @@ export function UnitForm({
       status: values.status
     };
 
-    const response = await fetch(mode === "create" ? "/api/units" : `/api/units/${unit?.id ?? ""}`, {
-      method: mode === "create" ? "POST" : "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mode === "create" ? payload : { action: "update", ...payload })
-    });
-    setSubmitting(false);
-    if (!response.ok) {
-      const failure = (await response.json()) as { error?: string };
-      setError(failure.error ?? "Unable to save unit.");
-      return;
-    }
-
-    const success = (await response.json()) as { unit?: UnitRecord };
-    const savedId = success.unit?.id ?? unit?.id;
-    if (savedId) {
-      if (mode === "create") {
-        if (setupMode) {
-          router.push("/setup");
-        } else {
-          router.push(`/units/${savedId}?from=unit-created`);
-        }
-      } else {
-        router.push(`/units/${savedId}`);
+    await run(`unit:${mode}:${values.propertyId}:${values.unitNumber}`, async () => {
+      setSubmitting(true);
+      rememberPropertyContext({ propertyId: values.propertyId });
+      const response = await fetch(mode === "create" ? "/api/units" : `/api/units/${unit?.id ?? ""}`, {
+        method: mode === "create" ? "POST" : "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mode === "create" ? payload : { action: "update", ...payload })
+      });
+      setSubmitting(false);
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({}));
+        setApiError(readApiError(failure, "Unable to save unit. Check the unit number and try again."));
+        return;
       }
+
+      const success = (await response.json()) as { unit?: UnitRecord };
+      const savedId = success.unit?.id ?? unit?.id;
+      if (savedId) {
+        if (mode === "create") {
+          if (setupMode) {
+            router.push("/setup");
+          } else {
+            router.push(`/units/${savedId}?from=unit-created`);
+          }
+        } else {
+          router.push(`/units/${savedId}`);
+        }
+        router.refresh();
+        return;
+      }
+      router.push("/units");
       router.refresh();
-      return;
-    }
-    router.push("/units");
-    router.refresh();
+    });
   }
 
   return (
@@ -274,14 +312,12 @@ export function UnitForm({
           </Select>
         </div>
 
-        {error ? (
-          <p className="text-sm text-[var(--mpa-color-feedback-error)]" role="alert" aria-live="assertive">
-            {error}
-          </p>
-        ) : null}
+        <ValidationAlert issues={issues} />
+        {apiError ? <ApiErrorAlert message={apiError} /> : null}
+        {submitting || busy ? <OperationalStatus message="Saving unit…" /> : null}
 
         <div className="flex flex-wrap gap-2">
-          <Button type="submit" disabled={submitting}>
+          <Button type="submit" disabled={submitting || busy}>
             {submitting ? "Saving..." : mode === "create" ? "Create Unit" : "Save Unit"}
           </Button>
           <Button type="button" variant="secondary" onClick={() => router.push("/units")}>

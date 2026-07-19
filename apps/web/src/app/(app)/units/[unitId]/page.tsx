@@ -3,12 +3,23 @@ import { redirect } from "next/navigation";
 import { Badge, Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
 import { AppPage } from "../../../../components/presentation/app-page";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
+import {
+  SmartSuggestions,
+  vacantUnitSuggestions
+} from "../../../../components/workflow/smart-suggestions";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { getPropertiesForOrganization } from "../../../../lib/property/server";
 import { getUnitForOrganization } from "../../../../lib/unit/server";
 import { toUnitOccupancyLabel, toUnitStatusLabel } from "../../../../lib/unit/contracts";
+import { RepairHistoryPanel } from "../../../../components/facility/repair-history-panel";
+import { PropertyTimeline } from "../../../../components/facility/property-timeline";
+import { AssetsPanel } from "../../../../components/facility/assets-panel";
+import { isTimelineFilter } from "../../../../lib/facility/contracts";
+import { listFacilityAssets } from "../../../../lib/facility/asset-server";
+import { listFacilityRecords } from "../../../../lib/facility/server";
+import { listFacilityTimelineEvents } from "../../../../lib/facility/timeline";
 import { getPortfolioCounts } from "../../../../lib/workflow/server/portfolio-counts";
 import { buildUnitCreatedSuccess } from "../../../../lib/workflow/shared/success-configs";
 
@@ -17,10 +28,11 @@ export default async function UnitDetailPage({
   searchParams
 }: {
   params: Promise<{ unitId: string }>;
-  searchParams: Promise<{ from?: string }>;
+  searchParams: Promise<{ from?: string; tlFilter?: string; tlQ?: string }>;
 }) {
   const { unitId } = await params;
-  const { from } = await searchParams;
+  const { from, tlFilter, tlQ } = await searchParams;
+  const timelineFilter = isTimelineFilter(tlFilter) ? tlFilter : "all";
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -47,6 +59,25 @@ export default async function UnitDetailPage({
   const canUpdateUnit = evaluatePermission(authorization, "unit:update");
   const canReadTenant = evaluatePermission(authorization, "tenant:read");
   const canCreateTenant = evaluatePermission(authorization, "tenant:create");
+  const canReadMaintenance = evaluatePermission(authorization, "maintenance:read");
+  const [repairHistory, unitTimeline, unitAssets] = canReadMaintenance
+    ? await Promise.all([
+        listFacilityRecords(organizationId, { unitId: unit.id, limit: 50 }, supabase),
+        listFacilityTimelineEvents(
+          organizationId,
+          {
+            propertyId: unit.propertyId,
+            unitId: unit.id,
+            includePropertyWide: true,
+            filter: timelineFilter,
+            search: tlQ,
+            limit: 40
+          },
+          supabase
+        ),
+        listFacilityAssets(organizationId, { unitId: unit.id, limit: 100 }, supabase)
+      ])
+    : [[], [], []];
 
   const { data: assignedTenant, error: assignedTenantError } = canReadTenant
     ? await supabase
@@ -105,6 +136,14 @@ export default async function UnitDetailPage({
     >
       {unitSuccess ? <WorkflowSuccessBanner dismissPath={`/units/${unitId}`} {...unitSuccess} /> : null}
 
+      {unit.occupancyStatus !== "occupied" ? (
+        <SmartSuggestions
+          title="Suggested actions"
+          description="Launch the next existing workflow for this vacant unit."
+          suggestions={vacantUnitSuggestions({ propertyId: unit.propertyId, unitId: unit.id })}
+        />
+      ) : null}
+
       <DetailHero
         title={`Unit ${unit.unitNumber}`}
         subtitle={propertyName}
@@ -132,9 +171,11 @@ export default async function UnitDetailPage({
                 <Button>Edit Unit</Button>
               </Link>
             ) : null}
-            {canCreateTenant ? (
-              <Link href={`/tenants/new?propertyId=${unit.propertyId}&unitId=${unit.id}`}>
-                <Button variant="secondary">Assign Tenant</Button>
+            {canCreateTenant && unit.occupancyStatus !== "occupied" ? (
+              <Link
+                href={`/residents/move-in?propertyId=${encodeURIComponent(unit.propertyId)}&unitId=${encodeURIComponent(unit.id)}`}
+              >
+                <Button variant="secondary">Move In Resident</Button>
               </Link>
             ) : null}
             {assignedTenant && canReadTenant ? (
@@ -172,6 +213,33 @@ export default async function UnitDetailPage({
           </Link>
         </div>
       </Card>
+
+      {canReadMaintenance ? (
+        <>
+          <RepairHistoryPanel
+            title="Repair history"
+            description="Permanent facility records for this unit, including linked work orders and timeline references."
+            records={repairHistory}
+            emptyLabel="No completed repairs for this unit yet."
+            showUnit={false}
+          />
+          <AssetsPanel
+            propertyId={unit.propertyId}
+            unitId={unit.id}
+            assets={unitAssets}
+            canCreate={evaluatePermission(authorization, "maintenance:update")}
+            title="Unit assets"
+            description="Assets assigned to this unit only. Property-wide and common-area assets appear on the property."
+          />
+          <PropertyTimeline
+            events={unitTimeline}
+            propertyName={`Unit ${unit.unitNumber}`}
+            initialFilter={timelineFilter}
+            initialSearch={tlQ ?? ""}
+            emptyLabel="No unit timeline events yet — repairs, residents, and leases will appear here."
+          />
+        </>
+      ) : null}
     </AppPage>
   );
 }

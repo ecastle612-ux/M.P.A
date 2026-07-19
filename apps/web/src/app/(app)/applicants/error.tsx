@@ -1,21 +1,19 @@
 "use client";
 
-import { Button, Card } from "@mpa/ui";
+import { ModuleSegmentError } from "../../../components/trust/module-segment-error";
 
-export default function ApplicantsError({ error, reset }: { error: Error; reset: () => void }) {
+export default function ModuleError({
+  error,
+  reset
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   return (
-    <main className="mpa-page">
-      <Card className="max-w-xl">
-        <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Applicant workspace unavailable
-        </h2>
-        <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          {error.message || "Unable to load applicant operations."}
-        </p>
-        <Button className="mt-4" onClick={reset}>
-          Retry
-        </Button>
-      </Card>
-    </main>
+    <ModuleSegmentError
+      title="Applicants unavailable"
+      error={error}
+      reset={reset}
+    />
   );
 }

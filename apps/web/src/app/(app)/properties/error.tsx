@@ -1,27 +1,19 @@
 "use client";
 
-import { Button, Card } from "@mpa/ui";
+import { ModuleSegmentError } from "../../../components/trust/module-segment-error";
 
-export default function PropertiesError({
+export default function ModuleError({
   error,
   reset
 }: {
-  error: Error;
+  error: Error & { digest?: string };
   reset: () => void;
 }) {
   return (
-    <main className="mpa-page">
-      <Card className="max-w-xl">
-        <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Property workflow unavailable
-        </h2>
-        <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          {error.message || "Unable to load property operations."}
-        </p>
-        <Button className="mt-4" onClick={reset}>
-          Retry
-        </Button>
-      </Card>
-    </main>
+    <ModuleSegmentError
+      title="Properties unavailable"
+      error={error}
+      reset={reset}
+    />
   );
 }

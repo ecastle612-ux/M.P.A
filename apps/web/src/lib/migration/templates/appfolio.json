@@ -23,23 +23,23 @@
     },
     "tenant": {
       "columnMap": {
-        "firstName": ["Tenant First Name"],
-        "lastName": ["Tenant Last Name"],
-        "email": ["Tenant Email"],
-        "phone": ["Tenant Phone"],
-        "propertyName": ["Property Name"],
-        "unitNumber": ["Unit"]
+        "firstName": ["Tenant First Name", "First Name", "Resident First Name", "Resident Name"],
+        "lastName": ["Tenant Last Name", "Last Name", "Resident Last Name"],
+        "email": ["Tenant Email", "Email", "Email Address", "Resident Email"],
+        "phone": ["Tenant Phone", "Phone", "Phone Number", "Mobile"],
+        "propertyName": ["Property Name", "Property", "Building Name"],
+        "unitNumber": ["Unit", "Unit Number", "Unit #"]
       }
     },
     "lease": {
       "columnMap": {
-        "leaseNumber": ["Lease ID"],
-        "propertyName": ["Property Name"],
-        "unitNumber": ["Unit"],
-        "tenantEmail": ["Tenant Email"],
-        "startDate": ["Lease From"],
-        "endDate": ["Lease To"],
-        "rentAmount": ["Rent"]
+        "leaseNumber": ["Lease ID", "Lease Number", "Lease #"],
+        "propertyName": ["Property Name", "Property"],
+        "unitNumber": ["Unit", "Unit Number"],
+        "tenantEmail": ["Tenant Email", "Email", "Email Address"],
+        "startDate": ["Lease From", "Lease Start", "Start Date", "Move In"],
+        "endDate": ["Lease To", "Lease End", "End Date"],
+        "rentAmount": ["Rent", "Monthly Rent"]
       }
     },
     "vendor": {

@@ -9,6 +9,10 @@ import { MaintenanceActivityTimeline } from "../../../../components/maintenance/
 import { WorkOrderWorkflowPanel } from "../../../../components/maintenance/work-order-workflow-panel";
 import { VendorAssignmentPanel } from "../../../../components/vendor/vendor-assignment-panel";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
+import {
+  completedWorkOrderSuggestions,
+  SmartSuggestions
+} from "../../../../components/workflow/smart-suggestions";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
@@ -16,8 +20,12 @@ import { toMaintenanceCategoryLabel } from "../../../../lib/maintenance/contract
 import { getActivityForWorkOrder, getAssigneesForOrganization, getWorkOrderForOrganization } from "../../../../lib/maintenance/server";
 import { getThreadBySourceEntity } from "../../../../lib/messaging/server";
 import { MaintenanceConversationPanel } from "../../../../components/messaging/maintenance-conversation-panel";
+import { getFacilityRecordByWorkOrderId } from "../../../../lib/facility/server";
 import { getVendorAssignmentsForWorkOrder, getVendorsForOrganization } from "../../../../lib/vendor/server";
-import { buildWorkOrderCreatedSuccess } from "../../../../lib/workflow/shared/success-configs";
+import {
+  buildWorkOrderCompletedSuccess,
+  buildWorkOrderCreatedSuccess
+} from "../../../../lib/workflow/shared/success-configs";
 
 export default async function WorkOrderDetailPage({
   params,
@@ -48,14 +56,20 @@ export default async function WorkOrderDetailPage({
 
   const canAssignVendor = evaluatePermission(authorization, "vendor:assign");
 
-  const [workOrder, activity, assignees, vendorAssignments, vendors, maintenanceThread] = await Promise.all([
-    getWorkOrderForOrganization(organizationId, workOrderId, supabase),
-    getActivityForWorkOrder(organizationId, workOrderId, supabase),
-    getAssigneesForOrganization(organizationId, supabase),
-    canAssignVendor ? getVendorAssignmentsForWorkOrder(organizationId, workOrderId, supabase) : Promise.resolve([]),
-    canAssignVendor ? getVendorsForOrganization(organizationId, { status: "active" }, supabase) : Promise.resolve([]),
-    getThreadBySourceEntity(organizationId, "maintenance", workOrderId, supabase)
-  ]);
+  const [workOrder, activity, assignees, vendorAssignments, vendors, maintenanceThread, facilityRecord] =
+    await Promise.all([
+      getWorkOrderForOrganization(organizationId, workOrderId, supabase),
+      getActivityForWorkOrder(organizationId, workOrderId, supabase),
+      getAssigneesForOrganization(organizationId, supabase),
+      canAssignVendor
+        ? getVendorAssignmentsForWorkOrder(organizationId, workOrderId, supabase)
+        : Promise.resolve([]),
+      canAssignVendor
+        ? getVendorsForOrganization(organizationId, { status: "active" }, supabase)
+        : Promise.resolve([]),
+      getThreadBySourceEntity(organizationId, "maintenance", workOrderId, supabase),
+      getFacilityRecordByWorkOrderId(organizationId, workOrderId, supabase)
+    ]);
 
   if (!workOrder) {
     redirect("/maintenance");
@@ -121,7 +135,13 @@ export default async function WorkOrderDetailPage({
           unitId: workOrder.unitId,
           tenantId: workOrder.tenantId
         })
-      : null;
+      : from === "work-order-completed"
+        ? buildWorkOrderCompletedSuccess({
+            id: workOrder.id,
+            workOrderNumber: workOrder.workOrderNumber,
+            propertyId: workOrder.propertyId
+          })
+        : null;
 
   const relatedHistory = (
     (relatedHistoryRows ?? []) as Array<{ id: string; work_order_number: string; title: string }>
@@ -185,10 +205,15 @@ export default async function WorkOrderDetailPage({
           }
           actions={
             <>
+              {facilityRecord ? (
+                <Link href={`/facility/records/${facilityRecord.id}`}>
+                  <Button>View Facility Record</Button>
+                </Link>
+              ) : null}
               {(canUpdate || canAssignVendor) &&
               (workOrder.status === "submitted" || workOrder.status === "triaged") ? (
                 <Link href="#vendor">
-                  <Button>Assign Vendor</Button>
+                  <Button variant={facilityRecord ? "secondary" : "primary"}>Assign Vendor</Button>
                 </Link>
               ) : null}
               {canUpdate || canAssign ? (
@@ -205,6 +230,18 @@ export default async function WorkOrderDetailPage({
       }
       main={
         <>
+          {workOrder.status === "completed" ? (
+            <SmartSuggestions
+              title="Suggested actions"
+              description="Continue with existing post-completion workflows."
+              suggestions={completedWorkOrderSuggestions({
+                workOrderId: workOrder.id,
+                propertyId: workOrder.propertyId,
+                unitId: workOrder.unitId,
+                facilityRecordHref: facilityRecord ? `/facility/records/${facilityRecord.id}` : null
+              })}
+            />
+          ) : null}
           {(canUpdate || canAssign || canAssignVendor) &&
           workOrder.status !== "cancelled" ? (
             <WorkOrderWorkflowPanel
@@ -284,6 +321,7 @@ export default async function WorkOrderDetailPage({
                 vendors={vendorOptions}
                 initialAssignments={vendorAssignments}
                 initialCurrentAssignment={currentVendorAssignment}
+                workOrderCategory={workOrder.category}
               />
             </div>
           ) : null}

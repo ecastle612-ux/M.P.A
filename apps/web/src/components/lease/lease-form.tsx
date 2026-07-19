@@ -8,6 +8,20 @@ import {
   toLeaseTypeLabel,
   type LeaseRecord
 } from "../../lib/lease/contracts";
+import { readApiError } from "../../lib/api/client-error";
+import {
+  collectIssues,
+  validateDateOrder,
+  validateDuplicateValue,
+  validateNonNegativeMoney,
+  validateRequired,
+  type ValidationIssue
+} from "../../lib/trust/validation";
+import { suggestLeaseDateDefaults, suggestLeaseNumber } from "../../lib/workflow/category-suggest";
+import { getWorkspaceMemory, rememberPropertyContext, resolveContextId } from "../../lib/workflow/workspace-memory";
+import { ApiErrorAlert, ValidationAlert } from "../trust/validation-alert";
+import { OperationalStatus } from "../trust/operational-status";
+import { useSubmissionGuard } from "../../hooks/use-submission-guard";
 
 type LeaseFormValues = {
   leaseNumber: string;
@@ -76,7 +90,9 @@ export function LeaseForm({
   tenants,
   initialPropertyId,
   initialUnitId,
-  initialTenantId
+  initialTenantId,
+  screeningCaseId = null,
+  existingLeaseNumbers = []
 }: {
   mode: "create" | "edit";
   lease?: LeaseRecord | null;
@@ -86,31 +102,48 @@ export function LeaseForm({
   initialPropertyId?: string | null;
   initialUnitId?: string | null;
   initialTenantId?: string | null;
+  screeningCaseId?: string | null;
+  existingLeaseNumbers?: string[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setupMode = searchParams.get("setup") === "1";
-  const [values, setValues] = useState<LeaseFormValues>(() =>
-    lease
-      ? toFormValues(lease)
-      : {
-          ...DEFAULT_VALUES,
-          propertyId:
-            (initialPropertyId && properties.some((propertyOption) => propertyOption.id === initialPropertyId)
-              ? initialPropertyId
-              : null) ??
-            properties[0]?.id ??
-            "",
-          unitId:
-            initialUnitId && units.some((unitOption) => unitOption.id === initialUnitId) ? initialUnitId : "",
-          primaryTenantId:
-            initialTenantId && tenants.some((tenantOption) => tenantOption.id === initialTenantId)
-              ? initialTenantId
-              : ""
-        }
-  );
+  const [values, setValues] = useState<LeaseFormValues>(() => {
+    if (lease) return toFormValues(lease);
+    const memory = typeof window !== "undefined" ? getWorkspaceMemory() : null;
+    const propertyIds = properties.map((p) => p.id);
+    const propertyId = resolveContextId(initialPropertyId, memory?.propertyId, propertyIds);
+    const unitIds = units.filter((u) => u.propertyId === propertyId).map((u) => u.id);
+    const unitId = resolveContextId(initialUnitId, memory?.unitId, unitIds, false);
+    const tenantForUnit = unitId
+      ? tenants.find((t) => t.unitId === unitId && (!t.propertyId || t.propertyId === propertyId))
+      : null;
+    const tenantIds = tenants
+      .filter((t) => (!t.propertyId || t.propertyId === propertyId) && (!unitId || !t.unitId || t.unitId === unitId))
+      .map((t) => t.id);
+    const primaryTenantId = resolveContextId(
+      initialTenantId ?? tenantForUnit?.id,
+      memory?.tenantId,
+      tenantIds,
+      Boolean(tenantForUnit)
+    );
+    const dates = suggestLeaseDateDefaults();
+    const propertyName = properties.find((p) => p.id === propertyId)?.name;
+    return {
+      ...DEFAULT_VALUES,
+      propertyId,
+      unitId,
+      primaryTenantId: primaryTenantId || tenantForUnit?.id || "",
+      leaseNumber: suggestLeaseNumber(propertyName),
+      startDate: dates.startDate,
+      endDate: dates.endDate,
+      moveInDate: dates.startDate
+    };
+  });
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [issues, setIssues] = useState<ValidationIssue[]>([]);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { busy, run } = useSubmissionGuard();
 
   const availableUnits = useMemo(
     () => units.filter((unitOption) => unitOption.propertyId === values.propertyId),
@@ -122,52 +155,57 @@ export function LeaseForm({
       tenants.filter((tenantOption) => {
         if (!values.propertyId) return true;
         if (!tenantOption.propertyId) return true;
+        if (values.unitId && tenantOption.unitId && tenantOption.unitId !== values.unitId) return false;
         return tenantOption.propertyId === values.propertyId;
       }),
-    [tenants, values.propertyId]
+    [tenants, values.propertyId, values.unitId]
   );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
+    setIssues([]);
+    setApiError(null);
 
-    if (!values.propertyId || !values.unitId || !values.primaryTenantId) {
-      setError("Property, unit, and tenant are required.");
-      return;
+    const nextIssues = collectIssues(
+      validateRequired(values.propertyId, "Property"),
+      validateRequired(values.unitId, "Unit"),
+      validateRequired(values.primaryTenantId, "Primary tenant"),
+      validateRequired(values.startDate, "Start date"),
+      validateRequired(values.endDate, "End date"),
+      validateDateOrder(values.startDate, values.endDate, "Start date", "End date"),
+      validateDateOrder(values.moveInDate, values.moveOutDate, "Move-in date", "Move-out date"),
+      validateNonNegativeMoney(values.rentAmount, "Rent amount", true),
+      values.securityDeposit.trim()
+        ? validateNonNegativeMoney(values.securityDeposit, "Security deposit", true)
+        : null,
+      mode === "create" && values.leaseNumber.trim()
+        ? validateDuplicateValue(
+            values.leaseNumber,
+            existingLeaseNumbers,
+            "Lease number",
+            "Use a unique lease number or leave it blank to auto-generate."
+          )
+        : null
+    );
+    if (values.noticePeriodDays.trim()) {
+      const notice = Number(values.noticePeriodDays);
+      if (!Number.isFinite(notice) || notice < 0) {
+        nextIssues.push({
+          field: "Notice period",
+          what: "Notice period days is invalid.",
+          why: "Notice periods drive renewal and move-out timelines.",
+          howToFix: "Enter a whole number of days that is zero or greater, or leave blank."
+        });
+      }
     }
-    if (!values.startDate || !values.endDate) {
-      setError("Start date and end date are required.");
-      return;
-    }
-    if (values.endDate < values.startDate) {
-      setError("End date must be on or after start date.");
-      return;
-    }
-    if (!values.rentAmount.trim()) {
-      setError("Rent amount is required.");
+    if (nextIssues.length > 0) {
+      setIssues(nextIssues);
       return;
     }
 
     const rentAmount = Number(values.rentAmount);
     const securityDeposit = values.securityDeposit.trim() ? Number(values.securityDeposit) : 0;
     const noticePeriodDays = values.noticePeriodDays.trim() ? Number(values.noticePeriodDays) : null;
-
-    if (Number.isNaN(rentAmount) || rentAmount < 0) {
-      setError("Rent amount must be a valid non-negative number.");
-      return;
-    }
-    if (Number.isNaN(securityDeposit) || securityDeposit < 0) {
-      setError("Security deposit must be a valid non-negative number.");
-      return;
-    }
-    if (noticePeriodDays !== null && (Number.isNaN(noticePeriodDays) || noticePeriodDays < 0)) {
-      setError("Notice period must be a valid non-negative number.");
-      return;
-    }
-    if (values.moveInDate && values.moveOutDate && values.moveOutDate < values.moveInDate) {
-      setError("Move-out date must be on or after move-in date.");
-      return;
-    }
 
     const payload = {
       leaseNumber: values.leaseNumber.trim() || undefined,
@@ -188,33 +226,47 @@ export function LeaseForm({
       internalNotes: values.internalNotes || null
     };
 
-    setSubmitting(true);
-    const response = await fetch(mode === "create" ? "/api/leases" : `/api/leases/${lease?.id ?? ""}`, {
-      method: mode === "create" ? "POST" : "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mode === "create" ? payload : { action: "update", updates: payload })
-    });
-    setSubmitting(false);
+    await run(`lease:${mode}:${values.propertyId}:${values.unitId}`, async () => {
+      setSubmitting(true);
+      rememberPropertyContext({
+        propertyId: values.propertyId,
+        unitId: values.unitId || null,
+        tenantId: values.primaryTenantId || null
+      });
+      const response = await fetch(mode === "create" ? "/api/leases" : `/api/leases/${lease?.id ?? ""}`, {
+        method: mode === "create" ? "POST" : "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mode === "create" ? payload : { action: "update", updates: payload })
+      });
+      setSubmitting(false);
 
-    if (!response.ok) {
-      const failure = (await response.json()) as { error?: string };
-      setError(failure.error ?? "Unable to save lease.");
-      return;
-    }
-
-    const success = (await response.json()) as { lease?: LeaseRecord };
-    const savedId = success.lease?.id ?? lease?.id;
-    if (savedId) {
-      if (setupMode) {
-        router.push("/setup");
-      } else {
-        router.push(`/leases/${savedId}?from=lease-created`);
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({}));
+        setApiError(readApiError(failure, "Unable to save lease. Check required fields and try again."));
+        return;
       }
+
+      const success = (await response.json()) as { lease?: LeaseRecord };
+      const savedId = success.lease?.id ?? lease?.id;
+      if (savedId && mode === "create" && screeningCaseId) {
+        await fetch(`/api/screening/${screeningCaseId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "link_lease", leaseId: savedId })
+        }).catch(() => undefined);
+      }
+      if (savedId) {
+        if (setupMode) {
+          router.push("/setup");
+        } else {
+          router.push(`/leases/${savedId}?from=lease-created`);
+        }
+        router.refresh();
+        return;
+      }
+      router.push("/leases");
       router.refresh();
-      return;
-    }
-    router.push("/leases");
-    router.refresh();
+    });
   }
 
   return (
@@ -284,7 +336,22 @@ export function LeaseForm({
           <Select
             aria-label="Unit"
             value={values.unitId}
-            onChange={(event) => setValues((current) => ({ ...current, unitId: event.target.value }))}
+            onChange={(event) => {
+              const nextUnitId = event.target.value;
+              const occupied =
+                mode === "create"
+                  ? tenants.find(
+                      (tenant) =>
+                        tenant.unitId === nextUnitId &&
+                        (!tenant.propertyId || tenant.propertyId === values.propertyId)
+                    )
+                  : null;
+              setValues((current) => ({
+                ...current,
+                unitId: nextUnitId,
+                primaryTenantId: occupied?.id ?? (mode === "create" ? "" : current.primaryTenantId)
+              }));
+            }}
             disabled={!values.propertyId}
             required
           >
@@ -402,17 +469,20 @@ export function LeaseForm({
           onChange={(event) => setValues((current) => ({ ...current, internalNotes: event.target.value }))}
         />
 
-        {error ? (
-          <p className="text-sm text-[var(--mpa-color-feedback-error)]" role="alert" aria-live="assertive">
-            {error}
-          </p>
-        ) : null}
+        <ValidationAlert issues={issues} />
+        {apiError ? <ApiErrorAlert message={apiError} /> : null}
+        {submitting || busy ? <OperationalStatus message="Saving lease…" /> : null}
 
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" disabled={submitting}>
-            {submitting ? "Saving..." : mode === "create" ? "Create Lease" : "Save Lease"}
+        <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap gap-2 border-t border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]/95 px-1 py-3 backdrop-blur supports-[backdrop-filter]:bg-[var(--mpa-color-bg-surface)]/80 md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+          <Button type="submit" disabled={submitting || busy} className="min-h-11 min-w-[8.5rem]">
+            {submitting || busy ? "Saving..." : mode === "create" ? "Create Lease" : "Save Lease"}
           </Button>
-          <Button type="button" variant="secondary" onClick={() => router.push("/leases")}>
+          <Button
+            type="button"
+            variant="secondary"
+            className="min-h-11"
+            onClick={() => router.push("/leases")}
+          >
             Cancel
           </Button>
         </div>

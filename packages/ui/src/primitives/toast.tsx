@@ -10,6 +10,9 @@ type ToastItem = {
   title: string;
   description?: string;
   variant: ToastVariant;
+  actionLabel?: string;
+  onAction?: () => void;
+  durationMs?: number;
 };
 
 type ToastContextValue = {
@@ -21,14 +24,19 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
 
-  const notify = useCallback((payload: Omit<ToastItem, "id">) => {
-    const id = crypto.randomUUID();
-    const nextItem = { id, ...payload };
-    setItems((current) => [...current, nextItem]);
-    setTimeout(() => {
-      setItems((current) => current.filter((item) => item.id !== id));
-    }, 4000);
+  const dismiss = useCallback((id: string) => {
+    setItems((current) => current.filter((item) => item.id !== id));
   }, []);
+
+  const notify = useCallback(
+    (payload: Omit<ToastItem, "id">) => {
+      const id = crypto.randomUUID();
+      const nextItem = { id, ...payload };
+      setItems((current) => [...current, nextItem]);
+      setTimeout(() => dismiss(id), payload.durationMs ?? 4000);
+    },
+    [dismiss]
+  );
 
   const value = useMemo<ToastContextValue>(() => ({ notify }), [notify]);
 
@@ -51,6 +59,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">{item.title}</p>
             {item.description ? (
               <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{item.description}</p>
+            ) : null}
+            {item.actionLabel && item.onAction ? (
+              <button
+                type="button"
+                className="mt-2 text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline"
+                onClick={() => {
+                  item.onAction?.();
+                  dismiss(item.id);
+                }}
+              >
+                {item.actionLabel}
+              </button>
             ) : null}
           </div>
         ))}

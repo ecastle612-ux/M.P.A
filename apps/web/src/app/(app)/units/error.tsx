@@ -1,27 +1,19 @@
 "use client";
 
-import { Button, Card } from "@mpa/ui";
+import { ModuleSegmentError } from "../../../components/trust/module-segment-error";
 
-export default function UnitsError({
+export default function ModuleError({
   error,
   reset
 }: {
-  error: Error;
+  error: Error & { digest?: string };
   reset: () => void;
 }) {
   return (
-    <main className="mpa-page">
-      <Card className="max-w-xl">
-        <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Unit workflow unavailable
-        </h2>
-        <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          {error.message || "Unable to load unit operations."}
-        </p>
-        <Button className="mt-4" onClick={reset}>
-          Retry
-        </Button>
-      </Card>
-    </main>
+    <ModuleSegmentError
+      title="Units unavailable"
+      error={error}
+      reset={reset}
+    />
   );
 }

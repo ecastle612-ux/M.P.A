@@ -27,6 +27,8 @@ import {
 import { DataTableLayout } from "../presentation/data-table-layout";
 import { ExperienceEmptyState } from "../experience/experience-empty-state";
 import { getFilteredEmptyMessage } from "../../lib/experience/empty-states";
+import { readApiError } from "../../lib/api/client-error";
+import { useUndoableAction } from "../../hooks/use-undoable-action";
 
 const PAGE_SIZE = 10;
 
@@ -51,6 +53,7 @@ export function AnnouncementsTable({
   const [page, setPage] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [submittingAction, setSubmittingAction] = useState<string | null>(null);
+  const { runWithUndo } = useUndoableAction();
 
   const visibleItems = useMemo(() => items.filter((item) => item.deletedAt === null), [items]);
 
@@ -87,33 +90,70 @@ export function AnnouncementsTable({
     return "info";
   }
 
-  async function runAction(announcementId: string, action: "archive" | "restore" | "soft_delete") {
-    setError(null);
-    setSubmittingAction(`${announcementId}:${action}`);
+  async function mutateAnnouncement(
+    announcementId: string,
+    action: "archive" | "restore" | "soft_delete"
+  ): Promise<AnnouncementRecord | null> {
     const response = await fetch(`/api/announcements/${announcementId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action })
     });
-    setSubmittingAction(null);
-
+    const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      const payload = (await response.json()) as { error?: string };
-      setError(payload.error ?? "Announcement action failed.");
-      return;
+      throw new Error(readApiError(payload, "Announcement action failed."));
     }
+    return (payload as { announcement?: AnnouncementRecord }).announcement ?? null;
+  }
 
-    const payload = (await response.json()) as { announcement?: AnnouncementRecord };
-    if (!payload.announcement) return;
+  async function runAction(announcementId: string, action: "archive" | "restore" | "soft_delete") {
+    setError(null);
+    setSubmittingAction(`${announcementId}:${action}`);
+    try {
+      if (action === "archive") {
+        const previous = items.find((item) => item.id === announcementId) ?? null;
+        await runWithUndo({
+          key: `announcement-archive:${announcementId}`,
+          successTitle: "Announcement archived",
+          successDescription: "Hidden from the active list. Undo is available for a few seconds.",
+          doAction: async () => {
+            const announcement = await mutateAnnouncement(announcementId, "archive");
+            if (announcement) {
+              setItems((current) =>
+                current.map((item) => (item.id === announcementId ? { ...item, ...announcement } : item))
+              );
+            }
+          },
+          undoAction: async () => {
+            const announcement = await mutateAnnouncement(announcementId, "restore");
+            if (announcement) {
+              setItems((current) =>
+                current.map((item) => (item.id === announcementId ? { ...item, ...announcement } : item))
+              );
+            } else if (previous) {
+              setItems((current) =>
+                current.map((item) => (item.id === announcementId ? previous : item))
+              );
+            }
+          }
+        });
+        return;
+      }
 
-    if (action === "soft_delete") {
-      setItems((current) => current.filter((item) => item.id !== announcementId));
-      return;
+      const announcement = await mutateAnnouncement(announcementId, action);
+      if (!announcement) return;
+      if (action === "soft_delete") {
+        setItems((current) => current.filter((item) => item.id !== announcementId));
+        return;
+      }
+      setItems((current) =>
+        current.map((item) => (item.id === announcementId ? { ...item, ...announcement } : item))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Announcement action failed.");
+    } finally {
+      setSubmittingAction(null);
     }
-
-    setItems((current) =>
-      current.map((item) => (item.id === announcementId ? { ...item, ...payload.announcement! } : item))
-    );
   }
 
   if (visibleItems.length === 0) {

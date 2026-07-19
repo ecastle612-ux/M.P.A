@@ -10,21 +10,34 @@ import {
 } from "../../lib/financial/contracts";
 import type { FinancialDashboardMetrics } from "../../lib/financial/server";
 import { GuidanceTip } from "../experience/guidance-tip";
+import { lateRentSuggestions, SmartSuggestions } from "../workflow/smart-suggestions";
+import { ProviderStatusBanner } from "../trust/provider-status-chip";
 
 const SECTION_LINKS = [
   { href: "/financials/charges", label: "Rent Charges", description: "Track charges, balances, and due dates" },
   { href: "/financials/expenses", label: "Expenses", description: "Record property operating expenses" },
-  { href: "/financials/owner-statements", label: "Owner Statements", description: "Generate and review owner reports" }
+  { href: "/financials/owner-statements", label: "Owner Statements", description: "Generate and review owner reports" },
+  { href: "/financials/reports", label: "Reports", description: "Professional PDFs with preview and Document Vault" }
 ] as const;
 
 function activityTypeLabel(type: FinancialActivityType): string {
   const labels: Record<FinancialActivityType, string> = {
     charge_created: "Charge created",
+    charge_published: "Charge published",
     payment_received: "Payment received",
+    payment_failed: "Payment failed",
+    payment_initiated: "Payment initiated",
     late_fee_applied: "Late fee applied",
     expense_recorded: "Expense recorded",
     statement_generated: "Statement generated",
-    balance_updated: "Balance updated"
+    balance_updated: "Balance updated",
+    refund_completed: "Refund completed",
+    credit_applied: "Credit applied",
+    adjustment_applied: "Adjustment applied",
+    receipt_issued: "Receipt issued",
+    autopay_enrolled: "AutoPay enrolled",
+    autopay_disabled: "AutoPay disabled",
+    reconciliation: "Reconciliation"
   };
   return labels[type];
 }
@@ -82,20 +95,22 @@ export function FinancialOverview({
         }
       />
 
+      <ProviderStatusBanner providerIds={["stripe", "resend"]} />
+
       {!hasFinancialActivity ? (
-        <Card variant="elevated" className="space-y-4 border-dashed border-[var(--mpa-color-border-default)]">
+        <Card variant="elevated" className="space-y-3 border-dashed border-[var(--mpa-color-border-default)]">
           <div>
             <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
               Financial activity starts with leases
             </h2>
             <p className="mt-1 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-              Once leases are active, rent charges, payments, and owner statements flow through this workspace.
-              Create a lease first, or manually record a charge when you are ready to collect.
+              Once residents are activated through guided Move in, rent charges, payments, and owner statements flow
+              through this workspace.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href="/leases/new">
-              <Button>Create Lease</Button>
+            <Link href="/residents/move-in">
+              <Button>Start Move in</Button>
             </Link>
             <Link href="/financials/charges/new">
               <Button variant="secondary">Create Charge</Button>
@@ -104,8 +119,8 @@ export function FinancialOverview({
           <GuidanceTip tipKey="financials" />
         </Card>
       ) : (
-        <Card variant="elevated" className="space-y-5">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Card variant="elevated" className="space-y-3">
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
             <KpiMetric label="Rent due today" value={metrics.rentDueToday.toString()} />
             <KpiMetric
               label="Late charges"
@@ -127,18 +142,26 @@ export function FinancialOverview({
                 ))}
             </div>
           ) : null}
+
+          {metrics.lateRentCount > 0 ? (
+            <SmartSuggestions
+              title="Late rent"
+              description="Suggested next steps using existing financial and communication workflows."
+              suggestions={lateRentSuggestions({})}
+            />
+          ) : null}
         </Card>
       )}
 
-      <section className="grid gap-5 lg:grid-cols-[2fr_1fr]">
-        <Card variant="elevated" className="space-y-4">
+      <section className="grid gap-3 lg:grid-cols-[2fr_1fr]">
+        <Card variant="elevated" className="space-y-3">
           <h2 className="mpa-section-title">Sections</h2>
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {SECTION_LINKS.map((section) => (
               <li key={section.href}>
                 <Link
                   href={section.href}
-                  className="block rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] p-4 transition hover:border-[var(--mpa-color-border-default)] hover:bg-[var(--mpa-color-bg-surface-muted)]/50"
+                  className="block rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] p-3 transition hover:border-[var(--mpa-color-border-default)] hover:bg-[var(--mpa-color-bg-surface-muted)]/50"
                 >
                   <p className="font-medium text-[var(--mpa-color-brand-primary)]">{section.label}</p>
                   <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">{section.description}</p>
@@ -148,7 +171,7 @@ export function FinancialOverview({
           </ul>
         </Card>
 
-        <Card variant="elevated" className="space-y-4">
+        <Card variant="elevated" className="space-y-3">
           <div className="flex items-center justify-between gap-2">
             <h2 className="mpa-section-title">Recent activity</h2>
             {permissions.canCreate ? (

@@ -11,20 +11,24 @@ export function buildPropertyCreatedSuccess(
     description: `${property.name} has been added to your portfolio.`,
     recommendations: [
       "Add units so you can track occupancy and rent.",
-      "Invite team members to collaborate on this property.",
-      "Review property details and financial settings."
+      "Move a resident in once units are ready.",
+      "Create the lease and collect the deposit to activate the unit."
     ],
     primaryAction: { label: "Add Units →", href: `/units/new?propertyId=${property.id}` },
     secondaryActions: [
-      { label: "Add Vendor", href: "/vendors/new", variant: "secondary" },
+      {
+        label: "Start Move In",
+        href: `/residents/move-in?propertyId=${property.id}`,
+        variant: "secondary"
+      },
       { label: "View Property", href: `/properties/${property.id}`, variant: "secondary" },
       { label: "Return to Dashboard", href: "/dashboard", variant: "ghost" }
     ],
     crossLinks: [
       { label: "Add Units", href: `/units/new?propertyId=${property.id}` },
-      { label: "Financials", href: "/financials" },
-      { label: "Maintenance", href: "/maintenance" },
-      { label: "Communications", href: "/communications" }
+      { label: "Move In", href: `/residents/move-in?propertyId=${property.id}` },
+      { label: "Create Lease", href: `/leases/new?propertyId=${property.id}` },
+      { label: "Financials", href: "/financials" }
     ],
     ...(isFirst ? { milestone: "Your portfolio journey starts here — great first step." } : {})
   };
@@ -38,31 +42,30 @@ export function buildUnitCreatedSuccess(
   const label = unit.unitNumber ? `Unit ${unit.unitNumber}` : "Your unit";
   return {
     title: "Unit Added",
-    description: `${label} at ${propertyName} is ready for a tenant.`,
+    description: `${label} at ${propertyName} is ready for a resident.`,
     recommendations: [
-      counts.tenants === 0
-        ? "Assign a tenant to connect someone to this unit."
-        : "Create a lease to formalize occupancy and rent terms.",
+      "Start guided Move in to place a resident, create the lease, and activate occupancy.",
       "Set rent and deposit amounts if you haven't already.",
-      "Review unit availability status before move-in."
+      counts.tenants === 0
+        ? "This can be your first resident — Move in keeps lease and occupancy in one path."
+        : "Review unit availability status before move-in."
     ],
     primaryAction: {
-      label: "Assign Tenant →",
-      href: `/tenants/new?propertyId=${unit.propertyId}&unitId=${unit.id}`
+      label: "Move In Resident →",
+      href: `/residents/move-in?propertyId=${unit.propertyId}&unitId=${unit.id}`
     },
     secondaryActions: [
-      {
-        label: "Create Lease →",
-        href: `/leases/new?propertyId=${unit.propertyId}&unitId=${unit.id}`,
-        variant: "secondary"
-      },
       { label: "View Unit", href: `/units/${unit.id}`, variant: "secondary" },
-      { label: "Add Another Unit", href: `/units/new?propertyId=${unit.propertyId}`, variant: "ghost" }
+      { label: "Add Another Unit", href: `/units/new?propertyId=${unit.propertyId}`, variant: "ghost" },
+      {
+        label: "Manual tenant entry",
+        href: `/tenants/new?propertyId=${unit.propertyId}&unitId=${unit.id}`,
+        variant: "ghost"
+      }
     ],
     crossLinks: [
       { label: "Property", href: `/properties/${unit.propertyId}` },
-      { label: "Add Tenant", href: `/tenants/new?propertyId=${unit.propertyId}&unitId=${unit.id}` },
-      { label: "Create Lease", href: `/leases/new?propertyId=${unit.propertyId}&unitId=${unit.id}` },
+      { label: "Move in", href: `/residents/move-in?propertyId=${unit.propertyId}&unitId=${unit.id}` },
       { label: "Maintenance", href: "/maintenance" }
     ]
   };
@@ -77,20 +80,17 @@ export function buildTenantCreatedSuccess(
     title: isFirst ? "First Tenant Added" : "Tenant Ready",
     description: `${tenant.displayName} is ready to move into your portfolio.`,
     recommendations: [
-      counts.leases === 0
-        ? "Create a lease to formalize occupancy and rent terms."
-        : "Send a welcome communication to introduce yourself.",
+      "Prefer guided Move in for full activation when onboarding a new resident.",
       "Confirm move-in date and contact details.",
-      "Review unit assignment before activating the lease."
+      "Send a welcome communication after activation."
     ],
-    primaryAction: { label: "Create Lease →", href: `/leases/new?tenantId=${tenant.id}` },
+    primaryAction: { label: "Continue Move In →", href: `/residents/move-in` },
     secondaryActions: [
-      { label: "Send Welcome Message", href: "/communications/new", variant: "secondary" },
-      { label: "View Tenant", href: `/tenants/${tenant.id}`, variant: "secondary" },
+      { label: "View resident", href: `/tenants/${tenant.id}`, variant: "secondary" },
       { label: "Open Dashboard", href: "/dashboard", variant: "ghost" }
     ],
     crossLinks: [
-      { label: "Create Lease", href: `/leases/new?tenantId=${tenant.id}` },
+      { label: "Move in", href: "/residents/move-in" },
       { label: "Communications", href: "/communications/new" },
       { label: "Financials", href: "/financials" },
       { label: "Maintenance", href: "/maintenance" }
@@ -116,25 +116,35 @@ export function buildLeaseCreatedSuccess(lease: {
       ? `Lease ${lease.leaseNumber} is ready. Activate it when ${unitLabel} is confirmed for move-in.`
       : `Lease ${lease.leaseNumber} is set up and ready for the next step.`,
     recommendations: [
-      activateFirst ? "Activate the lease when the tenant is ready to move in." : "Generate the first rent charge to start collecting.",
+      activateFirst ? "Activate the lease when the tenant is ready to move in." : "Collect the deposit or generate the first rent charge.",
       "Review lease terms, dates, and deposit amounts.",
       "Send a welcome communication to the tenant."
     ],
     primaryAction: activateFirst
       ? { label: "Review & Activate →", href: `/leases/${lease.id}#lifecycle` }
-      : { label: "Generate Rent Charge →", href: `/financials/charges/new?leaseId=${lease.id}` },
+      : { label: "Collect Deposit / Charge →", href: `/financials/charges/new?leaseId=${lease.id}` },
     secondaryActions: [
       { label: "Generate Rent Charge", href: `/financials/charges/new?leaseId=${lease.id}`, variant: "secondary" },
-      { label: "View Lease", href: `/leases/${lease.id}`, variant: "secondary" },
-      { label: "Open Dashboard", href: "/dashboard", variant: "ghost" }
+      {
+        label: "Welcome message",
+        href: lease.propertyId
+          ? `/communications/new?propertyId=${lease.propertyId}`
+          : "/communications/new",
+        variant: "secondary"
+      },
+      { label: "View Lease", href: `/leases/${lease.id}`, variant: "ghost" }
     ],
     crossLinks: [
       ...(lease.propertyId ? [{ label: "Property", href: `/properties/${lease.propertyId}` }] : []),
       ...(lease.unitId ? [{ label: "Unit", href: `/units/${lease.unitId}` }] : []),
       ...(lease.primaryTenantId ? [{ label: "Tenant", href: `/tenants/${lease.primaryTenantId}` }] : []),
       { label: "Financials", href: "/financials" },
-      { label: "Maintenance", href: "/maintenance" },
-      { label: "Communications", href: "/communications" }
+      {
+        label: "Welcome packet",
+        href: lease.propertyId
+          ? `/communications/new?propertyId=${lease.propertyId}`
+          : "/communications/new"
+      }
     ]
   };
 }
@@ -175,25 +185,32 @@ export function buildWorkOrderCreatedSuccess(workOrder: {
   unitId: string | null;
   tenantId: string | null;
 }): WorkflowSuccessConfig {
+  const notifyHref = workOrder.propertyId
+    ? `/communications/new?propertyId=${workOrder.propertyId}`
+    : "/communications/new";
+  const expenseHref = workOrder.propertyId
+    ? `/financials/expenses/new?propertyId=${workOrder.propertyId}`
+    : "/financials/expenses/new";
   return {
     title: "Maintenance Request Logged",
     description: `Work order ${workOrder.workOrderNumber} is open and ready for assignment.`,
     recommendations: [
       "Assign a vendor or internal staff member to handle this request.",
-      "Notify the tenant that their request has been received.",
-      "Set a due date if one wasn't included."
+      "After completion, open the facility record and attach expense details.",
+      "Notify residents when the work affects their unit or building."
     ],
     primaryAction: { label: "Assign Vendor →", href: `/maintenance/${workOrder.id}#vendor` },
     secondaryActions: [
-      { label: "Notify Tenant", href: "/communications/new", variant: "secondary" },
-      { label: "View Work Order", href: `/maintenance/${workOrder.id}`, variant: "secondary" },
+      { label: "Notify Residents", href: notifyHref, variant: "secondary" },
+      { label: "Record Expense", href: expenseHref, variant: "secondary" },
       { label: "Open Maintenance", href: "/maintenance", variant: "ghost" }
     ],
     crossLinks: [
       ...(workOrder.propertyId ? [{ label: "Property", href: `/properties/${workOrder.propertyId}` }] : []),
       ...(workOrder.unitId ? [{ label: "Unit", href: `/units/${workOrder.unitId}` }] : []),
       ...(workOrder.tenantId ? [{ label: "Tenant", href: `/tenants/${workOrder.tenantId}` }] : []),
-      { label: "Vendors", href: "/vendors" }
+      { label: "Vendors", href: "/vendors" },
+      { label: "Facility", href: workOrder.propertyId ? `/properties/${workOrder.propertyId}` : "/maintenance" }
     ]
   };
 }
@@ -273,6 +290,62 @@ export function buildAnnouncementCreatedSuccess(announcement: {
   };
 }
 
+export function buildAnnouncementPublishedSuccess(announcement: {
+  id: string;
+  title: string;
+}): WorkflowSuccessConfig {
+  return {
+    title: "Announcement Published",
+    description: `"${announcement.title}" is live for the selected audience.`,
+    recommendations: [
+      "Monitor readership as residents open the message.",
+      "Follow up in Messages if residents ask questions.",
+      "Archive when the notice is no longer relevant."
+    ],
+    primaryAction: { label: "View Readership →", href: `/communications/${announcement.id}` },
+    secondaryActions: [
+      { label: "Compose Another", href: "/communications/new", variant: "secondary" },
+      { label: "All Announcements", href: "/communications", variant: "ghost" }
+    ]
+  };
+}
+
+export function buildWorkOrderCompletedSuccess(workOrder: {
+  id: string;
+  workOrderNumber: string;
+  propertyId: string | null;
+}): WorkflowSuccessConfig {
+  return {
+    title: "Work Order Completed",
+    description: `Work order ${workOrder.workOrderNumber} is marked complete.`,
+    recommendations: [
+      "Open the facility record to keep permanent history accurate.",
+      "Record an expense if invoices or materials were billed.",
+      "Notify residents if the work affected their unit or building."
+    ],
+    primaryAction: {
+      label: "View Work Order →",
+      href: `/maintenance/${workOrder.id}`
+    },
+    secondaryActions: [
+      {
+        label: "Record Expense",
+        href: workOrder.propertyId
+          ? `/financials/expenses/new?propertyId=${workOrder.propertyId}`
+          : "/financials/expenses/new",
+        variant: "secondary"
+      },
+      {
+        label: "Notify Residents",
+        href: workOrder.propertyId
+          ? `/communications/new?propertyId=${workOrder.propertyId}`
+          : "/communications/new",
+        variant: "secondary"
+      }
+    ]
+  };
+}
+
 export function buildStatementGeneratedSuccess(statement: {
   id: string;
   statementNumber: string;
@@ -283,16 +356,18 @@ export function buildStatementGeneratedSuccess(statement: {
     description: `Statement ${statement.statementNumber} is ready for review and delivery.`,
     recommendations: [
       "Review income, expenses, and net income for accuracy.",
-      "Send the statement to the property owner when ready.",
-      "Compare against prior periods to spot trends."
+      "Save the statement to Document Vault from Reports when ready.",
+      "Email owner delivery remains a future channel — review locally first."
     ],
     primaryAction: { label: "Review Statement →", href: `/financials/owner-statements/${statement.id}` },
     secondaryActions: [
+      { label: "Open Reports", href: "/financials/reports", variant: "secondary" },
       { label: "All Statements", href: "/financials/owner-statements", variant: "secondary" },
       { label: "Financial Overview", href: "/financials", variant: "ghost" }
     ],
     crossLinks: [
       { label: "View Statement", href: `/financials/owner-statements/${statement.id}` },
+      { label: "Reports / Vault", href: "/financials/reports" },
       ...(statement.propertyId ? [{ label: "Property", href: `/properties/${statement.propertyId}` }] : []),
       { label: "Financial Overview", href: "/financials" }
     ]

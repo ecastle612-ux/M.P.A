@@ -4,6 +4,24 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Input, Select } from "@mpa/ui";
 import type { OwnerStatementRecord } from "../../lib/financial/contracts";
+import { readApiError } from "../../lib/api/client-error";
+import {
+  collectIssues,
+  validateDateOrder,
+  validateRequired,
+  type ValidationIssue
+} from "../../lib/trust/validation";
+import { suggestCurrentAccountingPeriod } from "../../lib/workflow/category-suggest";
+import {
+  getWorkspaceMemory,
+  rememberAccountingPeriod,
+  rememberPropertyContext,
+  resolveContextId
+} from "../../lib/workflow/workspace-memory";
+import { ConfirmActionDialog } from "../trust/confirm-action-dialog";
+import { ApiErrorAlert, ValidationAlert } from "../trust/validation-alert";
+import { OperationalStatus } from "../trust/operational-status";
+import { useSubmissionGuard } from "../../hooks/use-submission-guard";
 
 type GenerateStatementFormValues = {
   propertyId: string;
@@ -27,31 +45,51 @@ export function GenerateStatementForm({
   initialPropertyId?: string | null;
 }) {
   const router = useRouter();
-  const [values, setValues] = useState<GenerateStatementFormValues>(() => ({
-    ...DEFAULT_VALUES,
-    propertyId:
-      (initialPropertyId && properties.some((option) => option.id === initialPropertyId)
-        ? initialPropertyId
-        : null) ??
-      properties[0]?.id ??
-      ""
-  }));
+  const [values, setValues] = useState<GenerateStatementFormValues>(() => {
+    const memory = typeof window !== "undefined" ? getWorkspaceMemory() : null;
+    const propertyIds = properties.map((p) => p.id);
+    const defaults = suggestCurrentAccountingPeriod();
+    const remembered = memory?.accountingPeriod?.split(":") ?? [];
+    const start = remembered[0] && remembered[1] ? remembered[0] : defaults.start;
+    const end = remembered[0] && remembered[1] ? remembered[1] : defaults.end;
+    return {
+      ...DEFAULT_VALUES,
+      propertyId: resolveContextId(initialPropertyId, memory?.propertyId, propertyIds),
+      statementPeriodStart: start,
+      statementPeriodEnd: end
+    };
+  });
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [issues, setIssues] = useState<ValidationIssue[]>([]);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const { busy, run } = useSubmissionGuard(4000);
+
+  function validateForm(): boolean {
+    const nextIssues = collectIssues(
+      validateRequired(values.propertyId, "Property"),
+      validateRequired(values.statementPeriodStart, "Period start"),
+      validateRequired(values.statementPeriodEnd, "Period end"),
+      validateDateOrder(
+        values.statementPeriodStart,
+        values.statementPeriodEnd,
+        "Period start",
+        "Period end"
+      )
+    );
+    setIssues(nextIssues);
+    return nextIssues.length === 0;
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
+    setApiError(null);
+    if (!validateForm()) return;
+    setConfirmOpen(true);
+  }
 
-    if (!values.propertyId || !values.statementPeriodStart || !values.statementPeriodEnd) {
-      setError("Property and statement period are required.");
-      return;
-    }
-    if (values.statementPeriodStart > values.statementPeriodEnd) {
-      setError("Period start must be on or before period end.");
-      return;
-    }
-
+  async function generateStatement() {
+    setConfirmOpen(false);
     const payload = {
       propertyId: values.propertyId,
       statementPeriodStart: values.statementPeriodStart,
@@ -59,29 +97,33 @@ export function GenerateStatementForm({
       ownerPlaceholder: values.ownerPlaceholder.trim() || null
     };
 
-    setSubmitting(true);
-    const response = await fetch("/api/owner-statements", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    setSubmitting(false);
+    await run(`statement:${values.propertyId}:${values.statementPeriodStart}`, async () => {
+      setSubmitting(true);
+      rememberPropertyContext({ propertyId: values.propertyId });
+      rememberAccountingPeriod(`${values.statementPeriodStart}:${values.statementPeriodEnd}`);
+      const response = await fetch("/api/owner-statements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      setSubmitting(false);
 
-    if (!response.ok) {
-      const failure = (await response.json()) as { error?: string };
-      setError(failure.error ?? "Unable to generate owner statement.");
-      return;
-    }
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({}));
+        setApiError(readApiError(failure, "Unable to generate owner statement. Check the period and retry."));
+        return;
+      }
 
-    const success = (await response.json()) as { statement?: OwnerStatementRecord };
-    const savedId = success.statement?.id;
-    if (savedId) {
-      router.push(`/financials/owner-statements/${savedId}?from=statement-generated`);
+      const success = (await response.json()) as { statement?: OwnerStatementRecord };
+      const savedId = success.statement?.id;
+      if (savedId) {
+        router.push(`/financials/owner-statements/${savedId}?from=statement-generated`);
+        router.refresh();
+        return;
+      }
+      router.push("/financials/owner-statements");
       router.refresh();
-      return;
-    }
-    router.push("/financials/owner-statements");
-    router.refresh();
+    });
   }
 
   return (
@@ -136,20 +178,33 @@ export function GenerateStatementForm({
           onChange={(event) => setValues((current) => ({ ...current, ownerPlaceholder: event.target.value }))}
         />
 
-        {error ? (
-          <p className="text-sm text-[var(--mpa-color-feedback-error)]" role="alert" aria-live="assertive">
-            {error}
-          </p>
-        ) : null}
+        <ValidationAlert issues={issues} />
+        {apiError ? <ApiErrorAlert message={apiError} /> : null}
+        {submitting || busy ? <OperationalStatus message="Generating owner statement…" /> : null}
 
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" disabled={submitting}>
-            {submitting ? "Generating..." : "Generate Statement"}
+        <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap gap-2 border-t border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]/95 px-1 py-3 backdrop-blur supports-[backdrop-filter]:bg-[var(--mpa-color-bg-surface)]/80 md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+          <Button type="submit" disabled={submitting || busy} className="min-h-11 min-w-[8.5rem]">
+            {submitting || busy ? "Generating..." : "Generate Statement"}
           </Button>
-          <Button type="button" variant="secondary" onClick={() => router.push("/financials/owner-statements")}>
+          <Button
+            type="button"
+            variant="secondary"
+            className="min-h-11"
+            onClick={() => router.push("/financials/owner-statements")}
+          >
             Cancel
           </Button>
         </div>
+
+        <ConfirmActionDialog
+          open={confirmOpen}
+          title="Generate owner statement?"
+          consequence="M.P.A. will aggregate income, expenses, and occupancy for the selected property and period. Review the statement before sharing with an owner."
+          confirmLabel="Generate statement"
+          busy={submitting || busy}
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={() => void generateStatement()}
+        />
       </form>
     </Card>
   );

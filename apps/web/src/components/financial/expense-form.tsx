@@ -11,6 +11,17 @@ import {
   type ExpenseRecord,
   type ExpenseStatus
 } from "../../lib/financial/contracts";
+import { readApiError } from "../../lib/api/client-error";
+import {
+  collectIssues,
+  validateNonNegativeMoney,
+  validateRequired,
+  type ValidationIssue
+} from "../../lib/trust/validation";
+import { getWorkspaceMemory, rememberPropertyContext, resolveContextId } from "../../lib/workflow/workspace-memory";
+import { ApiErrorAlert, ValidationAlert } from "../trust/validation-alert";
+import { OperationalStatus } from "../trust/operational-status";
+import { useSubmissionGuard } from "../../hooks/use-submission-guard";
 
 type ExpenseFormValues = {
   propertyId: string;
@@ -52,33 +63,36 @@ export function ExpenseForm({
   initialPropertyId?: string | null;
 }) {
   const router = useRouter();
-  const [values, setValues] = useState<ExpenseFormValues>(() => ({
-    ...DEFAULT_VALUES,
-    propertyId:
-      (initialPropertyId && properties.some((option) => option.id === initialPropertyId)
-        ? initialPropertyId
-        : null) ??
-      properties[0]?.id ??
-      ""
-  }));
+  const [values, setValues] = useState<ExpenseFormValues>(() => {
+    const memory = typeof window !== "undefined" ? getWorkspaceMemory() : null;
+    const propertyIds = properties.map((p) => p.id);
+    return {
+      ...DEFAULT_VALUES,
+      propertyId: resolveContextId(initialPropertyId, memory?.propertyId, propertyIds)
+    };
+  });
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [issues, setIssues] = useState<ValidationIssue[]>([]);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { busy, run } = useSubmissionGuard();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
+    setIssues([]);
+    setApiError(null);
 
-    if (!values.propertyId || !values.description.trim() || !values.amount) {
-      setError("Property, description, and amount are required.");
+    const nextIssues = collectIssues(
+      validateRequired(values.propertyId, "Property"),
+      validateRequired(values.description, "Description"),
+      validateNonNegativeMoney(values.amount, "Amount", true),
+      validateRequired(values.expenseDate, "Expense date")
+    );
+    if (nextIssues.length > 0) {
+      setIssues(nextIssues);
       return;
     }
 
     const amount = Number(values.amount);
-    if (!Number.isFinite(amount) || amount < 0) {
-      setError("Amount must be a non-negative number.");
-      return;
-    }
-
     const payload = {
       propertyId: values.propertyId,
       category: values.category,
@@ -90,28 +104,31 @@ export function ExpenseForm({
       vendorBillPlaceholder: values.vendorBillPlaceholder.trim() || null
     };
 
-    setSubmitting(true);
-    const response = await fetch("/api/expenses", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    setSubmitting(false);
+    await run(`expense:${values.propertyId}:${values.amount}`, async () => {
+      setSubmitting(true);
+      rememberPropertyContext({ propertyId: values.propertyId });
+      const response = await fetch("/api/expenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      setSubmitting(false);
 
-    if (!response.ok) {
-      const failure = (await response.json()) as { error?: string };
-      setError(failure.error ?? "Unable to record expense.");
-      return;
-    }
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({}));
+        setApiError(readApiError(failure, "Unable to record expense. Check amount and property, then retry."));
+        return;
+      }
 
-    const success = (await response.json()) as { expense?: ExpenseRecord };
-    if (success.expense) {
-      router.push("/financials/expenses?from=expense-created");
+      const success = (await response.json()) as { expense?: ExpenseRecord };
+      if (success.expense) {
+        router.push("/financials/expenses?from=expense-created");
+        router.refresh();
+        return;
+      }
+      router.push("/financials/expenses");
       router.refresh();
-      return;
-    }
-    router.push("/financials/expenses");
-    router.refresh();
+    });
   }
 
   return (
@@ -212,15 +229,13 @@ export function ExpenseForm({
           onChange={(event) => setValues((current) => ({ ...current, vendorBillPlaceholder: event.target.value }))}
         />
 
-        {error ? (
-          <p className="text-sm text-[var(--mpa-color-feedback-error)]" role="alert" aria-live="assertive">
-            {error}
-          </p>
-        ) : null}
+        <ValidationAlert issues={issues} />
+        {apiError ? <ApiErrorAlert message={apiError} /> : null}
+        {submitting || busy ? <OperationalStatus message="Recording expense…" /> : null}
 
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" disabled={submitting}>
-            {submitting ? "Saving..." : "Record Expense"}
+        <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap gap-2 border-t border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]/95 px-1 py-3 backdrop-blur supports-[backdrop-filter]:bg-[var(--mpa-color-bg-surface)]/80 md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+          <Button type="submit" disabled={submitting || busy}>
+            {submitting || busy ? "Saving..." : "Record Expense"}
           </Button>
           <Button type="button" variant="secondary" onClick={() => router.push("/financials/expenses")}>
             Cancel
