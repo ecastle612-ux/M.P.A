@@ -400,6 +400,334 @@ export type Database = {
           }
         ];
       };
+      facility_assets: {
+        Row: {
+          asset_code: string;
+          asset_type: string;
+          building_id: string | null;
+          created_at: string;
+          created_by: string;
+          custom_type_label: string | null;
+          deleted_at: string | null;
+          expected_life_years: number | null;
+          id: string;
+          install_date: string | null;
+          location_note: string | null;
+          location_scope: string;
+          manufacturer: string | null;
+          metadata: Json;
+          model: string | null;
+          name: string;
+          notes: string | null;
+          organization_id: string;
+          property_id: string;
+          serial_number: string | null;
+          status: string;
+          unit_id: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          warranty_placeholder: string | null;
+        };
+        Insert: {
+          asset_code: string;
+          asset_type: string;
+          building_id?: string | null;
+          created_at?: string;
+          created_by: string;
+          custom_type_label?: string | null;
+          deleted_at?: string | null;
+          expected_life_years?: number | null;
+          id?: string;
+          install_date?: string | null;
+          location_note?: string | null;
+          location_scope?: string;
+          manufacturer?: string | null;
+          metadata?: Json;
+          model?: string | null;
+          name: string;
+          notes?: string | null;
+          organization_id: string;
+          property_id: string;
+          serial_number?: string | null;
+          status?: string;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          warranty_placeholder?: string | null;
+        };
+        Update: {
+          asset_code?: string;
+          asset_type?: string;
+          building_id?: string | null;
+          created_at?: string;
+          created_by?: string;
+          custom_type_label?: string | null;
+          deleted_at?: string | null;
+          expected_life_years?: number | null;
+          id?: string;
+          install_date?: string | null;
+          location_note?: string | null;
+          location_scope?: string;
+          manufacturer?: string | null;
+          metadata?: Json;
+          model?: string | null;
+          name?: string;
+          notes?: string | null;
+          organization_id?: string;
+          property_id?: string;
+          serial_number?: string | null;
+          status?: string;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          warranty_placeholder?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "facility_assets_property_fk";
+            columns: ["property_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "facility_assets_unit_fk";
+            columns: ["unit_id"];
+            isOneToOne: false;
+            referencedRelation: "units";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      facility_records: {
+        Row: {
+          asset_id: string | null;
+          assigned_staff_user_id: string | null;
+          building_id: string | null;
+          completed_at: string;
+          corrected_at: string | null;
+          corrected_by: string | null;
+          correction_of_id: string | null;
+          correction_reason: string | null;
+          created_at: string;
+          created_by: string;
+          document_ids: string[];
+          id: string;
+          invoice_placeholder: string | null;
+          issue: string;
+          legacy_vendor_id: string | null;
+          lifecycle_status: string;
+          metadata: Json;
+          organization_id: string;
+          photo_document_ids: string[];
+          property_id: string;
+          resolution: string;
+          service_provider_display_name: string | null;
+          service_provider_type: string;
+          status: string;
+          unit_id: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          warranty_placeholder: string | null;
+          work_order_id: string;
+        };
+        Insert: {
+          asset_id?: string | null;
+          assigned_staff_user_id?: string | null;
+          building_id?: string | null;
+          completed_at: string;
+          corrected_at?: string | null;
+          corrected_by?: string | null;
+          correction_of_id?: string | null;
+          correction_reason?: string | null;
+          created_at?: string;
+          created_by: string;
+          document_ids?: string[];
+          id?: string;
+          invoice_placeholder?: string | null;
+          issue: string;
+          legacy_vendor_id?: string | null;
+          lifecycle_status?: string;
+          metadata?: Json;
+          organization_id: string;
+          photo_document_ids?: string[];
+          property_id: string;
+          resolution?: string;
+          service_provider_display_name?: string | null;
+          service_provider_type?: string;
+          status?: string;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          warranty_placeholder?: string | null;
+          work_order_id: string;
+        };
+        Update: {
+          asset_id?: string | null;
+          assigned_staff_user_id?: string | null;
+          building_id?: string | null;
+          completed_at?: string;
+          corrected_at?: string | null;
+          corrected_by?: string | null;
+          correction_of_id?: string | null;
+          correction_reason?: string | null;
+          created_at?: string;
+          created_by?: string;
+          document_ids?: string[];
+          id?: string;
+          invoice_placeholder?: string | null;
+          issue?: string;
+          legacy_vendor_id?: string | null;
+          lifecycle_status?: string;
+          metadata?: Json;
+          organization_id?: string;
+          photo_document_ids?: string[];
+          property_id?: string;
+          resolution?: string;
+          service_provider_display_name?: string | null;
+          service_provider_type?: string;
+          status?: string;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          warranty_placeholder?: string | null;
+          work_order_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "facility_records_asset_fk";
+            columns: ["asset_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "facility_assets";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "facility_records_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "facility_records_property_fk";
+            columns: ["property_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "facility_records_unit_fk";
+            columns: ["unit_id"];
+            isOneToOne: false;
+            referencedRelation: "units";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "facility_records_work_order_fk";
+            columns: ["work_order_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_work_orders";
+            referencedColumns: ["id", "organization_id"];
+          }
+        ];
+      };
+      facility_timeline_events: {
+        Row: {
+          actor_user_id: string | null;
+          asset_id: string | null;
+          building_id: string | null;
+          created_at: string;
+          document_ids: string[];
+          event_type: string;
+          facility_record_id: string | null;
+          href: string | null;
+          id: string;
+          legacy_vendor_id: string | null;
+          occurred_at: string;
+          organization_id: string;
+          payload: Json;
+          performed_by_label: string | null;
+          property_id: string;
+          service_provider_display_name: string | null;
+          source_entity_id: string;
+          source_entity_type: string;
+          summary: string;
+          title: string;
+          unit_id: string | null;
+          work_order_id: string | null;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          asset_id?: string | null;
+          building_id?: string | null;
+          created_at?: string;
+          document_ids?: string[];
+          event_type: string;
+          facility_record_id?: string | null;
+          href?: string | null;
+          id?: string;
+          legacy_vendor_id?: string | null;
+          occurred_at: string;
+          organization_id: string;
+          payload?: Json;
+          performed_by_label?: string | null;
+          property_id: string;
+          service_provider_display_name?: string | null;
+          source_entity_id: string;
+          source_entity_type: string;
+          summary: string;
+          title: string;
+          unit_id?: string | null;
+          work_order_id?: string | null;
+        };
+        Update: {
+          actor_user_id?: string | null;
+          asset_id?: string | null;
+          building_id?: string | null;
+          created_at?: string;
+          document_ids?: string[];
+          event_type?: string;
+          facility_record_id?: string | null;
+          href?: string | null;
+          id?: string;
+          legacy_vendor_id?: string | null;
+          occurred_at?: string;
+          organization_id?: string;
+          payload?: Json;
+          performed_by_label?: string | null;
+          property_id?: string;
+          service_provider_display_name?: string | null;
+          source_entity_id?: string;
+          source_entity_type?: string;
+          summary?: string;
+          title?: string;
+          unit_id?: string | null;
+          work_order_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "facility_timeline_events_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "facility_timeline_property_fk";
+            columns: ["property_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "facility_timeline_facility_record_fk";
+            columns: ["facility_record_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "facility_records";
+            referencedColumns: ["id", "organization_id"];
+          }
+        ];
+      };
       migration_activity: {
         Row: {
           created_at: string;
@@ -1030,6 +1358,7 @@ export type Database = {
       };
       user_profiles: {
         Row: {
+          avatar_media_asset_id: string | null;
           avatar_url: string | null;
           contact_email: string | null;
           created_at: string;
@@ -1039,6 +1368,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          avatar_media_asset_id?: string | null;
           avatar_url?: string | null;
           contact_email?: string | null;
           created_at?: string;
@@ -1048,6 +1378,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          avatar_media_asset_id?: string | null;
           avatar_url?: string | null;
           contact_email?: string | null;
           created_at?: string;
@@ -1055,6 +1386,155 @@ export type Database = {
           phone?: string | null;
           updated_at?: string;
           user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_profiles_avatar_media_asset_id_fkey";
+            columns: ["avatar_media_asset_id"];
+            isOneToOne: false;
+            referencedRelation: "media_assets";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      media_assets: {
+        Row: {
+          byte_size: number;
+          content_hash: string | null;
+          created_at: string;
+          deleted_at: string | null;
+          entity_id: string | null;
+          entity_type: string | null;
+          height: number | null;
+          id: string;
+          kind: string;
+          metadata: Json;
+          mime_type: string;
+          organization_id: string | null;
+          original_filename: string | null;
+          owner_user_id: string;
+          plane: "user" | "organization";
+          replaced_asset_id: string | null;
+          status: "pending_upload" | "processing" | "ready" | "failed" | "deleted";
+          storage_bucket: string;
+          storage_path: string;
+          updated_at: string;
+          version: number;
+          width: number | null;
+        };
+        Insert: {
+          byte_size?: number;
+          content_hash?: string | null;
+          created_at?: string;
+          deleted_at?: string | null;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          height?: number | null;
+          id?: string;
+          kind: string;
+          metadata?: Json;
+          mime_type: string;
+          organization_id?: string | null;
+          original_filename?: string | null;
+          owner_user_id: string;
+          plane: "user" | "organization";
+          replaced_asset_id?: string | null;
+          status?: "pending_upload" | "processing" | "ready" | "failed" | "deleted";
+          storage_bucket?: string;
+          storage_path: string;
+          updated_at?: string;
+          version?: number;
+          width?: number | null;
+        };
+        Update: {
+          byte_size?: number;
+          content_hash?: string | null;
+          created_at?: string;
+          deleted_at?: string | null;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          height?: number | null;
+          id?: string;
+          kind?: string;
+          metadata?: Json;
+          mime_type?: string;
+          organization_id?: string | null;
+          original_filename?: string | null;
+          owner_user_id?: string;
+          plane?: "user" | "organization";
+          replaced_asset_id?: string | null;
+          status?: "pending_upload" | "processing" | "ready" | "failed" | "deleted";
+          storage_bucket?: string;
+          storage_path?: string;
+          updated_at?: string;
+          version?: number;
+          width?: number | null;
+        };
+        Relationships: [];
+      };
+      media_asset_variants: {
+        Row: {
+          byte_size: number;
+          created_at: string;
+          height: number | null;
+          id: string;
+          media_asset_id: string;
+          mime_type: string;
+          storage_path: string;
+          variant: "thumb" | "small" | "medium" | "large" | "original";
+          width: number | null;
+        };
+        Insert: {
+          byte_size?: number;
+          created_at?: string;
+          height?: number | null;
+          id?: string;
+          media_asset_id: string;
+          mime_type: string;
+          storage_path: string;
+          variant: "thumb" | "small" | "medium" | "large" | "original";
+          width?: number | null;
+        };
+        Update: {
+          byte_size?: number;
+          created_at?: string;
+          height?: number | null;
+          id?: string;
+          media_asset_id?: string;
+          mime_type?: string;
+          storage_path?: string;
+          variant?: "thumb" | "small" | "medium" | "large" | "original";
+          width?: number | null;
+        };
+        Relationships: [];
+      };
+      media_audit_events: {
+        Row: {
+          actor_user_id: string | null;
+          created_at: string;
+          details: Json;
+          event_type: string;
+          id: string;
+          media_asset_id: string | null;
+          organization_id: string | null;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          details?: Json;
+          event_type: string;
+          id?: string;
+          media_asset_id?: string | null;
+          organization_id?: string | null;
+        };
+        Update: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          details?: Json;
+          event_type?: string;
+          id?: string;
+          media_asset_id?: string | null;
+          organization_id?: string | null;
         };
         Relationships: [];
       };
@@ -1087,6 +1567,14 @@ export type Database = {
           unit_id: string | null;
           updated_at: string;
           updated_by: string | null;
+          user_id: string | null;
+          lifecycle_status:
+            | "awaiting_move_in"
+            | "awaiting_signature"
+            | "active"
+            | "notice_given"
+            | "moving_out"
+            | "former";
         };
         Insert: {
           archived_at?: string | null;
@@ -1116,6 +1604,14 @@ export type Database = {
           unit_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
+          user_id?: string | null;
+          lifecycle_status?:
+            | "awaiting_move_in"
+            | "awaiting_signature"
+            | "active"
+            | "notice_given"
+            | "moving_out"
+            | "former";
         };
         Update: {
           archived_at?: string | null;
@@ -1138,6 +1634,7 @@ export type Database = {
           move_out_date?: string | null;
           notes?: string | null;
           organization_id?: string;
+          user_id?: string | null;
           phone?: string | null;
           property_id?: string | null;
           preferred_name?: string | null;
@@ -1145,6 +1642,13 @@ export type Database = {
           unit_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
+          lifecycle_status?:
+            | "awaiting_move_in"
+            | "awaiting_signature"
+            | "active"
+            | "notice_given"
+            | "moving_out"
+            | "former";
         };
         Relationships: [
           {
@@ -1167,6 +1671,50 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "units";
             referencedColumns: ["id"];
+          }
+        ];
+      };
+      resident_lifecycle_events: {
+        Row: {
+          id: string;
+          organization_id: string;
+          tenant_id: string;
+          lease_id: string | null;
+          event_type: string;
+          summary: string;
+          payload: Json;
+          actor_user_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          tenant_id: string;
+          lease_id?: string | null;
+          event_type: string;
+          summary: string;
+          payload?: Json;
+          actor_user_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          tenant_id?: string;
+          lease_id?: string | null;
+          event_type?: string;
+          summary?: string;
+          payload?: Json;
+          actor_user_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "resident_lifecycle_events_tenant_fk";
+            columns: ["tenant_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id", "organization_id"];
           }
         ];
       };

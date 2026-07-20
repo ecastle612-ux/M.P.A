@@ -5,7 +5,8 @@ export const VAULT_ENTITY_TYPES = [
   "property",
   "unit",
   "vendor",
-  "maintenance"
+  "maintenance",
+  "asset"
 ] as const;
 
 export type VaultEntityType = (typeof VAULT_ENTITY_TYPES)[number];
