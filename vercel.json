@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @mpa/web build",
+  "outputDirectory": "apps/web/.next",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "my-property-assistant.com" }],
+      "destination": "https://www.my-property-assistant.com/:path*",
+      "permanent": true
+    }
+  ]
+}
