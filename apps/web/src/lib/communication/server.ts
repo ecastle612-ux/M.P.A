@@ -312,6 +312,59 @@ export async function publishAnnouncement(
     if (recipientError) throw new Error(recipientError.message);
   }
 
+  const { sendWorkflowEmail } = await import("../integrations/email/delivery");
+  const { isValidEmailAddress } = await import("../integrations/email/resolve-recipient");
+  for (const target of targets) {
+    if (!isValidEmailAddress(target.email)) {
+      let missingEmailUpdate = db
+        .from("announcement_recipients")
+        .update({ delivery_status: "failed" })
+        .eq("organization_id", organizationId)
+        .eq("announcement_id", announcementId)
+        .eq("delivery_channel", "email");
+      if (target.userId) missingEmailUpdate = missingEmailUpdate.eq("user_id", target.userId);
+      else if (target.tenantId) missingEmailUpdate = missingEmailUpdate.eq("tenant_id", target.tenantId);
+      await missingEmailUpdate;
+      continue;
+    }
+
+    const emailResult = await sendWorkflowEmail({
+      organizationId,
+      templateKey: "announcement_email",
+      idempotencyKey: `${organizationId}:announcement.email:${announcementId}:${target.userId ?? target.tenantId}:${target.email}`,
+      to: { email: target.email },
+      subject: detail.title,
+      body: detail.message.slice(0, 2000),
+      href: `/portal/tenant/announcements/${announcementId}`,
+      correlation: {
+        sourceEntityType: "announcement",
+        sourceEntityId: announcementId
+      }
+    }).catch(() => null);
+
+    const emailStatus =
+      !emailResult
+        ? "failed"
+        : emailResult.status === "sent" || emailResult.status === "queued"
+          ? "delivered"
+          : emailResult.status === "skipped"
+            ? "placeholder"
+            : "failed";
+
+    let emailUpdate = db
+      .from("announcement_recipients")
+      .update({
+        delivery_status: emailStatus,
+        delivered_at: emailStatus === "delivered" ? now : null
+      })
+      .eq("organization_id", organizationId)
+      .eq("announcement_id", announcementId)
+      .eq("delivery_channel", "email");
+    if (target.userId) emailUpdate = emailUpdate.eq("user_id", target.userId);
+    else if (target.tenantId) emailUpdate = emailUpdate.eq("tenant_id", target.tenantId);
+    await emailUpdate;
+  }
+
   const uniqueRecipients = new Set(targets.map((t) => t.userId ?? t.tenantId).filter(Boolean));
   return updateAnnouncementRow(organizationId, announcementId, userId, {
     status: "published",
@@ -635,7 +688,7 @@ async function resolveAnnouncementTargets(
   organizationId: string,
   announcement: AnnouncementListItem,
   client: CommunicationDbClient
-): Promise<Array<{ tenantId: string | null; userId: string | null }>> {
+): Promise<Array<{ tenantId: string | null; userId: string | null; email: string | null }>> {
   let tenantQuery = client.from("tenants").select("id, email").eq("organization_id", organizationId).is("deleted_at", null);
 
   switch (announcement.targetingScope) {
@@ -675,23 +728,42 @@ async function resolveAnnouncementTargets(
     .eq("organization_id", organizationId)
     .is("deleted_at", null);
 
-  const targets = new Map<string, { tenantId: string | null; userId: string | null }>();
+  const targets = new Map<
+    string,
+    { tenantId: string | null; userId: string | null; email: string | null }
+  >();
 
   for (const tenant of tenants ?? []) {
     const device = (devices ?? []).find(
       (row: { tenant_id: string | null; user_id: string | null }) => row.tenant_id === tenant.id
     );
     const key = device?.user_id ?? tenant.id;
-    targets.set(key, { tenantId: tenant.id as string, userId: (device?.user_id as string | null) ?? null });
+    const email =
+      typeof tenant.email === "string" && tenant.email.trim() ? String(tenant.email).trim().toLowerCase() : null;
+    targets.set(key, {
+      tenantId: tenant.id as string,
+      userId: (device?.user_id as string | null) ?? null,
+      email
+    });
   }
 
   for (const device of devices ?? []) {
     if (announcement.targetingScope === "organization") {
-      targets.set(device.user_id as string, { tenantId: (device.tenant_id as string | null) ?? null, userId: device.user_id as string });
+      const existing = targets.get(device.user_id as string);
+      targets.set(device.user_id as string, {
+        tenantId: (device.tenant_id as string | null) ?? null,
+        userId: device.user_id as string,
+        email: existing?.email ?? null
+      });
       continue;
     }
     if (announcement.targetPropertyId && device.property_id === announcement.targetPropertyId) {
-      targets.set(device.user_id as string, { tenantId: (device.tenant_id as string | null) ?? null, userId: device.user_id as string });
+      const existing = targets.get(device.user_id as string);
+      targets.set(device.user_id as string, {
+        tenantId: (device.tenant_id as string | null) ?? null,
+        userId: device.user_id as string,
+        email: existing?.email ?? null
+      });
     }
   }
 

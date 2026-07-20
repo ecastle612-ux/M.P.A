@@ -706,6 +706,25 @@ export async function generateOwnerStatement(
     db
   );
 
+  // INT-303: email when owner_placeholder is a deliverable address
+  const ownerRecipient = statement.ownerPlaceholder?.trim() ?? "";
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerRecipient)) {
+    const { sendWorkflowEmail } = await import("../integrations/email/delivery");
+    await sendWorkflowEmail({
+      organizationId,
+      templateKey: "owner_statement",
+      idempotencyKey: `${organizationId}:owner_statement:${statement.id}:${ownerRecipient.toLowerCase()}`,
+      to: { email: ownerRecipient.toLowerCase() },
+      subject: `Owner statement ${statement.statementNumber}`,
+      body: `Owner statement ${statement.statementNumber} is ready for ${statement.statementPeriodStart} – ${statement.statementPeriodEnd}. Net income: $${statement.netIncome.toFixed(2)}.`,
+      href: `/financials/owner-statements/${statement.id}`,
+      correlation: {
+        sourceEntityType: "owner_statement",
+        sourceEntityId: statement.id
+      }
+    }).catch(() => undefined);
+  }
+
   return statement;
 }
 

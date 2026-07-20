@@ -518,6 +518,30 @@ export async function convertApplicantToResident(
     supabase
   );
 
+  // Portal activation: invite + INT-303 invitation email (best-effort)
+  const { data: invitation, error: inviteError } = await supabase
+    .from("organization_invitations")
+    .insert({
+      organization_id: organizationId,
+      email: existing.email.toLowerCase(),
+      roles: ["tenant"],
+      invited_by: userId
+    })
+    .select("id, token, email, roles")
+    .single();
+  if (inviteError && !inviteError.message.toLowerCase().includes("duplicate")) {
+    // Invitation is best-effort — conversion already succeeded
+  } else if (invitation?.token) {
+    const { sendInvitationEmail } = await import("../integrations/email/delivery");
+    await sendInvitationEmail({
+      organizationId,
+      email: existing.email.toLowerCase(),
+      token: invitation.token as string,
+      roles: ["tenant"],
+      invitationId: invitation.id as string
+    }).catch(() => undefined);
+  }
+
   return { applicant, tenantId: tenant.id };
 }
 

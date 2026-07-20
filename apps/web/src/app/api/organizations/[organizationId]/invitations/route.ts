@@ -79,5 +79,16 @@ export async function POST(request: Request, context: { params: Promise<{ organi
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
+  if (data?.token) {
+    const { sendInvitationEmail } = await import("../../../../../lib/integrations/email/delivery");
+    await sendInvitationEmail({
+      organizationId,
+      email: data.email as string,
+      token: data.token as string,
+      roles: Array.isArray(data.roles) ? (data.roles as string[]) : parsed.roles,
+      invitationId: data.id as string
+    }).catch(() => undefined);
+  }
+
   return NextResponse.json({ invitation: data }, { status: 201 });
 }

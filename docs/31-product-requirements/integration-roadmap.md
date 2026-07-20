@@ -27,10 +27,10 @@ Pattern reference: [20 Future Integrations](../20-future-integrations/index.md)
 
 | ID | Integration | Priority | Workflow touchpoints | Phase |
 |----|-------------|----------|---------------------|-------|
-| INT-101 | Stripe (rent collection) | HIGH | Rent Collection, Move In | 8, 10 |
-| INT-102 | Plaid (bank verification) | MEDIUM | Owner distributions, trust | 8 |
-| INT-103 | ACH batch processing | MEDIUM | Rent Collection | 8 |
-| INT-104 | Payment receipt webhooks | HIGH | Ledger, resident portal | 8, 10 |
+| INT-101 | Stripe (rent collection) — design: [API-005](../51-api-005-resident-payments-billing/README.md) | HIGH | Rent Collection, Move In | 8, 10 |
+| INT-102 | Plaid (bank verification) — design: [API-005](../51-api-005-resident-payments-billing/README.md) | MEDIUM | Owner distributions, trust | 8 |
+| INT-103 | ACH batch processing — design: [API-005](../51-api-005-resident-payments-billing/README.md) | MEDIUM | Rent Collection | 8 |
+| INT-104 | Payment receipt webhooks — design: [API-005](../51-api-005-resident-payments-billing/README.md) | HIGH | Ledger, resident portal | 8, 10 |
 
 **Requirements:**
 - Resident and owner payment surfaces must not store raw card data in M.P.A. database
@@ -43,9 +43,9 @@ Pattern reference: [20 Future Integrations](../20-future-integrations/index.md)
 
 | ID | Integration | Priority | Workflow touchpoints | Phase |
 |----|-------------|----------|---------------------|-------|
-| INT-201 | TransUnion / Checkr screening | HIGH | Move In | 5, 10 |
-| INT-202 | DocuSign / HelloSign e-sign | HIGH | Move In, Lease Renewal | 5 |
-| INT-203 | Credit report storage (metadata) | HIGH | Tenant record | 5 |
+| INT-201 | TransUnion / Checkr screening — design: [API-003](../48-api-003-background-screening/README.md) (Checkr recommended first) | HIGH | Move In | 5, 10 |
+| INT-202 | DocuSign / HelloSign (Dropbox Sign) e-sign — design: [API-004](../50-api-004-electronic-signatures/README.md) (Dropbox Sign recommended first) | HIGH | Move In, Lease Renewal | 5 |
+| INT-203 | Credit report storage (metadata) — covered by [API-003](../48-api-003-background-screening/README.md) vault/retention | HIGH | Tenant record | 5 |
 | INT-204 | Application portal syndication | MEDIUM | Vacancy Fill | 9+ |
 
 **Requirements:**
@@ -60,7 +60,7 @@ Pattern reference: [20 Future Integrations](../20-future-integrations/index.md)
 |----|-------------|----------|---------------------|-------|
 | INT-301 | Push delivery (OneSignal default via abstraction; Firebase/APNs adapters future) — see [API-001](../44-api-001-onesignal-notification-foundation/README.md) + [ADR-017](../18-decision-log/adr-017-onesignal-as-primary-push-provider.md) (Proposed) | CRITICAL | MHF-001 all channels | 10 |
 | INT-302 | Twilio SMS | CRITICAL | Emergency, fallback | 10 |
-| INT-303 | SendGrid / Resend email | CRITICAL | Announcements, receipts | 10 |
+| INT-303 | Resend email (primary via EmailProvider abstraction; SendGrid adapter future) — see [INT-303 design package](../77-int-303-resend-email-provider/README.md) + [ADR-018](../18-decision-log/adr-018-resend-as-primary-transactional-email-provider.md) (Accepted) | CRITICAL | Announcements, invites, notify email channel | 10 |
 | INT-304 | Translation API (multi-language) | HIGH | MHF-001 | 10 |
 | INT-305 | In-app notification center | HIGH | All planes | 10 |
 
@@ -136,9 +136,9 @@ Pattern reference: [20 Future Integrations](../20-future-integrations/index.md)
 
 | ID | Integration | Priority | Workflow touchpoints | Phase |
 |----|-------------|----------|---------------------|-------|
-| INT-901 | Supabase Storage (primary) | HIGH | All document attachments | Current |
-| INT-902 | Virus scan on upload | MEDIUM | Security | 12 |
-| INT-903 | Long-term archival (cold storage) | LOW | Compliance | Post-launch |
+| INT-901 | Supabase Storage (primary) | HIGH | All document attachments | Current — design owned by [API-002A](../46-api-002a-universal-media-foundation/README.md) |
+| INT-902 | Virus scan on upload | MEDIUM | Security | 12 — hook designed in API-002A; implement after foundation |
+| INT-903 | Long-term archival (cold storage) | LOW | Compliance | Post-launch — lifecycle hooks in API-002A |
 
 ---
 
