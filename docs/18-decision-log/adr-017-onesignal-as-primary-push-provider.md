@@ -1,7 +1,7 @@
 # ADR-017: OneSignal as Primary Push Notification Provider
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-07-17
@@ -22,6 +22,8 @@ M.P.A. standards (MHF-015, Phase 12 provider abstractions, ADR-005 domain events
 6. Do not implement SMS (INT-302) or email (INT-303) in this decision’s scope.
 
 Authoritative design package: [docs/44-api-001-onesignal-notification-foundation](../44-api-001-onesignal-notification-foundation/README.md).
+
+Enrollment / device onboarding UX (workflow gap after live acceptance) is designed separately in [API-001A](../45-api-001a-push-enrollment-device-registration/README.md) and does not change this provider decision.
 
 ## Consequences
 **Easier:** Faster path to multi-platform web push; unified dashboard for device reachability; single REST integration for server sends; aligns with preference-aware orchestration already designed for MHF-001.

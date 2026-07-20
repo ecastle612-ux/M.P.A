@@ -98,6 +98,8 @@ AI in M.P.A. is **not a chatbot**. AI is an **embedded capability layer** that o
 
 **Implementation:** Edge Function `draft-communication` → `ai_suggestions` with `type: 'communication_draft'`. PM reviews before send.
 
+**Financial AI boundary (API-005):** AI may draft reminders, predict delinquency, forecast cash flow, or recommend collection actions. AI must **never** initiate charges, refunds, AutoPay enrollment, or any money movement — see [API-005](../51-api-005-resident-payments-billing/README.md).
+
 ---
 
 ### 6. Owner Summaries

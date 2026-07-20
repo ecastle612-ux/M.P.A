@@ -41,6 +41,8 @@ export default async function DashboardPage() {
     canCreateTenant: evaluatePermission(authorization, "tenant:create"),
     canCreateApplicant: evaluatePermission(authorization, "applicant:create"),
     canReadApplicants: evaluatePermission(authorization, "applicant:read"),
+    canReadScreening: evaluatePermission(authorization, "screening:read"),
+    canReadSignatures: evaluatePermission(authorization, "signature:read"),
     canCreateMaintenance: evaluatePermission(authorization, "maintenance:create"),
     canReadMaintenance: evaluatePermission(authorization, "maintenance:read"),
     canCreateVendor: evaluatePermission(authorization, "vendor:create"),

@@ -44,7 +44,8 @@ export function WorkOrdersTable({
   permissions,
   vendors = [],
   initialStatusFilter = "open",
-  initialPriorityFilter = "all"
+  initialPriorityFilter = "all",
+  initialQuery = ""
 }: {
   initialItems: WorkOrderListItem[];
   permissions: {
@@ -58,10 +59,11 @@ export function WorkOrdersTable({
   vendors?: VendorOption[];
   initialStatusFilter?: string;
   initialPriorityFilter?: string;
+  initialQuery?: string;
 }) {
   const { notify } = useToast();
   const [items, setItems] = useState(initialItems);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
   const [priorityFilter, setPriorityFilter] = useState<string>(initialPriorityFilter);
   const [sortBy, setSortBy] = useState<"updated" | "due" | "priority">("updated");

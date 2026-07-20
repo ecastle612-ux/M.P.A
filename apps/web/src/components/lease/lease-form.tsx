@@ -380,8 +380,8 @@ export function LeaseForm({
         </div>
 
         <Input
-          aria-label="Co-tenant placeholder"
-          placeholder="Co-tenant placeholder"
+          aria-label="Additional residents or co-tenants"
+          placeholder="Additional residents or co-tenants (optional)"
           value={values.coTenantPlaceholder}
           onChange={(event) => setValues((current) => ({ ...current, coTenantPlaceholder: event.target.value }))}
         />
@@ -446,8 +446,8 @@ export function LeaseForm({
         </div>
 
         <Input
-          aria-label="Late fee placeholder"
-          placeholder="Late fee placeholder"
+          aria-label="Late fee notes"
+          placeholder="Late fee notes (optional)"
           value={values.lateFeePlaceholder}
           onChange={(event) => setValues((current) => ({ ...current, lateFeePlaceholder: event.target.value }))}
         />

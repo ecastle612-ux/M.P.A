@@ -60,6 +60,17 @@ export async function POST(_request: Request, context: { params: Promise<{ token
     return NextResponse.json({ error: invitationUpdateError.message }, { status: 400 });
   }
 
+  const roles = Array.isArray(invitation.roles) ? invitation.roles : [];
+  if (roles.includes("tenant")) {
+    await supabase
+      .from("tenants")
+      .update({ user_id: user.id, updated_by: user.id })
+      .eq("organization_id", invitation.organization_id)
+      .ilike("email", user.email)
+      .is("deleted_at", null)
+      .is("user_id", null);
+  }
+
   return NextResponse.json({
     ok: true,
     organizationId: invitation.organization_id

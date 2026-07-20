@@ -5,7 +5,7 @@ describe("buildTasks", () => {
   it("prioritizes first property setup when portfolio is empty", () => {
     const tasks = buildTasks(baseArgs({ propertiesTotal: 0 }));
     expect(tasks[0]?.id).toBe("create-first-property");
-    expect(tasks[0]?.actionLabel).toBe("Create property");
+    expect(tasks[0]?.actionLabel).toBe("Resolve · Create property");
   });
 
   it("flags properties without units", () => {
@@ -19,19 +19,30 @@ describe("buildTasks", () => {
     expect(tasks.some((task) => task.id === "properties-without-units")).toBe(true);
   });
 
-  it("routes vacant-ready units to tenant creation", () => {
+  it("routes vacant-ready units to guided move-in", () => {
     const tasks = buildTasks(
       baseArgs({
         propertiesTotal: 1,
         unitsTotal: 4,
         tenantsTotal: 1,
         vacantReadyUnits: 2,
-        vacantUnitSample: [{ id: "unit-1", unitNumber: "2B" }]
+        vacantUnitSample: [{ id: "unit-1", unitNumber: "2B", propertyId: "prop-1" }]
       })
     );
     const task = tasks.find((entry) => entry.id === "vacant-ready-units");
-    expect(task?.href).toBe("/tenants/new?unitId=unit-1");
+    expect(task?.href).toBe("/residents/move-in?propertyId=prop-1&unitId=unit-1");
     expect(task?.actionLabel).toContain("2B");
+  });
+
+  it("routes late rent to one-shot record payment", () => {
+    const tasks = buildTasks(
+      baseArgs({
+        lateRentCount: 3
+      })
+    );
+    const task = tasks.find((entry) => entry.id === "record-late-rent");
+    expect(task?.href).toBe("/financials/payments/new");
+    expect(task?.actionLabel).toContain("Record payment");
   });
 
   it("includes recently created tenant review task", () => {

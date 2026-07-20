@@ -1,9 +1,9 @@
 # API-001 — OneSignal Notification Foundation
 
-**Status:** Draft — Design → Document complete; awaiting Approve  
+**Status:** Approved · Implemented  
 **Initiative ID:** API-001  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
-**Provider decision:** [ADR-017](../18-decision-log/adr-017-onesignal-as-primary-push-provider.md) (Proposed)  
+**Provider decision:** [ADR-017](../18-decision-log/adr-017-onesignal-as-primary-push-provider.md) (Accepted)  
 **Gate owner:** Product + Lead Architect + Security
 
 ---
@@ -33,6 +33,10 @@ Application Event
 | [Phase 12 providers](../41-phase-12-resident-experience-digital-operations/04-provider-abstractions.md) | Defined `PushProvider` stub pattern — API-001 realizes the production push provider |
 | [INT-301](../31-product-requirements/integration-roadmap.md) | PRR listed Firebase/APNs; ADR-017 selects OneSignal as primary while preserving abstraction |
 
+### Extension package
+
+Live acceptance identified a **workflow gap** (permission → device enrollment → zero-recipient awareness). That experience is designed in **[API-001A — Push Enrollment & Device Registration](../45-api-001a-push-enrollment-device-registration/README.md)** (Draft — Ready for Approval). API-001A does not change NotificationService or OneSignalProvider architecture.
+
 ### Explicitly out of scope (this package)
 
 - SMS delivery (INT-302)
@@ -41,6 +45,7 @@ Application Event
 - AI-generated replies
 - Redesign of existing PM/resident modules
 - Application code, migrations, SDKs, or environment variable commits (Design/Document only)
+- Post-auth enrollment banner / announcement zero-recipient UX (see API-001A)
 
 ---
 
@@ -74,13 +79,13 @@ Application Event
 
 ## Approval checklist
 
-- [ ] Product sign-off on scope, categories, and event routing table
-- [ ] Architect sign-off on architecture + provider abstraction
-- [ ] Security sign-off on secrets model (08)
-- [ ] ADR-017 Accepted (OneSignal as primary push provider)
-- [ ] INT-301 / PRR notes updated to reflect OneSignal + abstraction
-- [ ] Status on this README changed to **Approved**
-- [ ] Implementation authorized only for approved slices in [09](./09-implementation-slices.md)
+- [x] Product sign-off on scope, categories, and event routing table
+- [x] Architect sign-off on architecture + provider abstraction
+- [x] Security sign-off on secrets model (08)
+- [x] ADR-017 Accepted (OneSignal as primary push provider)
+- [x] INT-301 / PRR notes updated to reflect OneSignal + abstraction
+- [x] Status on this README changed to **Approved**
+- [x] Implementation authorized only for approved slices in [09](./09-implementation-slices.md)
 
 ---
 
@@ -88,9 +93,9 @@ Application Event
 
 | Stage | State |
 |-------|--------|
-| Design | Complete (this package) |
-| Document | Complete (this package + ADR-017 Proposed) |
-| Approve | **Pending** |
-| Implement | **Blocked** until Approve |
+| Design | Complete |
+| Document | Complete |
+| Approve | **Complete** |
+| Implement | **Complete (slices 0–6)** |
 
-**Ready for Approval.**
+**Approved and implemented. ADR-017 Accepted.**

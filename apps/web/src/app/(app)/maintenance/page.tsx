@@ -11,9 +11,9 @@ import { getVendorsForOrganization } from "../../../lib/vendor/server";
 export default async function MaintenancePage({
   searchParams
 }: {
-  searchParams: Promise<{ status?: string; priority?: string }>;
+  searchParams: Promise<{ status?: string; priority?: string; q?: string }>;
 }) {
-  const { status: statusParam, priority: priorityParam } = await searchParams;
+  const { status: statusParam, priority: priorityParam, q: queryParam } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -64,6 +64,7 @@ export default async function MaintenancePage({
         vendors={vendors.map((vendor) => ({ id: vendor.id, businessName: vendor.businessName }))}
         {...(statusParam ? { initialStatusFilter: statusParam } : {})}
         {...(priorityParam ? { initialPriorityFilter: priorityParam } : {})}
+        {...(queryParam ? { initialQuery: queryParam } : {})}
       />
     </AppPage>
   );

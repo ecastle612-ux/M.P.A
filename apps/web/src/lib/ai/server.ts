@@ -2,6 +2,8 @@ import { assertAssistantOnlyResponse } from "./events";
 import { buildPortfolioContext } from "./context";
 import { getDefaultAiProvider } from "./provider";
 import { createAuthServerComponentClient } from "../auth/server";
+import { notify } from "../notifications/service";
+import type { NotificationPriority } from "../notifications/contracts";
 import type { Json } from "@mpa/supabase";
 import type {
   AiActivityRecord,
@@ -10,6 +12,7 @@ import type {
   AiDashboardMetrics,
   AiInsightRecord,
   AiMessageRecord,
+  InsightPriority,
   InsightStatus,
   PromptKey,
   RunPromptInput
@@ -129,20 +132,48 @@ export async function runAiPrompt(
     .eq("id", conversationId);
 
   for (const candidate of result.insightCandidates) {
-    await db.from("ai_insights").insert({
-      organization_id: organizationId,
-      insight_type: candidate.insightType,
-      category: candidate.category,
-      priority: candidate.priority,
-      title: candidate.title,
-      content: candidate.content,
-      action_href: candidate.actionHref ?? null,
-      action_label: candidate.actionLabel ?? null,
-      prompt_key: promptKey,
-      sources: result.sources as unknown as Json,
-      created_by: userId,
-      updated_by: userId
-    });
+    const { data: inserted } = await db
+      .from("ai_insights")
+      .insert({
+        organization_id: organizationId,
+        insight_type: candidate.insightType,
+        category: candidate.category,
+        priority: candidate.priority,
+        title: candidate.title,
+        content: candidate.content,
+        action_href: candidate.actionHref ?? null,
+        action_label: candidate.actionLabel ?? null,
+        prompt_key: promptKey,
+        sources: result.sources as unknown as Json,
+        created_by: userId,
+        updated_by: userId
+      })
+      .select("id, title, priority, action_href")
+      .single();
+    if (inserted) {
+      const row = inserted as {
+        id: string;
+        title: string;
+        priority: InsightPriority;
+        action_href: string | null;
+      };
+      await notify(
+        {
+          organizationId,
+          actorUserId: userId,
+          eventKey: `ai.insight_created:${row.id}`,
+          recipientUserIds: [userId],
+          category: "ai_operations",
+          priority: mapInsightPriority(row.priority),
+          title: "New AI recommendation",
+          body: row.title,
+          href: row.action_href ?? "/ai-operations",
+          sourceEntityType: "ai_insight",
+          sourceEntityId: row.id
+        },
+        db as unknown as SupabaseClientType
+      ).catch(() => undefined);
+    }
   }
 
   await recordAiActivity(db, organizationId, userId, {
@@ -223,6 +254,8 @@ export async function syncPortfolioInsights(
   const context = await buildPortfolioContext(organizationId, db as unknown as SupabaseClientType);
   const provider = getDefaultAiProvider();
   const summary = provider.executePrompt({ promptKey: "portfolio_summary", message: null, context });
+  const createdInsights: Array<{ id: string; title: string; content: string; priority: InsightPriority; actionHref: string | null }> =
+    [];
 
   for (const candidate of summary.insightCandidates) {
     const { count } = await db
@@ -233,19 +266,39 @@ export async function syncPortfolioInsights(
       .eq("status", "active")
       .is("deleted_at", null);
     if ((count ?? 0) > 0) continue;
-    await db.from("ai_insights").insert({
-      organization_id: organizationId,
-      insight_type: candidate.insightType,
-      category: candidate.category,
-      priority: candidate.priority,
-      title: candidate.title,
-      content: candidate.content,
-      action_href: candidate.actionHref ?? null,
-      action_label: candidate.actionLabel ?? null,
-      prompt_key: "portfolio_summary",
-      created_by: userId,
-      updated_by: userId
-    });
+    const { data: inserted } = await db
+      .from("ai_insights")
+      .insert({
+        organization_id: organizationId,
+        insight_type: candidate.insightType,
+        category: candidate.category,
+        priority: candidate.priority,
+        title: candidate.title,
+        content: candidate.content,
+        action_href: candidate.actionHref ?? null,
+        action_label: candidate.actionLabel ?? null,
+        prompt_key: "portfolio_summary",
+        created_by: userId,
+        updated_by: userId
+      })
+      .select("id, title, content, priority, action_href")
+      .single();
+    if (inserted) {
+      const row = inserted as {
+        id: string;
+        title: string;
+        content: string;
+        priority: InsightPriority;
+        action_href: string | null;
+      };
+      createdInsights.push({
+        id: row.id,
+        title: row.title,
+        content: row.content,
+        priority: row.priority,
+        actionHref: row.action_href
+      });
+    }
   }
 
   const extraPrompts: PromptKey[] = ["show_overdue_maintenance", "summarize_financial_health", "show_expiring_leases"];
@@ -260,19 +313,39 @@ export async function syncPortfolioInsights(
         .eq("status", "active")
         .is("deleted_at", null);
       if ((count ?? 0) > 0) continue;
-      await db.from("ai_insights").insert({
-        organization_id: organizationId,
-        insight_type: candidate.insightType,
-        category: candidate.category,
-        priority: candidate.priority,
-        title: candidate.title,
-        content: candidate.content,
-        action_href: candidate.actionHref ?? null,
-        action_label: candidate.actionLabel ?? null,
-        prompt_key: key,
-        created_by: userId,
-        updated_by: userId
-      });
+      const { data: inserted } = await db
+        .from("ai_insights")
+        .insert({
+          organization_id: organizationId,
+          insight_type: candidate.insightType,
+          category: candidate.category,
+          priority: candidate.priority,
+          title: candidate.title,
+          content: candidate.content,
+          action_href: candidate.actionHref ?? null,
+          action_label: candidate.actionLabel ?? null,
+          prompt_key: key,
+          created_by: userId,
+          updated_by: userId
+        })
+        .select("id, title, content, priority, action_href")
+        .single();
+      if (inserted) {
+        const row = inserted as {
+          id: string;
+          title: string;
+          content: string;
+          priority: InsightPriority;
+          action_href: string | null;
+        };
+        createdInsights.push({
+          id: row.id,
+          title: row.title,
+          content: row.content,
+          priority: row.priority,
+          actionHref: row.action_href
+        });
+      }
     }
   }
 
@@ -282,6 +355,31 @@ export async function syncPortfolioInsights(
     summary: "Generated portfolio AI insights",
     payload: { source: "relational" }
   });
+
+  for (const insight of createdInsights) {
+    await notify(
+      {
+        organizationId,
+        actorUserId: userId,
+        eventKey: `ai.insight_created:${insight.id}`,
+        recipientUserIds: [userId],
+        category: "ai_operations",
+        priority: mapInsightPriority(insight.priority),
+        title: "New AI recommendation",
+        body: insight.title,
+        href: insight.actionHref ?? "/ai-operations",
+        sourceEntityType: "ai_insight",
+        sourceEntityId: insight.id
+      },
+      db as unknown as SupabaseClientType
+    ).catch(() => undefined);
+  }
+}
+
+function mapInsightPriority(priority: InsightPriority): NotificationPriority {
+  if (priority === "high") return "high";
+  if (priority === "low") return "low";
+  return "normal";
 }
 
 export async function getAiDashboardMetrics(

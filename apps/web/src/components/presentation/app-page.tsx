@@ -12,9 +12,9 @@ export function AppPage({
   wide?: boolean;
 }) {
   return (
-    <main className={wide ? "mpa-page-wide flex-1 space-y-5" : "mpa-page flex-1 space-y-5"}>
+    <main className={wide ? "mpa-page-wide flex-1 space-y-4" : "mpa-page flex-1 space-y-4"}>
       {breadcrumbs ? (
-        <div className="mb-4">
+        <div className="mb-2">
           <Breadcrumbs items={breadcrumbs} />
         </div>
       ) : null}

@@ -1,35 +1,78 @@
-export type ScreeningCaseStatus = "pending" | "in_progress" | "completed" | "failed" | "cancelled";
+/**
+ * ScreeningProvider abstraction (API-003).
+ * Business modules must never import Checkr/SmartMove SDKs — only ScreeningService.
+ */
 
-export type ScreeningCaseRecord = {
-  id: string;
+import type {
+  NormalizedScreeningReport,
+  ScreeningComponentType,
+  ScreeningProviderId
+} from "../../screening/contracts";
+
+export type { NormalizedScreeningReport } from "../../screening/contracts";
+
+export type ScreeningOrderInput = {
   organizationId: string;
-  applicantId: string;
+  screeningCaseId: string;
   caseNumber: string;
-  provider: string;
-  status: ScreeningCaseStatus;
-  externalReference: string | null;
-  resultSummary: string | null;
-  metadata: Record<string, unknown>;
-  createdAt: string;
-  updatedAt: string;
+  packageCode: string;
+  components: ScreeningComponentType[];
+  consentAttestationId: string;
+  party: {
+    id: string;
+    fullName: string;
+    email: string | null;
+    role: string;
+    externalCandidateId?: string | null;
+  };
+  callbackUrl?: string;
+  sandbox?: boolean;
 };
 
-export type CreateScreeningCaseInput = {
-  applicantId: string;
-  provider?: string;
-};
-
-export type ScreeningProviderResult = {
+export type ScreeningOrderRef = {
   externalReference: string;
-  status: ScreeningCaseStatus;
-  resultSummary: string;
+  externalCandidateId?: string | null;
+  authorizationUrl?: string | null;
+};
+
+export type ProviderCaseStatus = {
+  externalReference: string;
+  status: "pending" | "in_progress" | "completed" | "failed" | "cancelled";
+  message?: string;
+};
+
+export type ProviderArtifact = {
+  name: string;
+  contentType: string;
+  url?: string;
+  bytes?: Uint8Array;
+};
+
+export type ScreeningWebhookResult = {
+  externalEventId: string;
+  screeningExternalReference: string | null;
+  normalized?: NormalizedScreeningReport | null;
+  ignored?: boolean;
+  message?: string;
 };
 
 export type ScreeningProvider = {
-  id: string;
-  initiateScreening(input: {
-    organizationId: string;
-    applicantId: string;
-    caseNumber: string;
-  }): Promise<ScreeningProviderResult>;
+  readonly id: ScreeningProviderId | string;
+  createOrder(input: ScreeningOrderInput): Promise<ScreeningOrderRef>;
+  getAuthorizationUrl?(ref: ScreeningOrderRef): Promise<string | null>;
+  getStatus(ref: ScreeningOrderRef): Promise<ProviderCaseStatus>;
+  fetchNormalizedReport(ref: ScreeningOrderRef): Promise<NormalizedScreeningReport>;
+  listArtifacts?(ref: ScreeningOrderRef): Promise<ProviderArtifact[]>;
+  cancel?(ref: ScreeningOrderRef): Promise<void>;
+  handleWebhook(
+    payload: unknown,
+    headers: Record<string, string>
+  ): Promise<ScreeningWebhookResult>;
+};
+
+/** @deprecated Use ScreeningProvider from this module. Kept for gradual migration. */
+export type LegacyScreeningProviderResult = {
+  externalReference: string;
+  status: string;
+  resultSummary: string;
 };

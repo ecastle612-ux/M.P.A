@@ -87,7 +87,8 @@ Never:
 
 ### Constraints
 
-- Use existing profile API — no schema changes
+- Use existing profile API — no schema changes **until** media foundation is approved
+- Optional profile photo UX must not require pasting URLs once [API-002A](../46-api-002a-universal-media-foundation/README.md) is Approved and slice 4 ships
 - Align with [First Five Minutes](../21-experience-architecture/first-five-minutes.md): wizard is setup-focused, not a feature tour
 
 ---

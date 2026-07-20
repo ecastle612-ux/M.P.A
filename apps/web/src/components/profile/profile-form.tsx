@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Avatar, Button, Card, Checkbox, Input } from "@mpa/ui";
+import { MediaUpload, profilePhotoUploadIntent } from "../media/media-upload";
 import { DEFAULT_NOTIFICATION_PREFERENCES, type NotificationPreferences } from "../../lib/profile/contracts";
 
 type ProfileState = {
   email: string;
   displayName: string;
   avatarUrl: string;
+  avatarMediaAssetId: string | null;
   phone: string;
   contactEmail: string;
   timezone: string;
@@ -24,6 +26,7 @@ const EMPTY_PROFILE: ProfileState = {
   email: "",
   displayName: "",
   avatarUrl: "",
+  avatarMediaAssetId: null,
   phone: "",
   contactEmail: "",
   timezone: "UTC",
@@ -51,7 +54,11 @@ export function ProfileForm() {
       }
       const payload = (await response.json()) as { profile?: ProfileState };
       if (isMounted && payload.profile) {
-        setProfile(payload.profile);
+        setProfile({
+          ...EMPTY_PROFILE,
+          ...payload.profile,
+          avatarMediaAssetId: payload.profile.avatarMediaAssetId ?? null
+        });
       }
       if (isMounted) {
         setLoading(false);
@@ -114,18 +121,25 @@ export function ProfileForm() {
             <Avatar src={profile.avatarUrl || undefined} fallback={avatarFallback || "MP"} />
             <div className="text-sm text-[var(--mpa-color-text-secondary)]">{profile.email}</div>
           </div>
+          <MediaUpload
+            intent={profilePhotoUploadIntent}
+            value={profile.avatarMediaAssetId}
+            onChange={(avatarMediaAssetId) =>
+              setProfile((current) => ({
+                ...current,
+                avatarMediaAssetId,
+                avatarUrl: avatarMediaAssetId ? current.avatarUrl : ""
+              }))
+            }
+            label="Profile photo"
+            disabled={saving}
+          />
           <div className="grid gap-3 md:grid-cols-2">
             <Input
               aria-label="Display name"
               placeholder="Display name"
               value={profile.displayName}
               onChange={(event) => setProfile((current) => ({ ...current, displayName: event.target.value }))}
-            />
-            <Input
-              aria-label="Avatar URL"
-              placeholder="Avatar URL"
-              value={profile.avatarUrl}
-              onChange={(event) => setProfile((current) => ({ ...current, avatarUrl: event.target.value }))}
             />
             <Input
               aria-label="Contact email"

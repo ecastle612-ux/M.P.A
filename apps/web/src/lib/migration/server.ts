@@ -2,10 +2,12 @@ import { createAuthServerComponentClient } from "../auth/server";
 import type { Database, Json } from "@mpa/supabase";
 import { createApplicant } from "../applicant/server";
 import { defaultApplicantProfile } from "../applicant/contracts";
+import { notify } from "../notifications/service";
 import { createProperty } from "../property/server";
 import { createTenant } from "../tenant/server";
 import { createUnit } from "../unit/server";
 import { createVendor } from "../vendor/server";
+import { createLease } from "../lease/server";
 import { createVaultDocument } from "../vault/server";
 import type {
   ColumnMap,
@@ -445,7 +447,26 @@ export async function runMigrationImport(
     supabase
   );
 
-  return toMigrationJobRecord(data as JobRow);
+  const jobRecord = toMigrationJobRecord(data as JobRow);
+  const failed = errors > 0 && imported === 0;
+  await notify(
+    {
+      organizationId,
+      actorUserId: userId,
+      eventKey: failed ? `migration.failed:${jobId}` : `migration.completed:${jobId}`,
+      recipientUserIds: [userId],
+      category: "system",
+      priority: failed ? "high" : "normal",
+      title: failed ? "Migration import failed" : "Migration import completed",
+      body: `${jobRecord.name}: ${imported} imported, ${warnings} warnings, ${errors} errors`,
+      href: `/migration/${jobId}`,
+      sourceEntityType: "migration_job",
+      sourceEntityId: jobId
+    },
+    supabase
+  ).catch(() => undefined);
+
+  return jobRecord;
 }
 
 export async function getMigrationReviewItems(
@@ -805,6 +826,7 @@ async function importMappedRow(args: {
           preferredName: null,
           email,
           avatarUrl: null,
+          avatarMediaAssetId: null,
           phone: args.mapped["phone"] ?? null,
           dateOfBirth: null,
           moveInDate: null,
@@ -814,7 +836,8 @@ async function importMappedRow(args: {
           emergencyContactPhone: null,
           notes: null,
           status: "active",
-          metadata: { migrationJobId: args.jobId }
+          lifecycleStatus: "awaiting_move_in",
+          metadata: { migrationJobId: args.jobId, migratedVia: "migration_center" }
         },
         args.client
       );
@@ -910,8 +933,56 @@ async function importMappedRow(args: {
       return { status: "imported" };
     }
     case "lease": {
-      await createReviewItem(args, "ambiguous_match", "Lease import requires resolved property, unit, and tenant links");
-      return { status: "review" };
+      const propertyKey = (args.mapped["propertyName"] ?? "").trim().toLowerCase();
+      const propertyId = propertyKey ? args.propertyIdByKey.get(propertyKey) ?? null : null;
+      const unitKey = propertyId
+        ? `${propertyId}|${(args.mapped["unitNumber"] ?? "").trim().toLowerCase()}`
+        : "";
+      const unitId = unitKey ? args.unitIdByKey.get(unitKey) ?? null : null;
+      const tenantEmail = (args.mapped["tenantEmail"] ?? "").trim().toLowerCase();
+      const tenantId = tenantEmail ? args.tenantIdByEmail.get(tenantEmail) ?? null : null;
+      const startDate = args.mapped["startDate"];
+      const endDate = args.mapped["endDate"] ?? args.mapped["startDate"];
+      const rentAmount = parseNumber(args.mapped["rentAmount"]);
+
+      if (!propertyId || !unitId || !tenantId || !startDate || !endDate || rentAmount === null) {
+        await createReviewItem(
+          args,
+          "ambiguous_match",
+          "Lease import requires resolved property, unit, tenant, dates, and rent"
+        );
+        return { status: "review" };
+      }
+
+      const leaseNumber = args.mapped["leaseNumber"]?.trim();
+      const created = await createLease(
+        args.organizationId,
+        args.userId,
+        {
+          ...(leaseNumber ? { leaseNumber } : {}),
+          propertyId,
+          unitId,
+          primaryTenantId: tenantId,
+          coTenantPlaceholder: null,
+          leaseType: "residential",
+          status: "active",
+          startDate,
+          endDate,
+          moveInDate: startDate,
+          moveOutDate: null,
+          rentAmount,
+          securityDeposit: parseNumber(args.mapped["securityDeposit"]) ?? 0,
+          lateFeePlaceholder: null,
+          renewalOption: false,
+          noticePeriodDays: 30,
+          renewalStatus: "none",
+          internalNotes: "Imported via Migration Center",
+          metadata: { migrationJobId: args.jobId }
+        },
+        args.client
+      );
+      await linkRecord(args, "lease", created.id);
+      return { status: "imported" };
     }
     default:
       return { status: "warning" };
@@ -979,6 +1050,10 @@ function validateMappedRow(entityType: MigrationEntityType, row: Record<string, 
         : { valid: false as const, message: "Name and email required" };
     case "vendor":
       return row["businessName"] ? { valid: true as const } : { valid: false as const, message: "Vendor name required" };
+    case "lease":
+      return row["tenantEmail"] && row["startDate"] && (row["endDate"] || row["startDate"]) && row["rentAmount"]
+        ? { valid: true as const }
+        : { valid: false as const, message: "Lease requires tenant email, dates, and rent" };
     case "document":
       return row["filename"] || row["title"]
         ? { valid: true as const }

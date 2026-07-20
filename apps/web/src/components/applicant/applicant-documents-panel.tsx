@@ -48,7 +48,7 @@ export function ApplicantDocumentsPanel({
       <div>
         <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Document vault</h3>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Polymorphic document references — upload integration reserved for future slice.
+          Track required application paperwork. Add a reference for each document you have collected.
         </p>
       </div>
 

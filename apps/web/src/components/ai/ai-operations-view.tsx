@@ -113,66 +113,74 @@ export function AiOperationsView({
       : insights.filter((insight) => insight.insightType === "recommendation");
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        overline="AI Operations Center"
-        title="AI Operations"
-        description="Portfolio intelligence, curated prompts, and recommendations — always under property manager control."
-      />
-
-      <Card variant="elevated" className="border-[var(--mpa-color-brand-primary)]/15">
-        <div
-          role="note"
-          className="rounded-[var(--mpa-radius-lg)] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
-        >
-          {AI_ASSISTANT_DISCLAIMER}
-        </div>
-      </Card>
-
-      <div className="grid gap-5 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)]">
-        <AiSidebar
-          prompts={prompts}
-          conversations={conversations}
-          activeConversationId={activeConversation?.id ?? null}
-          canUse={permissions.canUse}
-          onSelectPrompt={handleSelectPrompt}
-          onSelectConversation={handleSelectConversation}
+    <div className="flex min-h-0 flex-col gap-3 xl:gap-5">
+      <div className="shrink-0 space-y-2">
+        <PageHeader
+          overline="AI Operations Center"
+          title="AI Operations"
+          description="Ask questions, run prompts, and act on recommendations — under your control."
         />
+        <Card variant="elevated" className="border-[var(--mpa-color-brand-primary)]/15 py-2">
+          <div
+            role="note"
+            className="rounded-[var(--mpa-radius-md)] border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-900 sm:text-sm"
+          >
+            {AI_ASSISTANT_DISCLAIMER}
+          </div>
+        </Card>
+      </div>
 
-        <div className="space-y-5">
-          <AiSearchAssistant
-            key={activeConversation?.id ?? "new-conversation"}
-            conversationId={activeConversation?.id ?? null}
-            conversationTitle={activeConversation?.title ?? null}
-            initialMessages={
-              activeConversation?.messages.map((message) => ({
-                id: message.id,
-                role: message.role,
-                content: message.content,
-                promptKey: message.promptKey,
-                createdAt: message.createdAt
-              })) ?? []
-            }
+      {/* Mobile: viewport-locked conversational workspace; desktop: side-by-side */}
+      <div className="grid min-h-0 flex-1 gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:gap-5">
+        <div className="xl:sticky xl:top-0 xl:max-h-[calc(100dvh-8rem)] xl:overflow-y-auto">
+          <AiSidebar
+            prompts={prompts}
+            conversations={conversations}
+            activeConversationId={activeConversation?.id ?? null}
             canUse={permissions.canUse}
-            pendingPromptKey={pendingPromptKey}
-            onConversationChange={handleConversationChange}
-            onPromptComplete={() => setPendingPromptKey(null)}
+            onSelectPrompt={handleSelectPrompt}
+            onSelectConversation={handleSelectConversation}
           />
+        </div>
 
-          <AiRecommendationCards
-            recommendations={recommendations}
-            canUse={permissions.canUse}
-            onInsightUpdated={() => void refreshPanels()}
-          />
+        <div className="flex min-h-[min(70dvh,36rem)] flex-col gap-3 xl:min-h-0">
+          <div className="flex min-h-0 flex-1 flex-col">
+            <AiSearchAssistant
+              key={activeConversation?.id ?? "new-conversation"}
+              conversationId={activeConversation?.id ?? null}
+              conversationTitle={activeConversation?.title ?? null}
+              initialMessages={
+                activeConversation?.messages.map((message) => ({
+                  id: message.id,
+                  role: message.role,
+                  content: message.content,
+                  promptKey: message.promptKey,
+                  createdAt: message.createdAt
+                })) ?? []
+              }
+              canUse={permissions.canUse}
+              pendingPromptKey={pendingPromptKey}
+              onConversationChange={handleConversationChange}
+              onPromptComplete={() => setPendingPromptKey(null)}
+            />
+          </div>
 
-          <AiInsightCards
-            dailySummary={metrics.dailySummary}
-            portfolioInsights={metrics.portfolioInsights}
-            highPriorityItems={metrics.highPriorityItems}
-            potentialRisks={metrics.potentialRisks}
-          />
+          <div className="space-y-3 xl:space-y-5">
+            <AiRecommendationCards
+              recommendations={recommendations}
+              canUse={permissions.canUse}
+              onInsightUpdated={() => void refreshPanels()}
+            />
 
-          <AiActivityFeed activity={activity} />
+            <AiInsightCards
+              dailySummary={metrics.dailySummary}
+              portfolioInsights={metrics.portfolioInsights}
+              highPriorityItems={metrics.highPriorityItems}
+              potentialRisks={metrics.potentialRisks}
+            />
+
+            <AiActivityFeed activity={activity} />
+          </div>
         </div>
       </div>
     </div>

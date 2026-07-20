@@ -5,6 +5,8 @@ import { DetailPageLayout } from "../../../../components/presentation/detail-pag
 import { ApplicantDocumentsPanel } from "../../../../components/applicant/applicant-documents-panel";
 import { ApplicantStatusPanel } from "../../../../components/applicant/applicant-status-panel";
 import { ApplicantTimelinePanel } from "../../../../components/applicant/applicant-timeline-panel";
+import { ApplicantScreeningPanel } from "../../../../components/screening/applicant-screening-panel";
+import { SignaturePackagePanel } from "../../../../components/signature/signature-package-panel";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -47,6 +49,12 @@ export default async function ApplicantDetailPage({
 
   const canUpdate = evaluatePermission(authorization, "applicant:update");
   const canCreateDocument = evaluatePermission(authorization, "document:create");
+  const canCreateScreening = evaluatePermission(authorization, "screening:create");
+  const canDecideScreening = evaluatePermission(authorization, "screening:decide");
+  const canReadScreening = evaluatePermission(authorization, "screening:read");
+  const canCreateSignature = evaluatePermission(authorization, "signature:create");
+  const canSendSignature = evaluatePermission(authorization, "signature:send");
+  const canReadSignature = evaluatePermission(authorization, "signature:read");
   const displayName = applicant.preferredName || `${applicant.firstName} ${applicant.lastName}`;
 
   return (
@@ -105,6 +113,20 @@ export default async function ApplicantDetailPage({
             ) : null}
           </Card>
           <ApplicantMessagingPanel applicantName={displayName} thread={applicantThread} />
+          {canReadScreening ? (
+            <ApplicantScreeningPanel
+              applicantId={applicantId}
+              canCreate={canCreateScreening}
+              canDecide={canDecideScreening}
+            />
+          ) : null}
+          {canReadSignature ? (
+            <SignaturePackagePanel
+              applicantId={applicantId}
+              canCreate={canCreateSignature}
+              canSend={canSendSignature}
+            />
+          ) : null}
           <ApplicantDocumentsPanel applicantId={applicantId} initialDocuments={documents} canCreate={canCreateDocument} />
           <ApplicantTimelinePanel events={events} />
         </div>

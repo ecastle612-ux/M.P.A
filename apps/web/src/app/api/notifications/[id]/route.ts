@@ -4,11 +4,12 @@ import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { parseNotificationMutationInput } from "../../../../lib/notifications/contracts";
 import { mutateNotification } from "../../../../lib/notifications/server";
-import { apiError, apiInternalError, parseJsonBody } from "../../../../lib/api/http";
+import { apiError, apiInternalError } from "../../../../lib/api/http";
 
-type RouteContext = { params: Promise<{ id: string }> };
-
-export async function PATCH(request: Request, context: RouteContext) {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await context.params;
     const supabase = await createAuthServerClient();
@@ -18,23 +19,20 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (!user) return apiError(401, "UNAUTHENTICATED", "Unauthenticated");
 
     const organizationId = await resolveActiveOrganizationIdForUser(user.id);
-    if (!organizationId) return apiError(400, "NO_ACTIVE_ORGANIZATION", "No active organization selected");
+    if (!organizationId) return apiError(400, "NO_ORGANIZATION", "No active organization");
 
     const authorization = await resolveAuthorizationContext(user, organizationId);
     if (!evaluatePermission(authorization, "notification:update")) {
       return apiError(403, "FORBIDDEN", "Forbidden");
     }
 
-    const parsedBody = await parseJsonBody(request);
-    if (!parsedBody.ok) return parsedBody.response;
+    const body = await request.json().catch(() => null);
+    const input = parseNotificationMutationInput(body);
+    if (!input) return apiError(400, "INVALID_INPUT", "Invalid mutation");
 
-    const input = parseNotificationMutationInput(parsedBody.payload);
-    if (!input) return apiError(400, "INVALID_PAYLOAD", "Invalid notification mutation");
-
-    const notification = await mutateNotification(organizationId, user.id, id, input, supabase);
-    if (!notification) return apiError(404, "NOT_FOUND", "Notification not found");
-
-    return NextResponse.json({ notification }, { headers: { "Cache-Control": "no-store" } });
+    const item = await mutateNotification(organizationId, user.id, id, input, supabase);
+    if (!item) return apiError(404, "NOT_FOUND", "Notification not found");
+    return NextResponse.json({ item }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return apiInternalError();
   }

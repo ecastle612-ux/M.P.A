@@ -18,6 +18,7 @@ import {
   TableRow
 } from "@mpa/ui";
 import { toTenantStatusLabel, type TenantRecord } from "../../lib/tenant/contracts";
+import { toLifecycleStatusLabel } from "../../lib/resident-lifecycle/contracts";
 import { DataTableLayout } from "../presentation/data-table-layout";
 import { ListWorkspaceHeader } from "../presentation/list-workspace-header";
 import { ExperienceEmptyState } from "../experience/experience-empty-state";
@@ -144,11 +145,24 @@ export function TenantsTable({
       title="Tenants"
       description="Manage tenant profiles, assignments, and contact information across your portfolio."
       actions={
-        permissions.canCreate ? (
-          <Link href="/tenants/new">
-            <Button>Create tenant</Button>
-          </Link>
-        ) : null
+        <div className="flex flex-wrap gap-2">
+          {permissions.canCreate ? (
+            <>
+              <Link href="/residents/move-in">
+                <Button>+ New Resident</Button>
+              </Link>
+              <Link href="/residents/move-out">
+                <Button variant="secondary">Move out</Button>
+              </Link>
+              <Link href="/residents/transfer">
+                <Button variant="secondary">Transfer</Button>
+              </Link>
+              <Link href="/tenants/new">
+                <Button variant="ghost">Manual entry</Button>
+              </Link>
+            </>
+          ) : null}
+        </div>
       }
       filters={
         <>
@@ -258,8 +272,11 @@ export function TenantsTable({
                           showDot
                           variant={item.status === "active" ? "success" : item.status === "archived" ? "warning" : "info"}
                         >
-                          {toTenantStatusLabel(item.status)}
+                          {toLifecycleStatusLabel(item.lifecycleStatus)}
                         </Badge>
+                        <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                          CRM: {toTenantStatusLabel(item.status)}
+                        </p>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex flex-wrap justify-end gap-2">
@@ -328,7 +345,7 @@ export function TenantsTable({
               {selectedTenant.emergencyContactPhone ? `(${selectedTenant.emergencyContactPhone})` : ""}
             </p>
             <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-              Documents placeholder: {selectedTenant.documentsPlaceholder ?? "No document notes yet"}
+              Document notes: {selectedTenant.documentsPlaceholder?.trim() || "None yet"}
             </p>
             <div className="flex flex-wrap gap-2">
               <Link href={`/tenants/${selectedTenant.id}`}>

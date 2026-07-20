@@ -31,20 +31,20 @@ export function KpiMetric({
   const content = (
     <>
       <p className="mpa-section-label">{label}</p>
-      <p className={cn("mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight", TONE_STYLES[tone])}>
+      <p className={cn("mt-1 font-display text-2xl font-semibold tabular-nums tracking-tight", TONE_STYLES[tone])}>
         {value}
       </p>
       {hint ? (
-        <p className="mt-2 text-xs text-[var(--mpa-color-text-link)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        <p className="mt-1.5 text-xs text-[var(--mpa-color-text-link)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
           {hint} →
         </p>
       ) : null}
-      {footer ? <div className="mt-3">{footer}</div> : null}
+      {footer ? <div className="mt-2">{footer}</div> : null}
     </>
   );
 
   const shellClass = cn(
-    "group block rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-normal)] hover:border-[var(--mpa-color-border-default)] hover:shadow-[var(--mpa-shadow-sm)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-border-focus)]",
+    "group block rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-3.5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-normal)] hover:border-[var(--mpa-color-border-default)] hover:shadow-[var(--mpa-shadow-sm)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-border-focus)] md:p-4",
     className
   );
 

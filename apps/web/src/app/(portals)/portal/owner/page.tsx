@@ -1,12 +1,15 @@
-import { Card } from "@mpa/ui";
+import { AppPage } from "../../../../components/presentation/app-page";
+import { FutureReleaseNotice } from "../../../../components/experience/future-release-notice";
 
 export default function OwnerPortalPage() {
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Owner portal foundation</h2>
-      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        No business workflows are implemented in this phase. This shell is ready for future owner modules.
-      </p>
-    </Card>
+    <AppPage breadcrumbs={[{ href: "/portal", label: "Portals" }, { label: "Owner" }]}>
+      <FutureReleaseNotice
+        title="Owner Portal"
+        description="The Owner Portal will become available during a future release. Property owners can use shared reporting and statements from the main workspace when granted access."
+        primaryHref="/portal"
+        primaryLabel="Back to Portals"
+      />
+    </AppPage>
   );
 }

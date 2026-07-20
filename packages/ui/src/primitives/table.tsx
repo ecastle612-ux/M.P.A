@@ -42,7 +42,7 @@ export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowEle
   return (
     <tr
       className={cn(
-        "transition-colors duration-[var(--mpa-duration-fast)] hover:bg-[var(--mpa-color-interactive-row-hover)] [&>td]:min-h-[3.25rem]",
+        "transition-colors duration-[var(--mpa-duration-fast)] hover:bg-[var(--mpa-color-interactive-row-hover)] [&>td]:min-h-[2.75rem]",
         className
       )}
       {...props}
@@ -54,7 +54,7 @@ export function TableHeaderCell({ className, ...props }: ThHTMLAttributes<HTMLTa
   return (
     <th
       className={cn(
-        "px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--mpa-color-text-muted)]",
+        "px-3.5 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--mpa-color-text-muted)] md:px-4",
         className
       )}
       {...props}
@@ -64,6 +64,12 @@ export function TableHeaderCell({ className, ...props }: ThHTMLAttributes<HTMLTa
 
 export function TableCell({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
   return (
-    <td className={cn("px-5 py-4 align-middle text-sm text-[var(--mpa-color-text-primary)]", className)} {...props} />
+    <td
+      className={cn(
+        "px-3.5 py-2.5 align-middle text-sm text-[var(--mpa-color-text-primary)] md:px-4",
+        className
+      )}
+      {...props}
+    />
   );
 }

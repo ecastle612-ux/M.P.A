@@ -36,6 +36,120 @@ export type UnitRecord = {
 export type CreateUnitInput = Omit<UnitRecord, "id" | "organizationId" | "createdAt" | "updatedAt" | "archivedAt" | "deletedAt">;
 export type UpdateUnitInput = Partial<CreateUnitInput>;
 
+export type BulkUnitGeneratorInput = {
+  propertyId: string;
+  startNumber: number;
+  endNumber: number;
+  prefix: string;
+  suffix: string;
+  padWidth: number;
+  floorTemplate: "none" | "hundreds" | "explicit";
+  /** Used when floorTemplate is explicit — maps unit number → floor label, or a single floor for all */
+  floorLabel: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  squareFeet: number | null;
+  rentAmount: number | null;
+  depositAmount: number | null;
+  currencyCode: string;
+  occupancyStatus: UnitOccupancyStatus;
+  status: UnitStatus;
+};
+
+export type BulkUnitPreviewItem = {
+  unitNumber: string;
+  floor: string | null;
+};
+
+export const BULK_UNIT_MAX_COUNT = 200;
+
+export function buildBulkUnitPreview(input: BulkUnitGeneratorInput): {
+  items: BulkUnitPreviewItem[];
+  errors: string[];
+} {
+  const errors: string[] = [];
+  if (!input.propertyId) errors.push("Property is required.");
+  if (!Number.isInteger(input.startNumber) || !Number.isInteger(input.endNumber)) {
+    errors.push("Start and end must be whole numbers.");
+  }
+  if (input.startNumber < 0 || input.endNumber < 0) {
+    errors.push("Unit numbers cannot be negative.");
+  }
+  if (input.endNumber < input.startNumber) {
+    errors.push("End number must be greater than or equal to start number.");
+  }
+  const count = input.endNumber - input.startNumber + 1;
+  if (count > BULK_UNIT_MAX_COUNT) {
+    errors.push(`Cannot create more than ${BULK_UNIT_MAX_COUNT} units at once.`);
+  }
+  if (input.padWidth < 0 || input.padWidth > 8) {
+    errors.push("Pad width must be between 0 and 8.");
+  }
+  if (errors.length > 0) {
+    return { items: [], errors };
+  }
+
+  const items: BulkUnitPreviewItem[] = [];
+  for (let n = input.startNumber; n <= input.endNumber; n += 1) {
+    const core = input.padWidth > 0 ? String(n).padStart(input.padWidth, "0") : String(n);
+    const unitNumber = `${input.prefix}${core}${input.suffix}`.trim();
+    if (!unitNumber || unitNumber.length > 40) {
+      errors.push(`Generated unit number is invalid for ${n}.`);
+      continue;
+    }
+    let floor: string | null = null;
+    if (input.floorTemplate === "hundreds") {
+      floor = String(Math.floor(n / 100) || 1);
+    } else if (input.floorTemplate === "explicit") {
+      floor = input.floorLabel;
+    }
+    items.push({ unitNumber, floor });
+  }
+  return { items, errors };
+}
+
+export function parseBulkUnitGeneratorInput(payload: unknown): BulkUnitGeneratorInput | null {
+  if (!payload || typeof payload !== "object") return null;
+  const value = payload as Record<string, unknown>;
+  const propertyId = readUuid(value["propertyId"]);
+  const startNumber = readInteger(value["startNumber"]);
+  const endNumber = readInteger(value["endNumber"]);
+  if (!propertyId || startNumber === null || endNumber === null) return null;
+  const floorTemplateRaw = value["floorTemplate"];
+  const floorTemplate =
+    floorTemplateRaw === "hundreds" || floorTemplateRaw === "explicit" || floorTemplateRaw === "none"
+      ? floorTemplateRaw
+      : "none";
+  const padWidth = readInteger(value["padWidth"]) ?? 0;
+  return {
+    propertyId,
+    startNumber,
+    endNumber,
+    prefix: readString(value["prefix"], 0, 20) ?? "",
+    suffix: readString(value["suffix"], 0, 20) ?? "",
+    padWidth: Math.max(0, Math.min(8, padWidth)),
+    floorTemplate,
+    floorLabel: readString(value["floorLabel"], 0, 60),
+    bedrooms: readNumber(value["bedrooms"]),
+    bathrooms: readNumber(value["bathrooms"]),
+    squareFeet: readNumber(value["squareFeet"]),
+    rentAmount: readCurrency(value["rentAmount"]),
+    depositAmount: readCurrency(value["depositAmount"]),
+    currencyCode: readString(value["currencyCode"], 3, 3)?.toUpperCase() ?? "USD",
+    occupancyStatus: isUnitOccupancyStatus(value["occupancyStatus"]) ? value["occupancyStatus"] : "vacant_not_ready",
+    status: isUnitStatus(value["status"]) ? value["status"] : "active"
+  };
+}
+
+function readInteger(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") return null;
+  if (typeof value === "number" && Number.isInteger(value)) return value;
+  if (typeof value === "string" && /^-?\d+$/.test(value.trim())) {
+    return Number.parseInt(value.trim(), 10);
+  }
+  return null;
+}
+
 export type UnitMutationInput =
   | { action: "archive" }
   | { action: "restore" }

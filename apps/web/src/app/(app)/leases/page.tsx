@@ -7,7 +7,12 @@ import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/au
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
 import { getLeasesForOrganization } from "../../../lib/lease/server";
 
-export default async function LeasesPage() {
+export default async function LeasesPage({
+  searchParams
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status: statusParam } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -45,7 +50,11 @@ export default async function LeasesPage() {
 
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Leases" }]}>
-      <LeasesTable initialItems={items} permissions={permissions} />
+      <LeasesTable
+        initialItems={items}
+        permissions={permissions}
+        {...(statusParam ? { initialStatusFilter: statusParam } : {})}
+      />
     </AppPage>
   );
 }

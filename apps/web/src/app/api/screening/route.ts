@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
-import { createScreeningCase } from "../../../lib/applicant/server";
 import { apiError, apiInternalError, parseJsonBody } from "../../../lib/api/http";
+import {
+  createScreeningCase,
+  getScreeningOpsSnapshot,
+  listScreeningCases
+} from "../../../lib/screening/server";
 
 export async function GET(request: Request) {
   try {
@@ -14,7 +18,9 @@ export async function GET(request: Request) {
     if (!user) return apiError(401, "UNAUTHENTICATED", "Unauthenticated");
 
     const organizationId = await resolveActiveOrganizationIdForUser(user.id);
-    if (!organizationId) return NextResponse.json({ items: [] }, { headers: { "Cache-Control": "no-store" } });
+    if (!organizationId) {
+      return NextResponse.json({ items: [], ops: null }, { headers: { "Cache-Control": "no-store" } });
+    }
 
     const authorization = await resolveAuthorizationContext(user, organizationId);
     if (!evaluatePermission(authorization, "screening:read")) {
@@ -22,20 +28,21 @@ export async function GET(request: Request) {
     }
 
     const url = new URL(request.url);
-    const applicantId = url.searchParams.get("applicantId");
+    const applicantId = url.searchParams.get("applicantId") ?? undefined;
+    const status = url.searchParams.get("status") ?? undefined;
+    const includeOps = url.searchParams.get("ops") === "1";
 
-    let query = supabase
-      .from("screening_cases")
-      .select("*")
-      .eq("organization_id", organizationId)
-      .order("created_at", { ascending: false });
+    const items = await listScreeningCases(
+      organizationId,
+      {
+        ...(applicantId ? { applicantId } : {}),
+        ...(status ? { status } : {})
+      },
+      supabase
+    );
+    const ops = includeOps ? await getScreeningOpsSnapshot(organizationId, supabase) : null;
 
-    if (applicantId) query = query.eq("applicant_id", applicantId);
-
-    const { data, error } = await query;
-    if (error) return apiError(400, "SCREENING_LIST_FAILED", error.message);
-
-    return NextResponse.json({ items: data ?? [] }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ items, ops }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return apiInternalError();
   }
@@ -59,19 +66,32 @@ export async function POST(request: Request) {
 
     const parsedBody = await parseJsonBody(request);
     if (!parsedBody.ok) return parsedBody.response;
-
     const payload = parsedBody.payload as Record<string, unknown>;
     const applicantId = typeof payload["applicantId"] === "string" ? payload["applicantId"] : null;
     if (!applicantId) return apiError(400, "INVALID_PAYLOAD", "applicantId is required");
 
-    const provider = typeof payload["provider"] === "string" ? payload["provider"] : undefined;
     const screeningCase = await createScreeningCase(
       organizationId,
-      applicantId,
       user.id,
-      provider ? { provider } : {},
+      {
+        applicantId,
+        ...(typeof payload["provider"] === "string" ? { provider: payload["provider"] } : {}),
+        ...(typeof payload["packageCode"] === "string" ? { packageCode: payload["packageCode"] } : {}),
+        ...(Array.isArray(payload["parties"])
+          ? {
+              parties: payload["parties"] as Array<{
+                role: "primary" | "co_applicant" | "guarantor" | "co_signer" | "adult_occupant";
+                fullName: string;
+                email?: string | null;
+                phone?: string | null;
+                applicantId?: string | null;
+              }>
+            }
+          : {})
+      },
       supabase
     );
+
     return NextResponse.json({ screeningCase }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Screening case creation failed";

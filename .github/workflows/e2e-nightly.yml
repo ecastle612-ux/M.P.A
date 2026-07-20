@@ -1,0 +1,81 @@
+# Simplified nightly defaults — override via repository secrets when auth suite is enabled.
+name: E2E Nightly (QA-001)
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  e2e-nightly:
+    name: Nightly full regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      NEXT_PUBLIC_APP_NAME: MPA
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: test-service-role
+      SESSION_COOKIE_NAME: mpa_session
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+      QA_E2E_AUTH_ENABLED: "false"
+      QA_E2E_FULL_VISUAL: "true"
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Apply optional QA secrets
+        env:
+          SECRET_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SECRET_ANON: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SECRET_SERVICE: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SECRET_AUTH: ${{ secrets.QA_E2E_AUTH_ENABLED }}
+        run: |
+          if [ -n "$SECRET_URL" ]; then echo "NEXT_PUBLIC_SUPABASE_URL=$SECRET_URL" >> "$GITHUB_ENV"; fi
+          if [ -n "$SECRET_ANON" ]; then echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$SECRET_ANON" >> "$GITHUB_ENV"; fi
+          if [ -n "$SECRET_SERVICE" ]; then echo "SUPABASE_SERVICE_ROLE_KEY=$SECRET_SERVICE" >> "$GITHUB_ENV"; fi
+          if [ -n "$SECRET_AUTH" ]; then echo "QA_E2E_AUTH_ENABLED=$SECRET_AUTH" >> "$GITHUB_ENV"; fi
+          echo "QA_E2E_PM_EMAIL=${{ secrets.QA_E2E_PM_EMAIL }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_PM_PASSWORD=${{ secrets.QA_E2E_PM_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_RESIDENT_EMAIL=${{ secrets.QA_E2E_RESIDENT_EMAIL }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_RESIDENT_PASSWORD=${{ secrets.QA_E2E_RESIDENT_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_VENDOR_EMAIL=${{ secrets.QA_E2E_VENDOR_EMAIL }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_VENDOR_PASSWORD=${{ secrets.QA_E2E_VENDOR_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_OWNER_EMAIL=${{ secrets.QA_E2E_OWNER_EMAIL }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_OWNER_PASSWORD=${{ secrets.QA_E2E_OWNER_PASSWORD }}" >> "$GITHUB_ENV"
+      - run: pnpm --filter @mpa/web build
+      - run: pnpm --filter @mpa/qa-e2e exec playwright install chromium --with-deps
+      - name: Smoke + visual + a11y + perf
+        run: |
+          pnpm qa:e2e:smoke
+          pnpm qa:e2e:visual
+          pnpm qa:e2e:a11y
+          pnpm qa:e2e:perf
+      - name: Nightly workflow tags (warning soft-fail)
+        continue-on-error: true
+        run: pnpm qa:e2e:nightly
+      - name: Generate summary
+        if: always()
+        run: pnpm --filter @mpa/qa-e2e report:summary
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-e2e-nightly-report
+          path: |
+            qa/e2e/playwright-report
+            qa/e2e/test-results
+            qa/e2e/reports
+          retention-days: 30
+      - if: always()
+        run: |
+          if [ -f qa/e2e/reports/summary.md ]; then
+            cat qa/e2e/reports/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi

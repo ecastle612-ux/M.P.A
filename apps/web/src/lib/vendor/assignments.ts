@@ -244,6 +244,10 @@ export async function updateVendorAssignmentStatus(
   if (input.assignmentStatus === "completed") {
     workOrderPatch.status = "completed";
     workOrderPatch.completed_at = now;
+    // Carry vendor completion notes onto the work order so Facility Record resolution is useful.
+    if (input.completionNotes !== undefined) {
+      workOrderPatch.internal_notes = input.completionNotes;
+    }
   } else if (IN_PROGRESS_ASSIGNMENT_STATUSES.includes(input.assignmentStatus)) {
     workOrderPatch.status = "in_progress";
   } else if (input.assignmentStatus === "pending" || input.assignmentStatus === "awaiting_response") {
@@ -263,6 +267,13 @@ export async function updateVendorAssignmentStatus(
 
   if (workOrderError) {
     throw new Error(workOrderError.message);
+  }
+
+  // FAC-001: vendor-complete is a first-class completion path and must mint the Facility Record.
+  // updateWorkOrder() is skipped here, so without this call the record is never created.
+  if (input.assignmentStatus === "completed") {
+    const { upsertFacilityRecordOnWorkOrderCompleted } = await import("../facility/server");
+    await upsertFacilityRecordOnWorkOrderCompleted(organizationId, workOrderId, userId, supabase);
   }
 
   await recordVendorStatusActivityEvent({

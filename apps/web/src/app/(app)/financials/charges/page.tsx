@@ -8,7 +8,12 @@ import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization
 import { fetchAuthedApi } from "../../../../lib/financial/server-fetch";
 import type { RentChargeListItem } from "../../../../lib/financial/server";
 
-export default async function RentChargesPage() {
+export default async function RentChargesPage({
+  searchParams
+}: {
+  searchParams: Promise<{ tenantId?: string; propertyId?: string }>;
+}) {
+  const { tenantId, propertyId } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -40,7 +45,11 @@ export default async function RentChargesPage() {
     redirect("/unauthorized");
   }
 
-  const result = await fetchAuthedApi<{ items: RentChargeListItem[] }>("/api/rent-charges");
+  const query = new URLSearchParams();
+  if (tenantId) query.set("tenantId", tenantId);
+  if (propertyId) query.set("propertyId", propertyId);
+  const chargesPath = query.size > 0 ? `/api/rent-charges?${query.toString()}` : "/api/rent-charges";
+  const result = await fetchAuthedApi<{ items: RentChargeListItem[] }>(chargesPath);
   const items = result.ok ? result.data.items : [];
 
   const permissions = {
@@ -56,7 +65,12 @@ export default async function RentChargesPage() {
         { label: "Rent Charges" }
       ]}
     >
-      <RentChargesTable initialItems={items} permissions={permissions} />
+      <RentChargesTable
+        initialItems={items}
+        permissions={permissions}
+        {...(tenantId ? { initialTenantId: tenantId } : {})}
+        {...(propertyId ? { initialPropertyId: propertyId } : {})}
+      />
     </AppPage>
   );
 }

@@ -137,6 +137,25 @@ export function NavIconMigration(props: IconProps) {
   );
 }
 
+export function NavIconSettings(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <circle cx="10" cy="10" r="2.5" />
+      <path d="M10 3.5v2M10 14.5v2M3.5 10h2M14.5 10h2M5.4 5.4l1.4 1.4M13.2 13.2l1.4 1.4M5.4 14.6l1.4-1.4M13.2 6.8l1.4-1.4" />
+    </svg>
+  );
+}
+
+export function NavIconMasterAdmin(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <path d="M4 7.5h12v8H4z" />
+      <path d="M7 7.5V5.5a3 3 0 0 1 6 0v2" />
+      <circle cx="10" cy="11.5" r="1.2" />
+    </svg>
+  );
+}
+
 export const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/dashboard": NavIconDashboard,
   "/properties": NavIconProperties,
@@ -150,6 +169,13 @@ export const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/financials": NavIconFinancials,
   "/ai-operations": NavIconAi,
   "/migration": NavIconMigration,
+  "/settings": NavIconSettings,
   "/profile": NavIconProfile,
-  "/portal": NavIconPortals
+  "/portal": NavIconPortals,
+  "/master-admin": NavIconMasterAdmin,
+  "/master-admin/dashboards": NavIconDashboard,
+  "/master-admin/providers": NavIconSettings,
+  "/master-admin/testing": NavIconUnits,
+  "/master-admin/health": NavIconMaintenance,
+  "/master-admin/flags": NavIconAi
 };

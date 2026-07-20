@@ -36,7 +36,8 @@ function formatCurrency(value: number): string {
 
 export function LeasesTable({
   initialItems,
-  permissions
+  permissions,
+  initialStatusFilter = "all"
 }: {
   initialItems: LeaseListItem[];
   permissions: {
@@ -45,10 +46,11 @@ export function LeasesTable({
     canArchive: boolean;
     canDelete: boolean;
   };
+  initialStatusFilter?: string;
 }) {
   const [items, setItems] = useState(initialItems);
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
   const [renewalFilter, setRenewalFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -173,9 +175,24 @@ export function LeasesTable({
       description="Track lease terms, renewals, and lifecycle events across your portfolio."
       actions={
         permissions.canCreate ? (
-          <Link href="/leases/new">
-            <Button>Create lease</Button>
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/residents/move-in">
+              <Button>Continue Move In</Button>
+            </Link>
+            <details className="relative">
+              <summary className="cursor-pointer list-none text-sm font-medium text-[var(--mpa-color-text-secondary)] underline-offset-2 hover:underline">
+                More actions
+              </summary>
+              <div className="absolute right-0 z-10 mt-2 min-w-[12rem] rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-2 shadow-sm">
+                <Link
+                  href="/leases/new"
+                  className="block rounded px-2 py-1.5 text-sm text-[var(--mpa-color-text-primary)] hover:bg-[var(--mpa-color-bg-muted)]"
+                >
+                  New lease (advanced)
+                </Link>
+              </div>
+            </details>
+          </div>
         ) : null
       }
       filters={

@@ -2,6 +2,11 @@ import { createAuthServerComponentClient } from "../auth/server";
 import type { Database, Json } from "@mpa/supabase";
 import type { CreateTenantInput, TenantRecord, UpdateTenantInput } from "./contracts";
 
+const TENANT_SELECT =
+  "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, lifecycle_status, metadata, created_at, updated_at, archived_at, deleted_at, user_id";
+
+const TENANT_LIST_SELECT = `${TENANT_SELECT}, properties(name), units(unit_number, property_id)`;
+
 type TenantRow = {
   id: string;
   organization_id: string;
@@ -21,11 +26,13 @@ type TenantRow = {
   emergency_contact_phone: string | null;
   notes: string | null;
   status: TenantRecord["status"];
+  lifecycle_status: TenantRecord["lifecycleStatus"];
   metadata: Json | null;
   created_at: string;
   updated_at: string;
   archived_at: string | null;
   deleted_at: string | null;
+  user_id?: string | null;
 };
 
 type TenantRelationRow = TenantRow & {
@@ -57,9 +64,7 @@ export async function getTenantsForOrganization(
   const supabase = await resolveClient(client);
   let query = supabase
     .from("tenants")
-    .select(
-      "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, metadata, created_at, updated_at, archived_at, deleted_at, properties(name), units(unit_number, property_id)"
-    )
+    .select(TENANT_LIST_SELECT)
     .eq("organization_id", organizationId)
     .is("deleted_at", null);
 
@@ -96,9 +101,7 @@ export async function getTenantForOrganization(
   const supabase = await resolveClient(client);
   const { data, error } = await supabase
     .from("tenants")
-    .select(
-      "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, metadata, created_at, updated_at, archived_at, deleted_at, properties(name), units(unit_number, property_id)"
-    )
+    .select(TENANT_LIST_SELECT)
     .eq("organization_id", organizationId)
     .eq("id", tenantId)
     .is("deleted_at", null)
@@ -128,6 +131,14 @@ export async function createTenant(
     client: supabase
   });
 
+  const metadata = {
+    ...input.metadata,
+    ...(input.avatarMediaAssetId ? { avatarMediaAssetId: input.avatarMediaAssetId } : {})
+  };
+  if (!input.avatarMediaAssetId && "avatarMediaAssetId" in metadata) {
+    delete (metadata as Record<string, unknown>)["avatarMediaAssetId"];
+  }
+
   const { data, error } = await supabase
     .from("tenants")
     .insert({
@@ -138,7 +149,7 @@ export async function createTenant(
       last_name: input.lastName,
       preferred_name: input.preferredName,
       email: input.email,
-      avatar_url: input.avatarUrl,
+      avatar_url: null,
       phone: input.phone,
       date_of_birth: input.dateOfBirth,
       move_in_date: input.moveInDate,
@@ -148,13 +159,12 @@ export async function createTenant(
       emergency_contact_phone: input.emergencyContactPhone,
       notes: input.notes,
       status: input.status,
-      metadata: input.metadata as Json,
+      lifecycle_status: input.lifecycleStatus ?? "awaiting_move_in",
+      metadata: metadata as Json,
       created_by: userId,
       updated_by: userId
     })
-    .select(
-      "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, metadata, created_at, updated_at, archived_at, deleted_at"
-    )
+    .select(TENANT_SELECT)
     .single();
 
   if (error || !data) {
@@ -182,7 +192,7 @@ export async function updateTenant(
   const supabase = await resolveClient(client);
   const { data: existing, error: existingError } = await supabase
     .from("tenants")
-    .select("id, property_id, unit_id, move_in_date, move_out_date")
+    .select("id, property_id, unit_id, move_in_date, move_out_date, metadata")
     .eq("organization_id", organizationId)
     .eq("id", tenantId)
     .is("deleted_at", null)
@@ -227,7 +237,26 @@ export async function updateTenant(
   if (updates.emergencyContactPhone !== undefined) patch.emergency_contact_phone = updates.emergencyContactPhone;
   if (updates.notes !== undefined) patch.notes = updates.notes;
   if (updates.status !== undefined) patch.status = updates.status;
-  if (updates.metadata !== undefined) patch.metadata = updates.metadata as Json;
+  if (updates.lifecycleStatus !== undefined) patch.lifecycle_status = updates.lifecycleStatus;
+
+  if (updates.avatarMediaAssetId !== undefined || updates.metadata !== undefined) {
+    const existingMeta =
+      existing.metadata && typeof existing.metadata === "object" && !Array.isArray(existing.metadata)
+        ? (existing.metadata as Record<string, unknown>)
+        : {};
+    const nextMeta: Record<string, unknown> = {
+      ...existingMeta,
+      ...(updates.metadata ?? {})
+    };
+    if (updates.avatarMediaAssetId) {
+      nextMeta["avatarMediaAssetId"] = updates.avatarMediaAssetId;
+      patch.avatar_url = null;
+    } else if (updates.avatarMediaAssetId === null) {
+      delete nextMeta["avatarMediaAssetId"];
+      patch.avatar_url = null;
+    }
+    patch.metadata = nextMeta as Json;
+  }
 
   const { data, error } = await supabase
     .from("tenants")
@@ -235,9 +264,7 @@ export async function updateTenant(
     .eq("organization_id", organizationId)
     .eq("id", tenantId)
     .is("deleted_at", null)
-    .select(
-      "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, metadata, created_at, updated_at, archived_at, deleted_at"
-    )
+    .select(TENANT_SELECT)
     .maybeSingle();
 
   if (error) {
@@ -267,6 +294,7 @@ export async function archiveTenant(
     .from("tenants")
     .update({
       status: "archived",
+      lifecycle_status: "former",
       archived_at: new Date().toISOString(),
       archived_by: userId,
       updated_by: userId
@@ -274,9 +302,7 @@ export async function archiveTenant(
     .eq("organization_id", organizationId)
     .eq("id", tenantId)
     .is("deleted_at", null)
-    .select(
-      "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, metadata, created_at, updated_at, archived_at, deleted_at"
-    )
+    .select(TENANT_SELECT)
     .maybeSingle();
 
   if (error) {
@@ -305,6 +331,7 @@ export async function restoreTenant(
     .from("tenants")
     .update({
       status: "active",
+      lifecycle_status: "active",
       archived_at: null,
       archived_by: null,
       deleted_at: null,
@@ -314,9 +341,7 @@ export async function restoreTenant(
     })
     .eq("organization_id", organizationId)
     .eq("id", tenantId)
-    .select(
-      "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, metadata, created_at, updated_at, archived_at, deleted_at"
-    )
+    .select(TENANT_SELECT)
     .maybeSingle();
 
   if (error) {
@@ -345,6 +370,7 @@ export async function softDeleteTenant(
     .from("tenants")
     .update({
       status: "archived",
+      lifecycle_status: "former",
       deleted_at: new Date().toISOString(),
       deleted_by: userId,
       updated_by: userId
@@ -352,9 +378,7 @@ export async function softDeleteTenant(
     .eq("organization_id", organizationId)
     .eq("id", tenantId)
     .is("deleted_at", null)
-    .select(
-      "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, metadata, created_at, updated_at, archived_at, deleted_at"
-    )
+    .select(TENANT_SELECT)
     .maybeSingle();
 
   if (error) {
@@ -372,6 +396,12 @@ export async function softDeleteTenant(
   return updated;
 }
 
+function readAvatarMediaAssetId(metadata: Json | null): string | null {
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return null;
+  const value = (metadata as Record<string, unknown>)["avatarMediaAssetId"];
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
 function toTenantRecord(row: TenantRow): TenantRecord {
   return {
     id: row.id,
@@ -383,6 +413,7 @@ function toTenantRecord(row: TenantRow): TenantRecord {
     preferredName: row.preferred_name,
     email: row.email,
     avatarUrl: row.avatar_url,
+    avatarMediaAssetId: readAvatarMediaAssetId(row.metadata),
     phone: row.phone,
     dateOfBirth: row.date_of_birth,
     moveInDate: row.move_in_date,
@@ -392,6 +423,7 @@ function toTenantRecord(row: TenantRow): TenantRecord {
     emergencyContactPhone: row.emergency_contact_phone,
     notes: row.notes,
     status: row.status,
+    lifecycleStatus: row.lifecycle_status ?? "awaiting_move_in",
     metadata:
       row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata)
         ? (row.metadata as Record<string, unknown>)

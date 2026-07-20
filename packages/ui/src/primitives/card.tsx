@@ -19,9 +19,9 @@ export function Card({ className, variant = "default", padding = "md", ...props 
         variant === "muted" && "border-transparent bg-[var(--mpa-color-bg-surface-muted)]",
         variant === "ghost" && "border-transparent bg-transparent shadow-none",
         padding === "none" && "p-0",
-        padding === "sm" && "p-3",
-        padding === "md" && "p-5",
-        padding === "lg" && "p-6",
+        padding === "sm" && "p-2.5",
+        padding === "md" && "p-4",
+        padding === "lg" && "p-5",
         className
       )}
       {...props}
@@ -30,7 +30,7 @@ export function Card({ className, variant = "default", padding = "md", ...props 
 }
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("mb-4 space-y-1", className)} {...props} />;
+  return <div className={cn("mb-3 space-y-0.5", className)} {...props} />;
 }
 
 export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {

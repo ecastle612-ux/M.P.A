@@ -294,9 +294,11 @@ export default async function TenantDetailPage({
             </p>
           </div>
           <div className="rounded-[var(--mpa-radius-lg)] border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] p-3">
-            <p className="mpa-section-label">Documents placeholder</p>
+            <p className="mpa-section-label">Document notes</p>
             <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              {tenant.documentsPlaceholder ?? "Documents workflow activates in a future phase."}
+              {tenant.documentsPlaceholder?.trim()
+                ? tenant.documentsPlaceholder
+                : "No document notes yet. Organization files are available in Settings → Documents."}
             </p>
           </div>
         </Card>

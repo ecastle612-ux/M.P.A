@@ -1,0 +1,33 @@
+{
+  "name": "@mpa/qa-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "M.P.A. internal QA-001 Playwright suite — never import into product apps",
+  "type": "module",
+  "scripts": {
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node -e \"console.log('@mpa/qa-e2e: use pnpm qa:e2e:smoke (Playwright is not part of unit test turbo).');\"",
+    "smoke": "playwright test --project=chromium-smoke --grep @smoke",
+    "workflows": "playwright test --project=chromium-workflows",
+    "visual": "playwright test --project=chromium-visual --grep @visual",
+    "a11y": "playwright test --project=chromium-a11y --grep @a11y",
+    "perf": "playwright test --project=chromium-perf --grep @perf",
+    "nightly": "playwright test --grep @nightly",
+    "rc": "playwright test --grep \"@smoke|@nightly|@visual|@a11y|@perf\"",
+    "ui": "playwright test --ui",
+    "report": "playwright show-report playwright-report",
+    "report:summary": "tsx scripts/generate-summary.ts",
+    "seed": "tsx scripts/seed-qa-data.ts",
+    "auth:setup": "tsx scripts/auth-setup.ts"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.52.0",
+    "@supabase/supabase-js": "2.110.2",
+    "@types/node": "26.1.1",
+    "eslint": "9.39.5",
+    "tsx": "4.20.3",
+    "typescript": "5.9.2"
+  }
+}

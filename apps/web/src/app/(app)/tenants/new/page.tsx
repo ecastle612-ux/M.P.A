@@ -61,12 +61,24 @@ export default async function NewTenantPage({
       breadcrumbs={[
         { href: "/dashboard", label: "Dashboard" },
         { href: "/tenants", label: "Tenants" },
-        { label: "Create" }
+        { label: "Manual entry" }
       ]}
       banner={
-        unitCreatedSuccess ? (
-          <WorkflowSuccessPanel {...unitCreatedSuccess} primaryAction={unitCreatedSuccess.primaryAction} />
-        ) : null
+        <>
+          <div className="rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
+            <p className="font-medium text-[var(--mpa-color-text-primary)]">Advanced / manual entry</p>
+            <p className="mt-1">
+              For new residents, use{" "}
+              <a className="font-semibold text-[var(--mpa-color-brand-primary)] underline" href="/residents/move-in">
+                + New Resident (Move in)
+              </a>
+              . This form is for exceptional record-only cases.
+            </p>
+          </div>
+          {unitCreatedSuccess ? (
+            <WorkflowSuccessPanel {...unitCreatedSuccess} primaryAction={unitCreatedSuccess.primaryAction} />
+          ) : null}
+        </>
       }
       form={
         <div id="tenant-form">

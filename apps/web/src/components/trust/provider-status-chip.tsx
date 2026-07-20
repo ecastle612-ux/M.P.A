@@ -7,8 +7,9 @@ import {
   type ProviderConnectionStatus
 } from "../../lib/integrations/provider-status";
 
-function toneForStatus(status: ProviderConnectionStatus): "success" | "warning" | "danger" {
-  if (status === "connected") return "success";
+function toneForStatus(status: ProviderConnectionStatus): "success" | "warning" | "danger" | "info" {
+  if (status === "production_ready") return "success";
+  if (status === "connected") return "info";
   if (status === "sandbox") return "warning";
   return "danger";
 }
@@ -46,7 +47,12 @@ export function ProviderStatusChip({
 
 export function ProviderStatusBanner({ providerIds }: { providerIds: string[] }) {
   const items = getProviderStatusCenter().filter((entry) => providerIds.includes(entry.id));
-  const attention = items.filter((entry) => entry.status === "disconnected" || entry.status === "sandbox");
+  const attention = items.filter(
+    (entry) =>
+      entry.status === "disabled" ||
+      entry.status === "configuration_required" ||
+      entry.status === "sandbox"
+  );
   if (attention.length === 0) return null;
 
   return (

@@ -1,5 +1,6 @@
 import { createAuthServerComponentClient } from "../auth/server";
 import type { Database, Json } from "@mpa/supabase";
+import { notify } from "../notifications/service";
 import type {
   CreateLeaseInput,
   LeaseDocumentRecord,
@@ -409,6 +410,23 @@ export async function applyLeaseMutation(
     );
   }
 
+  if (
+    (mutation.action === "sign" || mutation.action === "activate" || mutation.action === "renew") &&
+    lease.propertyId
+  ) {
+    const { ingestLeaseLifecycle } = await import("../facility/ingest");
+    await ingestLeaseLifecycle({
+      organizationId,
+      userId,
+      leaseId: lease.id,
+      propertyId: lease.propertyId,
+      unitId: lease.unitId,
+      action: mutation.action,
+      leaseNumber: lease.leaseNumber,
+      client: supabase
+    });
+  }
+
   if (mutation.action === "activate") {
     await syncUnitOccupancyFromLease(organizationId, lease.unitId, "occupied", userId, supabase);
     const { generateRentChargesForActiveLease } = await import("../financial/server");
@@ -416,6 +434,34 @@ export async function applyLeaseMutation(
   }
   if (mutation.action === "expire" || mutation.action === "terminate" || mutation.action === "move_out") {
     await syncUnitOccupancyFromActiveLeases(organizationId, lease.unitId, userId, supabase);
+  }
+
+  if (mutation.action === "sign" || mutation.action === "renew" || mutation.action === "offer_renewal") {
+    await notifyLeaseLifecycleChange({
+      organizationId,
+      actorUserId: userId,
+      action: mutation.action,
+      lease,
+      client: supabase
+    });
+  }
+
+  if (
+    mutation.action === "sign" ||
+    mutation.action === "activate" ||
+    mutation.action === "give_notice" ||
+    mutation.action === "move_out" ||
+    mutation.action === "terminate" ||
+    mutation.action === "expire"
+  ) {
+    const { syncTenantLifecycleFromLeaseAction } = await import("../resident-lifecycle/server");
+    await syncTenantLifecycleFromLeaseAction(
+      organizationId,
+      lease.primaryTenantId,
+      userId,
+      mutation.action,
+      supabase
+    ).catch(() => undefined);
   }
 
   return lease;
@@ -583,10 +629,10 @@ async function seedLeaseDocumentPlaceholders(
   client: SupabaseClientType
 ) {
   const placeholders = [
-    { document_type: "lease_pdf", title: "Lease PDF (placeholder)" },
-    { document_type: "signed_lease", title: "Signed lease (placeholder)" },
-    { document_type: "amendment", title: "Amendments (placeholder)" },
-    { document_type: "addendum", title: "Addendums (placeholder)" }
+    { document_type: "lease_pdf", title: "Lease PDF" },
+    { document_type: "signed_lease", title: "Signed lease" },
+    { document_type: "amendment", title: "Amendments" },
+    { document_type: "addendum", title: "Addendums" }
   ];
 
   const { error } = await client.from("lease_documents").insert(
@@ -597,7 +643,7 @@ async function seedLeaseDocumentPlaceholders(
       title: entry.title,
       file_url_placeholder: null,
       ocr_ready: false,
-      notes: "Reserved for future document upload and OCR integration.",
+      notes: null,
       created_by: userId,
       updated_by: userId
     }))
@@ -733,6 +779,71 @@ function lifecycleActionToEventType(action: LeaseMutationInput["action"]): Lease
     move_out: "move_out"
   };
   return map[action] ?? null;
+}
+
+async function notifyLeaseLifecycleChange({
+  organizationId,
+  actorUserId,
+  action,
+  lease,
+  client
+}: {
+  organizationId: string;
+  actorUserId: string;
+  action: "sign" | "renew" | "offer_renewal";
+  lease: LeaseRecord;
+  client: SupabaseClientType;
+}): Promise<void> {
+  const recipients = new Set<string>();
+
+  const { data: devices } = await client
+    .from("resident_devices")
+    .select("user_id")
+    .eq("organization_id", organizationId)
+    .eq("tenant_id", lease.primaryTenantId)
+    .is("deleted_at", null)
+    .limit(5);
+  for (const row of (devices ?? []) as Array<{ user_id: string | null }>) {
+    if (row.user_id && row.user_id !== actorUserId) recipients.add(row.user_id);
+  }
+
+  const { data: memberships } = await client
+    .from("organization_memberships")
+    .select("user_id, roles")
+    .eq("organization_id", organizationId)
+    .eq("status", "active");
+  for (const row of (memberships ?? []) as Array<{ user_id: string; roles: string[] | null }>) {
+    if (Array.isArray(row.roles) && row.roles.includes("property_manager") && row.user_id !== actorUserId) {
+      recipients.add(row.user_id);
+    }
+  }
+
+  if (recipients.size === 0) return;
+
+  const titles: Record<"sign" | "renew" | "offer_renewal", string> = {
+    sign: "Lease signed",
+    renew: "Lease renewed",
+    offer_renewal: "Lease renewal offered"
+  };
+
+  await notify(
+    {
+      organizationId,
+      actorUserId,
+      eventKey: `lease.${action}:${lease.id}`,
+      recipientUserIds: [...recipients],
+      category: "leases",
+      priority: action === "sign" ? "high" : "normal",
+      title: titles[action],
+      body: `Lease ${lease.leaseNumber}`,
+      href: `/leases/${lease.id}`,
+      sourceEntityType: "lease",
+      sourceEntityId: lease.id,
+      propertyId: lease.propertyId,
+      unitId: lease.unitId
+    },
+    client
+  ).catch(() => undefined);
 }
 
 function toLeaseRecord(row: LeaseRow): LeaseRecord {

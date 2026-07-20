@@ -4,7 +4,7 @@ import { Button, Card } from "@mpa/ui";
 import { AppPage } from "../../../../components/presentation/app-page";
 import { CreatePageLayout } from "../../../../components/presentation/create-page-layout";
 import { CreateFormContextRail } from "../../../../components/presentation/create-form-context-rail";
-import { UnitForm } from "../../../../components/unit/unit-form";
+import { CreateUnitWorkspace } from "../../../../components/unit/create-unit-workspace";
 import { WorkflowSuccessPanel } from "../../../../components/presentation/workflow-success-panel";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -79,7 +79,7 @@ export default async function NewUnitPage({
       }
       form={
         <div id="unit-form">
-          <UnitForm mode="create" properties={propertyOptions} initialPropertyId={propertyId ?? null} />
+          <CreateUnitWorkspace properties={propertyOptions} initialPropertyId={propertyId ?? null} />
         </div>
       }
       contextRail={
@@ -87,7 +87,7 @@ export default async function NewUnitPage({
           module="unit"
           setupSteps={[
             { id: "property", label: "Property selected", complete: Boolean(propertyId) },
-            { id: "units", label: "Create unit", complete: false },
+            { id: "units", label: "Create units", complete: false },
             { id: "tenant", label: "Assign tenant", complete: false },
             { id: "lease", label: "Create lease", complete: false }
           ]}

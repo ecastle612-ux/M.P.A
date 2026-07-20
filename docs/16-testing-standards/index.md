@@ -87,6 +87,8 @@ describe('lease.signed event', () => {
 
 ## End-to-End Tests (Playwright)
 
+> **Implementation vehicle:** [QA-001](../47-qa-001-automated-quality-assurance/README.md) — live package [`qa/e2e`](../../qa/e2e/README.md) (`@mpa/qa-e2e`). Do not invent a parallel E2E stack. Product apps must never import QA code.
+
 ### Critical Journeys (v1)
 
 | Journey | Portal | Priority |
@@ -133,6 +135,8 @@ describe('lease.signed event', () => {
 ---
 
 ## CI Pipeline
+
+> Formalized and extended by [QA-001](../47-qa-001-automated-quality-assurance/README.md) (PR smoke, nightly full, RC). Live workflows: `.github/workflows/e2e-smoke.yml`, `e2e-nightly.yml`, `e2e-rc.yml`.
 
 ```yaml
 # On every PR
@@ -191,3 +195,8 @@ jobs:
 - **10** API Standards — Edge Function contracts
 - **14** Security Standards — security test requirements
 - **15** Performance Standards — load testing
+- **47** [QA-001 — Automated Quality Assurance & AI Testing Foundation](../47-qa-001-automated-quality-assurance/README.md) — Playwright platform, workflow library, visual/a11y/perf, CI gates (Design/Document; Approve before implement)
+- **48** [API-003 — Background Screening & Applicant Verification](../48-api-003-background-screening/README.md) — ScreeningService + provider abstraction, FCRA/consent/adverse action (Approved · Implemented)
+- **50** [API-004 — Electronic Signatures & Digital Lease Execution](../50-api-004-electronic-signatures/README.md) — SignatureService + Dropbox Sign-first abstraction (Approved · Implemented)
+- **51** [API-005 — Resident Payments & Billing Platform](../51-api-005-resident-payments-billing/README.md) — BillingService + PaymentProvider / Stripe-first (Approved · Implemented)
+- **52** [RC-001 — Beta Readiness & Design Partner Certification](../52-rc-001-beta-readiness/README.md) — Design Partner GO (constrained)

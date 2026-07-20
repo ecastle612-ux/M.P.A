@@ -40,7 +40,7 @@ export function DataTableLayout({
   const rangeEnd = Math.min(page * pageSize, totalItems);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PageHeader
         title={title}
         {...(overline ? { overline } : {})}
@@ -49,18 +49,18 @@ export function DataTableLayout({
       />
       <Card variant="elevated" padding="none" className="overflow-hidden">
         {filters ? (
-          <div className="grid gap-3 border-b border-[var(--mpa-color-border-subtle)] p-4 md:p-5 lg:grid-cols-[2fr_1fr_1fr]">
+          <div className="grid gap-2.5 border-b border-[var(--mpa-color-border-subtle)] p-3 md:p-4 lg:grid-cols-[2fr_1fr_1fr]">
             {filters}
           </div>
         ) : null}
-        {error ? <p className="px-5 pt-4 text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
+        {error ? <p className="px-4 pt-3 text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
         {showEmptyFiltered && emptyFilteredMessage ? (
-          <p className="mx-5 my-5 rounded-[var(--mpa-radius-lg)] border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)]/50 p-4 text-sm text-[var(--mpa-color-text-secondary)]">
+          <p className="mx-4 my-3 rounded-[var(--mpa-radius-lg)] border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)]/50 p-3 text-sm text-[var(--mpa-color-text-secondary)]">
             {emptyFilteredMessage}
           </p>
         ) : null}
         {children}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--mpa-color-border-subtle)] px-4 py-4 md:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--mpa-color-border-subtle)] px-3 py-3 md:px-4">
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
             {totalItems === 0 ? "Showing 0 of 0" : `Showing ${rangeStart}–${rangeEnd} of ${totalItems}`}
           </p>

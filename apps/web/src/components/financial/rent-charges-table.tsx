@@ -34,7 +34,11 @@ function chargeTypeLabel(type: ChargeType): string {
   const labels: Record<ChargeType, string> = {
     monthly_rent: "Monthly rent",
     custom: "Custom",
-    security_deposit: "Security deposit"
+    security_deposit: "Security deposit",
+    late_fee: "Late fee",
+    adjustment: "Adjustment",
+    credit: "Credit",
+    other: "Other"
   };
   return labels[type];
 }
@@ -47,10 +51,14 @@ function statusBadgeVariant(status: ChargeStatus): "success" | "warning" | "info
 
 export function RentChargesTable({
   initialItems,
-  permissions
+  permissions,
+  initialTenantId,
+  initialPropertyId
 }: {
   initialItems: RentChargeListItem[];
   permissions: { canCreate: boolean };
+  initialTenantId?: string;
+  initialPropertyId?: string;
 }) {
   const [items] = useState(initialItems);
   const [query, setQuery] = useState("");
@@ -64,6 +72,8 @@ export function RentChargesTable({
     const trimmed = query.trim().toLowerCase();
     return visibleItems
       .filter((item) => {
+        if (initialTenantId && item.tenantId !== initialTenantId) return false;
+        if (initialPropertyId && item.propertyId !== initialPropertyId) return false;
         if (statusFilter !== "all" && item.status !== statusFilter) return false;
         if (typeFilter !== "all" && item.chargeType !== typeFilter) return false;
         if (!trimmed) return true;
@@ -76,7 +86,7 @@ export function RentChargesTable({
         );
       })
       .sort((left, right) => right.dueDate.localeCompare(left.dueDate));
-  }, [visibleItems, query, statusFilter, typeFilter]);
+  }, [visibleItems, query, statusFilter, typeFilter, initialTenantId, initialPropertyId]);
 
   const pageCount = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -96,9 +106,14 @@ export function RentChargesTable({
       description="Track rent charges, balances, and payment status across leases."
       actions={
         permissions.canCreate ? (
-          <Link href="/financials/charges/new">
-            <Button>Create charge</Button>
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/financials/payments/new">
+              <Button>Record payment</Button>
+            </Link>
+            <Link href="/financials/charges/new">
+              <Button variant="secondary">Create charge</Button>
+            </Link>
+          </div>
         ) : null
       }
       filters={

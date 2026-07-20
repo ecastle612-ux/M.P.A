@@ -47,6 +47,47 @@ export async function getVaultDocumentsForEntity(
   return ((data ?? []) as VaultDocumentRow[]).map(toVaultDocumentRecord);
 }
 
+export type ListOrganizationVaultDocumentsFilters = {
+  entityType?: VaultEntityType;
+  documentType?: string;
+  query?: string;
+  limit?: number;
+};
+
+export async function listOrganizationVaultDocuments(
+  organizationId: string,
+  filters: ListOrganizationVaultDocumentsFilters = {},
+  client?: SupabaseClientType
+): Promise<VaultDocumentRecord[]> {
+  const supabase = await resolveClient(client);
+  const limit = Math.min(Math.max(filters.limit ?? 200, 1), 500);
+
+  let query = supabase
+    .from("vault_documents")
+    .select(
+      "id, organization_id, entity_type, entity_id, document_type, title, file_url, notes, metadata, created_at, updated_at, deleted_at"
+    )
+    .eq("organization_id", organizationId)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (filters.entityType) {
+    query = query.eq("entity_type", filters.entityType);
+  }
+  if (filters.documentType?.trim()) {
+    query = query.ilike("document_type", `%${filters.documentType.trim()}%`);
+  }
+  if (filters.query?.trim()) {
+    const q = filters.query.trim();
+    query = query.or(`title.ilike.%${q}%,document_type.ilike.%${q}%,notes.ilike.%${q}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as VaultDocumentRow[]).map(toVaultDocumentRecord);
+}
+
 export async function createVaultDocument(
   organizationId: string,
   userId: string,

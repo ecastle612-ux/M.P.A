@@ -50,7 +50,10 @@ export default async function EditUnitPage({ params }: { params: Promise<{ unitI
           relatedLinks={[
             { label: `Unit ${unit.unitNumber}`, href: `/units/${unit.id}` },
             { label: "Property", href: `/properties/${unit.propertyId}` },
-            { label: "Assign tenant", href: `/tenants/new?unitId=${unit.id}&propertyId=${unit.propertyId}` }
+            {
+              label: "Move In Resident",
+              href: `/residents/move-in?unitId=${unit.id}&propertyId=${unit.propertyId}`
+            }
           ]}
         />
       }

@@ -5,25 +5,33 @@ import type { PropertyFinancialSummary } from "../../lib/financial/server";
 
 export function PropertyFinancialPanel({
   summary,
-  canReadFinancials
+  canReadFinancials,
+  propertyId
 }: {
   summary: PropertyFinancialSummary | null;
   canReadFinancials: boolean;
+  propertyId?: string;
 }) {
   if (!canReadFinancials) {
     return null;
   }
 
+  const financialsHref = propertyId
+    ? `/financials/charges?propertyId=${encodeURIComponent(propertyId)}`
+    : summary?.propertyId
+      ? `/financials/charges?propertyId=${encodeURIComponent(summary.propertyId)}`
+      : "/financials";
+
   return (
-    <Card className="space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <Card className="space-y-2.5">
+      <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Financial snapshot</h2>
-          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+          <h2 className="mpa-section-title">Financial snapshot</h2>
+          <p className="mt-0.5 text-sm leading-snug text-[var(--mpa-color-text-secondary)]">
             Current-month income, expenses, and rent collection for this property.
           </p>
         </div>
-        <Link href="/financials">
+        <Link href={financialsHref}>
           <Button variant="ghost" size="sm">
             Open Financials
           </Button>
@@ -35,7 +43,7 @@ export function PropertyFinancialPanel({
           Financial data appears after charges, payments, or expenses are recorded for this property.
         </p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <MetricCard label="Collected rent" value={formatCurrency(summary.collectedRent)} />
           <MetricCard label="Outstanding" value={formatCurrency(summary.outstandingBalance)} />
           <MetricCard label="Monthly income" value={formatCurrency(summary.monthlyIncome)} />
@@ -50,9 +58,11 @@ export function PropertyFinancialPanel({
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] p-3">
-      <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{label}</p>
-      <p className="mt-1 text-lg font-semibold text-[var(--mpa-color-text-primary)]">{value}</p>
+    <div className="rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-surface-muted)] px-3 py-2">
+      <p className="mpa-section-label">{label}</p>
+      <p className="mt-0.5 font-mono text-base font-medium tabular-nums text-[var(--mpa-color-text-primary)]">
+        {value}
+      </p>
     </div>
   );
 }

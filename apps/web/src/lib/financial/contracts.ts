@@ -1,8 +1,46 @@
-export const CHARGE_TYPES = ["monthly_rent", "custom", "security_deposit"] as const;
-export const CHARGE_STATUSES = ["pending", "partial", "paid", "overdue", "waived", "cancelled"] as const;
+export const CHARGE_TYPES = [
+  "monthly_rent",
+  "custom",
+  "security_deposit",
+  "late_fee",
+  "adjustment",
+  "credit",
+  "other"
+] as const;
+export const CHARGE_STATUSES = [
+  "draft",
+  "pending",
+  "partial",
+  "paid",
+  "overdue",
+  "waived",
+  "cancelled",
+  "in_collections"
+] as const;
 export const LATE_STATUSES = ["none", "grace_period", "late", "severe"] as const;
-export const PAYMENT_METHODS = ["manual", "check", "cash", "ach_placeholder", "card_placeholder"] as const;
-export const PAYMENT_STATUSES = ["pending", "completed", "failed", "refunded"] as const;
+export const PAYMENT_METHODS = [
+  "manual",
+  "check",
+  "cash",
+  "ach_placeholder",
+  "card_placeholder",
+  "ach",
+  "card",
+  "debit",
+  "stripe",
+  "provider"
+] as const;
+export const PAYMENT_STATUSES = [
+  "pending",
+  "processing",
+  "requires_action",
+  "completed",
+  "failed",
+  "refunded",
+  "partially_refunded",
+  "canceled",
+  "awaiting_reconciliation"
+] as const;
 export const EXPENSE_CATEGORIES = [
   "maintenance",
   "vendor_bill",
@@ -17,11 +55,21 @@ export const EXPENSE_STATUSES = ["pending", "approved", "paid", "archived"] as c
 export const STATEMENT_STATUSES = ["draft", "generated", "sent", "archived"] as const;
 export const FINANCIAL_ACTIVITY_TYPES = [
   "charge_created",
+  "charge_published",
   "payment_received",
+  "payment_failed",
+  "payment_initiated",
   "late_fee_applied",
   "expense_recorded",
   "statement_generated",
-  "balance_updated"
+  "balance_updated",
+  "refund_completed",
+  "credit_applied",
+  "adjustment_applied",
+  "receipt_issued",
+  "autopay_enrolled",
+  "autopay_disabled",
+  "reconciliation"
 ] as const;
 
 export type ChargeType = (typeof CHARGE_TYPES)[number];
@@ -296,12 +344,14 @@ export function formatCurrency(amount: number): string {
 
 export function toChargeStatusLabel(status: ChargeStatus): string {
   const labels: Record<ChargeStatus, string> = {
+    draft: "Draft",
     pending: "Pending",
     partial: "Partial",
     paid: "Paid",
     overdue: "Overdue",
     waived: "Waived",
-    cancelled: "Cancelled"
+    cancelled: "Cancelled",
+    in_collections: "In collections"
   };
   return labels[status];
 }

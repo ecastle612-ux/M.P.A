@@ -6,6 +6,7 @@ import { EntityRelationshipChain } from "../../../../components/presentation/ent
 import { LeaseContextRail } from "../../../../components/presentation/context-rails/lease-context-rail";
 import { LeaseDocumentsPanel } from "../../../../components/lease/lease-documents-panel";
 import { LeaseLifecyclePanel } from "../../../../components/lease/lease-lifecycle-panel";
+import { SignaturePackagePanel } from "../../../../components/signature/signature-package-panel";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -60,6 +61,9 @@ export default async function LeaseDetailPage({
   const canReadUnit = evaluatePermission(authorization, "unit:read");
   const canReadTenant = evaluatePermission(authorization, "tenant:read");
   const canReadFinancials = evaluatePermission(authorization, "financial:read");
+  const canCreateSignature = evaluatePermission(authorization, "signature:create");
+  const canSendSignature = evaluatePermission(authorization, "signature:send");
+  const canReadSignature = evaluatePermission(authorization, "signature:read");
 
   const { data: chargeRows, error: chargeError } = canReadFinancials
     ? await supabase
@@ -212,10 +216,10 @@ export default async function LeaseDetailPage({
                   (lease.tenantName ?? "—")
                 )}
               </p>
-              <p>Co-tenant: {lease.coTenantPlaceholder ?? "—"}</p>
+              <p>Additional residents: {lease.coTenantPlaceholder ?? "—"}</p>
               <p>Move-in: {lease.moveInDate ?? "—"}</p>
               <p>Move-out: {lease.moveOutDate ?? "—"}</p>
-              <p>Late fee: {lease.lateFeePlaceholder ?? "—"}</p>
+              <p>Late fee notes: {lease.lateFeePlaceholder ?? "—"}</p>
               <p>Renewal option: {lease.renewalOption ? "Yes" : "No"}</p>
               <p>Notice period: {lease.noticePeriodDays !== null ? `${lease.noticePeriodDays} days` : "—"}</p>
               <p>Signed: {lease.signedAt ? new Date(lease.signedAt).toLocaleString() : "—"}</p>
@@ -238,6 +242,13 @@ export default async function LeaseDetailPage({
               events={lease.events}
               canUpdate={canUpdate}
             />
+            {canReadSignature ? (
+              <SignaturePackagePanel
+                leaseId={lease.id}
+                canCreate={canCreateSignature}
+                canSend={canSendSignature}
+              />
+            ) : null}
             <LeaseDocumentsPanel documents={lease.documents} />
           </div>
         </>

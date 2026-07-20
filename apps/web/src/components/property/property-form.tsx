@@ -28,7 +28,7 @@ const DEFAULT_VALUES: PropertyFormValues = {
   name: "",
   code: "",
   propertyType: "residential",
-  status: "draft",
+  status: "active",
   description: "",
   addressLine1: "",
   addressLine2: "",
@@ -129,7 +129,7 @@ export function PropertyForm({
     if (savedId) {
       if (mode === "create") {
         if (setupMode) {
-          router.push("/setup");
+          router.push("/setup?from=property-created");
         } else {
           router.push(`/properties/${savedId}?from=property-created`);
         }
@@ -145,18 +145,22 @@ export function PropertyForm({
 
   return (
     <Card>
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-3" onSubmit={handleSubmit}>
         <div>
           <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
             {mode === "create" ? "Create Property" : "Edit Property"}
           </h1>
           <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-            Configure location and ownership once, then continue directly to unit onboarding.
+            {setupMode
+              ? "Configure location and ownership. After save, you’ll return to setup to add units."
+              : "Configure location and ownership once, then continue directly to unit onboarding."}
           </p>
         </div>
         {mode === "create" ? (
           <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] px-3 py-2 text-xs text-[var(--mpa-color-text-secondary)]">
-            Workflow: Property -&gt; Unit -&gt; Tenant. After save, unit creation opens with this property preselected.
+            {setupMode
+              ? "What happens next: Return to setup → Add units → Add a resident or use Move In."
+              : "Workflow: Property → Unit → Tenant. After save, unit creation opens with this property preselected."}
           </p>
         ) : null}
 

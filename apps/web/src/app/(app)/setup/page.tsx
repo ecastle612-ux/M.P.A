@@ -3,7 +3,12 @@ import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { getSetupStatus } from "../../../lib/setup/server";
 import { SetupWizard } from "../../../components/setup/setup-wizard";
 
-export default async function SetupPage() {
+export default async function SetupPage({
+  searchParams
+}: {
+  searchParams: Promise<{ celebrate?: string; from?: string }>;
+}) {
+  const { celebrate, from } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -18,9 +23,10 @@ export default async function SetupPage() {
     appMetadata: user.app_metadata
   });
 
-  if (status.isComplete) {
-    redirect("/dashboard");
+  // Allow a one-shot celebration screen before leaving setup.
+  if (status.isComplete && celebrate !== "1") {
+    redirect("/setup?celebrate=1");
   }
 
-  return <SetupWizard initialStatus={status} />;
+  return <SetupWizard initialStatus={status} celebrate={celebrate === "1"} fromBanner={from ?? null} />;
 }

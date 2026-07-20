@@ -12,8 +12,18 @@ import { getPropertyForOrganization } from "../../../../lib/property/server";
 import { getBuildingQrForProperty } from "../../../../lib/communication/server";
 import { PropertyQrPanel } from "../../../../components/communication/property-qr-panel";
 import { PropertyFinancialPanel } from "../../../../components/financial/property-financial-panel";
+import { RepairHistoryPanel } from "../../../../components/facility/repair-history-panel";
+import { PropertyTimeline } from "../../../../components/facility/property-timeline";
+import { PropertyOverviewPanels } from "../../../../components/facility/property-overview-panels";
+import { RepairHistoryFilters } from "../../../../components/facility/repair-history-filters";
+import { AssetsPanel } from "../../../../components/facility/assets-panel";
 import { toPropertyStatusLabel, toPropertyTypeLabel } from "../../../../lib/property/contracts";
 import { getPropertyFinancialSummary } from "../../../../lib/financial/server";
+import { isTimelineFilter } from "../../../../lib/facility/contracts";
+import { listFacilityAssets } from "../../../../lib/facility/asset-server";
+import { listFacilityRecords } from "../../../../lib/facility/server";
+import { listFacilityTimelineEvents } from "../../../../lib/facility/timeline";
+import { getVaultDocumentsForEntity } from "../../../../lib/vault/server";
 import { getPortfolioCounts } from "../../../../lib/workflow/server/portfolio-counts";
 import { buildPropertyCreatedSuccess } from "../../../../lib/workflow/shared/success-configs";
 
@@ -22,10 +32,18 @@ export default async function PropertyDetailPage({
   searchParams
 }: {
   params: Promise<{ propertyId: string }>;
-  searchParams: Promise<{ from?: string }>;
+  searchParams: Promise<{
+    from?: string;
+    q?: string;
+    vendorId?: string;
+    unitId?: string;
+    tlFilter?: string;
+    tlQ?: string;
+  }>;
 }) {
   const { propertyId } = await params;
-  const { from } = await searchParams;
+  const { from, q, vendorId, unitId, tlFilter, tlQ } = await searchParams;
+  const timelineFilter = isTimelineFilter(tlFilter) ? tlFilter : "all";
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -55,9 +73,85 @@ export default async function PropertyDetailPage({
   const canReadTenant = evaluatePermission(authorization, "tenant:read");
   const canCreateTenant = evaluatePermission(authorization, "tenant:create");
   const canReadFinancials = evaluatePermission(authorization, "financial:read");
+  const canReadMaintenance = evaluatePermission(authorization, "maintenance:read");
   const propertyFinancialSummary = canReadFinancials
     ? await getPropertyFinancialSummary(organizationId, propertyId, supabase)
     : null;
+  const [repairHistory, propertyTimeline, propertyAssets, propertyUnits, vendorFilterRows, propertyDocuments] =
+    canReadMaintenance
+      ? await Promise.all([
+          listFacilityRecords(
+            organizationId,
+            {
+              propertyId,
+              search: q,
+              vendorId,
+              unitId,
+              limit: 50
+            },
+            supabase
+          ),
+          listFacilityTimelineEvents(
+            organizationId,
+            {
+              propertyId,
+              filter: timelineFilter,
+              search: tlQ,
+              limit: 40
+            },
+            supabase
+          ),
+          listFacilityAssets(organizationId, { propertyId, limit: 100 }, supabase),
+          supabase
+            .from("units")
+            .select("id, unit_number")
+            .eq("organization_id", organizationId)
+            .eq("property_id", propertyId)
+            .is("deleted_at", null)
+            .order("unit_number", { ascending: true }),
+          supabase
+            .from("facility_records")
+            .select("legacy_vendor_id, service_provider_display_name")
+            .eq("organization_id", organizationId)
+            .eq("property_id", propertyId)
+            .eq("status", "active")
+            .not("legacy_vendor_id", "is", null),
+          getVaultDocumentsForEntity(organizationId, "property", propertyId, supabase)
+        ])
+      : [
+          [],
+          [],
+          [],
+          { data: [] as Array<{ id: string; unit_number: string }> },
+          {
+            data: [] as Array<{
+              legacy_vendor_id: string | null;
+              service_provider_display_name: string | null;
+            }>
+          },
+          []
+        ];
+  const unitOptions = ((propertyUnits.data ?? []) as Array<{ id: string; unit_number: string }>).map(
+    (unit) => ({ id: unit.id, label: `Unit ${unit.unit_number}` })
+  );
+  const vendorOptions = Array.from(
+    new Map(
+      (
+        (vendorFilterRows.data ?? []) as Array<{
+          legacy_vendor_id: string | null;
+          service_provider_display_name: string | null;
+        }>
+      )
+        .filter((row) => row.legacy_vendor_id)
+        .map((row) => [
+          row.legacy_vendor_id as string,
+          {
+            id: row.legacy_vendor_id as string,
+            label: row.service_provider_display_name ?? "Vendor"
+          }
+        ])
+    ).values()
+  );
   const portfolioCounts = from === "property-created" ? await getPortfolioCounts(organizationId) : null;
   const propertySuccess =
     from === "property-created" && portfolioCounts
@@ -287,8 +381,8 @@ export default async function PropertyDetailPage({
                 </Link>
               ) : null}
               {canCreateTenant ? (
-                <Link href={`/tenants/new?propertyId=${property.id}`}>
-                  <Button variant="ghost">Assign tenant</Button>
+                <Link href={`/residents/move-in?propertyId=${encodeURIComponent(property.id)}`}>
+                  <Button variant="ghost">Move In Resident</Button>
                 </Link>
               ) : null}
             </>
@@ -297,13 +391,13 @@ export default async function PropertyDetailPage({
       }
       main={
         <>
-          <Card variant="elevated" className="space-y-4">
+          <Card variant="elevated" className="space-y-3">
             {property.description ? (
-              <p className="text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">{property.description}</p>
+              <p className="text-sm leading-snug text-[var(--mpa-color-text-secondary)]">{property.description}</p>
             ) : (
               <p className="text-sm text-[var(--mpa-color-text-muted)]">No description added.</p>
             )}
-            <div className="grid gap-3 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-x-4 gap-y-1.5 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">
               <p>Code: {property.code ?? "—"}</p>
               <p>Timezone: {property.timezone ?? "—"}</p>
               <p>Ownership entity: {property.ownershipEntityName ?? "—"}</p>
@@ -318,7 +412,51 @@ export default async function PropertyDetailPage({
             </div>
           </Card>
 
-          <PropertyFinancialPanel summary={propertyFinancialSummary} canReadFinancials={canReadFinancials} />
+          <PropertyFinancialPanel
+            summary={propertyFinancialSummary}
+            canReadFinancials={canReadFinancials}
+            propertyId={property.id}
+          />
+
+          {canReadMaintenance ? (
+            <>
+              <PropertyOverviewPanels
+                recentRepairs={repairHistory}
+                recentTimeline={propertyTimeline}
+                recentDocuments={propertyDocuments}
+                propertyId={property.id}
+              />
+              <div className="space-y-3" id="repair-history">
+                <RepairHistoryFilters
+                  vendorOptions={vendorOptions}
+                  unitOptions={unitOptions}
+                  initialSearch={q ?? ""}
+                  initialVendorId={vendorId ?? ""}
+                  initialUnitId={unitId ?? ""}
+                />
+                <RepairHistoryPanel
+                  title="Repair history"
+                  description="Permanent facility records for this property, newest first."
+                  records={repairHistory}
+                  emptyLabel="No completed repairs yet. Completing a work order creates permanent history here."
+                />
+              </div>
+              <AssetsPanel
+                propertyId={property.id}
+                assets={propertyAssets}
+                units={((propertyUnits.data ?? []) as Array<{ id: string; unit_number: string }>).map(
+                  (unit) => ({ id: unit.id, unitNumber: unit.unit_number })
+                )}
+                canCreate={evaluatePermission(authorization, "maintenance:update")}
+              />
+              <PropertyTimeline
+                events={propertyTimeline}
+                propertyName={property.name}
+                initialFilter={timelineFilter}
+                initialSearch={tlQ ?? ""}
+              />
+            </>
+          ) : null}
 
           {qrCode ? <PropertyQrPanel propertyId={property.id} propertyName={property.name} qrCode={qrCode} /> : null}
         </>

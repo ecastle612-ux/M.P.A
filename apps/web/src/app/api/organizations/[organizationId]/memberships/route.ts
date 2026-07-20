@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { parseUpdateOrganizationMembershipInput } from "../../../../../lib/organization/contracts";
-import { createAuthServerClient } from "../../../../../lib/auth/server";
+import { createAuthServerClient, createServiceRoleServerClient } from "../../../../../lib/auth/server";
 import {
   evaluatePermission,
   resolveAuthorizationContext
@@ -49,7 +49,37 @@ export async function GET(_request: Request, context: { params: Promise<{ organi
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  return NextResponse.json({ memberships: data ?? [] });
+  const memberships = data ?? [];
+  const userIds = memberships.map((row) => row.user_id);
+  const profileByUserId = new Map<string, { displayName: string | null; contactEmail: string | null }>();
+
+  if (userIds.length > 0) {
+    const service = createServiceRoleServerClient();
+    const profileClient = service ?? supabase;
+    const { data: profiles } = await profileClient
+      .from("user_profiles")
+      .select("user_id, display_name, contact_email")
+      .in("user_id", userIds);
+
+    for (const profile of profiles ?? []) {
+      profileByUserId.set(profile.user_id, {
+        displayName: profile.display_name ?? null,
+        contactEmail: profile.contact_email ?? null
+      });
+    }
+  }
+
+  return NextResponse.json({
+    memberships: memberships.map((row) => {
+      const profile = profileByUserId.get(row.user_id);
+      return {
+        ...row,
+        display_name: profile?.displayName ?? null,
+        contact_email: profile?.contactEmail ?? null
+      };
+    }),
+    canUpdate: authz.canUpdateMemberships
+  });
 }
 
 export async function PATCH(request: Request, context: { params: Promise<{ organizationId: string }> }) {

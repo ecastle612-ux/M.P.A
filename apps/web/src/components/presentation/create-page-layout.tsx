@@ -16,7 +16,7 @@ export function CreatePageLayout({
     <AppPage wide breadcrumbs={breadcrumbs}>
       {banner}
       <div className="mpa-workspace-grid">
-        <div className="mpa-workspace-main min-w-0 space-y-5">{form}</div>
+        <div className="mpa-workspace-main min-w-0 space-y-4">{form}</div>
         {contextRail}
       </div>
     </AppPage>

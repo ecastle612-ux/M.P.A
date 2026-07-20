@@ -3,7 +3,7 @@ import { createAuthServerClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { parseAnnouncementMutationInput } from "../../../../lib/communication/contracts";
-import { applyAnnouncementMutation, getAnnouncementForOrganization } from "../../../../lib/communication/server";
+import { applyAnnouncementMutation, getAnnouncementForOrganization, getAnnouncementPushRecipientCount } from "../../../../lib/communication/server";
 import { apiError, apiInternalError, parseJsonBody } from "../../../../lib/api/http";
 
 type RouteContext = { params: Promise<{ announcementId: string }> };
@@ -27,7 +27,21 @@ export async function GET(_request: Request, context: RouteContext) {
 
     const announcement = await getAnnouncementForOrganization(organizationId, announcementId, supabase);
     if (!announcement) return apiError(404, "NOT_FOUND", "Announcement not found");
-    return NextResponse.json({ announcement }, { headers: { "Cache-Control": "no-store" } });
+
+    let pushRecipientCount = 0;
+    let audienceUserCount = 0;
+    try {
+      const counts = await getAnnouncementPushRecipientCount(organizationId, announcementId, supabase);
+      pushRecipientCount = counts.pushRecipientCount;
+      audienceUserCount = counts.audienceUserCount;
+    } catch {
+      /* keep zeros */
+    }
+
+    return NextResponse.json(
+      { announcement, pushRecipientCount, audienceUserCount },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   } catch {
     return apiInternalError();
   }

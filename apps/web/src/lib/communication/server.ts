@@ -1,8 +1,11 @@
 import { assertAnnouncementEditable, assertAnnouncementPublishable } from "./events";
 import { createAuthServerComponentClient } from "../auth/server";
+import { notify } from "../notifications/service";
+import type { NotificationPriority } from "../notifications/contracts";
 import type { Json } from "@mpa/supabase";
 import type {
   AnnouncementMutationInput,
+  AnnouncementPriority,
   AnnouncementReadRecord,
   AnnouncementRecipientRecord,
   AnnouncementRecord,
@@ -312,6 +315,54 @@ export async function publishAnnouncement(
     if (recipientError) throw new Error(recipientError.message);
   }
 
+  const recipientUserIds = [
+    ...new Set(targets.map((target) => target.userId).filter((id): id is string => Boolean(id)))
+  ];
+  if (recipientUserIds.length > 0) {
+    const notificationPriority = mapAnnouncementPriority(detail.priority);
+    const notificationCategory = detail.priority === "emergency" ? "emergency" : "announcements";
+    const results = await notify(
+      {
+        organizationId,
+        actorUserId: userId,
+        eventKey: `announcement.published:${announcementId}`,
+        recipientUserIds,
+        category: notificationCategory,
+        priority: notificationPriority,
+        title: detail.title,
+        body: detail.message.slice(0, 240),
+        href: `/portal/tenant/announcements/${announcementId}`,
+        sourceEntityType: "announcement",
+        sourceEntityId: announcementId,
+        propertyId: detail.targetPropertyId
+      },
+      db
+    ).catch(() => undefined);
+
+    if (results) {
+      for (const record of results) {
+        const deliveryStatus =
+          record.pushDeliveryStatus === "sent" || record.pushDeliveryStatus === "delivered"
+            ? "delivered"
+            : record.pushDeliveryStatus === "failed"
+              ? "failed"
+              : record.pushDeliveryStatus === "pending"
+                ? "pending"
+                : "placeholder";
+        await db
+          .from("announcement_recipients")
+          .update({
+            delivery_status: deliveryStatus,
+            delivered_at: deliveryStatus === "delivered" ? now : null
+          })
+          .eq("organization_id", organizationId)
+          .eq("announcement_id", announcementId)
+          .eq("user_id", record.userId)
+          .eq("delivery_channel", "push");
+      }
+    }
+  }
+
   const { sendWorkflowEmail } = await import("../integrations/email/delivery");
   const { isValidEmailAddress } = await import("../integrations/email/resolve-recipient");
   for (const target of targets) {
@@ -366,12 +417,32 @@ export async function publishAnnouncement(
   }
 
   const uniqueRecipients = new Set(targets.map((t) => t.userId ?? t.tenantId).filter(Boolean));
-  return updateAnnouncementRow(organizationId, announcementId, userId, {
+  const updated = await updateAnnouncementRow(organizationId, announcementId, userId, {
     status: "published",
     published_at: scheduledAt ?? now,
     scheduled_at: scheduledAt,
     recipient_count: uniqueRecipients.size
   }, db);
+
+  if (detail.targetPropertyId) {
+    const { ingestAnnouncementPublished } = await import("../facility/ingest");
+    await ingestAnnouncementPublished({
+      organizationId,
+      userId,
+      announcementId,
+      propertyId: detail.targetPropertyId,
+      title: detail.title,
+      client: db
+    });
+  }
+
+  return updated;
+}
+
+function mapAnnouncementPriority(priority: AnnouncementPriority): NotificationPriority {
+  if (priority === "emergency") return "emergency";
+  if (priority === "high") return "high";
+  return "normal";
 }
 
 export async function markAnnouncementReadForUser(
@@ -611,7 +682,7 @@ export async function getNotificationPreferencesForUser(
   const db = await resolveClient(client);
   const { data, error } = await db
     .from("notification_preferences")
-    .select("id, organization_id, user_id, tenant_id, property_id, in_app_enabled, push_enabled, email_enabled, sms_enabled, category_preferences, quiet_hours, language_code, created_at, updated_at")
+    .select("id, organization_id, user_id, tenant_id, property_id, in_app_enabled, push_enabled, email_enabled, sms_enabled, emergency_override, category_preferences, quiet_hours, property_preferences, language_code, created_at, updated_at")
     .eq("organization_id", organizationId)
     .eq("user_id", userId)
     .maybeSingle();
@@ -623,7 +694,20 @@ export async function getNotificationPreferencesForUser(
 export async function updateNotificationPreferencesForUser(
   organizationId: string,
   userId: string,
-  updates: Partial<Pick<NotificationPreferencesRecord, "inAppEnabled" | "pushEnabled" | "emailEnabled" | "smsEnabled" | "categoryPreferences" | "languageCode">>,
+  updates: Partial<
+    Pick<
+      NotificationPreferencesRecord,
+      | "inAppEnabled"
+      | "pushEnabled"
+      | "emailEnabled"
+      | "smsEnabled"
+      | "emergencyOverride"
+      | "categoryPreferences"
+      | "quietHours"
+      | "propertyPreferences"
+      | "languageCode"
+    >
+  >,
   client?: CommunicationDbClient | SupabaseClientType
 ): Promise<NotificationPreferencesRecord> {
   const db = await resolveClient(client);
@@ -632,13 +716,16 @@ export async function updateNotificationPreferencesForUser(
   if (updates.pushEnabled !== undefined) patch["push_enabled"] = updates.pushEnabled;
   if (updates.emailEnabled !== undefined) patch["email_enabled"] = updates.emailEnabled;
   if (updates.smsEnabled !== undefined) patch["sms_enabled"] = updates.smsEnabled;
+  if (updates.emergencyOverride !== undefined) patch["emergency_override"] = updates.emergencyOverride;
   if (updates.categoryPreferences !== undefined) patch["category_preferences"] = updates.categoryPreferences;
+  if (updates.quietHours !== undefined) patch["quiet_hours"] = updates.quietHours;
+  if (updates.propertyPreferences !== undefined) patch["property_preferences"] = updates.propertyPreferences;
   if (updates.languageCode !== undefined) patch["language_code"] = updates.languageCode;
 
   const { data, error } = await db
     .from("notification_preferences")
     .upsert({ organization_id: organizationId, user_id: userId, created_by: userId, ...patch }, { onConflict: "organization_id,user_id" })
-    .select("id, organization_id, user_id, tenant_id, property_id, in_app_enabled, push_enabled, email_enabled, sms_enabled, category_preferences, quiet_hours, language_code, created_at, updated_at")
+    .select("id, organization_id, user_id, tenant_id, property_id, in_app_enabled, push_enabled, email_enabled, sms_enabled, emergency_override, category_preferences, quiet_hours, property_preferences, language_code, created_at, updated_at")
     .single();
   if (error) throw new Error(error.message);
   return toNotificationPreferencesRecord(data);
@@ -689,7 +776,12 @@ async function resolveAnnouncementTargets(
   announcement: AnnouncementListItem,
   client: CommunicationDbClient
 ): Promise<Array<{ tenantId: string | null; userId: string | null; email: string | null }>> {
-  let tenantQuery = client.from("tenants").select("id, email").eq("organization_id", organizationId).is("deleted_at", null);
+  // Include tenants.user_id so portal-linked residents receive in-app/push even before a device row exists.
+  let tenantQuery = client
+    .from("tenants")
+    .select("id, email, user_id")
+    .eq("organization_id", organizationId)
+    .is("deleted_at", null);
 
   switch (announcement.targetingScope) {
     case "property":
@@ -737,12 +829,16 @@ async function resolveAnnouncementTargets(
     const device = (devices ?? []).find(
       (row: { tenant_id: string | null; user_id: string | null }) => row.tenant_id === tenant.id
     );
-    const key = device?.user_id ?? tenant.id;
+    const linkedUserId =
+      (typeof tenant.user_id === "string" && tenant.user_id ? (tenant.user_id as string) : null) ??
+      (device?.user_id as string | null) ??
+      null;
+    const key = linkedUserId ?? (tenant.id as string);
     const email =
       typeof tenant.email === "string" && tenant.email.trim() ? String(tenant.email).trim().toLowerCase() : null;
     targets.set(key, {
       tenantId: tenant.id as string,
-      userId: (device?.user_id as string | null) ?? null,
+      userId: linkedUserId,
       email
     });
   }
@@ -768,6 +864,38 @@ async function resolveAnnouncementTargets(
   }
 
   return [...targets.values()];
+}
+
+/**
+ * Users in the announcement audience who have ≥1 active push subscription.
+ */
+export async function getAnnouncementPushRecipientCount(
+  organizationId: string,
+  announcementId: string,
+  client?: CommunicationDbClient | SupabaseClientType
+): Promise<{ pushRecipientCount: number; audienceUserCount: number }> {
+  const db = await resolveClient(client);
+  const detail = await getAnnouncementForOrganization(organizationId, announcementId, db);
+  if (!detail) throw new Error("Announcement not found");
+
+  const targets = await resolveAnnouncementTargets(organizationId, detail, db);
+  const userIds = [...new Set(targets.map((t) => t.userId).filter((id): id is string => Boolean(id)))];
+  if (userIds.length === 0) {
+    return { pushRecipientCount: 0, audienceUserCount: 0 };
+  }
+
+  const { data: devices, error } = await db
+    .from("resident_devices")
+    .select("user_id")
+    .eq("organization_id", organizationId)
+    .eq("is_active", true)
+    .is("deleted_at", null)
+    .not("external_subscription_id", "is", null)
+    .in("user_id", userIds);
+  if (error) throw new Error(error.message);
+
+  const pushUsers = new Set(((devices ?? []) as Array<{ user_id: string }>).map((row) => row.user_id));
+  return { pushRecipientCount: pushUsers.size, audienceUserCount: userIds.length };
 }
 
 async function duplicateAnnouncement(
@@ -983,8 +1111,11 @@ function toNotificationPreferencesRecord(row: Record<string, unknown>): Notifica
     pushEnabled: row["push_enabled"] as boolean,
     emailEnabled: row["email_enabled"] as boolean,
     smsEnabled: row["sms_enabled"] as boolean,
+    emergencyOverride: row["emergency_override"] === undefined ? true : Boolean(row["emergency_override"]),
     categoryPreferences: (row["category_preferences"] as Record<string, boolean>) ?? {},
     quietHours: (row["quiet_hours"] as Record<string, unknown>) ?? {},
+    propertyPreferences:
+      (row["property_preferences"] as Array<{ propertyId: string; muted: boolean; allowedCategories?: string[] }>) ?? [],
     languageCode: row["language_code"] as string,
     createdAt: row["created_at"] as string,
     updatedAt: row["updated_at"] as string

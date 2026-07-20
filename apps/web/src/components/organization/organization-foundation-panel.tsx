@@ -1,40 +1,17 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { Button, Card, Input, Select } from "@mpa/ui";
-import { USER_ROLES, isUserRole } from "@mpa/shared";
+import Link from "next/link";
+import { Button, Card, Input } from "@mpa/ui";
 import { useOrganizationContext } from "../shell/organization-context";
 import { Logo } from "../branding/logo";
-
-type PendingInvitation = {
-  id: string;
-  organization_id: string;
-  email: string;
-  roles: string[];
-  status: "pending" | "accepted" | "revoked" | "expired";
-  token: string;
-  expires_at: string;
-};
-
-type Membership = {
-  id: string;
-  user_id: string;
-  roles: string[];
-  status: "active" | "inactive";
-};
 
 export function OrganizationFoundationPanel() {
   const { activeOrganization, organizations, refreshOrganizations } = useOrganizationContext();
   const [newOrganizationName, setNewOrganizationName] = useState("");
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<string>("tenant");
-  const [invitations, setInvitations] = useState<PendingInvitation[]>([]);
-  const [memberships, setMemberships] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const hasOrganizations = organizations.length > 0;
 
   const activeOrganizationLabel = useMemo(() => {
     if (!activeOrganization) {
@@ -42,29 +19,6 @@ export function OrganizationFoundationPanel() {
     }
     return `${activeOrganization.name} (${activeOrganization.slug})`;
   }, [activeOrganization]);
-
-  async function refreshOrganizationDetails() {
-    if (!activeOrganization) {
-      setInvitations([]);
-      setMemberships([]);
-      return;
-    }
-
-    const [invitationResponse, membershipResponse] = await Promise.all([
-      fetch(`/api/organizations/${activeOrganization.id}/invitations`, { method: "GET" }),
-      fetch(`/api/organizations/${activeOrganization.id}/memberships`, { method: "GET" })
-    ]);
-
-    if (invitationResponse.ok) {
-      const invitationPayload = (await invitationResponse.json()) as { invitations?: PendingInvitation[] };
-      setInvitations(invitationPayload.invitations ?? []);
-    }
-
-    if (membershipResponse.ok) {
-      const membershipPayload = (await membershipResponse.json()) as { memberships?: Membership[] };
-      setMemberships(membershipPayload.memberships ?? []);
-    }
-  }
 
   async function handleCreateOrganization(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -87,52 +41,21 @@ export function OrganizationFoundationPanel() {
 
     setNewOrganizationName("");
     await refreshOrganizations();
-    await refreshOrganizationDetails();
-    setNotice("Organization created.");
-  }
-
-  async function handleInvite(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!activeOrganization || !isUserRole(inviteRole)) {
-      return;
-    }
-    setError(null);
-    setNotice(null);
-    setLoading(true);
-
-    const response = await fetch(`/api/organizations/${activeOrganization.id}/invitations`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: inviteEmail,
-        roles: [inviteRole]
-      })
-    });
-    const payload = (await response.json()) as { error?: string };
-    setLoading(false);
-
-    if (!response.ok) {
-      setError(payload.error ?? "Invitation failed");
-      return;
-    }
-
-    setInviteEmail("");
-    await refreshOrganizationDetails();
-    setNotice("Invitation created.");
+    setNotice("Organization created. Continue in Settings → Team to invite staff.");
   }
 
   return (
     <section className="grid gap-4 lg:grid-cols-2">
       <Card>
         <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-          Organization foundation
+          Create organization
         </h2>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
           Active context: {activeOrganizationLabel}
         </p>
-        <form className="mt-4 space-y-3" onSubmit={handleCreateOrganization}>
+        <form className="mt-4 space-y-3" onSubmit={(event) => void handleCreateOrganization(event)}>
           <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="organization-name">
-            Create organization
+            Organization name
           </label>
           <Input
             id="organization-name"
@@ -147,79 +70,43 @@ export function OrganizationFoundationPanel() {
         </form>
         {error ? <p className="mt-2 text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
         {notice ? <p className="mt-2 text-sm text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}
-        {hasOrganizations ? (
-          <Button className="mt-4" variant="secondary" onClick={() => void refreshOrganizationDetails()}>
-            Refresh organization details
-          </Button>
+        {organizations.length > 0 ? (
+          <p className="mt-4 text-sm text-[var(--mpa-color-text-secondary)]">
+            You already have {organizations.length} organization
+            {organizations.length === 1 ? "" : "s"}. Manage details in Settings.
+          </p>
         ) : null}
       </Card>
 
       <Card>
-        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-          Invitations and memberships
-        </h2>
-        <form className="mt-4 grid gap-2" onSubmit={handleInvite}>
-          <Input
-            type="email"
-            placeholder="member@organization.com"
-            required
-            value={inviteEmail}
-            onChange={(event) => setInviteEmail(event.target.value)}
-            disabled={!activeOrganization}
-          />
-          <Select
-            value={inviteRole}
-            onChange={(event) => setInviteRole(event.target.value)}
-            disabled={!activeOrganization}
-          >
-            {USER_ROLES.map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
-          </Select>
-          <Button disabled={loading || !activeOrganization} type="submit">
-            Invite member
-          </Button>
-        </form>
-        <div className="mt-4 space-y-4 text-sm">
-          <div>
-            <p className="font-semibold text-[var(--mpa-color-text-primary)]">Pending invitations</p>
-            {invitations.length === 0 ? (
-              <div className="mt-2 flex items-center gap-3">
-                <Logo size="sidebarCollapsed" />
-                <p className="text-[var(--mpa-color-text-secondary)]">
-                  Invite your team so everyone can collaborate in one place.
-                </p>
-              </div>
-            ) : (
-              <ul className="mt-1 space-y-1 text-[var(--mpa-color-text-secondary)]">
-                {invitations.map((invitation) => (
-                  <li key={invitation.id}>
-                    {invitation.email} — {invitation.roles.join(", ")}
-                  </li>
-                ))}
-              </ul>
-            )}
+        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Team management</h2>
+        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+          Invite staff, review roles, and manage memberships in Settings. This onboarding card only
+          creates your organization.
+        </p>
+        {activeOrganization ? (
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              href="/settings/team"
+              className="text-sm font-medium text-[var(--mpa-color-brand-primary)] underline-offset-2 hover:underline"
+            >
+              Open Settings → Team
+            </Link>
+            <Link
+              href="/settings/organization"
+              className="text-sm font-medium text-[var(--mpa-color-brand-primary)] underline-offset-2 hover:underline"
+            >
+              Organization
+            </Link>
           </div>
-          <div>
-            <p className="font-semibold text-[var(--mpa-color-text-primary)]">Memberships</p>
-            {memberships.length === 0 ? (
-              <div className="mt-2 flex items-center gap-3">
-                <Logo size="sidebarCollapsed" />
-                <p className="text-[var(--mpa-color-text-secondary)]">No memberships loaded.</p>
-              </div>
-            ) : (
-              <ul className="mt-1 space-y-1 text-[var(--mpa-color-text-secondary)]">
-                {memberships.map((membership) => (
-                  <li key={membership.id}>
-                    {membership.user_id} — {membership.roles.join(", ")} ({membership.status})
-                  </li>
-                ))}
-              </ul>
-            )}
+        ) : (
+          <div className="mt-4 flex items-center gap-3">
+            <Logo size="sidebarCollapsed" />
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+              Create an organization first, then invite your team from Settings.
+            </p>
           </div>
-        </div>
+        )}
       </Card>
     </section>
   );

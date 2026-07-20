@@ -6,8 +6,20 @@ import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
 import { getApplicantsForOrganization } from "../../../lib/applicant/server";
+import { APPLICANT_STATUSES } from "../../../lib/applicant/contracts";
 
-export default async function ApplicantsPage() {
+function resolveInitialStatusFilter(statusParam?: string): string {
+  if (!statusParam || statusParam === "all") return "all";
+  if (statusParam === "pending") return "pending_review";
+  return (APPLICANT_STATUSES as readonly string[]).includes(statusParam) ? statusParam : "all";
+}
+
+export default async function ApplicantsPage({
+  searchParams
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status: statusParam } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -38,10 +50,15 @@ export default async function ApplicantsPage() {
     canArchive: evaluatePermission(authorization, "applicant:archive"),
     canDelete: evaluatePermission(authorization, "applicant:delete")
   };
+  const initialStatusFilter = resolveInitialStatusFilter(statusParam);
 
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Applicants" }]}>
-      <ApplicantsTable initialItems={items} permissions={permissions} />
+      <ApplicantsTable
+        initialItems={items}
+        permissions={permissions}
+        initialStatusFilter={initialStatusFilter}
+      />
     </AppPage>
   );
 }

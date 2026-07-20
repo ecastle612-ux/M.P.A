@@ -348,16 +348,26 @@ export default async function WorkOrderDetailPage({
                 </p>
               </div>
             ) : (
-              <PlaceholderBlock label="Photos" value={workOrder.photoPlaceholder} />
+              <AttachmentNoteBlock
+                label="Photos"
+                value={workOrder.photoPlaceholder}
+                emptyMessage="No photo yet. Use Edit details to attach one."
+              />
             )}
-            <PlaceholderBlock label="Documents" value={workOrder.documentPlaceholder} />
-            <PlaceholderBlock
+            <AttachmentNoteBlock
+              label="Documents"
+              value={workOrder.documentPlaceholder}
+              emptyMessage="No document notes yet."
+            />
+            <AttachmentNoteBlock
               label="Recurring maintenance"
               value={workOrder.recurringMaintenancePlaceholder}
+              emptyMessage="No recurring maintenance notes."
             />
-            <PlaceholderBlock
+            <AttachmentNoteBlock
               label="Preventive maintenance"
               value={workOrder.preventiveMaintenancePlaceholder}
+              emptyMessage="No preventive maintenance notes."
             />
           </Card>
         </>
@@ -385,11 +395,19 @@ export default async function WorkOrderDetailPage({
   );
 }
 
-function PlaceholderBlock({ label, value }: { label: string; value: string | null }) {
+function AttachmentNoteBlock({
+  label,
+  value,
+  emptyMessage
+}: {
+  label: string;
+  value: string | null;
+  emptyMessage: string;
+}) {
   return (
     <div className="rounded-[var(--mpa-radius-lg)] border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] p-3">
       <p className="mpa-section-label">{label}</p>
-      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{value ?? "Reserved for a future phase."}</p>
+      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{value?.trim() ? value : emptyMessage}</p>
     </div>
   );
 }

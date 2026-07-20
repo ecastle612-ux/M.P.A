@@ -14,6 +14,7 @@ type PropertyRecord = {
 type UnitRecord = {
   id: string;
   unitNumber: string;
+  propertyId?: string | null;
   propertyName: string | null;
   occupancyStatus: string;
   status: string;
@@ -153,6 +154,24 @@ export const maintenanceProvider: CommandCenterProvider = {
   search: async (context) => searchMaintenance(context.query, context.signal)
 };
 
+export const facilityRecordsProvider: CommandCenterProvider = {
+  id: "facility-records",
+  category: "facility",
+  sectionTitle: "Facility Memory",
+  priority: 66,
+  enabled: (context) => evaluateCapability(context.permissions, "maintenance:read"),
+  search: async (context) => searchFacilityMemoryProvider(context.query, context.signal)
+};
+
+export const facilityTimelineProvider: CommandCenterProvider = {
+  id: "facility-timeline",
+  category: "facility",
+  sectionTitle: "Timeline Events",
+  priority: 67,
+  enabled: (context) => evaluateCapability(context.permissions, "maintenance:read"),
+  search: async (context) => searchFacilityTimeline(context.query, context.signal)
+};
+
 export const vendorsProvider: CommandCenterProvider = {
   id: "vendors",
   category: "vendors",
@@ -198,6 +217,88 @@ export const conversationsProvider: CommandCenterProvider = {
   search: async (context) => searchConversations(context.query, context.signal)
 };
 
+export const notificationsProvider: CommandCenterProvider = {
+  id: "notifications",
+  category: "notifications",
+  sectionTitle: "Notifications",
+  priority: 59,
+  enabled: (context) => evaluateCapability(context.permissions, "notification:read"),
+  search: async (context) => searchNotifications(context.query, context.signal, "all")
+};
+
+export const unreadNotificationsProvider: CommandCenterProvider = {
+  id: "unread-notifications",
+  category: "notifications",
+  sectionTitle: "Unread Notifications",
+  priority: 58,
+  enabled: (context) => evaluateCapability(context.permissions, "notification:read"),
+  search: async (context) => {
+    const query = context.query.trim().toLowerCase();
+    if (query && !["unread", "notification", "notifications", "alert", "alerts"].some((term) => query.includes(term) || term.includes(query))) {
+      return searchNotifications(context.query, context.signal, "unread");
+    }
+    return searchNotifications(context.query || " ", context.signal, "unread");
+  }
+};
+
+export const alertsProvider: CommandCenterProvider = {
+  id: "alerts",
+  category: "alerts",
+  sectionTitle: "Alerts",
+  priority: 57,
+  enabled: (context) => evaluateCapability(context.permissions, "notification:read"),
+  search: async (context) => searchNotifications(context.query, context.signal, "critical")
+};
+
+export const emergencyNotificationsProvider: CommandCenterProvider = {
+  id: "emergency-notifications",
+  category: "alerts",
+  sectionTitle: "Emergency Notifications",
+  priority: 56,
+  enabled: (context) => evaluateCapability(context.permissions, "notification:read"),
+  search: async (context) => searchNotifications(context.query, context.signal, "emergency")
+};
+
+export const pushDevicesProvider: CommandCenterProvider = {
+  id: "push-devices",
+  category: "notifications",
+  sectionTitle: "Push Registrations",
+  priority: 55,
+  enabled: (context) =>
+    evaluateCapability(context.permissions, "notification:read") ||
+    evaluateCapability(context.permissions, "communication:read"),
+  search: async (context) => searchPushDevices(context.query, context.signal, "all")
+};
+
+export const pushDeviceHealthProvider: CommandCenterProvider = {
+  id: "push-device-health",
+  category: "notifications",
+  sectionTitle: "Device Health",
+  priority: 54,
+  enabled: (context) =>
+    evaluateCapability(context.permissions, "notification:read") ||
+    evaluateCapability(context.permissions, "communication:read"),
+  search: async (context) => searchPushDevices(context.query, context.signal, "health")
+};
+
+export const failedPushRegistrationsProvider: CommandCenterProvider = {
+  id: "failed-push-registrations",
+  category: "alerts",
+  sectionTitle: "Failed Registrations",
+  priority: 53,
+  enabled: (context) => evaluateCapability(context.permissions, "notification:read"),
+  search: async (context) => searchFailedPush(context.query, context.signal)
+};
+
+export const testNotificationHistoryProvider: CommandCenterProvider = {
+  id: "test-notification-history",
+  category: "notifications",
+  sectionTitle: "Test Notifications",
+  priority: 52,
+  enabled: (context) => evaluateCapability(context.permissions, "notification:read"),
+  search: async (context) => searchTestNotifications(context.query, context.signal)
+};
+
 export const rentChargesProvider: CommandCenterProvider = {
   id: "rent-charges",
   category: "rent-charges",
@@ -214,6 +315,24 @@ export const paymentsProvider: CommandCenterProvider = {
   priority: 60,
   enabled: (context) => evaluateCapability(context.permissions, "financial:read"),
   search: async (context) => searchPayments(context.query, context.signal)
+};
+
+export const collectionsProvider: CommandCenterProvider = {
+  id: "collections",
+  category: "payments",
+  sectionTitle: "Collections",
+  priority: 57,
+  enabled: (context) => evaluateCapability(context.permissions, "financial:read"),
+  search: async (context) => searchCollections(context.query, context.signal)
+};
+
+export const billingEventsProvider: CommandCenterProvider = {
+  id: "billing-events",
+  category: "payments",
+  sectionTitle: "Billing Events",
+  priority: 56,
+  enabled: (context) => evaluateCapability(context.permissions, "financial:read"),
+  search: async (context) => searchBillingEvents(context.query, context.signal)
 };
 
 export const expensesProvider: CommandCenterProvider = {
@@ -305,25 +424,49 @@ async function searchProperties(query: string, signal: AbortSignal): Promise<Com
     8
   );
 
-  return matches.map(({ item, score }) => ({
-    id: `property-${item.id}`,
-    kind: "property",
-    category: "properties",
-    label: item.name,
-    subtitle: `${item.city}, ${item.stateRegion}`,
-    context:
-      item.unitCount !== undefined
-        ? `${item.occupiedUnits ?? 0}/${item.unitCount ?? 0} units occupied`
-        : "Property record",
-    badge: "Property",
-    status: item.status,
-    statusVariant: item.status === "active" ? "success" : "neutral",
-    icon: "🏢",
-    href: `/properties/${item.id}`,
-    shortcut: null,
-    score,
-    favoriteKey: `property:${item.id}`
-  }));
+  const results: CommandCenterResult[] = [];
+  for (const { item, score } of matches.slice(0, 4)) {
+    results.push({
+      id: `property-${item.id}`,
+      kind: "property",
+      category: "properties",
+      label: item.name,
+      subtitle: `${item.city}, ${item.stateRegion}`,
+      context:
+        item.unitCount !== undefined
+          ? `${item.occupiedUnits ?? 0}/${item.unitCount ?? 0} units occupied`
+          : "Property record",
+      badge: "Property",
+      status: item.status,
+      statusVariant: item.status === "active" ? "success" : "neutral",
+      icon: "🏢",
+      href: `/properties/${item.id}`,
+      shortcut: null,
+      score: score + 20,
+      favoriteKey: `property:${item.id}`
+    });
+    if (query.trim()) {
+      results.push(
+        actionResult({
+          id: `property-${item.id}-units`,
+          label: `${item.name} · Open units`,
+          subtitle: "Recommended",
+          href: `/units?propertyId=${encodeURIComponent(item.id)}`,
+          score: score + 10,
+          icon: "→"
+        }),
+        actionResult({
+          id: `property-${item.id}-wo`,
+          label: `${item.name} · Create work order`,
+          subtitle: "Recommended",
+          href: `/maintenance/new?propertyId=${encodeURIComponent(item.id)}`,
+          score: score + 8,
+          icon: "+"
+        })
+      );
+    }
+  }
+  return results;
 }
 
 async function searchUnits(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
@@ -337,22 +480,42 @@ async function searchUnits(query: string, signal: AbortSignal): Promise<CommandC
     8
   );
 
-  return matches.map(({ item, score }) => ({
-    id: `unit-${item.id}`,
-    kind: "unit",
-    category: "units",
-    label: `Unit ${item.unitNumber}`,
-    subtitle: item.propertyName,
-    context: "Unit inventory",
-    badge: "Unit",
-    status: item.occupancyStatus.replaceAll("_", " "),
-    statusVariant: item.occupancyStatus === "occupied" ? "success" : "warning",
-    icon: "🚪",
-    href: `/units/${item.id}`,
-    shortcut: null,
-    score,
-    favoriteKey: `unit:${item.id}`
-  }));
+  const results: CommandCenterResult[] = [];
+  for (const { item, score } of matches.slice(0, 4)) {
+    results.push({
+      id: `unit-${item.id}`,
+      kind: "unit",
+      category: "units",
+      label: `Unit ${item.unitNumber}`,
+      subtitle: item.propertyName,
+      context: "Unit inventory",
+      badge: "Unit",
+      status: item.occupancyStatus.replaceAll("_", " "),
+      statusVariant: item.occupancyStatus === "occupied" ? "success" : "warning",
+      icon: "🚪",
+      href: `/units/${item.id}`,
+      shortcut: null,
+      score: score + 20,
+      favoriteKey: `unit:${item.id}`
+    });
+    if (query.trim() && item.occupancyStatus !== "occupied") {
+      const moveInHref =
+        item.propertyId
+          ? `/residents/move-in?propertyId=${encodeURIComponent(item.propertyId)}&unitId=${encodeURIComponent(item.id)}`
+          : `/residents/move-in?unitId=${encodeURIComponent(item.id)}`;
+      results.push(
+        actionResult({
+          id: `unit-${item.id}-move-in`,
+          label: `Unit ${item.unitNumber} · Continue Move In`,
+          subtitle: "Recommended",
+          href: moveInHref,
+          score: score + 15,
+          icon: "▶"
+        })
+      );
+    }
+  }
+  return results;
 }
 
 async function searchTenants(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
@@ -381,21 +544,237 @@ async function searchTenants(query: string, signal: AbortSignal): Promise<Comman
       )
     : items.slice(0, 8).map((item) => ({ item, score: 1 }));
 
-  return matches.map(({ item, score }) => ({
-    id: `tenant-${item.id}`,
-    kind: "tenant",
-    category: "tenants",
-    label: item.preferredName || `${item.firstName} ${item.lastName}`,
-    subtitle: item.email,
-    context: item.propertyName,
-    badge: "Tenant",
-    status: item.status,
-    statusVariant: item.status === "active" ? "success" : "neutral",
-    icon: "👤",
-    href: `/tenants/${item.id}`,
+  const results: CommandCenterResult[] = [];
+  for (const { item, score } of matches.slice(0, 4)) {
+    const name = item.preferredName || `${item.firstName} ${item.lastName}`;
+    results.push({
+      id: `tenant-${item.id}`,
+      kind: "tenant",
+      category: "tenants",
+      label: name,
+      subtitle: item.email,
+      context: item.propertyName,
+      badge: "Resident",
+      status: item.status,
+      statusVariant: item.status === "active" ? "success" : "neutral",
+      icon: "👤",
+      href: `/tenants/${item.id}`,
+      shortcut: null,
+      score: score + 20,
+      favoriteKey: `tenant:${item.id}`
+    });
+    if (trimmed) {
+      results.push(
+        actionResult({
+          id: `tenant-${item.id}-lease`,
+          label: `${name} · Create Lease`,
+          subtitle: "Recommended",
+          href: `/leases/new?tenantId=${encodeURIComponent(item.id)}`,
+          score: score + 14,
+          icon: "▶"
+        }),
+        actionResult({
+          id: `tenant-${item.id}-ledger`,
+          label: `${name} · Open Ledger`,
+          subtitle: "Recommended",
+          href: `/financials/charges?tenantId=${encodeURIComponent(item.id)}`,
+          score: score + 12,
+          icon: "→"
+        }),
+        actionResult({
+          id: `tenant-${item.id}-maintenance`,
+          label: `${name} · Open Maintenance`,
+          subtitle: "Recommended",
+          href: `/maintenance?status=open&q=${encodeURIComponent(name)}`,
+          score: score + 10,
+          icon: "→"
+        })
+      );
+    }
+  }
+  return results;
+}
+
+type FacilitySearchHit = {
+  id: string;
+  kind: string;
+  title: string;
+  subtitle: string | null;
+  context: string | null;
+  href: string;
+  occurredAt: string | null;
+  score: number;
+};
+
+type TimelineSearchItem = {
+  id: string;
+  title: string;
+  summary: string;
+  eventType: string;
+  propertyId: string;
+  propertyName?: string | null;
+  unitNumber?: string | null;
+  facilityRecordId: string | null;
+  href: string | null;
+  occurredAt: string;
+  serviceProviderDisplayName: string | null;
+};
+
+async function searchFacilityMemoryProvider(
+  query: string,
+  signal: AbortSignal
+): Promise<CommandCenterResult[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  const response = await fetch(`/api/facility/search?q=${encodeURIComponent(trimmed)}&limit=16`, {
+    signal,
+    cache: "no-store"
+  });
+  if (!response.ok) return [];
+  const payload = (await response.json()) as { items?: FacilitySearchHit[] };
+  const items = payload.items ?? [];
+  const results: CommandCenterResult[] = [];
+
+  for (const item of items.slice(0, 10)) {
+    const kind =
+      item.kind === "timeline_event"
+        ? ("timeline-event" as const)
+        : item.kind === "service_provider"
+          ? ("service-provider" as const)
+          : item.kind === "facility_record"
+            ? ("facility-record" as const)
+            : item.kind === "facility_asset"
+              ? ("facility-asset" as const)
+              : item.kind === "property"
+                ? ("property" as const)
+                : item.kind === "unit"
+                  ? ("unit" as const)
+                  : ("maintenance" as const);
+
+    results.push({
+      id: item.id,
+      kind,
+      category: "facility",
+      label: item.title,
+      subtitle: item.subtitle,
+      context: item.context,
+      badge:
+        item.kind === "facility_record"
+          ? "Recent Repair"
+          : item.kind === "facility_asset"
+            ? "Asset"
+            : item.kind === "timeline_event"
+              ? "Timeline"
+              : item.kind === "service_provider"
+                ? "Service Provider"
+                : item.kind === "property"
+                  ? "Property History"
+                  : item.kind === "work_order"
+                    ? "Work Order"
+                    : "Facility",
+      status: item.occurredAt ? new Date(item.occurredAt).toLocaleDateString() : null,
+      statusVariant: item.kind === "facility_asset" ? "info" : "success",
+      icon:
+        item.kind === "service_provider"
+          ? "🔧"
+          : item.kind === "timeline_event"
+            ? "⏱"
+            : item.kind === "facility_record"
+              ? "🧾"
+              : item.kind === "facility_asset"
+                ? "⚙️"
+                : "🏘",
+      href: item.href,
+      shortcut: null,
+      score: item.score + (item.kind === "facility_asset" ? 14 : 10),
+      favoriteKey: item.id
+    });
+
+    if (item.kind === "facility_asset") {
+      results.push(
+        actionResult({
+          id: `${item.id}-repairs`,
+          label: `View repair history · ${item.title}`,
+          subtitle: "Asset repairs",
+          href: `${item.href}#repair-history`,
+          score: item.score + 12,
+          icon: "🧾"
+        }),
+        actionResult({
+          id: `${item.id}-timeline`,
+          label: `View timeline · ${item.title}`,
+          subtitle: "Asset timeline",
+          href: `${item.href}#asset-timeline`,
+          score: item.score + 11,
+          icon: "⏱"
+        })
+      );
+    }
+
+    if (item.kind === "property") {
+      results.push(
+        actionResult({
+          id: `${item.id}-timeline`,
+          label: `${item.title} · Open Timeline`,
+          subtitle: "Property history",
+          href: item.href.includes("#") ? item.href : `${item.href}#property-timeline`,
+          score: item.score + 8,
+          icon: "⏱"
+        })
+      );
+    }
+    if (item.kind === "service_provider") {
+      results.push(
+        actionResult({
+          id: `${item.id}-repairs`,
+          label: `${item.title} · Recent repairs`,
+          subtitle: "Service provider intelligence",
+          href: item.href,
+          score: item.score + 6,
+          icon: "▶"
+        })
+      );
+    }
+  }
+
+  return results;
+}
+
+async function searchFacilityTimeline(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  const response = await fetch(
+    `/api/facility/timeline?search=${encodeURIComponent(trimmed)}&limit=12`,
+    { signal, cache: "no-store" }
+  );
+  if (!response.ok) return [];
+  const payload = (await response.json()) as { items?: TimelineSearchItem[] };
+  const items = payload.items ?? [];
+  return items.slice(0, 4).map((item, index) => ({
+    id: `timeline-event-${item.id}`,
+    kind: "timeline-event" as const,
+    category: "facility" as const,
+    label: item.title,
+    subtitle: item.propertyName ?? null,
+    context: [
+      item.unitNumber ? `Unit ${item.unitNumber}` : null,
+      item.serviceProviderDisplayName,
+      item.summary
+    ]
+      .filter(Boolean)
+      .join(" · ") || null,
+    badge: "Timeline Event",
+    status: new Date(item.occurredAt).toLocaleDateString(),
+    statusVariant: "info" as const,
+    icon: "⏱",
+    href:
+      item.href ??
+      (item.facilityRecordId
+        ? `/facility/records/${item.facilityRecordId}`
+        : `/properties/${item.propertyId}#property-timeline`),
     shortcut: null,
-    score,
-    favoriteKey: `tenant:${item.id}`
+    score: 28 - index,
+    favoriteKey: `timeline:${item.id}`
   }));
 }
 
@@ -426,27 +805,67 @@ async function searchMaintenance(query: string, signal: AbortSignal): Promise<Co
       )
     : items.slice(0, 8).map((item) => ({ item, score: 1 }));
 
-  return matches.map(({ item, score }) => ({
-    id: `maintenance-${item.id}`,
-    kind: "maintenance",
-    category: "maintenance",
-    label: `${item.workOrderNumber} · ${item.title}`,
-    subtitle: item.propertyName,
-    context: [item.unitNumber ? `Unit ${item.unitNumber}` : null, item.tenantName].filter(Boolean).join(" · ") || null,
-    badge: "Maintenance",
-    status: item.status.replaceAll("_", " "),
-    statusVariant:
-      item.priority === "emergency" || item.priority === "high"
-        ? "danger"
-        : item.status === "completed"
-          ? "success"
-          : "info",
-    icon: "🛠",
-    href: `/maintenance/${item.id}`,
-    shortcut: null,
-    score,
-    favoriteKey: `maintenance:${item.id}`
-  }));
+  const results: CommandCenterResult[] = [];
+  for (const { item, score } of matches.slice(0, 4)) {
+    results.push({
+      id: `maintenance-${item.id}`,
+      kind: "maintenance",
+      category: "maintenance",
+      label: `${item.workOrderNumber} · ${item.title}`,
+      subtitle: item.propertyName,
+      context: [item.unitNumber ? `Unit ${item.unitNumber}` : null, item.tenantName].filter(Boolean).join(" · ") || null,
+      badge: "Work Order",
+      status: item.status.replaceAll("_", " "),
+      statusVariant:
+        item.priority === "emergency" || item.priority === "high"
+          ? "danger"
+          : item.status === "completed"
+            ? "success"
+            : "info",
+      icon: "🛠",
+      href: `/maintenance/${item.id}`,
+      shortcut: null,
+      score: score + 20,
+      favoriteKey: `maintenance:${item.id}`
+    });
+    if (trimmed) {
+      if (item.status === "submitted" || item.status === "triaged") {
+        results.push(
+          actionResult({
+            id: `maintenance-${item.id}-assign`,
+            label: `${item.workOrderNumber} · Assign Vendor`,
+            subtitle: "Recommended",
+            href: `/maintenance/${item.id}#vendor`,
+            score: score + 16,
+            icon: "▶"
+          })
+        );
+      } else if (item.status === "in_progress" || item.status === "on_hold") {
+        results.push(
+          actionResult({
+            id: `maintenance-${item.id}-complete`,
+            label: `${item.workOrderNumber} · Complete Work Order`,
+            subtitle: "Recommended",
+            href: `/maintenance/${item.id}`,
+            score: score + 16,
+            icon: "▶"
+          })
+        );
+      } else {
+        results.push(
+          actionResult({
+            id: `maintenance-${item.id}-workflow`,
+            label: `${item.workOrderNumber} · Continue workflow`,
+            subtitle: "Recommended",
+            href: `/maintenance/${item.id}`,
+            score: score + 12,
+            icon: "▶"
+          })
+        );
+      }
+    }
+  }
+  return results;
 }
 
 async function searchVendors(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
@@ -475,22 +894,38 @@ async function searchVendors(query: string, signal: AbortSignal): Promise<Comman
       )
     : items.slice(0, 8).map((item) => ({ item, score: 1 }));
 
-  return matches.map(({ item, score }) => ({
-    id: `vendor-${item.id}`,
-    kind: "vendor",
-    category: "vendors",
-    label: item.businessName,
-    subtitle: item.primaryContactName ?? item.phone ?? item.email,
-    context: item.services.length > 0 ? item.services.join(", ") : "Vendor profile",
-    badge: "Vendor",
-    status: item.preferredVendor ? "Preferred" : item.status,
-    statusVariant: item.status === "active" ? "success" : "neutral",
-    icon: "🔧",
-    href: `/vendors/${item.id}`,
-    shortcut: null,
-    score,
-    favoriteKey: `vendor:${item.id}`
-  }));
+  const results: CommandCenterResult[] = [];
+  for (const { item, score } of matches.slice(0, 4)) {
+    results.push({
+      id: `vendor-${item.id}`,
+      kind: "vendor",
+      category: "vendors",
+      label: item.businessName,
+      subtitle: item.primaryContactName ?? item.phone ?? item.email,
+      context: item.services.length > 0 ? item.services.join(", ") : "Vendor profile",
+      badge: "Vendor",
+      status: item.preferredVendor ? "Preferred" : item.status,
+      statusVariant: item.status === "active" ? "success" : "neutral",
+      icon: "🔧",
+      href: `/vendors/${item.id}`,
+      shortcut: null,
+      score: score + 20,
+      favoriteKey: `vendor:${item.id}`
+    });
+    if (trimmed) {
+      results.push(
+        actionResult({
+          id: `vendor-${item.id}-assign-queue`,
+          label: `${item.businessName} · Assign to unassigned WO`,
+          subtitle: "Recommended",
+          href: "/maintenance?status=unassigned",
+          score: score + 12,
+          icon: "▶"
+        })
+      );
+    }
+  }
+  return results;
 }
 
 async function searchLeases(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
@@ -520,25 +955,41 @@ async function searchLeases(query: string, signal: AbortSignal): Promise<Command
       )
     : items.slice(0, 8).map((item) => ({ item, score: 1 }));
 
-  return matches.map(({ item, score }) => ({
-    id: `lease-${item.id}`,
-    kind: "lease",
-    category: "leases",
-    label: `${item.leaseNumber}${item.tenantName ? ` · ${item.tenantName}` : ""}`,
-    subtitle: item.propertyName,
-    context: [item.unitNumber ? `Unit ${item.unitNumber}` : null, item.endDate ? `Ends ${item.endDate}` : null]
-      .filter(Boolean)
-      .join(" · ") || null,
-    badge: "Lease",
-    status: item.renewalStatus !== "none" ? item.renewalStatus.replaceAll("_", " ") : item.status,
-    statusVariant:
-      item.status === "active" ? "success" : item.status === "expired" ? "warning" : "neutral",
-    icon: "📄",
-    href: `/leases/${item.id}`,
-    shortcut: null,
-    score,
-    favoriteKey: `lease:${item.id}`
-  }));
+  const results: CommandCenterResult[] = [];
+  for (const { item, score } of matches.slice(0, 4)) {
+    results.push({
+      id: `lease-${item.id}`,
+      kind: "lease",
+      category: "leases",
+      label: `${item.leaseNumber}${item.tenantName ? ` · ${item.tenantName}` : ""}`,
+      subtitle: item.propertyName,
+      context: [item.unitNumber ? `Unit ${item.unitNumber}` : null, item.endDate ? `Ends ${item.endDate}` : null]
+        .filter(Boolean)
+        .join(" · ") || null,
+      badge: "Lease",
+      status: item.renewalStatus !== "none" ? item.renewalStatus.replaceAll("_", " ") : item.status,
+      statusVariant:
+        item.status === "active" ? "success" : item.status === "expired" ? "warning" : "neutral",
+      icon: "📄",
+      href: `/leases/${item.id}`,
+      shortcut: null,
+      score: score + 20,
+      favoriteKey: `lease:${item.id}`
+    });
+    if (trimmed && item.status === "draft") {
+      results.push(
+        actionResult({
+          id: `lease-${item.id}-sign`,
+          label: `${item.leaseNumber} · Continue Lease Signing`,
+          subtitle: "Recommended",
+          href: `/leases/${item.id}`,
+          score: score + 16,
+          icon: "▶"
+        })
+      );
+    }
+  }
+  return results;
 }
 
 type AnnouncementRecord = {
@@ -657,6 +1108,190 @@ async function searchAnnouncements(query: string, signal: AbortSignal): Promise<
   }));
 }
 
+type NotificationSearchRecord = {
+  id: string;
+  title: string;
+  body: string;
+  category: string;
+  priority: string;
+  href: string | null;
+  readAt: string | null;
+  pushDeliveryStatus?: string | null;
+  pushLastError?: string | null;
+};
+
+async function searchNotifications(
+  query: string,
+  signal: AbortSignal,
+  mode: "all" | "unread" | "critical" | "emergency"
+): Promise<CommandCenterResult[]> {
+  const params = new URLSearchParams({ limit: "20" });
+  if (mode === "unread") params.set("unreadOnly", "true");
+  if (mode === "critical") params.set("priority", "critical");
+  if (mode === "emergency") params.set("priority", "emergency");
+  const trimmed = query.trim();
+  if (trimmed && trimmed !== " ") params.set("q", trimmed);
+
+  const response = await fetch(`/api/notifications?${params.toString()}`, { signal, cache: "no-store" });
+  if (!response.ok) return [];
+  const payload = (await response.json()) as { items?: NotificationSearchRecord[] };
+  const items = payload.items ?? [];
+  const matches = trimmed && trimmed !== " "
+    ? fuzzyFilter(query, items, (item) => [item.title, item.body, item.category, item.priority], 8)
+    : items.slice(0, 8).map((item) => ({ item, score: mode === "emergency" ? 3 : mode === "unread" ? 2 : 1 }));
+
+  return matches.map(({ item, score }) => {
+    const isEmergency = item.priority === "emergency" || item.category === "emergency";
+    const unreadBoost = item.readAt ? 0 : 1;
+    return {
+      id: `notification-${item.id}`,
+      kind: isEmergency || mode === "critical" || mode === "emergency" ? ("alert" as const) : ("notification" as const),
+      category: isEmergency || mode === "critical" || mode === "emergency" ? ("alerts" as const) : ("notifications" as const),
+      label: item.title,
+      subtitle: item.body.slice(0, 80),
+      context: `${item.category} · ${item.priority}`,
+      badge: isEmergency ? "Emergency" : item.readAt ? "Notification" : "Unread",
+      status: item.priority,
+      statusVariant: isEmergency ? ("danger" as const) : item.readAt ? ("neutral" as const) : ("warning" as const),
+      icon: isEmergency ? "🚨" : "🔔",
+      href: item.href ?? "/dashboard#todays-work",
+      shortcut: null,
+      score: score + unreadBoost + (isEmergency ? 2 : 0),
+      favoriteKey: `notification:${item.id}`
+    };
+  });
+}
+
+type OrgDeviceRecord = {
+  id: string;
+  userId: string;
+  platform: string;
+  deviceLabel: string | null;
+  externalSubscriptionId: string | null;
+  providerKey: string;
+  isActive: boolean;
+  enrolledVia: string;
+  lastRegistrationAt: string;
+  hasSubscription: boolean;
+};
+
+async function searchPushDevices(
+  query: string,
+  signal: AbortSignal,
+  mode: "all" | "health"
+): Promise<CommandCenterResult[]> {
+  const trimmed = query.trim().toLowerCase();
+  const intent =
+    !trimmed ||
+    ["push", "device", "devices", "registration", "subscription", "enroll", "onesignal", "health", "active", "inactive"].some(
+      (term) => trimmed.includes(term) || term.includes(trimmed)
+    );
+  if (!intent && mode === "health") return [];
+
+  const params = new URLSearchParams();
+  if (trimmed) params.set("q", trimmed);
+  const response = await fetch(`/api/notifications/devices/org?${params.toString()}`, { signal, cache: "no-store" });
+  if (!response.ok) return [];
+  const payload = (await response.json()) as { devices?: OrgDeviceRecord[] };
+  let items = payload.devices ?? [];
+  if (mode === "health") {
+    items = items.filter((device) => !device.isActive || !device.hasSubscription);
+  }
+  const matches = trimmed
+    ? fuzzyFilter(
+        query,
+        items,
+        (item) => [item.deviceLabel ?? "", item.platform, item.enrolledVia, item.isActive ? "active" : "inactive"],
+        8
+      )
+    : items.slice(0, 8).map((item) => ({ item, score: item.isActive ? 1 : 2 }));
+
+  return matches.map(({ item, score }) => {
+    const unhealthy = !item.isActive || !item.hasSubscription;
+    return {
+      id: `push-device-${item.id}`,
+      kind: "notification" as const,
+      category: "notifications" as const,
+      label: item.deviceLabel ?? `${item.platform} device`,
+      subtitle: `${item.platform} · ${item.enrolledVia}`,
+      context: item.hasSubscription ? "Subscribed" : "Missing subscription",
+      badge: unhealthy ? "Device health" : "Push device",
+      status: item.isActive ? "active" : "inactive",
+      statusVariant: unhealthy ? ("warning" as const) : ("success" as const),
+      icon: "📱",
+      href: "/settings/notifications",
+      shortcut: null,
+      score: score + (unhealthy ? 2 : 0),
+      favoriteKey: `push-device:${item.id}`
+    };
+  });
+}
+
+async function searchFailedPush(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
+  const trimmed = query.trim().toLowerCase();
+  if (
+    trimmed &&
+    !["fail", "failed", "registration", "push", "device", "subscription", "error"].some(
+      (term) => trimmed.includes(term)
+    )
+  ) {
+    return [];
+  }
+  const params = new URLSearchParams({ limit: "20", q: trimmed || " " });
+  const response = await fetch(`/api/notifications?${params.toString()}`, { signal, cache: "no-store" });
+  if (!response.ok) return [];
+  const payload = (await response.json()) as { items?: NotificationSearchRecord[] };
+  const failed = (payload.items ?? []).filter(
+    (item) => item.pushDeliveryStatus === "failed" || item.title.toLowerCase().includes("registration")
+  );
+  return failed.slice(0, 8).map((item, index) => ({
+    id: `failed-push-${item.id}`,
+    kind: "alert" as const,
+    category: "alerts" as const,
+    label: item.title,
+    subtitle: item.pushLastError ?? item.body.slice(0, 80),
+    context: "Failed push / registration",
+    badge: "Failed",
+    status: "failed",
+    statusVariant: "danger" as const,
+    icon: "⚠",
+    href: item.href ?? "/settings/notifications",
+    shortcut: null,
+    score: 3 - index * 0.1,
+    favoriteKey: `failed-push:${item.id}`
+  }));
+}
+
+async function searchTestNotifications(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
+  const trimmed = query.trim().toLowerCase();
+  if (trimmed && !["test", "push", "notification", "verify"].some((term) => trimmed.includes(term))) {
+    return [];
+  }
+  const params = new URLSearchParams({ limit: "20", q: "Test notification" });
+  const response = await fetch(`/api/notifications?${params.toString()}`, { signal, cache: "no-store" });
+  if (!response.ok) return [];
+  const payload = (await response.json()) as { items?: NotificationSearchRecord[] };
+  const items = (payload.items ?? []).filter(
+    (item) => item.title.toLowerCase().includes("test") || item.category === "system"
+  );
+  return items.slice(0, 8).map((item, index) => ({
+    id: `test-notification-${item.id}`,
+    kind: "notification" as const,
+    category: "notifications" as const,
+    label: item.title,
+    subtitle: item.body.slice(0, 80),
+    context: "Test notification history",
+    badge: "Test",
+    status: item.pushDeliveryStatus ?? "unknown",
+    statusVariant: item.pushDeliveryStatus === "sent" ? ("success" as const) : ("neutral" as const),
+    icon: "🧪",
+    href: item.href ?? "/settings/notifications",
+    shortcut: null,
+    score: 2 - index * 0.1,
+    favoriteKey: `test-notification:${item.id}`
+  }));
+}
+
 type RentChargeRecord = {
   id: string;
   chargeNumber: string;
@@ -675,6 +1310,7 @@ type PaymentRecord = {
   status: string;
   paymentDate: string;
   tenantId?: string | null;
+  rentChargeId?: string | null;
 };
 
 type ExpenseRecord = {
@@ -742,21 +1378,145 @@ async function searchPayments(query: string, signal: AbortSignal): Promise<Comma
     ? fuzzyFilter(query, items, (item) => [item.paymentNumber, item.status, String(item.amount), item.paymentDate], 8)
     : items.slice(0, 8).map((item) => ({ item, score: 1 }));
 
-  return matches.map(({ item, score }) => ({
-    id: `payment-${item.id}`,
+  return matches.map(({ item, score }) => {
+    const href = item.rentChargeId
+      ? `/financials/charges/${item.rentChargeId}`
+      : item.tenantId
+        ? `/financials/charges?tenantId=${encodeURIComponent(item.tenantId)}`
+        : "/financials/charges";
+    return {
+      id: `payment-${item.id}`,
+      kind: "payment",
+      category: "payments",
+      label: item.paymentNumber,
+      subtitle: `$${item.amount.toFixed(2)}`,
+      context: item.paymentDate,
+      badge: "Payment",
+      status: item.status,
+      statusVariant: item.status === "completed" ? "success" : "neutral",
+      icon: "💳",
+      href,
+      shortcut: null,
+      score,
+      favoriteKey: `payment:${item.id}`
+    };
+  });
+}
+
+async function searchCollections(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
+  const response = await fetch("/api/billing?collections=1", { signal, cache: "no-store" });
+  if (!response.ok) return [];
+  const payload = (await response.json()) as {
+    items?: Array<{
+      tenantId: string;
+      tenantName: string;
+      outstandingBalance: number;
+      status: string;
+      overdueChargeCount: number;
+    }>;
+  };
+  const items = payload.items ?? [];
+  const trimmed = query.trim().toLowerCase();
+  const filtered = trimmed
+    ? items.filter(
+        (item) =>
+          item.tenantName.toLowerCase().includes(trimmed) ||
+          item.status.toLowerCase().includes(trimmed) ||
+          item.tenantId.includes(trimmed)
+      )
+    : items;
+  return filtered.slice(0, 8).map((item, index) => ({
+    id: `collection-${item.tenantId}`,
     kind: "payment",
     category: "payments",
-    label: item.paymentNumber,
-    subtitle: `$${item.amount.toFixed(2)}`,
-    context: item.paymentDate,
-    badge: "Payment",
+    label: item.tenantName,
+    subtitle: `$${item.outstandingBalance.toFixed(2)} outstanding`,
+    context: `${item.status} · ${item.overdueChargeCount} overdue`,
+    badge: "Collections",
     status: item.status,
-    statusVariant: item.status === "completed" ? "success" : "neutral",
-    icon: "💳",
-    href: "/financials/charges",
+    statusVariant: "danger" as const,
+    icon: "⚠️",
+    href: `/tenants/${item.tenantId}`,
     shortcut: null,
-    score,
-    favoriteKey: `payment:${item.id}`
+    score: 1 - index * 0.01,
+    favoriteKey: `collection:${item.tenantId}`
+  }));
+}
+
+async function searchBillingEvents(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
+  const response = await fetch("/api/billing?ops=1", { signal, cache: "no-store" });
+  if (!response.ok) return [];
+  const payload = (await response.json()) as {
+    ops?: {
+      todaysPaymentsCount: number;
+      failedPaymentsCount: number;
+      outstandingBalance: number;
+      collectionsQueueCount: number;
+      autopayEnrollmentPercent: number;
+      processingHealth: string;
+      awaitingReconciliationCount: number;
+      provider: string;
+    };
+  };
+  const ops = payload.ops;
+  if (!ops) return [];
+  const rows = [
+    {
+      id: "billing-today",
+      label: "Today's payments",
+      subtitle: String(ops.todaysPaymentsCount),
+      status: ops.processingHealth
+    },
+    {
+      id: "billing-failed",
+      label: "Failed payments",
+      subtitle: String(ops.failedPaymentsCount),
+      status: ops.failedPaymentsCount > 0 ? "attention" : "ok"
+    },
+    {
+      id: "billing-outstanding",
+      label: "Outstanding balance",
+      subtitle: `$${ops.outstandingBalance.toFixed(2)}`,
+      status: "open"
+    },
+    {
+      id: "billing-collections",
+      label: "Collections queue",
+      subtitle: String(ops.collectionsQueueCount),
+      status: "queue"
+    },
+    {
+      id: "billing-autopay",
+      label: "AutoPay enrollment",
+      subtitle: `${ops.autopayEnrollmentPercent}%`,
+      status: ops.provider
+    },
+    {
+      id: "billing-reconcile",
+      label: "Awaiting reconciliation",
+      subtitle: String(ops.awaitingReconciliationCount),
+      status: ops.awaitingReconciliationCount > 0 ? "awaiting_reconciliation" : "clear"
+    }
+  ];
+  const trimmed = query.trim().toLowerCase();
+  const filtered = trimmed
+    ? rows.filter((row) => row.label.toLowerCase().includes(trimmed) || row.status.toLowerCase().includes(trimmed))
+    : rows;
+  return filtered.map((row, index) => ({
+    id: row.id,
+    kind: "payment" as const,
+    category: "payments" as const,
+    label: row.label,
+    subtitle: row.subtitle,
+    context: `Provider ${ops.provider}`,
+    badge: "Billing",
+    status: row.status,
+    statusVariant: "neutral" as const,
+    icon: "📊",
+    href: "/financials",
+    shortcut: null,
+    score: 1 - index * 0.01,
+    favoriteKey: `billing-event:${row.id}`
   }));
 }
 
@@ -849,27 +1609,57 @@ async function searchApplicants(query: string, signal: AbortSignal): Promise<Com
       )
     : items.slice(0, 8).map((item) => ({ item, score: 1 }));
 
-  return matches.map(({ item, score }) => ({
-    id: `applicant-${item.id}`,
-    kind: "applicant",
-    category: "applicants",
-    label: item.preferredName || `${item.firstName} ${item.lastName}`,
-    subtitle: `${item.applicationNumber} · ${item.email}`,
-    context: item.propertyName,
-    badge: "Applicant",
-    status: item.status.replaceAll("_", " "),
-    statusVariant:
-      item.status === "approved" || item.status === "converted_to_resident"
-        ? "success"
-        : item.status === "declined"
-          ? "danger"
-          : "neutral",
-    icon: "📋",
-    href: `/applicants/${item.id}`,
-    shortcut: null,
-    score,
-    favoriteKey: `applicant:${item.id}`
-  }));
+  const results: CommandCenterResult[] = [];
+  for (const { item, score } of matches.slice(0, 4)) {
+    const name = item.preferredName || `${item.firstName} ${item.lastName}`;
+    results.push({
+      id: `applicant-${item.id}`,
+      kind: "applicant",
+      category: "applicants",
+      label: name,
+      subtitle: `${item.applicationNumber} · ${item.email}`,
+      context: item.propertyName,
+      badge: "Applicant",
+      status: item.status.replaceAll("_", " "),
+      statusVariant:
+        item.status === "approved" || item.status === "converted_to_resident"
+          ? "success"
+          : item.status === "declined"
+            ? "danger"
+            : "neutral",
+      icon: "📋",
+      href: `/applicants/${item.id}`,
+      shortcut: null,
+      score: score + 20,
+      favoriteKey: `applicant:${item.id}`
+    });
+    if (trimmed) {
+      if (item.status === "approved") {
+        results.push(
+          actionResult({
+            id: `applicant-${item.id}-move-in`,
+            label: `${name} · Continue Move In`,
+            subtitle: "Recommended",
+            href: `/residents/move-in?applicantId=${encodeURIComponent(item.id)}`,
+            score: score + 16,
+            icon: "▶"
+          })
+        );
+      } else {
+        results.push(
+          actionResult({
+            id: `applicant-${item.id}-review`,
+            label: `${name} · Continue Applicant Review`,
+            subtitle: "Recommended",
+            href: `/applicants/${item.id}`,
+            score: score + 14,
+            icon: "▶"
+          })
+        );
+      }
+    }
+  }
+  return results;
 }
 
 async function searchScreeningCases(query: string, signal: AbortSignal): Promise<CommandCenterResult[]> {
@@ -878,15 +1668,20 @@ async function searchScreeningCases(query: string, signal: AbortSignal): Promise
   const payload = (await response.json()) as { items?: Array<Record<string, unknown>> };
   const items: ScreeningCaseRecord[] = (payload.items ?? []).map((row) => ({
     id: String(row["id"]),
-    caseNumber: String(row["case_number"]),
-    applicantId: String(row["applicant_id"]),
+    caseNumber: String(row["caseNumber"] ?? row["case_number"] ?? ""),
+    applicantId: String(row["applicantId"] ?? row["applicant_id"] ?? ""),
     status: String(row["status"]),
-    resultSummary: typeof row["result_summary"] === "string" ? row["result_summary"] : null
+    resultSummary:
+      typeof row["resultSummary"] === "string"
+        ? row["resultSummary"]
+        : typeof row["result_summary"] === "string"
+          ? row["result_summary"]
+          : null
   }));
   const matches = fuzzyFilter(
     query,
     items,
-    (item) => [item.caseNumber, item.status, item.resultSummary ?? ""],
+    (item) => [item.caseNumber, item.status, item.resultSummary ?? "", item.applicantId],
     8
   );
 
@@ -899,7 +1694,12 @@ async function searchScreeningCases(query: string, signal: AbortSignal): Promise
     context: "Background screening",
     badge: "Screening",
     status: item.status.replaceAll("_", " "),
-    statusVariant: item.status === "completed" ? "success" : item.status === "failed" ? "danger" : "info",
+    statusVariant:
+      item.status === "approved" || item.status === "ready_for_review"
+        ? "success"
+        : item.status === "failed" || item.status === "rejected"
+          ? "danger"
+          : "info",
     icon: "🔍",
     href: `/applicants/${item.applicantId}`,
     shortcut: null,
@@ -914,10 +1714,10 @@ async function searchSignatureRequests(query: string, signal: AbortSignal): Prom
   const payload = (await response.json()) as { items?: Array<Record<string, unknown>> };
   const items: SignatureRequestRecord[] = (payload.items ?? []).map((row) => ({
     id: String(row["id"]),
-    requestNumber: String(row["request_number"]),
-    applicantId: String(row["applicant_id"]),
+    requestNumber: String(row["requestNumber"] ?? row["request_number"] ?? ""),
+    applicantId: String(row["applicantId"] ?? row["applicant_id"] ?? ""),
     status: String(row["status"]),
-    requestType: String(row["request_type"])
+    requestType: String(row["requestType"] ?? row["request_type"] ?? "")
   }));
   const matches = fuzzyFilter(
     query,
@@ -932,12 +1732,17 @@ async function searchSignatureRequests(query: string, signal: AbortSignal): Prom
     category: "applicants",
     label: item.requestNumber,
     subtitle: item.requestType.replaceAll("_", " "),
-    context: "E-signature request",
+    context: "E-signature package",
     badge: "Signature",
     status: item.status,
-    statusVariant: item.status === "signed" ? "success" : item.status === "declined" ? "danger" : "warning",
+    statusVariant:
+      item.status === "completed" || item.status === "signed"
+        ? "success"
+        : item.status === "declined" || item.status === "failed"
+          ? "danger"
+          : "warning",
     icon: "✍",
-    href: `/applicants/${item.applicantId}`,
+    href: item.applicantId ? `/applicants/${item.applicantId}` : "/leases",
     shortcut: null,
     score,
     favoriteKey: `signature:${item.id}`
@@ -1033,6 +1838,32 @@ async function searchMigrationHistory(query: string, signal: AbortSignal): Promi
     score,
     favoriteKey: `migration-history:${item.id}`
   }));
+}
+
+function actionResult(args: {
+  id: string;
+  label: string;
+  subtitle: string;
+  href: string;
+  score: number;
+  icon: string;
+}): CommandCenterResult {
+  return {
+    id: args.id,
+    kind: "action",
+    category: "actions",
+    label: args.label,
+    subtitle: args.subtitle,
+    context: "Recommended next step",
+    badge: "Action",
+    status: "Next",
+    statusVariant: "info",
+    icon: args.icon,
+    href: args.href,
+    shortcut: null,
+    score: args.score,
+    favoriteKey: `action:${args.id}`
+  };
 }
 
 function evaluateCapability(permissions: readonly string[], capability: string): boolean {

@@ -80,7 +80,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ wo
 
     const vendorMutation = parseWorkOrderVendorMutationInput(parsedBody.payload);
     if (vendorMutation) {
-      if (!evaluatePermission(authorization, "vendor:assign")) {
+      const canAssignVendor = evaluatePermission(authorization, "vendor:assign");
+      const canUpdateMaintenance = evaluatePermission(authorization, "maintenance:update");
+      const isVendorStatusUpdate = vendorMutation.action === "update_vendor_status";
+      if (!canAssignVendor && !(isVendorStatusUpdate && canUpdateMaintenance)) {
         return apiError(403, "FORBIDDEN", "Forbidden");
       }
       const result = await mutateWorkOrderVendor(organizationId, workOrderId, user.id, vendorMutation, supabase);

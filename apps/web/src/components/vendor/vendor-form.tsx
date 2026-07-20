@@ -281,8 +281,8 @@ export function VendorForm({ mode, vendor }: { mode: "create" | "edit"; vendor?:
             onChange={(event) => setValues((current) => ({ ...current, insuranceExpiration: event.target.value }))}
           />
           <Input
-            aria-label="Tax ID placeholder"
-            placeholder="Tax ID placeholder"
+            aria-label="Tax ID or EIN"
+            placeholder="Tax ID / EIN (optional)"
             value={values.taxIdPlaceholder}
             onChange={(event) => setValues((current) => ({ ...current, taxIdPlaceholder: event.target.value }))}
           />

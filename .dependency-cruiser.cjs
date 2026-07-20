@@ -27,6 +27,18 @@ module.exports = {
       }
     },
     {
+      name: "apps-must-not-import-qa",
+      severity: "error",
+      from: { path: "^apps/" },
+      to: { path: "^qa/" }
+    },
+    {
+      name: "packages-must-not-import-qa",
+      severity: "error",
+      from: { path: "^packages/" },
+      to: { path: "^qa/" }
+    },
+    {
       name: "ui-must-not-depend-on-apps",
       severity: "error",
       from: { path: "^packages/ui/" },

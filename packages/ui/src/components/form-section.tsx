@@ -14,12 +14,12 @@ export function FormSection({
   className?: string;
 }) {
   return (
-    <Card variant="elevated" className={cn("space-y-4", className)}>
+    <Card variant="elevated" className={cn("space-y-3", className)}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description ? <CardDescription>{description}</CardDescription> : null}
       </CardHeader>
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-3">{children}</div>
     </Card>
   );
 }

@@ -9,11 +9,14 @@ export const COMMAND_CENTER_CATEGORIES = [
   "applicants",
   "tenants",
   "maintenance",
+  "facility",
   "vendors",
   "leases",
   "announcements",
   "messages",
   "conversations",
+  "notifications",
+  "alerts",
   "rent-charges",
   "payments",
   "expenses",
@@ -33,11 +36,17 @@ export type CommandCenterItemKind =
   | "applicant"
   | "tenant"
   | "maintenance"
+  | "facility-record"
+  | "facility-asset"
+  | "timeline-event"
+  | "service-provider"
   | "vendor"
   | "lease"
   | "announcement"
   | "message"
   | "conversation"
+  | "notification"
+  | "alert"
   | "rent-charge"
   | "payment"
   | "expense"

@@ -109,7 +109,9 @@ export function MaintenanceContextRail({
       </ContextRailSection>
 
       <ContextRailSection title="Attachments" variant="muted">
-        <p className="text-xs">Photo and document attachments reserved for a future phase.</p>
+        <p className="text-xs">
+          Add or update the work order photo from Edit details. Notes appear on the main attachment panel.
+        </p>
       </ContextRailSection>
 
       <ContextRailSection title="Related history" emptyMessage={CONTEXT_RAIL_EMPTY.maintenance.relatedHistory}>

@@ -1,7 +1,7 @@
 import { createAuthServerComponentClient } from "../auth/server";
 import type { Database, Json } from "@mpa/supabase";
-import { getScreeningProvider } from "../integrations/screening/registry";
-import { getSignatureProvider } from "../integrations/signature/registry";
+import { notify } from "../notifications/service";
+import type { NotificationPriority } from "../notifications/contracts";
 import { createTenant } from "../tenant/server";
 import { transferVaultDocuments } from "../vault/server";
 import type {
@@ -431,6 +431,16 @@ export async function transitionApplicantStatus(
     await createScreeningCase(organizationId, applicantId, userId, {}, supabase);
   }
 
+  if (action === "submit" || action === "approve" || action === "decline") {
+    await notifyApplicantStatusChange({
+      organizationId,
+      actorUserId: userId,
+      action,
+      applicant,
+      client: supabase
+    });
+  }
+
   return applicant;
 }
 
@@ -468,7 +478,9 @@ export async function convertApplicantToResident(
       emergencyContactPhone: existing.profile.emergency.phone,
       notes: existing.internalNotes,
       status: "active",
+      lifecycleStatus: "awaiting_move_in",
       avatarUrl: null,
+      avatarMediaAssetId: null,
       metadata: {
         convertedFromApplicantId: existing.id,
         applicationNumber: existing.applicationNumber
@@ -518,7 +530,7 @@ export async function convertApplicantToResident(
     supabase
   );
 
-  // Portal activation: invite + INT-303 invitation email (best-effort)
+  // Portal activation: invite the resident so they can accept membership and link tenants.user_id
   const { data: invitation, error: inviteError } = await supabase
     .from("organization_invitations")
     .insert({
@@ -684,32 +696,33 @@ export async function createScreeningCase(
   organizationId: string,
   applicantId: string,
   userId: string,
-  input: { provider?: string } = {},
+  input: { provider?: string; packageCode?: string } = {},
   client?: SupabaseClientType
 ) {
-  const supabase = await resolveClient(client);
-  const caseNumber = await generateScreeningCaseNumber(organizationId, supabase);
-  const provider = getScreeningProvider(input.provider ?? "noop");
-  const result = await provider.initiateScreening({ organizationId, applicantId, caseNumber });
-
-  const { data, error } = await supabase
-    .from("screening_cases")
-    .insert({
-      organization_id: organizationId,
-      applicant_id: applicantId,
-      case_number: caseNumber,
-      provider: provider.id,
-      status: result.status,
-      external_reference: result.externalReference,
-      result_summary: result.resultSummary,
-      created_by: userId,
-      updated_by: userId
-    })
-    .select("*")
-    .single();
-
-  if (error || !data) throw new Error(error?.message ?? "Screening case creation failed");
-  return data;
+  const { createScreeningCase: createCase } = await import("../screening/server");
+  const screeningCase = await createCase(
+    organizationId,
+    userId,
+    {
+      applicantId,
+      ...(input.provider ? { provider: input.provider } : {}),
+      ...(input.packageCode ? { packageCode: input.packageCode } : {})
+    },
+    client
+  );
+  // Return shape compatible with prior API consumers (snake_case row-like)
+  return {
+    id: screeningCase.id,
+    organization_id: screeningCase.organizationId,
+    applicant_id: screeningCase.applicantId,
+    case_number: screeningCase.caseNumber,
+    provider: screeningCase.provider,
+    status: screeningCase.status,
+    external_reference: screeningCase.externalReference,
+    result_summary: screeningCase.resultSummary,
+    created_at: screeningCase.createdAt,
+    updated_at: screeningCase.updatedAt
+  };
 }
 
 export async function createSignatureRequest(
@@ -719,46 +732,8 @@ export async function createSignatureRequest(
   input: { provider?: string; requestType?: string } = {},
   client?: SupabaseClientType
 ) {
-  const supabase = await resolveClient(client);
-  const requestNumber = await generateSignatureRequestNumber(organizationId, supabase);
-  const provider = getSignatureProvider(input.provider ?? "noop");
-  const requestType = (input.requestType ?? "lease_agreement") as "lease_agreement" | "application_consent" | "addendum" | "other";
-  const result = await provider.createSignatureRequest({
-    organizationId,
-    applicantId,
-    requestNumber,
-    requestType
-  });
-
-  const { data, error } = await supabase
-    .from("signature_requests")
-    .insert({
-      organization_id: organizationId,
-      applicant_id: applicantId,
-      request_number: requestNumber,
-      provider: provider.id,
-      request_type: requestType,
-      status: result.status,
-      external_reference: result.externalReference,
-      created_by: userId,
-      updated_by: userId
-    })
-    .select("*")
-    .single();
-
-  if (error || !data) throw new Error(error?.message ?? "Signature request creation failed");
-
-  await recordApplicantEvent(
-    organizationId,
-    applicantId,
-    userId,
-    "signature_requested",
-    `Signature request ${requestNumber} created`,
-    { requestNumber, requestType },
-    supabase
-  );
-
-  return data;
+  const { createSignatureRequestCompat } = await import("../signature/server");
+  return createSignatureRequestCompat(organizationId, applicantId, userId, input, client);
 }
 
 export async function archiveApplicant(
@@ -1041,6 +1016,69 @@ function toDashboardSample(row: ApplicantRelationRow): ApplicantDashboardSample 
   };
 }
 
+async function notifyApplicantStatusChange({
+  organizationId,
+  actorUserId,
+  action,
+  applicant,
+  client
+}: {
+  organizationId: string;
+  actorUserId: string;
+  action: "submit" | "approve" | "decline";
+  applicant: ApplicantRecord;
+  client: SupabaseClientType;
+}): Promise<void> {
+  const recipientUserIds = new Set<string>();
+  if (applicant.assignedPmId && applicant.assignedPmId !== actorUserId) {
+    recipientUserIds.add(applicant.assignedPmId);
+  }
+  if (recipientUserIds.size === 0) {
+    const { data: memberships } = await client
+      .from("organization_memberships")
+      .select("user_id, roles")
+      .eq("organization_id", organizationId)
+      .eq("status", "active");
+    for (const row of (memberships ?? []) as Array<{ user_id: string; roles: string[] | null }>) {
+      if (Array.isArray(row.roles) && row.roles.includes("property_manager") && row.user_id !== actorUserId) {
+        recipientUserIds.add(row.user_id);
+      }
+    }
+  }
+
+  if (recipientUserIds.size === 0) return;
+
+  const titles: Record<"submit" | "approve" | "decline", string> = {
+    submit: "Application submitted",
+    approve: "Applicant approved",
+    decline: "Applicant declined"
+  };
+  const priorities: Record<"submit" | "approve" | "decline", NotificationPriority> = {
+    submit: "normal",
+    approve: "high",
+    decline: "normal"
+  };
+
+  await notify(
+    {
+      organizationId,
+      actorUserId,
+      eventKey: `applicant.${action}:${applicant.id}`,
+      recipientUserIds: [...recipientUserIds],
+      category: "applicants",
+      priority: priorities[action],
+      title: titles[action],
+      body: `${applicant.firstName} ${applicant.lastName} — ${applicant.applicationNumber}`,
+      href: `/applicants/${applicant.id}`,
+      sourceEntityType: "applicant",
+      sourceEntityId: applicant.id,
+      propertyId: applicant.propertyId,
+      unitId: applicant.unitId
+    },
+    client
+  ).catch(() => undefined);
+}
+
 async function generateApplicationNumber(organizationId: string, client: SupabaseClientType): Promise<string> {
   const prefix = `APP-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}`;
   const { data } = await client
@@ -1054,24 +1092,6 @@ async function generateApplicationNumber(organizationId: string, client: Supabas
   const latest = (data?.[0] as { application_number?: string } | undefined)?.application_number;
   const sequence = latest ? Number.parseInt(latest.slice(-4), 10) + 1 : 1;
   return `${prefix}-${String(sequence).padStart(4, "0")}`;
-}
-
-async function generateScreeningCaseNumber(organizationId: string, client: SupabaseClientType): Promise<string> {
-  const prefix = "SCR";
-  const { count } = await client
-    .from("screening_cases")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", organizationId);
-  return `${prefix}-${String((count ?? 0) + 1).padStart(5, "0")}`;
-}
-
-async function generateSignatureRequestNumber(organizationId: string, client: SupabaseClientType): Promise<string> {
-  const prefix = "SIG";
-  const { count } = await client
-    .from("signature_requests")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", organizationId);
-  return `${prefix}-${String((count ?? 0) + 1).padStart(5, "0")}`;
 }
 
 async function assertApplicantAssignment({

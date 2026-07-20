@@ -7,14 +7,17 @@ import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { getPropertiesForOrganization } from "../../../../lib/property/server";
 import { getUnitsForOrganization } from "../../../../lib/unit/server";
+import { getApplicantForOrganization } from "../../../../lib/applicant/server";
 import { getTenantsForOrganization } from "../../../../lib/tenant/server";
 
 export default async function NewLeasePage({
   searchParams
 }: {
-  searchParams: Promise<{ propertyId?: string; unitId?: string; tenantId?: string }>;
+  searchParams: Promise<{ propertyId?: string; unitId?: string; tenantId?: string; applicantId?: string; screeningCaseId?: string }>;
 }) {
-  const { propertyId, unitId, tenantId } = await searchParams;
+  const params = await searchParams;
+  const { screeningCaseId, applicantId } = params;
+  let { propertyId, unitId, tenantId } = params;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -33,6 +36,15 @@ export default async function NewLeasePage({
     redirect("/unauthorized");
   }
 
+  if (applicantId && (!propertyId || !unitId || !tenantId)) {
+    const applicant = await getApplicantForOrganization(organizationId, applicantId, supabase);
+    if (applicant) {
+      propertyId = propertyId ?? applicant.propertyId ?? undefined;
+      unitId = unitId ?? applicant.unitId ?? undefined;
+      tenantId = tenantId ?? applicant.tenantId ?? undefined;
+    }
+  }
+
   const [properties, units, tenants] = await Promise.all([
     getPropertiesForOrganization(organizationId),
     getUnitsForOrganization(organizationId),
@@ -46,8 +58,20 @@ export default async function NewLeasePage({
       breadcrumbs={[
         { href: "/dashboard", label: "Dashboard" },
         { href: "/leases", label: "Leases" },
-        { label: "Create" }
+        { label: "Advanced" }
       ]}
+      banner={
+        <div className="rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
+          <p className="font-medium text-[var(--mpa-color-text-primary)]">Advanced / exceptional path</p>
+          <p className="mt-1">
+            Recommended onboarding uses{" "}
+            <a className="font-semibold text-[var(--mpa-color-brand-primary)] underline" href="/residents/move-in">
+              guided Move in
+            </a>
+            . Use this form only when you need a standalone lease record.
+          </p>
+        </div>
+      }
       form={
         <LeaseForm
           mode="create"
@@ -67,6 +91,7 @@ export default async function NewLeasePage({
           initialPropertyId={propertyId ?? null}
           initialUnitId={unitId ?? null}
           initialTenantId={tenantId ?? null}
+          screeningCaseId={screeningCaseId ?? null}
         />
       }
       contextRail={
@@ -86,6 +111,9 @@ export default async function NewLeasePage({
                     href: `/tenants/${selectedTenant.id}`
                   }
                 ]
+              : []),
+            ...(applicantId
+              ? [{ label: "Applicant record", href: `/applicants/${applicantId}` }]
               : []),
             { label: "Leases list", href: "/leases" }
           ]}

@@ -160,8 +160,27 @@ export function TenantContextRail({
       <ContextRailSection title="Next recommended action" variant="muted">
         <p>{recommendedAction}</p>
         {!lease ? (
-          <Link href={`/leases/new?tenantId=${tenantId}`} className="mt-2 inline-block text-xs font-medium text-[var(--mpa-color-brand-primary)] hover:underline">
+          <Link
+            href={`/leases/new?tenantId=${encodeURIComponent(tenantId)}${
+              propertyId ? `&propertyId=${encodeURIComponent(propertyId)}` : ""
+            }${unitId ? `&unitId=${encodeURIComponent(unitId)}` : ""}`}
+            className="mt-2 inline-block text-xs font-medium text-[var(--mpa-color-brand-primary)] hover:underline"
+          >
             Create lease →
+          </Link>
+        ) : outstandingBalance > 0 ? (
+          <Link
+            href={`/financials/charges?tenantId=${encodeURIComponent(tenantId)}`}
+            className="mt-2 inline-block text-xs font-medium text-[var(--mpa-color-brand-primary)] hover:underline"
+          >
+            Open ledger →
+          </Link>
+        ) : openMaintenance[0] ? (
+          <Link
+            href={`/maintenance/${openMaintenance[0].id}`}
+            className="mt-2 inline-block text-xs font-medium text-[var(--mpa-color-brand-primary)] hover:underline"
+          >
+            Review maintenance →
           </Link>
         ) : null}
       </ContextRailSection>

@@ -14,6 +14,8 @@ This is a **core differentiator** and spans twelve capability areas (digital fil
 
 **Implementation is blocked until this package is approved.** Per [Implementation Gate](../00-governance/implementation-gate.md) and ADR-012, no schema, API, or UI code ships until status moves from **Draft → Approved**.
 
+**Storage / document binaries:** Do not invent a parallel upload system. Binary storage and MediaUpload are owned by [API-002A — Universal Media Upload Foundation](../46-api-002a-universal-media-foundation/README.md). Phase 12 vault metadata references `media_asset_id` / MediaService paths.
+
 ### Roadmap numbering note
 
 The [Development Roadmap](../17-development-roadmap/index.md) currently assigns **Phase 12** to *Production Hardening & Launch Readiness*. This initiative should be scheduled as either:

@@ -221,6 +221,11 @@ defined.
 **Dependency rationale:** Accurate accounting requires validated lease terms,
 tenant occupancy, and vendor job obligations from earlier phases.
 
+**Payment rails design:** Resident self-serve payments, AutoPay, Stripe/Plaid
+abstraction, and Ops/Command Center money surfaces are designed in
+[API-005](../51-api-005-resident-payments-billing/README.md) (Approve before implement).
+Phase 8/10 deliverables remain the operational foundation; API-005 completes the rails.
+
 ---
 
 ## Phase 9: Owner Portal & Reporting Foundation
@@ -335,10 +340,11 @@ Cross-cutting UX sprints that do not add business modules. Each follows the Impl
 
 | Decision | Needed By | Options |
 |----------|-----------|---------|
-| Lease signing provider | Phase 5+ | DocuSign vs PandaDoc vs HelloSign |
-| Tenant screening provider | Phase 5+ | Build vs TransUnion vs RentPrep |
+| Lease signing provider | Phase 5+ | Dropbox Sign recommended first — design: [API-004](../50-api-004-electronic-signatures/README.md) (DocuSign / Adobe / SignNow / PandaDoc later) |
+| Tenant screening provider | Phase 5+ | [API-003](../48-api-003-background-screening/README.md) — Checkr recommended first; SmartMove / RentPrep / Equifax adapters |
+| Resident payments provider | Phase 8+ | Stripe recommended first — design: [API-005](../51-api-005-resident-payments-billing/README.md) (Plaid ACH / Finix / Dwolla / Authorize.net later) |
 | Vendor payout model | Phase 7/8 | Internal ledger vs external payout rail |
-| Accounting integration strategy | Phase 8+ | Native ledger-first vs QuickBooks/Xero bridge |
+| Accounting integration strategy | Phase 8+ | Native ledger-first vs QuickBooks/Xero bridge — see ADR-010 + [API-005](../51-api-005-resident-payments-billing/README.md) |
 | Monorepo extraction | Phase 12+ | When mobile development begins |
 
 ---

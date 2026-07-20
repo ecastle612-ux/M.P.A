@@ -22,6 +22,8 @@ const DEFAULT_PREFERENCES: NotificationPreferencesRecord = {
     general: true
   },
   quietHours: {},
+  propertyPreferences: [],
+  emergencyOverride: true,
   languageCode: "en",
   createdAt: "",
   updatedAt: ""

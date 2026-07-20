@@ -99,8 +99,10 @@ export type NotificationPreferencesRecord = {
   pushEnabled: boolean;
   emailEnabled: boolean;
   smsEnabled: boolean;
+  emergencyOverride: boolean;
   categoryPreferences: Record<string, boolean>;
   quietHours: Record<string, unknown>;
+  propertyPreferences: Array<{ propertyId: string; muted: boolean; allowedCategories?: string[] }>;
   languageCode: string;
   createdAt: string;
   updatedAt: string;

@@ -65,8 +65,8 @@ Full MHF satisfaction, integrations (INT-*), automation (AUT-*), production hard
 | **Ready with constraints** | P0 pass; specific modules excluded from beta scope |
 | **Not ready** | P0 fail or critical trust gap |
 
-**Initial assessment (pre-walkthrough):** *Ready with constraints — design partner beta only.*  
-Finalize after [05-audit-protocol.md](./05-audit-protocol.md) execution.
+**Initial assessment (updated RC-001 2026-07-17):** **GO — Design Partner beta (constrained).**  
+See [RC-001](../52-rc-001-beta-readiness/README.md). Owner/Vendor portals, offline sync, and open beta remain NO-GO.
 
 ---
 

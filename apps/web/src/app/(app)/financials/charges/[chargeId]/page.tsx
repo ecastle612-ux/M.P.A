@@ -19,7 +19,11 @@ function chargeTypeLabel(type: ChargeType): string {
   const labels: Record<ChargeType, string> = {
     monthly_rent: "Monthly rent",
     custom: "Custom",
-    security_deposit: "Security deposit"
+    security_deposit: "Security deposit",
+    late_fee: "Late fee",
+    adjustment: "Adjustment",
+    credit: "Credit",
+    other: "Other"
   };
   return labels[type];
 }

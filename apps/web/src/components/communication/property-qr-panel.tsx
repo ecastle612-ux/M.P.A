@@ -1,9 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import QRCode from "qrcode";
 import { Button, Card, Input } from "@mpa/ui";
 import type { BuildingQrCodeRecord } from "../../lib/communication/contracts";
+
+function subscribeOrigin() {
+  return () => undefined;
+}
+
+function getClientOrigin() {
+  return window.location.origin;
+}
+
+function getServerOrigin() {
+  return "";
+}
 
 export function PropertyQrPanel({
   propertyId,
@@ -16,11 +28,8 @@ export function PropertyQrPanel({
 }) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
-
-  const joinUrl = useMemo(() => {
-    if (typeof window === "undefined" || !qrCode?.qrToken) return "";
-    return `${window.location.origin}/join/${qrCode.qrToken}`;
-  }, [qrCode?.qrToken]);
+  const origin = useSyncExternalStore(subscribeOrigin, getClientOrigin, getServerOrigin);
+  const joinUrl = qrCode?.qrToken && origin ? `${origin}/join/${qrCode.qrToken}` : "";
 
   useEffect(() => {
     if (!joinUrl) return;

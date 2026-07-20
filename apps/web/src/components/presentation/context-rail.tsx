@@ -12,7 +12,7 @@ export function ContextRail({
 }) {
   return (
     <aside
-      className={`mpa-workspace-rail space-y-4 ${className}`.trim()}
+      className={`mpa-workspace-rail space-y-3 ${className}`.trim()}
       aria-label={title}
     >
       {children}
@@ -35,7 +35,7 @@ export function ContextRailSection({
 
   if (variant === "plain") {
     return (
-      <div className="space-y-2 border-b border-[var(--mpa-color-border-subtle)] pb-4 last:border-b-0 last:pb-0">
+      <div className="space-y-1.5 border-b border-[var(--mpa-color-border-subtle)] pb-3 last:border-b-0 last:pb-0">
         <h3 className="mpa-section-label">{title}</h3>
         {hasContent ? (
           <div className="text-sm text-[var(--mpa-color-text-secondary)]">{children}</div>
@@ -47,8 +47,8 @@ export function ContextRailSection({
   }
 
   return (
-    <Card variant={variant === "muted" ? "default" : "elevated"} className="space-y-2.5">
-      <h3 className="mpa-section-title text-base">{title}</h3>
+    <Card variant={variant === "muted" ? "default" : "elevated"} className="space-y-2">
+      <h3 className="mpa-section-title text-[0.9375rem]">{title}</h3>
       {hasContent ? (
         <div className="text-sm text-[var(--mpa-color-text-secondary)]">{children}</div>
       ) : emptyMessage ? (

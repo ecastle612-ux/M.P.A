@@ -107,7 +107,7 @@ export function PropertiesTable({
   const occupancyRate = totalUnits === 0 ? 0 : Math.round((totalOccupied / totalUnits) * 100);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ListWorkspaceHeader
         metrics={[
           { label: "Properties", value: visibleItems.length.toString(), hint: `${activeProperties} active` },

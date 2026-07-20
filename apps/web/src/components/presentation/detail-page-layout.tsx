@@ -22,7 +22,7 @@ export function DetailPageLayout({
       {relationshipChain}
       {hero}
       <div className="mpa-workspace-grid">
-        <div className="mpa-workspace-main min-w-0 space-y-5">{main}</div>
+        <div className="mpa-workspace-main min-w-0 space-y-4">{main}</div>
         {contextRail}
       </div>
     </AppPage>

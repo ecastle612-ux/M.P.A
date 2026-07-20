@@ -21,30 +21,38 @@ export function DetailHero({
   return (
     <section
       className={cn(
-        "rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-6 shadow-[var(--mpa-shadow-sm)] md:p-8",
+        "rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-sm)] md:p-5 lg:p-6",
         className
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 flex-1 space-y-2">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)] md:text-3xl">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-1">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)] md:text-[1.75rem]">
             {title}
           </h1>
-          {subtitle ? <p className="text-sm text-[var(--mpa-color-text-secondary)]">{subtitle}</p> : null}
-          {badges ? <div className="flex flex-wrap gap-2 pt-1">{badges}</div> : null}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {subtitle ? (
+              <p className="text-sm leading-snug text-[var(--mpa-color-text-secondary)]">{subtitle}</p>
+            ) : null}
+            {badges ? <div className="flex flex-wrap gap-1.5">{badges}</div> : null}
+          </div>
         </div>
-        {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+        {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
       </div>
-      {metrics ? <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">{metrics}</div> : null}
+      {metrics ? (
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">{metrics}</div>
+      ) : null}
     </section>
   );
 }
 
 export function DetailMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[var(--mpa-radius-lg)] bg-[var(--mpa-color-bg-surface-muted)] px-4 py-3">
+    <div className="rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-surface-muted)] px-3 py-2">
       <p className="mpa-section-label">{label}</p>
-      <p className="mt-1 font-mono text-lg font-medium tabular-nums text-[var(--mpa-color-text-primary)]">{value}</p>
+      <p className="mt-0.5 font-mono text-base font-medium tabular-nums text-[var(--mpa-color-text-primary)] md:text-lg">
+        {value}
+      </p>
     </div>
   );
 }

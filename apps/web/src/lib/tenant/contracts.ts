@@ -2,6 +2,17 @@ export const TENANT_STATUSES = ["active", "inactive", "archived"] as const;
 
 export type TenantStatus = (typeof TENANT_STATUSES)[number];
 
+export const TENANT_LIFECYCLE_STATUSES = [
+  "awaiting_move_in",
+  "awaiting_signature",
+  "active",
+  "notice_given",
+  "moving_out",
+  "former"
+] as const;
+
+export type TenantLifecycleStatus = (typeof TENANT_LIFECYCLE_STATUSES)[number];
+
 export type TenantRecord = {
   id: string;
   organizationId: string;
@@ -12,6 +23,7 @@ export type TenantRecord = {
   preferredName: string | null;
   email: string;
   avatarUrl: string | null;
+  avatarMediaAssetId: string | null;
   phone: string | null;
   dateOfBirth: string | null;
   moveInDate: string | null;
@@ -21,6 +33,7 @@ export type TenantRecord = {
   emergencyContactPhone: string | null;
   notes: string | null;
   status: TenantStatus;
+  lifecycleStatus: TenantLifecycleStatus;
   metadata: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
@@ -66,6 +79,12 @@ export function parseCreateTenantInput(payload: unknown): CreateTenantInput | nu
     return null;
   }
 
+  const avatarMediaAssetId = readUuid(value["avatarMediaAssetId"]);
+  const metadata = readJsonObject(value["metadata"]);
+  if (avatarMediaAssetId) {
+    metadata["avatarMediaAssetId"] = avatarMediaAssetId;
+  }
+
   return {
     propertyId,
     unitId,
@@ -73,7 +92,8 @@ export function parseCreateTenantInput(payload: unknown): CreateTenantInput | nu
     lastName,
     preferredName: readString(value["preferredName"], 0, 120),
     email,
-    avatarUrl: readUrl(value["avatarUrl"]),
+    avatarUrl: null,
+    avatarMediaAssetId,
     phone: readString(value["phone"], 0, 40),
     dateOfBirth: readDate(value["dateOfBirth"]),
     moveInDate,
@@ -83,8 +103,15 @@ export function parseCreateTenantInput(payload: unknown): CreateTenantInput | nu
     emergencyContactPhone: readString(value["emergencyContactPhone"], 0, 40),
     notes: readString(value["notes"], 0, 4000),
     status: isTenantStatus(value["status"]) ? value["status"] : "active",
-    metadata: readJsonObject(value["metadata"])
+    lifecycleStatus: isTenantLifecycleStatus(value["lifecycleStatus"])
+      ? value["lifecycleStatus"]
+      : "awaiting_move_in",
+    metadata
   };
+}
+
+export function isTenantLifecycleStatus(value: unknown): value is TenantLifecycleStatus {
+  return typeof value === "string" && TENANT_LIFECYCLE_STATUSES.includes(value as TenantLifecycleStatus);
 }
 
 export function parseTenantMutationInput(payload: unknown): TenantMutationInput | null {
@@ -142,8 +169,16 @@ function parseUpdateTenantInput(value: Record<string, unknown>): UpdateTenantInp
   const email = readEmail(value["email"]);
   if (email !== null) updates.email = email;
 
-  const avatarUrl = readUrl(value["avatarUrl"]);
-  if (avatarUrl !== null) updates.avatarUrl = avatarUrl;
+  if (value["avatarMediaAssetId"] === null) {
+    updates.avatarMediaAssetId = null;
+    updates.avatarUrl = null;
+  } else {
+    const avatarMediaAssetId = readUuid(value["avatarMediaAssetId"]);
+    if (avatarMediaAssetId !== null) {
+      updates.avatarMediaAssetId = avatarMediaAssetId;
+      updates.avatarUrl = null;
+    }
+  }
 
   const phone = readString(value["phone"], 0, 40);
   if (phone !== null) updates.phone = phone;
@@ -170,6 +205,7 @@ function parseUpdateTenantInput(value: Record<string, unknown>): UpdateTenantInp
   if (notes !== null) updates.notes = notes;
 
   if (isTenantStatus(value["status"])) updates.status = value["status"];
+  if (isTenantLifecycleStatus(value["lifecycleStatus"])) updates.lifecycleStatus = value["lifecycleStatus"];
 
   if (value["metadata"] !== undefined) {
     updates.metadata = readJsonObject(value["metadata"]);
@@ -209,17 +245,6 @@ function readDate(value: unknown): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
   return /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? trimmed : null;
-}
-
-function readUrl(value: unknown): string | null {
-  const candidate = readString(value, 0, 400);
-  if (candidate === null) return null;
-  try {
-    const parsed = new URL(candidate);
-    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null;
-  } catch {
-    return null;
-  }
 }
 
 function readUuid(value: unknown): string | null {

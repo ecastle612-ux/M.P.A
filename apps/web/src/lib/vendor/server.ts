@@ -448,7 +448,9 @@ export async function getVendorAssignmentHistoryForVendor(
   const supabase = await resolveClient(client);
   const { data, error } = await supabase
     .from("maintenance_vendor_assignments")
-    .select(`${ASSIGNMENT_SELECT}, maintenance_work_orders(work_order_number, title)`)
+    .select(
+      `${ASSIGNMENT_SELECT}, maintenance_work_orders!maintenance_vendor_assignments_work_order_fk(work_order_number, title)`
+    )
     .eq("organization_id", organizationId)
     .eq("vendor_id", vendorId)
     .order("assigned_at", { ascending: false });
@@ -562,7 +564,9 @@ export async function getVendorDashboardMetrics(
       .not("rating", "is", null),
     supabase
       .from("maintenance_vendor_assignments")
-      .select(`${ASSIGNMENT_SELECT}, vendors(business_name), maintenance_work_orders(work_order_number, title)`)
+      .select(
+        `${ASSIGNMENT_SELECT}, vendors(business_name), maintenance_work_orders!maintenance_vendor_assignments_work_order_fk(work_order_number, title)`
+      )
       .eq("organization_id", organizationId)
       .eq("is_current", true)
       .in("assignment_status", OPEN_ASSIGNMENT_STATUSES)

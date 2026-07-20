@@ -20,9 +20,9 @@ export function SetupStepIndicator({
                 className={[
                   "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
                   step.complete
-                    ? "bg-[var(--mpa-color-brand-primary)]/10 text-[var(--mpa-color-brand-primary)]"
+                    ? "bg-[var(--mpa-color-brand-primary-subtle)] text-[var(--mpa-color-brand-primary)]"
                     : isCurrent
-                      ? "bg-[var(--mpa-color-bg-sidebar-elevated)] text-[var(--mpa-color-text-primary)] ring-1 ring-[var(--mpa-color-brand-primary)]/40"
+                      ? "bg-[var(--mpa-color-brand-primary)] text-white ring-2 ring-[var(--mpa-color-brand-primary)]/30"
                       : "bg-[var(--mpa-color-bg-surface-muted)] text-[var(--mpa-color-text-secondary)]"
                 ].join(" ")}
                 aria-current={isCurrent ? "step" : undefined}

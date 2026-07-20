@@ -54,6 +54,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-016](./adr-016-phase-5-tenant-lease-foundation.md) | Phase 5 Tenant & Lease Foundation | Accepted | 2026-07-14 |
 | [ADR-017](./adr-017-onesignal-as-primary-push-provider.md) | OneSignal as Primary Push Notification Provider | Accepted | 2026-07-17 |
 | [ADR-018](./adr-018-resend-as-primary-transactional-email-provider.md) | Resend as the Primary Transactional Email Provider | Accepted | 2026-07-20 |
+| [ADR-019](./adr-019-adaptive-two-logo-brand-system.md) | Adaptive Two-Logo Brand System | Accepted | 2026-07-20 |
 
 ---
 

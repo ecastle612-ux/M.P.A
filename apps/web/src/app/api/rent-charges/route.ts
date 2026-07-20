@@ -52,6 +52,8 @@ export async function GET(request: Request) {
     if (propertyId) options.propertyId = propertyId;
     const leaseId = url.searchParams.get("leaseId");
     if (leaseId) options.leaseId = leaseId;
+    const tenantId = url.searchParams.get("tenantId");
+    if (tenantId) options.tenantId = tenantId;
 
     const items = await getRentChargesForOrganization(organizationId, options, supabase);
     return NextResponse.json({ items }, { headers: { "Cache-Control": "no-store" } });

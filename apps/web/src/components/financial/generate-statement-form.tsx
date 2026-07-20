@@ -172,8 +172,8 @@ export function GenerateStatementForm({
         </div>
 
         <Input
-          aria-label="Owner placeholder"
-          placeholder="Owner name or placeholder (optional)"
+          aria-label="Owner name"
+          placeholder="Owner name (optional)"
           value={values.ownerPlaceholder}
           onChange={(event) => setValues((current) => ({ ...current, ownerPlaceholder: event.target.value }))}
         />

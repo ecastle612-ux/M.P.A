@@ -14,6 +14,8 @@ import {
   getVendorForOrganization,
   getVendorPerformanceSummary
 } from "../../../../lib/vendor/server";
+import { getServiceProviderIntelligence } from "../../../../lib/facility/provider-intelligence";
+import { ServiceProviderIntelligencePanel } from "../../../../components/facility/service-provider-intelligence-panel";
 import { buildVendorCreatedSuccess } from "../../../../lib/workflow/shared/success-configs";
 
 export default async function VendorDetailPage({
@@ -43,10 +45,11 @@ export default async function VendorDetailPage({
     redirect("/unauthorized");
   }
 
-  const [vendor, performance, assignments] = await Promise.all([
+  const [vendor, performance, assignments, intelligence] = await Promise.all([
     getVendorForOrganization(organizationId, vendorId, supabase),
     getVendorPerformanceSummary(organizationId, vendorId, supabase),
-    getVendorAssignmentsForVendor(organizationId, vendorId, supabase)
+    getVendorAssignmentsForVendor(organizationId, vendorId, supabase),
+    getServiceProviderIntelligence(organizationId, vendorId, supabase)
   ]);
 
   if (!vendor) {
@@ -162,38 +165,44 @@ export default async function VendorDetailPage({
         />
       }
       main={
-        <Card variant="elevated" className="space-y-4">
-          <h2 className="mpa-section-title">Vendor profile</h2>
-          <div className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">
-            <p>Email: {vendor.email ?? "—"}</p>
-            <p>Phone: {vendor.phone ?? "—"}</p>
-            <p>Website: {vendor.website ?? "—"}</p>
-            <p>License: {vendor.licenseNumber ?? "—"}</p>
-          </div>
+        <>
+          <Card variant="elevated" className="space-y-4">
+            <h2 className="mpa-section-title">Vendor profile</h2>
+            <div className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">
+              <p>Email: {vendor.email ?? "—"}</p>
+              <p>Phone: {vendor.phone ?? "—"}</p>
+              <p>Website: {vendor.website ?? "—"}</p>
+              <p>License: {vendor.licenseNumber ?? "—"}</p>
+            </div>
 
-          <div>
-            <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Services</h3>
-            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              {vendor.services.length > 0 ? vendor.services.map(toVendorServiceLabel).join(", ") : "No services listed."}
-            </p>
-          </div>
+            <div>
+              <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Services</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                {vendor.services.length > 0
+                  ? vendor.services.map(toVendorServiceLabel).join(", ")
+                  : "No services listed."}
+              </p>
+            </div>
 
-          <div>
-            <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Address</h3>
-            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              {[vendor.addressLine1, vendor.addressLine2, vendor.city, vendor.stateRegion, vendor.postalCode]
-                .filter(Boolean)
-                .join(", ") || "No address on file."}
-            </p>
-          </div>
+            <div>
+              <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Address</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                {[vendor.addressLine1, vendor.addressLine2, vendor.city, vendor.stateRegion, vendor.postalCode]
+                  .filter(Boolean)
+                  .join(", ") || "No address on file."}
+              </p>
+            </div>
 
-          <div>
-            <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Internal notes</h3>
-            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              {vendor.internalNotes ?? "No internal notes."}
-            </p>
-          </div>
-        </Card>
+            <div>
+              <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Internal notes</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                {vendor.internalNotes ?? "No internal notes."}
+              </p>
+            </div>
+          </Card>
+
+          {intelligence ? <ServiceProviderIntelligencePanel intelligence={intelligence} /> : null}
+        </>
       }
       contextRail={
         <VendorContextRail

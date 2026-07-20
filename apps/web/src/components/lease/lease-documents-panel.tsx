@@ -13,9 +13,9 @@ export function LeaseDocumentsPanel({ documents }: { documents: LeaseDocumentRec
   return (
     <Card className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Documents</h2>
+        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Lease documents</h2>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Placeholder document slots reserved for upload and OCR-ready extraction in a future phase.
+          Track expected lease document types for this agreement. Organization files live in Settings → Documents.
         </p>
       </div>
 
@@ -31,11 +31,12 @@ export function LeaseDocumentsPanel({ documents }: { documents: LeaseDocumentRec
                 {document?.title ?? toLeaseDocumentTypeLabel(documentType)}
               </p>
               <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                {document?.notes ??
-                  "Reserved for future document upload. OCR-ready metadata will be captured when files are attached."}
+                {document?.notes && !/future|placeholder|reserved/i.test(document.notes)
+                  ? document.notes
+                  : "No file linked for this document type yet."}
               </p>
               <p className="mt-1 text-xs uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-                OCR-ready: {document?.ocrReady ? "Yes" : "Pending integration"}
+                Status: {document?.ocrReady ? "Ready for review" : document ? "On file" : "Not attached"}
               </p>
             </li>
           );

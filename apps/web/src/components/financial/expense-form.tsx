@@ -223,7 +223,7 @@ export function ExpenseForm({
         </div>
 
         <Input
-          aria-label="Vendor bill placeholder"
+          aria-label="Vendor bill reference"
           placeholder="Vendor bill reference (optional)"
           value={values.vendorBillPlaceholder}
           onChange={(event) => setValues((current) => ({ ...current, vendorBillPlaceholder: event.target.value }))}

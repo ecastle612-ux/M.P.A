@@ -3,17 +3,30 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, Card, Input, Select } from "@mpa/ui";
+import { Button, Card, Input, Select, useToast } from "@mpa/ui";
 import { USER_ROLES, isUserRole } from "@mpa/shared";
 import { Logo } from "../branding/logo";
+import { MediaUpload, profilePhotoUploadIntent } from "../media/media-upload";
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "../../lib/profile/contracts";
 import { INVITE_ROLE_TEMPLATES, SETUP_INVITE_SKIPPED_KEY } from "../../lib/setup/constants";
 import type { SetupStatus } from "../../lib/setup/types";
 import { SetupStepIndicator } from "./setup-step-indicator";
 import { useOrganizationContext } from "../shell/organization-context";
+import { readApiError } from "../../lib/api/client-error";
 
-export function SetupWizard({ initialStatus }: { initialStatus: SetupStatus }) {
+const SETUP_CELEBRATED_KEY = "mpa.setup.celebrated.v1";
+
+export function SetupWizard({
+  initialStatus,
+  celebrate = false,
+  fromBanner = null
+}: {
+  initialStatus: SetupStatus;
+  celebrate?: boolean;
+  fromBanner?: string | null;
+}) {
   const router = useRouter();
+  const { notify } = useToast();
   const { refreshOrganizations, organizations } = useOrganizationContext();
   const [status, setStatus] = useState(initialStatus);
   const [loading, setLoading] = useState(false);
@@ -22,22 +35,34 @@ export function SetupWizard({ initialStatus }: { initialStatus: SetupStatus }) {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("mpa.setup.welcome.v1") !== "true";
   });
+  const [showCelebration, setShowCelebration] = useState(celebrate && initialStatus.isComplete);
 
-  const currentStep = showWelcome ? "welcome" : status.currentStep;
+  const currentStep = showCelebration
+    ? "complete"
+    : showWelcome
+      ? "welcome"
+      : status.currentStep;
 
   const refreshStatus = useCallback(async () => {
     const inviteSkipped = window.localStorage.getItem(SETUP_INVITE_SKIPPED_KEY) === "true";
     const response = await fetch(`/api/setup/status?inviteSkipped=${inviteSkipped}`);
     if (!response.ok) return;
     const payload = (await response.json()) as { status?: SetupStatus };
-    if (payload.status) setStatus(payload.status);
+    if (payload.status) {
+      setStatus(payload.status);
+      if (payload.status.isComplete && window.localStorage.getItem(SETUP_CELEBRATED_KEY) !== "true") {
+        setShowCelebration(true);
+      }
+    }
   }, []);
 
   useEffect(() => {
-    if (status.isComplete && currentStep === "complete") {
+    if (!showCelebration) return;
+    if (window.localStorage.getItem(SETUP_CELEBRATED_KEY) === "true" && celebrate) {
+      // already celebrated in a prior session — fall through to dashboard
       router.replace("/dashboard");
     }
-  }, [status.isComplete, currentStep, router]);
+  }, [showCelebration, celebrate, router]);
 
   const progressSteps = useMemo(
     () =>
@@ -67,6 +92,16 @@ export function SetupWizard({ initialStatus }: { initialStatus: SetupStatus }) {
 
       <SetupStepIndicator steps={status.steps} currentStepId={currentStep} />
 
+      {fromBanner === "property-created" || fromBanner === "unit-created" || fromBanner === "lease-created" ? (
+        <div className="rounded-lg border border-[var(--mpa-color-border)] bg-[var(--mpa-color-bg-surface-muted)] px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
+          {fromBanner === "property-created"
+            ? "Property saved. Next up: add units so you can track occupancy."
+            : fromBanner === "unit-created"
+              ? "Unit saved. Next: add a resident or jump ahead with Move In."
+              : "Lease saved. You’re almost done — finish any remaining setup steps below."}
+        </div>
+      ) : null}
+
       <Card className="flex-1">
         {currentStep === "welcome" ? (
           <WelcomeStep
@@ -88,7 +123,7 @@ export function SetupWizard({ initialStatus }: { initialStatus: SetupStatus }) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   displayName: `${values.firstName} ${values.lastName}`.trim(),
-                  avatarUrl: values.avatarUrl,
+                  avatarMediaAssetId: values.avatarMediaAssetId,
                   phone: values.phone,
                   contactEmail: values.contactEmail,
                   timezone: values.timezone,
@@ -100,9 +135,15 @@ export function SetupWizard({ initialStatus }: { initialStatus: SetupStatus }) {
               });
               setLoading(false);
               if (!response.ok) {
-                setError("Could not save your profile. Please try again.");
+                const payload = await response.json().catch(() => ({}));
+                setError(readApiError(payload, "Could not save your profile. Please try again."));
                 return;
               }
+              notify({
+                title: "Profile saved",
+                description: "Next: create your organization.",
+                variant: "success"
+              });
               await refreshStatus();
             }}
           />
@@ -121,10 +162,15 @@ export function SetupWizard({ initialStatus }: { initialStatus: SetupStatus }) {
               });
               setLoading(false);
               if (!response.ok) {
-                const payload = (await response.json()) as { error?: string };
-                setError(payload.error ?? "Could not create organization.");
+                const payload = await response.json().catch(() => ({}));
+                setError(readApiError(payload, "Could not create organization."));
                 return;
               }
+              notify({
+                title: "Organization created",
+                description: "Next: invite a teammate or continue to your first property.",
+                variant: "success"
+              });
               await refreshOrganizations();
               await refreshStatus();
             }}
@@ -137,15 +183,28 @@ export function SetupWizard({ initialStatus }: { initialStatus: SetupStatus }) {
             error={error}
             onSkip={() => {
               window.localStorage.setItem(SETUP_INVITE_SKIPPED_KEY, "true");
+              notify({
+                title: "Invite skipped",
+                description: "You can invite teammates anytime from your organization settings.",
+                variant: "info"
+              });
               void refreshStatus();
             }}
-            onInvited={() => void refreshStatus()}
+            onInvited={() => {
+              notify({
+                title: "Invitation sent",
+                description: "Your teammate will receive an email to join. Next: add a property.",
+                variant: "success"
+              });
+              void refreshStatus();
+            }}
           />
         ) : null}
         {currentStep === "property" ? (
           <EntityStep
             title="Create your first property"
             description="Add apartments, condos, HOA communities, or commercial buildings."
+            nextStep="After you save, you’ll return here to add units."
             primaryHref="/properties/new?setup=1"
             primaryLabel="Create Property →"
           />
@@ -154,28 +213,45 @@ export function SetupWizard({ initialStatus }: { initialStatus: SetupStatus }) {
           <EntityStep
             title="Add units to your property"
             description="Units represent individual rentable spaces — apartments, suites, or homes."
+            nextStep="After units are saved, you’ll return here to add a resident (or use Move In)."
             primaryHref="/units/new?setup=1"
             primaryLabel="Add Units →"
+            secondaryHref="/residents/move-in"
+            secondaryLabel="Or start Move In →"
           />
         ) : null}
         {currentStep === "tenant" ? (
           <EntityStep
-            title="Create your first tenant"
-            description="Add a resident so you can assign them to a unit and create a lease."
-            primaryHref="/tenants/new?setup=1"
-            primaryLabel="Create Tenant →"
+            title="Create your first resident"
+            description="Guided Move in is the recommended path — resident, lease, and activation together."
+            nextStep="After Move in completes, setup can finish from the Operations Center."
+            primaryHref="/residents/move-in"
+            primaryLabel="+ New Resident →"
+            secondaryHref="/tenants/new?setup=1"
+            secondaryLabel="Manual entry (advanced)"
           />
         ) : null}
         {currentStep === "lease" ? (
           <EntityStep
-            title="Create your first lease"
-            description="Leases connect tenants to units and unlock rent collection."
-            primaryHref="/leases/new?setup=1"
-            primaryLabel="Create Lease →"
+            title="Activate your first lease"
+            description="Prefer finishing through guided Move in. Standalone New lease is advanced only."
+            nextStep="After activation, setup wraps up and you’ll enter the Operations Center."
+            primaryHref="/residents/move-in"
+            primaryLabel="Continue Move in →"
+            secondaryHref="/leases/new?setup=1"
+            secondaryLabel="New lease (advanced)"
           />
         ) : null}
         {currentStep === "complete" ? (
-          <CompleteStep completionPercent={status.completionPercent} steps={progressSteps} />
+          <CompleteStep
+            completionPercent={status.completionPercent}
+            steps={progressSteps}
+            onContinue={() => {
+              window.localStorage.setItem(SETUP_CELEBRATED_KEY, "true");
+              setShowCelebration(false);
+              router.push("/dashboard");
+            }}
+          />
         ) : null}
       </Card>
     </div>
@@ -207,7 +283,7 @@ function ProfileStep({
     lastName: string;
     jobTitle: string;
     phone: string;
-    avatarUrl: string;
+    avatarMediaAssetId: string | null;
     contactEmail: string;
     timezone: string;
   }) => Promise<void>;
@@ -216,7 +292,7 @@ function ProfileStep({
   const [lastName, setLastName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [phone, setPhone] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarMediaAssetId, setAvatarMediaAssetId] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -228,7 +304,7 @@ function ProfileStep({
       lastName: lastName.trim(),
       jobTitle: jobTitle.trim(),
       phone: phone.trim(),
-      avatarUrl: avatarUrl.trim(),
+      avatarMediaAssetId,
       contactEmail: "",
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
     });
@@ -244,9 +320,15 @@ function ProfileStep({
         <Input aria-label="First name" placeholder="First name *" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
         <Input aria-label="Last name" placeholder="Last name *" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
         <Input aria-label="Job title" placeholder="Job title *" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} required className="sm:col-span-2" />
-        <Input aria-label="Phone" placeholder="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} />
-        <Input aria-label="Profile photo URL" placeholder="Profile photo URL (optional)" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} />
+        <Input aria-label="Phone" placeholder="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} className="sm:col-span-2" />
       </div>
+      <MediaUpload
+        intent={profilePhotoUploadIntent}
+        value={avatarMediaAssetId}
+        onChange={setAvatarMediaAssetId}
+        label="Profile photo (optional)"
+        disabled={loading}
+      />
       {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
       <Button type="submit" disabled={loading}>
         {loading ? "Saving..." : "Save & Continue →"}
@@ -310,18 +392,28 @@ function InviteStep({
     if (!organizationId || !isUserRole(role)) return;
     setLocalLoading(true);
     setLocalError(null);
-    const response = await fetch(`/api/organizations/${organizationId}/invitations`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, roles: [role] })
-    });
-    setLocalLoading(false);
-    if (!response.ok) {
-      setLocalError("Could not send invitation. Check the email and try again.");
-      return;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20_000);
+    try {
+      const response = await fetch(`/api/organizations/${organizationId}/invitations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, roles: [role] }),
+        signal: controller.signal
+      });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        setLocalError(payload?.error ?? "Could not send invitation. Check the email and try again.");
+        return;
+      }
+      setEmail("");
+      onInvited();
+    } catch {
+      setLocalError("Invitation timed out. Check your connection and try again, or skip for now.");
+    } finally {
+      window.clearTimeout(timeout);
+      setLocalLoading(false);
     }
-    setEmail("");
-    onInvited();
   }
 
   return (
@@ -366,40 +458,61 @@ function InviteStep({
 function EntityStep({
   title,
   description,
+  nextStep,
   primaryHref,
-  primaryLabel
+  primaryLabel,
+  secondaryHref,
+  secondaryLabel
 }: {
   title: string;
   description: string;
+  nextStep: string;
   primaryHref: string;
   primaryLabel: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
 }) {
   return (
     <div className="space-y-4">
       <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{title}</h2>
       <p className="text-sm text-[var(--mpa-color-text-secondary)]">{description}</p>
-      <Link href={primaryHref}>
-        <Button>{primaryLabel}</Button>
-      </Link>
+      <p className="rounded-md border border-[var(--mpa-color-border)] bg-[var(--mpa-color-bg-surface-muted)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+        What happens next: {nextStep}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Link href={primaryHref}>
+          <Button>{primaryLabel}</Button>
+        </Link>
+        {secondaryHref && secondaryLabel ? (
+          <Link href={secondaryHref}>
+            <Button variant="secondary">{secondaryLabel}</Button>
+          </Link>
+        ) : null}
+      </div>
     </div>
   );
 }
 
 function CompleteStep({
   completionPercent,
-  steps
+  steps,
+  onContinue
 }: {
   completionPercent: number;
   steps: Array<{ id: string; label: string; complete: boolean }>;
+  onContinue: () => void;
 }) {
   return (
     <div className="space-y-4 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] text-2xl text-white">
         ✓
       </div>
-      <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">Setup complete!</h2>
+      <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
+        You&apos;re ready to operate
+      </h2>
       <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        Your portfolio is ready. Head to the Operations Center to manage daily operations.
+        Setup is complete. The Operations Center will show what needs attention today — move-ins, maintenance,
+        payments, and more.
       </p>
       <p className="text-sm font-medium text-[var(--mpa-color-brand-primary)]">{completionPercent}% portfolio setup</p>
       <ul className="mx-auto max-w-sm space-y-1 text-left text-sm">
@@ -410,9 +523,7 @@ function CompleteStep({
           </li>
         ))}
       </ul>
-      <Link href="/dashboard">
-        <Button>Open Operations Center →</Button>
-      </Link>
+      <Button onClick={onContinue}>Open Operations Center →</Button>
     </div>
   );
 }

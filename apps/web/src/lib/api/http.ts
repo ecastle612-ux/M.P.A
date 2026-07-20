@@ -10,7 +10,11 @@ export function apiError(status: number, code: string, message: string) {
 }
 
 export function apiInternalError() {
-  return apiError(500, "INTERNAL_ERROR", "An unexpected error occurred.");
+  return apiError(
+    500,
+    "INTERNAL_ERROR",
+    "Something went wrong on our side. Please retry. If it keeps happening, contact support."
+  );
 }
 
 export async function parseJsonBody(request: Request) {

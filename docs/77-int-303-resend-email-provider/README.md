@@ -23,7 +23,8 @@
 | [07-testing-plan.md](./07-testing-plan.md) | Certification plan for Production Ready |
 | [08-non-goals.md](./08-non-goals.md) | Explicit exclusions |
 | [09-definition-of-done.md](./09-definition-of-done.md) | Implementation complete criteria |
-| [10-implementation-certification.md](./10-implementation-certification.md) | Post-Approve implementation + live certification status |
+| [10-implementation-certification.md](./10-implementation-certification.md) | Post-Approve implementation + initial certification status |
+| [11-final-production-certification.md](./11-final-production-certification.md) | Final live inbox certification (delivered events) |
 
 ---
 

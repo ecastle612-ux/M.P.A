@@ -1,0 +1,332 @@
+{
+  "generatedAt": "2026-07-18T07:37:12.689Z",
+  "providers": [
+    {
+      "provider": "OneSignal",
+      "mode": "configured",
+      "overall": "fail",
+      "checks": [
+        {
+          "check": "authentication",
+          "status": "pass",
+          "detail": "ONESIGNAL_APP_ID and ONESIGNAL_API_KEY are present."
+        },
+        {
+          "check": "successful_request",
+          "status": "fail",
+          "detail": "OneSignal API rejected credentials (HTTP 403). Verify REST API key for this app.",
+          "recovery": "Verify API key scopes and app id."
+        },
+        {
+          "check": "callback_webhook",
+          "status": "warn",
+          "detail": "OneSignal delivery webhooks are optional; in-app notifications use DB idempotency keys.",
+          "recovery": "Configure OneSignal webhooks if you need delivery receipts beyond in-app status."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Provider send failures return status=failed with errorMessage; no silent swallow in onesignal-provider."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Duplicate notification inserts catch unique idempotency violations and return the existing row."
+        }
+      ]
+    },
+    {
+      "provider": "Stripe",
+      "mode": "provider=noop",
+      "overall": "warn",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "warn",
+          "detail": "PAYMENT_PROVIDER=noop. Stripe is not active.",
+          "recovery": "Set PAYMENT_PROVIDER=stripe and STRIPE_SECRET_KEY=sk_test_… for sandbox certification."
+        },
+        {
+          "check": "authentication",
+          "status": "warn",
+          "detail": "STRIPE_SECRET_KEY missing.",
+          "recovery": "Add a Stripe test secret key (sk_test_…) for sandbox certification."
+        },
+        {
+          "check": "callback_webhook",
+          "status": "warn",
+          "detail": "STRIPE_WEBHOOK_SECRET missing — sandbox may accept simulate headers.",
+          "recovery": "Add the Stripe CLI / dashboard webhook signing secret."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "createCustomer → noop-cus-00000000"
+        },
+        {
+          "check": "callback_parse",
+          "status": "pass",
+          "detail": "Webhook parse returned 1 event(s)."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Failed intents map to failed status with failureMessage; webhook duplicates short-circuit via integrations_webhook_events."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Duplicate webhook event ids are ignored; simulate endpoint blocked in production unless STRIPE_ALLOW_SIMULATE=true."
+        }
+      ]
+    },
+    {
+      "provider": "Dropbox Sign",
+      "mode": "provider=noop",
+      "overall": "warn",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "warn",
+          "detail": "SIGNATURE_PROVIDER=noop. Dropbox Sign is not active.",
+          "recovery": "Set SIGNATURE_PROVIDER=dropbox_sign with a sandbox API key."
+        },
+        {
+          "check": "authentication",
+          "status": "warn",
+          "detail": "DROPBOX_SIGN_API_KEY missing.",
+          "recovery": "Add a Dropbox Sign test API key for sandbox certification."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "Signature provider id=noop resolved (createEnvelope available)."
+        },
+        {
+          "check": "callback_parse",
+          "status": "pass",
+          "detail": "Webhook parse returned 1 event(s)."
+        },
+        {
+          "check": "callback_webhook",
+          "status": "warn",
+          "detail": "Webhook secret missing — simulate header accepted in sandbox.",
+          "recovery": "Configure DROPBOX_SIGN_WEBHOOK_SECRET from the Dropbox Sign app."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Signature webhooks verify signatures; failures audit to signature_audit_events; duplicates via integrations_webhook_events."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Packages can be resent/canceled through domain APIs; simulate blocked in production without ALLOW_SIMULATE."
+        }
+      ]
+    },
+    {
+      "provider": "Checkr",
+      "mode": "provider=noop",
+      "overall": "warn",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "warn",
+          "detail": "SCREENING_PROVIDER=noop. Checkr is not active.",
+          "recovery": "Set SCREENING_PROVIDER=checkr with Checkr sandbox credentials."
+        },
+        {
+          "check": "authentication",
+          "status": "warn",
+          "detail": "CHECKR_API_KEY missing — local sandbox simulation still available.",
+          "recovery": "Add Checkr sandbox API key for live network certification."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "createOrder → noop-PT001-1784360232321-00000000"
+        },
+        {
+          "check": "callback_webhook",
+          "status": "warn",
+          "detail": "CHECKR_WEBHOOK_SECRET missing — webhook verification may be relaxed in sandbox.",
+          "recovery": "Add the Checkr webhook secret before production."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Network failures fall back to sandbox simulation unless CHECKR_REQUIRE_LIVE=true; webhook duplicates ignored."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Screening cases remain recoverable via domain status + webhook redelivery."
+        }
+      ]
+    },
+    {
+      "provider": "Resend",
+      "mode": "not_implemented",
+      "overall": "not_in_path",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "not_in_path",
+          "detail": "Resend is roadmap-only (INT-303). Transactional email is not a production dependency yet.",
+          "recovery": "Do not block launch on Resend until email provider is implemented."
+        }
+      ]
+    },
+    {
+      "provider": "Twilio",
+      "mode": "not_implemented",
+      "overall": "not_in_path",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "not_in_path",
+          "detail": "Twilio SMS is roadmap-only (INT-302). SMS preferences are non-delivering placeholders.",
+          "recovery": "Do not treat SMS as production-ready until Twilio is implemented."
+        }
+      ]
+    },
+    {
+      "provider": "Supabase Storage",
+      "mode": "configured",
+      "overall": "pass",
+      "checks": [
+        {
+          "check": "authentication",
+          "status": "pass",
+          "detail": "Supabase URL and anon key present."
+        },
+        {
+          "check": "configuration",
+          "status": "pass",
+          "detail": "Service role available for server-side signed URLs."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "Media module uses signed upload/read URLs against media-private bucket (API-002A)."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Media intent API returns structured apiError codes; processor failures write media_audit_events."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Failed uploads can be retried via new intent; orphan GC remains a known hardening follow-up."
+        }
+      ]
+    },
+    {
+      "provider": "Supabase Auth",
+      "mode": "configured",
+      "overall": "pass",
+      "checks": [
+        {
+          "check": "authentication",
+          "status": "pass",
+          "detail": "Auth client credentials present."
+        },
+        {
+          "check": "configuration",
+          "status": "pass",
+          "detail": "Session handled via @supabase/ssr + middleware redirects to /login for protected routes."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "getUser() used on API routes; unauthenticated requests return UNAUTHENTICATED human messages."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Expired JWT humanized to session-expired copy; unauthorized routes redirect to /unauthorized."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Users recover by signing in again; invitation accept flow re-links membership."
+        }
+      ]
+    }
+  ],
+  "integrity": null,
+  "performance": [
+    {
+      "surface": "Operations Center / Dashboard",
+      "measuredMs": null,
+      "budgetMs": 1500,
+      "status": "skipped",
+      "note": "Parallel snapshot; watch N+1 lifecycle tiles. (not measured in this run — budget documented for QA perf probes.)"
+    },
+    {
+      "surface": "Resident list",
+      "measuredMs": null,
+      "budgetMs": 800,
+      "status": "skipped",
+      "note": "Paginate; avoid select * with nested joins. (not measured in this run — budget documented for QA perf probes.)"
+    },
+    {
+      "surface": "Applicant list",
+      "measuredMs": null,
+      "budgetMs": 800,
+      "status": "skipped",
+      "note": "Keep screening status denormalized for list views. (not measured in this run — budget documented for QA perf probes.)"
+    },
+    {
+      "surface": "Maintenance list",
+      "measuredMs": null,
+      "budgetMs": 800,
+      "status": "skipped",
+      "note": "Index organization_id + status + updated_at. (not measured in this run — budget documented for QA perf probes.)"
+    },
+    {
+      "surface": "Payments / Financials",
+      "measuredMs": null,
+      "budgetMs": 1200,
+      "status": "skipped",
+      "note": "Charge + payment aggregates should be precomputed or limited. (not measured in this run — budget documented for QA perf probes.)"
+    },
+    {
+      "surface": "Search / Command Center",
+      "measuredMs": null,
+      "budgetMs": 600,
+      "status": "skipped",
+      "note": "Debounce client queries; cap result sets. (not measured in this run — budget documented for QA perf probes.)"
+    },
+    {
+      "surface": "Migration Dashboard",
+      "measuredMs": null,
+      "budgetMs": 1200,
+      "status": "skipped",
+      "note": "Switching snapshot runs multi-count queries — cache 30–45s client-side. (not measured in this run — budget documented for QA perf probes.)"
+    },
+    {
+      "surface": "Media upload intent",
+      "measuredMs": null,
+      "budgetMs": 1000,
+      "status": "skipped",
+      "note": "Signed URL creation should stay under 1s. (not measured in this run — budget documented for QA perf probes.)"
+    },
+    {
+      "surface": "Document / statement generation",
+      "measuredMs": null,
+      "budgetMs": 5000,
+      "status": "skipped",
+      "note": "Async job preferred above ~50 leases. (not measured in this run — budget documented for QA perf probes.)"
+    }
+  ],
+  "summary": {
+    "providersPass": 2,
+    "providersWarn": 3,
+    "providersFail": 1,
+    "providersSkipped": 2,
+    "integrityErrors": 0
+  }
+}

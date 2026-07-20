@@ -6,6 +6,7 @@ import { CommandPaletteShell, type CommandPaletteItem } from "@mpa/ui";
 import { searchCommandCenter } from "../../lib/command-center/registry";
 import {
   buildStorageKey,
+  recordActionUsage,
   recordRecentItem
 } from "../../lib/command-center/storage";
 import type { CommandCenterResult, CommandCenterSection } from "../../lib/command-center/types";
@@ -137,9 +138,12 @@ export function CommandCenter() {
         return;
       }
 
+      const usageKey = result.favoriteKey ?? buildStorageKey(result.kind, result.id);
+      recordActionUsage(usageKey);
+
       if (result.href) {
         recordRecentItem({
-          key: result.favoriteKey ?? buildStorageKey(result.kind, result.id),
+          key: usageKey,
           kind: result.kind,
           label: result.label,
           subtitle: result.subtitle,
@@ -189,7 +193,7 @@ export function CommandCenter() {
           <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.5" />
           <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
-        <span className="flex-1 truncate">Search properties, tenants, leases…</span>
+        <span className="flex-1 truncate">Start work, continue jobs, search records…</span>
         <kbd className="pointer-events-none hidden shrink-0 rounded-[var(--mpa-radius-sm)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--mpa-color-text-muted)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 md:inline">
           ⌘K
         </kbd>
@@ -202,7 +206,7 @@ export function CommandCenter() {
         onClose={closeCenter}
         onSelectItem={handleSelect}
         isLoading={isSearching || (open && !permissionsLoaded)}
-        footerHint="↑↓ navigate · Enter open · Esc close"
+        footerHint="↑↓ navigate · Enter run · Esc close · type ? for shortcuts"
       />
     </>
   );

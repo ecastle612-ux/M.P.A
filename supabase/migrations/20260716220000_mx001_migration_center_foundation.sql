@@ -103,6 +103,10 @@ create table if not exists public.migration_checkpoints (
 create index if not exists migration_checkpoints_org_job_idx
   on public.migration_checkpoints (organization_id, job_id, created_at desc);
 
+-- composite unique required before jobs.checkpoint_id FK (id, organization_id)
+create unique index if not exists migration_checkpoints_org_id_uidx
+  on public.migration_checkpoints (id, organization_id);
+
 alter table public.migration_jobs
   drop constraint if exists migration_jobs_checkpoint_fk;
 
@@ -111,10 +115,6 @@ alter table public.migration_jobs
   foreign key (checkpoint_id, organization_id)
   references public.migration_checkpoints (id, organization_id)
   on delete set null;
-
--- composite unique for checkpoint FK from jobs
-create unique index if not exists migration_checkpoints_org_id_uidx
-  on public.migration_checkpoints (id, organization_id);
 
 -- ---------------------------------------------------------------------------
 -- Import files

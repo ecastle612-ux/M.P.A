@@ -432,6 +432,17 @@ export async function updateWorkOrder(
     client: supabase
   });
 
+  // FAC-001 Slice A: permanent Facility Record on completion; reopen keeps one record.
+  if (updates.status && updates.status !== existing.status) {
+    if (updates.status === "completed") {
+      const { upsertFacilityRecordOnWorkOrderCompleted } = await import("../facility/server");
+      await upsertFacilityRecordOnWorkOrderCompleted(organizationId, workOrderId, userId, supabase);
+    } else if (existing.status === "completed") {
+      const { markFacilityRecordProvisionalOnReopen } = await import("../facility/server");
+      await markFacilityRecordProvisionalOnReopen(organizationId, workOrderId, userId, supabase);
+    }
+  }
+
   if (updates.status && updates.status !== existing.status) {
     const tenantUserIds = await resolveTenantRecipientUserIds(
       organizationId,

@@ -23,11 +23,11 @@ export function ListWorkspaceHeader({
   }
 
   return (
-    <div className="space-y-4">
-      <Card variant="elevated" className="space-y-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-3">
+      <Card variant="elevated" className="space-y-3">
+        <div className="flex flex-wrap items-start justify-between gap-2.5">
           {metrics.length > 0 ? (
-            <div className="grid flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="grid flex-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
               {metrics.map((metric) => (
                 <KpiMetric
                   key={metric.label}

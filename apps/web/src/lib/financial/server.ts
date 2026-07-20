@@ -1,5 +1,6 @@
 import { assertPaymentAgainstCharge, assertPaymentAmountValid } from "./events";
 import { createAuthServerComponentClient } from "../auth/server";
+import { notify } from "../notifications/service";
 import type { Json } from "@mpa/supabase";
 import type {
   ChargeStatus,
@@ -360,6 +361,37 @@ export async function createRentCharge(
     db
   );
 
+  if (charge.tenantId) {
+    const { data: tenantRow } = await db
+      .from("tenants")
+      .select("user_id")
+      .eq("organization_id", organizationId)
+      .eq("id", charge.tenantId)
+      .is("deleted_at", null)
+      .maybeSingle();
+    const tenantUserId = (tenantRow as { user_id?: string | null } | null)?.user_id;
+    if (tenantUserId && tenantUserId !== userId) {
+      await notify(
+        {
+          organizationId,
+          actorUserId: userId,
+          eventKey: `financial.charge_created:${charge.id}`,
+          recipientUserIds: [tenantUserId],
+          category: "financial",
+          priority: "normal",
+          title: "New rent charge",
+          body: `${charge.chargeNumber}: $${charge.amount.toFixed(2)} due ${charge.dueDate}`,
+          href: "/portal/tenant/payments",
+          sourceEntityType: "rent_charge",
+          sourceEntityId: charge.id,
+          propertyId: charge.propertyId,
+          unitId: charge.unitId
+        },
+        db
+      ).catch(() => undefined);
+    }
+  }
+
   return charge;
 }
 
@@ -503,6 +535,35 @@ export async function recordPayment(
     db
   );
 
+  const recipientUserIds = await resolveFinancialNotificationRecipients({
+    organizationId,
+    actorUserId: userId,
+    tenantId: payment.tenantId,
+    client: db
+  });
+  if (recipientUserIds.length > 0) {
+    await notify(
+      {
+        organizationId,
+        actorUserId: userId,
+        eventKey: `financial.payment_received:${payment.id}`,
+        recipientUserIds,
+        category: "financial",
+        priority: "normal",
+        title: "Payment recorded",
+        body: `Payment ${payment.paymentNumber} for $${payment.amount.toFixed(2)}`,
+        href: payment.rentChargeId
+          ? `/financials/charges/${payment.rentChargeId}`
+          : "/financials/charges",
+        sourceEntityType: "payment",
+        sourceEntityId: payment.id,
+        propertyId: payment.propertyId,
+        unitId: payment.unitId
+      },
+      db
+    ).catch(() => undefined);
+  }
+
   return payment;
 }
 
@@ -588,6 +649,32 @@ export async function createExpense(
     },
     db
   );
+
+  if (expense.propertyId) {
+    const { ingestMajorExpense } = await import("../facility/ingest");
+    let vendorName: string | null = null;
+    if (expense.vendorId) {
+      const { data: vendorRow } = await db
+        .from("vendors")
+        .select("business_name")
+        .eq("organization_id", organizationId)
+        .eq("id", expense.vendorId)
+        .maybeSingle();
+      vendorName = (vendorRow as { business_name: string } | null)?.business_name ?? null;
+    }
+    await ingestMajorExpense({
+      organizationId,
+      userId,
+      expenseId: expense.id,
+      propertyId: expense.propertyId,
+      amount: expense.amount,
+      description: expense.description,
+      expenseNumber: expense.expenseNumber,
+      vendorId: expense.vendorId,
+      vendorName,
+      client: db
+    });
+  }
 
   return expense;
 }
@@ -706,7 +793,7 @@ export async function generateOwnerStatement(
     db
   );
 
-  // INT-303: email when owner_placeholder is a deliverable address
+  // Existing statement context only — email when owner_placeholder is a deliverable address.
   const ownerRecipient = statement.ownerPlaceholder?.trim() ?? "";
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerRecipient)) {
     const { sendWorkflowEmail } = await import("../integrations/email/delivery");
@@ -724,6 +811,24 @@ export async function generateOwnerStatement(
       }
     }).catch(() => undefined);
   }
+
+  await notify(
+    {
+      organizationId,
+      actorUserId: userId,
+      eventKey: `financial.owner_statement:${statement.id}`,
+      recipientUserIds: [userId],
+      category: "financial",
+      priority: "normal",
+      title: `Owner statement ${statement.statementNumber}`,
+      body: `Statement generated for ${statement.statementPeriodStart} – ${statement.statementPeriodEnd}.`,
+      href: `/financials/owner-statements/${statement.id}`,
+      sourceEntityType: "owner_statement",
+      sourceEntityId: statement.id,
+      propertyId: statement.propertyId
+    },
+    db
+  ).catch(() => undefined);
 
   return statement;
 }
@@ -1251,6 +1356,56 @@ function todayIsoDate(): string {
 
 function escapeLike(value: string): string {
   return value.replace(/[%_\\]/g, "\\$&");
+}
+
+async function resolveFinancialNotificationRecipients({
+  organizationId,
+  actorUserId,
+  tenantId,
+  client
+}: {
+  organizationId: string;
+  actorUserId: string;
+  tenantId: string | null;
+  client: FinancialDbClient;
+}): Promise<string[]> {
+  const recipients = new Set<string>();
+
+  if (tenantId) {
+    const { data: tenant } = await client
+      .from("tenants")
+      .select("user_id")
+      .eq("organization_id", organizationId)
+      .eq("id", tenantId)
+      .is("deleted_at", null)
+      .maybeSingle();
+    const tenantUserId = (tenant as { user_id?: string | null } | null)?.user_id;
+    if (tenantUserId && tenantUserId !== actorUserId) recipients.add(tenantUserId);
+
+    const { data: devices } = await client
+      .from("resident_devices")
+      .select("user_id")
+      .eq("organization_id", organizationId)
+      .eq("tenant_id", tenantId)
+      .is("deleted_at", null)
+      .limit(5);
+    for (const row of (devices ?? []) as Array<{ user_id: string | null }>) {
+      if (row.user_id && row.user_id !== actorUserId) recipients.add(row.user_id);
+    }
+  }
+
+  const { data: memberships } = await client
+    .from("organization_memberships")
+    .select("user_id, roles")
+    .eq("organization_id", organizationId)
+    .eq("status", "active");
+  for (const row of (memberships ?? []) as Array<{ user_id: string; roles: string[] | null }>) {
+    if (Array.isArray(row.roles) && row.roles.includes("property_manager") && row.user_id !== actorUserId) {
+      recipients.add(row.user_id);
+    }
+  }
+
+  return [...recipients];
 }
 
 async function resolveClient(client?: FinancialDbClient | SupabaseClientType): Promise<FinancialDbClient> {

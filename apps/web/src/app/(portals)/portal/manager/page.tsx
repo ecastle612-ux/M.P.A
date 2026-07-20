@@ -1,12 +1,15 @@
-import { Card } from "@mpa/ui";
+import { AppPage } from "../../../../components/presentation/app-page";
+import { FutureReleaseNotice } from "../../../../components/experience/future-release-notice";
 
 export default function ManagerPortalPage() {
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Manager portal foundation</h2>
-      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        No business workflows are implemented in this phase. This shell is ready for future manager modules.
-      </p>
-    </Card>
+    <AppPage breadcrumbs={[{ href: "/portal", label: "Portals" }, { label: "Manager" }]}>
+      <FutureReleaseNotice
+        title="Manager Portal"
+        description="A dedicated Manager Portal will become available during a future release. Property managers should use the Operations Center for day-to-day work."
+        primaryHref="/dashboard"
+        primaryLabel="Open Operations Center"
+      />
+    </AppPage>
   );
 }

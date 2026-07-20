@@ -26,9 +26,11 @@ interface SignatureProvider {
 }
 ```
 
-**Future vendors:** DocuSign, HelloSign, PandaDoc (INT-202)
+**Future vendors:** Dropbox Sign (HelloSign), DocuSign, Adobe Acrobat Sign, SignNow, PandaDoc (INT-202)
 
 **Document types:** lease, renewal, addendum, pet, parking, ACH, background auth, credit auth, rules, move-in/out inspection
+
+> **Superseding design:** After Approve, [API-004 — Electronic Signatures & Digital Lease Execution](../50-api-004-electronic-signatures/README.md) is authoritative for `SignatureService` / `SignatureProvider` / Dropbox Sign-first adapters, multi-signer packages, vault certificates, and Ops/Command Center. This Phase 12 stub remains the historical interface sketch.
 
 ---
 
@@ -48,6 +50,8 @@ interface ScreeningProvider {
 **Future vendors:** TransUnion, RentPrep, build-in-house (INT-201)
 
 **Workflow states:** application → authorization → identity → credit → criminal → eviction → income → complete
+
+> **Superseding design:** After Approve, [API-003 — Background Screening & Applicant Verification](../48-api-003-background-screening/README.md) is authoritative for `ScreeningService` / `ScreeningProvider` / Checkr-first adapters, FCRA consent, adverse action, retention, and Ops/Command Center. This Phase 12 stub remains the historical interface sketch.
 
 ---
 

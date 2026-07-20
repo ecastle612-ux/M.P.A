@@ -11,7 +11,7 @@ function deliveryStatusLabel(status: AnnouncementRecipientRecord["deliveryStatus
     pending: "Pending",
     delivered: "Delivered",
     failed: "Failed",
-    placeholder: "Placeholder"
+    placeholder: "Recorded"
   };
   return labels[status];
 }

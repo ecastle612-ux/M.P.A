@@ -47,7 +47,7 @@ const MODULE_CONFIG: Record<
       "Duplicate unit numbers within the same property.",
       "Forgetting to update occupancy after move-in."
     ],
-    nextSteps: ["Assign a tenant", "Create a lease", "Schedule a move-in inspection"],
+    nextSteps: ["Start guided Move in", "Confirm rent and deposit", "Activate the resident"],
     help: "Units sit between properties and tenants — every lease and charge references a unit."
   },
   tenant: {
@@ -61,7 +61,7 @@ const MODULE_CONFIG: Record<
       "Using a placeholder email that blocks portal enrollment.",
       "Skipping move-in date when a lease already exists."
     ],
-    nextSteps: ["Create a lease", "Send a welcome announcement", "Review notification preferences"],
+    nextSteps: ["Prefer guided Move in for new residents", "Send a welcome announcement", "Review notification preferences"],
     help: "Tenants connect people to units, leases, payments, and maintenance requests."
   },
   lease: {
@@ -103,7 +103,7 @@ const MODULE_CONFIG: Record<
       "Using vague titles that slow vendor triage.",
       "Leaving due dates blank on urgent requests."
     ],
-    nextSteps: ["Assign a vendor", "Notify the tenant", "Schedule follow-up inspection"],
+    nextSteps: ["Assign a vendor", "Notify the tenant", "Mark complete when finished"],
     help: "Work orders track maintenance from request through completion across your portfolio."
   },
   financial: {

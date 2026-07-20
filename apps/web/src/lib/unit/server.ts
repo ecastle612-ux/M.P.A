@@ -137,6 +137,47 @@ export async function createUnit(
   return toUnitRecord(data as UnitRow);
 }
 
+export async function createUnitsBulk(
+  organizationId: string,
+  userId: string,
+  inputs: CreateUnitInput[],
+  client?: SupabaseClientType
+): Promise<UnitRecord[]> {
+  if (inputs.length === 0) {
+    return [];
+  }
+  const supabase = await resolveClient(client);
+  const { data, error } = await supabase
+    .from("units")
+    .insert(
+      inputs.map((input) => ({
+        organization_id: organizationId,
+        property_id: input.propertyId,
+        unit_number: input.unitNumber,
+        unit_label: input.unitLabel,
+        bedrooms: input.bedrooms,
+        bathrooms: input.bathrooms,
+        square_feet: input.squareFeet,
+        floor: input.floor,
+        rent_amount: input.rentAmount,
+        deposit_amount: input.depositAmount,
+        currency_code: input.currencyCode,
+        occupancy_status: input.occupancyStatus,
+        status: input.status,
+        metadata: input.metadata as Json,
+        created_by: userId,
+        updated_by: userId
+      }))
+    )
+    .select(
+      "id, organization_id, property_id, unit_number, unit_label, bedrooms, bathrooms, square_feet, floor, rent_amount, deposit_amount, currency_code, occupancy_status, status, metadata, created_at, updated_at, archived_at, deleted_at"
+    );
+  if (error || !data) {
+    throw new Error(error?.message ?? "Bulk unit creation failed");
+  }
+  return (data as UnitRow[]).map(toUnitRecord);
+}
+
 export async function updateUnit(
   organizationId: string,
   unitId: string,

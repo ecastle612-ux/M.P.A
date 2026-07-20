@@ -1,10 +1,11 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
 
 const STORAGE_KEY = "mpa_active_organization_id";
+const ORG_CHANGE_EVENT = "mpa:active-organization";
 
 type OrganizationContextValue = {
   organizations: OrganizationSummary[];
@@ -15,6 +16,28 @@ type OrganizationContextValue = {
 };
 
 const OrganizationContext = createContext<OrganizationContextValue | null>(null);
+
+function subscribeStoredOrganization(onStoreChange: () => void) {
+  const onLocalChange = () => onStoreChange();
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(ORG_CHANGE_EVENT, onLocalChange);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(ORG_CHANGE_EVENT, onLocalChange);
+  };
+}
+
+function getStoredOrganizationSnapshot(): string | null {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function getStoredOrganizationServerSnapshot(): string | null {
+  return null;
+}
 
 export function OrganizationProvider({
   children,
@@ -28,20 +51,16 @@ export function OrganizationProvider({
   onRefreshOrganizations: () => Promise<void>;
 }) {
   const router = useRouter();
-  const [activeOrganizationId, setActiveOrganizationId] = useState<string | null>(() => {
-    if (typeof window === "undefined") {
-      return defaultOrganizationId;
-    }
-    try {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (stored && organizations.some((organization) => organization.id === stored)) {
-        return stored;
-      }
-    } catch {
-      // Ignore localStorage failures and fall back to server default.
-    }
-    return defaultOrganizationId;
-  });
+  const storedOrganizationId = useSyncExternalStore(
+    subscribeStoredOrganization,
+    getStoredOrganizationSnapshot,
+    getStoredOrganizationServerSnapshot
+  );
+
+  const activeOrganizationId =
+    storedOrganizationId && organizations.some((organization) => organization.id === storedOrganizationId)
+      ? storedOrganizationId
+      : defaultOrganizationId;
 
   const activeOrganization =
     organizations.find((organization) => organization.id === activeOrganizationId) ?? null;
@@ -60,9 +79,9 @@ export function OrganizationProvider({
         if (!response.ok) {
           return;
         }
-        setActiveOrganizationId(organizationId);
         try {
           window.localStorage.setItem(STORAGE_KEY, organizationId);
+          window.dispatchEvent(new Event(ORG_CHANGE_EVENT));
         } catch {
           // Non-fatal preference persistence failure.
         }

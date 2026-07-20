@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 import { AppPage } from "../../../components/presentation/app-page";
 import { MigrationDashboard } from "../../../components/migration/migration-dashboard";
+import { MigrationSwitchingExperience } from "../../../components/migration/migration-switching-experience";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
-import { getMigrationDashboardMetrics, getMigrationJobsForOrganization } from "../../../lib/migration/server";
+import { getMigrationJobsForOrganization } from "../../../lib/migration/server";
+import { getCustomerSwitchingSnapshot } from "../../../lib/migration/switching";
 
 export default async function MigrationPage() {
   const supabase = await createAuthServerComponentClient();
@@ -19,18 +21,25 @@ export default async function MigrationPage() {
   const authorization = await resolveAuthorizationContext(user, organizationId);
   if (!evaluatePermission(authorization, "migration:read")) redirect("/unauthorized");
 
-  const [jobs, metrics] = await Promise.all([
+  const [jobs, switching] = await Promise.all([
     getMigrationJobsForOrganization(organizationId, supabase),
-    getMigrationDashboardMetrics(organizationId, supabase)
+    getCustomerSwitchingSnapshot(organizationId, supabase)
   ]);
 
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Migration Center" }]}>
-      <MigrationDashboard
-        jobs={jobs}
-        metrics={metrics}
-        canCreate={evaluatePermission(authorization, "migration:create")}
-      />
+      <div className="space-y-8">
+        <MigrationSwitchingExperience
+          initial={switching}
+          canCreate={evaluatePermission(authorization, "migration:create")}
+          canUpdate={evaluatePermission(authorization, "migration:update")}
+        />
+        <MigrationDashboard
+          jobs={jobs}
+          metrics={switching.metrics}
+          canCreate={evaluatePermission(authorization, "migration:create")}
+        />
+      </div>
     </AppPage>
   );
 }

@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
-import { parseCreateVaultDocumentInput } from "../../../lib/vault/contracts";
-import { createVaultDocument, getVaultDocumentsForEntity } from "../../../lib/vault/server";
+import { isVaultEntityType, parseCreateVaultDocumentInput } from "../../../lib/vault/contracts";
+import {
+  createVaultDocument,
+  getVaultDocumentsForEntity,
+  listOrganizationVaultDocuments
+} from "../../../lib/vault/server";
 import type { VaultEntityType } from "../../../lib/vault/contracts";
 import { apiError, apiInternalError, parseJsonBody } from "../../../lib/api/http";
 
@@ -24,8 +28,25 @@ export async function GET(request: Request) {
     }
 
     const url = new URL(request.url);
-    const entityType = url.searchParams.get("entityType") as VaultEntityType | null;
+    const scope = url.searchParams.get("scope");
+    const entityTypeParam = url.searchParams.get("entityType");
     const entityId = url.searchParams.get("entityId");
+    const query = url.searchParams.get("q") ?? undefined;
+    const documentType = url.searchParams.get("documentType") ?? undefined;
+    const limitRaw = url.searchParams.get("limit");
+    const limit = limitRaw ? Number.parseInt(limitRaw, 10) : undefined;
+
+    if (scope === "organization") {
+      const filters: Parameters<typeof listOrganizationVaultDocuments>[1] = {};
+      if (isVaultEntityType(entityTypeParam)) filters.entityType = entityTypeParam;
+      if (documentType?.trim()) filters.documentType = documentType.trim();
+      if (query?.trim()) filters.query = query.trim();
+      if (typeof limit === "number" && Number.isFinite(limit)) filters.limit = limit;
+      const items = await listOrganizationVaultDocuments(organizationId, filters, supabase);
+      return NextResponse.json({ items }, { headers: { "Cache-Control": "no-store" } });
+    }
+
+    const entityType = entityTypeParam as VaultEntityType | null;
     if (!entityType || !entityId) {
       return apiError(400, "INVALID_QUERY", "entityType and entityId are required");
     }

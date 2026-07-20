@@ -20,7 +20,7 @@ const COMMAND_SECTIONS = [
       { id: "switch-role", label: "Switch role", shortcut: "R" },
       { id: "create-property", label: "Create property", shortcut: "C P" },
       { id: "create-unit", label: "Create unit", shortcut: "C U" },
-      { id: "create-tenant", label: "Create tenant", shortcut: "C T" }
+      { id: "start-move-in", label: "New resident · Move in", shortcut: "C T" }
     ]
   }
 ] as const;

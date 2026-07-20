@@ -10,14 +10,21 @@ import {
   type PaymentRecord,
   type RentChargeRecord
 } from "../../lib/financial/contracts";
+import { readApiError } from "../../lib/api/client-error";
+import { useSubmissionGuard } from "../../hooks/use-submission-guard";
 
 function paymentMethodLabel(method: PaymentMethod): string {
   const labels: Record<PaymentMethod, string> = {
     manual: "Manual",
     check: "Check",
     cash: "Cash",
-    ach_placeholder: "ACH (placeholder)",
-    card_placeholder: "Card (placeholder)"
+    ach_placeholder: "ACH (manual record)",
+    card_placeholder: "Card (manual record)",
+    ach: "ACH",
+    card: "Card",
+    debit: "Debit",
+    stripe: "Stripe",
+    provider: "Provider"
   };
   return labels[method];
 }
@@ -32,11 +39,11 @@ export function RecordPaymentForm({
   };
 }) {
   const router = useRouter();
+  const { busy: submitting, run } = useSubmissionGuard();
   const [amount, setAmount] = useState(charge.outstandingBalance > 0 ? String(charge.outstandingBalance) : "");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("manual");
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
   const [referenceNote, setReferenceNote] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -53,33 +60,41 @@ export function RecordPaymentForm({
       return;
     }
 
-    setSubmitting(true);
-    const response = await fetch("/api/payments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        rentChargeId: charge.id,
-        amount: parsedAmount,
-        paymentMethod,
-        paymentDate,
-        referenceNote: referenceNote.trim() || null
-      })
-    });
-    setSubmitting(false);
+    const dedupeKey = `payment:${charge.id}:${parsedAmount}:${paymentMethod}:${paymentDate}`;
+    try {
+      const result = await run(dedupeKey, async () => {
+        const response = await fetch("/api/payments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            rentChargeId: charge.id,
+            amount: parsedAmount,
+            paymentMethod,
+            paymentDate,
+            referenceNote: referenceNote.trim() || null
+          })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(readApiError(payload, "Unable to record payment. Retry once — duplicates are blocked."));
+        }
+        return payload as { payment?: PaymentRecord };
+      });
 
-    if (!response.ok) {
-      const failure = (await response.json()) as { error?: string };
-      setError(failure.error ?? "Unable to record payment.");
-      return;
-    }
+      if (!result) {
+        setError("Payment already submitted. Please wait a moment before trying again.");
+        return;
+      }
 
-    const success = (await response.json()) as { payment?: PaymentRecord };
-    if (success.payment) {
-      router.push(`/financials/charges/${charge.id}?from=payment-recorded`);
+      if (result.payment) {
+        router.push(`/financials/charges/${charge.id}?from=payment-recorded`);
+        router.refresh();
+        return;
+      }
       router.refresh();
-      return;
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to record payment.");
     }
-    router.refresh();
   }
 
   if (charge.outstandingBalance <= 0 || charge.status === "paid" || charge.status === "waived") {

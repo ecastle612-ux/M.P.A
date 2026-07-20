@@ -7,6 +7,7 @@ import type { MigrationDashboardMetrics } from "../../lib/migration/server";
 import type { CommunicationDashboardMetrics } from "../../lib/communication/server";
 import { formatCurrency } from "../../lib/financial/contracts";
 import { formatRefreshTime } from "../../lib/format/time";
+import { getSnoozedTaskIds, snoozeOpsTask } from "../../lib/command-center/storage";
 import { AiOperationsWidget } from "../ai/ai-operations-widget";
 import { PortfolioSetupHealth } from "../setup/portfolio-setup-health";
 import { NotificationOperationsWidget } from "./notification-operations-widget";
@@ -93,16 +94,23 @@ export function OperationsCenterView({
     };
   }, [refreshSnapshot]);
 
-  const visibleTasks = useMemo(
-    () =>
-      snapshot.operationalTasks.filter((task) => {
-        if (task.id === "create-first-property" && !permissions.canCreateProperty) return false;
-        if (task.id === "create-first-unit" && !permissions.canCreateUnit) return false;
-        if (task.id === "create-first-tenant" && !permissions.canCreateTenant) return false;
-        return true;
-      }),
-    [snapshot.operationalTasks, permissions]
-  );
+  const [snoozedTaskIds, setSnoozedTaskIds] = useState<string[]>(() => [...getSnoozedTaskIds()]);
+
+  const visibleTasks = useMemo(() => {
+    const snoozed = new Set(snoozedTaskIds);
+    return snapshot.operationalTasks.filter((task) => {
+      if (snoozed.has(task.id)) return false;
+      if (task.id === "create-first-property" && !permissions.canCreateProperty) return false;
+      if (task.id === "create-first-unit" && !permissions.canCreateUnit) return false;
+      if (task.id === "create-first-tenant" && !permissions.canCreateTenant) return false;
+      return true;
+    });
+  }, [snapshot.operationalTasks, permissions, snoozedTaskIds]);
+
+  const handleSnoozeTask = useCallback((taskId: string) => {
+    snoozeOpsTask(taskId, 4);
+    setSnoozedTaskIds([...getSnoozedTaskIds()]);
+  }, []);
 
   return (
     <OperationsCenterLayout
@@ -115,6 +123,7 @@ export function OperationsCenterView({
       lastRefreshedAt={lastRefreshedAt}
       isRefreshing={isRefreshing}
       onRefresh={() => void refreshSnapshot()}
+      onSnoozeTask={handleSnoozeTask}
     />
   );
 }
@@ -128,7 +137,8 @@ function OperationsCenterLayout({
   visibleTasks,
   lastRefreshedAt,
   isRefreshing,
-  onRefresh
+  onRefresh,
+  onSnoozeTask
 }: {
   snapshot: DashboardSnapshot;
   organizationName: string | null;
@@ -139,17 +149,18 @@ function OperationsCenterLayout({
   lastRefreshedAt: string;
   isRefreshing: boolean;
   onRefresh: () => void;
+  onSnoozeTask: (taskId: string) => void;
 }) {
   const hasPortfolio = snapshot.propertiesTotal > 0 || snapshot.unitsTotal > 0;
   const occupancyPercent = Math.round(snapshot.occupancyRate * 100);
 
   return (
-    <main className="mpa-page-wide flex-1 space-y-8">
+    <main className="mpa-page-wide flex-1 space-y-5">
       <PortfolioSetupHealth />
       <header className="mpa-page-header">
         <div className="space-y-2">
           <p className="mpa-section-label text-[var(--mpa-color-brand-primary)]">Operations Center</p>
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)] md:text-[2rem]">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)] md:text-[2rem]">
             {userGreetingName ? `${timeGreeting}, ${userGreetingName}.` : `${timeGreeting}.`}
           </h1>
           {organizationName ? (
@@ -183,13 +194,13 @@ function OperationsCenterLayout({
         <QuickActionsBar permissions={permissions} />
       </header>
 
-      <section aria-labelledby="attention-today-heading" className="space-y-4">
+      <section aria-labelledby="attention-today-heading" className="space-y-3">
         <h2 id="attention-today-heading" className="mpa-section-title">
           Needs attention today
         </h2>
-        <div className="grid gap-4 xl:grid-cols-3">
-          <OperationalTasksCard tasks={visibleTasks} />
-          <div className="xl:col-span-2 space-y-4">
+        <div className="grid gap-3 xl:grid-cols-3">
+          <OperationalTasksCard tasks={visibleTasks} onSnooze={onSnoozeTask} />
+          <div className="xl:col-span-2 space-y-3">
             {permissions.canCreateTenant || permissions.canReadLeases ? <ResidentLifecycleWidget /> : null}
             {permissions.canReadCommunications ? <NotificationOperationsWidget /> : null}
           </div>
@@ -199,7 +210,7 @@ function OperationsCenterLayout({
         ) : null}
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-2">
+      <section className="grid gap-3 xl:grid-cols-2">
         {permissions.canReadSignatures ? <SignatureOperationsWidget /> : null}
         {permissions.canReadFinancials ? <BillingOperationsWidget /> : null}
       </section>
@@ -230,11 +241,11 @@ function OperationsCenterLayout({
         <FinancialOperationsCard snapshot={snapshot.financial} canCreate={permissions.canCreateFinancial} />
       ) : null}
 
-      <section aria-labelledby="portfolio-summary-heading" className="space-y-4">
+      <section aria-labelledby="portfolio-summary-heading" className="space-y-3">
         <h2 id="portfolio-summary-heading" className="mpa-section-title">
           Portfolio snapshot
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <KpiMetric
             label="Total Properties"
             value={snapshot.propertiesTotal}
@@ -258,7 +269,7 @@ function OperationsCenterLayout({
           />
           <OccupancyCard occupancyPercent={occupancyPercent} occupied={snapshot.occupiedUnits} total={snapshot.unitsTotal} />
         </div>
-        <div className="grid gap-4 xl:grid-cols-3">
+        <div className="grid gap-3 xl:grid-cols-3">
           <TenantOverviewCard snapshot={snapshot} />
         </div>
       </section>
@@ -324,14 +335,14 @@ function OccupancyCard({
   return (
     <div className={`${OPS_PANEL_PAD_SM} sm:col-span-2 xl:col-span-1`}>
       <p className="mpa-section-label">Occupancy rate</p>
-      <p className="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight text-[var(--mpa-color-text-primary)]">
+      <p className="mt-2 font-display text-2xl font-semibold tabular-nums tracking-tight text-[var(--mpa-color-text-primary)]">
         {occupancyPercent}%
       </p>
       <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
         {occupied} of {total} units occupied
       </p>
       <div
-        className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--mpa-color-bg-surface-muted)]"
+        className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--mpa-color-bg-surface-muted)]"
         role="img"
         aria-label={`Occupancy ${occupancyPercent} percent`}
       >
@@ -373,12 +384,12 @@ function TenantOverviewCard({ snapshot }: { snapshot: DashboardSnapshot }) {
   ];
 
   return (
-    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5 xl:col-span-1">
+    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-4 xl:col-span-1">
       <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Tenant Overview</h2>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
         Occupancy health and move-in momentum across your portfolio.
       </p>
-      <ul className="mt-4 space-y-3">
+      <ul className="mt-3 space-y-3">
         {items.map((item) => (
           <li key={item.label}>
             <Link
@@ -405,40 +416,88 @@ function TenantOverviewCard({ snapshot }: { snapshot: DashboardSnapshot }) {
   );
 }
 
-function OperationalTasksCard({ tasks }: { tasks: DashboardSnapshot["operationalTasks"] }) {
+function OperationalTasksCard({
+  tasks,
+  onSnooze
+}: {
+  tasks: DashboardSnapshot["operationalTasks"];
+  onSnooze: (taskId: string) => void;
+}) {
   return (
-    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5 xl:col-span-2">
-      <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Do these next</h2>
+    <article
+      id="todays-work"
+      className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-4 xl:col-span-2 scroll-mt-24"
+    >
+      <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Today&apos;s Work</h2>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        Resolve today’s work from here — each item opens the deepest useful action, not a dead-end list.
+        What should you do next? Resolve jumps to the action — never a dead-end list.
       </p>
       {tasks.length === 0 ? (
-        <p className="mt-4 text-sm text-[var(--mpa-color-text-secondary)]">No actionable tasks for your current role.</p>
+        <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">No actionable tasks for your current role.</p>
       ) : (
-        <ul className="mt-4 space-y-2">
-          {tasks.map((task) => (
-            <li key={task.id}>
-              <Link
-                href={task.href}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)]/40 p-3 transition-colors hover:border-[var(--mpa-color-brand-primary)]/30 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]"
+        <ul className="mt-3 space-y-2">
+          {tasks.map((task) => {
+            const detailsHref = detailsHrefForTask(task);
+            const canSnooze = task.id !== "operations-healthy";
+            return (
+              <li
+                key={task.id}
+                className="rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)]/40 p-3"
               >
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{task.title}</p>
-                    <TaskPriorityBadge priority={task.priority} />
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{task.title}</p>
+                      <TaskPriorityBadge priority={task.priority} />
+                    </div>
+                    <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{task.description}</p>
                   </div>
-                  <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{task.description}</p>
                 </div>
-                <span className="inline-flex shrink-0 items-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-3 py-1.5 text-xs font-semibold text-white">
-                  {task.actionLabel}
-                </span>
-              </Link>
-            </li>
-          ))}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link href={task.href}>
+                    <Button size="sm">{task.actionLabel.startsWith("Resolve") ? task.actionLabel : `Resolve · ${task.actionLabel}`}</Button>
+                  </Link>
+                  {canSnooze ? (
+                    <Button size="sm" variant="secondary" type="button" onClick={() => onSnooze(task.id)}>
+                      Snooze
+                    </Button>
+                  ) : null}
+                  <Link href={detailsHref}>
+                    <Button size="sm" variant="ghost">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </article>
   );
+}
+
+function detailsHrefForTask(task: DashboardSnapshot["operationalTasks"][number]): string {
+  if (task.href.includes("/maintenance/")) return task.href.split("#")[0] ?? task.href;
+  if (task.href.startsWith("/residents/move-in")) {
+    try {
+      const params = new URL(task.href, "http://local.invalid").searchParams;
+      const unitId = params.get("unitId");
+      const propertyId = params.get("propertyId");
+      if (unitId) return `/units/${unitId}`;
+      if (propertyId) return `/units?propertyId=${encodeURIComponent(propertyId)}`;
+    } catch {
+      /* fall through */
+    }
+    return "/units";
+  }
+  if (task.href.startsWith("/financials/payments")) return "/financials/charges";
+  if (task.href.startsWith("/leases")) return task.href.includes("?") ? "/leases" : task.href;
+  if (task.href.startsWith("/applicants")) return "/applicants";
+  if (task.href.startsWith("/units")) return "/units";
+  if (task.href.startsWith("/properties")) return "/properties";
+  if (task.href.startsWith("/tenants")) return "/tenants";
+  return task.href;
 }
 
 function TaskPriorityBadge({ priority }: { priority: DashboardSnapshot["operationalTasks"][number]["priority"] }) {
@@ -465,12 +524,12 @@ function PortfolioEmptyState({ permissions }: { permissions: OperationsPermissio
         financials all connect from here. Create your first property to unlock occupancy intelligence and operational
         tasks.
       </p>
-      <ul className="mt-4 max-w-2xl space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
+      <ul className="mt-3 max-w-2xl space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
         <li>· Apartment buildings, HOAs, and commercial properties</li>
         <li>· Add units, assign tenants, and activate leases</li>
         <li>· Track maintenance, vendors, and financial activity</li>
       </ul>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         {permissions.canCreateProperty ? (
           <Link
             href="/properties/new"
@@ -500,7 +559,7 @@ function ActivityTimelineCard({
   hasPortfolio: boolean;
 }) {
   return (
-    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5">
+    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Recent Activity</h2>
@@ -513,14 +572,14 @@ function ActivityTimelineCard({
         </Link>
       </div>
       {!hasPortfolio || activity.length === 0 ? (
-        <div className="mt-4 rounded-lg border border-dashed border-[var(--mpa-color-border-default)] p-6 text-center">
+        <div className="mt-3 rounded-lg border border-dashed border-[var(--mpa-color-border-default)] p-6 text-center">
           <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Your activity timeline starts here</p>
           <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
             Create a property, add units, or log maintenance — updates appear in this feed as your portfolio grows.
           </p>
         </div>
       ) : (
-        <ol className="relative mt-6 space-y-0 border-l border-[var(--mpa-color-border-default)] pl-4">
+        <ol className="relative mt-4 space-y-0 border-l border-[var(--mpa-color-border-default)] pl-4">
           {activity.map((item, index) => (
             <li key={item.id} className={`relative pb-5 ${index === activity.length - 1 ? "pb-0" : ""}`}>
               <span
@@ -626,17 +685,17 @@ function MaintenanceOperationsCard({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-3.5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p
               className={[
-                "mt-2 text-3xl font-semibold tabular-nums",
+                "mt-2 text-2xl font-semibold tabular-nums",
                 metric.tone === "danger"
                   ? "text-red-700"
                   : metric.tone === "warning"
@@ -650,7 +709,7 @@ function MaintenanceOperationsCard({
         ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-3 xl:grid-cols-2">
         <MaintenanceListCard
           title="Waiting for vendor"
           items={waitingVendor.map((item) => ({
@@ -717,7 +776,7 @@ function MaintenanceListCard({
   emptyLabel: string;
 }) {
   return (
-    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5">
+    <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-4">
       <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">{title}</h3>
       {items.length === 0 ? (
         <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">{emptyLabel}</p>
@@ -792,17 +851,17 @@ function VendorOperationsCard({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-3.5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p
               className={[
-                "mt-2 text-3xl font-semibold tabular-nums",
+                "mt-2 text-2xl font-semibold tabular-nums",
                 metric.tone === "warning"
                   ? "text-amber-700"
                   : metric.tone === "info"
@@ -817,7 +876,7 @@ function VendorOperationsCard({
       </div>
 
       {snapshot.assignmentSamples.length > 0 ? (
-        <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5">
+        <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-4">
           <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Open vendor assignments</h3>
           <ul className="mt-3 space-y-2">
             {snapshot.assignmentSamples.map((item) => (
@@ -892,17 +951,17 @@ function LeaseOperationsCard({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         {metrics.map((metric) => (
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-3.5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p
               className={[
-                "mt-2 text-3xl font-semibold tabular-nums",
+                "mt-2 text-2xl font-semibold tabular-nums",
                 metric.tone === "warning"
                   ? "text-amber-700"
                   : metric.tone === "info"
@@ -917,7 +976,7 @@ function LeaseOperationsCard({
       </div>
 
       {snapshot.expirationSample.length > 0 ? (
-        <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-5">
+        <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-4">
           <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Upcoming expirations</h3>
           <ul className="mt-3 space-y-2">
             {snapshot.expirationSample.map((item) => (
@@ -1024,17 +1083,17 @@ function ApplicantOperationsCard({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         {metrics.map((metric) => (
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p
               className={[
-                "mt-2 text-3xl font-semibold tabular-nums",
+                "mt-2 text-2xl font-semibold tabular-nums",
                 metric.tone === "warning"
                   ? "text-amber-700"
                   : metric.tone === "info"
@@ -1051,7 +1110,7 @@ function ApplicantOperationsCard({
       </div>
 
       {sampleItems.length > 0 ? (
-        <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[var(--mpa-shadow-xs)]">
+        <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)]">
           <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Applications needing attention</h3>
           <ul className="mt-3 space-y-2">
             {sampleItems.map((item) => (
@@ -1123,17 +1182,17 @@ function CommunicationOperationsCard({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-3.5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p
               className={[
-                "mt-2 text-3xl font-semibold tabular-nums",
+                "mt-2 text-2xl font-semibold tabular-nums",
                 metric.tone === "warning"
                   ? "text-amber-700"
                   : metric.tone === "danger"
@@ -1205,17 +1264,17 @@ function FinancialOperationsCard({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {metrics.map((metric) => (
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] p-5 transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-3.5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p
               className={[
-                "mt-2 text-3xl font-semibold tabular-nums",
+                "mt-2 text-2xl font-semibold tabular-nums",
                 metric.tone === "warning"
                   ? "text-amber-700"
                   : metric.tone === "danger"
@@ -1232,7 +1291,7 @@ function FinancialOperationsCard({
       </div>
 
       {(snapshot.recentPaymentSample.length > 0 || snapshot.recentExpenseSample.length > 0) && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {snapshot.recentPaymentSample.length > 0 ? (
             <article className="rounded-xl border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
               <h3 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Recent payments</h3>
@@ -1322,12 +1381,12 @@ function MigrationOperationsCard({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {metrics.map((metric) => (
           <Link
             key={metric.label}
             href={metric.href}
-            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
+            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
             <p className="mt-2 text-xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)] sm:text-2xl">

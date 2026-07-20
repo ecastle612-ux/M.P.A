@@ -1,0 +1,152 @@
+name: E2E Smoke (QA-001)
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+# Q4: P0 failures fail the build. P1/P2 are warning-only (separate job).
+jobs:
+  e2e-smoke:
+    name: Playwright P0 Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_PUBLIC_APP_NAME: MPA
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: test-service-role
+      SESSION_COOKIE_NAME: mpa_session
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+      QA_E2E_AUTH_ENABLED: "false"
+      CI: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.12.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply optional QA secrets
+        env:
+          SECRET_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SECRET_ANON: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SECRET_SERVICE: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SECRET_AUTH: ${{ secrets.QA_E2E_AUTH_ENABLED }}
+        run: |
+          if [ -n "$SECRET_URL" ]; then echo "NEXT_PUBLIC_SUPABASE_URL=$SECRET_URL" >> "$GITHUB_ENV"; fi
+          if [ -n "$SECRET_ANON" ]; then echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$SECRET_ANON" >> "$GITHUB_ENV"; fi
+          if [ -n "$SECRET_SERVICE" ]; then echo "SUPABASE_SERVICE_ROLE_KEY=$SECRET_SERVICE" >> "$GITHUB_ENV"; fi
+          if [ -n "$SECRET_AUTH" ]; then echo "QA_E2E_AUTH_ENABLED=$SECRET_AUTH" >> "$GITHUB_ENV"; fi
+          echo "QA_E2E_PM_EMAIL=${{ secrets.QA_E2E_PM_EMAIL }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_PM_PASSWORD=${{ secrets.QA_E2E_PM_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_RESIDENT_EMAIL=${{ secrets.QA_E2E_RESIDENT_EMAIL }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_RESIDENT_PASSWORD=${{ secrets.QA_E2E_RESIDENT_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_VENDOR_EMAIL=${{ secrets.QA_E2E_VENDOR_EMAIL }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_VENDOR_PASSWORD=${{ secrets.QA_E2E_VENDOR_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_OWNER_EMAIL=${{ secrets.QA_E2E_OWNER_EMAIL }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_OWNER_PASSWORD=${{ secrets.QA_E2E_OWNER_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_MASTER_ADMIN_EMAIL=${{ secrets.QA_E2E_MASTER_ADMIN_EMAIL }}" >> "$GITHUB_ENV"
+          echo "QA_E2E_MASTER_ADMIN_PASSWORD=${{ secrets.QA_E2E_MASTER_ADMIN_PASSWORD }}" >> "$GITHUB_ENV"
+
+      - name: Build web app
+        run: pnpm --filter @mpa/web build
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @mpa/qa-e2e exec playwright install chromium --with-deps
+
+      - name: Run P0 smoke suite
+        run: pnpm qa:e2e:smoke
+
+      - name: Run accessibility (P0 gate)
+        run: pnpm qa:e2e:a11y
+
+      - name: Run visual regression
+        # Linux font rendering may differ from local darwin baselines until
+        # baselines are refreshed from ubuntu CI (--update-snapshots).
+        continue-on-error: true
+        run: pnpm qa:e2e:visual
+
+      - name: Generate markdown summary
+        if: always()
+        run: pnpm --filter @mpa/qa-e2e report:summary
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-e2e-smoke-report
+          path: |
+            qa/e2e/playwright-report
+            qa/e2e/test-results
+            qa/e2e/reports
+          retention-days: 14
+
+      - name: Publish job summary
+        if: always()
+        run: |
+          if [ -f qa/e2e/reports/summary.md ]; then
+            cat qa/e2e/reports/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  e2e-p1-warning:
+    name: Playwright P1/P2 (warning only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    needs: e2e-smoke
+    if: ${{ vars.QA_E2E_RUN_AUTH == 'true' }}
+    env:
+      NEXT_PUBLIC_APP_NAME: MPA
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SESSION_COOKIE_NAME: mpa_session
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+      QA_E2E_AUTH_ENABLED: "true"
+      QA_E2E_PM_EMAIL: ${{ secrets.QA_E2E_PM_EMAIL }}
+      QA_E2E_PM_PASSWORD: ${{ secrets.QA_E2E_PM_PASSWORD }}
+      QA_E2E_RESIDENT_EMAIL: ${{ secrets.QA_E2E_RESIDENT_EMAIL }}
+      QA_E2E_RESIDENT_PASSWORD: ${{ secrets.QA_E2E_RESIDENT_PASSWORD }}
+      QA_E2E_VENDOR_EMAIL: ${{ secrets.QA_E2E_VENDOR_EMAIL }}
+      QA_E2E_VENDOR_PASSWORD: ${{ secrets.QA_E2E_VENDOR_PASSWORD }}
+      QA_E2E_OWNER_EMAIL: ${{ secrets.QA_E2E_OWNER_EMAIL }}
+      QA_E2E_OWNER_PASSWORD: ${{ secrets.QA_E2E_OWNER_PASSWORD }}
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mpa/web build
+      - run: pnpm --filter @mpa/qa-e2e exec playwright install chromium --with-deps
+      - name: Run P1/P2 workflows (non-blocking)
+        run: pnpm --filter @mpa/qa-e2e workflows
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-e2e-p1-report
+          path: |
+            qa/e2e/playwright-report
+            qa/e2e/test-results
+            qa/e2e/reports
+          retention-days: 7

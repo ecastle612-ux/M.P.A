@@ -236,7 +236,11 @@ export function ApplicantForm({
         <Button type="submit" disabled={submitting}>
           {submitting ? "Saving…" : mode === "create" ? "Create application" : "Save changes"}
         </Button>
-        <Button type="button" variant="secondary" onClick={() => router.back()}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => router.push(mode === "edit" && applicant?.id ? `/applicants/${applicant.id}` : "/applicants")}
+        >
           Cancel
         </Button>
       </div>

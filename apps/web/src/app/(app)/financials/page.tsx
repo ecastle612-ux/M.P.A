@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../components/presentation/app-page";
 import { FinancialOverview } from "../../../components/financial/financial-overview";
+import { PmBillingPanel } from "../../../components/billing/pm-billing-panel";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
@@ -60,7 +61,10 @@ export default async function FinancialsPage() {
 
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Financials" }]}>
-      <FinancialOverview metrics={metrics} activity={activity} permissions={permissions} />
+      <div className="space-y-6">
+        <FinancialOverview metrics={metrics} activity={activity} permissions={permissions} />
+        <PmBillingPanel />
+      </div>
     </AppPage>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNode } from "react";
 import { isUserRole, toRoleLabel, type UserRole } from "@mpa/shared";
 import { useOrganizationContext } from "./organization-context";
 
@@ -14,6 +14,30 @@ type RoleContextValue = {
 const RoleContext = createContext<RoleContextValue | null>(null);
 
 const STORAGE_KEY = "mpa_active_role";
+const ROLE_CHANGE_EVENT = "mpa:active-role";
+
+function subscribeStoredRole(onStoreChange: () => void) {
+  const onLocalChange = () => onStoreChange();
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(ROLE_CHANGE_EVENT, onLocalChange);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(ROLE_CHANGE_EVENT, onLocalChange);
+  };
+}
+
+function getStoredRoleSnapshot(): UserRole | null {
+  try {
+    const storedRoleRaw = window.localStorage.getItem(STORAGE_KEY);
+    return storedRoleRaw && isUserRole(storedRoleRaw) ? storedRoleRaw : null;
+  } catch {
+    return null;
+  }
+}
+
+function getStoredRoleServerSnapshot(): UserRole | null {
+  return null;
+}
 
 export function RoleProvider({
   children,
@@ -30,18 +54,14 @@ export function RoleProvider({
       ? activeOrganization.roles
       : fallbackRoles;
 
-  const [preferredRole, setPreferredRole] = useState<UserRole>(() => {
-    if (typeof window === "undefined") {
-      return defaultRole;
-    }
-    try {
-      const storedRoleRaw = window.localStorage.getItem(STORAGE_KEY);
-      const storedRole = storedRoleRaw && isUserRole(storedRoleRaw) ? storedRoleRaw : null;
-      return storedRole && availableRoles.includes(storedRole) ? storedRole : defaultRole;
-    } catch {
-      return defaultRole;
-    }
-  });
+  const storedRole = useSyncExternalStore(
+    subscribeStoredRole,
+    getStoredRoleSnapshot,
+    getStoredRoleServerSnapshot
+  );
+
+  const preferredRole =
+    storedRole && availableRoles.includes(storedRole) ? storedRole : defaultRole;
 
   const activeRole =
     availableRoles.includes(preferredRole) ? preferredRole : (availableRoles[0] ?? defaultRole);
@@ -52,15 +72,15 @@ export function RoleProvider({
       activeRole,
       activeRoleLabel: toRoleLabel(activeRole),
       setActiveRole: (role) => {
-        setPreferredRole(role);
         try {
           window.localStorage.setItem(STORAGE_KEY, role);
+          window.dispatchEvent(new Event(ROLE_CHANGE_EVENT));
         } catch {
           // Non-fatal: role preference persistence failed.
         }
       }
     }),
-    [activeRole, availableRoles],
+    [activeRole, availableRoles]
   );
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;

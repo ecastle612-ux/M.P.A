@@ -3,6 +3,7 @@ import { Skeleton } from "@mpa/ui";
 export default function DashboardLoading() {
   return (
     <main className="mpa-page space-y-6">
+      <p className="text-sm text-[var(--mpa-color-text-secondary)]">Loading Operations Center…</p>
       <div className="space-y-2">
         <Skeleton className="h-4 w-32" />
         <Skeleton className="h-8 w-80" />

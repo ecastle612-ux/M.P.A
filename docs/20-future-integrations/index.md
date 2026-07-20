@@ -14,20 +14,19 @@ M.P.A. owns the **workflow graph**. Third-party systems own specialized capabili
 
 | Provider | Workflow | Integration Point | Priority |
 |----------|----------|-------------------|----------|
-| **Stripe Connect** | Rent collection, vendor payouts | Edge Functions + webhooks | P0 (Phase 6) |
+| **Stripe Connect** (recommended first) / Finix / Dwolla / Authorize.net | Rent collection, vendor payouts | Edge Functions + webhooks — design: [API-005](../51-api-005-resident-payments-billing/README.md) (INT-101–104) | P0 (Phase 6+) |
 | **QuickBooks Online** | Owner reporting, bookkeeping | Export/sync Edge Function | P1 |
 | **Xero** | Owner reporting, bookkeeping | Export/sync Edge Function | P2 |
-| **Plaid** | Bank account verification | Stripe Connect covers most needs | P3 |
+| **Plaid** | Bank account verification / ACH specialist | PaymentProvider adapter after Stripe — design: [API-005](../51-api-005-resident-payments-billing/README.md) (INT-102) | P3 |
 
 ### Leasing & Screening
 
 | Provider | Workflow | Integration Point | Priority |
 |----------|----------|-------------------|----------|
-| **TransUnion SmartMove** | Tenant screening | Webhook + Edge Function | P1 (Phase 5) |
-| **DocuSign** | Lease signing | Webhook + Edge Function | P1 (Phase 5) |
+| **Checkr** (recommended first) / **TransUnion SmartMove** / RentPrep / Equifax | Tenant screening | Webhook + Edge Function — design: [API-003](../48-api-003-background-screening/README.md) (INT-201) | P1 (Phase 5) |
+| **Dropbox Sign** (recommended first) / **DocuSign** / Adobe Acrobat Sign / SignNow / PandaDoc | Lease signing & digital execution | Webhook + Edge Function — design: [API-004](../50-api-004-electronic-signatures/README.md) (INT-202) | P1 (Phase 5) |
 | **Zillow Rental Manager** | Listing syndication | API integration | P2 |
 | **Apartments.com** | Listing syndication | API integration | P2 |
-| **HelloSign / PandaDoc** | Lease signing (alternatives) | Evaluate vs DocuSign | P2 |
 
 ### Communication
 
@@ -41,7 +40,7 @@ M.P.A. owns the **workflow graph**. Third-party systems own specialized capabili
 
 | Provider | Workflow | Integration Point | Priority |
 |----------|----------|-------------------|----------|
-| **Supabase Storage** | All document workflows | Native | P0 |
+| **Supabase Storage** | All document workflows | Native — design: [API-002A](../46-api-002a-universal-media-foundation/README.md) (INT-901) | P0 |
 | **Google Drive** | Document import | OAuth + import Edge Function | P3 |
 | **Dropbox** | Document import | OAuth + import Edge Function | P3 |
 

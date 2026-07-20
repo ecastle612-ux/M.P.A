@@ -41,7 +41,7 @@ export const aiSearchProvider: CommandCenterProvider = {
           statusVariant: "info",
           icon: "✦",
           href: "/ai-operations",
-          shortcut: "G A",
+          shortcut: "G I",
           score: askAiScore === 120 ? askAiScore : askAiScore + 40
         });
       }

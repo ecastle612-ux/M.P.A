@@ -13,6 +13,12 @@ function isProfileComplete(displayName: string | null | undefined): boolean {
 }
 
 function resolveCurrentStep(steps: SetupStepStatus[]): SetupStep {
+  // Prefer the next required incomplete step so optional Invite does not block progress.
+  for (const stepId of SETUP_STEPS) {
+    if (stepId === "complete") continue;
+    const step = steps.find((item) => item.id === stepId);
+    if (step && !step.complete && !step.optional) return stepId;
+  }
   for (const stepId of SETUP_STEPS) {
     if (stepId === "complete") continue;
     const step = steps.find((item) => item.id === stepId);
@@ -60,6 +66,7 @@ export async function getSetupStatus(
   }
 
   const hasOrganization = organizations.length > 0;
+  // Invite is optional — never block setup completion / SetupGate on skipped invites.
   const inviteComplete = inviteSkipped || invitationsCount > 0;
 
   const stepCompletion: Record<SetupStep, boolean> = {
@@ -74,7 +81,6 @@ export async function getSetupStatus(
     complete:
       profileComplete &&
       hasOrganization &&
-      inviteComplete &&
       propertiesCount > 0 &&
       unitsCount > 0 &&
       tenantsCount > 0 &&

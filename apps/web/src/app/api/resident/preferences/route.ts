@@ -38,22 +38,37 @@ export async function PATCH(request: Request) {
     if (!parsedBody.ok) return parsedBody.response;
     const payload = parsedBody.payload as Record<string, unknown>;
 
-    const updates: Partial<Pick<NotificationPreferencesRecord, "inAppEnabled" | "pushEnabled" | "emailEnabled" | "smsEnabled" | "categoryPreferences" | "languageCode">> = {};
+    const updates: Partial<
+      Pick<
+        NotificationPreferencesRecord,
+        | "inAppEnabled"
+        | "pushEnabled"
+        | "emailEnabled"
+        | "smsEnabled"
+        | "emergencyOverride"
+        | "categoryPreferences"
+        | "quietHours"
+        | "propertyPreferences"
+        | "languageCode"
+      >
+    > = {};
     if (typeof payload["inAppEnabled"] === "boolean") updates.inAppEnabled = payload["inAppEnabled"];
     if (typeof payload["pushEnabled"] === "boolean") updates.pushEnabled = payload["pushEnabled"];
     if (typeof payload["emailEnabled"] === "boolean") updates.emailEnabled = payload["emailEnabled"];
     if (typeof payload["smsEnabled"] === "boolean") updates.smsEnabled = payload["smsEnabled"];
+    if (typeof payload["emergencyOverride"] === "boolean") updates.emergencyOverride = payload["emergencyOverride"];
     if (typeof payload["languageCode"] === "string") updates.languageCode = payload["languageCode"];
     if (typeof payload["categoryPreferences"] === "object" && payload["categoryPreferences"] !== null) {
       updates.categoryPreferences = payload["categoryPreferences"] as Record<string, boolean>;
     }
+    if (typeof payload["quietHours"] === "object" && payload["quietHours"] !== null) {
+      updates.quietHours = payload["quietHours"] as Record<string, unknown>;
+    }
+    if (Array.isArray(payload["propertyPreferences"])) {
+      updates.propertyPreferences = payload["propertyPreferences"] as NotificationPreferencesRecord["propertyPreferences"];
+    }
 
-    const preferences = await updateNotificationPreferencesForUser(
-      organizationId,
-      user.id,
-      updates,
-      supabase
-    );
+    const preferences = await updateNotificationPreferencesForUser(organizationId, user.id, updates, supabase);
     return NextResponse.json({ preferences });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to update preferences";

@@ -55,21 +55,25 @@ export async function recordApplicantEvent(
   return toApplicantEventRecord(data);
 }
 
-export function assertApplicantLifecycleTransition(currentStatus: ApplicantStatus, action: string) {
-  const allowed: Record<string, ApplicantStatus[]> = {
-    submit: ["draft"],
-    request_documents: ["submitted", "pending_review"],
-    start_screening: ["submitted", "awaiting_documents"],
-    mark_pending_review: ["screening_in_progress", "awaiting_documents"],
-    approve: ["pending_review", "screening_in_progress"],
-    decline: ["submitted", "awaiting_documents", "screening_in_progress", "pending_review"],
-    withdraw: ["draft", "submitted", "awaiting_documents", "screening_in_progress", "pending_review", "approved"],
-    convert_to_resident: ["approved"]
-  };
+const APPLICANT_LIFECYCLE_TRANSITIONS: Record<string, ApplicantStatus[]> = {
+  submit: ["draft"],
+  request_documents: ["submitted", "pending_review"],
+  start_screening: ["submitted", "awaiting_documents"],
+  mark_pending_review: ["screening_in_progress", "awaiting_documents"],
+  approve: ["pending_review", "screening_in_progress"],
+  decline: ["submitted", "awaiting_documents", "screening_in_progress", "pending_review"],
+  withdraw: ["draft", "submitted", "awaiting_documents", "screening_in_progress", "pending_review", "approved"],
+  convert_to_resident: ["approved"]
+};
 
-  const permittedFrom = allowed[action];
-  if (!permittedFrom) return;
-  if (!permittedFrom.includes(currentStatus)) {
+export function isApplicantLifecycleActionAllowed(currentStatus: ApplicantStatus, action: string): boolean {
+  const permittedFrom = APPLICANT_LIFECYCLE_TRANSITIONS[action];
+  if (!permittedFrom) return true;
+  return permittedFrom.includes(currentStatus);
+}
+
+export function assertApplicantLifecycleTransition(currentStatus: ApplicantStatus, action: string) {
+  if (!isApplicantLifecycleActionAllowed(currentStatus, action)) {
     throw new Error(`Cannot ${action.replaceAll("_", " ")} an application in ${currentStatus.replaceAll("_", " ")} status.`);
   }
 }

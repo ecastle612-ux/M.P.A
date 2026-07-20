@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge, Button, Card, Textarea } from "@mpa/ui";
 import type { PromptKey } from "../../lib/ai/contracts";
-import { AI_ASSISTANT_DISCLAIMER } from "../../lib/ai/contracts";
 import type { AiConversationDetail } from "../../lib/ai/server";
 
 type AssistantMessage = {
@@ -109,28 +108,20 @@ export function AiSearchAssistant({
   }
 
   return (
-    <Card className="flex min-h-[28rem] flex-col space-y-3">
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div>
-            <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">AI assistant</h2>
-            <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
-              Ask portfolio questions or run curated prompts. You review every output.
-            </p>
-          </div>
-          <Badge variant="warning">PM in control</Badge>
+    <Card className="flex h-full min-h-[22rem] flex-col gap-3 sm:min-h-[28rem]">
+      <div className="flex shrink-0 flex-wrap items-start justify-between gap-2">
+        <div>
+          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Conversation</h2>
+          <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
+            Primary workspace — prompts stay in the library above on mobile.
+          </p>
         </div>
-        <div
-          role="note"
-          className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900"
-        >
-          {AI_ASSISTANT_DISCLAIMER}
-        </div>
+        <Badge variant="warning">PM in control</Badge>
       </div>
 
       <div
         ref={transcriptRef}
-        className="min-h-[16rem] flex-1 space-y-3 overflow-y-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] p-3"
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] p-3"
         aria-live="polite"
         aria-label="Assistant conversation"
       >
@@ -165,19 +156,23 @@ export function AiSearchAssistant({
         ) : null}
       </div>
 
-      {error ? <p className="text-sm text-[var(--mpa-color-danger,#C0392B)]">{error}</p> : null}
+      {error ? <p className="shrink-0 text-sm text-[var(--mpa-color-danger,#C0392B)]">{error}</p> : null}
 
-      <form onSubmit={handleSubmit} className="space-y-2">
+      <form onSubmit={handleSubmit} className="sticky bottom-0 shrink-0 space-y-2 border-t border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] pt-3">
+        <label className="sr-only" htmlFor="ai-assistant-draft">
+          Ask a question
+        </label>
         <Textarea
+          id="ai-assistant-draft"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder={canUse ? "Ask a custom portfolio question…" : "You need AI use permission to run prompts."}
           disabled={!canUse || isRunning}
-          rows={3}
+          rows={2}
         />
         <div className="flex justify-end">
           <Button type="submit" disabled={!canUse || isRunning || draft.trim().length === 0}>
-            {isRunning ? "Running…" : "Send question"}
+            {isRunning ? "Running…" : "Send"}
           </Button>
         </div>
       </form>

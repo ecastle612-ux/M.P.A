@@ -1,0 +1,373 @@
+{
+  "generatedAt": "2026-07-18T07:45:55.677Z",
+  "summary": {
+    "pass": 8,
+    "fail": 1,
+    "blocked": 5,
+    "warn": 2
+  },
+  "p0Cleared": false,
+  "goNoGo": "NO-GO",
+  "productionReadinessEstimate": 7.1,
+  "designPartnerReadinessEstimate": 8.8,
+  "checks": [
+    {
+      "id": "stripe.config",
+      "blocker": "Stripe",
+      "status": "blocked",
+      "detail": "Missing live sandbox config (PAYMENT_PROVIDER=noop, STRIPE_SECRET_KEY=missing).",
+      "evidence": "Add sk_test_… + PAYMENT_PROVIDER=stripe to apps/web/.env.local — do not paste secrets in chat."
+    },
+    {
+      "id": "onesignal.credentials",
+      "blocker": "OneSignal",
+      "status": "pass",
+      "detail": "ONESIGNAL_APP_ID + API key present in env"
+    },
+    {
+      "id": "onesignal.api_health",
+      "blocker": "OneSignal",
+      "status": "fail",
+      "detail": "OneSignal API rejected credentials (HTTP 403). Verify REST API key for this app.",
+      "evidence": "REST API key rejected or network failed — rotate key in OneSignal dashboard"
+    },
+    {
+      "id": "onesignal.push_e2e",
+      "blocker": "OneSignal",
+      "status": "blocked",
+      "detail": "End-to-end device registration + delivered push requires a browser subscription + valid REST key.",
+      "evidence": "Cannot certify announcement/maintenance/resident/manager push arrival until API health passes."
+    },
+    {
+      "id": "dropbox.config",
+      "blocker": "Dropbox Sign",
+      "status": "blocked",
+      "detail": "Sandbox not configured (SIGNATURE_PROVIDER=noop, API key missing)."
+    },
+    {
+      "id": "checkr.config",
+      "blocker": "Checkr",
+      "status": "blocked",
+      "detail": "Sandbox not configured (SCREENING_PROVIDER=noop, API key missing)."
+    },
+    {
+      "id": "auth.health",
+      "blocker": "Authentication",
+      "status": "pass",
+      "detail": "Auth health HTTP 200",
+      "evidence": "{\"version\":\"v2.193.0\",\"name\":\"GoTrue\",\"description\":\"GoTrue is a user registration and authentication API\"}"
+    },
+    {
+      "id": "auth.email_provider_enabled",
+      "blocker": "Authentication",
+      "status": "pass",
+      "detail": "email auth enabled=true; autoconfirm=false; disable_signup=false"
+    },
+    {
+      "id": "auth.flows_manual",
+      "blocker": "Authentication",
+      "status": "warn",
+      "detail": "Signup/login/logout/reset/invite/role-switch require interactive browser session — not auto-closed in this runner."
+    },
+    {
+      "id": "storage.bucket",
+      "blocker": "Storage",
+      "status": "pass",
+      "detail": "media-private bucket present"
+    },
+    {
+      "id": "storage.upload",
+      "blocker": "Storage",
+      "status": "pass",
+      "detail": "Upload HTTP 200"
+    },
+    {
+      "id": "storage.signed_url",
+      "blocker": "Storage",
+      "status": "pass",
+      "detail": "Signed URL issued"
+    },
+    {
+      "id": "storage.delete",
+      "blocker": "Storage",
+      "status": "pass",
+      "detail": "Delete HTTP 200"
+    },
+    {
+      "id": "email.provider",
+      "blocker": "Email Deliverability",
+      "status": "blocked",
+      "detail": "No RESEND/EMAIL_PROVIDER configured. Resident invite inserts organization_invitations only — no outbound mailer.",
+      "evidence": "inviteResidentPortal does not call Supabase Auth invite/generateLink or Resend."
+    },
+    {
+      "id": "email.password_reset",
+      "blocker": "Email Deliverability",
+      "status": "warn",
+      "detail": "Password reset relies on Supabase Auth mailer — not inbox-verified in this run."
+    },
+    {
+      "id": "scale.seed",
+      "blocker": "100 Unit Simulation",
+      "status": "pass",
+      "detail": "Seeded LC-001 Certification Towers: 100 units, 100 residents, 100 leases, 100 work orders, 100 payments (org M.P.A. Development).",
+      "evidence": "Supabase SQL seed metadata lc001=true"
+    }
+  ],
+  "providerCertification": [
+    {
+      "provider": "OneSignal",
+      "mode": "configured",
+      "overall": "fail",
+      "checks": [
+        {
+          "check": "authentication",
+          "status": "pass",
+          "detail": "ONESIGNAL_APP_ID and ONESIGNAL_API_KEY are present."
+        },
+        {
+          "check": "successful_request",
+          "status": "fail",
+          "detail": "OneSignal API rejected credentials (HTTP 403). Verify REST API key for this app.",
+          "recovery": "Verify API key scopes and app id."
+        },
+        {
+          "check": "callback_webhook",
+          "status": "warn",
+          "detail": "OneSignal delivery webhooks are optional; in-app notifications use DB idempotency keys.",
+          "recovery": "Configure OneSignal webhooks if you need delivery receipts beyond in-app status."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Provider send failures return status=failed with errorMessage; no silent swallow in onesignal-provider."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Duplicate notification inserts catch unique idempotency violations and return the existing row."
+        }
+      ]
+    },
+    {
+      "provider": "Stripe",
+      "mode": "provider=noop",
+      "overall": "warn",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "warn",
+          "detail": "PAYMENT_PROVIDER=noop. Stripe is not active.",
+          "recovery": "Set PAYMENT_PROVIDER=stripe and STRIPE_SECRET_KEY=sk_test_… for sandbox certification."
+        },
+        {
+          "check": "authentication",
+          "status": "warn",
+          "detail": "STRIPE_SECRET_KEY missing.",
+          "recovery": "Add a Stripe test secret key (sk_test_…) for sandbox certification."
+        },
+        {
+          "check": "callback_webhook",
+          "status": "warn",
+          "detail": "STRIPE_WEBHOOK_SECRET missing — sandbox may accept simulate headers.",
+          "recovery": "Add the Stripe CLI / dashboard webhook signing secret."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "createCustomer → noop-cus-00000000"
+        },
+        {
+          "check": "callback_parse",
+          "status": "pass",
+          "detail": "Webhook parse returned 1 event(s)."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Failed intents map to failed status with failureMessage; webhook duplicates short-circuit via integrations_webhook_events."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Duplicate webhook event ids are ignored; simulate endpoint blocked in production unless STRIPE_ALLOW_SIMULATE=true."
+        }
+      ]
+    },
+    {
+      "provider": "Dropbox Sign",
+      "mode": "provider=noop",
+      "overall": "warn",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "warn",
+          "detail": "SIGNATURE_PROVIDER=noop. Dropbox Sign is not active.",
+          "recovery": "Set SIGNATURE_PROVIDER=dropbox_sign with a sandbox API key."
+        },
+        {
+          "check": "authentication",
+          "status": "warn",
+          "detail": "DROPBOX_SIGN_API_KEY missing.",
+          "recovery": "Add a Dropbox Sign test API key for sandbox certification."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "Signature provider id=noop resolved (createEnvelope available)."
+        },
+        {
+          "check": "callback_parse",
+          "status": "pass",
+          "detail": "Webhook parse returned 1 event(s)."
+        },
+        {
+          "check": "callback_webhook",
+          "status": "warn",
+          "detail": "Webhook secret missing — simulate header accepted in sandbox.",
+          "recovery": "Configure DROPBOX_SIGN_WEBHOOK_SECRET from the Dropbox Sign app."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Signature webhooks verify signatures; failures audit to signature_audit_events; duplicates via integrations_webhook_events."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Packages can be resent/canceled through domain APIs; simulate blocked in production without ALLOW_SIMULATE."
+        }
+      ]
+    },
+    {
+      "provider": "Checkr",
+      "mode": "provider=noop",
+      "overall": "warn",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "warn",
+          "detail": "SCREENING_PROVIDER=noop. Checkr is not active.",
+          "recovery": "Set SCREENING_PROVIDER=checkr with Checkr sandbox credentials."
+        },
+        {
+          "check": "authentication",
+          "status": "warn",
+          "detail": "CHECKR_API_KEY missing — local sandbox simulation still available.",
+          "recovery": "Add Checkr sandbox API key for live network certification."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "createOrder → noop-PT001-1784360752007-00000000"
+        },
+        {
+          "check": "callback_webhook",
+          "status": "warn",
+          "detail": "CHECKR_WEBHOOK_SECRET missing — webhook verification may be relaxed in sandbox.",
+          "recovery": "Add the Checkr webhook secret before production."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Network failures fall back to sandbox simulation unless CHECKR_REQUIRE_LIVE=true; webhook duplicates ignored."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Screening cases remain recoverable via domain status + webhook redelivery."
+        }
+      ]
+    },
+    {
+      "provider": "Resend",
+      "mode": "not_implemented",
+      "overall": "not_in_path",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "not_in_path",
+          "detail": "Resend is roadmap-only (INT-303). Transactional email is not a production dependency yet.",
+          "recovery": "Do not block launch on Resend until email provider is implemented."
+        }
+      ]
+    },
+    {
+      "provider": "Twilio",
+      "mode": "not_implemented",
+      "overall": "not_in_path",
+      "checks": [
+        {
+          "check": "configuration",
+          "status": "not_in_path",
+          "detail": "Twilio SMS is roadmap-only (INT-302). SMS preferences are non-delivering placeholders.",
+          "recovery": "Do not treat SMS as production-ready until Twilio is implemented."
+        }
+      ]
+    },
+    {
+      "provider": "Supabase Storage",
+      "mode": "configured",
+      "overall": "pass",
+      "checks": [
+        {
+          "check": "authentication",
+          "status": "pass",
+          "detail": "Supabase URL and anon key present."
+        },
+        {
+          "check": "configuration",
+          "status": "pass",
+          "detail": "Service role available for server-side signed URLs."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "Media module uses signed upload/read URLs against media-private bucket (API-002A)."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Media intent API returns structured apiError codes; processor failures write media_audit_events."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Failed uploads can be retried via new intent; orphan GC remains a known hardening follow-up."
+        }
+      ]
+    },
+    {
+      "provider": "Supabase Auth",
+      "mode": "configured",
+      "overall": "pass",
+      "checks": [
+        {
+          "check": "authentication",
+          "status": "pass",
+          "detail": "Auth client credentials present."
+        },
+        {
+          "check": "configuration",
+          "status": "pass",
+          "detail": "Session handled via @supabase/ssr + middleware redirects to /login for protected routes."
+        },
+        {
+          "check": "successful_request",
+          "status": "pass",
+          "detail": "getUser() used on API routes; unauthenticated requests return UNAUTHENTICATED human messages."
+        },
+        {
+          "check": "failure_handling",
+          "status": "pass",
+          "detail": "Expired JWT humanized to session-expired copy; unauthorized routes redirect to /unauthorized."
+        },
+        {
+          "check": "retry_recovery",
+          "status": "pass",
+          "detail": "Users recover by signing in again; invitation accept flow re-links membership."
+        }
+      ]
+    }
+  ]
+}

@@ -9,7 +9,9 @@ export type NotificationPreferences = {
 
 export type ProfileUpdateInput = {
   displayName: string;
-  avatarUrl: string;
+  /** @deprecated Prefer avatarMediaAssetId — never accept pasted image URLs as SoR */
+  avatarUrl?: string;
+  avatarMediaAssetId: string | null;
   phone: string;
   contactEmail: string;
   timezone: string;
@@ -23,11 +25,17 @@ export function parseProfileUpdateInput(payload: unknown): ProfileUpdateInput | 
 
   const value = payload as Record<string, unknown>;
   const displayName = typeof value["displayName"] === "string" ? value["displayName"].trim() : "";
-  const avatarUrl = typeof value["avatarUrl"] === "string" ? value["avatarUrl"].trim() : "";
   const phone = typeof value["phone"] === "string" ? value["phone"].trim() : "";
   const contactEmail = typeof value["contactEmail"] === "string" ? value["contactEmail"].trim() : "";
   const timezone = typeof value["timezone"] === "string" ? value["timezone"].trim() : "";
   const notificationPreferences = parseNotificationPreferences(value["notificationPreferences"]);
+
+  let avatarMediaAssetId: string | null = null;
+  if (typeof value["avatarMediaAssetId"] === "string" && value["avatarMediaAssetId"].trim()) {
+    avatarMediaAssetId = value["avatarMediaAssetId"].trim();
+  } else if (value["avatarMediaAssetId"] === null) {
+    avatarMediaAssetId = null;
+  }
 
   if (!timezone || !notificationPreferences) {
     return null;
@@ -35,7 +43,7 @@ export function parseProfileUpdateInput(payload: unknown): ProfileUpdateInput | 
 
   return {
     displayName,
-    avatarUrl,
+    avatarMediaAssetId,
     phone,
     contactEmail,
     timezone,
@@ -51,7 +59,8 @@ export function parseNotificationPreferences(value: unknown): NotificationPrefer
   const email = typeof raw["email"] === "boolean" ? raw["email"] : null;
   const inApp = typeof raw["in_app"] === "boolean" ? raw["in_app"] : null;
   const sms = typeof raw["sms"] === "boolean" ? raw["sms"] : null;
-  const jobTitle = typeof raw["job_title"] === "string" ? raw["job_title"].trim() : undefined;
+  const jobTitleRaw = raw["job_title"] ?? raw["jobTitle"];
+  const jobTitle = typeof jobTitleRaw === "string" ? jobTitleRaw.trim() : undefined;
   if (email === null || inApp === null || sms === null) {
     return null;
   }

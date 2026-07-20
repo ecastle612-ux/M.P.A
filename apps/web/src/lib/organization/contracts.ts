@@ -22,6 +22,10 @@ export type UpdateOrganizationMembershipInput = {
   status?: "active" | "inactive";
 };
 
+export type UpdateOrganizationInput = {
+  name: string;
+};
+
 export type OrganizationSummary = {
   id: string;
   name: string;
@@ -75,6 +79,18 @@ export function parseInviteOrganizationMemberInput(payload: unknown): InviteOrga
     return null;
   }
   return { email, roles };
+}
+
+export function parseUpdateOrganizationInput(payload: unknown): UpdateOrganizationInput | null {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+  const value = payload as Record<string, unknown>;
+  const name = typeof value["name"] === "string" ? value["name"].trim() : "";
+  if (name.length < 2 || name.length > 120) {
+    return null;
+  }
+  return { name };
 }
 
 export function parseUpdateOrganizationMembershipInput(payload: unknown): UpdateOrganizationMembershipInput | null {

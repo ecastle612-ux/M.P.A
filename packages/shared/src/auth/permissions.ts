@@ -39,9 +39,16 @@ export const FOUNDATION_CAPABILITIES = [
   "screening:create",
   "screening:read",
   "screening:update",
+  "screening:decide",
+  "screening:read_full",
+  "screening:admin",
   "signature:create",
   "signature:read",
   "signature:update",
+  "signature:send",
+  "signature:cancel",
+  "signature:read_full",
+  "signature:admin",
   "maintenance:create",
   "maintenance:read",
   "maintenance:update",
@@ -75,13 +82,15 @@ export const FOUNDATION_CAPABILITIES = [
   "financial:update",
   "financial:archive",
   "financial:delete",
+  "financial:admin",
   "ai:read",
   "ai:use",
   "migration:create",
   "migration:read",
   "migration:update",
   "migration:rollback",
-  "migration:delete"
+  "migration:delete",
+  "master_admin"
 ] as const;
 
 export type PermissionCapability = (typeof FOUNDATION_CAPABILITIES)[number] | `${string}:${string}`;

@@ -15,6 +15,8 @@ export function DashboardShell({
     canCreateTenant: false,
     canCreateApplicant: false,
     canReadApplicants: false,
+    canReadScreening: false,
+    canReadSignatures: false,
     canCreateMaintenance: false,
     canReadMaintenance: false,
     canCreateVendor: false,
@@ -41,6 +43,8 @@ export function DashboardShell({
     canCreateTenant: boolean;
     canCreateApplicant: boolean;
     canReadApplicants: boolean;
+    canReadScreening: boolean;
+    canReadSignatures: boolean;
     canCreateMaintenance: boolean;
     canReadMaintenance: boolean;
     canCreateVendor: boolean;

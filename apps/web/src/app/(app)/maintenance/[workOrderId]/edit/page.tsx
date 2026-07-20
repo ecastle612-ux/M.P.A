@@ -55,6 +55,7 @@ export default async function EditWorkOrderPage({ params }: { params: Promise<{ 
       form={
         <WorkOrderForm
           mode="edit"
+          organizationId={organizationId}
           workOrder={workOrder}
           properties={properties.map((property) => ({ id: property.id, name: property.name }))}
           units={units.map((unit) => ({ id: unit.id, propertyId: unit.propertyId, unitNumber: unit.unitNumber }))}

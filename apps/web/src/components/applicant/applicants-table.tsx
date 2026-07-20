@@ -17,7 +17,8 @@ const PAGE_SIZE = 10;
 
 export function ApplicantsTable({
   initialItems,
-  permissions
+  permissions,
+  initialStatusFilter = "all"
 }: {
   initialItems: ApplicantListItem[];
   permissions: {
@@ -26,10 +27,11 @@ export function ApplicantsTable({
     canArchive: boolean;
     canDelete: boolean;
   };
+  initialStatusFilter?: string;
 }) {
   const [items, setItems] = useState(initialItems);
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
   const [sortBy, setSortBy] = useState<"name" | "status" | "updated">("updated");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
