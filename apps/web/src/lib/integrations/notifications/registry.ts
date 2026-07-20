@@ -1,20 +1,22 @@
-import type { ExternalNotificationPayload, NotificationProvider } from "./contracts";
-import { noopNotificationProvider } from "./noop-provider";
+import type { NotificationProvider } from "./contracts";
+import { noopProvider } from "./noop-provider";
+import { onesignalProvider } from "./onesignal-provider";
 
-const providers: NotificationProvider[] = [noopNotificationProvider];
+export function getNotificationProviderKey(): string {
+  return (process.env["NOTIFICATION_PROVIDER"] ?? "noop").trim().toLowerCase() || "noop";
+}
 
+export function getNotificationProvider(): NotificationProvider {
+  switch (getNotificationProviderKey()) {
+    case "onesignal":
+      return onesignalProvider;
+    case "noop":
+    default:
+      return noopProvider;
+  }
+}
+
+/** @deprecated Prefer getNotificationProvider — kept for transitional callers */
 export function listNotificationProviders(): NotificationProvider[] {
-  return [...providers];
-}
-
-export function registerNotificationProvider(provider: NotificationProvider): () => void {
-  providers.push(provider);
-  return () => {
-    const index = providers.findIndex((entry) => entry.id === provider.id);
-    if (index >= 0) providers.splice(index, 1);
-  };
-}
-
-export async function dispatchExternalNotifications(payload: ExternalNotificationPayload): Promise<void> {
-  await Promise.all(providers.map((provider) => provider.send(payload)));
+  return [getNotificationProvider()];
 }

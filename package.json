@@ -15,9 +15,19 @@
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "test": "turbo run test",
-    "check:boundaries": "depcruise --config .dependency-cruiser.cjs \"apps/*/src/**/*.ts\" \"apps/*/src/**/*.tsx\" \"packages/*/src/**/*.ts\" \"packages/*/src/**/*.tsx\"",
-    "check:circular": "depcruise --config .dependency-cruiser.cjs --include-only \"^(apps|packages)/.*/src/\" --output-type err \"apps/*/src\" \"packages/*/src\"",
-    "deps:validate": "pnpm dedupe --check && pnpm list -r --depth 0 --prod"
+    "check:boundaries": "depcruise --config .dependency-cruiser.cjs \"apps/*/src/**/*.ts\" \"apps/*/src/**/*.tsx\" \"packages/*/src/**/*.ts\" \"packages/*/src/**/*.tsx\" \"qa/*/src/**/*.ts\" \"qa/*/tests/**/*.ts\"",
+    "check:circular": "depcruise --config .dependency-cruiser.cjs --include-only \"^(apps|packages|qa)/.*/(src|tests)/\" --output-type err \"apps/*/src\" \"packages/*/src\" \"qa/*/src\"",
+    "deps:validate": "pnpm dedupe --check && pnpm list -r --depth 0 --prod",
+    "qa:e2e:smoke": "pnpm --filter @mpa/qa-e2e smoke",
+    "qa:e2e:visual": "pnpm --filter @mpa/qa-e2e visual",
+    "qa:e2e:a11y": "pnpm --filter @mpa/qa-e2e a11y",
+    "qa:e2e:perf": "pnpm --filter @mpa/qa-e2e perf",
+    "qa:e2e:nightly": "pnpm --filter @mpa/qa-e2e nightly",
+    "qa:e2e:rc": "pnpm --filter @mpa/qa-e2e rc",
+    "qa:e2e:ui": "pnpm --filter @mpa/qa-e2e ui",
+    "qa:e2e:report": "pnpm --filter @mpa/qa-e2e report",
+    "trust:certify": "pnpm --filter @mpa/web exec tsx scripts/dev/run-trust-certification.ts",
+    "launch:certify": "pnpm --filter @mpa/web exec tsx scripts/dev/run-launch-certification.ts"
   },
   "devDependencies": {
     "dependency-cruiser": "18.1.0",
