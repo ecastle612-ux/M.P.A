@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { Avatar, Button } from "@mpa/ui";
 import { MPA_BRAND_NAME } from "../../lib/branding";
 
-export function ProfileMenu() {
+export function ProfileMenu({ fetchProfile = true }: { fetchProfile?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [displayName, setDisplayName] = useState(MPA_BRAND_NAME);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!fetchProfile) return;
     let isMounted = true;
     void (async () => {
       const response = await fetch("/api/profile");
@@ -26,7 +27,7 @@ export function ProfileMenu() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [fetchProfile]);
 
   useEffect(() => {
     function handleKeydown(event: KeyboardEvent) {

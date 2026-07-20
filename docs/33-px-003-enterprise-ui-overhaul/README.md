@@ -120,7 +120,7 @@ All 11 primary routes audited with no application error overlays.
 | Org name truncation | Long workflow org names truncate in switcher/greeting; tooltip enhancement deferred |
 | FormSection coverage | Auth uses `FormSection`; entity create/edit forms use Card sections — future polish |
 | Satoshi via Fontshare `@import` | CSP consideration for production font loading |
-| `MpaLogo` PNG | Retained only in org settings branding preview panel |
+| Retired PNG logo component | Superseded by UX-007 centralized adaptive `<Logo />` system |
 | Dev-only overlays | Next.js "Compiling…" / HMR indicators not present in production build |
 | Delete button weight | Solid destructive vs ghost secondary actions — intentional hierarchy |
 

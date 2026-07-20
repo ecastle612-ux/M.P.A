@@ -77,7 +77,7 @@
 
 | File | Change |
 | --- | --- |
-| `apps/web/public/branding/mpa-logo.svg` | Removed full-canvas `fill="#ffffff"` paths (not a redesign) |
+| Retired single-logo brand asset | Removed full-canvas `fill="#ffffff"` paths (not a redesign); superseded by UX-007 / ADR-019 |
 
 ### Evidence
 

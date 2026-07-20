@@ -36,19 +36,20 @@ export function ResponsiveNavigation() {
             aria-label="M.P.A. My Property Assistant"
             onClick={() => setOpen(false)}
           >
-            <Logo size="sidebarExpanded" />
+            <Logo size="navigation" />
           </Link>
           <nav aria-label="Mobile primary navigation" className="space-y-5">
-            {SHELL_NAVIGATION_GROUPS.map((group) => (
+            {SHELL_NAVIGATION_GROUPS.map((group) => {
+              const items = group.items.filter((item) => canAccess(item.requiredCapability));
+              if (items.length === 0) return null;
+              return (
               <div key={group.title}>
                 <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
                   {group.title}
                 </p>
                 <ul className="space-y-0.5">
-                  {group.items
-                    .filter((item) => canAccess(item.requiredCapability))
-                    .map((item) => {
-                    const active = isRouteActive(pathname, item.href);
+                  {items.map((item) => {
+                    const active = isRouteActive(pathname, item.href, item.exact);
                     const Icon = NAV_ICON_MAP[item.href];
                     return (
                       <li key={item.label}>
@@ -80,7 +81,8 @@ export function ResponsiveNavigation() {
                   })}
                 </ul>
               </div>
-            ))}
+              );
+            })}
           </nav>
 
           <section aria-label="Workspace controls" className="space-y-3 border-t border-[var(--mpa-color-border-default)] pt-4">

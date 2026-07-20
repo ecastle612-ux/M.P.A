@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Badge, Card } from "@mpa/ui";
 import { OrganizationSwitcher } from "../shell/organization-switcher";
 import { RoleSwitcher } from "../shell/role-switcher";
 import { ProfileMenu } from "../shell/profile-menu";
 import { Logo } from "../branding/logo";
+import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 
 type PortalNavigationItem = {
   href: string;
@@ -18,19 +19,40 @@ export function PortalShell({
   subtitle,
   roleBadgeLabel,
   navigation,
-  children
+  children,
+  notificationSettingsHref = "/portal/tenant/preferences",
+  showPushEnrollmentBanner = true,
+  fetchProfile = true
 }: {
   title: string;
   subtitle: string;
   roleBadgeLabel: string;
   navigation: readonly PortalNavigationItem[];
   children: ReactNode;
+  notificationSettingsHref?: string | undefined;
+  showPushEnrollmentBanner?: boolean | undefined;
+  fetchProfile?: boolean | undefined;
 }) {
+  const [documentTheme, setDocumentTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const resolveDocumentTheme = () => {
+      setDocumentTheme(document.documentElement.dataset["theme"] === "dark" ? "dark" : "light");
+    };
+    resolveDocumentTheme();
+
+    const observer = new MutationObserver(resolveDocumentTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
+
+  const surfaceTone = documentTheme === "dark" ? "dark-surface" : "light-surface";
+
   return (
     <div className="min-h-screen bg-[var(--mpa-color-bg-app)]">
       <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 px-4 py-3 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3">
-          <Logo size="sidebarExpanded" />
+          <Logo size="navigation" tone={surfaceTone} />
           <div className="min-w-0">
             <p className="truncate font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">{title}</p>
             <p className="truncate text-xs text-[var(--mpa-color-text-secondary)]">{subtitle}</p>
@@ -39,10 +61,12 @@ export function PortalShell({
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <OrganizationSwitcher />
             <RoleSwitcher />
-            <ProfileMenu />
+            <ProfileMenu fetchProfile={fetchProfile} />
           </div>
         </div>
       </header>
+
+      {showPushEnrollmentBanner ? <PushEnrollmentBanner settingsHref={notificationSettingsHref} /> : null}
 
       <div className="mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[15rem_1fr]">
         <Card variant="elevated" className="h-fit p-1">

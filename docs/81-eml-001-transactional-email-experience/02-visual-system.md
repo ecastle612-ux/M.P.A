@@ -30,7 +30,7 @@ Email clients do not support CSS variables. Tokens are **compiled to inline hex*
 ┌─────────────────────────────────────────┐
 │  OUTER (surface.page, 24px pad)         │
 │  ┌───────────────────────────────────┐  │
-│  │ HEADER (dark)  logo 32–40px tall  │  │
+│  │ HEADER (dark)  UX-007 logo token   │  │
 │  │            M.P.A. wordmark text   │  │
 │  ├───────────────────────────────────┤  │
 │  │ BODY (surface.card)               │  │
@@ -52,7 +52,7 @@ Email clients do not support CSS variables. Tokens are **compiled to inline hex*
 ### Rules
 
 - **Max content width:** 560px
-- **Logo:** absolute HTTPS URL `${NEXT_PUBLIC_APP_URL}/branding/mpa-logo.svg` (or PNG fallback `icon-192.png` for Outlook) — **width ≤ 120px**, height auto; `alt="M.P.A. My Property Assistant"`
+- **Logo:** absolute HTTPS URL `${NEXT_PUBLIC_APP_URL}/branding/logo-light.png` for the dark email header (ADR-019 / UX-007) — use the shared `email` logo size token; `alt="M.P.A. My Property Assistant"`
 - **CTA:** single primary button; 14px padding × 20px; border-radius 6px; no “pill cluster”
 - **No** templateKey in customer-visible footer
 - **Tables** for structure (Outlook); progressive enhancement for modern clients

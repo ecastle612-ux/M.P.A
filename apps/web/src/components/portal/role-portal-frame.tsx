@@ -20,7 +20,9 @@ export function RolePortalFrame({
   title,
   subtitle,
   roleBadgeLabel,
-  navigation
+  navigation,
+  showPushEnrollmentBanner,
+  fetchProfile
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -31,6 +33,8 @@ export function RolePortalFrame({
   subtitle: string;
   roleBadgeLabel: string;
   navigation: readonly PortalNavigationItem[];
+  showPushEnrollmentBanner?: boolean | undefined;
+  fetchProfile?: boolean | undefined;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -39,7 +43,14 @@ export function RolePortalFrame({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
     >
-      <PortalShell title={title} subtitle={subtitle} roleBadgeLabel={roleBadgeLabel} navigation={navigation}>
+      <PortalShell
+        title={title}
+        subtitle={subtitle}
+        roleBadgeLabel={roleBadgeLabel}
+        navigation={navigation}
+        showPushEnrollmentBanner={showPushEnrollmentBanner}
+        fetchProfile={fetchProfile}
+      >
         {children}
       </PortalShell>
     </AuthenticatedContextProviders>

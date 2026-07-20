@@ -4,3 +4,4 @@ export * from "./auth/authorization";
 export * from "./auth/permissions";
 export * from "./env/base-env";
 export * from "./dev/master-admin";
+export * from "./branding";

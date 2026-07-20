@@ -67,7 +67,11 @@ export function LoginForm() {
     <FormSection
       className="w-full max-w-md"
       title={mode === "sign_in" ? "Sign In" : "Create Account"}
-      description="Secure access to your property operations platform."
+      description={
+        mode === "sign_in"
+          ? "Enter your credentials to open the Property Operations OS."
+          : "Create your account. We’ll send a verification email when required."
+      }
     >
       <div className="grid grid-cols-2 gap-2">
         <Button

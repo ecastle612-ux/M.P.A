@@ -1,32 +1,11 @@
 # PX-005 — Official Brand Asset Replacement
 
-Single official logo: `public/branding/mpa-logo.svg` (production SVG provided by brand team).
+**Status:** Superseded by [UX-007 Adaptive Logo System](../83-ux-007-adaptive-logo-system/README.md) and [ADR-019](../18-decision-log/adr-019-adaptive-two-logo-brand-system.md).
 
-## Rule
+PX-005 documented an earlier single-asset brand replacement. It is no longer the source of truth.
 
-No redesign, trace, or regeneration. The React `<Logo />` wrapper renders this file only.
+Current canonical policy:
 
-## Sizing (CSS via `Logo` presets)
-
-| Preset | Width | Surfaces |
-|--------|-------|----------|
-| `sidebarCollapsed` | 40px | Collapsed sidebar, org selector |
-| `sidebarExpanded` | 180px | Expanded sidebar, portal header, mobile drawer |
-| `login` | 260px | Auth pages |
-| `loading` | 80px | Global loading |
-| `mobile` | 32px | Mobile app header |
-
-## Removed (PX-005)
-
-- `mpa-icon.svg`, `mpa-icon-dark.svg`, `favicon.svg`
-- `mpa-logo-horizontal.svg`, `mpa-logo-horizontal-dark.svg`, `mpa-logo-stacked.svg`
-- `mpa-logo-official.png`, `brand-trace-meta.json`
-- `scripts/trace-official-brand.py`
-- Hand-drawn / traced / multi-variant `Logo` API
-
-## Remaining branding files
-
-- `apps/web/public/branding/mpa-logo.svg` — **only** logo asset
-- `apps/web/src/components/branding/logo.tsx` — thin wrapper
-- `apps/web/src/lib/branding.ts` — path + size constants
-- `apps/web/public/icons/*.png` — PWA/favicon PNGs derived from official SVG
+- Use the centralized adaptive `<Logo />` system.
+- Approved logo files are `logo-light.png` and `logo-dark.png` only.
+- Direct logo asset references outside the branding system are prohibited unless approved by a future ADR.

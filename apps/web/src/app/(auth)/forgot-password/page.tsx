@@ -3,10 +3,11 @@ import { AuthBrandShell } from "../../../components/branding/auth-brand-shell";
 
 export default function ForgotPasswordPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <AuthBrandShell>
-        <ForgotPasswordForm />
-      </AuthBrandShell>
-    </main>
+    <AuthBrandShell
+      headline="Recover access."
+      support="Reset your password with a secure link. Your portfolio stays protected."
+    >
+      <ForgotPasswordForm />
+    </AuthBrandShell>
   );
 }

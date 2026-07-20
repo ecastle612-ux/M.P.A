@@ -19,8 +19,8 @@
 
 ## Logo hosting
 
-- Prefer PNG for Outlook: `${APP_URL}/icons/icon-192.png` or dedicated `email-logo.png` ≤40KB
-- SVG only where clients support; dual `<img>` with PNG primary
+- Use the UX-007 approved email logo mapping: dark email header → `${APP_URL}/branding/logo-light.png`.
+- Email HTML must use the shared `email` logo size token and must not reference PWA icons or legacy logo assets.
 
 ## Live Resend E2E (required)
 

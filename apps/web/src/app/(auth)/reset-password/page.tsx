@@ -3,10 +3,11 @@ import { AuthBrandShell } from "../../../components/branding/auth-brand-shell";
 
 export default function ResetPasswordPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <AuthBrandShell>
-        <ResetPasswordForm />
-      </AuthBrandShell>
-    </main>
+    <AuthBrandShell
+      headline="Choose a new password."
+      support="Set a strong password to continue managing your properties."
+    >
+      <ResetPasswordForm />
+    </AuthBrandShell>
   );
 }

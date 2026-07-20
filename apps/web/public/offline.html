@@ -4,7 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>M.P.A. Offline</title>
-    <link rel="icon" href="/branding/mpa-logo.svg" type="image/svg+xml" />
+    <!-- UX-007 static fallback: light surface uses logo-dark, dark surface uses logo-light. -->
+    <link rel="icon" href="/branding/logo-dark.png" type="image/png" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="/branding/logo-light.png" type="image/png" media="(prefers-color-scheme: dark)" />
     <style>
       body {
         margin: 0;
@@ -29,17 +31,33 @@
       p {
         color: #4b5563;
       }
-      img {
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #0f1419;
+          color: #f4f7f6;
+        }
+        main {
+          border-color: #2a3530;
+          background: #1a2420;
+        }
+        p {
+          color: #a8b5b0;
+        }
+      }
+      .mpa-offline-logo {
         display: block;
         margin: 0 auto 20px;
-        width: 180px;
+        width: 160px;
         height: auto;
       }
     </style>
   </head>
   <body>
     <main>
-      <img src="/branding/mpa-logo.svg" alt="M.P.A. My Property Assistant" />
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="/branding/logo-light.png" />
+        <img class="mpa-offline-logo" src="/branding/logo-dark.png" alt="M.P.A. My Property Assistant" />
+      </picture>
       <h1>You are offline</h1>
       <p>M.P.A. is unavailable right now. Reconnect to continue.</p>
     </main>

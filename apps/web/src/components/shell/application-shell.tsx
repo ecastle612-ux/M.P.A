@@ -10,6 +10,9 @@ import { TopNavigation } from "./top-navigation";
 import { ResponsiveNavigation } from "./responsive-navigation";
 import { Logo } from "../branding/logo";
 import { SetupGate } from "../setup/setup-gate";
+import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
+import { DeploymentBadge } from "../launch/deployment-badge";
+import type { DeploymentMeta } from "../../lib/launch/deployment-meta";
 
 export function ApplicationShell({
   children,
@@ -17,7 +20,8 @@ export function ApplicationShell({
   defaultRole,
   organizations,
   defaultOrganizationId,
-  isSetupComplete
+  isSetupComplete,
+  deploymentMeta
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -25,6 +29,7 @@ export function ApplicationShell({
   organizations: OrganizationSummary[];
   defaultOrganizationId: string | null;
   isSetupComplete: boolean;
+  deploymentMeta: DeploymentMeta;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -46,9 +51,13 @@ export function ApplicationShell({
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <header className="flex h-16 items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 lg:hidden">
             <Logo size="mobile" priority />
-            <ResponsiveNavigation />
+            <div className="flex items-center gap-2">
+              <DeploymentBadge meta={deploymentMeta} />
+              <ResponsiveNavigation />
+            </div>
           </header>
-          <TopNavigation />
+          <TopNavigation deploymentMeta={deploymentMeta} />
+          <PushEnrollmentBanner settingsHref="/settings/notifications" />
           <div id="app-content" className="mpa-app-main flex min-h-0 min-w-0 flex-col">
             {children}
           </div>

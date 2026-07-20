@@ -51,7 +51,7 @@ Git `HEAD` form matches Production. Working-tree form already had client recover
 | Field | Finding |
 | --- | --- |
 | **UX-005 shell on correct host** | **Present** on Production (`AuthBrandShell`, headline “Property operations, clarified.”, forgot-password link) |
-| **Visual defect** | Official `mpa-logo.svg` (commit `28e24d6`, 2026-07-17) included **full-canvas white `#ffffff` background paths**, rendering a white square on the dark auth shell |
+| **Visual defect** | The retired single-logo SVG asset (commit `28e24d6`, 2026-07-17) included **full-canvas white `#ffffff` background paths**, rendering a white square on the dark auth shell |
 | **Category** | Styling/asset overwrite (PNG → SVG with opaque white plate) |
 | **Wrong-host confusion** | Non-hyphenated GoDaddy park can be mistaken for “landing regress” |
 
@@ -70,7 +70,7 @@ Not a deletion of UX-005 on the canonical host. Premium shell is deployed; logo 
 
 1. Deploy client recovery session establishment (`password-recovery.ts` + form).
 2. Middleware PKCE `exchangeCodeForSession` on `/reset-password?code=…` with cookie-preserving redirect.
-3. Strip white background paths from `mpa-logo.svg` (asset restore, not redesign).
+3. Strip white background paths from the retired single-logo SVG asset (asset restore, not redesign).
 
 ---
 

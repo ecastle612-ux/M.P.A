@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button, Card } from "@mpa/ui";
+import { Logo } from "../branding/logo";
 import { humanizeErrorMessage } from "../../lib/api/client-error";
 
 const SUPPORT_HREF = "mailto:support@mypropertyassistant.com?subject=M.P.A.%20help";
@@ -28,6 +29,7 @@ export function FriendlyErrorState({
   return (
     <main className="mpa-page flex min-h-[50vh] items-center justify-center">
       <Card className="w-full max-w-xl space-y-4 p-6">
+        <Logo size="navigation" />
         <div>
           <p className="mpa-section-label text-[var(--mpa-color-brand-primary)]">We’re on it</p>
           <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">{title}</h1>

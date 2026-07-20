@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Script from "next/script";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "./providers";
+import { BrandSurfaceTone } from "../components/branding/logo";
 import { RegisterServiceWorker } from "../components/pwa/register-service-worker";
 import {
   MPA_APPLE_TOUCH_ICON_PATH,
@@ -10,8 +12,9 @@ import {
   MPA_BRAND_TAGLINE,
   MPA_FAVICON_16_PATH,
   MPA_FAVICON_32_PATH,
+  MPA_LOGO_DARK_PATH,
+  MPA_LOGO_LIGHT_PATH,
   MPA_LOGO_INTRINSIC_SIZE,
-  MPA_LOGO_PATH
 } from "../lib/branding";
 import { serverEnv } from "../lib/env/server-env";
 
@@ -29,26 +32,49 @@ const ibmPlexMono = IBM_Plex_Mono({
   display: "swap"
 });
 
+const appUrl = serverEnv.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+const siteDescription = `${MPA_BRAND_NAME} — enterprise property operations for professional managers. Private Beta.`;
+const themeInitScript = `try{var p=localStorage.getItem("mpa:theme-preference");if(p!=="light"&&p!=="dark"&&p!=="system")p="system";var m=p==="dark"||(p==="system"&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";document.documentElement.dataset.theme=m;document.documentElement.style.colorScheme=m;}catch(_){document.documentElement.dataset.theme="light";document.documentElement.style.colorScheme="light";}`;
+
 export const metadata: Metadata = {
-  metadataBase: new URL(serverEnv.NEXT_PUBLIC_APP_URL),
-  title: `${MPA_BRAND_NAME} | ${MPA_BRAND_TAGLINE}`,
-  description: `${MPA_BRAND_NAME} enterprise property management platform`,
+  metadataBase: new URL(appUrl),
+  title: {
+    default: `${MPA_BRAND_NAME} | ${MPA_BRAND_TAGLINE}`,
+    template: `%s | ${MPA_BRAND_NAME}`
+  },
+  description: siteDescription,
   applicationName: MPA_BRAND_NAME,
+  alternates: {
+    canonical: appUrl
+  },
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false
+    }
+  },
   icons: {
     icon: [
-      { url: MPA_LOGO_PATH, type: "image/svg+xml" },
+      { url: MPA_LOGO_DARK_PATH, type: "image/png", sizes: "512x512", media: "(prefers-color-scheme: light)" },
+      { url: MPA_LOGO_LIGHT_PATH, type: "image/png", sizes: "512x512", media: "(prefers-color-scheme: dark)" },
       { url: MPA_FAVICON_32_PATH, sizes: "32x32", type: "image/png" },
       { url: MPA_FAVICON_16_PATH, sizes: "16x16", type: "image/png" }
     ],
     apple: [{ url: MPA_APPLE_TOUCH_ICON_PATH, sizes: "180x180", type: "image/png" }],
-    shortcut: MPA_LOGO_PATH
+    shortcut: MPA_FAVICON_32_PATH
   },
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: appUrl,
+    siteName: MPA_BRAND_NAME,
     title: `${MPA_BRAND_NAME} | ${MPA_BRAND_TAGLINE}`,
-    description: `${MPA_BRAND_NAME} enterprise property management platform`,
+    description: siteDescription,
     images: [
       {
-        url: MPA_LOGO_PATH,
+        url: MPA_LOGO_DARK_PATH,
         width: MPA_LOGO_INTRINSIC_SIZE,
         height: MPA_LOGO_INTRINSIC_SIZE,
         alt: `${MPA_BRAND_NAME} logo`
@@ -56,21 +82,32 @@ export const metadata: Metadata = {
     ]
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: `${MPA_BRAND_NAME} | ${MPA_BRAND_TAGLINE}`,
-    description: `${MPA_BRAND_NAME} enterprise property management platform`,
-    images: [MPA_LOGO_PATH]
+    description: siteDescription,
+    images: [MPA_LOGO_DARK_PATH]
   }
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
+    <html
+      lang="en"
+      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
+      data-theme="light"
+      style={{ colorScheme: "light" }}
+      suppressHydrationWarning
+    >
+      <head>
+        <Script id="mpa-theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
-        <AppProviders>
-          <RegisterServiceWorker />
-          {children}
-        </AppProviders>
+        <BrandSurfaceTone tone="light-surface">
+          <AppProviders>
+            <RegisterServiceWorker />
+            {children}
+          </AppProviders>
+        </BrandSurfaceTone>
       </body>
     </html>
   );

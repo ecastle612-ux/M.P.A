@@ -8,10 +8,11 @@ export default async function AcceptInvitationPage({
 }) {
   const { token } = await params;
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <AuthBrandShell>
-        <AcceptInvitationCard token={token} />
-      </AuthBrandShell>
-    </main>
+    <AuthBrandShell
+      headline="Join your organization."
+      support="Accept your invitation to collaborate in My Property Assistant."
+    >
+      <AcceptInvitationCard token={token} />
+    </AuthBrandShell>
   );
 }
