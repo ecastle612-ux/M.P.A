@@ -9,12 +9,14 @@
 - Added approved asset: `apps/web/public/branding/logo-light.png`
 - Removed retired asset: `apps/web/public/branding/mpa-logo.svg`
 - Confirmed `.gitignore` does not exclude `apps/web/public/branding/*`.
+- Final source-control verification commit: `e4502f8`.
 
 ## Validation Completed
 
 - Local application served both approved assets with HTTP 200.
 - Vercel build output included both assets under `.vercel/output/static/branding/`.
 - Production served both assets from `https://www.my-property-assistant.com/branding/*` with HTTP 200.
+- Clean clone production build from `e4502f8` completed successfully with no manual asset copying.
 - Registration interaction, theme switching, adaptive logo behavior, and dev-only protected portal certification passed.
 - Focused lint, typecheck, and IDE diagnostics passed for UX-007 release files.
 
