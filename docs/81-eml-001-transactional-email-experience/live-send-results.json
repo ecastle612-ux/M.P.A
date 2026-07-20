@@ -1,0 +1,41 @@
+{
+  "sentAt": "2026-07-20T10:48:36.746Z",
+  "batch": "eml001c-fontfix",
+  "results": [
+    {
+      "templateKey": "user_invitation",
+      "status": "sent",
+      "externalId": "b9e879c9-8a74-4158-878f-1935d3f9dfbd"
+    },
+    {
+      "templateKey": "welcome_email",
+      "status": "sent",
+      "externalId": "89a0fcac-4819-4ac6-a68d-58cd3b8a4ff4"
+    },
+    {
+      "templateKey": "maintenance_notification",
+      "status": "sent",
+      "externalId": "1a21e1b1-7276-4b7f-9b35-5d7a8edf28da"
+    },
+    {
+      "templateKey": "announcement_email",
+      "status": "sent",
+      "externalId": "a1f13b3a-07f6-46ed-83b5-eeb2ba75975b"
+    },
+    {
+      "templateKey": "owner_statement",
+      "status": "sent",
+      "externalId": "0e706385-b944-4707-a61b-19bd66956c30"
+    },
+    {
+      "templateKey": "financial_report",
+      "status": "sent",
+      "externalId": "693a9f47-9781-4e84-bac6-87ddfe816a94"
+    },
+    {
+      "templateKey": "general_notification",
+      "status": "sent",
+      "externalId": "9f335d4b-3e4a-450f-bae3-6dad366ccb3a"
+    }
+  ]
+}

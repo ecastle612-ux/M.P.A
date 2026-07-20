@@ -78,6 +78,12 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 72 | [WF-004 Workflow Intelligence](./72-wf-004-workflow-intelligence/README.md) | Context forms · suggestions · completion (EP-006) |
 | 73 | [UX-003 Trust & Validation](./73-ux-003-trust-validation/README.md) | Validation · confirm · undo · loading (EP-007) |
 | 74 | [MIG-001 Design Partner Migration](./74-mig-001-design-partner-migration/README.md) | Guided portfolio import UX (EP-010) |
+| 75 | [PM-001 Property Manager Certification](./75-pm-001-property-manager-certification/README.md) | Full-day PM workflow certification (EP-011) |
+| 76 | [CP-001 Live Provider Certification](./76-cp-001-live-provider-certification/README.md) | Provider health · Commercial Pilot readiness (EP-012) |
+| 80 | [EP-018 Root Cause Recovery](./80-ep-018-root-cause-recovery/README.md) | Auth/login regression recovery |
+| 81 | [EML-001 Transactional Email Experience](./81-eml-001-transactional-email-experience/README.md) | Premium branded transactional email (Priority 6) |
+| 82 | [UX-006 Mobile Workflow Optimization](./82-ux-006-mobile-workflow-optimization/README.md) | Reduce mobile scroll / taps (awaiting Approve) |
+| 83 | [UX-007 Adaptive Logo System](./83-ux-007-adaptive-logo-system/README.md) | Two-logo adaptive branding architecture (Approved) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

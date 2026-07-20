@@ -5,7 +5,12 @@ import {
 } from "./audit";
 import type { EmailTemplateKey, SendEmailInput, SendEmailResult } from "./contracts";
 import { getEmailProvider } from "./registry";
-import { invitationEmailContent, renderTransactionalEmail } from "./render";
+import {
+  ctaLabelForTemplate,
+  eyebrowForTemplate,
+  invitationEmailContent,
+  renderTransactionalEmail
+} from "./render";
 
 export type WorkflowEmailInput = {
   organizationId: string;
@@ -15,6 +20,8 @@ export type WorkflowEmailInput = {
   subject: string;
   body: string;
   href?: string | null;
+  title?: string | null;
+  ctaLabel?: string | null;
   replyTo?: string | null;
   correlation?: {
     notificationId?: string | null;
@@ -60,7 +67,10 @@ export async function sendWorkflowEmail(input: WorkflowEmailInput): Promise<Send
     subject: input.subject,
     body: input.body,
     href: input.href ?? null,
-    recipientName: input.to.name ?? null
+    recipientName: input.to.name ?? null,
+    title: input.title ?? input.subject,
+    eyebrow: eyebrowForTemplate(input.templateKey),
+    ctaLabel: input.ctaLabel ?? ctaLabelForTemplate(input.templateKey)
   });
 
   const sendInput: SendEmailInput = {
@@ -108,15 +118,16 @@ export async function sendInvitationEmail(input: {
   };
   if (input.roles) contentArgs.roles = input.roles;
   const content = invitationEmailContent(contentArgs);
+  const roleLabel = input.roles?.length ? input.roles.join(", ") : "member";
   return sendWorkflowEmail({
     organizationId: input.organizationId,
     templateKey: "user_invitation",
     idempotencyKey: `${input.organizationId}:user_invitation:${input.invitationId ?? input.token}:${input.email.toLowerCase()}`,
     to: { email: input.email },
     subject: content.subject,
-    body: `You have been invited to join an organization on My Property Assistant${
-      input.roles?.length ? ` as ${input.roles.join(", ")}` : ""
-    }. Use the link in this email to accept.`,
+    title: "You're invited to M.P.A.",
+    ctaLabel: "Accept invitation",
+    body: `You have been invited to join an organization on My Property Assistant as ${roleLabel}.\n\nUse the button below to accept your invitation and get started.`,
     href: `/accept-invitation/${input.token}`,
     correlation: {
       sourceEntityType: "organization_invitation",

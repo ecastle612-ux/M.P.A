@@ -25,3 +25,9 @@ export {
   type WorkflowEmailInput
 } from "./delivery";
 export { isValidEmailAddress, resolveUserEmailAddress } from "./resolve-recipient";
+export {
+  invitationEmailContent,
+  passwordResetAuthTemplateHtml,
+  renderMpaEmail,
+  renderTransactionalEmail
+} from "./render";
