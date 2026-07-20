@@ -1,4 +1,6 @@
 import dynamic from "next/dynamic";
+import { DeploymentBadge } from "../launch/deployment-badge";
+import type { DeploymentMeta } from "../../lib/launch/deployment-meta";
 import { OrganizationSwitcher } from "./organization-switcher";
 import { RoleSwitcher } from "./role-switcher";
 import { NotificationCenter } from "./notification-center";
@@ -19,7 +21,7 @@ const CommandCenter = dynamic(
   }
 );
 
-export function TopNavigation() {
+export function TopNavigation({ deploymentMeta }: { deploymentMeta: DeploymentMeta }) {
   return (
     <header
       role="banner"
@@ -33,6 +35,7 @@ export function TopNavigation() {
           <div className="min-w-0 flex-1 lg:hidden">
             <CommandCenter />
           </div>
+          <DeploymentBadge meta={deploymentMeta} className="hidden md:flex" />
           <OrganizationSwitcher />
           <RoleSwitcher />
           <NotificationCenter />

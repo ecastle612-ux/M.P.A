@@ -4,6 +4,7 @@ import { createAuthServerComponentClient } from "../../lib/auth/server";
 import { ApplicationShell } from "../../components/shell/application-shell";
 import { resolveAuthenticatedShellContext } from "../../lib/auth/get-shell-context";
 import { getSetupStatus } from "../../lib/setup/server";
+import { getDeploymentMeta } from "../../lib/launch/deployment-meta";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const supabase = await createAuthServerComponentClient();
@@ -22,6 +23,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       appMetadata: user.app_metadata
     })
   ]);
+  const deploymentMeta = getDeploymentMeta();
 
   return (
     <ApplicationShell
@@ -30,6 +32,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       isSetupComplete={setupStatus.isComplete}
+      deploymentMeta={deploymentMeta}
     >
       {children}
     </ApplicationShell>
