@@ -1,6 +1,6 @@
 import { assertThreadMessageable, nextThreadStatusAfterMessage } from "./events";
 import { createAuthServerComponentClient } from "../auth/server";
-import { createInAppNotification } from "../notifications/server";
+import { notify } from "../notifications/service";
 import type { Json } from "@mpa/supabase";
 import type {
   CommunicationMessageRecord,
@@ -468,24 +468,26 @@ export async function createMessageInThread(
     .eq("thread_id", threadId)
     .neq("user_id", userId);
 
-  await Promise.all(
-    ((participants ?? []) as Array<{ user_id: string }>).map((participant) =>
-      createInAppNotification(
+  const recipientUserIds = ((participants ?? []) as Array<{ user_id: string }>).map((p) => p.user_id);
+  if (recipientUserIds.length > 0) {
+    await notify(
+      {
         organizationId,
-        userId,
-        {
-          userId: participant.user_id,
-          category: "message",
-          title: "New message",
-          body: `${(threadRow as { subject: string }).subject}: ${input.body.slice(0, 120)}`,
-          href: `/communications/threads/${threadId}`,
-          sourceEntityType: "conversation_thread",
-          sourceEntityId: threadId
-        },
-        db
-      ).catch(() => undefined)
-    )
-  );
+        actorUserId: userId,
+        eventKey: `message.sent:${(messageRow as { id: string }).id}`,
+        recipientUserIds,
+        category: "messages",
+        priority: "normal",
+        title: "New message",
+        body: `${(threadRow as { subject: string }).subject}: ${input.body.slice(0, 120)}`,
+        href: `/communications/threads/${threadId}`,
+        sourceEntityType: "conversation_thread",
+        sourceEntityId: threadId,
+        propertyId: (threadRow as { property_id?: string | null }).property_id ?? null
+      },
+      db
+    ).catch(() => undefined);
+  }
 
   return toMessageRecord(messageRow as MessageRow);
 }
