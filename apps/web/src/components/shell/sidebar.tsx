@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { BrandSurfaceTone } from "../branding/logo";
+import { BrandSurfaceTone } from "../branding/brand-logo";
 import { SidebarBrandHeader } from "./sidebar-brand-header";
 import { NAV_ICON_MAP } from "../presentation/nav-icons";
 import { SHELL_NAVIGATION_GROUPS, isRouteActive } from "./navigation-config";

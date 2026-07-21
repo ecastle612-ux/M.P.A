@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { Card } from "@mpa/ui";
-import { Logo } from "../components/branding/logo";
+import { BrandLogo } from "../components/branding/brand-logo";
 
 export default function NotFoundPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[var(--mpa-color-bg-app)] p-4">
       <Card className="w-full max-w-lg space-y-4 p-6">
-        <Logo size="navigation" />
+        <BrandLogo purpose="header" />
         <div>
           <p className="mpa-section-label text-[var(--mpa-color-brand-primary)]">Page missing</p>
           <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">

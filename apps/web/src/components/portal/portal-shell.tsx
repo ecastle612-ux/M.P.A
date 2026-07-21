@@ -6,7 +6,7 @@ import { Badge, Card } from "@mpa/ui";
 import { OrganizationSwitcher } from "../shell/organization-switcher";
 import { RoleSwitcher } from "../shell/role-switcher";
 import { ProfileMenu } from "../shell/profile-menu";
-import { Logo } from "../branding/logo";
+import { BrandLogo, BrandSurfaceTone } from "../branding/brand-logo";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 
 type PortalNavigationItem = {
@@ -52,7 +52,9 @@ export function PortalShell({
     <div className="min-h-screen bg-[var(--mpa-color-bg-app)]">
       <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 px-4 py-3 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3">
-          <Logo size="navigation" tone={surfaceTone} />
+          <BrandSurfaceTone tone={surfaceTone}>
+            <BrandLogo purpose="header" />
+          </BrandSurfaceTone>
           <div className="min-w-0">
             <p className="truncate font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">{title}</p>
             <p className="truncate text-xs text-[var(--mpa-color-text-secondary)]">{subtitle}</p>

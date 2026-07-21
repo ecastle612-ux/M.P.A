@@ -1,5 +1,5 @@
 import type { EmailTemplateKey } from "./contracts";
-import { MPA_LOGO_ASPECT_RATIO, MPA_LOGO_WIDTH, logoPathForTone } from "../../branding";
+import { resolveBrandAssetUrl } from "../../branding";
 import {
   EMAIL_BRAND_NAME,
   EMAIL_BRAND_TAGLINE,
@@ -135,10 +135,10 @@ export function renderMpaEmail(input: RenderMpaEmailInput): {
     ? `Hello ${input.recipientName.trim()},`
     : "Hello,";
   const link = input.rawHref?.trim() || absoluteUrl(input.href);
-  const logoPath = logoPathForTone("dark-surface");
-  const logoUrl = absoluteUrl(logoPath) ?? `${appBaseUrl()}${logoPath}`;
-  const logoWidth = MPA_LOGO_WIDTH.email;
-  const logoHeight = Math.round(logoWidth * MPA_LOGO_ASPECT_RATIO);
+  const brand = resolveBrandAssetUrl("email", "dark-surface");
+  const logoUrl = absoluteUrl(brand.src) ?? `${appBaseUrl()}${brand.src}`;
+  const logoWidth = brand.width;
+  const logoHeight = brand.height;
   const year = new Date().getFullYear();
   const secondaryNote =
     input.secondaryNote?.trim() ||

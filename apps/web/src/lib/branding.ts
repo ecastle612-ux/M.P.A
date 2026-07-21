@@ -1,14 +1,23 @@
 export {
   MPA_BRAND_NAME,
   MPA_BRAND_TAGLINE,
+  MPA_BRAND_PRODUCT_LINE,
+  MPA_BRAND_EMBEDDED_TEXT_MIN_PX,
+  MPA_BRAND_MIN_MARK_PX,
   MPA_LOGO_ASPECT_RATIO,
   MPA_LOGO_DARK_PATH,
   MPA_LOGO_INTRINSIC_SIZE,
   MPA_LOGO_LIGHT_PATH,
   MPA_LOGO_WIDTH,
+  brandMetadataIconEntries,
   logoPathForBackground,
   logoPathForTone,
+  resolveBrandAssetUrl,
+  resolveBrandPresentation,
+  type BrandLogoPurpose,
   type BrandLogoTone,
+  type BrandPresentation,
+  type BrandPresentationMode,
   type BrandSurfaceTone
 } from "@mpa/shared";
 

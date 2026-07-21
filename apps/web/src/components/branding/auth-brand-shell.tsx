@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { BrandSurfaceTone, Logo } from "./logo";
+import { BrandLogo, BrandSurfaceTone } from "./brand-logo";
 
 /**
  * UX-005 — Premium auth presentation shell.
@@ -42,7 +42,7 @@ export function AuthBrandShell({
         <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-stretch gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-12 lg:px-10 lg:py-12">
           <section className="hidden flex-col justify-center text-[var(--mpa-color-text-inverse)] lg:flex">
             <div className="mb-10 transition-transform duration-500 ease-out">
-              <Logo size="login" priority />
+              <BrandLogo purpose="login" priority />
             </div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">{eyebrow}</p>
             <h1 className="mt-3 max-w-lg font-display text-4xl font-semibold leading-tight tracking-tight xl:text-5xl">
@@ -67,7 +67,7 @@ export function AuthBrandShell({
 
           <section className="flex flex-col items-center justify-center">
             <div className="mb-6 flex w-full max-w-md flex-col items-center lg:hidden">
-              <Logo size="login" priority />
+              <BrandLogo purpose="login" priority />
               <p className="mt-4 text-center text-sm text-white/80">{headline}</p>
             </div>
 

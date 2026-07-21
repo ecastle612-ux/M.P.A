@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "eslint . --ext .ts,.tsx && node ../../scripts/check-brand-imports.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "dev:bootstrap-admin": "tsx scripts/dev/bootstrap-master-admin.ts",

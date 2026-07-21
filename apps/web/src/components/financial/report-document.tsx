@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Badge } from "@mpa/ui";
-import { Logo } from "../branding/logo";
+import { BrandLogo } from "../branding/brand-logo";
 import { formatReportMoney, type ReportModel } from "../../lib/reporting/contracts";
 import {
   buildExecutiveKpis,
@@ -94,7 +94,7 @@ function ReportCover({ model }: { model: ReportModel }) {
       <div className="space-y-5 px-6 py-6 sm:px-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Logo size="pdf" decorative className="opacity-95" />
+            <BrandLogo purpose="pdf" decorative className="opacity-95" />
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--mpa-color-text-tertiary)]">
                 {id.logoLabel}

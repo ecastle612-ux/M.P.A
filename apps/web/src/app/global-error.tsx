@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
-import { MPA_BRAND_NAME, MPA_BRAND_TAGLINE, MPA_LOGO_DARK_PATH } from "@mpa/shared";
+import { MPA_BRAND_NAME, MPA_BRAND_TAGLINE, resolveBrandAssetUrl } from "@mpa/shared";
 
 /**
  * Last-resort boundary (replaces root layout when it fails).
- * Keep dependencies minimal — no app shell imports.
+ * Uses branding-package resolveBrandAssetUrl only — no app-shell BrandLogo.
  */
 export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
   useEffect(() => {
     console.error("[global]", error);
   }, [error]);
+
+  const brand = resolveBrandAssetUrl("header", "light-surface");
 
   return (
     <html lang="en">
@@ -40,12 +42,19 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- Global fallback avoids app-shell image dependencies. */}
           <img
-            src={MPA_LOGO_DARK_PATH}
+            src={brand.src}
             alt={`${MPA_BRAND_NAME} ${MPA_BRAND_TAGLINE}`}
-            width={96}
-            height={96}
-            style={{ display: "block", width: 96, height: 96, objectFit: "contain", marginBottom: 16 }}
+            width={brand.width}
+            height={brand.height}
+            style={{
+              display: "block",
+              width: brand.width,
+              height: brand.height,
+              objectFit: "contain",
+              marginBottom: 16
+            }}
           />
+          <p style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 700 }}>{MPA_BRAND_NAME}</p>
           <h1 style={{ margin: "8px 0 12px", fontSize: 28 }}>We hit a serious snag</h1>
           <p style={{ margin: "0 0 8px", fontSize: 14, lineHeight: 1.5, color: "#57534e" }}>
             <strong style={{ color: "#1c1917" }}>What happened:</strong> The application shell failed to render.

@@ -4,7 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Button, Card, Input } from "@mpa/ui";
 import { useOrganizationContext } from "../shell/organization-context";
-import { Logo } from "../branding/logo";
+import { BrandLogo } from "../branding/brand-logo";
 
 export function OrganizationFoundationPanel() {
   const { activeOrganization, organizations, refreshOrganizations } = useOrganizationContext();
@@ -101,7 +101,7 @@ export function OrganizationFoundationPanel() {
           </div>
         ) : (
           <div className="mt-4 flex items-center gap-3">
-            <Logo size="sidebarCollapsed" />
+            <BrandLogo purpose="sidebar" collapsed />
             <p className="text-sm text-[var(--mpa-color-text-secondary)]">
               Create an organization first, then invite your team from Settings.
             </p>

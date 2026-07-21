@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { ThemeProvider, ToastProvider, useTheme } from "@mpa/ui";
 import { AuthSessionSync } from "../components/auth/auth-session-sync";
-import { BrandSurfaceTone } from "../components/branding/logo";
+import { BrandSurfaceTone } from "../components/branding/brand-logo";
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (

@@ -4,7 +4,7 @@ import Script from "next/script";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "./providers";
-import { BrandSurfaceTone } from "../components/branding/logo";
+import { BrandSurfaceTone } from "../components/branding/brand-logo";
 import { RegisterServiceWorker } from "../components/pwa/register-service-worker";
 import {
   MPA_APPLE_TOUCH_ICON_PATH,
@@ -12,9 +12,9 @@ import {
   MPA_BRAND_TAGLINE,
   MPA_FAVICON_16_PATH,
   MPA_FAVICON_32_PATH,
-  MPA_LOGO_DARK_PATH,
-  MPA_LOGO_LIGHT_PATH,
   MPA_LOGO_INTRINSIC_SIZE,
+  brandMetadataIconEntries,
+  resolveBrandAssetUrl
 } from "../lib/branding";
 import { serverEnv } from "../lib/env/server-env";
 
@@ -57,8 +57,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: MPA_LOGO_DARK_PATH, type: "image/png", sizes: "512x512", media: "(prefers-color-scheme: light)" },
-      { url: MPA_LOGO_LIGHT_PATH, type: "image/png", sizes: "512x512", media: "(prefers-color-scheme: dark)" },
+      ...brandMetadataIconEntries(),
       { url: MPA_FAVICON_32_PATH, sizes: "32x32", type: "image/png" },
       { url: MPA_FAVICON_16_PATH, sizes: "16x16", type: "image/png" }
     ],
@@ -74,7 +73,7 @@ export const metadata: Metadata = {
     description: siteDescription,
     images: [
       {
-        url: MPA_LOGO_DARK_PATH,
+        url: resolveBrandAssetUrl("browser", "light-surface").src,
         width: MPA_LOGO_INTRINSIC_SIZE,
         height: MPA_LOGO_INTRINSIC_SIZE,
         alt: `${MPA_BRAND_NAME} logo`
@@ -85,7 +84,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: `${MPA_BRAND_NAME} | ${MPA_BRAND_TAGLINE}`,
     description: siteDescription,
-    images: [MPA_LOGO_DARK_PATH]
+    images: [resolveBrandAssetUrl("browser", "light-surface").src]
   }
 };
 

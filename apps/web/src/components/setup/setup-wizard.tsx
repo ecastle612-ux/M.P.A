@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Card, Input, Select, useToast } from "@mpa/ui";
 import { USER_ROLES, isUserRole } from "@mpa/shared";
-import { Logo } from "../branding/logo";
+import { BrandLogo } from "../branding/brand-logo";
 import { MediaUpload, profilePhotoUploadIntent } from "../media/media-upload";
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "../../lib/profile/contracts";
 import { INVITE_ROLE_TEMPLATES, SETUP_INVITE_SKIPPED_KEY } from "../../lib/setup/constants";
@@ -79,7 +79,7 @@ export function SetupWizard({
   return (
     <div className="mpa-page-wide mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-4xl flex-col gap-6 py-8">
       <div className="flex flex-col items-center gap-4 text-center">
-        <Logo size="loading" priority />
+        <BrandLogo purpose="onboarding" priority />
         <div>
           <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
             Welcome to M.P.A.

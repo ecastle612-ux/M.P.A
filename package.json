@@ -15,6 +15,7 @@
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "test": "turbo run test",
+    "check:brand": "node scripts/check-brand-imports.mjs",
     "check:boundaries": "depcruise --config .dependency-cruiser.cjs \"apps/*/src/**/*.ts\" \"apps/*/src/**/*.tsx\" \"packages/*/src/**/*.ts\" \"packages/*/src/**/*.tsx\" \"qa/*/src/**/*.ts\" \"qa/*/tests/**/*.ts\"",
     "check:circular": "depcruise --config .dependency-cruiser.cjs --include-only \"^(apps|packages|qa)/.*/(src|tests)/\" --output-type err \"apps/*/src\" \"packages/*/src\" \"qa/*/src\"",
     "deps:validate": "pnpm dedupe --check && pnpm list -r --depth 0 --prod",
