@@ -100,6 +100,8 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Phase 4 implementation | Completed; release hardening + verification gate in progress |
 | Phase 5 Tenant & Lease Foundation design package | Approved (docs/25 + ADR-016 accepted) |
 | Phase 5 implementation | Approved — implementation authorized within approved Phase 5 scope |
+| DPX-001 Design Partner Experience (Phase 6) | **Approved** — operator experience philosophy; Amendments A–G + roadmap rule bind future product work ([92](../92-dpx-001-design-partner-experience/README.md)) |
+| DPX-002 Complete Daily Workflow | **Approved** — gold-standard reference path; Amendments A–G; freeze after PASS; then DPX-003→005 ([93](../93-dpx-002-complete-daily-workflow/README.md)) |
 
 ---
 
@@ -119,4 +121,5 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 - [Product Principles](../product-principles/index.md)
 - [06 Design Language](../06-design-language/index.md)
 - [18 Decision Log](../18-decision-log/index.md)
+- [DPX-001 Design Partner Experience](../92-dpx-001-design-partner-experience/README.md) — operator experience over feature count; replace-friction + roadmap filters
 - ADR-012 — Design → Document → Approve → Implement

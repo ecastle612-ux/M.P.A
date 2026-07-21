@@ -10,7 +10,8 @@ import {
 } from "../../lib/financial/contracts";
 import type { FinancialDashboardMetrics } from "../../lib/financial/server";
 import { GuidanceTip } from "../experience/guidance-tip";
-import { lateRentSuggestions, SmartSuggestions } from "../workflow/smart-suggestions";
+import { lateRentSuggestions } from "../workflow/smart-suggestion-builders";
+import { SmartSuggestions } from "../workflow/smart-suggestions";
 import { ProviderStatusBanner } from "../trust/provider-status-chip";
 
 const SECTION_LINKS = [

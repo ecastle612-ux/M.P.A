@@ -6,7 +6,8 @@
 **Constraint:** Presentation / IA / discoverability only — no feature removal, no business-workflow redesign, no permission / API / schema changes  
 **Aligns with:** Canopy (06), Experience Architecture (21), UX Principles (07), AI Strategy (13)  
 **Sequencing:** Blocks **EP-019** until complete. Shell gate cleared ([SH-002](../90-sh-002-native-shell-stability/05-certification-report.md) / [SH-003](../91-sh-003-runtime-verification-deployment/06-certification-report.md) **PASS**) — resume Units / Applicants / Vendors / Leases / Financials / Settings / Reports / portals per surface map.  
-**Binding amendments:** [10-usability-amendments.md](./10-usability-amendments.md) (A–J) — every implementation decision must follow them
+**Phase umbrella:** [DPX-001 Design Partner Experience](../92-dpx-001-design-partner-experience/README.md) (**Approved** · Amendments A–G) — operator experience is the success metric; UX-009 remains the primary implementer.  
+**Binding amendments:** [10-usability-amendments.md](./10-usability-amendments.md) (A–J) — every implementation decision must follow them · also obey DPX-001 Amendments A–G
 
 ---
 
@@ -34,7 +35,9 @@ Make M.P.A. feel like the fastest, most intuitive property operations platform a
 | --- | --- |
 | [UX-006](../82-ux-006-mobile-workflow-optimization/README.md) | **Absorbed** — scroll / progressive disclosure / quick actions patterns fold into UX-009; do not dual-implement |
 | [UX-008](../84-ux-008-premium-mobile-navigation/README.md) | **Prerequisite chassis** — drawer, Search M.P.A. nav jump, ＋ New; UX-009 owns page interiors + entity search depth + floating AI |
-| [EP-019](../87-ep-019-performance-speed-certification/README.md) | **Paused** until UX-009 ships — cleaner before/after perf data |
+| [EP-019](../87-ep-019-performance-speed-certification/README.md) | **Paused** until UX-009 / DPX-001 experience baselines land |
+| [DPX-001](../92-dpx-001-design-partner-experience/README.md) | **Phase 6 umbrella (Approved)** — measures + certifies partner readiness; Amendments A–G + roadmap rule bind all product work |
+| [DPX-002](../93-dpx-002-complete-daily-workflow/README.md) | **Gold-standard reference workflow (Approved)** — implement path to PASS then freeze; no lower standard for later modules |
 
 ## Documents
 

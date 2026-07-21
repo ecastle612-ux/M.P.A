@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Avatar, Badge, Card, DetailHero, DetailMetric } from "@mpa/ui";
-import { AiPageContextBridge, buildAiPageContext } from "../../../../components/ai/ai-page-context";
+import { AiPageContextBridge } from "../../../../components/ai/ai-page-context";
+import { buildAiPageContext } from "../../../../lib/ai/ai-page-context-store";
 import { DetailPageLayout } from "../../../../components/presentation/detail-page-layout";
 import { DiscloseSection } from "../../../../components/presentation/disclose-section";
 import { EntityActionToolbelt } from "../../../../components/presentation/entity-action-toolbelt";
@@ -54,8 +55,11 @@ export default async function TenantDetailPage({
   const canReadFinancials = evaluatePermission(authorization, "financial:read");
   const canCreateFinancial = evaluatePermission(authorization, "financial:create");
   const canCreateMaintenance = evaluatePermission(authorization, "maintenance:create");
-  const canReadCommunications = evaluatePermission(authorization, "communication:read");
+  const canReadMessages = evaluatePermission(authorization, "message:read");
+  const canCreateMessages = evaluatePermission(authorization, "message:create");
   const canReadLeases = evaluatePermission(authorization, "lease:read");
+  const canReadMaintenance = evaluatePermission(authorization, "maintenance:read");
+  const canReadCommunications = evaluatePermission(authorization, "communication:read");
   const displayName = tenant.preferredName || `${tenant.firstName} ${tenant.lastName}`;
 
   const portfolioCounts = from === "tenant-created" ? await getPortfolioCounts(organizationId) : null;
@@ -65,20 +69,22 @@ export default async function TenantDetailPage({
       : null;
 
   const [
-    { data: leaseRows, error: leaseError },
-    { data: chargeRows, error: chargeError },
-    { data: paymentRows, error: paymentError },
-    { data: maintenanceRows, error: maintenanceError },
-    { count: communicationsCount, error: communicationsError }
+    { data: leaseRows },
+    { data: chargeRows },
+    { data: paymentRows },
+    { data: maintenanceRows },
+    { count: communicationsCount }
   ] = await Promise.all([
-    supabase
-      .from("leases")
-      .select("id, lease_number, status, rent_amount, end_date")
-      .eq("organization_id", organizationId)
-      .eq("primary_tenant_id", tenantId)
-      .is("deleted_at", null)
-      .order("updated_at", { ascending: false })
-      .limit(1),
+    canReadLeases
+      ? supabase
+          .from("leases")
+          .select("id, lease_number, status, rent_amount, end_date")
+          .eq("organization_id", organizationId)
+          .eq("primary_tenant_id", tenantId)
+          .is("deleted_at", null)
+          .order("updated_at", { ascending: false })
+          .limit(1)
+      : Promise.resolve({ data: [], error: null }),
     canReadFinancials
       ? supabase
           .from("rent_charges")
@@ -99,16 +105,18 @@ export default async function TenantDetailPage({
           .order("payment_date", { ascending: false })
           .limit(5)
       : Promise.resolve({ data: [], error: null }),
-    supabase
-      .from("maintenance_work_orders")
-      .select("id, work_order_number, title, status")
-      .eq("organization_id", organizationId)
-      .eq("tenant_id", tenantId)
-      .is("deleted_at", null)
-      .not("status", "in", '("completed","cancelled")')
-      .order("updated_at", { ascending: false })
-      .limit(5),
-    tenant.propertyId
+    canReadMaintenance
+      ? supabase
+          .from("maintenance_work_orders")
+          .select("id, work_order_number, title, status")
+          .eq("organization_id", organizationId)
+          .eq("tenant_id", tenantId)
+          .is("deleted_at", null)
+          .not("status", "in", '("completed","cancelled")')
+          .order("updated_at", { ascending: false })
+          .limit(5)
+      : Promise.resolve({ data: [], error: null }),
+    tenant.propertyId && canReadCommunications
       ? supabase
           .from("announcements")
           .select("id", { count: "exact", head: true })
@@ -118,9 +126,8 @@ export default async function TenantDetailPage({
       : Promise.resolve({ count: 0, error: null })
   ]);
 
-  if (leaseError || chargeError || paymentError || maintenanceError || communicationsError) {
-    throw new Error("Unable to load tenant context.");
-  }
+  // DPX-002 Momentum: related lease/payment/WO panels degrade to empty on query failure
+  // instead of blocking the whole resident screen.
 
   const leaseRow = (leaseRows ?? [])[0] as
     | { id: string; lease_number: string; status: string; rent_amount: number; end_date: string }
@@ -179,11 +186,11 @@ export default async function TenantDetailPage({
         : "Tenant is in good standing — consider a renewal outreach.";
 
   const toolbeltPrimary = [
-    canReadCommunications
+    canReadMessages || canCreateMessages
       ? {
           id: "message",
           label: "Message",
-          href: "/communications",
+          href: `/communications/resident/${encodeURIComponent(tenantId)}`,
           variant: "secondary" as const
         }
       : null,

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Badge, Card, DetailHero, DetailMetric } from "@mpa/ui";
-import { AiPageContextBridge, buildAiPageContext } from "../../../../components/ai/ai-page-context";
+import { AiPageContextBridge } from "../../../../components/ai/ai-page-context";
+import { buildAiPageContext } from "../../../../lib/ai/ai-page-context-store";
 import { DetailPageLayout } from "../../../../components/presentation/detail-page-layout";
 import { DiscloseSection } from "../../../../components/presentation/disclose-section";
 import { EntityActionToolbelt } from "../../../../components/presentation/entity-action-toolbelt";
@@ -337,12 +338,18 @@ export default async function PropertyDetailPage({
         : "Portfolio looks steady — use actions below for the next task.";
 
   const toolbeltPrimary = [
+    {
+      id: "residents",
+      label: "Residents",
+      href: `/tenants?propertyId=${encodeURIComponent(property.id)}`,
+      variant: "primary" as const
+    },
     canCreateUnit
       ? {
           id: "add-unit",
           label: "Add Unit",
           href: `/units/new?propertyId=${property.id}`,
-          variant: "primary" as const
+          variant: "secondary" as const
         }
       : null,
     canCreateTenant
@@ -360,14 +367,6 @@ export default async function PropertyDetailPage({
           href: `/maintenance/new?propertyId=${encodeURIComponent(property.id)}`,
           variant: "secondary" as const
         }
-      : null,
-    canReadFinancials
-      ? {
-          id: "report",
-          label: "Report",
-          href: `/financials/reports?propertyId=${encodeURIComponent(property.id)}`,
-          variant: "secondary" as const
-        }
       : null
   ].filter(Boolean) as Array<{
     id: string;
@@ -376,7 +375,23 @@ export default async function PropertyDetailPage({
     variant: "primary" | "secondary" | "ghost";
   }>;
 
+  const canCreateAnnouncement = evaluatePermission(authorization, "communication:create");
+
   const toolbeltMore = [
+    canReadFinancials
+      ? {
+          id: "report",
+          label: "Report",
+          href: `/financials/reports?propertyId=${encodeURIComponent(property.id)}`
+        }
+      : null,
+    canCreateAnnouncement
+      ? {
+          id: "notify-owner",
+          label: "Notify owner",
+          href: `/communications/new?propertyId=${encodeURIComponent(property.id)}&intent=owner-update`
+        }
+      : null,
     canUpdateProperty
       ? { id: "edit", label: "Edit property", href: `/properties/${property.id}/edit` }
       : null,

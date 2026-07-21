@@ -84,7 +84,9 @@ export function WorkOrdersTable({
     return visibleItems
       .filter((item) => {
         if (statusFilter === "open") {
-          if (item.status === "completed" || item.status === "cancelled") return false;
+          // Ops "open" = active statuses + completed-but-not-archived (awaiting resident confirmation / close).
+          if (item.status === "cancelled") return false;
+          if (item.status === "completed" && item.archivedAt) return false;
         } else if (statusFilter === "unassigned") {
           if (item.status === "completed" || item.status === "cancelled") return false;
           if (item.status !== "submitted" && item.status !== "triaged") return false;
@@ -263,7 +265,11 @@ export function WorkOrdersTable({
     return <ExperienceEmptyState module="maintenance" canCreate={permissions.canCreate} />;
   }
 
-  const openCount = visibleItems.filter((item) => item.status !== "completed" && item.status !== "cancelled").length;
+  const openCount = visibleItems.filter((item) => {
+    if (item.status === "cancelled") return false;
+    if (item.status === "completed") return !item.archivedAt;
+    return true;
+  }).length;
   const emergencyCount = visibleItems.filter(
     (item) => item.priority === "emergency" && item.status !== "completed" && item.status !== "cancelled"
   ).length;

@@ -33,7 +33,9 @@ const PAGE_SIZE = 10;
 
 export function TenantsTable({
   initialItems,
-  permissions
+  permissions,
+  initialPropertyId = null,
+  initialQuery = ""
 }: {
   initialItems: TenantListItem[];
   permissions: {
@@ -42,32 +44,46 @@ export function TenantsTable({
     canArchive: boolean;
     canDelete: boolean;
   };
+  initialPropertyId?: string | null;
+  initialQuery?: string;
 }) {
   const [items, setItems] = useState(initialItems);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
+  const [propertyFilter, setPropertyFilter] = useState<string>(initialPropertyId ?? "all");
   const [sortBy, setSortBy] = useState<"name" | "status" | "updated">("updated");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
-  const [selectedTenantId, setSelectedTenantId] = useState<string | null>(initialItems[0]?.id ?? null);
+  const scopedInitial =
+    initialPropertyId != null
+      ? initialItems.find((item) => item.propertyId === initialPropertyId) ?? initialItems[0]
+      : initialItems[0];
+  const [selectedTenantId, setSelectedTenantId] = useState<string | null>(scopedInitial?.id ?? null);
   const [error, setError] = useState<string | null>(null);
   const [submittingAction, setSubmittingAction] = useState<string | null>(null);
 
   const visibleItems = useMemo(() => items.filter((item) => item.deletedAt === null), [items]);
+  const propertyOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of visibleItems) {
+      if (item.propertyId && item.propertyName) map.set(item.propertyId, item.propertyName);
+    }
+    return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  }, [visibleItems]);
   const filteredItems = useMemo(() => {
     const trimmed = query.trim().toLowerCase();
-    const matched = trimmed
-      ? visibleItems.filter((item) => {
-          const fullName = `${item.firstName} ${item.lastName}`.toLowerCase();
-          return (
-            fullName.includes(trimmed) ||
-            (item.preferredName ?? "").toLowerCase().includes(trimmed) ||
-            item.email.toLowerCase().includes(trimmed) ||
-            (item.phone ?? "").toLowerCase().includes(trimmed) ||
-            (item.propertyName ?? "").toLowerCase().includes(trimmed) ||
-            (item.unitNumber ?? "").toLowerCase().includes(trimmed)
-          );
-        })
-      : visibleItems;
+    const matched = visibleItems.filter((item) => {
+      if (propertyFilter !== "all" && item.propertyId !== propertyFilter) return false;
+      if (!trimmed) return true;
+      const fullName = `${item.firstName} ${item.lastName}`.toLowerCase();
+      return (
+        fullName.includes(trimmed) ||
+        (item.preferredName ?? "").toLowerCase().includes(trimmed) ||
+        item.email.toLowerCase().includes(trimmed) ||
+        (item.phone ?? "").toLowerCase().includes(trimmed) ||
+        (item.propertyName ?? "").toLowerCase().includes(trimmed) ||
+        (item.unitNumber ?? "").toLowerCase().includes(trimmed)
+      );
+    });
 
     return [...matched].sort((left, right) => {
       const direction = sortOrder === "asc" ? 1 : -1;
@@ -81,7 +97,7 @@ export function TenantsTable({
       }
       return left.updatedAt.localeCompare(right.updatedAt) * direction;
     });
-  }, [query, sortBy, sortOrder, visibleItems]);
+  }, [query, propertyFilter, sortBy, sortOrder, visibleItems]);
 
   const pageCount = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -175,6 +191,21 @@ export function TenantsTable({
               setPage(1);
             }}
           />
+          <Select
+            aria-label="Filter by property"
+            value={propertyFilter}
+            onChange={(event) => {
+              setPropertyFilter(event.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="all">All properties</option>
+            {propertyOptions.map(([id, name]) => (
+              <option key={id} value={id}>
+                {name}
+              </option>
+            ))}
+          </Select>
           <Select
             aria-label="Sort tenants"
             value={sortBy}

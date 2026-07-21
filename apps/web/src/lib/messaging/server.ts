@@ -551,6 +551,54 @@ export async function mutateThread(
   return getThreadForOrganization(organizationId, threadId, userId, db);
 }
 
+/**
+ * DPX-002 — get or create a resident ↔ PM thread for Message-from-resident continuity.
+ */
+export async function ensureResidentPmThread(
+  organizationId: string,
+  userId: string,
+  tenant: {
+    id: string;
+    displayName: string;
+    email: string | null;
+    propertyId: string | null;
+    unitId: string | null;
+  },
+  client?: MessagingDbClient | SupabaseClientType
+): Promise<ConversationThreadRecord> {
+  const db = await resolveClient(client);
+  const existing = await getThreadBySourceEntity(organizationId, "resident", tenant.id, db);
+  if (existing) return existing;
+
+  const participants: CreateThreadFromSourceInput["participants"] = [{ userId, participantRole: "pm" }];
+  if (tenant.email) {
+    const { data: profileRow } = await db
+      .from("user_profiles")
+      .select("user_id")
+      .eq("email", tenant.email)
+      .maybeSingle();
+    if (profileRow?.user_id) {
+      participants.push({ userId: profileRow.user_id as string, participantRole: "resident" });
+    }
+  }
+
+  const detail = await createThreadFromSource(
+    organizationId,
+    userId,
+    {
+      threadType: "resident_pm",
+      sourceEntityType: "resident",
+      sourceEntityId: tenant.id,
+      propertyId: tenant.propertyId,
+      unitId: tenant.unitId,
+      subject: `Message · ${tenant.displayName}`,
+      participants
+    },
+    db
+  );
+  return detail;
+}
+
 export async function ensureMaintenanceThread(
   organizationId: string,
   userId: string,

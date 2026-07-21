@@ -7,7 +7,12 @@ import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/au
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
 import { getTenantsForOrganization } from "../../../lib/tenant/server";
 
-export default async function TenantsPage() {
+export default async function TenantsPage({
+  searchParams
+}: {
+  searchParams: Promise<{ propertyId?: string; q?: string }>;
+}) {
+  const { propertyId, q } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -45,7 +50,12 @@ export default async function TenantsPage() {
 
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Tenants" }]}>
-      <TenantsTable initialItems={items} permissions={permissions} />
+      <TenantsTable
+        initialItems={items}
+        permissions={permissions}
+        {...(propertyId ? { initialPropertyId: propertyId } : {})}
+        {...(q ? { initialQuery: q } : {})}
+      />
     </AppPage>
   );
 }

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, DetailHero, DetailMetric } from "@mpa/ui";
-import { AiPageContextBridge, buildAiPageContext } from "../../../../components/ai/ai-page-context";
+import { AiPageContextBridge } from "../../../../components/ai/ai-page-context";
+import { buildAiPageContext } from "../../../../lib/ai/ai-page-context-store";
 import { DetailPageLayout } from "../../../../components/presentation/detail-page-layout";
 import { DiscloseSection } from "../../../../components/presentation/disclose-section";
 import { EntityActionToolbelt } from "../../../../components/presentation/entity-action-toolbelt";
@@ -12,10 +13,8 @@ import { MaintenanceActivityTimeline } from "../../../../components/maintenance/
 import { WorkOrderWorkflowPanel } from "../../../../components/maintenance/work-order-workflow-panel";
 import { VendorAssignmentPanel } from "../../../../components/vendor/vendor-assignment-panel";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
-import {
-  completedWorkOrderSuggestions,
-  SmartSuggestions
-} from "../../../../components/workflow/smart-suggestions";
+import { completedWorkOrderSuggestions } from "../../../../components/workflow/smart-suggestion-builders";
+import { SmartSuggestions } from "../../../../components/workflow/smart-suggestions";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
