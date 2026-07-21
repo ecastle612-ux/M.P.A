@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { extractRolesFromMetadata } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import { resolveAuthorizationContext } from "../../../../lib/auth/authorization";
-import { ACTIVE_ORGANIZATION_COOKIE } from "../../../../lib/organization/contracts";
+import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 
 export async function GET() {
   const supabase = await createAuthServerClient();
-  const cookieStore = await cookies();
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -19,7 +17,8 @@ export async function GET() {
     );
   }
 
-  const activeOrganizationId = cookieStore.get(ACTIVE_ORGANIZATION_COOKIE)?.value ?? null;
+  // Match shell resolution: cookie → else first active membership (never empty when user has orgs).
+  const activeOrganizationId = await resolveActiveOrganizationIdForUser(user.id);
   const { data: memberships } = await supabase
     .from("organization_memberships")
     .select("organization_id, roles, status")

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { evaluateCapability, type PermissionCapability } from "@mpa/shared";
 
-const CACHE_KEY = "mpa.session.permissions.v1";
+const CACHE_KEY = "mpa.session.permissions.v2";
 
 function readCachedPermissions(): string[] | null {
   if (typeof window === "undefined") return null;
