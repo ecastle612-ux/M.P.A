@@ -15,16 +15,16 @@ See [02-fix-log.md](./02-fix-log.md) (F1–F6).
 
 | Check | Result |
 | --- | --- |
-| Typecheck | Pending in ship step |
-| Production deploy | Pending in ship step |
+| Typecheck / unit tests | PASS (`ai-route-context.test.ts`) |
+| Production deploy | **READY** |
 | User interaction matrix | **Required for PASS** |
 
 ## Ship record
 
 | Field | Value |
 | --- | --- |
-| Commit | _(filled on ship)_ |
-| Deployment ID | _(filled on ship)_ |
+| Commit | `1ca232d` |
+| Deployment ID | `dpl_BCDTPXnheuj3fwqXqeNuaCLjcpKo` |
 | Production URL | https://www.my-property-assistant.com |
 
 ## PASS criteria
