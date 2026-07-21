@@ -29,3 +29,9 @@ Typing → `setSearchQuery` → drawer re-render → entity results paint → **
 Page bridge `setState` on Provider wrapping shell → drawer re-render while typing → fed Chain A/B.
 
 **Status:** Fixed — external AI page context store; shell does not subscribe.
+
+## Chain F — Unstable `useSyncExternalStore` snapshots (blocks phone verification)
+
+`getFavoritesSnapshot` / `getRecentsSnapshot` returned a **new array every call** (`.slice()` / `[]`). React 19 requires cached `Object.is`-stable snapshots → infinite re-render → root `error.tsx` (“This page couldn’t load”) on `/dashboard` and other shell routes.
+
+**Status:** Fixed — stable empty sentinel + content-keyed snapshot cache.

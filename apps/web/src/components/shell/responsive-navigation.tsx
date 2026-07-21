@@ -47,6 +47,27 @@ import { shellTrace } from "../../lib/debug/shell-runtime-trace";
 
 const NAV_HISTORY_EVENT = "mpa:nav-history";
 
+/**
+ * useSyncExternalStore requires getSnapshot to return a cached reference when
+ * data is unchanged (Object.is). Returning `.slice()` / `[]` every call causes
+ * an infinite re-render loop in React 19 → app error boundary ("couldn't load").
+ */
+const EMPTY_NAV_HISTORY: CommandCenterStoredItem[] = [];
+let favoritesSnapshotCache: CommandCenterStoredItem[] = EMPTY_NAV_HISTORY;
+let favoritesSnapshotKey = "";
+let recentsSnapshotCache: CommandCenterStoredItem[] = EMPTY_NAV_HISTORY;
+let recentsSnapshotKey = "";
+
+function cacheNavHistorySnapshot(
+  items: CommandCenterStoredItem[],
+  previousKey: string,
+  previousValue: CommandCenterStoredItem[]
+): { key: string; value: CommandCenterStoredItem[] } {
+  const key = JSON.stringify(items);
+  if (key === previousKey) return { key: previousKey, value: previousValue };
+  return { key, value: items.length === 0 ? EMPTY_NAV_HISTORY : items };
+}
+
 function subscribeNavHistory(onStoreChange: () => void) {
   const onLocal = () => onStoreChange();
   window.addEventListener("storage", onStoreChange);
@@ -58,15 +79,29 @@ function subscribeNavHistory(onStoreChange: () => void) {
 }
 
 function getFavoritesSnapshot() {
-  return getFavoriteItems().slice(0, 8);
+  const next = cacheNavHistorySnapshot(
+    getFavoriteItems().slice(0, 8),
+    favoritesSnapshotKey,
+    favoritesSnapshotCache
+  );
+  favoritesSnapshotKey = next.key;
+  favoritesSnapshotCache = next.value;
+  return favoritesSnapshotCache;
 }
 
 function getRecentsSnapshot() {
-  return getRecentItems().slice(0, 6);
+  const next = cacheNavHistorySnapshot(
+    getRecentItems().slice(0, 6),
+    recentsSnapshotKey,
+    recentsSnapshotCache
+  );
+  recentsSnapshotKey = next.key;
+  recentsSnapshotCache = next.value;
+  return recentsSnapshotCache;
 }
 
 function getEmptyHistorySnapshot(): CommandCenterStoredItem[] {
-  return [];
+  return EMPTY_NAV_HISTORY;
 }
 
 function notifyNavHistory() {
