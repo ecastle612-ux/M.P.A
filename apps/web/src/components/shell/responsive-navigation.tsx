@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState, type UIEvent } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  useSyncExternalStore
+} from "react";
 import Link from "next/link";
 import { Button, Drawer } from "@mpa/ui";
 import { usePathname, useRouter } from "next/navigation";
@@ -33,6 +41,34 @@ import {
   toggleFavoriteItem,
   type CommandCenterStoredItem
 } from "../../lib/command-center/storage";
+
+const NAV_HISTORY_EVENT = "mpa:nav-history";
+
+function subscribeNavHistory(onStoreChange: () => void) {
+  const onLocal = () => onStoreChange();
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(NAV_HISTORY_EVENT, onLocal);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(NAV_HISTORY_EVENT, onLocal);
+  };
+}
+
+function getFavoritesSnapshot() {
+  return getFavoriteItems().slice(0, 8);
+}
+
+function getRecentsSnapshot() {
+  return getRecentItems().slice(0, 6);
+}
+
+function getEmptyHistorySnapshot(): CommandCenterStoredItem[] {
+  return [];
+}
+
+function notifyNavHistory() {
+  window.dispatchEvent(new Event(NAV_HISTORY_EVENT));
+}
 
 function readExpandedSection(): MobileNavSectionId | null {
   if (typeof window === "undefined") return null;
@@ -67,12 +103,8 @@ function formatBadge(count: number): string {
 export function ResponsiveNavigation() {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [brandCollapsed, setBrandCollapsed] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<MobileNavSectionId | null>(null);
+  const [expandedSection, setExpandedSection] = useState<MobileNavSectionId | null>(() => readExpandedSection());
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
-  const [favorites, setFavorites] = useState<CommandCenterStoredItem[]>([]);
-  const [recents, setRecents] = useState<CommandCenterStoredItem[]>([]);
-  const [favoriteTick, setFavoriteTick] = useState(0);
   const [entityResults, setEntityResults] = useState<CommandCenterResult[]>([]);
   const [entitySearching, setEntitySearching] = useState(false);
   const createMenuId = useId();
@@ -80,7 +112,10 @@ export function ResponsiveNavigation() {
   const router = useRouter();
   const { canAccess, permissions, loaded: permissionsLoaded } = useSessionPermissions();
   const { organizations } = useOrganizationContext();
-  const { badges, health } = useMobileNavSignals(open);
+  // Prefetch signals while closed so first open paint already has health/badges.
+  const { badges, health } = useMobileNavSignals(true);
+  const favorites = useSyncExternalStore(subscribeNavHistory, getFavoritesSnapshot, getEmptyHistorySnapshot);
+  const recents = useSyncExternalStore(subscribeNavHistory, getRecentsSnapshot, getEmptyHistorySnapshot);
 
   const accessibleItems = useMemo(
     () => flattenShellNavigationItems().filter((item) => canAccess(item.requiredCapability)),
@@ -116,21 +151,13 @@ export function ResponsiveNavigation() {
     if (!open) {
       setSearchQuery("");
       setCreateMenuOpen(false);
-      setBrandCollapsed(false);
       return;
     }
-
     const routeSection = findMobileSectionForPath(pathname);
     const stored = readExpandedSection();
-    setExpandedSection(routeSection ?? stored ?? firstSectionId);
-    setFavorites(getFavoriteItems().slice(0, 8));
-    setRecents(getRecentItems().slice(0, 6));
+    const next = routeSection ?? stored ?? firstSectionId;
+    setExpandedSection((current) => (current === next ? current : next));
   }, [open, pathname, firstSectionId]);
-
-  useEffect(() => {
-    if (!open) return;
-    setFavorites(getFavoriteItems().slice(0, 8));
-  }, [open, favoriteTick]);
 
   useEffect(() => {
     if (!open || !permissionsLoaded) return;
@@ -171,13 +198,16 @@ export function ResponsiveNavigation() {
     };
   }, [open, searchQuery, organizations, permissions, permissionsLoaded]);
 
-  function closeDrawer() {
+  const closeDrawer = useCallback(() => {
     setOpen(false);
-  }
+  }, []);
 
-  function onContentScroll(event: UIEvent<HTMLDivElement>) {
-    setBrandCollapsed(event.currentTarget.scrollTop > 12);
-  }
+  const openDrawer = useCallback(() => {
+    const routeSection = findMobileSectionForPath(pathname);
+    const stored = readExpandedSection();
+    setExpandedSection(routeSection ?? stored ?? firstSectionId);
+    setOpen(true);
+  }, [pathname, firstSectionId]);
 
   function toggleSection(sectionId: MobileNavSectionId) {
     setExpandedSection((current) => {
@@ -199,7 +229,7 @@ export function ResponsiveNavigation() {
       status: null,
       href: item.href
     });
-    setFavoriteTick((value) => value + 1);
+    notifyNavHistory();
   }
 
   const createFooter = (
@@ -248,7 +278,7 @@ export function ResponsiveNavigation() {
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="mobile-nav-drawer"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => (open ? closeDrawer() : openDrawer())}
       >
         Menu
       </Button>
@@ -257,20 +287,22 @@ export function ResponsiveNavigation() {
         onClose={closeDrawer}
         title="M.P.A. navigation"
         hideHeader
+        keepMounted
         className="max-w-sm bg-[var(--mpa-color-bg-surface)]"
         contentClassName="p-0"
-        onContentScroll={onContentScroll}
         footer={createFooter}
       >
         <div id="mobile-nav-drawer" className="flex flex-col">
           <div className="sticky top-0 z-10 space-y-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-5 pb-3 pt-4">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <MobileBrandLockup collapsed={brandCollapsed} onNavigate={closeDrawer} />
+            <div className="flex min-h-[6.5rem] items-start justify-between gap-2">
+              <div className="flex min-h-[6.5rem] min-w-0 flex-1 items-center justify-center">
+                {/* SH-001: never toggle collapsed brand — logo layout must not change after paint. */}
+                <MobileBrandLockup collapsed={false} onNavigate={closeDrawer} />
               </div>
               <button
                 type="button"
                 onClick={closeDrawer}
+                tabIndex={open ? 0 : -1}
                 className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--mpa-radius-md)] text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-app)]"
                 aria-label="Close navigation"
               >
@@ -282,47 +314,32 @@ export function ResponsiveNavigation() {
 
             <section
               aria-label="Operations Score"
-              className="rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-app)] px-3 py-2.5"
+              className="min-h-[4.75rem] rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-app)] px-3 py-2.5"
             >
-              {health.ready && health.scorePercent != null ? (
-                <>
-                  <div className="flex items-baseline justify-between gap-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-muted)]">
-                      Operations Score
-                    </p>
-                    <p className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
-                      {health.scorePercent}%
-                    </p>
-                  </div>
-                  <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                    {health.urgentCount} Urgent · {health.openWorkOrders} Open Work Orders
-                    {health.occupancyPercent != null
-                      ? ` · ${health.occupancyPercent.toFixed(1)}% Occupancy`
-                      : null}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-muted)]">
-                    Operations Score
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                    Health snapshot coming online
-                  </p>
-                </>
-              )}
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-muted)]">
+                  Operations Score
+                </p>
+                <p className="font-display text-lg font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">
+                  {health.ready && health.scorePercent != null ? `${health.scorePercent}%` : "—"}
+                </p>
+              </div>
+              <p className="mt-1 min-h-[2.5rem] text-xs text-[var(--mpa-color-text-secondary)]">
+                {health.ready
+                  ? `${health.urgentCount} Urgent · ${health.openWorkOrders} Open Work Orders${
+                      health.occupancyPercent != null
+                        ? ` · ${health.occupancyPercent.toFixed(1)}% Occupancy`
+                        : ""
+                    }`
+                  : "Health snapshot updating…"}
+              </p>
             </section>
 
-            <label className="block">
-              <span className="sr-only">Search M.P.A.</span>
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search M.P.A."
-                className="h-11 w-full rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 text-sm text-[var(--mpa-color-text-primary)] outline-none ring-[var(--mpa-color-brand-primary)] placeholder:text-[var(--mpa-color-text-muted)] focus:ring-2"
-              />
-            </label>
+            <MobileSearchField
+              value={searchQuery}
+              onChange={setSearchQuery}
+              disabled={!open}
+            />
           </div>
 
           <div className="space-y-5 px-5 pb-5 pt-4">
@@ -356,6 +373,7 @@ export function ResponsiveNavigation() {
                                 status: null,
                                 href: item.href
                               });
+                              notifyNavHistory();
                               closeDrawer();
                               router.push(item.href);
                             }}
@@ -425,11 +443,13 @@ export function ResponsiveNavigation() {
                   )}
                 </section>
 
-                {recents.length > 0 ? (
-                  <section aria-label="Recently visited" className="space-y-1">
-                    <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
-                      Recent
-                    </p>
+                <section aria-label="Recently visited" className="min-h-[2.75rem] space-y-1">
+                  <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
+                    Recent
+                  </p>
+                  {recents.length === 0 ? (
+                    <p className="px-1 text-xs text-[var(--mpa-color-text-muted)]">Recent destinations appear here.</p>
+                  ) : (
                     <ul className="space-y-0.5">
                       {recents.map((item) => (
                         <li key={`recent-${item.key}`}>
@@ -450,8 +470,8 @@ export function ResponsiveNavigation() {
                         </li>
                       ))}
                     </ul>
-                  </section>
-                ) : null}
+                  )}
+                </section>
 
                 <section aria-label="Pinned essentials" className="space-y-1">
                   <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
@@ -522,6 +542,33 @@ export function ResponsiveNavigation() {
   );
 }
 
+const MobileSearchField = memo(function MobileSearchField({
+  value,
+  onChange,
+  disabled
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="sr-only">Search M.P.A.</span>
+      <input
+        type="search"
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="Search M.P.A."
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
+        className="h-11 w-full rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 text-sm text-[var(--mpa-color-text-primary)] outline-none ring-[var(--mpa-color-brand-primary)] placeholder:text-[var(--mpa-color-text-muted)] focus:ring-2 disabled:opacity-60"
+      />
+    </label>
+  );
+});
+
 function NavRow({
   item,
   pathname,
@@ -566,11 +613,10 @@ function NavRow({
           {Icon ? <Icon className="h-4 w-4" /> : <span aria-hidden="true">•</span>}
         </span>
         <span className="min-w-0 flex-1 truncate">{item.label}</span>
-        {typeof badge === "number" && badge > 0 ? (
-          <span className="ml-2 shrink-0 tabular-nums text-xs font-semibold text-[var(--mpa-color-text-primary)]">
-            {formatBadge(badge)}
-          </span>
-        ) : null}
+        {/* SH-001: always reserve badge column so counts do not shift rows. */}
+        <span className="ml-2 inline-flex h-5 min-w-[1.5rem] shrink-0 items-center justify-end tabular-nums text-xs font-semibold text-[var(--mpa-color-text-primary)]">
+          {typeof badge === "number" && badge > 0 ? formatBadge(badge) : ""}
+        </span>
       </Link>
       <button
         type="button"

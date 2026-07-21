@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
 import { Button, Textarea } from "@mpa/ui";
 import type { PromptKey } from "../../lib/ai/contracts";
 import type { AiConversationDetail } from "../../lib/ai/server";
@@ -15,10 +15,10 @@ type ChatMessage = {
 };
 
 /**
- * UX-009 floating operational copilot (Amendment D).
- * Does not occupy page layout; context comes from AiPageContextBridge.
+ * UX-009 / SH-002 floating operational copilot.
+ * Subscribes to AI page context via external store — must not re-render the shell.
  */
-export function FloatingAiCopilot() {
+export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
   const panelId = useId();
   const context = useAiPageContext();
   const { permissions, loaded } = useSessionPermissions();
@@ -100,14 +100,14 @@ export function FloatingAiCopilot() {
     [canUse, conversationId, context.entityId, context.entityLabel, context.entityType, isRunning]
   );
 
-  if (!loaded || !canRead) return null;
+  const launcherEnabled = loaded && canRead;
 
   return (
     <div
       className="pointer-events-none fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-40 flex flex-col items-end gap-3 md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]"
       data-mpa-ai-copilot="true"
     >
-      {open ? (
+      {open && launcherEnabled ? (
         <section
           id={panelId}
           role="dialog"
@@ -217,14 +217,24 @@ export function FloatingAiCopilot() {
       <button
         ref={launcherRef}
         type="button"
-        className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] text-sm font-semibold text-[var(--mpa-color-brand-primary)] shadow-[var(--mpa-shadow-md)] transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]"
+        disabled={!launcherEnabled}
+        className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] text-sm font-semibold text-[var(--mpa-color-brand-primary)] shadow-[var(--mpa-shadow-md)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)] disabled:cursor-not-allowed disabled:opacity-40"
         aria-expanded={open}
         aria-controls={panelId}
-        aria-label={context.launcherLabel}
-        onClick={() => setOpen((value) => !value)}
+        aria-label={
+          !loaded
+            ? "AI assistant loading"
+            : canRead
+              ? context.launcherLabel
+              : "AI assistant unavailable"
+        }
+        onClick={() => {
+          if (!launcherEnabled) return;
+          setOpen((value) => !value);
+        }}
       >
         AI
       </button>
     </div>
   );
-}
+});

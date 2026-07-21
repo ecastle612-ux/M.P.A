@@ -85,7 +85,9 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 82 | [UX-006 Mobile Workflow Optimization](./82-ux-006-mobile-workflow-optimization/README.md) | Reduce mobile scroll / taps (awaiting Approve) |
 | 83 | [UX-007 Adaptive Logo System](./83-ux-007-adaptive-logo-system/README.md) | Two-logo adaptive branding architecture (Approved) |
 | 87 | [EP-019 Performance & Speed Certification](./87-ep-019-performance-speed-certification/README.md) | Evidence-first speed certification (**Paused** behind UX-009) |
-| 88 | [UX-009 Cognitive Load & Workflow Optimization](./88-ux-009-cognitive-load-workflow-optimization/README.md) | Reduce thinking / hunting / scrolling (**Approved** + Amendments A–J) |
+| 88 | [UX-009 Cognitive Load & Workflow Optimization](./88-ux-009-cognitive-load-workflow-optimization/README.md) | Reduce thinking / hunting / scrolling (**Paused** for SH-001) |
+| 89 | [SH-001 Shell Stability Certification](./89-sh-001-shell-stability-certification/README.md) | Shell stability audit + first fixes |
+| 90 | [SH-002 Native Shell Stability](./90-sh-002-native-shell-stability/README.md) | Focus loss + AI isolation + native shell (**blocks UX-009**) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

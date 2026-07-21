@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { BrandSurfaceTone } from "../branding/brand-logo";
 import { SidebarBrandHeader } from "./sidebar-brand-header";
 import { NAV_ICON_MAP } from "../presentation/nav-icons";
@@ -37,6 +37,12 @@ export function Sidebar() {
     getSidebarCollapsedSnapshot,
     getSidebarCollapsedServerSnapshot
   );
+  // SH-001: suppress width transition across hydration so SSR→client collapsed
+  // reconciliation does not animate a visible jump.
+  const [widthReady, setWidthReady] = useState(false);
+  useEffect(() => {
+    setWidthReady(true);
+  }, []);
 
   function toggleCollapsed() {
     const next = !collapsed;
@@ -48,7 +54,8 @@ export function Sidebar() {
     <BrandSurfaceTone tone="dark-surface">
       <aside
         className={[
-          "hidden shrink-0 flex-col border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] transition-[width] duration-[var(--mpa-duration-moderate)] lg:flex",
+          "hidden shrink-0 flex-col border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] lg:flex",
+          widthReady ? "transition-[width] duration-[var(--mpa-duration-moderate)]" : "",
           collapsed ? "w-[var(--mpa-sidebar-collapsed-width)]" : "w-[var(--mpa-sidebar-width)]"
         ].join(" ")}
         aria-label="Primary application sidebar"

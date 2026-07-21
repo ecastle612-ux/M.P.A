@@ -5,7 +5,7 @@
 **Approved:** 2026-07-20 (`APPROVE UX-009` + Amendments A–J)  
 **Constraint:** Presentation / IA / discoverability only — no feature removal, no business-workflow redesign, no permission / API / schema changes  
 **Aligns with:** Canopy (06), Experience Architecture (21), UX Principles (07), AI Strategy (13)  
-**Sequencing:** Blocks **EP-019** until complete (measure the shipped IA, not pre-reorg layouts)  
+**Sequencing:** Blocks **EP-019** until complete. **Paused for shell stability** — [SH-002](../90-sh-002-native-shell-stability/README.md) (and [SH-001](../89-sh-001-shell-stability-certification/README.md)) must **PASS** before Units / Applicants / Vendors / Leases / Financials / Settings / Reports / portals.  
 **Binding amendments:** [10-usability-amendments.md](./10-usability-amendments.md) (A–J) — every implementation decision must follow them
 
 ---
