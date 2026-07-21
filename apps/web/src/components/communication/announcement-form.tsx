@@ -95,12 +95,18 @@ export function AnnouncementForm({
   mode,
   announcement,
   properties,
-  initialPropertyId
+  initialPropertyId,
+  initialTitle = null,
+  initialMessage = null,
+  initialTargetingScope = null
 }: {
   mode: "create" | "edit";
   announcement?: AnnouncementRecord | null;
   properties: Array<{ id: string; name: string }>;
   initialPropertyId?: string | null;
+  initialTitle?: string | null;
+  initialMessage?: string | null;
+  initialTargetingScope?: AnnouncementTargetingScope | null;
 }) {
   const router = useRouter();
   const [values, setValues] = useState<AnnouncementFormValues>(() => {
@@ -110,9 +116,11 @@ export function AnnouncementForm({
     const targetPropertyId = resolveContextId(initialPropertyId, memory?.propertyId, propertyIds);
     const rememberedScope = memory?.announcementScope;
     const targetingScope =
-      rememberedScope && ANNOUNCEMENT_TARGETING_SCOPES.includes(rememberedScope as AnnouncementTargetingScope)
-        ? (rememberedScope as AnnouncementTargetingScope)
-        : DEFAULT_VALUES.targetingScope;
+      initialTargetingScope && ANNOUNCEMENT_TARGETING_SCOPES.includes(initialTargetingScope)
+        ? initialTargetingScope
+        : rememberedScope && ANNOUNCEMENT_TARGETING_SCOPES.includes(rememberedScope as AnnouncementTargetingScope)
+          ? (rememberedScope as AnnouncementTargetingScope)
+          : DEFAULT_VALUES.targetingScope;
     const rememberedCategory = memory?.announcementCategory;
     const category =
       rememberedCategory && ANNOUNCEMENT_CATEGORIES.includes(rememberedCategory as AnnouncementRecord["category"])
@@ -120,6 +128,8 @@ export function AnnouncementForm({
         : DEFAULT_VALUES.category;
     return {
       ...DEFAULT_VALUES,
+      title: initialTitle?.trim() || DEFAULT_VALUES.title,
+      message: initialMessage?.trim() || DEFAULT_VALUES.message,
       targetingScope,
       category,
       targetPropertyId
