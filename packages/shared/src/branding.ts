@@ -21,18 +21,6 @@ export const MPA_LOGO_INTRINSIC_SIZE = 512;
 /** Embedded wordmark in PNG is not trusted below this display width. */
 export const MPA_BRAND_EMBEDDED_TEXT_MIN_PX = 80;
 
-/**
- * ADR-019 assets include house + baked-in wordmark.
- * For markRole symbol/icon, crop to the house region so UI never shows faint PNG text.
- * Values are calibrated against logo-dark/logo-light content bbox (house ≈ y 27%–56%).
- */
-export const MPA_BRAND_SYMBOL_CROP = {
-  /** CSS object-position Y — house center in the 512 asset. */
-  focusYPercent: 39,
-  /** Zoom factor inside the square viewport (clips bottom wordmark). */
-  zoom: 2.35
-} as const;
-
 /** Display floors for hero/display marks. */
 export const MPA_BRAND_MIN_MARK_PX = {
   icon: 48,
@@ -50,8 +38,8 @@ export const MPA_LOGO_WIDTH = {
   sidebarExpanded: 56,
   navigation: 56,
   login: 160,
-  loading: 96,
-  mobile: 48,
+  loading: 160,
+  mobile: 80,
   email: 56,
   pdf: 56,
   inline: 52
@@ -109,18 +97,19 @@ export function resolveBrandPresentation(
     case "login":
     case "marketing":
     case "onboarding":
+      // Full approved logo carries name/tagline; theme surface picks light vs dark asset.
       return {
         purpose,
         mode: "hero",
         markPx: MPA_BRAND_MIN_MARK_PX.authentication,
         markRole: "display",
         brandNameScale: "hero",
-        showBrandName: true,
-        showTagline: true,
-        showProductLine: true,
-        useLockup: true,
+        showBrandName: false,
+        showTagline: false,
+        showProductLine: false,
+        useLockup: false,
         layout: "stack",
-        allowsIconOnly: false
+        allowsIconOnly: true
       };
     case "splash":
       return {
@@ -129,93 +118,94 @@ export function resolveBrandPresentation(
         markPx: MPA_BRAND_MIN_MARK_PX.splash,
         markRole: "display",
         brandNameScale: "hero",
-        showBrandName: true,
-        showTagline: true,
-        showProductLine: true,
-        useLockup: true,
+        showBrandName: false,
+        showTagline: false,
+        showProductLine: false,
+        useLockup: false,
         layout: "stack",
-        allowsIconOnly: false
+        allowsIconOnly: true
       };
     case "sidebar":
+      // Dark sidebar always uses logo-light via BrandSurfaceTone; show full approved logo.
       if (collapsed) {
         return {
           purpose,
           mode: "compact",
-          markPx: MPA_BRAND_MIN_MARK_PX.symbol,
-          markRole: "symbol",
+          markPx: MPA_BRAND_MIN_MARK_PX.navigation,
+          markRole: "display",
           brandNameScale: "compact",
-          showBrandName: true,
+          showBrandName: false,
           showTagline: false,
           showProductLine: false,
-          useLockup: true,
+          useLockup: false,
           layout: "inline",
-          allowsIconOnly: false
+          allowsIconOnly: true
         };
       }
       return {
         purpose,
         mode: "standard",
-        markPx: MPA_BRAND_MIN_MARK_PX.symbol,
-        markRole: "symbol",
+        markPx: MPA_BRAND_MIN_MARK_PX.navigation,
+        markRole: "display",
         brandNameScale: "standard",
-        showBrandName: true,
-        showTagline: true,
+        showBrandName: false,
+        showTagline: false,
         showProductLine: false,
-        useLockup: true,
+        useLockup: false,
         layout: "inline",
-        allowsIconOnly: false
+        allowsIconOnly: true
       };
     case "drawer":
-      // BR-002 / BR-002A: typography carries the brand — do not scale artwork for wordmark.
       if (collapsed) {
         return {
           purpose,
           mode: "compact",
-          markPx: MPA_BRAND_MIN_MARK_PX.symbol,
-          markRole: "symbol",
+          markPx: MPA_BRAND_MIN_MARK_PX.navigation,
+          markRole: "display",
           brandNameScale: "large",
-          showBrandName: true,
+          showBrandName: false,
           showTagline: false,
           showProductLine: false,
-          useLockup: true,
+          useLockup: false,
           layout: "inline",
-          allowsIconOnly: false
+          allowsIconOnly: true
         };
       }
       return {
         purpose,
         mode: "compact",
-        markPx: 64,
-        markRole: "symbol",
+        markPx: 96,
+        markRole: "display",
         brandNameScale: "large",
-        showBrandName: true,
-        showTagline: true,
+        showBrandName: false,
+        showTagline: false,
         showProductLine: false,
-        useLockup: true,
+        useLockup: false,
         layout: "stack",
-        allowsIconOnly: false
+        allowsIconOnly: true
       };
     case "header":
+      // Mobile/portal header: full theme logo only (light → logo-dark, dark → logo-light).
       return {
         purpose,
         mode: "compact",
-        markPx: MPA_BRAND_MIN_MARK_PX.symbol,
-        markRole: "symbol",
+        markPx: MPA_BRAND_MIN_MARK_PX.navigation,
+        markRole: "display",
         brandNameScale: "large",
-        showBrandName: true,
+        showBrandName: false,
         showTagline: false,
         showProductLine: false,
-        useLockup: true,
+        useLockup: false,
         layout: "inline",
-        allowsIconOnly: false
+        allowsIconOnly: true
       };
     case "loading":
-      // BR-002A: elegant house mark only — never tiny full-logo wordmark.
+      // Full theme logo — same asset switch as every other surface.
       return {
         purpose,
         mode: "loading",
         markPx: MPA_LOGO_WIDTH.loading,
-        markRole: "symbol",
+        markRole: "display",
         brandNameScale: "compact",
         showBrandName: false,
         showTagline: false,

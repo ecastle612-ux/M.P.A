@@ -105,32 +105,27 @@ function runPresentationRuleChecks(): string[] {
   const violations: string[] = [];
   const loading = resolveBrandPresentation("loading");
   if (loading.showBrandName || loading.useLockup) {
-    violations.push("loading must be house-mark-only (no typography lockup inside BrandLogo)");
+    violations.push("loading must render the theme logo only (no extra typography lockup)");
   }
-  if (loading.markRole !== "symbol") {
-    violations.push("loading mark must be symbol role (not full-wordmark display)");
+  if (loading.markRole !== "display") {
+    violations.push("loading must use the full approved logo asset");
   }
   if (loading.markPx < 96) {
-    violations.push("loading mark must be ≥96px for house recognition");
-  }
-
-  const drawer = resolveBrandPresentation("drawer");
-  if (!drawer.showBrandName || !drawer.showTagline || drawer.markRole !== "symbol") {
-    violations.push("drawer must use symbol mark + typography M.P.A. + tagline");
-  }
-  if (drawer.allowsIconOnly) {
-    violations.push("drawer must never allow icon-only");
+    violations.push("loading mark must be ≥96px");
   }
 
   const login = resolveBrandPresentation("login");
-  if (!login.showProductLine || login.mode !== "hero") {
-    violations.push("login must be hero with Property Operations OS line");
+  if (login.mode !== "hero" || login.markRole !== "display") {
+    violations.push("login must be hero full logo");
   }
 
-  for (const purpose of ["drawer", "header", "sidebar"] as BrandLogoPurpose[]) {
+  for (const purpose of ["drawer", "header", "sidebar", "loading"] as BrandLogoPurpose[]) {
     const presentation = resolveBrandPresentation(purpose);
-    if (presentation.mode === "icon") {
-      violations.push(`${purpose}: icon-only forbidden on product chrome`);
+    if (presentation.markRole !== "display") {
+      violations.push(`${purpose}: must use full logo-dark / logo-light asset`);
+    }
+    if (presentation.showBrandName) {
+      violations.push(`${purpose}: do not duplicate PNG wordmark with typography`);
     }
   }
 

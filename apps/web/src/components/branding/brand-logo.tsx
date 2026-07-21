@@ -5,14 +5,12 @@ import { cn } from "@mpa/ui";
 import {
   MPA_BRAND_NAME,
   MPA_BRAND_PRODUCT_LINE,
-  MPA_BRAND_SYMBOL_CROP,
   MPA_BRAND_TAGLINE,
   MPA_LOGO_ASPECT_RATIO,
-  logoPathForBackground,
+  logoPathForTone,
   resolveBrandPresentation,
   type BrandLogoPurpose,
   type BrandLogoTone,
-  type BrandMarkRole,
   type BrandNameScale,
   type BrandSurfaceTone
 } from "../../lib/branding";
@@ -44,8 +42,11 @@ export type BrandLogoProps = {
 };
 
 /**
- * BR-001 / BR-002 / BR-002A — Sole approved React brand API.
- * Brand recognition takes priority over logo fidelity.
+ * Two logos only:
+ * - light surface → /branding/logo-dark.png
+ * - dark surface  → /branding/logo-light.png
+ *
+ * Purpose only controls size/lockup. Never invent a third asset.
  */
 export function BrandLogo({
   purpose,
@@ -66,23 +67,29 @@ export function BrandLogo({
   const markPx = presentation.markPx;
   const showTypography =
     presentation.showBrandName || presentation.showTagline || presentation.showProductLine;
-  const logoSrc = logoPathForBackground("auto", surfaceTone);
+  // Explicit: light chrome → logo-dark; dark chrome → logo-light.
+  const logoSrc = logoPathForTone(surfaceTone);
   const isDecorative = decorative || ariaHidden;
+  const markHeight = Math.round(markPx * MPA_LOGO_ASPECT_RATIO);
   const accessibleName = `${MPA_BRAND_NAME} ${MPA_BRAND_TAGLINE}`;
 
-  // Solid Canopy ink — never rely on theme vars that can invert during SSR/theme sync.
   const textTone = surfaceTone === "dark-surface" ? "text-[#F3F4F6]" : "text-[#12151A]";
   const mutedTone = surfaceTone === "dark-surface" ? "text-white/80" : "text-[#4B5563]";
   const productTone = surfaceTone === "dark-surface" ? "text-white/55" : "text-[#6B7280]";
 
   const mark = (
-    <BrandMark
+    // eslint-disable-next-line @next/next/no-img-element -- BrandLogo owns approved branding assets.
+    <img
       src={logoSrc}
-      markPx={markPx}
-      markRole={presentation.markRole}
-      priority={priority}
       alt={isDecorative || showTypography ? "" : accessibleName}
-      ariaHidden={isDecorative || showTypography || undefined}
+      width={markPx}
+      height={markHeight}
+      decoding="async"
+      fetchPriority={priority ? "high" : "auto"}
+      aria-hidden={isDecorative || showTypography || undefined}
+      className="block h-auto max-w-full shrink-0 object-contain"
+      style={{ width: markPx, height: "auto" }}
+      suppressHydrationWarning
     />
   );
 
@@ -144,70 +151,6 @@ export function BrandLogo({
           </span>
         ) : null}
       </span>
-    </span>
-  );
-}
-
-function BrandMark({
-  src,
-  markPx,
-  markRole,
-  priority,
-  alt,
-  ariaHidden
-}: {
-  src: string;
-  markPx: number;
-  markRole: BrandMarkRole;
-  priority: boolean;
-  alt: string;
-  ariaHidden: boolean | undefined;
-}) {
-  const cropHouse = markRole === "symbol" || markRole === "icon";
-  const markHeight = Math.round(markPx * MPA_LOGO_ASPECT_RATIO);
-
-  if (!cropHouse) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- BrandLogo owns approved branding assets.
-      <img
-        src={src}
-        alt={alt}
-        width={markPx}
-        height={markHeight}
-        decoding="async"
-        fetchPriority={priority ? "high" : "auto"}
-        aria-hidden={ariaHidden}
-        className="block h-auto max-w-full shrink-0 object-contain"
-        style={{ width: markPx, height: "auto" }}
-        suppressHydrationWarning
-      />
-    );
-  }
-
-  const zoomed = Math.round(markPx * MPA_BRAND_SYMBOL_CROP.zoom);
-
-  return (
-    <span
-      className="relative block shrink-0 overflow-hidden"
-      style={{ width: markPx, height: markPx }}
-      aria-hidden={ariaHidden}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element -- BrandLogo owns approved branding assets. */}
-      <img
-        src={src}
-        alt={alt}
-        width={zoomed}
-        height={zoomed}
-        decoding="async"
-        fetchPriority={priority ? "high" : "auto"}
-        className="pointer-events-none absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
-        style={{
-          width: zoomed,
-          height: zoomed,
-          objectPosition: `50% ${MPA_BRAND_SYMBOL_CROP.focusYPercent}%`
-        }}
-        suppressHydrationWarning
-      />
     </span>
   );
 }

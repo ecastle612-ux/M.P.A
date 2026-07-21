@@ -1,6 +1,6 @@
 /* Offline PWA worker. Only registered when OneSignal is not configured
  * (see register-service-worker.tsx) to avoid root-scope conflicts. */
-const CACHE_NAME = "mpa-foundation-v2";
+const CACHE_NAME = "mpa-foundation-v3";
 const STATIC_ASSETS = ["/", "/offline.html", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
