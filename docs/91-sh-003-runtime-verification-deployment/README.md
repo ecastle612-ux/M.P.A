@@ -1,7 +1,7 @@
 # SH-003 — Runtime Verification & Deployment Certification
 
 **Initiative ID:** SH-003  
-**Status:** In progress — fix incomplete until Deployed + Verified + User workflow PASS  
+**Status:** ⏳ Awaiting User Verification — deployed + deployment-verified; not PASS until phone workflow  
 **Blocks:** UX-009 expansion; SH-002 cannot be marked PASS without this  
 
 ---
@@ -10,12 +10,12 @@
 
 | Step | Status |
 | --- | --- |
-| Implemented | ☐ |
-| Committed | ☐ |
-| Pushed | ☐ |
-| Deployed | ☐ |
-| Deployment Verified | ☐ |
-| Awaiting User Verification / User Verified | ☐ |
+| Implemented | ✅ |
+| Committed | ✅ `578f3e3` |
+| Pushed | ✅ |
+| Deployed | ✅ `dpl_AGDJGuog2QqDMTZX4DC5TKkzHddZ` |
+| Deployment Verified | ✅ SW v4 + commit + live instrumentation |
+| Awaiting User Verification / User Verified | ⏳ Awaiting User Verification |
 
 **PASS only after the deployed app behaves correctly on the exact user workflow.**
 

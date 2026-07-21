@@ -84,6 +84,7 @@ export function initShellRuntimeTrace(): void {
 
 export function shellTrace(type: string, detail?: Record<string, unknown>): void {
   if (!enabled || typeof window === "undefined") return;
-  events.push({ t: now(), type, detail });
+  const event: ShellTraceEvent = detail === undefined ? { t: now(), type } : { t: now(), type, detail };
+  events.push(event);
   if (events.length > MAX_EVENTS) events.splice(0, events.length - MAX_EVENTS);
 }
