@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useState, type UIEvent } from "react";
 import Link from "next/link";
 import { Button, Drawer } from "@mpa/ui";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { NAV_ICON_MAP } from "../presentation/nav-icons";
 import { MobileBrandLockup } from "./mobile-brand-lockup";
 import { OrganizationSwitcher } from "./organization-switcher";
@@ -22,10 +22,14 @@ import {
 } from "./navigation-config";
 import { useMobileNavSignals } from "./use-mobile-nav-signals";
 import { useSessionPermissions } from "./use-session-permissions";
+import { useOrganizationContext } from "./organization-context";
+import { searchCommandCenter } from "../../lib/command-center/registry";
+import type { CommandCenterResult } from "../../lib/command-center/types";
 import {
   getFavoriteItems,
   getRecentItems,
   isFavoriteItem,
+  recordRecentItem,
   toggleFavoriteItem,
   type CommandCenterStoredItem
 } from "../../lib/command-center/storage";
@@ -69,9 +73,13 @@ export function ResponsiveNavigation() {
   const [favorites, setFavorites] = useState<CommandCenterStoredItem[]>([]);
   const [recents, setRecents] = useState<CommandCenterStoredItem[]>([]);
   const [favoriteTick, setFavoriteTick] = useState(0);
+  const [entityResults, setEntityResults] = useState<CommandCenterResult[]>([]);
+  const [entitySearching, setEntitySearching] = useState(false);
   const createMenuId = useId();
   const pathname = usePathname();
-  const { canAccess } = useSessionPermissions();
+  const router = useRouter();
+  const { canAccess, permissions, loaded: permissionsLoaded } = useSessionPermissions();
+  const { organizations } = useOrganizationContext();
   const { badges, health } = useMobileNavSignals(open);
 
   const accessibleItems = useMemo(
@@ -123,6 +131,45 @@ export function ResponsiveNavigation() {
     if (!open) return;
     setFavorites(getFavoriteItems().slice(0, 8));
   }, [open, favoriteTick]);
+
+  useEffect(() => {
+    if (!open || !permissionsLoaded) return;
+    const query = searchQuery.trim();
+    if (query.length < 2) {
+      setEntityResults([]);
+      setEntitySearching(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      setEntitySearching(true);
+      void searchCommandCenter({
+        query,
+        organizations,
+        permissions,
+        signal: controller.signal
+      })
+        .then((sections) => {
+          const flat = sections
+            .flatMap((section) => section.items)
+            .filter((item) => Boolean(item.href) && item.kind !== "navigation")
+            .slice(0, 10);
+          setEntityResults(flat);
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) setEntityResults([]);
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setEntitySearching(false);
+        });
+    }, 220);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeout);
+    };
+  }, [open, searchQuery, organizations, permissions, permissionsLoaded]);
 
   function closeDrawer() {
     setOpen(false);
@@ -280,29 +327,76 @@ export function ResponsiveNavigation() {
 
           <div className="space-y-5 px-5 pb-5 pt-4">
             {searchQuery.trim() ? (
-              <section aria-label="Search results" className="space-y-1">
-                <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
-                  Jump to
-                </p>
-                {searchResults.length === 0 ? (
-                  <p className="px-1 py-3 text-sm text-[var(--mpa-color-text-secondary)]">No matching screens.</p>
-                ) : (
-                  <ul className="space-y-0.5">
-                    {searchResults.map((item) => (
-                      <li key={`search-${item.href}`}>
-                        <NavRow
-                          item={item}
-                          pathname={pathname}
-                          badge={item.badgeKey ? badges[item.badgeKey] : undefined}
-                          favorite={isFavoriteItem(navItemFavoriteKey(item.href))}
-                          onNavigate={closeDrawer}
-                          onToggleFavorite={() => toggleFavorite(item)}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
+              <div className="space-y-4">
+                <section aria-label="Entity results" className="space-y-1">
+                  <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
+                    People & records
+                  </p>
+                  {entitySearching ? (
+                    <p className="px-1 py-2 text-sm text-[var(--mpa-color-text-secondary)]">Searching…</p>
+                  ) : entityResults.length === 0 ? (
+                    <p className="px-1 py-2 text-sm text-[var(--mpa-color-text-muted)]">
+                      No matching residents, properties, or work orders yet.
+                    </p>
+                  ) : (
+                    <ul className="space-y-0.5">
+                      {entityResults.map((item) => (
+                        <li key={`entity-${item.id}`}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!item.href) return;
+                              recordRecentItem({
+                                key: item.id,
+                                kind: item.kind,
+                                label: item.label,
+                                subtitle: item.subtitle ?? item.kind,
+                                context: null,
+                                badge: item.kind,
+                                status: null,
+                                href: item.href
+                              });
+                              closeDrawer();
+                              router.push(item.href);
+                            }}
+                            className="flex min-h-11 w-full flex-col justify-center rounded-[var(--mpa-radius-md)] px-2.5 py-2 text-left hover:bg-[var(--mpa-color-bg-app)]"
+                          >
+                            <span className="truncate text-sm font-medium text-[var(--mpa-color-text-primary)]">
+                              {item.label}
+                            </span>
+                            <span className="truncate text-xs text-[var(--mpa-color-text-secondary)]">
+                              {item.subtitle ?? item.kind}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+                <section aria-label="Screen results" className="space-y-1">
+                  <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
+                    Screens
+                  </p>
+                  {searchResults.length === 0 ? (
+                    <p className="px-1 py-2 text-sm text-[var(--mpa-color-text-secondary)]">No matching screens.</p>
+                  ) : (
+                    <ul className="space-y-0.5">
+                      {searchResults.map((item) => (
+                        <li key={`search-${item.href}`}>
+                          <NavRow
+                            item={item}
+                            pathname={pathname}
+                            badge={item.badgeKey ? badges[item.badgeKey] : undefined}
+                            favorite={isFavoriteItem(navItemFavoriteKey(item.href))}
+                            onNavigate={closeDrawer}
+                            onToggleFavorite={() => toggleFavorite(item)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              </div>
             ) : (
               <>
                 <section aria-label="Favorites" className="space-y-1">

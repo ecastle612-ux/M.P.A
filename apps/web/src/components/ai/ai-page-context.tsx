@@ -1,0 +1,194 @@
+"use client";
+
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode
+} from "react";
+import type { PromptKey } from "../../lib/ai/contracts";
+
+export type AiPageEntityType =
+  | "dashboard"
+  | "property"
+  | "resident"
+  | "unit"
+  | "work_order"
+  | "lease"
+  | "vendor"
+  | "applicant"
+  | "financial"
+  | "report"
+  | "messages"
+  | "settings"
+  | "generic";
+
+export type AiPageContextValue = {
+  entityType: AiPageEntityType;
+  entityId?: string | null;
+  entityLabel?: string | null;
+  launcherLabel: string;
+  suggestions: Array<{ id: string; label: string; promptKey?: PromptKey; message?: string }>;
+};
+
+const DEFAULT_CONTEXT: AiPageContextValue = {
+  entityType: "generic",
+  launcherLabel: "Ask about your portfolio",
+  suggestions: [
+    {
+      id: "portfolio",
+      label: "Ask about your portfolio",
+      promptKey: "portfolio_summary"
+    }
+  ]
+};
+
+const AiPageContext = createContext<AiPageContextValue>(DEFAULT_CONTEXT);
+const AiPageContextSetter = createContext<(value: AiPageContextValue | null) => void>(() => undefined);
+
+export function AiPageContextProvider({ children }: { children: ReactNode }) {
+  const [override, setOverride] = useState<AiPageContextValue | null>(null);
+  const value = override ?? DEFAULT_CONTEXT;
+
+  return (
+    <AiPageContextSetter.Provider value={setOverride}>
+      <AiPageContext.Provider value={value}>{children}</AiPageContext.Provider>
+    </AiPageContextSetter.Provider>
+  );
+}
+
+export function useAiPageContext() {
+  return useContext(AiPageContext);
+}
+
+/** Register route context for the floating copilot (Amendment D). Clears on unmount. */
+export function AiPageContextBridge(props: AiPageContextValue) {
+  const setOverride = useContext(AiPageContextSetter);
+  const serialized = useMemo(() => JSON.stringify(props), [props]);
+
+  useEffect(() => {
+    setOverride(JSON.parse(serialized) as AiPageContextValue);
+    return () => setOverride(null);
+  }, [serialized, setOverride]);
+
+  return null;
+}
+
+export function buildAiPageContext(input: {
+  entityType: AiPageEntityType;
+  entityId?: string | null;
+  entityLabel?: string | null;
+}): AiPageContextValue {
+  const label = input.entityLabel?.trim() || null;
+  switch (input.entityType) {
+    case "dashboard":
+      return {
+        ...input,
+        launcherLabel: "What requires attention today?",
+        suggestions: [
+          {
+            id: "attention",
+            label: "What requires attention today?",
+            promptKey: "summarize_today_activity"
+          },
+          {
+            id: "maintenance",
+            label: "Show overdue maintenance",
+            promptKey: "show_overdue_maintenance"
+          }
+        ]
+      };
+    case "property":
+      return {
+        ...input,
+        launcherLabel: label ? `Ask about ${label}` : "Ask about this property",
+        suggestions: [
+          {
+            id: "ask-property",
+            label: label ? `Ask about ${label}` : "Ask about this property",
+            message: label
+              ? `Summarize operational status, vacancies, and open work for property ${label}.`
+              : "Summarize this property's operational status, vacancies, and open work."
+          },
+          {
+            id: "occupancy",
+            label: "Explain occupancy",
+            promptKey: "explain_occupancy"
+          }
+        ]
+      };
+    case "resident":
+      return {
+        ...input,
+        launcherLabel: label ? `Ask about ${label}` : "Ask about this resident",
+        suggestions: [
+          {
+            id: "ask-resident",
+            label: label ? `Ask about ${label}` : "Ask about this resident",
+            message: label
+              ? `Summarize lease, balance, and open maintenance for resident ${label}.`
+              : "Summarize this resident's lease, balance, and open maintenance."
+          }
+        ]
+      };
+    case "work_order":
+      return {
+        ...input,
+        launcherLabel: "Summarize this work order",
+        suggestions: [
+          {
+            id: "summarize-wo",
+            label: "Summarize this work order",
+            promptKey: "draft_maintenance_update",
+            message: label
+              ? `Summarize work order ${label}: status, urgency, and next step.`
+              : "Summarize this work order: status, urgency, and next step."
+          },
+          {
+            id: "suggest-vendor",
+            label: "Suggest vendor",
+            promptKey: "summarize_vendor_performance",
+            message: "Suggest a suitable vendor for this work order based on category and history."
+          },
+          {
+            id: "draft-response",
+            label: "Draft response",
+            promptKey: "draft_maintenance_update"
+          }
+        ]
+      };
+    case "financial":
+    case "report":
+      return {
+        ...input,
+        launcherLabel: "Explain financials",
+        suggestions: [
+          {
+            id: "explain-financials",
+            label: "Explain financials",
+            promptKey: "summarize_financial_health"
+          }
+        ]
+      };
+    case "messages":
+      return {
+        ...input,
+        launcherLabel: "Help with communications",
+        suggestions: [
+          {
+            id: "draft-announcement",
+            label: "Draft announcement",
+            promptKey: "draft_announcement"
+          }
+        ]
+      };
+    default:
+      return {
+        ...input,
+        launcherLabel: "Ask about your portfolio",
+        suggestions: DEFAULT_CONTEXT.suggestions
+      };
+  }
+}

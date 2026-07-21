@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Avatar, Badge, Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
+import { Avatar, Badge, Card, DetailHero, DetailMetric } from "@mpa/ui";
+import { AiPageContextBridge, buildAiPageContext } from "../../../../components/ai/ai-page-context";
 import { DetailPageLayout } from "../../../../components/presentation/detail-page-layout";
+import { DiscloseSection } from "../../../../components/presentation/disclose-section";
+import { EntityActionToolbelt } from "../../../../components/presentation/entity-action-toolbelt";
 import { EntityRelationshipChain } from "../../../../components/presentation/entity-relationship-chain";
 import { TenantContextRail } from "../../../../components/presentation/context-rails/tenant-context-rail";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
@@ -49,6 +52,10 @@ export default async function TenantDetailPage({
   const canReadProperty = evaluatePermission(authorization, "property:read");
   const canReadUnit = evaluatePermission(authorization, "unit:read");
   const canReadFinancials = evaluatePermission(authorization, "financial:read");
+  const canCreateFinancial = evaluatePermission(authorization, "financial:create");
+  const canCreateMaintenance = evaluatePermission(authorization, "maintenance:create");
+  const canReadCommunications = evaluatePermission(authorization, "communication:read");
+  const canReadLeases = evaluatePermission(authorization, "lease:read");
   const displayName = tenant.preferredName || `${tenant.firstName} ${tenant.lastName}`;
 
   const portfolioCounts = from === "tenant-created" ? await getPortfolioCounts(organizationId) : null;
@@ -171,8 +178,65 @@ export default async function TenantDetailPage({
         ? "Review open maintenance requests linked to this tenant."
         : "Tenant is in good standing — consider a renewal outreach.";
 
+  const toolbeltPrimary = [
+    canReadCommunications
+      ? {
+          id: "message",
+          label: "Message",
+          href: "/communications",
+          variant: "secondary" as const
+        }
+      : null,
+    canCreateFinancial || canReadFinancials
+      ? {
+          id: "collect-rent",
+          label: "Collect Rent",
+          href: canCreateFinancial
+            ? `/financials/payments/new?tenantId=${encodeURIComponent(tenantId)}`
+            : `/financials/charges?tenantId=${encodeURIComponent(tenantId)}`,
+          variant: "primary" as const
+        }
+      : null,
+    canCreateMaintenance
+      ? {
+          id: "maintenance",
+          label: "Maintenance",
+          href: `/maintenance/new?tenantId=${encodeURIComponent(tenantId)}${
+            tenant.propertyId ? `&propertyId=${encodeURIComponent(tenant.propertyId)}` : ""
+          }${tenant.unitId ? `&unitId=${encodeURIComponent(tenant.unitId)}` : ""}`,
+          variant: "secondary" as const
+        }
+      : null,
+    canReadLeases
+      ? {
+          id: "lease",
+          label: "Lease",
+          href: leaseRow ? `/leases/${leaseRow.id}` : "/leases/new?tenantId=" + encodeURIComponent(tenantId),
+          variant: "secondary" as const
+        }
+      : null
+  ].filter(Boolean) as Array<{
+    id: string;
+    label: string;
+    href: string;
+    variant: "primary" | "secondary" | "ghost";
+  }>;
+
+  const toolbeltMore = [
+    canUpdateTenant ? { id: "edit", label: "Edit resident", href: `/tenants/${tenant.id}/edit` } : null,
+    { id: "back", label: "Back to residents", href: "/tenants" }
+  ].filter(Boolean) as Array<{ id: string; label: string; href: string }>;
+
   return (
-    <DetailPageLayout
+    <>
+      <AiPageContextBridge
+        {...buildAiPageContext({
+          entityType: "resident",
+          entityId: tenantId,
+          entityLabel: displayName
+        })}
+      />
+      <DetailPageLayout
       breadcrumbs={[
         { href: "/dashboard", label: "Dashboard" },
         { href: "/tenants", label: "Tenants" },
@@ -199,6 +263,7 @@ export default async function TenantDetailPage({
         <DetailHero
           title={displayName}
           subtitle={`Legal name: ${tenant.firstName} ${tenant.lastName}`}
+          attention={recommendedAction}
           badges={
             <Badge
               variant={tenant.status === "active" ? "success" : tenant.status === "archived" ? "warning" : "info"}
@@ -215,21 +280,11 @@ export default async function TenantDetailPage({
               <DetailMetric label="Property" value={tenant.propertyName ?? "Not assigned"} />
             </>
           }
-          actions={
-            <>
-              {canUpdateTenant ? (
-                <Link href={`/tenants/${tenant.id}/edit`}>
-                  <Button>Edit Tenant</Button>
-                </Link>
-              ) : null}
-              <Link href="/tenants">
-                <Button variant="ghost">Back to Tenants</Button>
-              </Link>
-            </>
-          }
         />
       }
+      toolbelt={<EntityActionToolbelt actions={toolbeltPrimary} moreActions={toolbeltMore} />}
       main={
+        <>
         <Card variant="elevated" className="space-y-4">
           <div className="flex items-center gap-3">
             <Avatar
@@ -279,29 +334,34 @@ export default async function TenantDetailPage({
               )}
             </div>
           </div>
-
-          <div>
-            <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Emergency contact</h3>
-            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              {tenant.emergencyContactName ?? "No emergency contact"}{" "}
-              {tenant.emergencyContactPhone ? `(${tenant.emergencyContactPhone})` : ""}
-            </p>
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Notes</h3>
-            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              {tenant.notes ? tenant.notes : "No notes added."}
-            </p>
-          </div>
-          <div className="rounded-[var(--mpa-radius-lg)] border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] p-3">
-            <p className="mpa-section-label">Document notes</p>
-            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              {tenant.documentsPlaceholder?.trim()
-                ? tenant.documentsPlaceholder
-                : "No document notes yet. Organization files are available in Settings → Documents."}
-            </p>
-          </div>
         </Card>
+
+        <DiscloseSection title="Notes & documents" description="Emergency contact, notes, and document placeholders.">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Emergency contact</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                {tenant.emergencyContactName ?? "No emergency contact"}{" "}
+                {tenant.emergencyContactPhone ? `(${tenant.emergencyContactPhone})` : ""}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Notes</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                {tenant.notes ? tenant.notes : "No notes added."}
+              </p>
+            </div>
+            <div className="rounded-[var(--mpa-radius-lg)] border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] p-3">
+              <p className="mpa-section-label">Document notes</p>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                {tenant.documentsPlaceholder?.trim()
+                  ? tenant.documentsPlaceholder
+                  : "No document notes yet. Organization files are available in Settings → Documents."}
+              </p>
+            </div>
+          </div>
+        </DiscloseSection>
+        </>
       }
       contextRail={
         <TenantContextRail
@@ -332,5 +392,6 @@ export default async function TenantDetailPage({
         />
       }
     />
+    </>
   );
 }

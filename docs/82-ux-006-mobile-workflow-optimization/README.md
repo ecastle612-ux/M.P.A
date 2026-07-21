@@ -1,9 +1,10 @@
 # UX-006 — Mobile Workflow Optimization
 
 **Initiative ID:** UX-006  
-**Status:** Design ✔ · Document ✔ · **Awaiting Approve** · Implement locked  
+**Status:** Design ✔ · Document ✔ · **Absorbed by UX-009** · Do not approve/implement separately  
 **Constraint:** Presentation / navigation / interaction patterns only — no workflow redesign, no new product features, no business-logic changes  
-**Aligns with:** Canopy (06), Experience Architecture (21), UX Principles (07)
+**Aligns with:** Canopy (06), Experience Architecture (21), UX Principles (07)  
+**Superseded by:** [UX-009 Cognitive Load & Workflow Optimization](../88-ux-009-cognitive-load-workflow-optimization/README.md) (patterns A–G folded into UX-009 pattern system)
 
 ---
 
@@ -33,4 +34,4 @@ Eliminate unnecessary scrolling and taps while preserving architecture and busin
 
 ## Approval
 
-Reply **`APPROVE UX-006`** to unlock implementation within this package.
+**Do not approve UX-006.** Reply **`APPROVE UX-009`** instead — implementation lands under the UX-009 package.

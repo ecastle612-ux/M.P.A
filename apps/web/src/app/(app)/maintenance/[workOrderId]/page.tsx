@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
+import { Card, DetailHero, DetailMetric } from "@mpa/ui";
+import { AiPageContextBridge, buildAiPageContext } from "../../../../components/ai/ai-page-context";
 import { DetailPageLayout } from "../../../../components/presentation/detail-page-layout";
+import { DiscloseSection } from "../../../../components/presentation/disclose-section";
+import { EntityActionToolbelt } from "../../../../components/presentation/entity-action-toolbelt";
 import { EntityRelationshipChain } from "../../../../components/presentation/entity-relationship-chain";
 import { MaintenanceContextRail } from "../../../../components/presentation/context-rails/maintenance-context-rail";
 import { isWorkOrderOverdue, PriorityBadge, StatusBadge } from "../../../../components/maintenance/maintenance-badges";
@@ -182,6 +185,13 @@ export default async function WorkOrderDetailPage({
         <DetailHero
           title={workOrder.title}
           subtitle={`${workOrder.workOrderNumber} · ${toMaintenanceCategoryLabel(workOrder.category)}`}
+          attention={
+            overdue
+              ? "Overdue — complete or reassign now."
+              : !currentVendorAssignment && workOrder.status !== "completed" && workOrder.status !== "cancelled"
+                ? "No vendor assigned yet."
+                : `Status: ${workOrder.status.replaceAll("_", " ")}`
+          }
           badges={
             <>
               <PriorityBadge priority={workOrder.priority} />
@@ -203,33 +213,65 @@ export default async function WorkOrderDetailPage({
               />
             </>
           }
-          actions={
-            <>
-              {facilityRecord ? (
-                <Link href={`/facility/records/${facilityRecord.id}`}>
-                  <Button>View Facility Record</Button>
-                </Link>
-              ) : null}
-              {(canUpdate || canAssignVendor) &&
-              (workOrder.status === "submitted" || workOrder.status === "triaged") ? (
-                <Link href="#vendor">
-                  <Button variant={facilityRecord ? "secondary" : "primary"}>Assign Vendor</Button>
-                </Link>
-              ) : null}
-              {canUpdate || canAssign ? (
-                <Link href={`/maintenance/${workOrder.id}/edit`}>
-                  <Button variant="ghost">Edit details</Button>
-                </Link>
-              ) : null}
-              <Link href="/maintenance">
-                <Button variant="ghost">Back to list</Button>
-              </Link>
-            </>
-          }
+        />
+      }
+      toolbelt={
+        <EntityActionToolbelt
+          actions={[
+            ...(canAssignVendor &&
+            (workOrder.status === "submitted" || workOrder.status === "triaged" || !currentVendorAssignment)
+              ? [
+                  {
+                    id: "assign-vendor",
+                    label: "Assign Vendor",
+                    href: "#vendor",
+                    variant: "primary" as const
+                  }
+                ]
+              : []),
+            ...(canUpdate || canAssign
+              ? [
+                  {
+                    id: "complete",
+                    label: "Complete",
+                    href: "#workflow",
+                    variant: "secondary" as const
+                  }
+                ]
+              : []),
+            {
+              id: "timeline",
+              label: "Timeline",
+              href: "#timeline",
+              variant: "secondary" as const
+            },
+            {
+              id: "photos",
+              label: "Photos",
+              href: "#attachments",
+              variant: "secondary" as const
+            }
+          ]}
+          moreActions={[
+            ...(facilityRecord
+              ? [{ id: "facility", label: "View facility record", href: `/facility/records/${facilityRecord.id}` }]
+              : []),
+            ...(canUpdate || canAssign
+              ? [{ id: "edit", label: "Edit details", href: `/maintenance/${workOrder.id}/edit` }]
+              : []),
+            { id: "back", label: "Back to list", href: "/maintenance" }
+          ]}
         />
       }
       main={
         <>
+          <AiPageContextBridge
+            {...buildAiPageContext({
+              entityType: "work_order",
+              entityId: workOrder.id,
+              entityLabel: workOrder.workOrderNumber
+            })}
+          />
           {workOrder.status === "completed" ? (
             <SmartSuggestions
               title="Suggested actions"
@@ -244,16 +286,18 @@ export default async function WorkOrderDetailPage({
           ) : null}
           {(canUpdate || canAssign || canAssignVendor) &&
           workOrder.status !== "cancelled" ? (
-            <WorkOrderWorkflowPanel
-              workOrderId={workOrder.id}
-              status={workOrder.status}
-              priority={workOrder.priority}
-              currentAssignment={currentVendorAssignment}
-              canUpdate={canUpdate || canAssign}
-              canAssignVendor={canAssignVendor}
-              canArchive={canArchive}
-              tenantId={workOrder.tenantId}
-            />
+            <div id="workflow">
+              <WorkOrderWorkflowPanel
+                workOrderId={workOrder.id}
+                status={workOrder.status}
+                priority={workOrder.priority}
+                currentAssignment={currentVendorAssignment}
+                canUpdate={canUpdate || canAssign}
+                canAssignVendor={canAssignVendor}
+                canArchive={canArchive}
+                tenantId={workOrder.tenantId}
+              />
+            </div>
           ) : null}
 
           <Card variant="elevated" className="space-y-4">
@@ -326,50 +370,62 @@ export default async function WorkOrderDetailPage({
             </div>
           ) : null}
 
-          <Card variant="elevated" className="space-y-3">
-            <h2 className="mpa-section-title">Timeline</h2>
-            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-              Created → Assigned → Vendor accepted → Work started → Completed → Closed — visible without leaving this page.
-            </p>
-            <MaintenanceActivityTimeline events={activity} />
-          </Card>
-
-          <div id="conversation">
-            <MaintenanceConversationPanel thread={maintenanceThread} />
+          <div id="timeline">
+            <Card variant="elevated" className="space-y-3">
+              <h2 className="mpa-section-title">Timeline</h2>
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                Created → Assigned → Vendor accepted → Work started → Completed → Closed — visible without leaving this
+                page.
+              </p>
+              <MaintenanceActivityTimeline events={activity} />
+            </Card>
           </div>
 
-          <Card variant="elevated" className="space-y-3">
-            <h2 className="mpa-section-title">Attachments & notes</h2>
-            {workOrder.photoPlaceholder?.startsWith("media:") ? (
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Photos</p>
-                <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                  Photo attached to this work order. Open Edit to replace or update the image.
-                </p>
-              </div>
-            ) : (
+          <DiscloseSection title="Conversation" description="Resident / vendor thread for this work order.">
+            <div id="conversation">
+              <MaintenanceConversationPanel thread={maintenanceThread} />
+            </div>
+          </DiscloseSection>
+
+          <div id="attachments">
+            <Card variant="elevated" className="space-y-3">
+              <h2 className="mpa-section-title">Attachments & notes</h2>
+              {workOrder.photoPlaceholder?.startsWith("media:") ? (
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Photos</p>
+                  <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                    Photo attached to this work order. Open Edit to replace or update the image.
+                  </p>
+                </div>
+              ) : (
+                <AttachmentNoteBlock
+                  label="Photos"
+                  value={workOrder.photoPlaceholder}
+                  emptyMessage="No photo yet. Use Edit details to attach one."
+                />
+              )}
               <AttachmentNoteBlock
-                label="Photos"
-                value={workOrder.photoPlaceholder}
-                emptyMessage="No photo yet. Use Edit details to attach one."
+                label="Documents"
+                value={workOrder.documentPlaceholder}
+                emptyMessage="No document notes yet."
               />
-            )}
-            <AttachmentNoteBlock
-              label="Documents"
-              value={workOrder.documentPlaceholder}
-              emptyMessage="No document notes yet."
-            />
-            <AttachmentNoteBlock
-              label="Recurring maintenance"
-              value={workOrder.recurringMaintenancePlaceholder}
-              emptyMessage="No recurring maintenance notes."
-            />
-            <AttachmentNoteBlock
-              label="Preventive maintenance"
-              value={workOrder.preventiveMaintenancePlaceholder}
-              emptyMessage="No preventive maintenance notes."
-            />
-          </Card>
+              <DiscloseSection
+                title="Advanced maintenance notes"
+                description="Recurring and preventive notes — expand when needed."
+              >
+                <AttachmentNoteBlock
+                  label="Recurring maintenance"
+                  value={workOrder.recurringMaintenancePlaceholder}
+                  emptyMessage="No recurring maintenance notes."
+                />
+                <AttachmentNoteBlock
+                  label="Preventive maintenance"
+                  value={workOrder.preventiveMaintenancePlaceholder}
+                  emptyMessage="No preventive maintenance notes."
+                />
+              </DiscloseSection>
+            </Card>
+          </div>
         </>
       }
       contextRail={

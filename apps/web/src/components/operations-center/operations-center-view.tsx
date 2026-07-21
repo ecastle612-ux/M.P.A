@@ -8,7 +8,8 @@ import type { CommunicationDashboardMetrics } from "../../lib/communication/serv
 import { formatCurrency } from "../../lib/financial/contracts";
 import { formatRefreshTime } from "../../lib/format/time";
 import { getSnoozedTaskIds, snoozeOpsTask } from "../../lib/command-center/storage";
-import { AiOperationsWidget } from "../ai/ai-operations-widget";
+import { AiPageContextBridge, buildAiPageContext } from "../ai/ai-page-context";
+import { DiscloseSection } from "../presentation/disclose-section";
 import { PortfolioSetupHealth } from "../setup/portfolio-setup-health";
 import { NotificationOperationsWidget } from "./notification-operations-widget";
 import { ScreeningOperationsWidget } from "./screening-operations-widget";
@@ -154,8 +155,17 @@ function OperationsCenterLayout({
   const hasPortfolio = snapshot.propertiesTotal > 0 || snapshot.unitsTotal > 0;
   const occupancyPercent = Math.round(snapshot.occupancyRate * 100);
 
+  const urgentCount = visibleTasks.filter((task) => task.priority === "high").length;
+  const attentionLine =
+    urgentCount > 0
+      ? `${urgentCount} urgent item${urgentCount === 1 ? "" : "s"} need action today.`
+      : visibleTasks.length > 0
+        ? `${visibleTasks.length} item${visibleTasks.length === 1 ? "" : "s"} on your plate — start with the top task.`
+        : "Nothing urgent — portfolio snapshot is below when you need it.";
+
   return (
     <main className="mpa-page-wide flex-1 space-y-5">
+      <AiPageContextBridge {...buildAiPageContext({ entityType: "dashboard" })} />
       <PortfolioSetupHealth />
       <header className="mpa-page-header">
         <div className="space-y-2">
@@ -166,8 +176,11 @@ function OperationsCenterLayout({
           {organizationName ? (
             <p className="text-base font-medium text-[var(--mpa-color-text-secondary)]">{organizationName}</p>
           ) : null}
+          <p className="max-w-2xl text-sm font-medium text-[var(--mpa-color-text-primary)]">
+            Needs attention: {attentionLine}
+          </p>
           <p className="max-w-2xl text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
-            What needs your attention today — then act on it. Portfolio detail stays below.
+            Act from the priorities below. Search (⌘K) or AI for anything else — no hunting.
           </p>
           <div
             className="flex flex-wrap items-center gap-3 text-xs text-[var(--mpa-color-text-muted)]"
@@ -210,35 +223,12 @@ function OperationsCenterLayout({
         ) : null}
       </section>
 
-      <section className="grid gap-3 xl:grid-cols-2">
-        {permissions.canReadSignatures ? <SignatureOperationsWidget /> : null}
-        {permissions.canReadFinancials ? <BillingOperationsWidget /> : null}
-      </section>
-
       {snapshot.maintenance && permissions.canReadMaintenance ? (
         <MaintenanceOperationsCard snapshot={snapshot.maintenance} canCreate={permissions.canCreateMaintenance} />
       ) : null}
 
-      {snapshot.leases && permissions.canReadLeases ? (
-        <LeaseOperationsCard snapshot={snapshot.leases} canCreate={permissions.canCreateLease} />
-      ) : null}
-
-      {snapshot.vendors && permissions.canReadVendors ? (
-        <VendorOperationsCard snapshot={snapshot.vendors} canCreate={permissions.canCreateVendor} />
-      ) : null}
-
-      {snapshot.applicants && permissions.canReadApplicants ? (
-        <ApplicantOperationsCard snapshot={snapshot.applicants} canCreate={permissions.canCreateApplicant} />
-      ) : null}
-
       {snapshot.communications && permissions.canReadCommunications ? (
         <CommunicationOperationsCard snapshot={snapshot.communications} canCreate={permissions.canCreateCommunication} />
-      ) : null}
-
-      {permissions.canReadScreening ? <ScreeningOperationsWidget /> : null}
-
-      {snapshot.financial && permissions.canReadFinancials ? (
-        <FinancialOperationsCard snapshot={snapshot.financial} canCreate={permissions.canCreateFinancial} />
       ) : null}
 
       <section aria-labelledby="portfolio-summary-heading" className="space-y-3">
@@ -274,11 +264,33 @@ function OperationsCenterLayout({
         </div>
       </section>
 
-      {permissions.canReadAi ? <AiOperationsWidget canUse={permissions.canUseAi} /> : null}
+      <DiscloseSection
+        title="More operations & analytics"
+        description="Signatures, billing, leases, vendors, applicants, screening, and deeper financials — expand when needed."
+      >
+        <div className="space-y-3">
+          <div className="grid gap-3 xl:grid-cols-2">
+            {permissions.canReadSignatures ? <SignatureOperationsWidget /> : null}
+            {permissions.canReadFinancials ? <BillingOperationsWidget /> : null}
+          </div>
+          {snapshot.leases && permissions.canReadLeases ? (
+            <LeaseOperationsCard snapshot={snapshot.leases} canCreate={permissions.canCreateLease} />
+          ) : null}
+          {snapshot.vendors && permissions.canReadVendors ? (
+            <VendorOperationsCard snapshot={snapshot.vendors} canCreate={permissions.canCreateVendor} />
+          ) : null}
+          {snapshot.applicants && permissions.canReadApplicants ? (
+            <ApplicantOperationsCard snapshot={snapshot.applicants} canCreate={permissions.canCreateApplicant} />
+          ) : null}
+          {permissions.canReadScreening ? <ScreeningOperationsWidget /> : null}
+          {snapshot.financial && permissions.canReadFinancials ? (
+            <FinancialOperationsCard snapshot={snapshot.financial} canCreate={permissions.canCreateFinancial} />
+          ) : null}
+          <ActivityTimelineCard activity={snapshot.recentActivity} hasPortfolio={hasPortfolio} />
+        </div>
+      </DiscloseSection>
 
       {!hasPortfolio ? <PortfolioEmptyState permissions={permissions} /> : null}
-
-      <ActivityTimelineCard activity={snapshot.recentActivity} hasPortfolio={hasPortfolio} />
     </main>
   );
 }

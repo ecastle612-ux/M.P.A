@@ -12,6 +12,8 @@ import { BrandLogo } from "../branding/brand-logo";
 import { SetupGate } from "../setup/setup-gate";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 import { DeploymentBadge } from "../launch/deployment-badge";
+import { AiPageContextProvider } from "../ai/ai-page-context";
+import { FloatingAiCopilot } from "../ai/floating-ai-copilot";
 import type { DeploymentMeta } from "../../lib/launch/deployment-meta";
 
 export function ApplicationShell({
@@ -38,31 +40,34 @@ export function ApplicationShell({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
     >
-      <SetupGate isSetupComplete={isSetupComplete} />
-      <a
-        href="#app-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-3 focus:py-2"
-      >
-        Skip to content
-      </a>
-      <CommandCenterTracker />
-      <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)]">
-        <Sidebar />
-        <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-          <header className="flex h-16 items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 lg:hidden">
-            <BrandLogo purpose="header" priority className="min-w-0" />
-            <div className="flex shrink-0 items-center gap-2">
-              <DeploymentBadge meta={deploymentMeta} />
-              <ResponsiveNavigation />
+      <AiPageContextProvider>
+        <SetupGate isSetupComplete={isSetupComplete} />
+        <a
+          href="#app-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-3 focus:py-2"
+        >
+          Skip to content
+        </a>
+        <CommandCenterTracker />
+        <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)]">
+          <Sidebar />
+          <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+            <header className="flex h-16 items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 lg:hidden">
+              <BrandLogo purpose="header" priority className="min-w-0" />
+              <div className="flex shrink-0 items-center gap-2">
+                <DeploymentBadge meta={deploymentMeta} />
+                <ResponsiveNavigation />
+              </div>
+            </header>
+            <TopNavigation deploymentMeta={deploymentMeta} />
+            <PushEnrollmentBanner settingsHref="/settings/notifications" />
+            <div id="app-content" className="mpa-app-main flex min-h-0 min-w-0 flex-col">
+              {children}
             </div>
-          </header>
-          <TopNavigation deploymentMeta={deploymentMeta} />
-          <PushEnrollmentBanner settingsHref="/settings/notifications" />
-          <div id="app-content" className="mpa-app-main flex min-h-0 min-w-0 flex-col">
-            {children}
           </div>
         </div>
-      </div>
+        <FloatingAiCopilot />
+      </AiPageContextProvider>
     </AuthenticatedContextProviders>
   );
 }

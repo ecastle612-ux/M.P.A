@@ -5,6 +5,7 @@ export function DetailPageLayout({
   breadcrumbs,
   banner,
   hero,
+  toolbelt,
   relationshipChain,
   main,
   contextRail
@@ -12,6 +13,8 @@ export function DetailPageLayout({
   breadcrumbs: Array<{ href?: string; label: string }>;
   banner?: ReactNode;
   hero: ReactNode;
+  /** UX-009 entity action toolbelt (80/20 primary actions) */
+  toolbelt?: ReactNode;
   relationshipChain?: ReactNode;
   main: ReactNode;
   contextRail: ReactNode;
@@ -21,6 +24,7 @@ export function DetailPageLayout({
       {banner}
       {relationshipChain}
       {hero}
+      {toolbelt}
       <div className="mpa-workspace-grid">
         <div className="mpa-workspace-main min-w-0 space-y-4">{main}</div>
         {contextRail}

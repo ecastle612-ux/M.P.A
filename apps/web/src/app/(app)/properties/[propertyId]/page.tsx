@@ -1,7 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Badge, Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
+import { Badge, Card, DetailHero, DetailMetric } from "@mpa/ui";
+import { AiPageContextBridge, buildAiPageContext } from "../../../../components/ai/ai-page-context";
 import { DetailPageLayout } from "../../../../components/presentation/detail-page-layout";
+import { DiscloseSection } from "../../../../components/presentation/disclose-section";
+import { EntityActionToolbelt } from "../../../../components/presentation/entity-action-toolbelt";
 import { EntityRelationshipChain } from "../../../../components/presentation/entity-relationship-chain";
 import { PropertyContextRail } from "../../../../components/presentation/context-rails/property-context-rail";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
@@ -74,6 +76,7 @@ export default async function PropertyDetailPage({
   const canCreateTenant = evaluatePermission(authorization, "tenant:create");
   const canReadFinancials = evaluatePermission(authorization, "financial:read");
   const canReadMaintenance = evaluatePermission(authorization, "maintenance:read");
+  const canCreateMaintenance = evaluatePermission(authorization, "maintenance:create");
   const propertyFinancialSummary = canReadFinancials
     ? await getPropertyFinancialSummary(organizationId, propertyId, supabase)
     : null;
@@ -326,8 +329,73 @@ export default async function PropertyDetailPage({
       .filter(Boolean)
   ).size;
 
+  const propertyAttention =
+    openMaintenance.length > 0
+      ? `${openMaintenance.length} open work order${openMaintenance.length === 1 ? "" : "s"}`
+      : (vacancyUnits ?? 0) > 0
+        ? `${vacancyUnits} vacant unit${vacancyUnits === 1 ? "" : "s"}`
+        : "Portfolio looks steady — use actions below for the next task.";
+
+  const toolbeltPrimary = [
+    canCreateUnit
+      ? {
+          id: "add-unit",
+          label: "Add Unit",
+          href: `/units/new?propertyId=${property.id}`,
+          variant: "primary" as const
+        }
+      : null,
+    canCreateTenant
+      ? {
+          id: "add-resident",
+          label: "Add Resident",
+          href: `/residents/move-in?propertyId=${encodeURIComponent(property.id)}`,
+          variant: "secondary" as const
+        }
+      : null,
+    canCreateMaintenance
+      ? {
+          id: "inspection-wo",
+          label: "Work Order",
+          href: `/maintenance/new?propertyId=${encodeURIComponent(property.id)}`,
+          variant: "secondary" as const
+        }
+      : null,
+    canReadFinancials
+      ? {
+          id: "report",
+          label: "Report",
+          href: `/financials/reports?propertyId=${encodeURIComponent(property.id)}`,
+          variant: "secondary" as const
+        }
+      : null
+  ].filter(Boolean) as Array<{
+    id: string;
+    label: string;
+    href: string;
+    variant: "primary" | "secondary" | "ghost";
+  }>;
+
+  const toolbeltMore = [
+    canUpdateProperty
+      ? { id: "edit", label: "Edit property", href: `/properties/${property.id}/edit` }
+      : null,
+    canReadMaintenance
+      ? { id: "maintenance-list", label: "View maintenance", href: `/maintenance?propertyId=${property.id}` }
+      : null,
+    { id: "back", label: "Back to properties", href: "/properties" }
+  ].filter(Boolean) as Array<{ id: string; label: string; href: string }>;
+
   return (
-    <DetailPageLayout
+    <>
+      <AiPageContextBridge
+        {...buildAiPageContext({
+          entityType: "property",
+          entityId: property.id,
+          entityLabel: property.name
+        })}
+      />
+      <DetailPageLayout
       breadcrumbs={[
         { href: "/dashboard", label: "Dashboard" },
         { href: "/properties", label: "Properties" },
@@ -351,6 +419,7 @@ export default async function PropertyDetailPage({
         <DetailHero
           title={property.name}
           subtitle={`${property.addressLine1}, ${property.city}, ${property.stateRegion} ${property.postalCode}`}
+          attention={propertyAttention}
           badges={
             <>
               <Badge showDot variant={property.status === "active" ? "success" : "info"}>
@@ -368,27 +437,9 @@ export default async function PropertyDetailPage({
               <DetailMetric label="Occupancy" value={`${occupancyRate}%`} />
             </>
           }
-          actions={
-            <>
-              {canUpdateProperty ? (
-                <Link href={`/properties/${property.id}/edit`}>
-                  <Button>Edit property</Button>
-                </Link>
-              ) : null}
-              {canCreateUnit ? (
-                <Link href={`/units/new?propertyId=${property.id}`}>
-                  <Button variant="secondary">Create unit</Button>
-                </Link>
-              ) : null}
-              {canCreateTenant ? (
-                <Link href={`/residents/move-in?propertyId=${encodeURIComponent(property.id)}`}>
-                  <Button variant="ghost">Move In Resident</Button>
-                </Link>
-              ) : null}
-            </>
-          }
         />
       }
+      toolbelt={<EntityActionToolbelt actions={toolbeltPrimary} moreActions={toolbeltMore} />}
       main={
         <>
           <Card variant="elevated" className="space-y-3">
@@ -404,11 +455,6 @@ export default async function PropertyDetailPage({
               <p>Owner contact: {property.ownerContactName ?? "—"}</p>
               <p>Email: {property.ownerContactEmail ?? "—"}</p>
               <p>Phone: {property.ownerContactPhone ?? "—"}</p>
-            </div>
-            <div>
-              <Link href="/properties">
-                <Button variant="ghost">Back to properties</Button>
-              </Link>
             </div>
           </Card>
 
@@ -426,7 +472,11 @@ export default async function PropertyDetailPage({
                 recentDocuments={propertyDocuments}
                 propertyId={property.id}
               />
-              <div className="space-y-3" id="repair-history">
+              <DiscloseSection
+                id="repair-history"
+                title="Repair history & filters"
+                description="Full facility records — expand when you need history, not every visit."
+              >
                 <RepairHistoryFilters
                   vendorOptions={vendorOptions}
                   unitOptions={unitOptions}
@@ -440,25 +490,39 @@ export default async function PropertyDetailPage({
                   records={repairHistory}
                   emptyLabel="No completed repairs yet. Completing a work order creates permanent history here."
                 />
-              </div>
-              <AssetsPanel
-                propertyId={property.id}
-                assets={propertyAssets}
-                units={((propertyUnits.data ?? []) as Array<{ id: string; unit_number: string }>).map(
-                  (unit) => ({ id: unit.id, unitNumber: unit.unit_number })
-                )}
-                canCreate={evaluatePermission(authorization, "maintenance:update")}
-              />
-              <PropertyTimeline
-                events={propertyTimeline}
-                propertyName={property.name}
-                initialFilter={timelineFilter}
-                initialSearch={tlQ ?? ""}
-              />
+              </DiscloseSection>
+              <DiscloseSection
+                title="Assets"
+                description="Building systems and equipment linked to this property."
+              >
+                <AssetsPanel
+                  propertyId={property.id}
+                  assets={propertyAssets}
+                  units={((propertyUnits.data ?? []) as Array<{ id: string; unit_number: string }>).map(
+                    (unit) => ({ id: unit.id, unitNumber: unit.unit_number })
+                  )}
+                  canCreate={evaluatePermission(authorization, "maintenance:update")}
+                />
+              </DiscloseSection>
+              <DiscloseSection
+                title="Property timeline"
+                description="Activity across units, residents, and maintenance."
+              >
+                <PropertyTimeline
+                  events={propertyTimeline}
+                  propertyName={property.name}
+                  initialFilter={timelineFilter}
+                  initialSearch={tlQ ?? ""}
+                />
+              </DiscloseSection>
             </>
           ) : null}
 
-          {qrCode ? <PropertyQrPanel propertyId={property.id} propertyName={property.name} qrCode={qrCode} /> : null}
+          {qrCode ? (
+            <DiscloseSection title="Building QR" description="Enrollment and posting tools for this property.">
+              <PropertyQrPanel propertyId={property.id} propertyName={property.name} qrCode={qrCode} />
+            </DiscloseSection>
+          ) : null}
         </>
       }
       contextRail={
@@ -477,5 +541,6 @@ export default async function PropertyDetailPage({
         />
       }
     />
+    </>
   );
 }

@@ -6,6 +6,7 @@ import { Button } from "../primitives/button";
 export function DetailHero({
   title,
   subtitle,
+  attention,
   badges,
   metrics,
   actions,
@@ -13,6 +14,8 @@ export function DetailHero({
 }: {
   title: string;
   subtitle?: string;
+  /** UX-009 One Glance: what needs attention right now */
+  attention?: string;
   badges?: ReactNode;
   metrics?: ReactNode;
   actions?: ReactNode;
@@ -36,6 +39,12 @@ export function DetailHero({
             ) : null}
             {badges ? <div className="flex flex-wrap gap-1.5">{badges}</div> : null}
           </div>
+          {attention ? (
+            <p className="mt-2 text-sm font-medium text-[var(--mpa-color-text-primary)]">
+              <span className="text-[var(--mpa-color-text-muted)]">Needs attention: </span>
+              {attention}
+            </p>
+          ) : null}
         </div>
         {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
       </div>
