@@ -50,8 +50,8 @@ export function ApplicationShell({
         <Sidebar />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <header className="flex h-16 items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 lg:hidden">
-            <BrandLogo purpose="header" priority />
-            <div className="flex items-center gap-2">
+            <BrandLogo purpose="header" priority className="min-w-0" />
+            <div className="flex shrink-0 items-center gap-2">
               <DeploymentBadge meta={deploymentMeta} />
               <ResponsiveNavigation />
             </div>

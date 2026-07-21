@@ -4,6 +4,7 @@ export {
   MPA_BRAND_PRODUCT_LINE,
   MPA_BRAND_EMBEDDED_TEXT_MIN_PX,
   MPA_BRAND_MIN_MARK_PX,
+  MPA_BRAND_SYMBOL_CROP,
   MPA_LOGO_ASPECT_RATIO,
   MPA_LOGO_DARK_PATH,
   MPA_LOGO_INTRINSIC_SIZE,
@@ -16,6 +17,8 @@ export {
   resolveBrandPresentation,
   type BrandLogoPurpose,
   type BrandLogoTone,
+  type BrandMarkRole,
+  type BrandNameScale,
   type BrandPresentation,
   type BrandPresentationMode,
   type BrandSurfaceTone

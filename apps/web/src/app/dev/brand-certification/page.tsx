@@ -1,106 +1,87 @@
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import {
-  MPA_BRAND_EMBEDDED_TEXT_MIN_PX,
-  MPA_BRAND_MIN_MARK_PX,
   MPA_BRAND_NAME,
   resolveBrandPresentation,
   type BrandLogoPurpose
 } from "@mpa/shared";
 import { BrandLogo, BrandSurfaceTone } from "../../../components/branding/brand-logo";
 
-const PURPOSES: BrandLogoPurpose[] = [
-  "login",
-  "splash",
-  "onboarding",
-  "sidebar",
-  "drawer",
-  "header",
-  "loading",
-  "email",
-  "pdf",
-  "browser"
-];
+const SCORE_CATEGORIES = [
+  "Readability",
+  "Balance",
+  "Contrast",
+  "Premium Feel",
+  "First Impression"
+] as const;
 
 /**
- * BR-001 Amendment E — Design Partner brand certification harness (development only).
+ * BR-002 / BR-002A — Design Director brand certification harness (development only).
+ * Technical wiring is not a PASS. Proud demo to a paying customer is the bar.
  */
 export default function BrandCertificationPage() {
   if (process.env.NODE_ENV !== "development") {
     notFound();
   }
 
-  const violations: string[] = [];
-
-  for (const purpose of PURPOSES) {
-    const expanded = resolveBrandPresentation(purpose, { collapsed: false });
-    const collapsed = resolveBrandPresentation(purpose, { collapsed: true });
-
-    if (purpose === "login" || purpose === "splash") {
-      if (expanded.mode === "icon") {
-        violations.push(`${purpose}: must never be icon-only`);
-      }
-      if (expanded.markPx < MPA_BRAND_MIN_MARK_PX.authentication && purpose === "login") {
-        violations.push(`${purpose}: mark below authentication floor`);
-      }
-      if (purpose === "splash" && expanded.markPx < MPA_BRAND_MIN_MARK_PX.splash) {
-        violations.push(`${purpose}: mark below splash floor`);
-      }
-    }
-
-    if ((purpose === "drawer" || purpose === "login") && expanded.mode === "icon") {
-      violations.push(`${purpose}: icon-only forbidden on product chrome`);
-    }
-
-    for (const presentation of [expanded, collapsed]) {
-      if (
-        presentation.mode !== "icon" &&
-        presentation.markPx < MPA_BRAND_EMBEDDED_TEXT_MIN_PX &&
-        !presentation.useLockup &&
-        !presentation.showBrandName
-      ) {
-        violations.push(
-          `${purpose}: mark ${presentation.markPx}px below ${MPA_BRAND_EMBEDDED_TEXT_MIN_PX} without lockup (Amendment B)`
-        );
-      }
-      if (presentation.markPx < MPA_BRAND_MIN_MARK_PX.icon) {
-        violations.push(`${purpose}: mark below icon floor 48px`);
-      }
-    }
-  }
-
-  const verdict = violations.length === 0 ? "PASS" : "FAIL";
+  const ruleChecks = runPresentationRuleChecks();
+  const rulesVerdict = ruleChecks.length === 0 ? "RULES PASS" : "RULES FAIL";
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 bg-[var(--mpa-color-bg-app)] px-4 py-10 text-[var(--mpa-color-text-primary)]">
-      <header className="space-y-2">
+    <main className="mx-auto max-w-5xl space-y-10 bg-[var(--mpa-color-bg-app)] px-4 py-10 text-[var(--mpa-color-text-primary)]">
+      <header className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--mpa-color-text-muted)]">
-          BR-001 · ADR-021
+          BR-002 · BR-002A · ADR-022
         </p>
-        <h1 className="font-display text-3xl font-semibold">{MPA_BRAND_NAME} Brand Certification</h1>
+        <h1 className="font-display text-3xl font-semibold">{MPA_BRAND_NAME} Visual Brand Certification</h1>
+        <p className="max-w-2xl text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
+          Design Director test: if this were the first screen a property manager ever saw, would you proudly demo it
+          to a paying customer? Anything less than an immediate yes is a FAIL. Brand recognition takes priority over
+          logo fidelity.
+        </p>
         <p
           className={[
             "inline-flex rounded-md px-3 py-1 text-sm font-semibold",
-            verdict === "PASS"
+            rulesVerdict === "RULES PASS"
               ? "bg-emerald-500/15 text-emerald-700"
               : "bg-red-500/15 text-red-700"
           ].join(" ")}
         >
-          {verdict}
+          Presentation rules: {rulesVerdict}
         </p>
-        {violations.length > 0 ? (
+        {ruleChecks.length > 0 ? (
           <ul className="list-disc space-y-1 pl-5 text-sm text-red-700">
-            {violations.map((item) => (
+            {ruleChecks.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
-        ) : (
-          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Presentation rules, floors, and Amendment A–B checks passed. Visually confirm light/dark and device
-            widths below (Amendment E).
-          </p>
-        )}
+        ) : null}
       </header>
+
+      <section className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
+        <h2 className="font-display text-lg font-semibold">Human PASS checklist</h2>
+        <ul className="mt-3 grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] sm:grid-cols-2">
+          {[
+            "Brand immediately recognizable",
+            "Text immediately readable",
+            "Correct contrast",
+            "Correct visual weight",
+            "Balanced spacing",
+            "Premium alignment",
+            "Looks intentional",
+            "Comparable to premium SaaS"
+          ].map((item) => (
+            <li key={item} className="flex gap-2">
+              <span aria-hidden="true">✅</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-xs text-[var(--mpa-color-text-muted)]">
+          Score each surface /10 for: {SCORE_CATEGORIES.join(" · ")}. Any category below 9/10 = FAIL. Record scores in
+          docs/86-br-002-visual-brand-certification/03-surface-audit-matrix.md.
+        </p>
+      </section>
 
       <section className="grid gap-6 md:grid-cols-2">
         <SurfaceCard title="Light surface">
@@ -120,6 +101,42 @@ export default function BrandCertificationPage() {
   );
 }
 
+function runPresentationRuleChecks(): string[] {
+  const violations: string[] = [];
+  const loading = resolveBrandPresentation("loading");
+  if (loading.showBrandName || loading.useLockup) {
+    violations.push("loading must be house-mark-only (no typography lockup inside BrandLogo)");
+  }
+  if (loading.markRole !== "symbol") {
+    violations.push("loading mark must be symbol role (not full-wordmark display)");
+  }
+  if (loading.markPx < 96) {
+    violations.push("loading mark must be ≥96px for house recognition");
+  }
+
+  const drawer = resolveBrandPresentation("drawer");
+  if (!drawer.showBrandName || !drawer.showTagline || drawer.markRole !== "symbol") {
+    violations.push("drawer must use symbol mark + typography M.P.A. + tagline");
+  }
+  if (drawer.allowsIconOnly) {
+    violations.push("drawer must never allow icon-only");
+  }
+
+  const login = resolveBrandPresentation("login");
+  if (!login.showProductLine || login.mode !== "hero") {
+    violations.push("login must be hero with Property Operations OS line");
+  }
+
+  for (const purpose of ["drawer", "header", "sidebar"] as BrandLogoPurpose[]) {
+    const presentation = resolveBrandPresentation(purpose);
+    if (presentation.mode === "icon") {
+      violations.push(`${purpose}: icon-only forbidden on product chrome`);
+    }
+  }
+
+  return violations;
+}
+
 function SurfaceCard({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
@@ -134,26 +151,26 @@ function SurfaceCard({ title, children }: { title: string; children: ReactNode }
 function Gallery() {
   return (
     <div className="space-y-6">
-      <Sample label="login (Hero)">
+      <Sample label="login — Hero">
         <BrandLogo purpose="login" />
       </Sample>
-      <Sample label="splash (Hero)">
-        <BrandLogo purpose="splash" />
+      <Sample label="loading — House mark only">
+        <div className="flex flex-col items-center gap-3">
+          <BrandLogo purpose="loading" decorative />
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">Loading your workspace…</p>
+        </div>
       </Sample>
-      <Sample label="sidebar (Standard)">
-        <BrandLogo purpose="sidebar" />
-      </Sample>
-      <Sample label="sidebar collapsed (Compact)">
-        <BrandLogo purpose="sidebar" collapsed />
-      </Sample>
-      <Sample label="drawer (Compact)">
+      <Sample label="drawer — Typography lockup">
         <BrandLogo purpose="drawer" />
       </Sample>
-      <Sample label="header (Compact)">
-        <BrandLogo purpose="header" />
+      <Sample label="drawer collapsed">
+        <BrandLogo purpose="drawer" collapsed />
       </Sample>
-      <Sample label="loading">
-        <BrandLogo purpose="loading" />
+      <Sample label="sidebar — Standard">
+        <BrandLogo purpose="sidebar" />
+      </Sample>
+      <Sample label="header — Compact">
+        <BrandLogo purpose="header" />
       </Sample>
     </div>
   );
@@ -163,7 +180,10 @@ function Sample({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-2 border-b border-[var(--mpa-color-border-subtle)] pb-4 last:border-0">
       <p className="text-xs text-[var(--mpa-color-text-muted)]">{label}</p>
-      <div className="flex justify-center">{children}</div>
+      <div className="flex justify-center py-2">{children}</div>
+      <p className="text-[11px] text-[var(--mpa-color-text-muted)]">
+        Scores (human): Readability __/10 · Balance __/10 · Contrast __/10 · Premium __/10 · First impression __/10
+      </p>
     </div>
   );
 }

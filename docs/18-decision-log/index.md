@@ -57,6 +57,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-019](./adr-019-adaptive-two-logo-brand-system.md) | Adaptive Two-Logo Brand System | Accepted | 2026-07-20 |
 | [ADR-020](./adr-020-premium-mobile-navigation-architecture.md) | Premium Mobile Navigation Architecture | Accepted | 2026-07-20 |
 | [ADR-021](./adr-021-permanent-brandlogo-rendering-architecture.md) | Permanent BrandLogo Rendering Architecture | Accepted | 2026-07-20 |
+| [ADR-022](./adr-022-perception-based-brand-certification.md) | Perception-Based Brand Certification | Accepted | 2026-07-20 |
 
 ---
 

@@ -138,12 +138,6 @@ function systemMode(): ThemeMode {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-function storedPreference(): ThemePreference | null {
-  if (typeof window === "undefined") return null;
-  const value = window.localStorage.getItem(THEME_STORAGE_KEY);
-  return value === "light" || value === "dark" || value === "system" ? value : null;
-}
-
 function resolveMode(preference: ThemePreference, darkModeEnabled: boolean, defaultMode: ThemeMode): ThemeMode {
   const resolvedMode = preference === "system" ? systemMode() : preference;
   if (!darkModeEnabled && resolvedMode === "dark") return defaultMode;
@@ -153,37 +147,50 @@ function resolveMode(preference: ThemePreference, darkModeEnabled: boolean, defa
 export function ThemeProvider({
   children,
   defaultMode = "light",
-  darkModeEnabled = true
+  darkModeEnabled = true,
+  /** SSR/client must share this value (cookie → layout → provider) to avoid logo hydration swaps. */
+  initialMode,
+  initialPreference,
+  /** Persist cookies / analytics when theme commits (app shell). */
+  onThemeCommit
 }: {
   children: ReactNode;
   defaultMode?: ThemeMode;
   darkModeEnabled?: boolean;
+  initialMode?: ThemeMode;
+  initialPreference?: ThemePreference;
+  onThemeCommit?: (preference: ThemePreference, mode: ThemeMode) => void;
 }) {
-  const [preference, setPreferenceState] = useState<ThemePreference>(() => storedPreference() ?? "system");
-  const [mode, setModeState] = useState<ThemeMode>(() =>
-    resolveMode(storedPreference() ?? "system", darkModeEnabled, defaultMode),
+  // Authoritative initial state from SSR cookies — do NOT re-read localStorage here
+  // (that caused logo-dark → logo-light swaps on refresh).
+  const [preference, setPreferenceState] = useState<ThemePreference>(
+    () => initialPreference ?? "system"
+  );
+  const [mode, setModeState] = useState<ThemeMode>(
+    () => initialMode ?? defaultMode
   );
 
   const applyPreference = useCallback(
     (nextPreference: ThemePreference) => {
+      const nextMode = resolveMode(nextPreference, darkModeEnabled, defaultMode);
       setPreferenceState(nextPreference);
-      setModeState(resolveMode(nextPreference, darkModeEnabled, defaultMode));
+      setModeState(nextMode);
+      onThemeCommit?.(nextPreference, nextMode);
     },
-    [darkModeEnabled, defaultMode],
+    [darkModeEnabled, defaultMode, onThemeCommit],
   );
-
-  useEffect(() => {
-    const initialPreference = storedPreference() ?? "system";
-    applyPreference(initialPreference);
-  }, [applyPreference]);
 
   useEffect(() => {
     if (preference !== "system" || !darkModeEnabled) return;
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => setModeState(media.matches ? "dark" : "light");
+    const onChange = () => {
+      const nextMode = media.matches ? "dark" : "light";
+      setModeState(nextMode);
+      onThemeCommit?.(preference, nextMode);
+    };
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
-  }, [darkModeEnabled, preference]);
+  }, [darkModeEnabled, onThemeCommit, preference]);
 
   const cssVariables = useMemo(() => themeVariablesForMode(mode), [mode]);
 
@@ -195,6 +202,15 @@ export function ThemeProvider({
     }
   }, [cssVariables, mode]);
 
+  // Keep localStorage aligned with committed theme (cookie is written via onThemeCommit).
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, preference);
+    } catch {
+      // Non-fatal.
+    }
+  }, [preference]);
+
   const value = useMemo<ThemeContextValue>(
     () => ({
       mode,
@@ -205,13 +221,14 @@ export function ThemeProvider({
         window.localStorage.setItem(THEME_STORAGE_KEY, nextMode);
         setPreferenceState(nextMode);
         setModeState(nextMode);
+        onThemeCommit?.(nextMode, nextMode);
       },
       setPreference: (nextPreference) => {
         window.localStorage.setItem(THEME_STORAGE_KEY, nextPreference);
         applyPreference(nextPreference);
       }
     }),
-    [applyPreference, darkModeEnabled, mode, preference],
+    [applyPreference, darkModeEnabled, mode, onThemeCommit, preference],
   );
   const style = cssVariables as React.CSSProperties;
 

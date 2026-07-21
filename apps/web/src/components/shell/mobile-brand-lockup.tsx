@@ -14,7 +14,10 @@ export function MobileBrandLockup({
     <Link
       href="/dashboard"
       {...(onNavigate ? { onClick: onNavigate } : {})}
-      className="flex w-full items-center justify-start py-1"
+      className={[
+        "flex w-full items-center py-1",
+        collapsed ? "justify-start" : "justify-center"
+      ].join(" ")}
     >
       <BrandLogo purpose="drawer" collapsed={collapsed} decorative priority />
     </Link>

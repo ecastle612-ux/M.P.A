@@ -1,6 +1,6 @@
 /* Offline PWA worker. Only registered when OneSignal is not configured
  * (see register-service-worker.tsx) to avoid root-scope conflicts. */
-const CACHE_NAME = "mpa-foundation-v1";
+const CACHE_NAME = "mpa-foundation-v2";
 const STATIC_ASSETS = ["/", "/offline.html", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
@@ -24,6 +24,13 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
+
+  // BR-002 runtime stability: never cache-first brand assets (stale logos after deploy).
+  const url = new URL(request.url);
+  if (url.pathname.startsWith("/branding/")) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   const isStaticAsset =
     request.destination === "style" ||

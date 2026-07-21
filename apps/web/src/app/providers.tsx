@@ -1,13 +1,36 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import { ThemeProvider, ToastProvider, useTheme } from "@mpa/ui";
 import { AuthSessionSync } from "../components/auth/auth-session-sync";
 import { BrandSurfaceTone } from "../components/branding/brand-logo";
+import {
+  brandSurfaceToneForMode,
+  persistThemeCookies,
+  type ThemeMode,
+  type ThemePreference
+} from "../lib/theme/theme-sync";
 
-export function AppProviders({ children }: { children: ReactNode }) {
+export function AppProviders({
+  children,
+  initialMode,
+  initialPreference
+}: {
+  children: ReactNode;
+  initialMode: ThemeMode;
+  initialPreference: ThemePreference;
+}) {
+  const onThemeCommit = useCallback((preference: ThemePreference, mode: ThemeMode) => {
+    persistThemeCookies(preference, mode);
+  }, []);
+
   return (
-    <ThemeProvider darkModeEnabled>
+    <ThemeProvider
+      darkModeEnabled
+      initialMode={initialMode}
+      initialPreference={initialPreference}
+      onThemeCommit={onThemeCommit}
+    >
       <ThemeAwareBrandSurface>
         <ToastProvider>
           <AuthSessionSync />
@@ -20,5 +43,5 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
 function ThemeAwareBrandSurface({ children }: { children: ReactNode }) {
   const { mode } = useTheme();
-  return <BrandSurfaceTone tone={mode === "dark" ? "dark-surface" : "light-surface"}>{children}</BrandSurfaceTone>;
+  return <BrandSurfaceTone tone={brandSurfaceToneForMode(mode)}>{children}</BrandSurfaceTone>;
 }

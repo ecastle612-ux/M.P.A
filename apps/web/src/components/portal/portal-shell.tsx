@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Badge, Card } from "@mpa/ui";
 import { OrganizationSwitcher } from "../shell/organization-switcher";
 import { RoleSwitcher } from "../shell/role-switcher";
 import { ProfileMenu } from "../shell/profile-menu";
-import { BrandLogo, BrandSurfaceTone } from "../branding/brand-logo";
+import { BrandLogo } from "../branding/brand-logo";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 
 type PortalNavigationItem = {
@@ -14,6 +14,10 @@ type PortalNavigationItem = {
   label: string;
 };
 
+/**
+ * Portal chrome uses the same ThemeProvider → BrandSurfaceTone path as the main app.
+ * Do not maintain an independent theme useState (that caused logo swaps on refresh).
+ */
 export function PortalShell({
   title,
   subtitle,
@@ -33,28 +37,11 @@ export function PortalShell({
   showPushEnrollmentBanner?: boolean | undefined;
   fetchProfile?: boolean | undefined;
 }) {
-  const [documentTheme, setDocumentTheme] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    const resolveDocumentTheme = () => {
-      setDocumentTheme(document.documentElement.dataset["theme"] === "dark" ? "dark" : "light");
-    };
-    resolveDocumentTheme();
-
-    const observer = new MutationObserver(resolveDocumentTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    return () => observer.disconnect();
-  }, []);
-
-  const surfaceTone = documentTheme === "dark" ? "dark-surface" : "light-surface";
-
   return (
     <div className="min-h-screen bg-[var(--mpa-color-bg-app)]">
       <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 px-4 py-3 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3">
-          <BrandSurfaceTone tone={surfaceTone}>
-            <BrandLogo purpose="header" />
-          </BrandSurfaceTone>
+          <BrandLogo purpose="header" />
           <div className="min-w-0">
             <p className="truncate font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">{title}</p>
             <p className="truncate text-xs text-[var(--mpa-color-text-secondary)]">{subtitle}</p>

@@ -44,22 +44,44 @@
           color: #a8b5b0;
         }
       }
-      .mpa-offline-logo {
+      /* BR-002: house-only crop — never show baked-in PNG wordmark at small sizes. */
+      .mpa-offline-mark {
         display: block;
-        margin: 0 auto 20px;
-        width: 160px;
-        height: auto;
+        position: relative;
+        width: 96px;
+        height: 96px;
+        margin: 0 auto 16px;
+        overflow: hidden;
+      }
+      .mpa-offline-mark img {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 226px;
+        height: 226px;
+        max-width: none;
+        transform: translate(-50%, -50%);
+        object-fit: cover;
+        object-position: 50% 39%;
+      }
+      .mpa-offline-name {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
       }
     </style>
   </head>
   <body>
     <main>
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="/branding/logo-light.png" />
-        <img class="mpa-offline-logo" src="/branding/logo-dark.png" alt="M.P.A. My Property Assistant" />
-      </picture>
-      <h1>You are offline</h1>
-      <p>M.P.A. is unavailable right now. Reconnect to continue.</p>
+      <span class="mpa-offline-mark" aria-hidden="true">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="/branding/logo-light.png" />
+          <img src="/branding/logo-dark.png" alt="" />
+        </picture>
+      </span>
+      <h1 class="mpa-offline-name">M.P.A.</h1>
+      <p>You are offline. Reconnect to continue with My Property Assistant.</p>
     </main>
   </body>
 </html>

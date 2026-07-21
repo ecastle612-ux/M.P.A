@@ -17,6 +17,8 @@ import {
   resolveBrandAssetUrl
 } from "../lib/branding";
 import { serverEnv } from "../lib/env/server-env";
+import { readServerThemeState } from "../lib/theme/read-theme-cookies";
+import { brandSurfaceToneForMode, buildThemeInitScript } from "../lib/theme/theme-sync";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -34,7 +36,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 const appUrl = serverEnv.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
 const siteDescription = `${MPA_BRAND_NAME} — enterprise property operations for professional managers. Private Beta.`;
-const themeInitScript = `try{var p=localStorage.getItem("mpa:theme-preference");if(p!=="light"&&p!=="dark"&&p!=="system")p="system";var m=p==="dark"||(p==="system"&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";document.documentElement.dataset.theme=m;document.documentElement.style.colorScheme=m;}catch(_){document.documentElement.dataset.theme="light";document.documentElement.style.colorScheme="light";}`;
+const themeInitScript = buildThemeInitScript();
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
@@ -88,21 +90,24 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const theme = await readServerThemeState();
+  const brandTone = brandSurfaceToneForMode(theme.mode);
+
   return (
     <html
       lang="en"
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
-      data-theme="light"
-      style={{ colorScheme: "light" }}
+      data-theme={theme.mode}
+      style={{ colorScheme: theme.mode }}
       suppressHydrationWarning
     >
       <head>
         <Script id="mpa-theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body>
-        <BrandSurfaceTone tone="light-surface">
-          <AppProviders>
+        <BrandSurfaceTone tone={brandTone}>
+          <AppProviders initialMode={theme.mode} initialPreference={theme.preference}>
             <RegisterServiceWorker />
             {children}
           </AppProviders>
