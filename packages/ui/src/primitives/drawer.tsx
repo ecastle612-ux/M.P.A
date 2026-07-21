@@ -42,7 +42,12 @@ export function Drawer({
 
   return (
     <div
-      className={cn("fixed inset-0 z-50", !open && "pointer-events-none invisible")}
+      className={cn(
+        "fixed z-50",
+        // SH-001 keepMounted: stay mounted, but never leave a full-viewport layer over the app when closed.
+        // A closed `inset-0` shell (even with pointer-events-none) blocks/confuses hit-testing on some desktops.
+        open ? "inset-0" : "pointer-events-none invisible left-0 top-0 h-0 w-0 overflow-hidden"
+      )}
       aria-hidden={!open}
     >
       <button

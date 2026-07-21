@@ -8,6 +8,7 @@
 | F4 | Use `evaluateCapability` for `ai:read` / `ai:use` | `floating-ai-copilot.tsx` |
 | F5 | Bridge unmount restores pathname-derived context | `ai-page-context.tsx` |
 | F6 | Runtime traces: `ai-copilot-mount` / `open` / `close` / `tap-blocked` / `ai-route-sync` | `floating-ai-copilot.tsx`, `ai-route-context-sync.tsx` |
+| F7 | Desktop untappable: portal launcher to `document.body`, never `disabled`, `z-index: 100`, closed Drawer no longer `inset-0` | `floating-ai-copilot.tsx`, `packages/ui/.../drawer.tsx` |
 
 ## Runtime trace (enable)
 

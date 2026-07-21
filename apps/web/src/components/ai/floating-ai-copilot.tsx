@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button, Textarea } from "@mpa/ui";
 import { evaluateCapability } from "@mpa/shared";
 import type { PromptKey } from "../../lib/ai/contracts";
@@ -17,8 +18,8 @@ type ChatMessage = {
 };
 
 /**
- * UX-009 / SH-002 floating operational copilot.
- * Subscribes to AI page context via external store — must not re-render the shell.
+ * UX-009 / SH-002 / AI-001 floating operational copilot.
+ * Portaled to document.body so shell stacking contexts cannot swallow clicks.
  */
 export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
   const panelId = useId();
@@ -27,6 +28,7 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
   const canRead = evaluateCapability(permissions, "ai:read");
   const canUse = evaluateCapability(permissions, "ai:use");
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const mountCounted = useRef(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -35,6 +37,10 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
   const [error, setError] = useState<string | null>(null);
   const transcriptRef = useRef<HTMLDivElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (mountCounted.current) return;
@@ -49,7 +55,6 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
-    // Do not lock body scroll — OS assistant must not freeze the page under the panel.
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setOpen(false);
@@ -75,10 +80,7 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
       setError(null);
       const userPreview = input.message ?? input.promptKey?.replaceAll("_", " ") ?? "Ask M.P.A.";
       const optimisticId = `pending-${Date.now()}`;
-      setMessages((current) => [
-        ...current,
-        { id: optimisticId, role: "user", content: userPreview }
-      ]);
+      setMessages((current) => [...current, { id: optimisticId, role: "user", content: userPreview }]);
 
       try {
         const response = await fetch("/api/ai/prompts", {
@@ -119,15 +121,15 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
     [canUse, conversationId, context.entityId, context.entityLabel, context.entityType, isRunning]
   );
 
-  const launcherEnabled = loaded && canRead;
+  if (!mounted) return null;
 
-  return (
+  const panel = (
     <div
-      // AI-001: z-[60] sits above keepMounted Drawer/Modal (z-50) so the launcher stays tappable.
-      className="pointer-events-none fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-[60] flex flex-col items-end gap-3 md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]"
+      className="pointer-events-none fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-4 z-[100] flex flex-col items-end gap-3 md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]"
       data-mpa-ai-copilot="true"
+      style={{ zIndex: 100 }}
     >
-      {open && launcherEnabled ? (
+      {open ? (
         <section
           id={panelId}
           role="dialog"
@@ -157,108 +159,112 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
             </button>
           </header>
 
-          <div className="flex flex-wrap gap-1.5 border-b border-[var(--mpa-color-border-subtle)] px-3 py-2">
-            {context.suggestions.map((suggestion) => (
-              <button
-                key={suggestion.id}
-                type="button"
-                disabled={!canUse || isRunning}
-                onClick={() =>
-                  void runPrompt({
-                    ...(suggestion.promptKey ? { promptKey: suggestion.promptKey } : {}),
-                    message: suggestion.message ?? suggestion.label
-                  })
-                }
-                className="rounded-full border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)] px-2.5 py-1 text-xs font-medium text-[var(--mpa-color-text-primary)] hover:border-[var(--mpa-color-brand-primary)] disabled:opacity-50"
-              >
-                {suggestion.label}
-              </button>
-            ))}
-          </div>
+          {!loaded ? (
+            <p className="px-4 py-6 text-sm text-[var(--mpa-color-text-secondary)]">Loading assistant…</p>
+          ) : !canRead ? (
+            <p className="px-4 py-6 text-sm text-[var(--mpa-color-text-secondary)]">
+              AI assistant is not enabled for this role. Ask an admin for <span className="font-medium">ai:read</span>{" "}
+              access.
+            </p>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-1.5 border-b border-[var(--mpa-color-border-subtle)] px-3 py-2">
+                {context.suggestions.map((suggestion) => (
+                  <button
+                    key={suggestion.id}
+                    type="button"
+                    disabled={!canUse || isRunning}
+                    onClick={() =>
+                      void runPrompt({
+                        ...(suggestion.promptKey ? { promptKey: suggestion.promptKey } : {}),
+                        message: suggestion.message ?? suggestion.label
+                      })
+                    }
+                    className="rounded-full border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)] px-2.5 py-1 text-xs font-medium text-[var(--mpa-color-text-primary)] hover:border-[var(--mpa-color-brand-primary)] disabled:opacity-50"
+                  >
+                    {suggestion.label}
+                  </button>
+                ))}
+              </div>
 
-          <div
-            ref={transcriptRef}
-            className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3"
-            aria-live="polite"
-          >
-            {messages.length === 0 ? (
-              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                Context is already set for this screen. Pick a suggestion or ask a question — no need to explain where
-                you are.
-              </p>
-            ) : (
-              messages.map((message) => (
-                <article
-                  key={message.id}
-                  className={
-                    message.role === "user"
-                      ? "ml-6 rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary-subtle)] px-3 py-2 text-sm"
-                      : "mr-6 rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm"
-                  }
-                >
-                  <p className="whitespace-pre-wrap text-[var(--mpa-color-text-primary)]">{message.content}</p>
-                </article>
-              ))
-            )}
-            {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
-          </div>
-
-          <form
-            className="space-y-2 border-t border-[var(--mpa-color-border-subtle)] px-3 py-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              const message = draft.trim();
-              if (!message) return;
-              void runPrompt({ message });
-            }}
-          >
-            <Textarea
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder={canUse ? "Ask in plain language…" : "AI use permission required"}
-              disabled={!canUse || isRunning}
-              rows={2}
-              className="min-h-[4rem] resize-none text-sm"
-            />
-            <div className="flex items-center justify-between gap-2">
-              <Link
-                href="/ai-operations"
-                className="text-xs font-medium text-[var(--mpa-color-text-link)] hover:underline"
+              <div
+                ref={transcriptRef}
+                className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3"
+                aria-live="polite"
               >
-                Open AI Ops
-              </Link>
-              <Button type="submit" size="sm" disabled={!canUse || isRunning || !draft.trim()}>
-                {isRunning ? "Thinking…" : "Ask"}
-              </Button>
-            </div>
-          </form>
+                {messages.length === 0 ? (
+                  <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                    Context is already set for this screen. Pick a suggestion or ask a question — no need to explain
+                    where you are.
+                  </p>
+                ) : (
+                  messages.map((message) => (
+                    <article
+                      key={message.id}
+                      className={
+                        message.role === "user"
+                          ? "ml-6 rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary-subtle)] px-3 py-2 text-sm"
+                          : "mr-6 rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm"
+                      }
+                    >
+                      <p className="whitespace-pre-wrap text-[var(--mpa-color-text-primary)]">{message.content}</p>
+                    </article>
+                  ))
+                )}
+                {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
+              </div>
+
+              <form
+                className="space-y-2 border-t border-[var(--mpa-color-border-subtle)] px-3 py-3"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const message = draft.trim();
+                  if (!message) return;
+                  void runPrompt({ message });
+                }}
+              >
+                <Textarea
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  placeholder={canUse ? "Ask in plain language…" : "AI use permission required"}
+                  disabled={!canUse || isRunning}
+                  rows={2}
+                  className="min-h-[4rem] resize-none text-sm"
+                />
+                <div className="flex items-center justify-between gap-2">
+                  <Link
+                    href="/ai-operations"
+                    className="text-xs font-medium text-[var(--mpa-color-text-link)] hover:underline"
+                  >
+                    Open AI Ops
+                  </Link>
+                  <Button type="submit" size="sm" disabled={!canUse || isRunning || !draft.trim()}>
+                    {isRunning ? "Thinking…" : "Ask"}
+                  </Button>
+                </div>
+              </form>
+            </>
+          )}
         </section>
       ) : null}
 
       <button
         ref={launcherRef}
         type="button"
-        disabled={!launcherEnabled}
-        className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] text-sm font-semibold text-[var(--mpa-color-brand-primary)] shadow-[var(--mpa-shadow-md)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+        className="pointer-events-auto flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] text-sm font-semibold text-[var(--mpa-color-brand-primary)] shadow-[var(--mpa-shadow-md)] hover:bg-[var(--mpa-color-interactive-row-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]"
         aria-expanded={open}
         aria-controls={panelId}
         aria-label={
-          !loaded
-            ? "AI assistant loading"
-            : canRead
-              ? context.launcherLabel
-              : "AI assistant unavailable"
+          !loaded ? "AI assistant loading" : canRead ? context.launcherLabel : "AI assistant unavailable"
         }
         onClick={() => {
-          if (!launcherEnabled) {
-            shellTrace("ai-copilot-tap-blocked", { loaded, canRead });
-            return;
-          }
           setOpen((value) => {
             const next = !value;
             shellTrace(next ? "ai-copilot-open" : "ai-copilot-close", {
               entityType: context.entityType,
-              entityId: context.entityId ?? null
+              entityId: context.entityId ?? null,
+              loaded,
+              canRead
             });
             return next;
           });
@@ -268,4 +274,6 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
       </button>
     </div>
   );
+
+  return createPortal(panel, document.body);
 });
