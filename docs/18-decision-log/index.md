@@ -55,6 +55,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-017](./adr-017-onesignal-as-primary-push-provider.md) | OneSignal as Primary Push Notification Provider | Accepted | 2026-07-17 |
 | [ADR-018](./adr-018-resend-as-primary-transactional-email-provider.md) | Resend as the Primary Transactional Email Provider | Accepted | 2026-07-20 |
 | [ADR-019](./adr-019-adaptive-two-logo-brand-system.md) | Adaptive Two-Logo Brand System | Accepted | 2026-07-20 |
+| [ADR-020](./adr-020-premium-mobile-navigation-architecture.md) | Premium Mobile Navigation Architecture | Accepted | 2026-07-20 |
 
 ---
 
