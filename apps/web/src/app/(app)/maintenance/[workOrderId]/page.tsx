@@ -90,6 +90,10 @@ export default async function WorkOrderDetailPage({
   const canUpdate = evaluatePermission(authorization, "maintenance:update");
   const canAssign = evaluatePermission(authorization, "maintenance:assign");
   const canArchive = evaluatePermission(authorization, "maintenance:archive");
+  const canMessageResident =
+    Boolean(workOrder.tenantId) &&
+    (evaluatePermission(authorization, "message:read") || evaluatePermission(authorization, "message:create"));
+  const canNotifyOwner = evaluatePermission(authorization, "communication:create");
   const overdue = isWorkOrderOverdue(workOrder.dueDate, workOrder.status);
   const currentVendorAssignment = vendorAssignments.find((entry) => entry.isCurrent) ?? null;
   const recentVendorIds = new Set(
@@ -249,9 +253,28 @@ export default async function WorkOrderDetailPage({
               label: "Photos",
               href: "#attachments",
               variant: "secondary" as const
-            }
+            },
+            ...(canMessageResident && workOrder.tenantId
+              ? [
+                  {
+                    id: "message-resident",
+                    label: "Message Resident",
+                    href: `/communications/resident/${encodeURIComponent(workOrder.tenantId)}`,
+                    variant: "secondary" as const
+                  }
+                ]
+              : [])
           ]}
           moreActions={[
+            ...(canNotifyOwner
+              ? [
+                  {
+                    id: "notify-owner",
+                    label: "Notify owner",
+                    href: `/communications/new?propertyId=${encodeURIComponent(workOrder.propertyId)}&intent=owner-update&title=${encodeURIComponent(`Owner update — ${workOrder.workOrderNumber}`)}`
+                  }
+                ]
+              : []),
             ...(facilityRecord
               ? [{ id: "facility", label: "View facility record", href: `/facility/records/${facilityRecord.id}` }]
               : []),

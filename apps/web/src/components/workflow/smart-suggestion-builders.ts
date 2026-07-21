@@ -51,6 +51,10 @@ export function completedWorkOrderSuggestions(input: {
       primary: !input.facilityRecordHref
     },
     {
+      label: "Notify owner",
+      href: `/communications/new?propertyId=${input.propertyId}&intent=owner-update`
+    },
+    {
       label: "Notify residents",
       href: `/communications/new?propertyId=${input.propertyId}`
     },
