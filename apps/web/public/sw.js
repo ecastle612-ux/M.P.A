@@ -1,6 +1,7 @@
 /* Offline PWA worker. Only registered when OneSignal is not configured
  * (see register-service-worker.tsx) to avoid root-scope conflicts. */
-const CACHE_NAME = "mpa-foundation-v3";
+/* SH-003: bumped to v4 — network-first for /_next/static so deploys reach phones. */
+const CACHE_NAME = "mpa-foundation-v4";
 const STATIC_ASSETS = ["/", "/offline.html", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
@@ -32,22 +33,24 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // SH-003: hashed Next bundles must be network-first so bugfixes are not trapped
+  // behind cache-first (root cause of "code fixed but phone still broken").
+  const isNextStatic = url.pathname.includes("/_next/static/");
   const isStaticAsset =
     request.destination === "style" ||
     request.destination === "script" ||
     request.destination === "image" ||
-    request.url.includes("/_next/static/");
+    isNextStatic;
 
   if (isStaticAsset) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
+      fetch(request)
+        .then((response) => {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
           return response;
-        });
-      })
+        })
+        .catch(() => caches.match(request).then((cached) => cached ?? Response.error()))
     );
     return;
   }

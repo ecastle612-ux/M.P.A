@@ -6,11 +6,12 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * SH-002: Trap focus while `active` is true.
+ * SH-002 / SH-003: Trap focus while `active` is true.
  *
- * Critical: do **not** depend on `onEscape` identity. Callers often pass inline
- * functions; re-running this effect steals focus via `firstElement.focus()` and
- * dismisses the mobile keyboard mid-typing (Severity 1 defect).
+ * - Do not depend on `onEscape` identity (inline callbacks remount the effect).
+ * - Never call `.focus()` on effect re-runs while the user already focuses inside.
+ * - On deactivate, restore prior focus only if focus is still inside the trap
+ *   (avoids yanking focus during unrelated cleanups).
  */
 export function useFocusTrap<TElement extends HTMLElement>(
   active: boolean,
@@ -19,22 +20,38 @@ export function useFocusTrap<TElement extends HTMLElement>(
   const containerRef = useRef<TElement | null>(null);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
   const onEscapeRef = useRef(onEscape);
+  const wasActiveRef = useRef(false);
   onEscapeRef.current = onEscape;
 
   useEffect(() => {
-    if (!active) return;
     const container = containerRef.current;
+    if (!active) {
+      if (wasActiveRef.current && container) {
+        const activeEl = document.activeElement;
+        if (activeEl instanceof HTMLElement && container.contains(activeEl)) {
+          previouslyFocusedElement.current?.focus({ preventScroll: true });
+        }
+      }
+      wasActiveRef.current = false;
+      return;
+    }
+
     if (!container) return;
 
-    previouslyFocusedElement.current = document.activeElement as HTMLElement | null;
+    const activating = !wasActiveRef.current;
+    wasActiveRef.current = true;
 
-    const initialFocusable = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-    // Prefer an already-focused control inside the trap (e.g. user tapped search).
-    const activeEl = document.activeElement;
-    const alreadyInside =
-      activeEl instanceof HTMLElement && container.contains(activeEl) && activeEl.matches(FOCUSABLE_SELECTOR);
-    if (!alreadyInside) {
-      initialFocusable[0]?.focus();
+    if (activating) {
+      previouslyFocusedElement.current = document.activeElement as HTMLElement | null;
+      const activeEl = document.activeElement;
+      const alreadyInside =
+        activeEl instanceof HTMLElement &&
+        container.contains(activeEl) &&
+        activeEl.matches(FOCUSABLE_SELECTOR);
+      if (!alreadyInside) {
+        const initialFocusable = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+        initialFocusable[0]?.focus({ preventScroll: true });
+      }
     }
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -57,18 +74,16 @@ export function useFocusTrap<TElement extends HTMLElement>(
 
       if (event.shiftKey && activeElement === firstElement) {
         event.preventDefault();
-        lastElement?.focus();
+        lastElement?.focus({ preventScroll: true });
       } else if (!event.shiftKey && activeElement === lastElement) {
         event.preventDefault();
-        firstElement?.focus();
+        firstElement?.focus({ preventScroll: true });
       }
     }
 
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      // Only restore outside focus when the trap deactivates — never on dependency churn.
-      previouslyFocusedElement.current?.focus();
     };
   }, [active]);
 

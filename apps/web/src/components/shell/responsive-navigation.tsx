@@ -6,8 +6,10 @@ import {
   useEffect,
   useId,
   useMemo,
+  useRef,
   useState,
-  useSyncExternalStore
+  useSyncExternalStore,
+  type RefObject
 } from "react";
 import Link from "next/link";
 import { Button, Drawer } from "@mpa/ui";
@@ -41,6 +43,7 @@ import {
   toggleFavoriteItem,
   type CommandCenterStoredItem
 } from "../../lib/command-center/storage";
+import { shellTrace } from "../../lib/debug/shell-runtime-trace";
 
 const NAV_HISTORY_EVENT = "mpa:nav-history";
 
@@ -116,6 +119,7 @@ export function ResponsiveNavigation() {
   const { badges, health } = useMobileNavSignals(true);
   const favorites = useSyncExternalStore(subscribeNavHistory, getFavoritesSnapshot, getEmptyHistorySnapshot);
   const recents = useSyncExternalStore(subscribeNavHistory, getRecentsSnapshot, getEmptyHistorySnapshot);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const accessibleItems = useMemo(
     () => flattenShellNavigationItems().filter((item) => canAccess(item.requiredCapability)),
@@ -151,13 +155,17 @@ export function ResponsiveNavigation() {
     if (!open) {
       setSearchQuery("");
       setCreateMenuOpen(false);
+      if (searchInputRef.current) searchInputRef.current.value = "";
       return;
     }
+    // SH-003: never reshuffle expanded sections while the user is searching —
+    // DOM churn under the field causes iOS Safari to blur the input.
+    if (searchQuery.trim().length > 0) return;
     const routeSection = findMobileSectionForPath(pathname);
     const stored = readExpandedSection();
     const next = routeSection ?? stored ?? firstSectionId;
     setExpandedSection((current) => (current === next ? current : next));
-  }, [open, pathname, firstSectionId]);
+  }, [open, pathname, firstSectionId, searchQuery]);
 
   useEffect(() => {
     if (!open || !permissionsLoaded) return;
@@ -171,6 +179,7 @@ export function ResponsiveNavigation() {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       setEntitySearching(true);
+      shellTrace("entity-search-start", { queryLength: query.length });
       void searchCommandCenter({
         query,
         organizations,
@@ -183,6 +192,13 @@ export function ResponsiveNavigation() {
             .filter((item) => Boolean(item.href) && item.kind !== "navigation")
             .slice(0, 10);
           setEntityResults(flat);
+          shellTrace("entity-search-done", { count: flat.length });
+          // Restore focus if Safari blurred during result paint.
+          const input = searchInputRef.current;
+          if (input && document.activeElement !== input && open) {
+            input.focus({ preventScroll: true });
+            shellTrace("search-refocus-after-results");
+          }
         })
         .catch(() => {
           if (!controller.signal.aborted) setEntityResults([]);
@@ -199,6 +215,7 @@ export function ResponsiveNavigation() {
   }, [open, searchQuery, organizations, permissions, permissionsLoaded]);
 
   const closeDrawer = useCallback(() => {
+    shellTrace("drawer-close");
     setOpen(false);
   }, []);
 
@@ -206,8 +223,14 @@ export function ResponsiveNavigation() {
     const routeSection = findMobileSectionForPath(pathname);
     const stored = readExpandedSection();
     setExpandedSection(routeSection ?? stored ?? firstSectionId);
+    shellTrace("drawer-open");
     setOpen(true);
   }, [pathname, firstSectionId]);
+
+  const onSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    shellTrace("search-change", { length: value.length });
+  }, []);
 
   function toggleSection(sectionId: MobileNavSectionId) {
     setExpandedSection((current) => {
@@ -336,8 +359,8 @@ export function ResponsiveNavigation() {
             </section>
 
             <MobileSearchField
-              value={searchQuery}
-              onChange={setSearchQuery}
+              inputRef={searchInputRef}
+              onChange={onSearchChange}
               disabled={!open}
             />
           </div>
@@ -543,22 +566,29 @@ export function ResponsiveNavigation() {
 }
 
 const MobileSearchField = memo(function MobileSearchField({
-  value,
   onChange,
-  disabled
+  disabled,
+  inputRef
 }: {
-  value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  inputRef: RefObject<HTMLInputElement | null>;
 }) {
+  // SH-003: uncontrolled input — parent re-renders from entity search / badges must
+  // never rewrite `value` (iOS Safari blurs controlled inputs during heavy updates).
   return (
     <label className="block">
       <span className="sr-only">Search M.P.A.</span>
       <input
-        type="search"
-        value={value}
+        ref={inputRef}
+        type="text"
+        inputMode="search"
+        enterKeyHint="search"
         disabled={disabled}
+        defaultValue=""
         onChange={(event) => onChange(event.target.value)}
+        onFocus={() => shellTrace("search-focus")}
+        onBlur={() => shellTrace("search-blur")}
         placeholder="Search M.P.A."
         autoComplete="off"
         autoCorrect="off"

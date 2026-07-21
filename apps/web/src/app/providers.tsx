@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useEffect, type ReactNode } from "react";
 import { ThemeProvider, ToastProvider, useTheme } from "@mpa/ui";
 import { AuthSessionSync } from "../components/auth/auth-session-sync";
 import { BrandSurfaceTone } from "../components/branding/brand-logo";
@@ -10,6 +10,7 @@ import {
   type ThemeMode,
   type ThemePreference
 } from "../lib/theme/theme-sync";
+import { initShellRuntimeTrace } from "../lib/debug/shell-runtime-trace";
 
 export function AppProviders({
   children,
@@ -22,6 +23,10 @@ export function AppProviders({
 }) {
   const onThemeCommit = useCallback((preference: ThemePreference, mode: ThemeMode) => {
     persistThemeCookies(preference, mode);
+  }, []);
+
+  useEffect(() => {
+    initShellRuntimeTrace();
   }, []);
 
   return (

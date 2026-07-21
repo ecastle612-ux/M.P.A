@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { evaluateCapability, type PermissionCapability } from "@mpa/shared";
 
 const CACHE_KEY = "mpa.session.permissions.v1";
@@ -74,5 +74,7 @@ export function useSessionPermissions() {
     return evaluateCapability(permissions, requiredCapability);
   }
 
-  return { permissions, loaded, canAccess };
+  const canAccessStable = useCallback(canAccess, [loaded, permissions]);
+
+  return { permissions, loaded, canAccess: canAccessStable };
 }
