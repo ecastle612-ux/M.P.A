@@ -74,7 +74,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 68 | [PR-003 Production Environment Audit](./68-pr-003-production-environment-audit.md) | Zod/env inventory · Vercel checklist · build failure root cause |
 | 69 | [UX-001 Zero Friction Hardening](./69-ux-001-zero-friction-hardening/README.md) | PM friction · Master Admin Slice A (EP-004 Approved) |
 | 70 | [UX-005 Authentication Experience](./70-ux-005-authentication-experience/README.md) | Auth presentation redesign (EP-004) |
-| 71 | [ADMIN-001 Master Admin Impersonation](./71-admin-001-master-admin-impersonation/README.md) | Impersonation + audit (deferred Slice B) |
+| 71 | [ADMIN-001 Master Admin Impersonation](./71-admin-001-master-admin-impersonation/README.md) | Portal Test Mode + Impersonation Center + audit (**Approved**) |
 | 72 | [WF-004 Workflow Intelligence](./72-wf-004-workflow-intelligence/README.md) | Context forms · suggestions · completion (EP-006) |
 | 73 | [UX-003 Trust & Validation](./73-ux-003-trust-validation/README.md) | Validation · confirm · undo · loading (EP-007) |
 | 74 | [MIG-001 Design Partner Migration](./74-mig-001-design-partner-migration/README.md) | Guided portfolio import UX (EP-010) |

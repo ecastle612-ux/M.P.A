@@ -23,7 +23,8 @@ export function ApplicationShell({
   organizations,
   defaultOrganizationId,
   isSetupComplete,
-  deploymentMeta
+  deploymentMeta,
+  masterAdminBanner
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -32,6 +33,7 @@ export function ApplicationShell({
   defaultOrganizationId: string | null;
   isSetupComplete: boolean;
   deploymentMeta: DeploymentMeta;
+  masterAdminBanner?: ReactNode;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -48,6 +50,7 @@ export function ApplicationShell({
         Skip to content
       </a>
       <CommandCenterTracker />
+      {masterAdminBanner}
       <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)]">
         <Sidebar />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">

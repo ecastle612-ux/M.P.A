@@ -28,7 +28,8 @@ export function PortalShell({
   children,
   notificationSettingsHref = "/portal/tenant/preferences",
   showPushEnrollmentBanner = true,
-  fetchProfile = true
+  fetchProfile = true,
+  masterAdminBanner
 }: {
   title: string;
   subtitle: string;
@@ -38,9 +39,11 @@ export function PortalShell({
   notificationSettingsHref?: string | undefined;
   showPushEnrollmentBanner?: boolean | undefined;
   fetchProfile?: boolean | undefined;
+  masterAdminBanner?: ReactNode;
 }) {
   return (
     <div className="min-h-screen bg-[var(--mpa-color-bg-app)]">
+      {masterAdminBanner}
       <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 px-4 py-3 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3">
           <BrandLogo purpose="header" />

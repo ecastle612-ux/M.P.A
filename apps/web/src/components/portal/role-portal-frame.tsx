@@ -22,7 +22,8 @@ export function RolePortalFrame({
   roleBadgeLabel,
   navigation,
   showPushEnrollmentBanner,
-  fetchProfile
+  fetchProfile,
+  masterAdminBanner
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -35,6 +36,7 @@ export function RolePortalFrame({
   navigation: readonly PortalNavigationItem[];
   showPushEnrollmentBanner?: boolean | undefined;
   fetchProfile?: boolean | undefined;
+  masterAdminBanner?: ReactNode;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -50,6 +52,7 @@ export function RolePortalFrame({
         navigation={navigation}
         showPushEnrollmentBanner={showPushEnrollmentBanner}
         fetchProfile={fetchProfile}
+        masterAdminBanner={masterAdminBanner}
       >
         {children}
       </PortalShell>

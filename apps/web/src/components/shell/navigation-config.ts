@@ -226,6 +226,13 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         mobileSection: "master-admin"
       },
       {
+        href: "/master-admin/impersonation",
+        label: "Impersonation Center",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["impersonate", "act as", "support mode"]
+      },
+      {
         href: "/master-admin/health",
         label: "System Health",
         requiredCapability: "master_admin",

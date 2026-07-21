@@ -4,6 +4,12 @@ import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { resolveAuthenticatedShellContext } from "../../../../lib/auth/get-shell-context";
 import { RolePortalFrame } from "../../../../components/portal/role-portal-frame";
 import { MANAGER_PORTAL_NAVIGATION } from "../../../../components/portal/navigation";
+import {
+  canAccessPortalAsMasterAdmin,
+  getMasterAdminBannerModel,
+  resolveEffectiveRolesForSession
+} from "../../../../lib/master-admin/session";
+import { MasterAdminModeBanner } from "../../../../components/master-admin/master-admin-mode-banner";
 
 export default async function ManagerPortalLayout({ children }: { children: ReactNode }) {
   const supabase = await createAuthServerComponentClient();
@@ -19,20 +25,41 @@ export default async function ManagerPortalLayout({ children }: { children: Reac
   if (!shellContext.defaultOrganizationId) {
     redirect("/dashboard");
   }
-  if (!shellContext.availableRoles.includes("property_manager")) {
+
+  const hasRole = shellContext.availableRoles.includes("property_manager");
+  const masterAccess = await canAccessPortalAsMasterAdmin(
+    user,
+    shellContext.defaultOrganizationId,
+    "property_manager"
+  );
+  if (!hasRole && !masterAccess.allowed) {
     redirect("/unauthorized");
   }
 
+  const effectiveRoles =
+    masterAccess.session != null
+      ? await resolveEffectiveRolesForSession(masterAccess.session)
+      : shellContext.availableRoles;
+  const banner = await getMasterAdminBannerModel(user);
+
   return (
     <RolePortalFrame
-      availableRoles={shellContext.availableRoles}
+      availableRoles={effectiveRoles.length ? effectiveRoles : shellContext.availableRoles}
       defaultRole="property_manager"
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       title="Property Manager Portal"
-      subtitle="Day-to-day management runs in the main Operations workspace. This dedicated portal shell will expand in a later release."
+      subtitle="Day-to-day management runs in the main Operations workspace."
       roleBadgeLabel="Manager"
       navigation={MANAGER_PORTAL_NAVIGATION}
+      masterAdminBanner={
+        banner ? (
+          <MasterAdminModeBanner
+            session={banner.session}
+            authenticatedName={banner.authenticatedName}
+          />
+        ) : null
+      }
     >
       {children}
     </RolePortalFrame>
