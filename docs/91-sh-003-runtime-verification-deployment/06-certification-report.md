@@ -4,7 +4,7 @@
 **Date:** 2026-07-21  
 **Verdict:** ⏳ **Awaiting User Verification** — not PASS
 
-Cursor cannot complete the exact phone workflow (drawer → Search M.P.A. → type ≥30s → AI → return → continue typing) on a physical device. Per process rules, this is **not** claimed PASS.
+Cursor cannot complete the exact phone workflow on a physical device. Per process rules, this is **not** claimed PASS.
 
 ---
 
@@ -12,11 +12,11 @@ Cursor cannot complete the exact phone workflow (drawer → Search M.P.A. → ty
 
 | Step | Status |
 | --- | --- |
-| Implemented | ✅ |
-| Committed | ✅ `578f3e3` |
+| Implemented | ✅ (includes Chain F shell crash fix) |
+| Committed | ✅ `492a4fe` (crash) · `578f3e3` (focus/SW) |
 | Pushed | ✅ `origin/checkpoint/pre-phase5` |
-| Deployed | ✅ `dpl_AGDJGuog2QqDMTZX4DC5TKkzHddZ` READY |
-| Deployment Verified | ✅ commit + SW v4 + live instrumentation chunk |
+| Deployed | ✅ `dpl_DcgAGTfTpqgwMm4zpp4RLetWi7SF` READY |
+| Deployment Verified | ✅ commit `492a4fe` on production |
 | Awaiting User Verification | ⏳ |
 | User Verified | ☐ |
 
@@ -26,37 +26,19 @@ Cursor cannot complete the exact phone workflow (drawer → Search M.P.A. → ty
 
 | Item | Value |
 | --- | --- |
-| Commit hash | `578f3e37110d07e5abbeecb1eb29e0d535abb6e6` |
-| Deployment ID | `dpl_AGDJGuog2QqDMTZX4DC5TKkzHddZ` |
+| Commit hash (crash fix) | `492a4fe80d2cbe06e2b8c615985a7d0ede6083a9` |
+| Commit hash (focus/SW) | `578f3e37110d07e5abbeecb1eb29e0d535abb6e6` |
+| Deployment ID | `dpl_DcgAGTfTpqgwMm4zpp4RLetWi7SF` |
 | Production URL | https://www.my-property-assistant.com |
-| SW bundle hash | `d57501f28bd575cf5e4a58318c8aef41d33c1090e95fce4338416b8b31dace9f` |
-| Trace chunk hash | `5fa801c2c1419a6e3a3c7eb4daae86a824ee4513efcca0d26414be7468d4f20c` |
-| Before video | Not captured in this session (prior manual FAIL on phone) |
-| After video / runtime evidence | Pending user phone test; optional `?mpaDebugShell=1` → `window.__MPA_SHELL_TRACE__` |
-| Render / focus timeline | Instrumentation live; dump after workflow |
+| Blocking incident | App error boundary on `/dashboard` (“This page couldn’t load”) — Chain F |
+| Root cause (crash) | Unstable `useSyncExternalStore` favorites/recents snapshots → React 19 infinite loop |
+| Final fix (crash) | Cached snapshot references + stable empty sentinel |
 
 ---
 
 ## Root cause (complete)
 
-See [03-root-cause-chain.md](./03-root-cause-chain.md):
-
-1. **Chain A** — Focus trap effect identity churn  
-2. **Chain B** — Controlled search + DOM churn → iOS blur  
-3. **Chain C** — Section sync during search  
-4. **Chain D** — Cache-first SW kept stale JS (why prior “fixes” never reached the phone)  
-5. **Chain E** — AI Provider re-rendering shell  
-
----
-
-## Final fix
-
-- Uncontrolled Search M.P.A. + safe refocus  
-- Focus-trap activate-only / stable escape  
-- No section reshuffle while searching  
-- SW v4 network-first for `/_next/static/`  
-- AI context on external store (SH-002)  
-- Optional runtime timeline for deploy verification  
+See [03-root-cause-chain.md](./03-root-cause-chain.md) — Chains A–F.
 
 ---
 
@@ -68,17 +50,18 @@ See [03-root-cause-chain.md](./03-root-cause-chain.md):
 | Commit pushed | ✅ |
 | Deployment completed successfully | ✅ |
 | Deployment verified to contain new code | ✅ |
+| Dashboard loads without “couldn’t load” | ⏳ user |
 | Runtime trace shows no remaining focus loss | ⏳ user / phone dump |
-| Manual testing on deployed app reproduces workflow without failure | ⏳ |
-| Exact user-reported issue no longer occurs | ⏳ |
+| Manual Search M.P.A. 30s workflow on deployed app | ⏳ |
+| Exact user-reported focus issue no longer occurs | ⏳ |
 
-**Certification:** not PASS until the user (or equivalent device run) confirms the live workflow.
+**Certification:** not PASS until the user confirms dashboard loads **and** the Search M.P.A. phone workflow.
 
 ---
 
 ## User verification steps (required)
 
-1. On phone, open https://www.my-property-assistant.com  
-2. Hard refresh once (or clear site data) so SW v4 activates  
+1. On phone, open https://www.my-property-assistant.com — hard refresh once  
+2. Confirm **Operations Center / dashboard loads** (no “This page couldn’t load”)  
 3. Run [05-live-test-protocol.md](./05-live-test-protocol.md)  
-4. Reply with PASS or FAIL (+ optional `__MPA_SHELL_TRACE__` dump if FAIL)
+4. Reply with PASS or FAIL
