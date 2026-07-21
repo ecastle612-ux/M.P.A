@@ -3,13 +3,21 @@ import { assistantFooter } from "./events";
 import { formatOccupancySummary } from "./context";
 import type { AiProvider, PortfolioContext, PromptExecutionResult } from "./provider-types";
 
+type ResponseTone = "factual" | "draft";
+
+/** Factual answers stay short; draft/recommendation wrappers only when content needs PM review. */
 function buildResult(
   title: string,
   lines: string[],
   sources: PromptExecutionResult["sources"] = [],
-  insightCandidates: PromptExecutionResult["insightCandidates"] = []
+  insightCandidates: PromptExecutionResult["insightCandidates"] = [],
+  options: { tone?: ResponseTone } = {}
 ): PromptExecutionResult {
-  const content = [AI_ASSISTANT_DISCLAIMER, "", ...lines, assistantFooter()].join("\n");
+  const tone = options.tone ?? "factual";
+  const content =
+    tone === "draft"
+      ? [AI_ASSISTANT_DISCLAIMER, "", ...lines, assistantFooter()].join("\n")
+      : lines.join("\n");
   return { content, title, sources, insightCandidates };
 }
 
@@ -200,7 +208,8 @@ function handleDraftAnnouncement(context: PortfolioContext): PromptExecutionResu
         actionHref: "/communications/new",
         actionLabel: "Create announcement"
       }
-    ]
+    ],
+    { tone: "draft" }
   );
 }
 
@@ -233,7 +242,8 @@ function handleDraftMaintenanceUpdate(context: PortfolioContext): PromptExecutio
         actionHref: "/communications/new",
         actionLabel: "Use in announcement"
       }
-    ]
+    ],
+    { tone: "draft" }
   );
 }
 
@@ -332,6 +342,16 @@ function handleLeaseRenewals(context: PortfolioContext): PromptExecutionResult {
   );
 }
 
+function handleTenantCount(context: PortfolioContext): PromptExecutionResult {
+  const count = context.snapshot.activeTenants;
+  const answer =
+    count === 1 ? "You have 1 active tenant." : `You have ${count} active tenants.`;
+  return buildResult("Tenant count", [answer], [
+    { type: "tenants", label: "View tenants", href: "/tenants" },
+    { type: "leases", label: "View leases", href: "/leases" }
+  ]);
+}
+
 function handleCustomQuestion(context: PortfolioContext, message: string | null): PromptExecutionResult {
   const query = message?.trim() ?? "";
   const lower = query.toLowerCase();
@@ -342,19 +362,17 @@ function handleCustomQuestion(context: PortfolioContext, message: string | null)
   if (lower.includes("financial") || lower.includes("rent") || lower.includes("balance")) return handleFinancialHealth(context);
   if (lower.includes("announcement") || lower.includes("communication")) return handleCommunicationActivity(context);
   if (lower.includes("occupancy")) return handleExplainOccupancy(context);
+  if (lower.includes("tenant") || lower.includes("resident")) return handleTenantCount(context);
   return buildResult(
     "Operational answer",
     [
-      `**Question:** ${query || "General portfolio question"}`,
-      "",
-      formatOccupancySummary(context.snapshot),
-      `- Open maintenance: ${context.snapshot.maintenance?.openWorkOrders ?? 0}`,
-      `- Expiring leases: ${context.snapshot.expiringLeasesTotal}`,
-      `- Vacancies: ${context.snapshot.vacanciesTotal}`,
-      "",
-      "Try a built-in prompt for deeper summaries, or ask about vacancies, maintenance, leases, vendors, or financials."
+      "I can answer that from portfolio data. Try asking about tenants, vacancies, maintenance, leases, vendors, or financials."
     ],
-    [{ type: "ai", label: "AI Operations", href: "/ai-operations" }]
+    [
+      { type: "tenants", label: "View tenants", href: "/tenants" },
+      { type: "dashboard", label: "Operations Center", href: "/dashboard" },
+      { type: "ai", label: "AI Operations", href: "/ai-operations" }
+    ]
   );
 }
 

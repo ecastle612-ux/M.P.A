@@ -11,10 +11,17 @@ import { shellTrace } from "../../lib/debug/shell-runtime-trace";
 import { useSessionPermissions } from "../shell/use-session-permissions";
 import { useAiPageContext } from "./ai-page-context";
 
+type ChatSource = {
+  type: string;
+  label: string;
+  href?: string | null;
+};
+
 type ChatMessage = {
   id: string;
   role: "user" | "assistant" | "system";
   content: string;
+  sources?: ChatSource[];
 };
 
 /**
@@ -107,7 +114,8 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
           payload.conversation.messages.map((message) => ({
             id: message.id,
             role: message.role,
-            content: message.content
+            content: message.content,
+            sources: message.sources ?? []
           }))
         );
         setDraft("");
@@ -198,18 +206,38 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
                     where you are.
                   </p>
                 ) : (
-                  messages.map((message) => (
-                    <article
-                      key={message.id}
-                      className={
-                        message.role === "user"
-                          ? "ml-6 rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary-subtle)] px-3 py-2 text-sm"
-                          : "mr-6 rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm"
-                      }
-                    >
-                      <p className="whitespace-pre-wrap text-[var(--mpa-color-text-primary)]">{message.content}</p>
-                    </article>
-                  ))
+                  messages.map((message) => {
+                    const navSources =
+                      message.role === "assistant"
+                        ? (message.sources ?? []).filter((source) => Boolean(source.href))
+                        : [];
+                    return (
+                      <article
+                        key={message.id}
+                        className={
+                          message.role === "user"
+                            ? "ml-6 rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary-subtle)] px-3 py-2 text-sm"
+                            : "mr-6 rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm"
+                        }
+                      >
+                        <p className="whitespace-pre-wrap text-[var(--mpa-color-text-primary)]">{message.content}</p>
+                        {navSources.length > 0 ? (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {navSources.map((source) => (
+                              <Link
+                                key={`${message.id}-${source.href}`}
+                                href={source.href!}
+                                onClick={() => setOpen(false)}
+                                className="rounded-full border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)] px-2.5 py-1 text-xs font-medium text-[var(--mpa-color-text-link)] hover:border-[var(--mpa-color-brand-primary)]"
+                              >
+                                {source.label}
+                              </Link>
+                            ))}
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })
                 )}
                 {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
               </div>
