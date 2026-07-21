@@ -7,6 +7,7 @@
 export type ShellTraceEvent = {
   t: number;
   type: string;
+  /** Present only when a payload was supplied — never `detail: undefined` (exactOptionalPropertyTypes). */
   detail?: Record<string, unknown>;
 };
 
@@ -16,6 +17,17 @@ let enabled = false;
 
 function now() {
   return typeof performance !== "undefined" ? performance.now() : Date.now();
+}
+
+/**
+ * Build a ShellTraceEvent without assigning `detail: undefined`.
+ * With exactOptionalPropertyTypes, optional props must be omitted when absent.
+ */
+function appendTraceEvent(type: string, detail?: Record<string, unknown>): void {
+  const event: ShellTraceEvent =
+    detail === undefined ? { t: now(), type } : { t: now(), type, detail };
+  events.push(event);
+  if (events.length > MAX_EVENTS) events.splice(0, events.length - MAX_EVENTS);
 }
 
 export function isShellTraceEnabled(): boolean {
@@ -32,17 +44,11 @@ export function initShellRuntimeTrace(): void {
   const w = window as Window & { __MPA_SHELL_TRACE__?: ShellTraceEvent[] };
   w.__MPA_SHELL_TRACE__ = events;
 
-  const push = (type: string, detail?: Record<string, unknown>) => {
-    const event: ShellTraceEvent = detail === undefined ? { t: now(), type } : { t: now(), type, detail };
-    events.push(event);
-    if (events.length > MAX_EVENTS) events.splice(0, events.length - MAX_EVENTS);
-  };
-
   document.addEventListener(
     "focusin",
     (event) => {
       const target = event.target as HTMLElement | null;
-      push("focusin", {
+      appendTraceEvent("focusin", {
         tag: target?.tagName,
         id: target?.id,
         name: (target as HTMLInputElement | null)?.name,
@@ -57,7 +63,7 @@ export function initShellRuntimeTrace(): void {
     (event) => {
       const target = event.target as HTMLElement | null;
       const related = event.relatedTarget as HTMLElement | null;
-      push("focusout", {
+      appendTraceEvent("focusout", {
         tag: target?.tagName,
         placeholder: (target as HTMLInputElement | null)?.placeholder,
         relatedTag: related?.tagName,
@@ -69,22 +75,20 @@ export function initShellRuntimeTrace(): void {
 
   document.addEventListener(
     "visibilitychange",
-    () => push("visibilitychange", { state: document.visibilityState }),
+    () => appendTraceEvent("visibilitychange", { state: document.visibilityState }),
     true
   );
 
   window.addEventListener(
     "resize",
-    () => push("resize", { w: window.innerWidth, h: window.innerHeight }),
+    () => appendTraceEvent("resize", { w: window.innerWidth, h: window.innerHeight }),
     { passive: true }
   );
 
-  push("trace-init", { href: window.location.href, ua: navigator.userAgent });
+  appendTraceEvent("trace-init", { href: window.location.href, ua: navigator.userAgent });
 }
 
 export function shellTrace(type: string, detail?: Record<string, unknown>): void {
   if (!enabled || typeof window === "undefined") return;
-  const event: ShellTraceEvent = detail === undefined ? { t: now(), type } : { t: now(), type, detail };
-  events.push(event);
-  if (events.length > MAX_EVENTS) events.splice(0, events.length - MAX_EVENTS);
+  appendTraceEvent(type, detail);
 }
