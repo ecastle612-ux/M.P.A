@@ -1,10 +1,10 @@
 # SH-002 — Native Shell Stability & Workflow Foundation
 
 **Initiative ID:** SH-002  
-**Status:** Design ✔ · Document ✔ · **In implementation (stability bugfixes)**  
+**Status:** Design ✔ · Document ✔ · Implement ✔ · ✅ **PASS** (via [SH-003](../91-sh-003-runtime-verification-deployment/06-certification-report.md) User Verified)  
 **Constraint:** Shell polish only — no features, schema, API, or workflow redesign  
-**Blocks:** UX-009 page expansion until **PASS**  
-**Supersedes for gate:** Continues [SH-001](../89-sh-001-shell-stability-certification/README.md); SH-002 must PASS before UX-009 resumes  
+**Blocks:** — (cleared; UX-009 may resume)  
+**Supersedes for gate:** Continues [SH-001](../89-sh-001-shell-stability-certification/README.md); certified with SH-003 runtime verification  
 
 ---
 
@@ -30,4 +30,4 @@ Make the application shell behave like a native iOS/Android app: render once, st
 
 ## Rule
 
-Do **not** resume UX-009 Units → portals until `05-certification-report.md` = **PASS**.
+`05-certification-report.md` = **PASS**. UX-009 Units → portals may resume.
