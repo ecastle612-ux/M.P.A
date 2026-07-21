@@ -156,6 +156,18 @@ export function buildAiPageContext(input: {
           }
         ]
       };
+    case "settings":
+      return {
+        ...input,
+        launcherLabel: "Ask about settings",
+        suggestions: [
+          {
+            id: "ask-settings",
+            label: "Ask about settings",
+            message: "Help me understand organization settings and what I can configure here."
+          }
+        ]
+      };
     case "messages":
       return {
         ...input,

@@ -9,6 +9,7 @@ import {
   type AiPageContextValue,
   type AiPageEntityType
 } from "../../lib/ai/ai-page-context-store";
+import { buildAiPageContextFromPathname } from "../../lib/ai/ai-route-context";
 
 export type { AiPageContextValue, AiPageEntityType };
 export { buildAiPageContext };
@@ -26,13 +27,30 @@ export function useAiPageContext(): AiPageContextValue {
 /**
  * Register route context for the floating copilot.
  * Writes to an external store — does not re-render ApplicationShell / drawer / search.
+ * On unmount, restores pathname-derived context (not a hard wipe to generic default).
  */
 export function AiPageContextBridge(props: AiPageContextValue) {
-  const serialized = useMemo(() => JSON.stringify(props), [props]);
+  const serialized = useMemo(
+    () =>
+      JSON.stringify({
+        entityType: props.entityType,
+        entityId: props.entityId ?? null,
+        entityLabel: props.entityLabel ?? null,
+        launcherLabel: props.launcherLabel,
+        suggestions: props.suggestions
+      }),
+    [props.entityType, props.entityId, props.entityLabel, props.launcherLabel, props.suggestions]
+  );
 
   useEffect(() => {
     setAiPageContext(JSON.parse(serialized) as AiPageContextValue);
-    return () => setAiPageContext(null);
+    return () => {
+      if (typeof window === "undefined") {
+        setAiPageContext(null);
+        return;
+      }
+      setAiPageContext(buildAiPageContextFromPathname(window.location.pathname));
+    };
   }, [serialized]);
 
   return null;

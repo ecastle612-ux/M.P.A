@@ -13,6 +13,7 @@ import { SetupGate } from "../setup/setup-gate";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 import { DeploymentBadge } from "../launch/deployment-badge";
 import { FloatingAiCopilot } from "../ai/floating-ai-copilot";
+import { AiRouteContextSync } from "../ai/ai-route-context-sync";
 import type { DeploymentMeta } from "../../lib/launch/deployment-meta";
 
 export function ApplicationShell({
@@ -64,7 +65,8 @@ export function ApplicationShell({
           </div>
         </div>
       </div>
-      {/* SH-002: copilot reads page context from an external store — must not wrap shell. */}
+      {/* AI-001 / SH-002: copilot + route context outside shell subscription tree. */}
+      <AiRouteContextSync />
       <FloatingAiCopilot />
     </AuthenticatedContextProviders>
   );

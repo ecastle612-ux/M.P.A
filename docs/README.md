@@ -84,11 +84,14 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 81 | [EML-001 Transactional Email Experience](./81-eml-001-transactional-email-experience/README.md) | Premium branded transactional email (Priority 6) |
 | 82 | [UX-006 Mobile Workflow Optimization](./82-ux-006-mobile-workflow-optimization/README.md) | Reduce mobile scroll / taps (awaiting Approve) |
 | 83 | [UX-007 Adaptive Logo System](./83-ux-007-adaptive-logo-system/README.md) | Two-logo adaptive branding architecture (Approved) |
-| 87 | [EP-019 Performance & Speed Certification](./87-ep-019-performance-speed-certification/README.md) | Evidence-first speed certification (**Paused** behind UX-009) |
-| 88 | [UX-009 Cognitive Load & Workflow Optimization](./88-ux-009-cognitive-load-workflow-optimization/README.md) | Reduce thinking / hunting / scrolling (**Paused** for SH-001) |
+| 87 | [EP-019 Performance & Speed Certification](./87-ep-019-performance-speed-certification/README.md) | Evidence-first speed certification (**Paused** behind UX-009 / DPX-001) |
+| 88 | [UX-009 Cognitive Load & Workflow Optimization](./88-ux-009-cognitive-load-workflow-optimization/README.md) | Reduce thinking / hunting / scrolling (**Approved** · DPX-001 execution vehicle) |
 | 89 | [SH-001 Shell Stability Certification](./89-sh-001-shell-stability-certification/README.md) | Shell stability audit + first fixes |
-| 90 | [SH-002 Native Shell Stability](./90-sh-002-native-shell-stability/README.md) | Focus loss + AI isolation + native shell |
-| 91 | [SH-003 Runtime Verification & Deployment](./91-sh-003-runtime-verification-deployment/README.md) | Deploy + verify before PASS (**blocks UX-009**) |
+| 90 | [SH-002 Native Shell Stability](./90-sh-002-native-shell-stability/README.md) | Focus loss + AI isolation + native shell (**PASS**) |
+| 91 | [SH-003 Runtime Verification & Deployment](./91-sh-003-runtime-verification-deployment/README.md) | Deploy + verify before PASS (**PASS** · User Verified) |
+| 92 | [DPX-001 Design Partner Experience](./92-dpx-001-design-partner-experience/README.md) | Phase 6 — operator experience philosophy (**Approved** · Amendments A–G) |
+| 93 | [DPX-002 Complete Daily Workflow](./93-dpx-002-complete-daily-workflow/README.md) | First DPX sprint — one continuous PM day (**Draft**) |
+| 93 | [AI-001 Global Copilot Runtime Certification](./93-ai-001-global-copilot-runtime-certification/README.md) | Floating AI OS launcher runtime (**Awaiting User Verification**) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
 import { Button, Textarea } from "@mpa/ui";
+import { evaluateCapability } from "@mpa/shared";
 import type { PromptKey } from "../../lib/ai/contracts";
 import type { AiConversationDetail } from "../../lib/ai/server";
+import { shellTrace } from "../../lib/debug/shell-runtime-trace";
 import { useSessionPermissions } from "../shell/use-session-permissions";
 import { useAiPageContext } from "./ai-page-context";
 
@@ -22,9 +24,10 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
   const panelId = useId();
   const context = useAiPageContext();
   const { permissions, loaded } = useSessionPermissions();
-  const canRead = permissions.includes("ai:read");
-  const canUse = permissions.includes("ai:use");
+  const canRead = evaluateCapability(permissions, "ai:read");
+  const canUse = evaluateCapability(permissions, "ai:use");
   const [open, setOpen] = useState(false);
+  const mountCounted = useRef(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -34,15 +37,31 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
   const launcherRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    if (mountCounted.current) return;
+    mountCounted.current = true;
+    shellTrace("ai-copilot-mount", {
+      entityType: context.entityType,
+      canRead,
+      loaded
+    });
+  }, [canRead, context.entityType, loaded]);
+
+  useEffect(() => {
     if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    // Do not lock body scroll — OS assistant must not freeze the page under the panel.
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setOpen(false);
         launcherRef.current?.focus();
+        shellTrace("ai-copilot-close", { reason: "escape" });
       }
     }
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [open]);
 
   useEffect(() => {
@@ -104,7 +123,8 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
 
   return (
     <div
-      className="pointer-events-none fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-40 flex flex-col items-end gap-3 md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]"
+      // AI-001: z-[60] sits above keepMounted Drawer/Modal (z-50) so the launcher stays tappable.
+      className="pointer-events-none fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-[60] flex flex-col items-end gap-3 md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]"
       data-mpa-ai-copilot="true"
     >
       {open && launcherEnabled ? (
@@ -130,6 +150,7 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
               onClick={() => {
                 setOpen(false);
                 launcherRef.current?.focus();
+                shellTrace("ai-copilot-close", { reason: "button" });
               }}
             >
               Close
@@ -229,8 +250,18 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
               : "AI assistant unavailable"
         }
         onClick={() => {
-          if (!launcherEnabled) return;
-          setOpen((value) => !value);
+          if (!launcherEnabled) {
+            shellTrace("ai-copilot-tap-blocked", { loaded, canRead });
+            return;
+          }
+          setOpen((value) => {
+            const next = !value;
+            shellTrace(next ? "ai-copilot-open" : "ai-copilot-close", {
+              entityType: context.entityType,
+              entityId: context.entityId ?? null
+            });
+            return next;
+          });
         }}
       >
         AI

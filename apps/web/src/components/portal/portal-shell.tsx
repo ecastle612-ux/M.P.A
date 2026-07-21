@@ -8,6 +8,8 @@ import { RoleSwitcher } from "../shell/role-switcher";
 import { ProfileMenu } from "../shell/profile-menu";
 import { BrandLogo } from "../branding/brand-logo";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
+import { FloatingAiCopilot } from "../ai/floating-ai-copilot";
+import { AiRouteContextSync } from "../ai/ai-route-context-sync";
 
 type PortalNavigationItem = {
   href: string;
@@ -77,6 +79,9 @@ export function PortalShell({
 
         <main className="space-y-5">{children}</main>
       </div>
+      {/* AI-001: same OS launcher on portal chrome (permission-gated inside component). */}
+      <AiRouteContextSync />
+      <FloatingAiCopilot />
     </div>
   );
 }
