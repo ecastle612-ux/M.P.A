@@ -163,6 +163,13 @@ export function buildAiPageContext(input: {
             message: label
               ? `Draft a short, professional rent reminder message for ${label}.`
               : "Draft a short, professional rent reminder for this resident."
+          },
+          {
+            id: "payment-history",
+            label: "Explain payment history",
+            message: label
+              ? `Explain recent charges, payments, and balance trends for ${label}.`
+              : "Explain this resident's recent charges, payments, and balance trends."
           }
         ]
       };

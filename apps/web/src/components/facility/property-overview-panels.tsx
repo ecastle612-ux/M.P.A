@@ -77,23 +77,6 @@ export function PropertyOverviewPanels({
       </Card>
 
       <Card variant="elevated" className="space-y-3">
-        <Header title="Recent timeline" description="Cross-pillar history for this building." href="#property-timeline" label="Full timeline" />
-        {recentTimeline.length === 0 ? (
-          <p className="text-sm text-[var(--mpa-color-text-muted)]">Timeline is empty.</p>
-        ) : (
-          <ul className="divide-y divide-[var(--mpa-color-border-default)]">
-            {recentTimeline.slice(0, 4).map((event) => (
-              <li key={`tl-${event.id}`} className="py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-                <span className="font-medium text-[var(--mpa-color-text-primary)]">{event.title}</span>
-                {" · "}
-                {event.summary}
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
-
-      <Card variant="elevated" className="space-y-3">
         <Header
           title="Recent documents"
           description="Vault references for this property — storage is not duplicated."

@@ -204,6 +204,13 @@ body {
   flex: 1;
 }
 
+/* DPX-003: keep sticky toolbelt + AI FAB from covering the last lines of content on mobile. */
+@media (max-width: 767px) {
+  .mpa-app-main:has([data-mpa-toolbelt]) {
+    padding-bottom: 5.5rem;
+  }
+}
+
 .mpa-page-header {
   display: flex;
   flex-wrap: wrap;

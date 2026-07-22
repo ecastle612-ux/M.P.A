@@ -5,7 +5,6 @@ import { EntityRelationshipChain } from "../../../../../components/presentation/
 import { FinancialChargeContextRail } from "../../../../../components/presentation/context-rails/financial-context-rail";
 import { RecordPaymentForm } from "../../../../../components/financial/record-payment-form";
 import { EntityActionToolbelt } from "../../../../../components/presentation/entity-action-toolbelt";
-import { WorkflowContinuityChips } from "../../../../../components/workflow/workflow-continuity-chips";
 import { WorkflowSuccessBanner } from "../../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
@@ -242,52 +241,6 @@ export default async function RentChargeDetailPage({
       }
       main={
         <>
-          <WorkflowContinuityChips
-            chips={[
-              ...(canReadTenant && charge.tenantId
-                ? [
-                    {
-                      id: "resident",
-                      label: charge.tenantName ? `Return to ${charge.tenantName}` : "Return to Resident",
-                      href: `/tenants/${charge.tenantId}`,
-                      variant: "primary" as const
-                    }
-                  ]
-                : []),
-              ...(canReadProperty && charge.propertyId
-                ? [
-                    {
-                      id: "property",
-                      label: "Return to Property",
-                      href: `/properties/${charge.propertyId}`
-                    }
-                  ]
-                : []),
-              ...(canMessage && charge.tenantId
-                ? [
-                    {
-                      id: "message",
-                      label: "Send Message",
-                      href: `/communications/resident/${encodeURIComponent(charge.tenantId)}`
-                    }
-                  ]
-                : []),
-              ...(canReadLease && charge.leaseId
-                ? [{ id: "lease", label: "Open Lease", href: `/leases/${charge.leaseId}` }]
-                : []),
-              ...(canCreateMaintenance && charge.propertyId
-                ? [
-                    {
-                      id: "maintenance",
-                      label: "Create Maintenance",
-                      href: `/maintenance/new?propertyId=${encodeURIComponent(charge.propertyId)}${
-                        charge.unitId ? `&unitId=${encodeURIComponent(charge.unitId)}` : ""
-                      }${charge.tenantId ? `&tenantId=${encodeURIComponent(charge.tenantId)}` : ""}`
-                    }
-                  ]
-                : [])
-            ]}
-          />
           <Card variant="elevated" className="space-y-4">
             <h2 className="mpa-section-title">Charge details</h2>
             <div className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">

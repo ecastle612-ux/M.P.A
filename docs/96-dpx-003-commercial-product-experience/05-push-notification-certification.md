@@ -48,3 +48,8 @@ Maintenance · Messages · Announcements · Lease reminders · Payments
 - Production verification note  
 
 Provider: existing OneSignal integration (API-001). No new provider.
+
+## Implementation notes (2026-07-21)
+
+- Push launch URLs are resolved to **absolute** `NEXT_PUBLIC_APP_URL` origins in `onesignal-provider` before send (mobile cold-launch deep links).
+- Chain wiring (permission → device register → `notify` → OneSignal) remains as shipped; **real-device evidence still required** for G4 PASS.

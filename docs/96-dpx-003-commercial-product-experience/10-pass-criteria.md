@@ -1,7 +1,7 @@
 # 10 — Pass Criteria & Deliverables
 
 **Package:** DPX-003  
-**Status:** Draft — awaiting Approve
+**Status:** Approved · Implementation in progress (PASS not yet certified)
 
 ---
 

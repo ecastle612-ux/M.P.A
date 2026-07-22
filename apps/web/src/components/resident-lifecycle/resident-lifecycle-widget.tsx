@@ -38,7 +38,9 @@ export function ResidentLifecycleWidget() {
     { label: "Missing documents", value: metrics?.missingDocuments, href: "/tenants" },
     { label: "Units becoming vacant", value: metrics?.unitsBecomingVacant, href: "/units" },
     { label: "Lease expirations (60d)", value: metrics?.upcomingLeaseExpirations, href: "/leases" }
-  ].filter((item) => loading || (item.value ?? 0) > 0 || ["Pending move-ins", "Pending move-outs"].includes(item.label));
+  ].filter((item) => (item.value ?? 0) > 0);
+
+  const allClear = !loading && !error && items.length === 0;
 
   return (
     <Card className="space-y-3">
@@ -62,20 +64,30 @@ export function ResidentLifecycleWidget() {
         </div>
       </div>
       {error ? <p className="text-sm text-[var(--mpa-color-danger)]">{error}</p> : null}
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        {loading
-          ? Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-md" />)
-          : items.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="rounded-md border border-[var(--mpa-color-border)] p-3 text-sm transition hover:border-[var(--mpa-color-brand)]"
-              >
-                <div className="text-[var(--mpa-color-text-secondary)]">{item.label}</div>
-                <div className="text-xl font-semibold">{item.value ?? 0}</div>
-              </Link>
-            ))}
-      </div>
+      {loading ? (
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-20 rounded-md" />
+          ))}
+        </div>
+      ) : allClear ? (
+        <p className="rounded-md border border-dashed border-[var(--mpa-color-border)] px-3 py-4 text-sm text-[var(--mpa-color-text-secondary)]">
+          No resident lifecycle gaps right now.
+        </p>
+      ) : (
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="rounded-md border border-[var(--mpa-color-border)] p-3 text-sm transition hover:border-[var(--mpa-color-brand)]"
+            >
+              <div className="text-[var(--mpa-color-text-secondary)]">{item.label}</div>
+              <div className="text-xl font-semibold">{item.value ?? 0}</div>
+            </Link>
+          ))}
+        </div>
+      )}
     </Card>
   );
 }

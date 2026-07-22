@@ -55,7 +55,16 @@ export function NotificationOperationsWidget() {
     };
   }, [refresh]);
 
-  if (!metrics) return null;
+  if (!metrics) {
+    return (
+      <section aria-labelledby="notification-ops-heading" className="space-y-3">
+        <h2 id="notification-ops-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+          Unread &amp; urgent messages
+        </h2>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">Loading notifications…</p>
+      </section>
+    );
+  }
 
   const healthCards = [
     { label: "Registered Devices", value: String(metrics.registeredDevices ?? 0) },
@@ -79,6 +88,8 @@ export function NotificationOperationsWidget() {
       tone: metrics.providerHealthy ? ("info" as const) : ("danger" as const)
     }
   ];
+  const attentionQuiet =
+    metrics.unreadCount === 0 && metrics.criticalCount === 0 && metrics.emergencyCount === 0;
 
   return (
     <section aria-labelledby="notification-ops-heading" className="space-y-3">
@@ -100,25 +111,32 @@ export function NotificationOperationsWidget() {
         </Link>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {attentionCards.map((card) => (
-          <div key={card.label} className={PANEL}>
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{card.label}</p>
-            <p
-              className={[
-                "mt-2 text-3xl font-semibold tabular-nums",
-                card.tone === "warning"
-                  ? "text-amber-700"
-                  : card.tone === "danger"
-                    ? "text-red-700"
-                    : "text-sky-700"
-              ].join(" ")}
-            >
-              {card.value}
-            </p>
-          </div>
-        ))}
-      </div>
+      {attentionQuiet ? (
+        <p className="rounded-[var(--mpa-radius-xl)] border border-dashed border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
+          No unread or urgent notifications right now.
+          {!metrics.providerHealthy ? " Provider needs attention — check delivery health below." : ""}
+        </p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {attentionCards.map((card) => (
+            <div key={card.label} className={PANEL}>
+              <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{card.label}</p>
+              <p
+                className={[
+                  "mt-2 text-3xl font-semibold tabular-nums",
+                  card.tone === "warning"
+                    ? "text-amber-700"
+                    : card.tone === "danger"
+                      ? "text-red-700"
+                      : "text-sky-700"
+                ].join(" ")}
+              >
+                {card.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       <details className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-4">
         <summary className="cursor-pointer text-sm font-semibold text-[var(--mpa-color-text-primary)]">

@@ -1218,16 +1218,17 @@ function CommunicationOperationsCard({
   snapshot: CommunicationDashboardMetrics;
   canCreate: boolean;
 }) {
-  const metrics = [
+  const attentionMetrics = [
     { label: "Unread messages", value: snapshot.unreadMessages, href: "/communications/inbox", tone: "warning" as const },
     { label: "Awaiting resident", value: snapshot.awaitingResidentReply, href: "/communications/inbox", tone: "warning" as const },
     { label: "Vendor replies", value: snapshot.vendorReplies, href: "/communications/inbox", tone: "default" as const },
     { label: "Pending threads", value: snapshot.pendingConversations, href: "/communications/inbox", tone: "info" as const },
     { label: "Emergency unread", value: snapshot.emergencyUnread, href: "/communications/inbox", tone: "danger" as const },
     { label: "Unread announcements", value: snapshot.unreadAnnouncements, href: "/communications", tone: "warning" as const },
-    { label: "Scheduled", value: snapshot.scheduledAnnouncements, href: "/communications", tone: "default" as const },
-    { label: "Read rate", value: `${snapshot.averageReadPercentage}%`, href: "/communications", tone: "info" as const }
-  ];
+    { label: "Scheduled", value: snapshot.scheduledAnnouncements, href: "/communications", tone: "default" as const }
+  ].filter((metric) => metric.value > 0);
+
+  const allClear = attentionMetrics.length === 0;
 
   return (
     <section aria-labelledby="communication-ops-heading" className="space-y-3">
@@ -1255,31 +1256,38 @@ function CommunicationOperationsCard({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((metric) => (
-          <Link
-            key={metric.label}
-            href={metric.href}
-            className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-3.5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
-          >
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
-            <p
-              className={[
-                "mt-2 text-2xl font-semibold tabular-nums",
-                metric.tone === "warning"
-                  ? "text-amber-700"
-                  : metric.tone === "danger"
-                    ? "text-red-700"
-                    : metric.tone === "info"
-                      ? "text-sky-700"
-                      : "text-[var(--mpa-color-text-primary)]"
-              ].join(" ")}
+      {allClear ? (
+        <p className="rounded-[var(--mpa-radius-xl)] border border-dashed border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
+          No unread messages or announcements needing attention.
+          {snapshot.averageReadPercentage > 0 ? ` Average announcement read rate: ${snapshot.averageReadPercentage}%.` : ""}
+        </p>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {attentionMetrics.map((metric) => (
+            <Link
+              key={metric.label}
+              href={metric.href}
+              className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-3.5 shadow-[var(--mpa-shadow-xs)] transition-all duration-[var(--mpa-duration-fast)] hover:shadow-[var(--mpa-shadow-sm)]"
             >
-              {metric.value}
-            </p>
-          </Link>
-        ))}
-      </div>
+              <p className="text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{metric.label}</p>
+              <p
+                className={[
+                  "mt-2 text-2xl font-semibold tabular-nums",
+                  metric.tone === "warning"
+                    ? "text-amber-700"
+                    : metric.tone === "danger"
+                      ? "text-red-700"
+                      : metric.tone === "info"
+                        ? "text-sky-700"
+                        : "text-[var(--mpa-color-text-primary)]"
+                ].join(" ")}
+              >
+                {metric.value}
+              </p>
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

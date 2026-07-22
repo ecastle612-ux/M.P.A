@@ -133,7 +133,7 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
 
   const panel = (
     <div
-      className="pointer-events-none fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-4 z-[100] flex flex-col items-end gap-3 md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]"
+      className="pointer-events-none fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] right-4 z-[100] flex flex-col items-end gap-3 md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]"
       data-mpa-ai-copilot="true"
       style={{ zIndex: 100 }}
     >

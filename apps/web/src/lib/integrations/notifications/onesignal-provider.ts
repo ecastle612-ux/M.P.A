@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { appBaseUrl } from "../email/render";
 import type {
   DeviceRegistration,
   NotificationProvider,
@@ -6,6 +7,14 @@ import type {
   ProviderSendResult,
   RegisterDeviceInput
 } from "./contracts";
+
+/** OneSignal `url` must be absolute for reliable cold-launch deep links on mobile. */
+function absoluteNotificationUrl(href: string | null | undefined): string | undefined {
+  if (!href?.trim()) return undefined;
+  const value = href.trim();
+  if (value.startsWith("http://") || value.startsWith("https://")) return value;
+  return `${appBaseUrl()}${value.startsWith("/") ? "" : "/"}${value}`;
+}
 
 /**
  * OneSignal App API adapter (current auth model).
@@ -134,6 +143,7 @@ export const onesignalProvider: NotificationProvider = {
 
     const appId = getAppId()!;
     const idempotencyKey = toOnesignalIdempotencyKey(input.notificationId, input.idempotencyKey);
+    const launchUrl = absoluteNotificationUrl(input.href);
     try {
       const response = await onesignalFetch("/notifications", {
         method: "POST",
@@ -148,11 +158,11 @@ export const onesignalProvider: NotificationProvider = {
             notification_id: input.notificationId,
             category: input.category,
             priority: input.priority,
-            href: input.href ?? "",
+            href: launchUrl ?? input.href ?? "",
             mpa_idempotency_key: input.idempotencyKey,
             ...(input.data ?? {})
           },
-          url: input.href ?? undefined,
+          url: launchUrl,
           // OneSignal requires UUID idempotency_key; keep M.P.A. key in data for debugging.
           idempotency_key: idempotencyKey,
           collapse_id: input.collapseKey ?? undefined,

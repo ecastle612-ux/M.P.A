@@ -241,31 +241,20 @@ export default async function WorkOrderDetailPage({
                     variant: "secondary" as const
                   }
                 ]
-              : []),
-            {
-              id: "timeline",
-              label: "Timeline",
-              href: "#timeline",
-              variant: "secondary" as const
-            },
-            {
-              id: "photos",
-              label: "Photos",
-              href: "#attachments",
-              variant: "secondary" as const
-            },
+              : [])
+          ]}
+          moreActions={[
+            { id: "timeline", label: "Timeline", href: "#timeline" },
+            { id: "photos", label: "Photos", href: "#attachments" },
             ...(canMessageResident && workOrder.tenantId
               ? [
                   {
                     id: "message-resident",
                     label: "Message Resident",
-                    href: `/communications/resident/${encodeURIComponent(workOrder.tenantId)}`,
-                    variant: "secondary" as const
+                    href: `/communications/resident/${encodeURIComponent(workOrder.tenantId)}`
                   }
                 ]
-              : [])
-          ]}
-          moreActions={[
+              : []),
             ...(canNotifyOwner
               ? [
                   {
