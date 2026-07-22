@@ -300,7 +300,13 @@ function resolvePrimaryAction(args: {
     };
   }
 
-  if ((status === "in_progress" || status === "on_hold") && canUpdate) {
+  if (
+    (status === "in_progress" ||
+      status === "on_hold" ||
+      status === "vendor_on_site" ||
+      status === "awaiting_approval") &&
+    canUpdate
+  ) {
     return {
       label: "Complete Work",
       description: "Marks the work order complete and notifies stakeholders via existing maintenance notifications.",

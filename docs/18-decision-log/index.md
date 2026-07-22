@@ -60,6 +60,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-022](./adr-022-perception-based-brand-certification.md) | Perception-Based Brand Certification | Accepted | 2026-07-20 |
 | [ADR-023](./adr-023-stripe-connect-express-owner-payouts.md) | Stripe Connect Express for Owner Payouts | Accepted | 2026-07-22 |
 | [ADR-024](./adr-024-saas-stripe-billing-separation.md) | SaaS Stripe Billing Separated from Property Money Rails | Accepted | 2026-07-22 |
+| [ADR-025](./adr-025-tokenized-vendor-work-order-access.md) | Tokenized Vendor Work-Order Access (No Login) | Accepted | 2026-07-22 |
 
 ---
 

@@ -78,7 +78,15 @@ type WorkOrderUpdate = Database["public"]["Tables"]["maintenance_work_orders"]["
 const WORK_ORDER_SELECT =
   "id, organization_id, property_id, unit_id, tenant_id, work_order_number, title, description, category, priority, status, due_date, assigned_to_user_id, vendor_id, current_vendor_assignment_id, internal_notes, tenant_notes, photo_placeholder, document_placeholder, recurring_maintenance_placeholder, preventive_maintenance_placeholder, completed_at, metadata, created_by, updated_by, created_at, updated_at, archived_at, deleted_at, properties(name), units(unit_number), tenants(first_name, last_name, preferred_name)";
 
-const OPEN_STATUSES: MaintenanceStatus[] = ["submitted", "triaged", "assigned", "in_progress", "on_hold"];
+const OPEN_STATUSES: MaintenanceStatus[] = [
+  "submitted",
+  "triaged",
+  "assigned",
+  "in_progress",
+  "vendor_on_site",
+  "awaiting_approval",
+  "on_hold"
+];
 
 type WorkOrderListOptions = {
   search?: string;

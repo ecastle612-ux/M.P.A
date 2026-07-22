@@ -12,6 +12,7 @@ import { isWorkOrderOverdue, PriorityBadge, StatusBadge } from "../../../../comp
 import { MaintenanceActivityTimeline } from "../../../../components/maintenance/activity-timeline";
 import { WorkOrderWorkflowPanel } from "../../../../components/maintenance/work-order-workflow-panel";
 import { VendorAssignmentPanel } from "../../../../components/vendor/vendor-assignment-panel";
+import { VendorJobSharePanel } from "../../../../components/vendor-jobs/vendor-job-share-panel";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { completedWorkOrderSuggestions } from "../../../../components/workflow/smart-suggestion-builders";
 import { SmartSuggestions } from "../../../../components/workflow/smart-suggestions";
@@ -241,6 +242,16 @@ export default async function WorkOrderDetailPage({
                     variant: "secondary" as const
                   }
                 ]
+              : []),
+            ...(canUpdate || canAssign
+              ? [
+                  {
+                    id: "vendor-link",
+                    label: "Vendor link / QR",
+                    href: "#vendor-share",
+                    variant: "secondary" as const
+                  }
+                ]
               : [])
           ]}
           moreActions={[
@@ -379,6 +390,15 @@ export default async function WorkOrderDetailPage({
                 workOrderCategory={workOrder.category}
               />
             </div>
+          ) : null}
+
+          {workOrder.status !== "cancelled" && workOrder.status !== "completed" ? (
+            <VendorJobSharePanel
+              workOrderId={workOrder.id}
+              workOrderNumber={workOrder.workOrderNumber}
+              propertyLabel={workOrder.propertyName ?? "property"}
+              canManage={canUpdate || canAssign}
+            />
           ) : null}
 
           <div id="timeline">

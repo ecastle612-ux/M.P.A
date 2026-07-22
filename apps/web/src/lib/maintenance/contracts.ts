@@ -17,6 +17,8 @@ export const MAINTENANCE_STATUSES = [
   "triaged",
   "assigned",
   "in_progress",
+  "vendor_on_site",
+  "awaiting_approval",
   "on_hold",
   "completed",
   "cancelled"
