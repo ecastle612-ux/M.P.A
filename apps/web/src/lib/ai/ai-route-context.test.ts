@@ -15,9 +15,15 @@ describe("AI-001 route context", () => {
     expect(isBridgeOwnedPath("/maintenance/wo-1")).toBe(true);
   });
 
-  it("uses list-aware launcher labels on index routes", () => {
-    expect(buildAiPageContextFromPathname("/properties").launcherLabel).toBe("Ask about this property list");
-    expect(buildAiPageContextFromPathname("/tenants").launcherLabel).toBe("Ask about residents");
-    expect(buildAiPageContextFromPathname("/leases").launcherLabel).toBe("Ask about leases");
+  it("uses list-mode labels on collection routes", () => {
+    expect(buildAiPageContextFromPathname("/properties").launcherLabel).toBe(
+      "Which properties need attention?"
+    );
+    expect(buildAiPageContextFromPathname("/tenants").launcherLabel).toBe(
+      "Which residents need follow-up?"
+    );
+    expect(buildAiPageContextFromPathname("/maintenance").launcherLabel).toBe(
+      "Which work orders need action?"
+    );
   });
 });
