@@ -50,10 +50,11 @@ Operations Center → Property → Resident → Lease → Payment → Maintenanc
 | Implemented | ✓ |
 | `pnpm typecheck` | ✓ |
 | `pnpm --filter @mpa/web build` | ✓ |
-| Committed | (this ship) |
-| Pushed | (this ship) |
-| Deployed production | (this ship) |
-| Deployment verified | (this ship) |
+| Committed | ✓ `02a9c4e` on `checkpoint/pre-phase5` |
+| Pushed | ✓ `origin/checkpoint/pre-phase5` |
+| Deployed production | ✓ `dpl_2EirVj2GJWfxbQCGpt1QiMBq7Kvn` · `m-p-a-gzbi1bca9` |
+| Deployment verified | ✓ Aliased to `www.my-property-assistant.com` / `m-p-a-web.vercel.app`; login healthy; local build contains Command glance / Continue workflow / AI labels / `mpa_sidebar_collapsed` |
+| Authenticated prod path | Local S1→S10 certified; prod requires session (login gate confirmed) |
 
 ## Explicit freeze
 
