@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navPillClassName } from "@mpa/ui";
 
 const ITEMS = [
   { href: "/settings/organization", label: "Organization", exact: false },
@@ -13,6 +12,15 @@ const ITEMS = [
   { href: "/settings/documents", label: "Documents", exact: false },
   { href: "/settings/notifications", label: "Notifications", exact: false }
 ] as const;
+
+function pillClass(active: boolean): string {
+  return [
+    "inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+    active
+      ? "bg-[var(--mpa-color-brand-primary)] text-[var(--mpa-color-text-inverse)]"
+      : "text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-interactive-row-hover)] hover:text-[var(--mpa-color-text-primary)]"
+  ].join(" ");
+}
 
 export function SettingsSubnav() {
   const pathname = usePathname();
@@ -30,7 +38,7 @@ export function SettingsSubnav() {
           ? pathname === item.href
           : pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
-          <Link key={item.href} href={item.href} className={navPillClassName(active)}>
+          <Link key={item.href} href={item.href} className={pillClass(active)}>
             {item.label}
           </Link>
         );
