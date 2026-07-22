@@ -3,6 +3,8 @@ import { USER_ROLES, type UserRole } from "@mpa/shared";
 import type { User } from "@supabase/supabase-js";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../organization/contracts";
 import { getOrganizationsForUser } from "../organization/server";
+import { userHasMasterAdminCapability } from "../master-admin/access";
+import { resolveAuthorizationContext } from "./authorization";
 import { buildAuthorizationContext } from "./session";
 
 export type AuthenticatedShellContext = {
@@ -11,6 +13,8 @@ export type AuthenticatedShellContext = {
   defaultRole: UserRole;
   defaultOrganizationId: string | null;
   organizations: Awaited<ReturnType<typeof getOrganizationsForUser>>;
+  /** DPX-002: seed sidebar permissions so SSR nav matches first client paint. */
+  permissions: string[];
 };
 
 export async function resolveAuthenticatedShellContext(user: User): Promise<AuthenticatedShellContext> {
@@ -23,7 +27,7 @@ export async function resolveAuthenticatedShellContext(user: User): Promise<Auth
     null;
   const defaultOrganizationId = defaultOrganization?.id ?? null;
 
-  const context = buildAuthorizationContext(
+  const roleContext = buildAuthorizationContext(
     user,
     null,
     defaultOrganization?.roles
@@ -35,16 +39,22 @@ export async function resolveAuthenticatedShellContext(user: User): Promise<Auth
           organizationId: defaultOrganizationId
         }
   );
+  const authz = await resolveAuthorizationContext(user, defaultOrganizationId);
+  const permissions = [...authz.permissions];
+  if (!permissions.includes("master_admin") && (await userHasMasterAdminCapability(user))) {
+    permissions.push("master_admin");
+  }
 
   const fallbackRole = USER_ROLES[0] ?? "property_manager";
-  const availableRoles = context.roles.length ? context.roles : [fallbackRole];
-  const defaultRole = context.activeRole ?? availableRoles[0] ?? fallbackRole;
+  const availableRoles = roleContext.roles.length ? roleContext.roles : [fallbackRole];
+  const defaultRole = roleContext.activeRole ?? availableRoles[0] ?? fallbackRole;
 
   return {
     user,
     availableRoles,
     defaultRole,
     organizations,
-    defaultOrganizationId
+    defaultOrganizationId,
+    permissions
   };
 }

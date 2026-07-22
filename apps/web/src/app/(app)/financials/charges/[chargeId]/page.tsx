@@ -1,10 +1,11 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Badge, Button, Card } from "@mpa/ui";
+import { Badge, Card } from "@mpa/ui";
 import { DetailPageLayout } from "../../../../../components/presentation/detail-page-layout";
 import { EntityRelationshipChain } from "../../../../../components/presentation/entity-relationship-chain";
 import { FinancialChargeContextRail } from "../../../../../components/presentation/context-rails/financial-context-rail";
 import { RecordPaymentForm } from "../../../../../components/financial/record-payment-form";
+import { EntityActionToolbelt } from "../../../../../components/presentation/entity-action-toolbelt";
+import { WorkflowContinuityChips } from "../../../../../components/workflow/workflow-continuity-chips";
 import { WorkflowSuccessBanner } from "../../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
@@ -62,6 +63,12 @@ export default async function RentChargeDetailPage({
 
   const charge = result.data.charge;
   const canCreate = evaluatePermission(authorization, "financial:create");
+  const canReadTenant = evaluatePermission(authorization, "tenant:read");
+  const canReadProperty = evaluatePermission(authorization, "property:read");
+  const canMessage =
+    evaluatePermission(authorization, "message:read") || evaluatePermission(authorization, "message:create");
+  const canCreateMaintenance = evaluatePermission(authorization, "maintenance:create");
+  const canReadLease = evaluatePermission(authorization, "lease:read");
 
   const [{ data: paymentRows }, { data: expenseRows }] = await Promise.all([
     supabase
@@ -170,33 +177,139 @@ export default async function RentChargeDetailPage({
           </div>
         </Card>
       }
+      toolbelt={
+        <EntityActionToolbelt
+          actions={[
+            ...(canCreate
+              ? [
+                  {
+                    id: "record-payment",
+                    label: "Record Payment",
+                    href: "#payment",
+                    variant: "primary" as const
+                  }
+                ]
+              : []),
+            ...(canReadTenant && charge.tenantId
+              ? [
+                  {
+                    id: "return-resident",
+                    label: charge.tenantName ? `Return to ${charge.tenantName}` : "Return to Resident",
+                    href: `/tenants/${charge.tenantId}`,
+                    variant: "secondary" as const
+                  }
+                ]
+              : []),
+            ...(canReadProperty && charge.propertyId
+              ? [
+                  {
+                    id: "return-property",
+                    label: "Return to Property",
+                    href: `/properties/${charge.propertyId}`,
+                    variant: "secondary" as const
+                  }
+                ]
+              : []),
+            ...(canMessage && charge.tenantId
+              ? [
+                  {
+                    id: "message",
+                    label: "Send Message",
+                    href: `/communications/resident/${encodeURIComponent(charge.tenantId)}`,
+                    variant: "secondary" as const
+                  }
+                ]
+              : [])
+          ]}
+          moreActions={[
+            ...(canReadLease && charge.leaseId
+              ? [{ id: "lease", label: "Open Lease", href: `/leases/${charge.leaseId}` }]
+              : []),
+            ...(canCreateMaintenance && charge.propertyId
+              ? [
+                  {
+                    id: "maintenance",
+                    label: "Create Maintenance",
+                    href: `/maintenance/new?propertyId=${encodeURIComponent(charge.propertyId)}${
+                      charge.unitId ? `&unitId=${encodeURIComponent(charge.unitId)}` : ""
+                    }${charge.tenantId ? `&tenantId=${encodeURIComponent(charge.tenantId)}` : ""}`
+                  }
+                ]
+              : []),
+            { id: "charges", label: "All charges", href: "/financials/charges" }
+          ]}
+        />
+      }
       main={
-        <Card variant="elevated" className="space-y-4">
-          <h2 className="mpa-section-title">Charge details</h2>
-          <div className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">
-            <p>Property: {charge.propertyName ?? "—"}</p>
-            <p>Unit: {charge.unitNumber ?? "—"}</p>
-            <p>Tenant: {charge.tenantName ?? "—"}</p>
-            <p>Late status: {charge.lateStatus.replaceAll("_", " ")}</p>
-            <p>
-              Period:{" "}
-              {charge.periodStart && charge.periodEnd
-                ? `${new Date(charge.periodStart).toLocaleDateString()} – ${new Date(charge.periodEnd).toLocaleDateString()}`
-                : "—"}
-            </p>
-            <p>Lease: {charge.leaseId ?? "—"}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/financials/charges">
-              <Button variant="ghost">Back to Rent Charges</Button>
-            </Link>
-          </div>
-          {canCreate ? (
-            <div id="payment">
-              <RecordPaymentForm charge={charge} />
+        <>
+          <WorkflowContinuityChips
+            chips={[
+              ...(canReadTenant && charge.tenantId
+                ? [
+                    {
+                      id: "resident",
+                      label: charge.tenantName ? `Return to ${charge.tenantName}` : "Return to Resident",
+                      href: `/tenants/${charge.tenantId}`,
+                      variant: "primary" as const
+                    }
+                  ]
+                : []),
+              ...(canReadProperty && charge.propertyId
+                ? [
+                    {
+                      id: "property",
+                      label: "Return to Property",
+                      href: `/properties/${charge.propertyId}`
+                    }
+                  ]
+                : []),
+              ...(canMessage && charge.tenantId
+                ? [
+                    {
+                      id: "message",
+                      label: "Send Message",
+                      href: `/communications/resident/${encodeURIComponent(charge.tenantId)}`
+                    }
+                  ]
+                : []),
+              ...(canReadLease && charge.leaseId
+                ? [{ id: "lease", label: "Open Lease", href: `/leases/${charge.leaseId}` }]
+                : []),
+              ...(canCreateMaintenance && charge.propertyId
+                ? [
+                    {
+                      id: "maintenance",
+                      label: "Create Maintenance",
+                      href: `/maintenance/new?propertyId=${encodeURIComponent(charge.propertyId)}${
+                        charge.unitId ? `&unitId=${encodeURIComponent(charge.unitId)}` : ""
+                      }${charge.tenantId ? `&tenantId=${encodeURIComponent(charge.tenantId)}` : ""}`
+                    }
+                  ]
+                : [])
+            ]}
+          />
+          <Card variant="elevated" className="space-y-4">
+            <h2 className="mpa-section-title">Charge details</h2>
+            <div className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">
+              <p>Property: {charge.propertyName ?? "—"}</p>
+              <p>Unit: {charge.unitNumber ?? "—"}</p>
+              <p>Tenant: {charge.tenantName ?? "—"}</p>
+              <p>Late status: {charge.lateStatus.replaceAll("_", " ")}</p>
+              <p>
+                Period:{" "}
+                {charge.periodStart && charge.periodEnd
+                  ? `${new Date(charge.periodStart).toLocaleDateString()} – ${new Date(charge.periodEnd).toLocaleDateString()}`
+                  : "—"}
+              </p>
+              <p>Lease: {charge.leaseId ?? "—"}</p>
             </div>
-          ) : null}
-        </Card>
+            {canCreate ? (
+              <div id="payment">
+                <RecordPaymentForm charge={charge} />
+              </div>
+            ) : null}
+          </Card>
+        </>
       }
       contextRail={
         <FinancialChargeContextRail

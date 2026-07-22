@@ -2,13 +2,15 @@
 
 **Initiative ID:** DPX-002  
 **Parent:** [DPX-001](../92-dpx-001-design-partner-experience/README.md) (Approved)  
-**Status:** Design ✔ · Document ✔ · ✅ **Approved** · Implement unlocked  
+**Status:** Design ✔ · Document ✔ · ✅ **Approved** · ✅ **PASS**  
 **Approved:** 2026-07-21 (`APPROVE DPX-002` + Amendments A–G + freeze rule)  
+**Certified:** 2026-07-21 — [14-certification-report.md](./14-certification-report.md)  
 **Role:** **Gold-standard / reference workflow** for the entire platform  
 **Constraint:** One continuous daily workflow · **no new modules** · **no nav expansion** · **no architecture redesign**  
 **Success metric:** The software disappears — only the work remains  
 **Execution vehicle:** [UX-009](../88-ux-009-cognitive-load-workflow-optimization/README.md) primitives on existing surfaces only  
-**Binding:** DPX-001 Amendments A–G · DPX-002 Amendments A–G ([11](./11-amendments.md)) · replace-friction / roadmap rules
+**Binding:** DPX-001 Amendments A–G · DPX-002 Amendments A–G ([11](./11-amendments.md)) · replace-friction / roadmap rules  
+**Freeze:** Do not start DPX-003 until this PASS holds — [12](./12-reference-workflow-freeze.md)
 
 ---
 

@@ -5,19 +5,22 @@ import type { UserRole } from "@mpa/shared";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
 import { OrganizationProvider } from "./organization-context";
 import { RoleProvider } from "./role-context";
+import { SessionPermissionsProvider } from "./use-session-permissions";
 
 export function AuthenticatedContextProviders({
   children,
   availableRoles,
   defaultRole,
   organizations,
-  defaultOrganizationId
+  defaultOrganizationId,
+  initialPermissions = []
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
   defaultRole: UserRole;
   organizations: OrganizationSummary[];
   defaultOrganizationId: string | null;
+  initialPermissions?: string[];
 }) {
   const [organizationState, setOrganizationState] = useState<OrganizationSummary[]>(organizations);
 
@@ -48,7 +51,9 @@ export function AuthenticatedContextProviders({
       }}
     >
       <RoleProvider fallbackRoles={availableRoles} defaultRole={defaultRole}>
-        {children}
+        <SessionPermissionsProvider initialPermissions={initialPermissions}>
+          {children}
+        </SessionPermissionsProvider>
       </RoleProvider>
     </OrganizationProvider>
   );

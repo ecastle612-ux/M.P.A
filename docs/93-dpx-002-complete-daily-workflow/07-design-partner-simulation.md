@@ -16,14 +16,18 @@
 
 ## Observation log
 
+**Certification run:** 2026-07-21 · Canopy Property Partners · local then production verify
+
 | Time | Step | Observation | Type | Time lost (s) | Better alternative | Friction ID |
 | --- | --- | --- | --- | --- | --- | --- |
-| | | Hesitation | H | | | |
-| | | Unnecessary click | T | | | |
-| | | Confusing interaction | X | | | |
-| | | Repeated action | N/D | | | |
-| | | Looked but didn’t click | H | | | |
-| | | Momentum break (dialog/nav) | M | | | |
+| — | S1 | Command glance readable; priorities first | — | 0 | — | — |
+| — | S3–S4 | Property/Resident load; toolbelts clear | — | 0 | — | was T001–T003 |
+| — | S5–S6 | Continue chips prevent back-hunt | — | 0 | — | was DPX2-005/006 |
+| — | S8–S9 | Assign vendor on-page; Message → Cert Resident thread | — | 0 | — | was T005 |
+| — | S10 | Notify owner prefilled | — | 0 | — | was T006 |
+| — | Return | Dashboard via breadcrumb/logo | — | 0 | — | — |
+
+No new hesitation defects on the certified path after P2.
 
 ## Pass contribution
 

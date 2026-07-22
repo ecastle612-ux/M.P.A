@@ -24,7 +24,9 @@ export function ApplicationShell({
   defaultOrganizationId,
   isSetupComplete,
   deploymentMeta,
-  masterAdminBanner
+  masterAdminBanner,
+  initialSidebarCollapsed = false,
+  initialPermissions = []
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -34,6 +36,8 @@ export function ApplicationShell({
   isSetupComplete: boolean;
   deploymentMeta: DeploymentMeta;
   masterAdminBanner?: ReactNode;
+  initialSidebarCollapsed?: boolean;
+  initialPermissions?: string[];
 }) {
   return (
     <AuthenticatedContextProviders
@@ -41,6 +45,7 @@ export function ApplicationShell({
       defaultRole={defaultRole}
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
+      initialPermissions={initialPermissions}
     >
       <SetupGate isSetupComplete={isSetupComplete} />
       <a
@@ -52,7 +57,7 @@ export function ApplicationShell({
       <CommandCenterTracker />
       {masterAdminBanner}
       <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)]">
-        <Sidebar />
+        <Sidebar initialCollapsed={initialSidebarCollapsed} />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <header className="flex h-16 items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 lg:hidden">
             <BrandLogo purpose="header" priority className="min-w-0" />

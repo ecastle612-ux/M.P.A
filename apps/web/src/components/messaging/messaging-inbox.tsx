@@ -12,13 +12,15 @@ const PAGE_SIZE = 12;
 
 export function MessagingInbox({
   initialItems,
-  canCreate
+  canCreate,
+  initialQuery = ""
 }: {
   initialItems: ThreadListItem[];
   canCreate: boolean;
+  initialQuery?: string;
 }) {
   const [items] = useState(initialItems);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [page, setPage] = useState(1);

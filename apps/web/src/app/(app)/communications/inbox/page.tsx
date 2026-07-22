@@ -6,7 +6,12 @@ import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { getThreadsForOrganization } from "../../../../lib/messaging/server";
 
-export default async function CommunicationsInboxPage() {
+export default async function CommunicationsInboxPage({
+  searchParams
+}: {
+  searchParams: Promise<{ search?: string; q?: string }>;
+}) {
+  const { search, q } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -21,6 +26,7 @@ export default async function CommunicationsInboxPage() {
 
   const items = await getThreadsForOrganization(organizationId, user.id, { limit: 100 }, supabase);
   const canCreate = evaluatePermission(authorization, "message:create");
+  const initialQuery = (search ?? q ?? "").trim();
 
   return (
     <AppPage
@@ -31,7 +37,11 @@ export default async function CommunicationsInboxPage() {
         { label: "Inbox" }
       ]}
     >
-      <MessagingInbox initialItems={items} canCreate={canCreate} />
+      <MessagingInbox
+        initialItems={items}
+        canCreate={canCreate}
+        {...(initialQuery ? { initialQuery } : {})}
+      />
     </AppPage>
   );
 }

@@ -90,7 +90,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 90 | [SH-002 Native Shell Stability](./90-sh-002-native-shell-stability/README.md) | Focus loss + AI isolation + native shell (**PASS**) |
 | 91 | [SH-003 Runtime Verification & Deployment](./91-sh-003-runtime-verification-deployment/README.md) | Deploy + verify before PASS (**PASS** · User Verified) |
 | 92 | [DPX-001 Design Partner Experience](./92-dpx-001-design-partner-experience/README.md) | Phase 6 — operator experience philosophy (**Approved** · Amendments A–G) |
-| 93 | [DPX-002 Complete Daily Workflow](./93-dpx-002-complete-daily-workflow/README.md) | Gold-standard reference workflow (**Approved** · Amendments A–G) |
+| 93 | [DPX-002 Complete Daily Workflow](./93-dpx-002-complete-daily-workflow/README.md) | Gold-standard reference workflow (**PASS** · Amendments A–G) |
 | 93 | [AI-001 Global Copilot Runtime Certification](./93-ai-001-global-copilot-runtime-certification/README.md) | Floating AI OS launcher runtime (**Awaiting User Verification**) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |

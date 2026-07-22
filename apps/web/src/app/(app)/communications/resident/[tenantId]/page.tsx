@@ -8,6 +8,7 @@ import { ensureResidentPmThread, getThreadBySourceEntity } from "../../../../../
 /**
  * DPX-002 — Message from resident context.
  * Ensures a resident_pm thread and redirects into it (no inbox hunt).
+ * Falls back to inbox search if thread create is blocked.
  */
 export default async function ResidentMessageRedirectPage({
   params
@@ -33,25 +34,33 @@ export default async function ResidentMessageRedirectPage({
   if (!tenant) redirect("/tenants");
 
   const displayName = tenant.preferredName || `${tenant.firstName} ${tenant.lastName}`;
+  const inboxFallback = `/communications/inbox?search=${encodeURIComponent(displayName)}`;
 
+  // Always ensure (and repair participant links) when the PM can create messages.
   if (!canCreate) {
     const existing = await getThreadBySourceEntity(organizationId, "resident", tenantId, supabase);
     if (existing) redirect(`/communications/threads/${existing.id}`);
-    redirect("/communications/inbox");
+    redirect(inboxFallback);
   }
 
-  const thread = await ensureResidentPmThread(
-    organizationId,
-    user.id,
-    {
-      id: tenant.id,
-      displayName,
-      email: tenant.email,
-      propertyId: tenant.propertyId,
-      unitId: tenant.unitId
-    },
-    supabase
-  );
+  let threadId: string | null = null;
+  try {
+    const thread = await ensureResidentPmThread(
+      organizationId,
+      user.id,
+      {
+        id: tenant.id,
+        displayName,
+        email: tenant.email,
+        propertyId: tenant.propertyId,
+        unitId: tenant.unitId
+      },
+      supabase
+    );
+    threadId = thread.id;
+  } catch {
+    redirect(inboxFallback);
+  }
 
-  redirect(`/communications/threads/${thread.id}`);
+  redirect(`/communications/threads/${threadId}`);
 }

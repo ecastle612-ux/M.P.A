@@ -1,41 +1,38 @@
 # 16 — Hesitation Heat Map
 
 **Package:** DPX-002  
-**Phase:** 2  
+**Phase:** 2 → after P2 (2026-07-21)  
 **Legend:** 🔴 Hard stop · 🟠 High hesitation · 🟡 Medium · 🟢 Low
 
 ```
-Dashboard 🟢─────────────────────────────🟡 competing CTAs
+Dashboard 🟢 command glance · priorities first
     │
     ▼
-Find Property 🟢/🟡 ── filters / Menu / Search
+Find Property 🟢
     │
     ▼
-Open Property 🔴 CRASH ───────────────────── BLOCKS PATH
+Open Property 🟢 Residents · Notify owner
     │
     ▼
-Open Resident 🔴 ERROR ───────────────────── BLOCKS PATH
+Open Resident 🟢 Message · Collect · Lease · Maintenance
     │
     ▼
-Lease 🟠 (est.) module jump
+Lease 🟢 Continue chips (Resident / Property / Message / …)
     │
     ▼
-Payment 🟠 (est.) module jump
+Payment 🟢 Continue chips + Collect Rent scoped
     │
     ▼
-Create WO 🟡 (est.) form
+Maintenance / Assign Vendor 🟢 on-page assign
     │
     ▼
-Assign Vendor 🔴 CRASH on WO detail
+Message Resident 🟢 contextual thread
     │
     ▼
-Message Resident 🟠 unscoped /communications
-    │
-    ▼
-Notify Owner 🟠 no in-path action
+Notify Owner 🟢 intent=owner-update prefilled
     │
     ▼
 Dashboard 🟢
 ```
 
-**Hottest nodes:** Property detail · Resident detail · Work order detail · Message · Owner notify.
+**After state:** No hard stops on the certified path. Residual medium risk only if the operator expands disclosed analytics voluntarily.

@@ -40,6 +40,7 @@ export default async function PortalIndexPage() {
       defaultRole={shellContext.defaultRole}
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
+      initialPermissions={shellContext.permissions}
       isSetupComplete={setupStatus.isComplete}
       deploymentMeta={getDeploymentMeta()}
       masterAdminBanner={

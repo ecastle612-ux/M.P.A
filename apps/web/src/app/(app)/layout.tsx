@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAuthServerComponentClient } from "../../lib/auth/server";
 import { ApplicationShell } from "../../components/shell/application-shell";
@@ -21,15 +22,17 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     redirect("/login");
   }
 
-  const [shellContext, setupStatus, banner] = await Promise.all([
+  const [shellContext, setupStatus, banner, cookieStore] = await Promise.all([
     resolveAuthenticatedShellContext(user),
     getSetupStatus(user.id, false, {
       email: user.email ?? null,
       appMetadata: user.app_metadata
     }),
-    getMasterAdminBannerModel(user)
+    getMasterAdminBannerModel(user),
+    cookies()
   ]);
   const deploymentMeta = getDeploymentMeta();
+  const initialSidebarCollapsed = cookieStore.get("mpa_sidebar_collapsed")?.value === "1";
 
   const effectiveRoles =
     banner?.session != null
@@ -48,6 +51,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       defaultOrganizationId={shellContext.defaultOrganizationId}
       isSetupComplete={setupStatus.isComplete}
       deploymentMeta={deploymentMeta}
+      initialSidebarCollapsed={initialSidebarCollapsed}
+      initialPermissions={shellContext.permissions}
       masterAdminBanner={
         banner ? (
           <MasterAdminModeBanner

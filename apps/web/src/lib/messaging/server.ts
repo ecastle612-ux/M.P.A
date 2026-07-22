@@ -1,6 +1,7 @@
 import { assertThreadMessageable, nextThreadStatusAfterMessage } from "./events";
 import { createAuthServerComponentClient } from "../auth/server";
 import { notify } from "../notifications/service";
+import { resolvePortalUserIdForTenant } from "../resident/resolve-tenant";
 import type { Json } from "@mpa/supabase";
 import type {
   CommunicationMessageRecord,
@@ -157,6 +158,62 @@ async function resolveClient(client?: MessagingDbClient | SupabaseClientType): P
   }
   const supabase = (client as SupabaseClientType | undefined) ?? (await createAuthServerComponentClient());
   return messagingDb(supabase);
+}
+
+async function ensureThreadParticipant(
+  organizationId: string,
+  threadId: string,
+  participantUserId: string,
+  participantRole: ParticipantRole,
+  actorUserId: string,
+  db: MessagingDbClient
+): Promise<void> {
+  const { data: existing } = await db
+    .from("conversation_participants")
+    .select("id")
+    .eq("organization_id", organizationId)
+    .eq("thread_id", threadId)
+    .eq("user_id", participantUserId)
+    .maybeSingle();
+  if (existing) return;
+
+  const { error } = await db.from("conversation_participants").insert({
+    organization_id: organizationId,
+    thread_id: threadId,
+    user_id: participantUserId,
+    participant_role: participantRole,
+    created_by: actorUserId,
+    updated_by: actorUserId
+  });
+  // Unique (org, thread, user) races are fine — treat as already present.
+  if (error && !error.message.toLowerCase().includes("duplicate")) {
+    console.error("[messaging] ensureThreadParticipant failed", error.message);
+  }
+}
+
+async function resolveResidentPortalUserForThread(
+  organizationId: string,
+  thread: Pick<ThreadRow, "source_entity_type" | "source_entity_id">,
+  actorUserId: string,
+  db: MessagingDbClient
+): Promise<string | null> {
+  if (thread.source_entity_type === "resident" && thread.source_entity_id) {
+    return resolvePortalUserIdForTenant(organizationId, thread.source_entity_id, db, actorUserId);
+  }
+
+  if (thread.source_entity_type === "maintenance" && thread.source_entity_id) {
+    const { data: workOrder } = await db
+      .from("maintenance_work_orders")
+      .select("tenant_id")
+      .eq("organization_id", organizationId)
+      .eq("id", thread.source_entity_id)
+      .maybeSingle();
+    const tenantId = (workOrder?.tenant_id as string | null | undefined) ?? null;
+    if (!tenantId) return null;
+    return resolvePortalUserIdForTenant(organizationId, tenantId, db, actorUserId);
+  }
+
+  return null;
 }
 
 export async function getThreadBySourceEntity(
@@ -423,13 +480,22 @@ export async function createMessageInThread(
   const db = await resolveClient(client);
   const { data: threadRow, error: threadError } = await db
     .from("conversation_threads")
-    .select("id, status, subject")
+    .select(THREAD_SELECT)
     .eq("organization_id", organizationId)
     .eq("id", threadId)
     .is("deleted_at", null)
     .maybeSingle();
   if (threadError || !threadRow) throw new Error("Conversation thread not found");
-  assertThreadMessageable((threadRow as { status: ThreadStatus }).status);
+  const thread = threadRow as ThreadRow;
+  assertThreadMessageable(thread.status);
+
+  // Repair legacy resident threads that were created without the portal resident participant.
+  if (input.visibility !== "internal") {
+    const residentUserId = await resolveResidentPortalUserForThread(organizationId, thread, userId, db);
+    if (residentUserId && residentUserId !== userId) {
+      await ensureThreadParticipant(organizationId, threadId, residentUserId, "resident", userId, db);
+    }
+  }
 
   const visibility: MessageVisibility = input.visibility ?? "resident";
   const now = new Date().toISOString();
@@ -453,7 +519,7 @@ export async function createMessageInThread(
   await db
     .from("conversation_threads")
     .update({
-      status: nextThreadStatusAfterMessage((threadRow as { status: ThreadStatus }).status),
+      status: nextThreadStatusAfterMessage(thread.status),
       last_message_at: now,
       updated_by: userId,
       updated_at: now
@@ -468,22 +534,34 @@ export async function createMessageInThread(
     .eq("thread_id", threadId)
     .neq("user_id", userId);
 
-  const recipientUserIds = ((participants ?? []) as Array<{ user_id: string }>).map((p) => p.user_id);
-  if (recipientUserIds.length > 0) {
+  const recipientUserIds = new Set(
+    ((participants ?? []) as Array<{ user_id: string }>).map((p) => p.user_id)
+  );
+
+  // Always fan out to the linked resident portal user for resident-facing messages,
+  // even when participant insert was blocked (e.g. same user already present as PM).
+  if (visibility !== "internal") {
+    const residentUserId = await resolveResidentPortalUserForThread(organizationId, thread, userId, db);
+    if (residentUserId && residentUserId !== userId) {
+      recipientUserIds.add(residentUserId);
+    }
+  }
+
+  if (recipientUserIds.size > 0) {
     await notify(
       {
         organizationId,
         actorUserId: userId,
         eventKey: `message.sent:${(messageRow as { id: string }).id}`,
-        recipientUserIds,
+        recipientUserIds: [...recipientUserIds],
         category: "messages",
         priority: "normal",
         title: "New message",
-        body: `${(threadRow as { subject: string }).subject}: ${input.body.slice(0, 120)}`,
+        body: `${thread.subject}: ${input.body.slice(0, 120)}`,
         href: `/communications/threads/${threadId}`,
         sourceEntityType: "conversation_thread",
         sourceEntityId: threadId,
-        propertyId: (threadRow as { property_id?: string | null }).property_id ?? null
+        propertyId: thread.property_id ?? null
       },
       db
     ).catch(() => undefined);
@@ -567,19 +645,19 @@ export async function ensureResidentPmThread(
   client?: MessagingDbClient | SupabaseClientType
 ): Promise<ConversationThreadRecord> {
   const db = await resolveClient(client);
+  const residentUserId = await resolvePortalUserIdForTenant(organizationId, tenant.id, db, userId);
+
   const existing = await getThreadBySourceEntity(organizationId, "resident", tenant.id, db);
-  if (existing) return existing;
+  if (existing) {
+    if (residentUserId && residentUserId !== userId) {
+      await ensureThreadParticipant(organizationId, existing.id, residentUserId, "resident", userId, db);
+    }
+    return existing;
+  }
 
   const participants: CreateThreadFromSourceInput["participants"] = [{ userId, participantRole: "pm" }];
-  if (tenant.email) {
-    const { data: profileRow } = await db
-      .from("user_profiles")
-      .select("user_id")
-      .eq("email", tenant.email)
-      .maybeSingle();
-    if (profileRow?.user_id) {
-      participants.push({ userId: profileRow.user_id as string, participantRole: "resident" });
-    }
+  if (residentUserId && residentUserId !== userId) {
+    participants.push({ userId: residentUserId, participantRole: "resident" });
   }
 
   const detail = await createThreadFromSource(
@@ -613,27 +691,21 @@ export async function ensureMaintenanceThread(
   client?: MessagingDbClient | SupabaseClientType
 ): Promise<ConversationThreadRecord> {
   const db = await resolveClient(client);
+  const residentUserId = workOrder.tenantId
+    ? await resolvePortalUserIdForTenant(organizationId, workOrder.tenantId, db, userId)
+    : null;
+
   const existing = await getThreadBySourceEntity(organizationId, "maintenance", workOrder.id, db);
-  if (existing) return existing;
+  if (existing) {
+    if (residentUserId && residentUserId !== userId) {
+      await ensureThreadParticipant(organizationId, existing.id, residentUserId, "resident", userId, db);
+    }
+    return existing;
+  }
 
   const participants: CreateThreadFromSourceInput["participants"] = [{ userId, participantRole: "pm" }];
-  if (workOrder.tenantId) {
-    const { data: tenantRow } = await db
-      .from("tenants")
-      .select("email")
-      .eq("organization_id", organizationId)
-      .eq("id", workOrder.tenantId)
-      .maybeSingle();
-    if (tenantRow?.email) {
-      const { data: profileRow } = await db
-        .from("user_profiles")
-        .select("user_id")
-        .eq("email", tenantRow.email)
-        .maybeSingle();
-      if (profileRow?.user_id) {
-        participants.push({ userId: profileRow.user_id as string, participantRole: "resident" });
-      }
-    }
+  if (residentUserId && residentUserId !== userId) {
+    participants.push({ userId: residentUserId, participantRole: "resident" });
   }
 
   const detail = await createThreadFromSource(

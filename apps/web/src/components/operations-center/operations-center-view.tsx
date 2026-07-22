@@ -156,43 +156,39 @@ function OperationsCenterLayout({
   const occupancyPercent = Math.round(snapshot.occupancyRate * 100);
 
   const urgentCount = visibleTasks.filter((task) => task.priority === "high").length;
+  const overdueCount = snapshot.maintenance?.overdueWorkOrders ?? 0;
+  const approvalCount =
+    (snapshot.leases?.renewalNeeded ?? 0) +
+    (snapshot.vendors?.awaitingResponse ?? 0) +
+    (snapshot.financial?.ownerStatementsDraft ?? 0);
+  const changedTodayCount = snapshot.recentActivity.length;
   const attentionLine =
     urgentCount > 0
       ? `${urgentCount} urgent item${urgentCount === 1 ? "" : "s"} need action today.`
       : visibleTasks.length > 0
         ? `${visibleTasks.length} item${visibleTasks.length === 1 ? "" : "s"} on your plate — start with the top task.`
-        : "Nothing urgent — portfolio snapshot is below when you need it.";
+        : "Nothing urgent — glance metrics below if you need portfolio context.";
 
   return (
-    <main className="mpa-page-wide flex-1 space-y-5">
+    <main className="mpa-page-wide flex-1 space-y-4">
       <AiPageContextBridge {...buildAiPageContext({ entityType: "dashboard" })} />
       <PortfolioSetupHealth />
-      <header className="mpa-page-header">
-        <div className="space-y-2">
+      <header className="mpa-page-header !items-start gap-3">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <p className="mpa-section-label text-[var(--mpa-color-brand-primary)]">Operations Center</p>
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)] md:text-[2rem]">
+          <h1 className="font-display text-xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)] md:text-2xl">
             {userGreetingName ? `${timeGreeting}, ${userGreetingName}.` : `${timeGreeting}.`}
+            {organizationName ? (
+              <span className="mt-0.5 block text-sm font-medium text-[var(--mpa-color-text-secondary)] md:mt-0 md:ml-2 md:inline">
+                {organizationName}
+              </span>
+            ) : null}
           </h1>
-          {organizationName ? (
-            <p className="text-base font-medium text-[var(--mpa-color-text-secondary)]">{organizationName}</p>
-          ) : null}
-          <p className="max-w-2xl text-sm font-medium text-[var(--mpa-color-text-primary)]">
-            Needs attention: {attentionLine}
-          </p>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
-            Act from the priorities below. Search (⌘K) or AI for anything else — no hunting.
-          </p>
+          <p className="max-w-2xl text-sm font-medium text-[var(--mpa-color-text-primary)]">{attentionLine}</p>
           <div
-            className="flex flex-wrap items-center gap-3 text-xs text-[var(--mpa-color-text-muted)]"
+            className="flex flex-wrap items-center gap-2 text-xs text-[var(--mpa-color-text-muted)]"
             aria-live="polite"
           >
-            <span className="inline-flex items-center gap-2 rounded-full bg-[var(--mpa-color-brand-primary-subtle)] px-2.5 py-1 font-medium text-[var(--mpa-color-brand-primary)]">
-              <span
-                className={`inline-block h-1.5 w-1.5 rounded-full ${isRefreshing ? "animate-pulse bg-[var(--mpa-color-brand-primary)]" : "bg-[var(--mpa-color-status-success)]"}`}
-                aria-hidden="true"
-              />
-              Live portfolio data
-            </span>
             <span>Updated {lastRefreshedAt || "just now"}</span>
             <button
               type="button"
@@ -204,7 +200,35 @@ function OperationsCenterLayout({
             </button>
           </div>
         </div>
+        <QuickActionsBar permissions={permissions} />
       </header>
+
+      <section aria-label="Command glance" className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <GlanceMetric
+          label="Needs attention"
+          value={visibleTasks.length}
+          href="#attention-today-heading"
+          tone={urgentCount > 0 ? "warning" : "default"}
+        />
+        <GlanceMetric
+          label="Overdue"
+          value={overdueCount}
+          href="/maintenance?status=open"
+          tone={overdueCount > 0 ? "warning" : "default"}
+        />
+        <GlanceMetric
+          label="Needs approval"
+          value={approvalCount}
+          href="/leases"
+          tone={approvalCount > 0 ? "warning" : "default"}
+        />
+        <GlanceMetric
+          label="Changed today"
+          value={changedTodayCount}
+          href="#changed-today"
+          tone="default"
+        />
+      </section>
 
       <section aria-labelledby="attention-today-heading" className="space-y-3">
         <h2 id="attention-today-heading" className="mpa-section-title">
@@ -217,26 +241,26 @@ function OperationsCenterLayout({
             {permissions.canReadCommunications ? <NotificationOperationsWidget /> : null}
           </div>
         </div>
-        {snapshot.migration && permissions.canReadMigration ? (
-          <MigrationOperationsCard snapshot={snapshot.migration} canCreate={permissions.canCreateMigration} />
-        ) : null}
       </section>
 
       {snapshot.maintenance && permissions.canReadMaintenance ? (
         <MaintenanceOperationsCard snapshot={snapshot.maintenance} canCreate={permissions.canCreateMaintenance} />
       ) : null}
 
-      {snapshot.communications && permissions.canReadCommunications ? (
-        <CommunicationOperationsCard snapshot={snapshot.communications} canCreate={permissions.canCreateCommunication} />
-      ) : null}
-
       <DiscloseSection
-        title="Portfolio snapshot & more ops"
-        description="KPIs, quick create, signatures, billing, leases, vendors, applicants, screening — expand when needed."
+        id="changed-today"
+        title="What changed & portfolio"
+        description="Recent activity, communications, and portfolio counts — expand when you need depth."
         defaultOpen={false}
       >
-        <div className="space-y-4">
-          <QuickActionsBar permissions={permissions} />
+        <div className="space-y-3">
+          <ActivityTimelineCard activity={snapshot.recentActivity} hasPortfolio={hasPortfolio} />
+          {snapshot.communications && permissions.canReadCommunications ? (
+            <CommunicationOperationsCard
+              snapshot={snapshot.communications}
+              canCreate={permissions.canCreateCommunication}
+            />
+          ) : null}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             <KpiMetric
               label="Total Properties"
@@ -265,9 +289,19 @@ function OperationsCenterLayout({
               total={snapshot.unitsTotal}
             />
           </div>
-          <div className="grid gap-3 xl:grid-cols-3">
-            <TenantOverviewCard snapshot={snapshot} />
-          </div>
+          <TenantOverviewCard snapshot={snapshot} />
+        </div>
+      </DiscloseSection>
+
+      <DiscloseSection
+        title="More operations & analytics"
+        description="Signatures, billing, leases, vendors, applicants, screening, migration, and deeper financials."
+        defaultOpen={false}
+      >
+        <div className="space-y-3">
+          {snapshot.migration && permissions.canReadMigration ? (
+            <MigrationOperationsCard snapshot={snapshot.migration} canCreate={permissions.canCreateMigration} />
+          ) : null}
           <div className="grid gap-3 xl:grid-cols-2">
             {permissions.canReadSignatures ? <SignatureOperationsWidget /> : null}
             {permissions.canReadFinancials ? <BillingOperationsWidget /> : null}
@@ -285,12 +319,42 @@ function OperationsCenterLayout({
           {snapshot.financial && permissions.canReadFinancials ? (
             <FinancialOperationsCard snapshot={snapshot.financial} canCreate={permissions.canCreateFinancial} />
           ) : null}
-          <ActivityTimelineCard activity={snapshot.recentActivity} hasPortfolio={hasPortfolio} />
         </div>
       </DiscloseSection>
 
       {!hasPortfolio ? <PortfolioEmptyState permissions={permissions} /> : null}
     </main>
+  );
+}
+
+function GlanceMetric({
+  label,
+  value,
+  href,
+  tone = "default"
+}: {
+  label: string;
+  value: number;
+  href: string;
+  tone?: "default" | "warning";
+}) {
+  return (
+    <Link
+      href={href}
+      className={`${OPS_PANEL_PAD_SM} block transition-colors hover:border-[var(--mpa-color-brand-primary)]/30`}
+    >
+      <p className="mpa-section-label">{label}</p>
+      <p
+        className={[
+          "mt-1 font-display text-2xl font-semibold tabular-nums tracking-tight",
+          tone === "warning" && value > 0
+            ? "text-[var(--mpa-color-status-warning)]"
+            : "text-[var(--mpa-color-text-primary)]"
+        ].join(" ")}
+      >
+        {value}
+      </p>
+    </Link>
   );
 }
 
@@ -309,10 +373,7 @@ function QuickActionsBar({ permissions }: { permissions: OperationsPermissions }
       show: permissions.canCreateFinancial,
       variant: "secondary" as const
     },
-    { label: "Applicant", href: "/applicants/new", show: permissions.canCreateApplicant, variant: "secondary" as const },
-    { label: "Property", href: "/properties/new", show: permissions.canCreateProperty, variant: "secondary" as const },
-    { label: "Move Out", href: "/residents/move-out", show: permissions.canCreateTenant, variant: "secondary" as const },
-    { label: "Transfer", href: "/residents/transfer", show: permissions.canCreateTenant, variant: "secondary" as const }
+    { label: "Message", href: "/communications/inbox", show: permissions.canReadCommunications, variant: "secondary" as const }
   ].filter((action) => action.show);
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { isUserRole, toRoleLabel, type UserRole } from "@mpa/shared";
 import { useOrganizationContext } from "./organization-context";
 
@@ -54,14 +54,22 @@ export function RoleProvider({
       ? activeOrganization.roles
       : fallbackRoles;
 
+  const [storageReady, setStorageReady] = useState(false);
+  useEffect(() => {
+    setStorageReady(true);
+  }, []);
+
   const storedRole = useSyncExternalStore(
     subscribeStoredRole,
     getStoredRoleSnapshot,
     getStoredRoleServerSnapshot
   );
 
+  const preferredStoredRole = storageReady ? storedRole : null;
   const preferredRole =
-    storedRole && availableRoles.includes(storedRole) ? storedRole : defaultRole;
+    preferredStoredRole && availableRoles.includes(preferredStoredRole)
+      ? preferredStoredRole
+      : defaultRole;
 
   const activeRole =
     availableRoles.includes(preferredRole) ? preferredRole : (availableRoles[0] ?? defaultRole);

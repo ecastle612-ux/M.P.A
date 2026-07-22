@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { BrandSurfaceTone } from "../branding/brand-logo";
 import { SidebarBrandHeader } from "./sidebar-brand-header";
 import { NAV_ICON_MAP } from "../presentation/nav-icons";
@@ -10,6 +10,7 @@ import { SHELL_NAVIGATION_GROUPS, isRouteActive } from "./navigation-config";
 import { useSessionPermissions } from "./use-session-permissions";
 
 const STORAGE_KEY = "mpa.sidebar.collapsed.v2";
+const COOKIE_KEY = "mpa_sidebar_collapsed";
 
 function subscribeSidebarCollapsed(onStoreChange: () => void) {
   const onLocalChange = () => onStoreChange();
@@ -21,33 +22,58 @@ function subscribeSidebarCollapsed(onStoreChange: () => void) {
   };
 }
 
-function getSidebarCollapsedSnapshot() {
-  return window.localStorage.getItem(STORAGE_KEY) === "true";
+function hasCollapsedCookie(): boolean {
+  return typeof document !== "undefined" && document.cookie.includes(`${COOKIE_KEY}=`);
 }
 
-function getSidebarCollapsedServerSnapshot() {
-  return false;
+function readCollapsedFromCookie(): boolean {
+  if (typeof document === "undefined") return false;
+  const match = document.cookie.match(/(?:^|; )mpa_sidebar_collapsed=([^;]*)/);
+  return match?.[1] === "1";
 }
 
-export function Sidebar() {
+function persistCollapsed(next: boolean) {
+  window.localStorage.setItem(STORAGE_KEY, String(next));
+  document.cookie = `${COOKIE_KEY}=${next ? "1" : "0"}; path=/; max-age=31536000; samesite=lax`;
+  window.dispatchEvent(new Event("mpa:sidebar-collapsed"));
+}
+
+/** Prefer cookie (SSR-aligned). Avoid reading localStorage during hydration. */
+function getSidebarCollapsedSnapshot(initialCollapsed: boolean) {
+  if (hasCollapsedCookie()) return readCollapsedFromCookie();
+  return initialCollapsed;
+}
+
+/**
+ * DPX-002 / SH-001: SSR uses cookie-backed initialCollapsed so first paint matches
+ * client preference — no width jump, no transition flicker.
+ */
+export function Sidebar({ initialCollapsed = false }: { initialCollapsed?: boolean }) {
   const pathname = usePathname();
   const { canAccess } = useSessionPermissions();
   const collapsed = useSyncExternalStore(
     subscribeSidebarCollapsed,
-    getSidebarCollapsedSnapshot,
-    getSidebarCollapsedServerSnapshot
+    () => getSidebarCollapsedSnapshot(initialCollapsed),
+    () => initialCollapsed
   );
-  // SH-001: suppress width transition across hydration so SSR→client collapsed
-  // reconciliation does not animate a visible jump.
-  const [widthReady, setWidthReady] = useState(false);
+
   useEffect(() => {
-    setWidthReady(true);
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (!hasCollapsedCookie() && (stored === "true" || stored === "false")) {
+        persistCollapsed(stored === "true");
+        return;
+      }
+      if (hasCollapsedCookie()) {
+        window.localStorage.setItem(STORAGE_KEY, String(readCollapsedFromCookie()));
+      }
+    } catch {
+      // Non-fatal preference sync.
+    }
   }, []);
 
   function toggleCollapsed() {
-    const next = !collapsed;
-    window.localStorage.setItem(STORAGE_KEY, String(next));
-    window.dispatchEvent(new Event("mpa:sidebar-collapsed"));
+    persistCollapsed(!collapsed);
   }
 
   return (
@@ -55,9 +81,11 @@ export function Sidebar() {
       <aside
         className={[
           "hidden shrink-0 flex-col border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] lg:flex",
-          widthReady ? "transition-[width] duration-[var(--mpa-duration-moderate)]" : "",
-          collapsed ? "w-[var(--mpa-sidebar-collapsed-width)]" : "w-[var(--mpa-sidebar-width)]"
+          "w-[var(--mpa-sidebar-width)]",
+          collapsed ? "!w-[var(--mpa-sidebar-collapsed-width)]" : ""
         ].join(" ")}
+        style={{ width: collapsed ? "var(--mpa-sidebar-collapsed-width)" : "var(--mpa-sidebar-width)" }}
+        suppressHydrationWarning
         aria-label="Primary application sidebar"
       >
         <div
@@ -67,6 +95,7 @@ export function Sidebar() {
               ? "min-h-[5.5rem] flex-col items-center justify-center gap-2 px-2 py-3"
               : "min-h-[5.25rem] items-center justify-between gap-2 px-[18px] py-[18px]"
           ].join(" ")}
+          suppressHydrationWarning
         >
           <Link
             href="/dashboard"
@@ -116,7 +145,7 @@ export function Sidebar() {
                         aria-current={active ? "page" : undefined}
                         title={collapsed ? item.label : undefined}
                         className={[
-                          "group flex items-center rounded-[var(--mpa-radius-md)] text-[13px] transition-all duration-[var(--mpa-duration-fast)]",
+                          "group flex items-center rounded-[var(--mpa-radius-md)] text-[13px] transition-colors duration-[var(--mpa-duration-fast)]",
                           collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-2.5 py-2.5",
                           active
                             ? "bg-[var(--mpa-color-bg-sidebar-elevated)] font-medium text-[var(--mpa-color-text-sidebar-active)] shadow-[inset_3px_0_0_0_var(--mpa-color-sidebar-accent)]"
@@ -125,7 +154,7 @@ export function Sidebar() {
                       >
                         <span
                           className={[
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--mpa-radius-sm)] transition-colors",
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--mpa-radius-sm)]",
                             active
                               ? "bg-[var(--mpa-color-sidebar-accent)]/15 text-[var(--mpa-color-sidebar-accent)]"
                               : "text-[var(--mpa-color-text-sidebar)]/80 group-hover:text-[var(--mpa-color-text-sidebar-active)]"

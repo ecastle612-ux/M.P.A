@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
 
@@ -51,15 +51,21 @@ export function OrganizationProvider({
   onRefreshOrganizations: () => Promise<void>;
 }) {
   const router = useRouter();
+  // DPX-002: defer localStorage preference until after mount so SSR HTML matches first client paint.
+  const [storageReady, setStorageReady] = useState(false);
+  useEffect(() => {
+    setStorageReady(true);
+  }, []);
   const storedOrganizationId = useSyncExternalStore(
     subscribeStoredOrganization,
     getStoredOrganizationSnapshot,
     getStoredOrganizationServerSnapshot
   );
 
+  const preferredStoredId = storageReady ? storedOrganizationId : null;
   const activeOrganizationId =
-    storedOrganizationId && organizations.some((organization) => organization.id === storedOrganizationId)
-      ? storedOrganizationId
+    preferredStoredId && organizations.some((organization) => organization.id === preferredStoredId)
+      ? preferredStoredId
       : defaultOrganizationId;
 
   const activeOrganization =
