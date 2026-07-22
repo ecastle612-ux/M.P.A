@@ -101,7 +101,8 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Phase 5 Tenant & Lease Foundation design package | Approved (docs/25 + ADR-016 accepted) |
 | Phase 5 implementation | Approved — implementation authorized within approved Phase 5 scope |
 | DPX-001 Design Partner Experience (Phase 6) | **Approved** — operator experience philosophy; Amendments A–G + roadmap rule bind future product work ([92](../92-dpx-001-design-partner-experience/README.md)) |
-| DPX-002 Complete Daily Workflow | **Approved** — gold-standard reference path; Amendments A–G; freeze after PASS; then DPX-003→005 ([93](../93-dpx-002-complete-daily-workflow/README.md)) |
+| DPX-002 Complete Daily Workflow | **PASS** — gold-standard reference path; Amendments A–G; freeze binds successors ([93](../93-dpx-002-complete-daily-workflow/README.md)) |
+| DPX-003 Commercial Product Experience | **Approved** — cognitive load, empty states, tenant IA, push, theme, consistency, mobile, AI polish; no new modules ([96](../96-dpx-003-commercial-product-experience/README.md)) |
 | ADMIN-001 Master Admin Impersonation | **Approved** — Portal Test Mode + Impersonation Center + audit ([71](../71-admin-001-master-admin-impersonation/README.md)) |
 | ADMIN-002 Master Admin Role Switcher | **Approved** — placement and IA for role play ([94](../94-admin-002-master-admin-role-switcher/README.md)) |
 | ADMIN-003 Master Admin Operations Center | **Approved** — Mission Control HQ; **Slice A unlocked** ([95](../95-admin-003-master-admin-operations-center/README.md)) |

@@ -791,7 +791,6 @@ function MaintenanceOperationsCard({
             href: `${item.href}`,
             meta: "Resolve · Notify / start work"
           }))}
-          emptyLabel="No work orders waiting on vendors"
         />
         <MaintenanceListCard
           title="Waiting for resident"
@@ -802,7 +801,6 @@ function MaintenanceOperationsCard({
             href: `${item.href}#conversation`,
             meta: "Resolve · Request confirmation"
           }))}
-          emptyLabel="No completed work awaiting resident confirmation"
         />
         <MaintenanceListCard
           title="Overdue work"
@@ -813,7 +811,6 @@ function MaintenanceOperationsCard({
             href: item.href,
             meta: item.dueDate ? `Resolve · Due ${item.dueDate}` : "Resolve · Open workflow"
           }))}
-          emptyLabel="No overdue work orders"
         />
         <MaintenanceListCard
           title="Emergency / high priority"
@@ -831,43 +828,47 @@ function MaintenanceOperationsCard({
                     ? "Resolve · Complete work"
                     : `Resolve · ${item.priority}`
           }))}
-          emptyLabel="No high-priority work orders"
         />
       </div>
+      {waitingVendor.length === 0 &&
+      waitingResident.length === 0 &&
+      overdueItems.length === 0 &&
+      emergencyItems.length === 0 ? (
+        <p className="rounded-[var(--mpa-radius-lg)] border border-dashed border-[var(--mpa-color-border-subtle)] px-3 py-2.5 text-sm text-[var(--mpa-color-text-secondary)]">
+          No maintenance needing attention right now.
+        </p>
+      ) : null}
     </section>
   );
 }
 
 function MaintenanceListCard({
   title,
-  items,
-  emptyLabel
+  items
 }: {
   title: string;
   items: Array<{ id: string; workOrderNumber: string; title: string; href: string; meta?: string | null }>;
-  emptyLabel: string;
 }) {
+  // DPX-003: hide empty queue cards — value only when there is work.
+  if (items.length === 0) return null;
+
   return (
     <article className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)] p-4">
       <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">{title}</h3>
-      {items.length === 0 ? (
-        <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">{emptyLabel}</p>
-      ) : (
-        <ul className="mt-3 space-y-2">
-          {items.map((item) => (
-            <li key={item.id}>
-              <Link
-                href={item.href}
-                className="block rounded-lg border border-[var(--mpa-color-border-default)] px-3 py-2.5 transition-colors hover:bg-[var(--mpa-color-bg-app)]"
-              >
-                <p className="text-xs font-semibold text-[var(--mpa-color-brand-primary)]">{item.workOrderNumber}</p>
-                <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{item.title}</p>
-                {item.meta ? <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.meta}</p> : null}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="mt-3 space-y-2">
+        {items.map((item) => (
+          <li key={item.id}>
+            <Link
+              href={item.href}
+              className="block rounded-lg border border-[var(--mpa-color-border-default)] px-3 py-2.5 transition-colors hover:bg-[var(--mpa-color-bg-app)]"
+            >
+              <p className="text-xs font-semibold text-[var(--mpa-color-brand-primary)]">{item.workOrderNumber}</p>
+              <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{item.title}</p>
+              {item.meta ? <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.meta}</p> : null}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </article>
   );
 }

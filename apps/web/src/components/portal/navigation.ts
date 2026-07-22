@@ -10,14 +10,15 @@ export const OWNER_PORTAL_NAVIGATION = [
   { href: "/profile", label: "Profile" }
 ] as const;
 
+/** DPX-003 — communication-first nav order. */
 export const TENANT_PORTAL_NAVIGATION = [
-  { href: "/portal/tenant", label: "Tenant home" },
-  { href: "/portal/tenant/maintenance", label: "Maintenance" },
-  { href: "/portal/tenant/payments", label: "Payments" },
-  { href: "/portal/tenant/messages", label: "Messages" },
+  { href: "/portal/tenant", label: "Home" },
   { href: "/portal/tenant/announcements", label: "Announcements" },
-  { href: "/portal/tenant/documents", label: "Documents" },
   { href: "/portal/tenant/notifications", label: "Notifications" },
+  { href: "/portal/tenant/messages", label: "Messages" },
+  { href: "/portal/tenant/payments", label: "Rent" },
+  { href: "/portal/tenant/maintenance", label: "Maintenance" },
+  { href: "/portal/tenant/documents", label: "Documents" },
   { href: "/portal/tenant/community", label: "Community" },
   { href: "/portal/tenant/preferences", label: "Preferences" },
   { href: "/profile", label: "Profile" }

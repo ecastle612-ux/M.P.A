@@ -48,37 +48,42 @@ export function TenantMessagesInbox({ initialItems }: { initialItems: ThreadList
     }
   }
 
+  if (items.length === 0) {
+    return (
+      <Card className="space-y-2 p-4">
+        <h1 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Messages</h1>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          No unread messages. When property management or maintenance reaches out, conversations appear here.
+        </p>
+      </Card>
+    );
+  }
+
   return (
     <div className="grid gap-4 lg:grid-cols-[16rem_minmax(0,1fr)]">
       <Card className="space-y-2 p-3">
         <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Your conversations</h2>
-        {items.length === 0 ? (
-          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            No messages yet. When property management or maintenance reaches out, conversations appear here.
-          </p>
-        ) : (
-          <ul className="space-y-1">
-            {items.map((item) => (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  onClick={() => void selectThread(item.id)}
-                  className={[
-                    "w-full rounded-md px-2 py-2 text-left text-sm",
-                    selectedId === item.id ? "bg-[var(--mpa-color-brand-primary)]/10" : "hover:bg-[var(--mpa-color-interactive-row-hover)]"
-                  ].join(" ")}
-                >
-                  <span className="font-medium">{item.subject}</span>
-                  {item.unreadCount > 0 ? (
-                    <Badge variant="warning" className="ml-2">
-                      {item.unreadCount}
-                    </Badge>
-                  ) : null}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <ul className="space-y-1">
+          {items.map((item) => (
+            <li key={item.id}>
+              <button
+                type="button"
+                onClick={() => void selectThread(item.id)}
+                className={[
+                  "w-full rounded-md px-2 py-2 text-left text-sm",
+                  selectedId === item.id ? "bg-[var(--mpa-color-brand-primary)]/10" : "hover:bg-[var(--mpa-color-interactive-row-hover)]"
+                ].join(" ")}
+              >
+                <span className="font-medium">{item.subject}</span>
+                {item.unreadCount > 0 ? (
+                  <Badge variant="warning" className="ml-2">
+                    {item.unreadCount}
+                  </Badge>
+                ) : null}
+              </button>
+            </li>
+          ))}
+        </ul>
       </Card>
 
       <Card className="space-y-4 p-4">

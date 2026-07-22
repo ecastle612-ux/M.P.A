@@ -243,17 +243,29 @@ body {
   }
 }
 
+/* DPX-003: full dark token set on html[data-theme] so nav/RSC style wipes don't flash light. */
 [data-theme="dark"] {
   --mpa-color-bg-app: #0b0d10;
   --mpa-color-bg-surface: #14181e;
+  --mpa-color-bg-surface-elevated: #171c23;
   --mpa-color-bg-surface-muted: #1b2028;
+  --mpa-color-bg-surface-sunken: #0f1318;
+  --mpa-color-bg-overlay: #00000099;
   --mpa-color-border-default: #2a313c;
-  --mpa-color-border-subtle: #2a313c;
+  --mpa-color-border-subtle: #202630;
+  --mpa-color-border-strong: #4b5563;
   --mpa-color-text-primary: #f3f4f6;
-  --mpa-color-text-secondary: #9ca3af;
-  --mpa-color-text-muted: #6b7280;
+  --mpa-color-text-secondary: #cbd5e1;
+  --mpa-color-text-muted: #94a3b8;
   --mpa-color-brand-primary: #1fa87a;
+  --mpa-color-brand-primary-hover: #32b98b;
+  --mpa-color-brand-primary-active: #15825f;
+  --mpa-color-brand-primary-subtle: #12352c;
   --mpa-color-interactive-row-hover: #1b2028;
+  --mpa-color-interactive-selected: #12352c;
+  --mpa-color-interactive-disabled-bg: #202630;
+  --mpa-color-interactive-disabled-text: #64748b;
+  color-scheme: dark;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -99,7 +99,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       lang="en"
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
       data-theme={theme.mode}
-      style={{ colorScheme: theme.mode }}
       suppressHydrationWarning
     >
       <head>

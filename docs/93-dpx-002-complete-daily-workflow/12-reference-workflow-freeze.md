@@ -29,8 +29,9 @@ Do **not** start until DPX-002 = PASS.
 | ID | Workflow | Scope |
 | --- | --- | --- |
 | **DPX-002** | Core daily ops (this package) | Property → Resident → Lease → Payment → Maintenance → Vendor → Communication |
-| **DPX-003** | Leasing | Applicant → Screening → Lease → Move-in |
-| **DPX-004** | Maintenance lifecycle | Issue → Vendor → Completion → Owner communication |
-| **DPX-005** | Accounting lifecycle | Rent → Reconciliation → Owner statement → Reporting |
+| **DPX-003** | Commercial Product Experience | Premium polish for Design Partner — see [96](../96-dpx-003-commercial-product-experience/README.md) *(supersedes prior “Leasing” slot; renumbering in DPX-003 [12](../96-dpx-003-commercial-product-experience/12-roadmap-amendment.md))* |
+| **DPX-004** | Leasing | Applicant → Screening → Lease → Move-in |
+| **DPX-005** | Maintenance lifecycle | Issue → Vendor → Completion → Owner communication |
+| **DPX-006** | Accounting lifecycle | Rent → Reconciliation → Owner statement → Reporting |
 
-Each successor inherits Amendments A–G and the freeze comparison gate.
+Each successor inherits Amendments A–G and the freeze comparison gate. Do not start DPX-004+ until DPX-003 = PASS.

@@ -180,13 +180,20 @@ export function ThemeProvider({
     [darkModeEnabled, defaultMode, onThemeCommit],
   );
 
+  // DPX-003: resolve system preference on mount (SSR defaults system→light and must not stick).
   useEffect(() => {
     if (preference !== "system" || !darkModeEnabled) return;
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => {
-      const nextMode = media.matches ? "dark" : "light";
-      setModeState(nextMode);
+    const nextMode = media.matches ? "dark" : "light";
+    setModeState((current) => {
+      if (current === nextMode) return current;
       onThemeCommit?.(preference, nextMode);
+      return nextMode;
+    });
+    const onChange = () => {
+      const changed = media.matches ? "dark" : "light";
+      setModeState(changed);
+      onThemeCommit?.(preference, changed);
     };
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
@@ -194,22 +201,12 @@ export function ThemeProvider({
 
   const cssVariables = useMemo(() => themeVariablesForMode(mode), [mode]);
 
+  // Keep html data-theme/colorScheme in sync — CSS vars stay on the wrapper to avoid
+  // RSC/html style fights wiping tokens during navigation (DPX-003 theme Sev-1).
   useEffect(() => {
     document.documentElement.dataset["theme"] = mode;
     document.documentElement.style.colorScheme = mode;
-    for (const [name, value] of Object.entries(cssVariables)) {
-      document.documentElement.style.setProperty(name, value);
-    }
-  }, [cssVariables, mode]);
-
-  // Keep localStorage aligned with committed theme (cookie is written via onThemeCommit).
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, preference);
-    } catch {
-      // Non-fatal.
-    }
-  }, [preference]);
+  }, [mode]);
 
   const value = useMemo<ThemeContextValue>(
     () => ({
@@ -218,13 +215,21 @@ export function ThemeProvider({
       darkModeEnabled,
       setMode: (nextMode) => {
         if (!darkModeEnabled && nextMode === "dark") return;
-        window.localStorage.setItem(THEME_STORAGE_KEY, nextMode);
+        try {
+          window.localStorage.setItem(THEME_STORAGE_KEY, nextMode);
+        } catch {
+          // Non-fatal.
+        }
         setPreferenceState(nextMode);
         setModeState(nextMode);
         onThemeCommit?.(nextMode, nextMode);
       },
       setPreference: (nextPreference) => {
-        window.localStorage.setItem(THEME_STORAGE_KEY, nextPreference);
+        try {
+          window.localStorage.setItem(THEME_STORAGE_KEY, nextPreference);
+        } catch {
+          // Non-fatal.
+        }
         applyPreference(nextPreference);
       }
     }),

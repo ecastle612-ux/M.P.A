@@ -101,7 +101,10 @@ export function ResidentAnnouncementsInbox({ initialItems }: { initialItems: Res
           Your property announcements and community notices will appear here.
         </p>
         <div className="mt-4 rounded-lg border border-dashed border-[var(--mpa-color-border-default)] p-6 text-center">
-          <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">No announcements yet</p>
+          <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">No unread announcements</p>
+          <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+            When management posts a notice, it will show up here.
+          </p>
         </div>
       </Card>
     );
