@@ -45,7 +45,8 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Permissions-Policy",
-            value: "camera=(self), microphone=(), geolocation=(), usb=(), payment=()"
+            // VENDOR-001: allow optional arrival GPS on /v/[token] (never required).
+            value: "camera=(self), microphone=(), geolocation=(self), usb=(), payment=()"
           },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Cross-Origin-Resource-Policy", value: "same-site" },
