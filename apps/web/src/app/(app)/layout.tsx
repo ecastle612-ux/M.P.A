@@ -6,6 +6,7 @@ import { ApplicationShell } from "../../components/shell/application-shell";
 import { resolveAuthenticatedShellContext } from "../../lib/auth/get-shell-context";
 import { getSetupStatus } from "../../lib/setup/server";
 import { getDeploymentMeta } from "../../lib/launch/deployment-meta";
+import { userHasMasterAdminCapability } from "../../lib/master-admin/access";
 import {
   getMasterAdminBannerModel,
   resolveEffectiveRolesForSession
@@ -22,14 +23,15 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     redirect("/login");
   }
 
-  const [shellContext, setupStatus, banner, cookieStore] = await Promise.all([
+  const [shellContext, setupStatus, banner, cookieStore, isMasterAdmin] = await Promise.all([
     resolveAuthenticatedShellContext(user),
     getSetupStatus(user.id, false, {
       email: user.email ?? null,
       appMetadata: user.app_metadata
     }),
     getMasterAdminBannerModel(user),
-    cookies()
+    cookies(),
+    userHasMasterAdminCapability(user)
   ]);
   const deploymentMeta = getDeploymentMeta();
   const initialSidebarCollapsed = cookieStore.get("mpa_sidebar_collapsed")?.value === "1";
@@ -43,16 +45,23 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       ? (effectiveRoles[0] ?? shellContext.defaultRole)
       : shellContext.defaultRole;
 
+  // Master Admin with no portfolio roles — HQ sidebar only (no Properties/Units/Tenants).
+  const masterAdminOnlyShell =
+    isMasterAdmin &&
+    shellContext.availableRoles.length === 0 &&
+    !banner?.session;
+
   return (
     <ApplicationShell
       availableRoles={effectiveRoles.length ? effectiveRoles : shellContext.availableRoles}
       defaultRole={defaultRole}
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
-      isSetupComplete={setupStatus.isComplete}
+      isSetupComplete={setupStatus.isComplete || isMasterAdmin}
       deploymentMeta={deploymentMeta}
       initialSidebarCollapsed={initialSidebarCollapsed}
       initialPermissions={shellContext.permissions}
+      masterAdminOnlyShell={masterAdminOnlyShell}
       masterAdminBanner={
         banner ? (
           <MasterAdminModeBanner

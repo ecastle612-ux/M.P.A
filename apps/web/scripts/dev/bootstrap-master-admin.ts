@@ -15,7 +15,6 @@ import {
   isDevEnvironment
 } from "@mpa/shared";
 import type { Database } from "@mpa/supabase";
-import { isOrganizationPortfolioEmpty, seedDemoPortfolio } from "./seed-demo-portfolio";
 
 type ServiceClient = ReturnType<typeof createServiceRoleClient>;
 
@@ -106,7 +105,8 @@ async function ensureAuthUser(client: ServiceClient) {
     ...(existingUser?.app_metadata ?? {}),
     [DEV_MASTER_ADMIN_APP_METADATA_FLAG]: true,
     role_label: DEV_MASTER_ADMIN_ROLE_LABEL,
-    roles: [...DEV_MASTER_ADMIN_MEMBERSHIP_ROLES]
+    // No property_manager / portal roles — Master Admin only.
+    roles: []
   };
 
   if (existingUser) {
@@ -240,36 +240,20 @@ async function ensureDevelopmentOrganization(client: ServiceClient, userId: stri
 }
 
 async function syncPermissionOverrides(client: ServiceClient, organizationId: string, userId: string) {
-  const { data: capabilities, error: capabilitiesError } = await client
-    .from("permission_capabilities")
-    .select("key")
-    .order("key");
-
-  if (capabilitiesError) {
-    throw new Error(capabilitiesError.message);
-  }
-
-  const overrides = (capabilities ?? []).map((capability) => ({
-    organization_id: organizationId,
-    role: "property_manager" as const,
-    capability_key: capability.key,
-    effect: "allow" as const,
-    created_by: userId
-  }));
-
-  if (overrides.length === 0) {
-    return 0;
-  }
-
-  const { error } = await client
+  // Master Admin access is via app_metadata (`dev_master_admin`), not PM role overrides.
+  // Clear any legacy property_manager god-mode grants on the platform org.
+  const { error, count } = await client
     .from("organization_permission_overrides")
-    .upsert(overrides, { onConflict: "organization_id,role,capability_key" });
+    .delete({ count: "exact" })
+    .eq("organization_id", organizationId)
+    .eq("role", "property_manager");
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return overrides.length;
+  void userId;
+  return count ?? 0;
 }
 
 async function main() {
@@ -288,17 +272,6 @@ async function main() {
   const organization = await ensureDevelopmentOrganization(client, user.id);
   const permissionsGranted = await syncPermissionOverrides(client, organization.id, user.id);
 
-  let seedCounts: Awaited<ReturnType<typeof seedDemoPortfolio>> | null = null;
-  let seedError: string | null = null;
-  const shouldSeed = await isOrganizationPortfolioEmpty(client, organization.id);
-  if (shouldSeed) {
-    try {
-      seedCounts = await seedDemoPortfolio(client, organization.id, user.id);
-    } catch (error) {
-      seedError = error instanceof Error ? error.message : "Unknown seed error";
-    }
-  }
-
   console.log("Development master administrator bootstrap complete.");
   console.log(
     JSON.stringify(
@@ -310,7 +283,8 @@ async function main() {
           created,
           displayName: DEV_MASTER_ADMIN_DISPLAY_NAME,
           roleLabel: DEV_MASTER_ADMIN_ROLE_LABEL,
-          setupBypassFlag: true
+          setupBypassFlag: true,
+          mode: "master_admin_only"
         },
         organization: {
           id: organization.id,
@@ -318,24 +292,13 @@ async function main() {
           slug: organization.slug,
           roles: [...DEV_MASTER_ADMIN_MEMBERSHIP_ROLES]
         },
-        permissionsGranted,
-        seedDataCreated: seedCounts,
-        seedSkipped: !shouldSeed,
-        seedError
+        propertyManagerOverridesRemoved: permissionsGranted,
+        portfolioSeeded: false
       },
       null,
       2
     )
   );
-
-  if (seedError) {
-    if (seedError.includes("gen_random_bytes")) {
-      console.error(
-        "Demo seeding requires the pgcrypto extension (Phase 3 migration). Apply pending Supabase migrations, then re-run: pnpm dev:bootstrap-admin"
-      );
-    }
-    process.exitCode = 1;
-  }
 }
 
 main().catch((error: unknown) => {

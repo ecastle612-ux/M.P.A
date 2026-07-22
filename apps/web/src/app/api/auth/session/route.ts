@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { extractRolesFromMetadata } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import { resolveAuthorizationContext } from "../../../../lib/auth/authorization";
+import { userHasMasterAdminCapability } from "../../../../lib/master-admin/access";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 
 export async function GET() {
@@ -25,6 +26,10 @@ export async function GET() {
     .eq("user_id", user.id)
     .eq("status", "active");
   const authorizationContext = await resolveAuthorizationContext(user, activeOrganizationId);
+  const permissions = [...authorizationContext.permissions];
+  if (!permissions.includes("master_admin") && (await userHasMasterAdminCapability(user))) {
+    permissions.push("master_admin");
+  }
 
   return NextResponse.json(
     {
@@ -37,7 +42,7 @@ export async function GET() {
       identity: {
         activeOrganizationId,
         memberships: memberships ?? [],
-        permissions: authorizationContext.permissions
+        permissions
       }
     },
     { headers: { "Cache-Control": "no-store" } },

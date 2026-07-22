@@ -1,4 +1,8 @@
-import { shouldBypassSetupWizard, type DevMasterAdminUserContext } from "@mpa/shared";
+import {
+  hasMasterAdminAppGrant,
+  shouldBypassSetupWizard,
+  type DevMasterAdminUserContext
+} from "@mpa/shared";
 import { createAuthServerComponentClient } from "../auth/server";
 import { resolveActiveOrganizationIdForUser, getOrganizationsForUser } from "../organization/server";
 import { getPortfolioCounts } from "../workflow/server/portfolio-counts";
@@ -101,7 +105,7 @@ export async function getSetupStatus(
   const currentStep = resolveCurrentStep(steps);
   const isComplete =
     stepCompletion.complete ||
-    (userContext ? shouldBypassSetupWizard(userContext) : false);
+    (userContext ? shouldBypassSetupWizard(userContext) || hasMasterAdminAppGrant(userContext) : false);
 
   return {
     isComplete,

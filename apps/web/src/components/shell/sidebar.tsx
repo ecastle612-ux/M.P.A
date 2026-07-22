@@ -6,7 +6,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { BrandSurfaceTone } from "../branding/brand-logo";
 import { SidebarBrandHeader } from "./sidebar-brand-header";
 import { NAV_ICON_MAP } from "../presentation/nav-icons";
-import { SHELL_NAVIGATION_GROUPS, isRouteActive } from "./navigation-config";
+import { getShellNavigationGroups, isRouteActive, shellHomeHref } from "./navigation-config";
 import { useSessionPermissions } from "./use-session-permissions";
 
 const STORAGE_KEY = "mpa.sidebar.collapsed.v2";
@@ -50,7 +50,9 @@ function getSidebarCollapsedSnapshot(initialCollapsed: boolean) {
  */
 export function Sidebar({ initialCollapsed = false }: { initialCollapsed?: boolean }) {
   const pathname = usePathname();
-  const { canAccess } = useSessionPermissions();
+  const { canAccess, permissions, masterAdminOnlyShell } = useSessionPermissions();
+  const navigationGroups = getShellNavigationGroups(permissions, { masterAdminOnlyShell });
+  const homeHref = shellHomeHref(permissions, { masterAdminOnlyShell });
   const collapsed = useSyncExternalStore(
     subscribeSidebarCollapsed,
     () => getSidebarCollapsedSnapshot(initialCollapsed),
@@ -98,7 +100,7 @@ export function Sidebar({ initialCollapsed = false }: { initialCollapsed?: boole
           suppressHydrationWarning
         >
           <Link
-            href="/dashboard"
+            href={homeHref}
             className={[
               "flex min-h-[34px] items-center rounded-[var(--mpa-radius-md)] transition-opacity hover:opacity-90",
               collapsed ? "justify-center" : "min-w-0 flex-1"
@@ -124,7 +126,7 @@ export function Sidebar({ initialCollapsed = false }: { initialCollapsed?: boole
         </div>
 
         <nav className="flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-2.5 pb-4 pt-2" aria-label="Primary">
-          {SHELL_NAVIGATION_GROUPS.map((group) => {
+          {navigationGroups.map((group) => {
             const items = group.items.filter((item) => canAccess(item.requiredCapability));
             if (items.length === 0) return null;
             return (

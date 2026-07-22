@@ -4,6 +4,7 @@ import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { getDashboardSnapshot } from "../../../lib/dashboard/server";
 import { formatHumanGreetingName, formatHumanOrganizationName, getTimeGreeting } from "../../../lib/format/display-labels";
+import { userHasMasterAdminCapability } from "../../../lib/master-admin/access";
 import { getOrganizationsForUser, resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
 import { getUserDisplayNameForGreeting } from "../../../lib/profile/server-fetch";
 
@@ -24,6 +25,9 @@ export default async function DashboardPage() {
 
   const authorization = await resolveAuthorizationContext(user, organizationId);
   if (!evaluatePermission(authorization, "dashboard:read")) {
+    if (await userHasMasterAdminCapability(user)) {
+      redirect("/master-admin");
+    }
     redirect("/unauthorized");
   }
 

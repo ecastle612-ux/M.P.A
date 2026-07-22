@@ -7,6 +7,10 @@ import { useRoleContext } from "./role-context";
 export function RoleSwitcher({ compact = false }: { compact?: boolean }) {
   const { availableRoles, activeRole, setActiveRole } = useRoleContext();
 
+  if (availableRoles.length === 0) {
+    return null;
+  }
+
   return (
     <div className={compact ? "w-full space-y-1" : "hidden min-w-0 xl:block"}>
       {!compact ? (

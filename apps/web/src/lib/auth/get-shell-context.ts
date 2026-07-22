@@ -41,12 +41,18 @@ export async function resolveAuthenticatedShellContext(user: User): Promise<Auth
   );
   const authz = await resolveAuthorizationContext(user, defaultOrganizationId);
   const permissions = [...authz.permissions];
-  if (!permissions.includes("master_admin") && (await userHasMasterAdminCapability(user))) {
+  const isMasterAdmin = await userHasMasterAdminCapability(user);
+  if (!permissions.includes("master_admin") && isMasterAdmin) {
     permissions.push("master_admin");
   }
 
   const fallbackRole = USER_ROLES[0] ?? "property_manager";
-  const availableRoles = roleContext.roles.length ? roleContext.roles : [fallbackRole];
+  // Master Admin–only accounts have no portal/PM roles — do not invent property_manager.
+  const availableRoles = roleContext.roles.length
+    ? roleContext.roles
+    : isMasterAdmin
+      ? []
+      : [fallbackRole];
   const defaultRole = roleContext.activeRole ?? availableRoles[0] ?? fallbackRole;
 
   return {

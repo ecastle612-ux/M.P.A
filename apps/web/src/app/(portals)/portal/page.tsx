@@ -33,6 +33,8 @@ export default async function PortalIndexPage() {
 
   const isMasterAdmin = await assertMasterAdminUser(user, shellContext.defaultOrganizationId);
   const banner = await getMasterAdminBannerModel(user);
+  const masterAdminOnlyShell =
+    isMasterAdmin && shellContext.availableRoles.length === 0 && !banner?.session;
 
   return (
     <ApplicationShell
@@ -41,7 +43,8 @@ export default async function PortalIndexPage() {
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       initialPermissions={shellContext.permissions}
-      isSetupComplete={setupStatus.isComplete}
+      masterAdminOnlyShell={masterAdminOnlyShell}
+      isSetupComplete={setupStatus.isComplete || isMasterAdmin}
       deploymentMeta={getDeploymentMeta()}
       masterAdminBanner={
         banner ? (

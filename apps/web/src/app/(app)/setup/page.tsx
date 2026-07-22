@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { hasMasterAdminAppGrant } from "@mpa/shared";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
+import { userHasMasterAdminCapability } from "../../../lib/master-admin/access";
 import { getSetupStatus } from "../../../lib/setup/server";
 import { SetupWizard } from "../../../components/setup/setup-wizard";
 
@@ -18,14 +20,24 @@ export default async function SetupPage({
     redirect("/login");
   }
 
+  // Master Admin never uses the property-manager onboarding wizard.
+  if (
+    hasMasterAdminAppGrant({
+      email: user.email ?? null,
+      appMetadata: user.app_metadata
+    }) ||
+    (await userHasMasterAdminCapability(user))
+  ) {
+    redirect("/master-admin");
+  }
+
   const status = await getSetupStatus(user.id, false, {
     email: user.email ?? null,
     appMetadata: user.app_metadata
   });
 
-  // Allow a one-shot celebration screen before leaving setup.
-  if (status.isComplete && celebrate !== "1") {
-    redirect("/setup?celebrate=1");
+  if (status.isComplete) {
+    redirect("/dashboard");
   }
 
   return <SetupWizard initialStatus={status} celebrate={celebrate === "1"} fromBanner={from ?? null} />;

@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
 import type { UserRole } from "@mpa/shared";
 import { createAuthServerClient, createAuthServerComponentClient } from "../auth/server";
-import { evaluatePermission, resolveAuthorizationContext } from "../auth/authorization";
+import { userHasMasterAdminCapability } from "./access";
 import {
   MASTER_ADMIN_SESSION_COOKIE,
   PORTAL_ROLE_LABELS,
@@ -70,9 +70,8 @@ export async function getActiveMasterAdminSession(
   return mapSessionRow(data as Parameters<typeof mapSessionRow>[0]);
 }
 
-export async function assertMasterAdminUser(user: User, organizationId: string): Promise<boolean> {
-  const authorization = await resolveAuthorizationContext(user, organizationId);
-  return evaluatePermission(authorization, "master_admin");
+export async function assertMasterAdminUser(user: User, _organizationId?: string | null): Promise<boolean> {
+  return userHasMasterAdminCapability(user);
 }
 
 export async function endActiveMasterAdminSessions(masterAdminUserId: string): Promise<void> {

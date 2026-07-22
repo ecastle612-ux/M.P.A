@@ -26,7 +26,8 @@ export function ApplicationShell({
   deploymentMeta,
   masterAdminBanner,
   initialSidebarCollapsed = false,
-  initialPermissions = []
+  initialPermissions = [],
+  masterAdminOnlyShell = false
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -38,6 +39,7 @@ export function ApplicationShell({
   masterAdminBanner?: ReactNode;
   initialSidebarCollapsed?: boolean;
   initialPermissions?: string[];
+  masterAdminOnlyShell?: boolean;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -46,6 +48,7 @@ export function ApplicationShell({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
       initialPermissions={initialPermissions}
+      masterAdminOnlyShell={masterAdminOnlyShell}
     >
       <SetupGate isSetupComplete={isSetupComplete} />
       <a

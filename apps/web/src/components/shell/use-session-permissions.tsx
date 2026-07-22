@@ -17,6 +17,8 @@ function writeCachedPermissions(permissions: string[]) {
 type SessionPermissionsValue = {
   permissions: string[];
   loaded: boolean;
+  /** Server-resolved: Master Admin with no PM portfolio roles — HQ chrome only. */
+  masterAdminOnlyShell: boolean;
   canAccess: (requiredCapability?: PermissionCapability) => boolean;
 };
 
@@ -27,13 +29,15 @@ const SessionPermissionsContext = createContext<SessionPermissionsValue | null>(
  */
 export function SessionPermissionsProvider({
   children,
-  initialPermissions = []
+  initialPermissions = [],
+  masterAdminOnlyShell = false
 }: {
   children: ReactNode;
   initialPermissions?: string[];
+  masterAdminOnlyShell?: boolean;
 }) {
   const [permissions, setPermissions] = useState<string[]>(initialPermissions);
-  const [loaded, setLoaded] = useState(initialPermissions.length > 0);
+  const [loaded, setLoaded] = useState(initialPermissions.length > 0 || masterAdminOnlyShell);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,14 +72,17 @@ export function SessionPermissionsProvider({
   const canAccess = useCallback(
     (requiredCapability?: PermissionCapability) => {
       if (!requiredCapability) return true;
+      if (masterAdminOnlyShell && requiredCapability === "master_admin") return true;
       if (!loaded && permissions.length === 0) return false;
       return evaluateCapability(permissions, requiredCapability);
     },
-    [loaded, permissions]
+    [loaded, masterAdminOnlyShell, permissions]
   );
 
   return (
-    <SessionPermissionsContext.Provider value={{ permissions, loaded, canAccess }}>
+    <SessionPermissionsContext.Provider
+      value={{ permissions, loaded, masterAdminOnlyShell, canAccess }}
+    >
       {children}
     </SessionPermissionsContext.Provider>
   );

@@ -1,6 +1,7 @@
 import { describe, expect, it, afterEach } from "vitest";
 import {
   DEV_MASTER_ADMIN_EMAIL,
+  hasMasterAdminAppGrant,
   isDevEnvironment,
   isDevMasterAdminEmail,
   isDevMasterAdminUser,
@@ -36,7 +37,7 @@ describe("dev master admin helpers", () => {
     expect(isDevMasterAdminEmail("other@example.com")).toBe(false);
   });
 
-  it("only treats users as master admin in dev environments", () => {
+  it("only treats email allowlist as master admin in dev environments", () => {
     process.env["NODE_ENV"] = "production";
     process.env["APP_ENV"] = "production";
 
@@ -46,6 +47,15 @@ describe("dev master admin helpers", () => {
         appMetadata: { dev_master_admin: true }
       })
     ).toBe(false);
+  });
+
+  it("honors app_metadata Master Admin grant in production for setup bypass", () => {
+    process.env["NODE_ENV"] = "production";
+    process.env["APP_ENV"] = "production";
+
+    expect(hasMasterAdminAppGrant({ appMetadata: { dev_master_admin: true } })).toBe(true);
+    expect(shouldBypassSetupWizard({ appMetadata: { dev_master_admin: true } })).toBe(true);
+    expect(shouldBypassSetupWizard({ email: DEV_MASTER_ADMIN_EMAIL, appMetadata: {} })).toBe(false);
   });
 
   it("accepts email or app metadata in development", () => {

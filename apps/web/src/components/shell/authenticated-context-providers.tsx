@@ -13,7 +13,8 @@ export function AuthenticatedContextProviders({
   defaultRole,
   organizations,
   defaultOrganizationId,
-  initialPermissions = []
+  initialPermissions = [],
+  masterAdminOnlyShell = false
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -21,6 +22,7 @@ export function AuthenticatedContextProviders({
   organizations: OrganizationSummary[];
   defaultOrganizationId: string | null;
   initialPermissions?: string[];
+  masterAdminOnlyShell?: boolean;
 }) {
   const [organizationState, setOrganizationState] = useState<OrganizationSummary[]>(organizations);
 
@@ -51,7 +53,10 @@ export function AuthenticatedContextProviders({
       }}
     >
       <RoleProvider fallbackRoles={availableRoles} defaultRole={defaultRole}>
-        <SessionPermissionsProvider initialPermissions={initialPermissions}>
+        <SessionPermissionsProvider
+          initialPermissions={initialPermissions}
+          masterAdminOnlyShell={masterAdminOnlyShell}
+        >
           {children}
         </SessionPermissionsProvider>
       </RoleProvider>

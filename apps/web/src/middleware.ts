@@ -2,6 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { clientEnv } from "./lib/env/client-env";
 
+function isMasterAdminUser(user: { app_metadata?: Record<string, unknown> } | null): boolean {
+  return user?.app_metadata?.["dev_master_admin"] === true;
+}
+
+function homePathForUser(user: { app_metadata?: Record<string, unknown> } | null): string {
+  return isMasterAdminUser(user) ? "/master-admin" : "/portal";
+}
+
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request });
 
@@ -77,29 +85,30 @@ export async function middleware(request: NextRequest) {
   const isForgotPasswordRoute = pathname.startsWith("/forgot-password");
   const isProtected =
     !isDevPortalCertificationRoute &&
-    (request.nextUrl.pathname.startsWith("/dashboard") ||
-      request.nextUrl.pathname.startsWith("/portal") ||
-      request.nextUrl.pathname.startsWith("/profile") ||
-      request.nextUrl.pathname.startsWith("/properties") ||
-      request.nextUrl.pathname.startsWith("/units") ||
-      request.nextUrl.pathname.startsWith("/tenants") ||
-      request.nextUrl.pathname.startsWith("/leases") ||
-      request.nextUrl.pathname.startsWith("/maintenance") ||
-      request.nextUrl.pathname.startsWith("/vendors") ||
-      request.nextUrl.pathname.startsWith("/communications") ||
-      request.nextUrl.pathname.startsWith("/financials") ||
-      request.nextUrl.pathname.startsWith("/ai-operations") ||
-      request.nextUrl.pathname.startsWith("/settings") ||
-      request.nextUrl.pathname.startsWith("/facility") ||
-      request.nextUrl.pathname.startsWith("/applicants") ||
-      request.nextUrl.pathname.startsWith("/residents") ||
-      request.nextUrl.pathname.startsWith("/migration") ||
-      request.nextUrl.pathname.startsWith("/setup") ||
-      request.nextUrl.pathname.startsWith("/accounting"));
+    (pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/master-admin") ||
+      pathname.startsWith("/portal") ||
+      pathname.startsWith("/profile") ||
+      pathname.startsWith("/properties") ||
+      pathname.startsWith("/units") ||
+      pathname.startsWith("/tenants") ||
+      pathname.startsWith("/leases") ||
+      pathname.startsWith("/maintenance") ||
+      pathname.startsWith("/vendors") ||
+      pathname.startsWith("/communications") ||
+      pathname.startsWith("/financials") ||
+      pathname.startsWith("/ai-operations") ||
+      pathname.startsWith("/settings") ||
+      pathname.startsWith("/facility") ||
+      pathname.startsWith("/applicants") ||
+      pathname.startsWith("/residents") ||
+      pathname.startsWith("/migration") ||
+      pathname.startsWith("/setup") ||
+      pathname.startsWith("/accounting"));
 
   if (isRootRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = user ? "/portal" : "/login";
+    url.pathname = user ? homePathForUser(user) : "/login";
     return NextResponse.redirect(url);
   }
 
@@ -111,7 +120,14 @@ export async function middleware(request: NextRequest) {
 
   if ((isLoginRoute || isForgotPasswordRoute) && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/portal";
+    url.pathname = homePathForUser(user);
+    return NextResponse.redirect(url);
+  }
+
+  // Master Admin must never be trapped in the PM setup wizard.
+  if (user && isMasterAdminUser(user) && pathname.startsWith("/setup")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/master-admin";
     return NextResponse.redirect(url);
   }
 
@@ -122,6 +138,7 @@ export const config = {
   matcher: [
     "/",
     "/dashboard/:path*",
+    "/master-admin/:path*",
     "/portal/:path*",
     "/profile/:path*",
     "/properties/:path*",

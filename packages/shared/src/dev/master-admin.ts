@@ -9,12 +9,8 @@ export const DEV_MASTER_ADMIN_ROLE_LABEL = "Master Administrator" as const;
 export const DEV_MASTER_ADMIN_ORG_NAME = "M.P.A. Development" as const;
 export const DEV_MASTER_ADMIN_ORG_SLUG = "mpa-development" as const;
 
-export const DEV_MASTER_ADMIN_MEMBERSHIP_ROLES = [
-  "property_manager",
-  "property_owner",
-  "tenant",
-  "vendor"
-] as const;
+/** Master Admin membership carries no portal/PM roles — access is via app_metadata flag. */
+export const DEV_MASTER_ADMIN_MEMBERSHIP_ROLES = [] as const;
 
 export const DEV_MASTER_ADMIN_APP_METADATA_FLAG = "dev_master_admin" as const;
 
@@ -36,6 +32,14 @@ export function isDevMasterAdminEmail(email: string | null | undefined): boolean
   return email.trim().toLowerCase() === DEV_MASTER_ADMIN_EMAIL;
 }
 
+/** True when auth app_metadata grants Master Admin (production-safe; not email-gated). */
+export function hasMasterAdminAppGrant(context: DevMasterAdminUserContext): boolean {
+  return context.appMetadata?.[DEV_MASTER_ADMIN_APP_METADATA_FLAG] === true;
+}
+
+/**
+ * Dev-only helper (email allowlist or metadata). Prefer `hasMasterAdminAppGrant` for access control.
+ */
 export function isDevMasterAdminUser(context: DevMasterAdminUserContext): boolean {
   if (!isDevEnvironment()) {
     return false;
@@ -43,9 +47,10 @@ export function isDevMasterAdminUser(context: DevMasterAdminUserContext): boolea
   if (isDevMasterAdminEmail(context.email)) {
     return true;
   }
-  return context.appMetadata?.[DEV_MASTER_ADMIN_APP_METADATA_FLAG] === true;
+  return hasMasterAdminAppGrant(context);
 }
 
 export function shouldBypassSetupWizard(context: DevMasterAdminUserContext): boolean {
-  return isDevMasterAdminUser(context);
+  // Master Admin operators skip the PM onboarding wizard in every environment.
+  return hasMasterAdminAppGrant(context) || isDevMasterAdminUser(context);
 }

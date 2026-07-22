@@ -10,8 +10,7 @@ export default async function MasterAdminLayout({ children }: { children: ReactN
     <AppPage
       wide
       breadcrumbs={[
-        { href: "/dashboard", label: "Operations" },
-        { href: "/master-admin", label: "Master Admin" }
+        { href: "/master-admin", label: "Operations Center" }
       ]}
     >
       <MasterAdminSubnav />

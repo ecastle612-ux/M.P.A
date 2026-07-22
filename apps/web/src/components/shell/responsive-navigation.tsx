@@ -24,6 +24,7 @@ import {
   MOBILE_QUICK_CREATE_ACTIONS,
   findMobileSectionForPath,
   flattenShellNavigationItems,
+  isMasterAdminOnlyPermissions,
   isRouteActive,
   matchesNavSearch,
   navItemFavoriteKey,
@@ -148,17 +149,26 @@ export function ResponsiveNavigation() {
   const createMenuId = useId();
   const pathname = usePathname();
   const router = useRouter();
-  const { canAccess, permissions, loaded: permissionsLoaded } = useSessionPermissions();
+  const {
+    canAccess,
+    permissions,
+    loaded: permissionsLoaded,
+    masterAdminOnlyShell
+  } = useSessionPermissions();
   const { organizations } = useOrganizationContext();
   // Prefetch signals while closed so first open paint already has health/badges.
   const { badges, health } = useMobileNavSignals(true);
   const favorites = useSyncExternalStore(subscribeNavHistory, getFavoritesSnapshot, getEmptyHistorySnapshot);
   const recents = useSyncExternalStore(subscribeNavHistory, getRecentsSnapshot, getEmptyHistorySnapshot);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const navOptions = useMemo(() => ({ masterAdminOnlyShell }), [masterAdminOnlyShell]);
 
   const accessibleItems = useMemo(
-    () => flattenShellNavigationItems().filter((item) => canAccess(item.requiredCapability)),
-    [canAccess]
+    () =>
+      flattenShellNavigationItems(permissions, navOptions).filter((item) =>
+        canAccess(item.requiredCapability)
+      ),
+    [canAccess, permissions, navOptions]
   );
 
   const pinnedItems = useMemo(
@@ -182,7 +192,10 @@ export function ResponsiveNavigation() {
     })).filter((section) => section.items.length > 0);
   }, [accessibleItems, pinnedHrefs]);
 
-  const createActions = MOBILE_QUICK_CREATE_ACTIONS;
+  const createActions =
+    masterAdminOnlyShell || isMasterAdminOnlyPermissions(permissions)
+      ? []
+      : MOBILE_QUICK_CREATE_ACTIONS;
 
   const firstSectionId = sections[0]?.id ?? null;
 
@@ -196,11 +209,11 @@ export function ResponsiveNavigation() {
     // SH-003: never reshuffle expanded sections while the user is searching —
     // DOM churn under the field causes iOS Safari to blur the input.
     if (searchQuery.trim().length > 0) return;
-    const routeSection = findMobileSectionForPath(pathname);
+    const routeSection = findMobileSectionForPath(pathname, permissions, navOptions);
     const stored = readExpandedSection();
     const next = routeSection ?? stored ?? firstSectionId;
     setExpandedSection((current) => (current === next ? current : next));
-  }, [open, pathname, firstSectionId, searchQuery]);
+  }, [open, pathname, firstSectionId, searchQuery, permissions, navOptions]);
 
   useEffect(() => {
     if (!open || !permissionsLoaded) return;
@@ -255,12 +268,12 @@ export function ResponsiveNavigation() {
   }, []);
 
   const openDrawer = useCallback(() => {
-    const routeSection = findMobileSectionForPath(pathname);
+    const routeSection = findMobileSectionForPath(pathname, permissions, navOptions);
     const stored = readExpandedSection();
     setExpandedSection(routeSection ?? stored ?? firstSectionId);
     shellTrace("drawer-open");
     setOpen(true);
-  }, [pathname, firstSectionId]);
+  }, [pathname, firstSectionId, permissions, navOptions]);
 
   const onSearchChange = useCallback((value: string) => {
     setSearchQuery(value);

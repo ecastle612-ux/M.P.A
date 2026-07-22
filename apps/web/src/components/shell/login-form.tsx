@@ -51,7 +51,10 @@ export function LoginForm() {
       return;
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
     setLoading(false);
 
@@ -60,7 +63,8 @@ export function LoginForm() {
       return;
     }
 
-    router.replace("/dashboard");
+    const isMasterAdmin = signInData.user?.app_metadata?.["dev_master_admin"] === true;
+    router.replace(isMasterAdmin ? "/master-admin" : "/dashboard");
   }
 
   return (

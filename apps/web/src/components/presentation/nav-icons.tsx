@@ -177,5 +177,8 @@ export const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/master-admin/providers": NavIconSettings,
   "/master-admin/testing": NavIconUnits,
   "/master-admin/health": NavIconMaintenance,
-  "/master-admin/flags": NavIconAi
+  "/master-admin/flags": NavIconAi,
+  "/master-admin/impersonation": NavIconProfile,
+  "/settings/notifications": NavIconCommunications,
+  "/settings/team": NavIconApplicants
 };

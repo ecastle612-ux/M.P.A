@@ -46,7 +46,7 @@ export const MOBILE_NAV_SECTION_ORDER: Array<{ id: MobileNavSectionId; title: st
   { id: "communications", title: "Communications" },
   { id: "intelligence", title: "Intelligence" },
   { id: "workspace", title: "Workspace" },
-  { id: "master-admin", title: "Master Admin" }
+  { id: "master-admin", title: "Operations Center" }
 ];
 
 export const MOBILE_NAV_EXPANDED_SECTION_KEY = "mpa.mobileNav.expandedSection";
@@ -201,29 +201,11 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
     items: [
       {
         href: "/master-admin",
-        label: "Master Admin",
+        label: "Operations Center",
         requiredCapability: "master_admin",
         exact: true,
         mobileSection: "master-admin",
-        synonyms: ["master admin", "admin"]
-      },
-      {
-        href: "/master-admin/dashboards",
-        label: "Dashboard Switcher",
-        requiredCapability: "master_admin",
-        mobileSection: "master-admin"
-      },
-      {
-        href: "/master-admin/providers",
-        label: "Provider Status",
-        requiredCapability: "master_admin",
-        mobileSection: "master-admin"
-      },
-      {
-        href: "/master-admin/testing",
-        label: "Testing Utilities",
-        requiredCapability: "master_admin",
-        mobileSection: "master-admin"
+        synonyms: ["master admin", "admin", "mission control", "hq"]
       },
       {
         href: "/master-admin/impersonation",
@@ -233,14 +215,131 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         synonyms: ["impersonate", "act as", "support mode"]
       },
       {
+        href: "/master-admin/providers",
+        label: "Integrations",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      },
+      {
+        href: "/master-admin/testing",
+        label: "Demo & Testing",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      },
+      {
         href: "/master-admin/health",
-        label: "System Health",
+        label: "Platform Health",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       },
       {
         href: "/master-admin/flags",
         label: "Feature Flags",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      },
+      {
+        href: "/master-admin/dashboards",
+        label: "Surface Switcher",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      }
+    ]
+  }
+];
+
+/**
+ * Sidebar for Master Admin–only operators (no PM portfolio capabilities).
+ * Mirrors Mission Control workspaces — no property-manager tabs.
+ */
+export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
+  {
+    title: "Mission Control",
+    items: [
+      {
+        href: "/master-admin",
+        label: "Mission Control",
+        requiredCapability: "master_admin",
+        exact: true,
+        pinned: true,
+        mobileSection: "master-admin",
+        synonyms: ["master admin", "admin", "operations center", "hq", "home"]
+      }
+    ]
+  },
+  {
+    title: "Platform",
+    items: [
+      {
+        href: "/master-admin/health",
+        label: "Platform Health",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      },
+      {
+        href: "/master-admin/providers",
+        label: "Integrations",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      },
+      {
+        href: "/master-admin/flags",
+        label: "Feature Flags",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      },
+      {
+        href: "/settings/notifications",
+        label: "Notifications",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      }
+    ]
+  },
+  {
+    title: "Customers",
+    items: [
+      {
+        href: "/master-admin/impersonation",
+        label: "Organizations & People",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["impersonate", "customers", "directory"]
+      },
+      {
+        href: "/migration",
+        label: "Import / Migration",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["import", "onboarding"]
+      },
+      {
+        href: "/settings/team",
+        label: "Invite Team",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      }
+    ]
+  },
+  {
+    title: "Support",
+    items: [
+      {
+        href: "/portal",
+        label: "Portal Testing",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["portals", "emergency"]
+      },
+      {
+        href: "/master-admin/testing",
+        label: "Demo & Seed",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      },
+      {
+        href: "/master-admin/dashboards",
+        label: "Surface Switcher",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       }
@@ -255,8 +354,42 @@ export const MOBILE_QUICK_CREATE_ACTIONS = [
   { label: "Announcement", href: "/communications/new", synonyms: ["new announcement", "announce"] }
 ] as const;
 
-export function flattenShellNavigationItems(): NavigationItem[] {
-  return SHELL_NAVIGATION_GROUPS.flatMap((group) => group.items);
+/** Master Admin without PM portfolio permissions — hide property-manager chrome. */
+export function isMasterAdminOnlyPermissions(permissions: readonly string[]): boolean {
+  if (!permissions.includes("master_admin")) return false;
+  const pmSignals = ["property:read", "dashboard:read", "unit:read", "tenant:read", "lease:read"] as const;
+  return !pmSignals.some((capability) => permissions.includes(capability));
+}
+
+export function getShellNavigationGroups(
+  permissions: readonly string[],
+  options?: { masterAdminOnlyShell?: boolean }
+): NavigationGroup[] {
+  if (options?.masterAdminOnlyShell || isMasterAdminOnlyPermissions(permissions)) {
+    return MASTER_ADMIN_ONLY_NAVIGATION_GROUPS;
+  }
+  // Avoid flashing Properties/Units/Tenants before session permissions resolve.
+  if (permissions.length === 0) {
+    return [];
+  }
+  return SHELL_NAVIGATION_GROUPS;
+}
+
+export function flattenShellNavigationItems(
+  permissions: readonly string[] = [],
+  options?: { masterAdminOnlyShell?: boolean }
+): NavigationItem[] {
+  return getShellNavigationGroups(permissions, options).flatMap((group) => group.items);
+}
+
+export function shellHomeHref(
+  permissions: readonly string[],
+  options?: { masterAdminOnlyShell?: boolean }
+): string {
+  if (options?.masterAdminOnlyShell || isMasterAdminOnlyPermissions(permissions)) {
+    return "/master-admin";
+  }
+  return "/dashboard";
 }
 
 export function isRouteActive(pathname: string, href: string, exact = false): boolean {
@@ -277,8 +410,12 @@ export function matchesNavSearch(item: NavigationItem, query: string): boolean {
   return haystack.includes(normalized) || normalized.split(/\s+/).every((token) => haystack.includes(token));
 }
 
-export function findMobileSectionForPath(pathname: string): MobileNavSectionId | null {
-  const items = flattenShellNavigationItems();
+export function findMobileSectionForPath(
+  pathname: string,
+  permissions: readonly string[] = [],
+  options?: { masterAdminOnlyShell?: boolean }
+): MobileNavSectionId | null {
+  const items = flattenShellNavigationItems(permissions, options);
   const match = items.find((item) => item.mobileSection && isRouteActive(pathname, item.href, item.exact));
   return match?.mobileSection ?? null;
 }

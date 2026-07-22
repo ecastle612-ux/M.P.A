@@ -1,5 +1,6 @@
 import { evaluateCapability, type PermissionCapability, type UserRole } from "@mpa/shared";
 import type { User } from "@supabase/supabase-js";
+import { userHasMasterAdminCapability } from "../master-admin/access";
 import { createAuthServerClient } from "./server";
 import { buildAuthorizationContext } from "./session";
 
@@ -85,6 +86,12 @@ export async function resolveAuthorizationContext(
   });
   const permissions = await resolvePermissionsForRoles(organizationId, roles);
 
+  // Master Admin is platform-scoped (app_metadata / override), not a PM role grant.
+  // Include the capability so HQ workspaces (e.g. Migration) authorize correctly.
+  if (!permissions.includes("master_admin") && (await userHasMasterAdminCapability(user))) {
+    permissions.push("master_admin");
+  }
+
   return {
     ...baseContext,
     permissions
@@ -95,6 +102,10 @@ export function evaluatePermission(
   context: ResolvedAuthorizationContext,
   capability: PermissionCapability
 ): boolean {
+  // Platform Master Admin may operate HQ active-org tools (Migration, setup, invites).
+  if (context.permissions.includes("master_admin")) {
+    return true;
+  }
   return evaluateCapability(context.permissions, capability);
 }
 
