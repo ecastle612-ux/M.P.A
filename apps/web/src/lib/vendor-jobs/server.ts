@@ -285,10 +285,12 @@ export async function getVendorJobCard(rawToken: string): Promise<VendorJobCard>
     }
   }
 
+  // Session is WO-scoped so a regenerated token still reflects in-progress work.
   const { data: session } = await admin
     .from("vendor_job_sessions")
     .select("*")
-    .eq("token_id", token["id"])
+    .eq("work_order_id", wo.id)
+    .eq("organization_id", wo.organization_id)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -371,12 +373,13 @@ export async function startVendorJob(
   const { data: existingSession } = await admin
     .from("vendor_job_sessions")
     .select("*")
-    .eq("token_id", token["id"])
+    .eq("work_order_id", wo.id)
+    .eq("organization_id", wo.organization_id)
     .not("started_at", "is", null)
     .is("completed_at", null)
     .maybeSingle();
 
-  if (existingSession) {
+  if (existingSession || String(wo.status) === "vendor_on_site") {
     return getVendorJobCard(rawToken);
   }
 
@@ -472,17 +475,22 @@ export async function finishVendorJob(
   const { data: session } = await admin
     .from("vendor_job_sessions")
     .select("*")
-    .eq("token_id", token["id"])
+    .eq("work_order_id", wo.id)
+    .eq("organization_id", wo.organization_id)
     .not("started_at", "is", null)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (!session?.started_at) {
+  if (!session?.started_at && String(wo.status) !== "vendor_on_site") {
     throw Object.assign(new Error("Start the job before finishing"), { status: 409 });
   }
-  if (session.completed_at) {
+  if (session?.completed_at || String(wo.status) === "awaiting_approval") {
     return getVendorJobCard(rawToken);
+  }
+
+  if (!session?.started_at) {
+    throw Object.assign(new Error("Start the job before finishing"), { status: 409 });
   }
 
   const now = new Date().toISOString();
