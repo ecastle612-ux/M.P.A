@@ -3,7 +3,7 @@
 **Package:** BILL-001  
 **Phase:** B — Company Billing Center  
 **Recorded:** 2026-07-22  
-**Verdict:** Pending production operator walk after deploy  
+**Verdict:** **SHIPPED** — production route live; operator walk recommended for Portal/Checkout click-through  
 
 ---
 
@@ -58,5 +58,10 @@
 
 | Item | Value |
 |------|-------|
-| Commit | _(filled on ship)_ |
-| Deployment | _(filled on ship)_ |
+| Feature commit | `9399bfc39e7b16e59ab4815afb8491f38eb8757d` |
+| Deploy fix commit | `0c01d71ccc83e4db2c86c9c1f38dca0772a97cfe` |
+| Production deployment | `dpl_HqmQzH5V99Yigxno9A8X3ehobLGZ` |
+| Prod smoke | `GET /settings/billing` → 307 `/login` (auth gate; not 404) |
+| Aliases | `https://m-p-a-web.vercel.app` · `https://www.my-property-assistant.com` |
+
+Composition evidence (desktop / tablet / phone): `evidence/phase-b-billing-*.png`
