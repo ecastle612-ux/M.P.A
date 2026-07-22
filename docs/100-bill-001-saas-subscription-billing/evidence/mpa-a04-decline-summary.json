@@ -1,0 +1,71 @@
+[
+  {
+    "scenario": "decline",
+    "card": "4000000000000002",
+    "sessionId": "cs_test_a1ew7CDPEV01I823VclTBR92hWbWVBrt33F5fyzV9SNNPbhv8QPZDRUSaW",
+    "customerId": "cus_UvwcMrAyBVzBCG",
+    "playwright_ok": true,
+    "payment_status": "unpaid",
+    "status": "open",
+    "subscription": null,
+    "steps": [
+      "loaded",
+      "selected_card",
+      "unchecked_save",
+      "card=ok:input[autocomplete=\"cc-number\"]",
+      "exp=ok:input[autocomplete=\"cc-exp\"]",
+      "cvc=ok:input[autocomplete=\"cc-csc\"]",
+      "name=ok:input[autocomplete=\"cc-name\"]",
+      "zip=ok:input[placeholder=\"ZIP\"]",
+      "clicked_subscribe"
+    ],
+    "error": null,
+    "node_exit": 0
+  },
+  {
+    "scenario": "expired",
+    "card": "4000000000000069",
+    "sessionId": "cs_test_a1kxNWZTDcQfZFJvo0tbaU09cr0ZtIu2ZSsrTcwqKpTMQwWvLjmaU2ufjv",
+    "customerId": "cus_UvwfNivmNQJYIK",
+    "playwright_ok": true,
+    "payment_status": "unpaid",
+    "status": "open",
+    "subscription": null,
+    "steps": [
+      "loaded",
+      "selected_card",
+      "unchecked_save",
+      "card=ok:input[autocomplete=\"cc-number\"]",
+      "exp=ok:input[autocomplete=\"cc-exp\"]",
+      "cvc=ok:input[autocomplete=\"cc-csc\"]",
+      "name=ok:input[autocomplete=\"cc-name\"]",
+      "zip=ok:input[placeholder=\"ZIP\"]",
+      "clicked_subscribe"
+    ],
+    "error": null,
+    "node_exit": 0
+  },
+  {
+    "scenario": "insufficient",
+    "card": "4000000000009995",
+    "sessionId": "cs_test_a1Esx0bLFoESHBcRmHjJtCicXySnvPspFKxp1GJyMhW9Pp4m4dOvFen88x",
+    "customerId": "cus_Uvwh1Kt3mnoK8j",
+    "playwright_ok": true,
+    "payment_status": "unpaid",
+    "status": "open",
+    "subscription": null,
+    "steps": [
+      "loaded",
+      "selected_card",
+      "unchecked_save",
+      "card=ok:input[autocomplete=\"cc-number\"]",
+      "exp=ok:input[autocomplete=\"cc-exp\"]",
+      "cvc=ok:input[autocomplete=\"cc-csc\"]",
+      "name=ok:input[autocomplete=\"cc-name\"]",
+      "zip=ok:input[placeholder=\"ZIP\"]",
+      "clicked_subscribe"
+    ],
+    "error": null,
+    "node_exit": 0
+  }
+]

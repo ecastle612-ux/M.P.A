@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "sessionId": "cs_test_a1bB8Spkv27SjfSnR4E3FyLo4EnBSovISSITa8WLN0ldRDIhFsI9PS4hyx",
+  "paymentStatus": "paid",
+  "sessionStatus": "complete",
+  "subscriptionId": "sub_1Tw4haCtsRR7lN4Zg4aNIsVX",
+  "invoiceId": "in_1Tw4hXCtsRR7lN4ZNZVLh0oC",
+  "steps": [
+    "loaded",
+    "selected_card",
+    "unchecked_save",
+    "card=ok:input[autocomplete=\"cc-number\"]",
+    "exp=ok:input[autocomplete=\"cc-exp\"]",
+    "cvc=ok:input[autocomplete=\"cc-csc\"]",
+    "name=ok:input[autocomplete=\"cc-name\"]",
+    "zip=ok:input[placeholder=\"ZIP\"]",
+    "clicked_subscribe"
+  ],
+  "livemode": false,
+  "card": "4242 success",
+  "organizationId": "81132fa3-4a00-40fc-8be7-85a6eeb67506",
+  "customerId": "cus_UvvdCsvJnBqnio",
+  "priceId": "price_1Tw3i4CtsRR7lN4ZJwQgmvCr",
+  "stripeAccount": "acct_1Tw3R8CtsRR7lN4Z"
+}

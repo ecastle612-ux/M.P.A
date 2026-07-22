@@ -1,0 +1,24 @@
+{
+  "scenario": "insufficient",
+  "card": "4000000000009995",
+  "sessionId": "cs_test_a1Esx0bLFoESHBcRmHjJtCicXySnvPspFKxp1GJyMhW9Pp4m4dOvFen88x",
+  "customerId": "cus_Uvwh1Kt3mnoK8j",
+  "playwright_ok": true,
+  "payment_status": "unpaid",
+  "status": "open",
+  "subscription": null,
+  "steps": [
+    "loaded",
+    "selected_card",
+    "unchecked_save",
+    "card=ok:input[autocomplete=\"cc-number\"]",
+    "exp=ok:input[autocomplete=\"cc-exp\"]",
+    "cvc=ok:input[autocomplete=\"cc-csc\"]",
+    "name=ok:input[autocomplete=\"cc-name\"]",
+    "zip=ok:input[placeholder=\"ZIP\"]",
+    "clicked_subscribe"
+  ],
+  "error": null,
+  "node_exit": 0,
+  "bodySnippet": "Back\nUnclaimed sandbox\nSubscribe to M.P.A. Founder\n$49.00\nper\nmonth\nM.P.A. Founder (test sandbox)\n\nOR\n\nContact information\nEmail\nbill001-a04-insufficient@my-property-assistant.com\nPayment method\nCard\nCard information\nYour credit card was declined because of insufficient funds. Try paying with a debit card instead.\nCardholder name\nCountry or region\nAfghanistan\n\u00c5land Islands\nAlbania\nAlgeria\nAndorra\nAngola\nAnguilla\nAntarctica\nAntigua & Barbuda\nArgentina\nArmenia\nAruba\nAscension Island\nAustralia\nAustria\nAzerbaijan\nBahamas\nBahrain\nBangladesh\nBarbados\nBelarus\nBelgium\nBelize\nBenin\nBermuda\nBhutan\nBolivia\nBosnia & Herzegovina\nBotswana\nBouvet Island\nBrazil\nBritish Indian Ocean Territory\nBritish Virgin Islands\nBrunei\nBulgaria\nBurkina Faso\nBurundi\nCambodia\nCameroon\nCanada\nCape Verde\nCaribbean Netherlands\nCayman Islands\nCentral African Republic\nChad\nChile\nChina\nColombia\nComoros\nCongo - Brazzaville\nCon"
+}

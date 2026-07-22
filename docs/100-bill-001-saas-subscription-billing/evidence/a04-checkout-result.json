@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "steps": [
+    "loaded",
+    "selected_card",
+    "unchecked_save",
+    "card=ok:input[autocomplete=\"cc-number\"]",
+    "exp=ok:input[autocomplete=\"cc-exp\"]",
+    "cvc=ok:input[autocomplete=\"cc-csc\"]",
+    "name=ok:input[autocomplete=\"cc-name\"]",
+    "zip=ok:input[placeholder=\"ZIP\"]",
+    "clicked_subscribe"
+  ],
+  "finalUrl": "https://checkout.stripe.com/c/pay/cs_test_a1bB8Spkv27SjfSnR4E3FyLo4EnBSovISSITa8WLN0ldRDIhFsI9PS4hyx#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicGRmZGhqaWBTZHdsZGtxJz8nZmprcXdqaScpJ2R1bE5gfCc%2FJ3VuWnFgdnFaMDRRcjZXPUZxdldXMmlLMV9udUxLUVRmcUpUXTxUSDxoMU9JNGpxYDFMdnRLYT1LTXxdSUFEbVNRVmhMXF9EQnRSX11Wc2xraEJfYkBBPFRKNVZycHZWb2g1NWhgX1BGYTcwJyknY3dqaFZgd3Ngdyc%2FcXdwYCknZ2RmbmJ3anBrYUZqaWp3Jz8nJmNjY2NjYycpJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl",
+  "error": null,
+  "sessionId": "cs_test_a1bB8Spkv27SjfSnR4E3FyLo4EnBSovISSITa8WLN0ldRDIhFsI9PS4hyx",
+  "paymentStatus": "paid",
+  "sessionStatus": "complete",
+  "subscriptionId": "sub_1Tw4haCtsRR7lN4Zg4aNIsVX",
+  "invoiceId": "in_1Tw4hXCtsRR7lN4ZNZVLh0oC",
+  "frames": [
+    "https://checkout.stripe.com/c/pay/cs_test_a1bB8Spkv27SjfSnR4E3FyLo4EnBSovISSITa8WLN0ldRDIhFsI9PS4hyx#fidnandhYHdWcXxpYCc",
+    "https://js.stripe.com/v3/link-login-inner-3bdbe4c78ea0b4a236995139bb4ce8bc.html#debugMode=false&publishableApiKey=pk_tes",
+    "https://js.stripe.com/v3/checkout-inner-origin-frame-2f646cda7aa6eb9c86f90f9dbeb63341.html#debugMode=false&prefetchOrigi",
+    "https://js.stripe.com/v3/m-outer-3437aaddcdf6922d623e172c2d6f9278.html#url=https%3A%2F%2Fcheckout.stripe.com%2Fc%2Fpay%2",
+    "https://m.stripe.network/inner-preview.html#url=https%3A%2F%2Fcheckout.stripe.com%2Fc%2Fpay%2Fcs_test_a1bB8Spkv27SjfSnR4",
+    "https://js.stripe.com/v3/controller-2c3d5a54e866f7cab2ab39e4ac0fce49.html#__shared_params__[version]=v3&__shared_params_",
+    "https://js.stripe.com/v3/elements-inner-express-checkout-25d90124bd8d63c227856749310f64d0.html#__shared_params__[version",
+    "https://js.stripe.com/v3/hcaptcha-invisible-11297970263e51b92933b5c9757ecc37.html#debugMode=false&parentOrigin=https%3A%",
+    "https://b.stripecdn.com/stripethirdparty-srv/assets/v32.18/HCaptchaInvisible.html?id=26611873-1f39-454f-bdcf-cbfbfc8c9f2"
+  ],
+  "bodySnippet": "Back\nUnclaimed sandbox\nSubscribe to M.P.A. Professional\n$99.00\nper\nmonth\nM.P.A. Professional (test sandbox)\n\nOR\n\nContact information\nEmail\nbill001-a04-pass@my-property-assistant.com\nPayment method\nCard\nCard information\nCardholder name\nCountry or region\nAfghanistan\nÅland Islands\nAlbania\nAlgeria\nAndorra\nAngola\nAnguilla\nAntarctica\nAntigua & Barbuda\nArgentina\nArmenia\nAruba\nAscension Island\nAustralia\nAustria\nAzerbaijan\nBahamas\nBahrain\nBangladesh\nBarbados\nBelarus\nBelgium\nBelize\nBenin\nBermuda\nBhutan\nBolivia\nBosnia & Herzegovina\nBotswana\nBouvet Island\nBrazil\nBritish Indian Ocean Territory\nBritish Virgin Islands\nBrunei\nBulgaria\nBurkina Faso\nBurundi\nCambodia\nCameroon\nCanada\nCape Verde\nCaribbean Netherlands\nCayman Islands\nCentral African Republic\nChad\nChile\nChina\nColombia\nComoros\nCongo - Brazzaville\nCongo - Kinshasa\nCook Islands\nCosta Rica\nCôte d’Ivoire\nCroatia\nCuraçao\nCyprus\nCzechia\nDenmark\nDjibou"
+}

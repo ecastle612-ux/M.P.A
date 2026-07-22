@@ -58,6 +58,8 @@ What other options were evaluated and why were they rejected?
 | [ADR-020](./adr-020-premium-mobile-navigation-architecture.md) | Premium Mobile Navigation Architecture | Accepted | 2026-07-20 |
 | [ADR-021](./adr-021-permanent-brandlogo-rendering-architecture.md) | Permanent BrandLogo Rendering Architecture | Accepted | 2026-07-20 |
 | [ADR-022](./adr-022-perception-based-brand-certification.md) | Perception-Based Brand Certification | Accepted | 2026-07-20 |
+| [ADR-023](./adr-023-stripe-connect-express-owner-payouts.md) | Stripe Connect Express for Owner Payouts | Accepted | 2026-07-22 |
+| [ADR-024](./adr-024-saas-stripe-billing-separation.md) | SaaS Stripe Billing Separated from Property Money Rails | Accepted | 2026-07-22 |
 
 ---
 
