@@ -53,3 +53,7 @@ Provider: existing OneSignal integration (API-001). No new provider.
 
 - Push launch URLs are resolved to **absolute** `NEXT_PUBLIC_APP_URL` origins in `onesignal-provider` before send (mobile cold-launch deep links).
 - Chain wiring (permission → device register → `notify` → OneSignal) remains as shipped; **real-device evidence still required** for G4 PASS.
+
+## Supersession (2026-07-22)
+
+Commercial push certification is owned by **[PUSH-001](../99-push-001-pwa-push-commercial-certification/README.md)**. DPX-003 G4 remains open until PUSH-001 = PASS (or this checklist is explicitly closed with the same evidence package).

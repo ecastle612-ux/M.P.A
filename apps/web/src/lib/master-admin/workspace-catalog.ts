@@ -42,6 +42,11 @@ export const MASTER_ADMIN_WORKSPACES: WorkspaceDefinition[] = [
         description: "Provider connection and delivery posture"
       },
       {
+        href: "/master-admin/notifications",
+        label: "Push Diagnostics",
+        description: "Device registrations, health, and test sends"
+      },
+      {
         href: "/settings/notifications",
         label: "Notifications",
         description: "Notification and push settings"
@@ -208,6 +213,7 @@ export const QUICK_ACTIONS = [
   { href: "/master-admin/testing", label: "Launch Demo" },
   { href: "/communications/new", label: "Send Announcement" },
   { href: "/master-admin/providers", label: "View Integrations" },
+  { href: "/master-admin/notifications", label: "Push Diagnostics" },
   { href: "/master-admin/health", label: "Platform Health" }
 ] as const;
 

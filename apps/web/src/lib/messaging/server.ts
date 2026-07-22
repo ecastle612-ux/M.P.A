@@ -538,33 +538,63 @@ export async function createMessageInThread(
     ((participants ?? []) as Array<{ user_id: string }>).map((p) => p.user_id)
   );
 
+  let residentUserId: string | null = null;
   // Always fan out to the linked resident portal user for resident-facing messages,
   // even when participant insert was blocked (e.g. same user already present as PM).
   if (visibility !== "internal") {
-    const residentUserId = await resolveResidentPortalUserForThread(organizationId, thread, userId, db);
+    residentUserId = await resolveResidentPortalUserForThread(organizationId, thread, userId, db);
     if (residentUserId && residentUserId !== userId) {
       recipientUserIds.add(residentUserId);
     }
   }
 
   if (recipientUserIds.size > 0) {
-    await notify(
-      {
-        organizationId,
-        actorUserId: userId,
-        eventKey: `message.sent:${(messageRow as { id: string }).id}`,
-        recipientUserIds: [...recipientUserIds],
-        category: "messages",
-        priority: "normal",
-        title: "New message",
-        body: `${thread.subject}: ${input.body.slice(0, 120)}`,
-        href: `/communications/threads/${threadId}`,
-        sourceEntityType: "conversation_thread",
-        sourceEntityId: threadId,
-        propertyId: thread.property_id ?? null
-      },
-      db
-    ).catch(() => undefined);
+    const messageId = (messageRow as { id: string }).id;
+    const staffRecipients = [...recipientUserIds].filter((id) => id !== residentUserId);
+    const residentRecipients =
+      residentUserId && recipientUserIds.has(residentUserId) ? [residentUserId] : [];
+
+    // PUSH-001: role-correct deep links — tenant portal vs staff communications.
+    await Promise.all([
+      staffRecipients.length > 0
+        ? notify(
+            {
+              organizationId,
+              actorUserId: userId,
+              eventKey: `message.sent:${messageId}:staff`,
+              recipientUserIds: staffRecipients,
+              category: "messages",
+              priority: "normal",
+              title: "New message",
+              body: `${thread.subject}: ${input.body.slice(0, 120)}`,
+              href: `/communications/threads/${threadId}`,
+              sourceEntityType: "conversation_thread",
+              sourceEntityId: threadId,
+              propertyId: thread.property_id ?? null
+            },
+            db
+          ).catch(() => undefined)
+        : Promise.resolve(),
+      residentRecipients.length > 0
+        ? notify(
+            {
+              organizationId,
+              actorUserId: userId,
+              eventKey: `message.sent:${messageId}:resident`,
+              recipientUserIds: residentRecipients,
+              category: "messages",
+              priority: "normal",
+              title: "New message",
+              body: `${thread.subject}: ${input.body.slice(0, 120)}`,
+              href: `/portal/tenant/messages?thread=${encodeURIComponent(threadId)}`,
+              sourceEntityType: "conversation_thread",
+              sourceEntityId: threadId,
+              propertyId: thread.property_id ?? null
+            },
+            db
+          ).catch(() => undefined)
+        : Promise.resolve()
+    ]);
   }
 
   return toMessageRecord(messageRow as MessageRow);

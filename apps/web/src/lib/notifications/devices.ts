@@ -221,3 +221,32 @@ export async function deactivatePushDevice(input: {
     .eq("user_id", input.userId)
     .eq("external_subscription_id", input.externalSubscriptionId);
 }
+
+/** PUSH-001: deactivate stale subscriptions that OneSignal can no longer deliver to. */
+export async function deactivatePushSubscriptions(input: {
+  organizationId: string;
+  userId: string;
+  externalSubscriptionIds: string[];
+  /** Retained for diagnostics/logging call sites. */
+  reason: string;
+  client?: NotificationDbClient | SupabaseClientType;
+}): Promise<number> {
+  void input.reason;
+  const ids = [...new Set(input.externalSubscriptionIds.filter(Boolean))];
+  if (ids.length === 0) return 0;
+  const db = await resolveClient(input.client);
+  const now = new Date().toISOString();
+  const { data, error } = await db
+    .from("resident_devices")
+    .update({
+      is_active: false,
+      updated_at: now,
+      updated_by: input.userId
+    })
+    .eq("organization_id", input.organizationId)
+    .eq("user_id", input.userId)
+    .in("external_subscription_id", ids)
+    .select("id");
+  if (error) throw new Error(error.message);
+  return (data ?? []).length;
+}

@@ -1,18 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge, Button, Card, Textarea } from "@mpa/ui";
 import type { ThreadListItem } from "../../lib/messaging/server";
 
-export function TenantMessagesInbox({ initialItems }: { initialItems: ThreadListItem[] }) {
+export function TenantMessagesInbox({
+  initialItems,
+  initialThreadId = null
+}: {
+  initialItems: ThreadListItem[];
+  initialThreadId?: string | null;
+}) {
+  const preferredId =
+    initialThreadId && initialItems.some((item) => item.id === initialThreadId)
+      ? initialThreadId
+      : (initialItems[0]?.id ?? null);
   const [items] = useState(initialItems);
-  const [selectedId, setSelectedId] = useState(items[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState(preferredId);
   const [body, setBody] = useState("");
   const [messages, setMessages] = useState<Array<{ id: string; body: string; createdAt: string; senderId: string }>>([]);
   const [submitting, setSubmitting] = useState(false);
 
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
+
+  useEffect(() => {
+    if (!preferredId) return;
+    void (async () => {
+      setSelectedId(preferredId);
+      const response = await fetch(`/api/messaging/threads/${preferredId}/messages`, { cache: "no-store" });
+      if (!response.ok) return;
+      const payload = (await response.json()) as {
+        items: Array<{ id: string; body: string; createdAt: string; senderId: string }>;
+      };
+      setMessages(payload.items ?? []);
+      await fetch(`/api/messaging/threads/${preferredId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "mark_read" })
+      });
+    })();
+  }, [preferredId]);
 
   async function loadMessages(threadId: string) {
     const response = await fetch(`/api/messaging/threads/${threadId}/messages`, { cache: "no-store" });

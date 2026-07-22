@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@mpa/ui";
 import type { PushDeviceStatusRecord } from "../../lib/notifications/enrollment";
 import { PushRegistrationButton } from "./push-registration-button";
@@ -79,6 +79,29 @@ export function NotificationPushSettingsPanel({
 
   const activeDevice = devices.find((device) => device.isActive && device.externalSubscriptionId) ?? null;
   const statusLabel = pushStatusLabel({ browserPermission, pushEnabled, activeDevice });
+  const healedDeniedRef = useRef<string | null>(null);
+
+  // PUSH-001 self-heal: permission revoked but DB still shows active device → deactivate once.
+  useEffect(() => {
+    if (browserPermission !== "denied" || !activeDevice?.externalSubscriptionId) return;
+    const subscriptionId = activeDevice.externalSubscriptionId;
+    if (healedDeniedRef.current === subscriptionId) return;
+    healedDeniedRef.current = subscriptionId;
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        const response = await fetch("/api/notifications/devices", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ externalSubscriptionId: subscriptionId })
+        });
+        if (response.ok) {
+          onPushEnabledChange(false);
+          await refresh();
+        }
+      })();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [browserPermission, activeDevice?.externalSubscriptionId, onPushEnabledChange, refresh]);
 
   async function sendTest() {
     setTesting(true);

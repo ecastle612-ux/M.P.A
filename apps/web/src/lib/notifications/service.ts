@@ -12,7 +12,7 @@ import {
   type NotifyInput,
   type PushDeliveryStatus
 } from "./contracts";
-import { listActiveDevicesForUser } from "./devices";
+import { listActiveDevicesForUser, deactivatePushSubscriptions } from "./devices";
 import { evaluateDeliveryChannels } from "./preferences";
 import {
   insertInAppNotificationRow,
@@ -162,6 +162,24 @@ export async function notify(
             : sendResult.status === "skipped"
               ? "skipped"
               : "failed";
+
+        // PUSH-001 self-heal: only deactivate when OneSignal indicates dead subscriptions
+        // (not transient network/API failures).
+        const errorText = `${sendResult.errorCode ?? ""} ${sendResult.errorMessage ?? ""}`.toLowerCase();
+        const deadSubscription =
+          errorText.includes("no matching") ||
+          errorText.includes("not subscribed") ||
+          errorText.includes("invalid") ||
+          sendResult.errorCode === "no_devices";
+        if (deadSubscription && subscriptionIds.length > 0) {
+          await deactivatePushSubscriptions({
+            organizationId: input.organizationId,
+            userId: recipientUserId,
+            externalSubscriptionIds: subscriptionIds,
+            reason: sendResult.errorMessage ?? sendResult.errorCode ?? "push_subscription_invalid",
+            ...(client ? { client } : {})
+          }).catch(() => undefined);
+        }
 
         await updatePushDeliveryStatus(
           input.organizationId,

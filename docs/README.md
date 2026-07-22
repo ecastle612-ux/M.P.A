@@ -95,6 +95,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 94 | [ADMIN-002 Master Admin Role Switcher](./94-admin-002-master-admin-role-switcher/README.md) | Role-play placement and IA (**Approved**) |
 | 95 | [ADMIN-003 Master Admin Operations Center](./95-admin-003-master-admin-operations-center/README.md) | Mission Control HQ (**Approved** · Slice A unlocked) |
 | 96 | [DPX-003 Commercial Product Experience](./96-dpx-003-commercial-product-experience/README.md) | Premium polish for Design Partner (**Approved** · Implement unlocked) |
+| 99 | [PUSH-001 PWA Push Commercial Certification](./99-push-001-pwa-push-commercial-certification/README.md) | Forensic push audit + real-device PASS (**Approved** · Implement unlocked) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

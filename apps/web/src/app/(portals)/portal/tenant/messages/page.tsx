@@ -6,7 +6,12 @@ import { evaluatePermission, resolveAuthorizationContext } from "../../../../../
 import { resolveActiveOrganizationIdForUser } from "../../../../../lib/organization/server";
 import { getThreadsForOrganization } from "../../../../../lib/messaging/server";
 
-export default async function TenantMessagesPage() {
+export default async function TenantMessagesPage({
+  searchParams
+}: {
+  searchParams: Promise<{ thread?: string }>;
+}) {
+  const { thread: threadParam } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -20,10 +25,11 @@ export default async function TenantMessagesPage() {
   if (!evaluatePermission(authorization, "message:read")) redirect("/unauthorized");
 
   const items = await getThreadsForOrganization(organizationId, user.id, { limit: 50 }, supabase);
+  const initialThreadId = threadParam?.trim() || null;
 
   return (
     <AppPage breadcrumbs={[{ href: "/portal/tenant", label: "Tenant home" }, { label: "Messages" }]}>
-      <TenantMessagesInbox initialItems={items} />
+      <TenantMessagesInbox initialItems={items} initialThreadId={initialThreadId} />
     </AppPage>
   );
 }
