@@ -28,6 +28,9 @@ Automated unit tests / typecheck / build are **not** treated as certification. O
 | A04 test price | `price_1Tw3i4CtsRR7lN4ZJwQgmvCr` (Professional monthly) |
 | Prior live cert org | `f8232926-149d-46b3-829f-c84b55378718` / `sub_1Tw3L88…` (`trialing`) |
 | Screenshots | [`evidence/`](./evidence/) |
+| Git commit | `fb70ba18b9eb17013759f6f1f6ed02c9465072a1` |
+| Production deployment | `dpl_9f7S4aFDBqmujVacN46afPMKdAi1` |
+| Production aliases | `https://m-p-a-web.vercel.app` · `https://www.my-property-assistant.com` |
 
 ---
 
@@ -119,9 +122,10 @@ Live portal session verified earlier (Professional trial + invoice history). Scr
 | Check | Result |
 |-------|--------|
 | `pnpm typecheck` | ✔ (Phase A package) |
-| `pnpm --filter @mpa/web build` | ✔ (prior) |
-| Committed Phase A sources | see git commit on this record |
-| Production deploy from that commit | see deployment ID on this record |
+| `pnpm --filter @mpa/web build` | ✔ (prior + prod build) |
+| Committed Phase A sources | ✔ `fb70ba18b9eb17013759f6f1f6ed02c9465072a1` |
+| Production deploy from that commit | ✔ `dpl_9f7S4aFDBqmujVacN46afPMKdAi1` |
+| Prod route smoke | ✔ `POST /api/webhooks/saas/stripe` → 401 without signature; `GET /api/saas` → 401 without auth |
 
 ---
 
