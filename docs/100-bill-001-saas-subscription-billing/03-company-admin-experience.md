@@ -1,7 +1,7 @@
 # 03 — Company Admin Experience
 
 **Package:** BILL-001  
-**Status:** Draft — Ready for Approval  
+**Status:** Approved · Phase B implementing  
 **Surface:** Settings → Billing (org admins with `saas:read` / `saas:manage`)
 
 ---
@@ -10,15 +10,16 @@
 
 | Capability | UX |
 |------------|----|
-| Current Plan | Plan name, status badge (`trialing` / `active` / `past_due` / `canceled`) |
+| Current Plan | Plan name, status badge (`trialing` / `active` / `past_due` / `canceled` / suspended) |
 | Renewal Date | Current period end |
 | Billing History | List of invoices with status + amounts |
 | Invoices | Open hosted invoice URL / PDF |
-| Payment Method | Last4 / brand summary; change via Customer Portal |
-| Usage | Properties / users vs plan limits |
-| Upgrade | Checkout or Portal plan change |
-| Downgrade | Scheduled at period end (preferred) or immediate with confirmation |
-| Cancel | Cancel at period end; access until then |
+| Payment Method | Summary + change via Customer Portal (card data never stored in M.P.A.) |
+| Usage | Properties / units / residents vs plan limits (tracking now; enforcement Phase C) |
+| Upgrade | Checkout (new) or Portal plan change (existing) |
+| Downgrade | Via Portal with confirmation of price / effective date / proration |
+| Cancel | Cancel at period end via Portal; access until then |
+| Founder protection | High-visibility confirm before leaving Founder pricing |
 | Stripe Customer Portal | Primary self-serve for PM, invoices, cancel |
 
 ---

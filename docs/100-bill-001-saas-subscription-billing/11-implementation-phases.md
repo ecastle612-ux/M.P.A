@@ -23,8 +23,10 @@
 - Current plan, renewal, invoices, usage  
 - Checkout upgrade + Customer Portal  
 - Cancel / downgrade policy  
+- Founder leave confirmation  
 
-**Exit:** Admin can self-serve billing in sandbox.
+**Exit:** Admin can self-serve billing in sandbox.  
+**Status:** Implementing after Phase A commercial PASS.
 
 ---
 
