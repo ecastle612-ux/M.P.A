@@ -14,4 +14,10 @@ describe("AI-001 route context", () => {
     expect(isBridgeOwnedPath("/tenants/xyz")).toBe(true);
     expect(isBridgeOwnedPath("/maintenance/wo-1")).toBe(true);
   });
+
+  it("uses list-aware launcher labels on index routes", () => {
+    expect(buildAiPageContextFromPathname("/properties").launcherLabel).toBe("Ask about this property list");
+    expect(buildAiPageContextFromPathname("/tenants").launcherLabel).toBe("Ask about residents");
+    expect(buildAiPageContextFromPathname("/leases").launcherLabel).toBe("Ask about leases");
+  });
 });

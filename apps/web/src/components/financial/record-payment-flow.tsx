@@ -12,30 +12,37 @@ type ChargeOption = RentChargeListItem &
 
 export function RecordPaymentFlow({
   charges,
-  initialChargeId
+  initialChargeId,
+  initialTenantId
 }: {
   charges: ChargeOption[];
   initialChargeId?: string | null;
+  initialTenantId?: string | null;
 }) {
-  const unpaid = useMemo(
-    () =>
-      charges
-        .filter(
-          (charge) =>
-            charge.deletedAt === null &&
-            charge.outstandingBalance > 0 &&
-            charge.status !== "paid" &&
-            charge.status !== "waived" &&
-            charge.status !== "cancelled"
-        )
-        .sort((left, right) => left.dueDate.localeCompare(right.dueDate)),
-    [charges]
-  );
+  const unpaid = useMemo(() => {
+    const open = charges
+      .filter(
+        (charge) =>
+          charge.deletedAt === null &&
+          charge.outstandingBalance > 0 &&
+          charge.status !== "paid" &&
+          charge.status !== "waived" &&
+          charge.status !== "cancelled"
+      )
+      .sort((left, right) => left.dueDate.localeCompare(right.dueDate));
+    if (!initialTenantId) return open;
+    const scoped = open.filter((charge) => charge.tenantId === initialTenantId);
+    return scoped.length > 0 ? scoped : open;
+  }, [charges, initialTenantId]);
 
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(() => {
     if (initialChargeId && unpaid.some((charge) => charge.id === initialChargeId)) {
       return initialChargeId;
+    }
+    if (initialTenantId) {
+      const tenantFirst = unpaid.find((charge) => charge.tenantId === initialTenantId);
+      if (tenantFirst) return tenantFirst.id;
     }
     return unpaid[0]?.id ?? "";
   });

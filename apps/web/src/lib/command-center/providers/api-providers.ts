@@ -566,6 +566,22 @@ async function searchTenants(query: string, signal: AbortSignal): Promise<Comman
     if (trimmed) {
       results.push(
         actionResult({
+          id: `tenant-${item.id}-message`,
+          label: `${name} · Message Resident`,
+          subtitle: "Recommended",
+          href: `/communications/resident/${encodeURIComponent(item.id)}`,
+          score: score + 16,
+          icon: "▶"
+        }),
+        actionResult({
+          id: `tenant-${item.id}-collect`,
+          label: `${name} · Collect Rent`,
+          subtitle: "Recommended",
+          href: `/financials/payments/new?tenantId=${encodeURIComponent(item.id)}`,
+          score: score + 15,
+          icon: "▶"
+        }),
+        actionResult({
           id: `tenant-${item.id}-lease`,
           label: `${name} · Create Lease`,
           subtitle: "Recommended",

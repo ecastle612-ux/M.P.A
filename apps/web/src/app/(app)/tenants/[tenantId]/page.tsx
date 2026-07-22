@@ -60,6 +60,7 @@ export default async function TenantDetailPage({
   const canReadLeases = evaluatePermission(authorization, "lease:read");
   const canReadMaintenance = evaluatePermission(authorization, "maintenance:read");
   const canReadCommunications = evaluatePermission(authorization, "communication:read");
+  const canCreateAnnouncement = evaluatePermission(authorization, "communication:create");
   const displayName = tenant.preferredName || `${tenant.firstName} ${tenant.lastName}`;
 
   const portfolioCounts = from === "tenant-created" ? await getPortfolioCounts(organizationId) : null;
@@ -230,8 +231,16 @@ export default async function TenantDetailPage({
   }>;
 
   const toolbeltMore = [
+    canCreateAnnouncement && tenant.propertyId
+      ? {
+          id: "notify-owner",
+          label: "Notify owner",
+          href: `/communications/new?propertyId=${encodeURIComponent(tenant.propertyId)}&intent=owner-update&title=${encodeURIComponent(`Owner update — ${displayName}`)}`
+        }
+      : null,
     canUpdateTenant ? { id: "edit", label: "Edit resident", href: `/tenants/${tenant.id}/edit` } : null,
-    { id: "back", label: "Back to residents", href: "/tenants" }
+    { id: "back", label: "Back to residents", href: "/tenants" },
+    { id: "ops", label: "Operations Center", href: "/dashboard" }
   ].filter(Boolean) as Array<{ id: string; label: string; href: string }>;
 
   return (

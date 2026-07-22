@@ -7,16 +7,16 @@
 
 ## Sequence
 
-| Order | ID | Work | Why | Est. effort |
-| --- | --- | --- | --- | --- |
-| 1 | DPX2-001 | Fix RSC import of `buildAiPageContext` (Property + WO + any sibling) | Unblocks path | S |
-| 2 | DPX2-002 | Fix Resident detail load error | Unblocks path | S–M |
-| 3 | Re-run baseline S1→S10 live | Evidence for after metrics | S |
-| 4 | DPX2-007 | Property Next Action: Residents | Continuity S3→S4 | S |
-| 5 | DPX2-003 | Contextual Message from resident/WO | Removes inbox hunt | M |
-| 6 | DPX2-008 | Maintenance default filter alignment | Stops false empty | S |
-| 7 | DPX2-004 | Notify owner from property/WO context | Completes S10 | M |
-| 8 | P2 batch | Lease/payment return chips, dashboard density, AI labels, hydration | Polish | M |
+| Order | ID | Work | Why | Est. | Status |
+| --- | --- | --- | --- | --- | --- |
+| 1 | DPX2-001 | Fix RSC import of `buildAiPageContext` + suggestion builders | Unblocks path | S | **Done** |
+| 2 | DPX2-002 | Fix Resident detail load error | Unblocks path | S–M | **Done** |
+| 3 | Re-run baseline S1→S10 live | Evidence for after metrics | S | Partial — path unblocked; full day re-measure pending |
+| 4 | DPX2-007 | Property Next Action: Residents | Continuity S3→S4 | S | **Done** |
+| 5 | DPX2-003 | Contextual Message from resident/WO | Removes inbox hunt | M | **Done** (+ RLS fix) |
+| 6 | DPX2-008 | Maintenance default filter alignment | Stops false empty | S | **Done** |
+| 7 | DPX2-004 | Notify owner from property/WO context | Completes S10 | M | **Done** |
+| 8 | P2 batch | Collect Rent tenantId, Notify owner surfacing, AI list labels, lease bridge, CC Message, dashboard density | Polish | M | **Done** (2026-07-21) |
 
 ## Out of scope until PASS
 
@@ -28,3 +28,13 @@
 ## Definition of ready for next implement slice
 
 After each slice: update [05-measurement.md](./05-measurement.md) deltas + close friction rows + re-check heat map.
+
+## Live verification (2026-07-21)
+
+Verified on Canopy Property Partners (`localhost:3000`):
+
+- Property / Resident / WO detail pages load (no RSC client crash)
+- Property **Residents** → `/tenants?propertyId=` scoped list
+- Maintenance default **Open** shows 3 waiting-resident WOs (matches dashboard)
+- Resident **Message** → thread `Message · Cert Resident`
+- **Notify owner** → announcement prefilled (property scope + title)

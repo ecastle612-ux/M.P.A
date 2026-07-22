@@ -138,8 +138,11 @@ export function TenantContextRail({
 
       <ContextRailSection title="Communications">
         <p>{communicationsCount} announcement{communicationsCount === 1 ? "" : "s"} delivered to this tenant&apos;s property</p>
-        <Link href="/communications" className="mt-1 inline-block text-xs font-medium text-[var(--mpa-color-brand-primary)] hover:underline">
-          View communications
+        <Link
+          href={`/communications/resident/${encodeURIComponent(tenantId)}`}
+          className="mt-1 inline-block text-xs font-medium text-[var(--mpa-color-brand-primary)] hover:underline"
+        >
+          Message resident
         </Link>
       </ContextRailSection>
 

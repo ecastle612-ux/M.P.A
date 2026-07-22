@@ -337,6 +337,8 @@ export default async function PropertyDetailPage({
         ? `${vacancyUnits} vacant unit${vacancyUnits === 1 ? "" : "s"}`
         : "Portfolio looks steady — use actions below for the next task.";
 
+  const canCreateAnnouncement = evaluatePermission(authorization, "communication:create");
+
   const toolbeltPrimary = [
     {
       id: "residents",
@@ -367,6 +369,14 @@ export default async function PropertyDetailPage({
           href: `/maintenance/new?propertyId=${encodeURIComponent(property.id)}`,
           variant: "secondary" as const
         }
+      : null,
+    canCreateAnnouncement
+      ? {
+          id: "notify-owner",
+          label: "Notify owner",
+          href: `/communications/new?propertyId=${encodeURIComponent(property.id)}&intent=owner-update`,
+          variant: "secondary" as const
+        }
       : null
   ].filter(Boolean) as Array<{
     id: string;
@@ -375,21 +385,12 @@ export default async function PropertyDetailPage({
     variant: "primary" | "secondary" | "ghost";
   }>;
 
-  const canCreateAnnouncement = evaluatePermission(authorization, "communication:create");
-
   const toolbeltMore = [
     canReadFinancials
       ? {
           id: "report",
           label: "Report",
           href: `/financials/reports?propertyId=${encodeURIComponent(property.id)}`
-        }
-      : null,
-    canCreateAnnouncement
-      ? {
-          id: "notify-owner",
-          label: "Notify owner",
-          href: `/communications/new?propertyId=${encodeURIComponent(property.id)}&intent=owner-update`
         }
       : null,
     canUpdateProperty

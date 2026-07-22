@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge, Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
+import { AiPageContextBridge } from "../../../../components/ai/ai-page-context";
+import { buildAiPageContext } from "../../../../lib/ai/ai-page-context-store";
 import { DetailPageLayout } from "../../../../components/presentation/detail-page-layout";
 import { EntityRelationshipChain } from "../../../../components/presentation/entity-relationship-chain";
 import { LeaseContextRail } from "../../../../components/presentation/context-rails/lease-context-rail";
 import { LeaseDocumentsPanel } from "../../../../components/lease/lease-documents-panel";
 import { LeaseLifecyclePanel } from "../../../../components/lease/lease-lifecycle-panel";
 import { SignaturePackagePanel } from "../../../../components/signature/signature-package-panel";
+import { EntityActionToolbelt } from "../../../../components/presentation/entity-action-toolbelt";
+import { WorkflowContinuityChips } from "../../../../components/workflow/workflow-continuity-chips";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -64,6 +68,10 @@ export default async function LeaseDetailPage({
   const canCreateSignature = evaluatePermission(authorization, "signature:create");
   const canSendSignature = evaluatePermission(authorization, "signature:send");
   const canReadSignature = evaluatePermission(authorization, "signature:read");
+  const canMessage =
+    evaluatePermission(authorization, "message:read") || evaluatePermission(authorization, "message:create");
+  const canCreateMaintenance = evaluatePermission(authorization, "maintenance:create");
+  const canCreateFinancial = evaluatePermission(authorization, "financial:create");
 
   const { data: chargeRows, error: chargeError } = canReadFinancials
     ? await supabase
@@ -101,6 +109,14 @@ export default async function LeaseDetailPage({
       : null;
 
   return (
+    <>
+      <AiPageContextBridge
+        {...buildAiPageContext({
+          entityType: "lease",
+          entityId: leaseId,
+          entityLabel: lease.leaseNumber
+        })}
+      />
     <DetailPageLayout
       breadcrumbs={[
         { href: "/dashboard", label: "Dashboard" },
@@ -162,21 +178,121 @@ export default async function LeaseDetailPage({
             </>
           }
           actions={
-            <>
-              {canEdit ? (
-                <Link href={`/leases/${lease.id}/edit`}>
-                  <Button>Edit Lease</Button>
-                </Link>
-              ) : null}
-              <Link href="/leases">
-                <Button variant="ghost">Back to Leases</Button>
+            canEdit ? (
+              <Link href={`/leases/${lease.id}/edit`}>
+                <Button>Edit Lease</Button>
               </Link>
-            </>
+            ) : null
           }
+        />
+      }
+      toolbelt={
+        <EntityActionToolbelt
+          actions={[
+            ...(canReadTenant && lease.primaryTenantId
+              ? [
+                  {
+                    id: "return-resident",
+                    label: lease.tenantName ? `Return to ${lease.tenantName}` : "Return to Resident",
+                    href: `/tenants/${lease.primaryTenantId}`,
+                    variant: "primary" as const
+                  }
+                ]
+              : []),
+            ...(canReadProperty && lease.propertyId
+              ? [
+                  {
+                    id: "return-property",
+                    label: "Return to Property",
+                    href: `/properties/${lease.propertyId}`,
+                    variant: "secondary" as const
+                  }
+                ]
+              : []),
+            ...(canCreateFinancial && lease.primaryTenantId
+              ? [
+                  {
+                    id: "collect-rent",
+                    label: "Collect Rent",
+                    href: `/financials/payments/new?tenantId=${encodeURIComponent(lease.primaryTenantId)}`,
+                    variant: "secondary" as const
+                  }
+                ]
+              : []),
+            ...(canMessage && lease.primaryTenantId
+              ? [
+                  {
+                    id: "message",
+                    label: "Send Message",
+                    href: `/communications/resident/${encodeURIComponent(lease.primaryTenantId)}`,
+                    variant: "secondary" as const
+                  }
+                ]
+              : [])
+          ]}
+          moreActions={[
+            ...(canCreateMaintenance && lease.propertyId
+              ? [
+                  {
+                    id: "maintenance",
+                    label: "Create Maintenance",
+                    href: `/maintenance/new?propertyId=${encodeURIComponent(lease.propertyId)}${
+                      lease.unitId ? `&unitId=${encodeURIComponent(lease.unitId)}` : ""
+                    }${lease.primaryTenantId ? `&tenantId=${encodeURIComponent(lease.primaryTenantId)}` : ""}`
+                  }
+                ]
+              : []),
+            { id: "documents", label: "Open Documents", href: "#documents" },
+            { id: "leases", label: "All leases", href: "/leases" }
+          ]}
         />
       }
       main={
         <>
+          <WorkflowContinuityChips
+            chips={[
+              ...(canReadTenant && lease.primaryTenantId
+                ? [
+                    {
+                      id: "resident",
+                      label: lease.tenantName ? `Return to ${lease.tenantName}` : "Return to Resident",
+                      href: `/tenants/${lease.primaryTenantId}`,
+                      variant: "primary" as const
+                    }
+                  ]
+                : []),
+              ...(canReadProperty && lease.propertyId
+                ? [
+                    {
+                      id: "property",
+                      label: "Return to Property",
+                      href: `/properties/${lease.propertyId}`
+                    }
+                  ]
+                : []),
+              ...(canMessage && lease.primaryTenantId
+                ? [
+                    {
+                      id: "message",
+                      label: "Send Message",
+                      href: `/communications/resident/${encodeURIComponent(lease.primaryTenantId)}`
+                    }
+                  ]
+                : []),
+              ...(canCreateMaintenance && lease.propertyId
+                ? [
+                    {
+                      id: "maintenance",
+                      label: "Create Maintenance",
+                      href: `/maintenance/new?propertyId=${encodeURIComponent(lease.propertyId)}${
+                        lease.unitId ? `&unitId=${encodeURIComponent(lease.unitId)}` : ""
+                      }${lease.primaryTenantId ? `&tenantId=${encodeURIComponent(lease.primaryTenantId)}` : ""}`
+                    }
+                  ]
+                : []),
+              { id: "documents", label: "Open Documents", href: "#documents" }
+            ]}
+          />
           <Card variant="elevated" className="space-y-4">
             <h2 className="mpa-section-title">Lease details</h2>
             <div className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">
@@ -249,7 +365,9 @@ export default async function LeaseDetailPage({
                 canSend={canSendSignature}
               />
             ) : null}
-            <LeaseDocumentsPanel documents={lease.documents} />
+            <div id="documents">
+              <LeaseDocumentsPanel documents={lease.documents} />
+            </div>
           </div>
         </>
       }
@@ -277,5 +395,6 @@ export default async function LeaseDetailPage({
         />
       }
     />
+    </>
   );
 }

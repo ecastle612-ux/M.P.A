@@ -14,7 +14,8 @@ export function isBridgeOwnedPath(pathname: string): boolean {
     /^\/maintenance\/[^/]+/.test(pathname) ||
     /^\/applicants\/[^/]+/.test(pathname) ||
     /^\/leases\/[^/]+/.test(pathname) ||
-    /^\/vendors\/[^/]+/.test(pathname)
+    /^\/vendors\/[^/]+/.test(pathname) ||
+    /^\/financials\/charges\/[^/]+/.test(pathname)
   );
 }
 
@@ -23,7 +24,7 @@ export function buildAiPageContextFromPathname(pathname: string): AiPageContextV
     return buildAiPageContext({ entityType: "dashboard" });
   }
   if (pathname.startsWith("/financials") || pathname.startsWith("/reports")) {
-    return buildAiPageContext({ entityType: "financial" });
+    return buildAiPageContext({ entityType: "financial", listMode: true });
   }
   if (pathname.startsWith("/communications") || pathname.startsWith("/messages")) {
     return buildAiPageContext({ entityType: "messages" });
@@ -31,32 +32,58 @@ export function buildAiPageContextFromPathname(pathname: string): AiPageContextV
   if (pathname.startsWith("/settings")) {
     return buildAiPageContext({ entityType: "settings" });
   }
-  if (pathname.startsWith("/maintenance")) {
+  if (pathname === "/maintenance" || pathname.startsWith("/maintenance?")) {
+    return buildAiPageContext({ entityType: "work_order", listMode: true });
+  }
+  if (pathname.startsWith("/maintenance/")) {
     return buildAiPageContext({ entityType: "work_order" });
   }
-  if (pathname.startsWith("/properties")) {
+  if (pathname === "/properties" || pathname.startsWith("/properties?")) {
+    return buildAiPageContext({ entityType: "property", listMode: true });
+  }
+  if (pathname.startsWith("/properties/")) {
     return buildAiPageContext({ entityType: "property" });
   }
-  if (pathname.startsWith("/tenants") || pathname.startsWith("/residents")) {
+  if (
+    pathname === "/tenants" ||
+    pathname.startsWith("/tenants?") ||
+    pathname === "/residents" ||
+    pathname.startsWith("/residents?")
+  ) {
+    return buildAiPageContext({ entityType: "resident", listMode: true });
+  }
+  if (pathname.startsWith("/tenants/") || pathname.startsWith("/residents/")) {
     return buildAiPageContext({ entityType: "resident" });
   }
-  if (pathname.startsWith("/units")) {
+  if (pathname === "/units" || pathname.startsWith("/units?")) {
+    return buildAiPageContext({ entityType: "unit", listMode: true });
+  }
+  if (pathname.startsWith("/units/")) {
     return buildAiPageContext({ entityType: "unit" });
   }
-  if (pathname.startsWith("/applicants")) {
+  if (pathname === "/applicants" || pathname.startsWith("/applicants?")) {
+    return buildAiPageContext({ entityType: "applicant", listMode: true });
+  }
+  if (pathname.startsWith("/applicants/")) {
     return buildAiPageContext({ entityType: "applicant" });
   }
-  if (pathname.startsWith("/leases")) {
+  if (pathname === "/leases" || pathname.startsWith("/leases?")) {
+    return buildAiPageContext({ entityType: "lease", listMode: true });
+  }
+  if (pathname.startsWith("/leases/")) {
     return buildAiPageContext({ entityType: "lease" });
   }
-  if (pathname.startsWith("/vendors")) {
+  if (pathname === "/vendors" || pathname.startsWith("/vendors?")) {
+    return buildAiPageContext({ entityType: "vendor", listMode: true });
+  }
+  if (pathname.startsWith("/vendors/")) {
     return buildAiPageContext({ entityType: "vendor" });
   }
   if (pathname.startsWith("/ai-operations")) {
     return {
       ...DEFAULT_AI_PAGE_CONTEXT,
       entityType: "generic",
-      launcherLabel: "Ask about your portfolio",
+      launcherLabel: "What needs attention across the portfolio?",
       suggestions: DEFAULT_AI_PAGE_CONTEXT.suggestions
     };
   }

@@ -204,7 +204,6 @@ function OperationsCenterLayout({
             </button>
           </div>
         </div>
-        <QuickActionsBar permissions={permissions} />
       </header>
 
       <section aria-labelledby="attention-today-heading" className="space-y-3">
@@ -231,44 +230,44 @@ function OperationsCenterLayout({
         <CommunicationOperationsCard snapshot={snapshot.communications} canCreate={permissions.canCreateCommunication} />
       ) : null}
 
-      <section aria-labelledby="portfolio-summary-heading" className="space-y-3">
-        <h2 id="portfolio-summary-heading" className="mpa-section-title">
-          Portfolio snapshot
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <KpiMetric
-            label="Total Properties"
-            value={snapshot.propertiesTotal}
-            href="/properties"
-            hint="View all properties"
-          />
-          <KpiMetric label="Total Units" value={snapshot.unitsTotal} href="/units" hint="View all units" />
-          <KpiMetric
-            label="Occupied Units"
-            value={snapshot.occupiedUnits}
-            href="/units"
-            hint="Review occupied inventory"
-            tone="success"
-          />
-          <KpiMetric
-            label="Vacant Units"
-            value={snapshot.vacanciesTotal}
-            href="/units"
-            hint="Review vacancies"
-            tone={snapshot.vacanciesTotal > 0 ? "warning" : "default"}
-          />
-          <OccupancyCard occupancyPercent={occupancyPercent} occupied={snapshot.occupiedUnits} total={snapshot.unitsTotal} />
-        </div>
-        <div className="grid gap-3 xl:grid-cols-3">
-          <TenantOverviewCard snapshot={snapshot} />
-        </div>
-      </section>
-
       <DiscloseSection
-        title="More operations & analytics"
-        description="Signatures, billing, leases, vendors, applicants, screening, and deeper financials — expand when needed."
+        title="Portfolio snapshot & more ops"
+        description="KPIs, quick create, signatures, billing, leases, vendors, applicants, screening — expand when needed."
+        defaultOpen={false}
       >
-        <div className="space-y-3">
+        <div className="space-y-4">
+          <QuickActionsBar permissions={permissions} />
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <KpiMetric
+              label="Total Properties"
+              value={snapshot.propertiesTotal}
+              href="/properties"
+              hint="View all properties"
+            />
+            <KpiMetric label="Total Units" value={snapshot.unitsTotal} href="/units" hint="View all units" />
+            <KpiMetric
+              label="Occupied Units"
+              value={snapshot.occupiedUnits}
+              href="/units"
+              hint="Review occupied inventory"
+              tone="success"
+            />
+            <KpiMetric
+              label="Vacant Units"
+              value={snapshot.vacanciesTotal}
+              href="/units"
+              hint="Review vacancies"
+              tone={snapshot.vacanciesTotal > 0 ? "warning" : "default"}
+            />
+            <OccupancyCard
+              occupancyPercent={occupancyPercent}
+              occupied={snapshot.occupiedUnits}
+              total={snapshot.unitsTotal}
+            />
+          </div>
+          <div className="grid gap-3 xl:grid-cols-3">
+            <TenantOverviewCard snapshot={snapshot} />
+          </div>
           <div className="grid gap-3 xl:grid-cols-2">
             {permissions.canReadSignatures ? <SignatureOperationsWidget /> : null}
             {permissions.canReadFinancials ? <BillingOperationsWidget /> : null}
