@@ -1,11 +1,12 @@
 # VENDOR-001 — Zero Friction Vendor Experience
 
-**Status:** Approved · Phase A implementing  
+**Status:** Approved · Phase A **PASS** (certified) · Phase B locked  
 **Initiative ID:** VENDOR-001  
 **Priority:** HIGH  
 **Gate:** Design → Document → **Approve** → Implement  
 **Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
-**Proposed ADR:** [ADR-025](../18-decision-log/adr-025-tokenized-vendor-work-order-access.md)  
+**ADR:** [ADR-025](../18-decision-log/adr-025-tokenized-vendor-work-order-access.md) (Accepted)  
+**Phase A cert:** [15-phase-a-commercial-certification.md](./15-phase-a-commercial-certification.md)  
 **Related:** [ADR-004](../18-decision-log/adr-004-vendor-marketplace-first-class.md) · Maintenance foundation · [FIN-003](../98-fin-003-owner-payout-stripe-connect/README.md) (future payouts) · Property QR (communication — different rail)  
 **Gate owners:** Product + Lead Architect + Security
 
