@@ -16,6 +16,7 @@ Automated typecheck/build are prerequisites, not certification. Production API +
 | Feature commit | `96ac99d069aaf416ad79238c40b8e7e9ea9f1e66` |
 | Geolocation header fix | `e66b2b9162bb18330593ce4727248f68eae7b2da` |
 | Token-rotation session fix | `ce154d80c03c4307d36875d18db8d09606122a3e` |
+| Certification record commit | `0f8dc0cc553811057921e4fee34cec2bd4fc1a58` |
 | Production deployment | `dpl_9EVYQLbe4FkJUdqJkCsdjFHEtVKB` |
 | Production aliases | `https://m-p-a-web.vercel.app` · `https://www.my-property-assistant.com` · `https://my-property-assistant.com` |
 | Supabase project | `mpa-prod` (`vahnmcrpnuggxkivynvo`) |
