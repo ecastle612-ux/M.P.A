@@ -1,6 +1,7 @@
 # CORE-002 — Commercial Launch Blocker Execution
 
-**Status:** ✅ **Approved** · Blocker 1 **PASS** · Next: Blocker 2 (Vendor Payments)  
+**Status:** ✅ **Approved** · Blocker 1 **PASS** · Blocker 2 **PASS** · Next: Blocker 3 (Owner Portal)  
+ 
  
 **Initiative ID:** CORE-002  
 **Priority:** CRITICAL  
@@ -32,7 +33,7 @@ This is an **execution** package. It does not invent new product scope beyond th
 
 | # | Blocker | Package / track | Gate note |
 |---|---------|-----------------|-----------|
-| **1** | Live Tenant Rent Collection Certification | EP-017 / API-005 | **Active now** — supervised live E2E |
+| **1** | Live Tenant Rent Collection Certification | EP-017 / API-005 | **PASS** — see `02-blocker-1-live-rent-certification.md` |
 | **2** | Vendor Payments | VENDOR-001 Phase B | Unlock after #1 PASS; Phase B Approve before build |
 | **3** | Owner Portal | New Owner Portal MVP package | After #2 or parallel only if #1 PASS and staffing allows — **default: after #2** |
 | **4** | Owner Payouts | FIN-003 Phases B–E | Restore docs → Approve → implement; after portal foundation |
@@ -44,15 +45,18 @@ This is an **execution** package. It does not invent new product scope beyond th
 
 ## Current focus
 
-### Blocker 1 — Live Tenant Rent Collection Certification
+### Blocker 1 — Live Tenant Rent Collection Certification — **PASS**
 
-Certify:
+Evidence: [`02-blocker-1-live-rent-certification.md`](./02-blocker-1-live-rent-certification.md)
 
 ```
-Resident → Stripe → Ledger → Property → Notifications → Receipt → Reporting
+Resident → Stripe Checkout → Ledger → Property → Resident → Financial Activity → Notifications → Receipt → Reporting → Audit
 ```
 
-No Vendor / Owner Portal / FIN-003 / Push / Performance implementation until Blocker 1 = **PASS**.
+### Blocker 2 — Vendor Payments — **Awaiting Phase B Approve**
+
+Scope draft: [`docs/101-vendor-001-zero-friction-vendor-experience/16-phase-b-approval-scope.md`](../101-vendor-001-zero-friction-vendor-experience/16-phase-b-approval-scope.md).  
+No Phase B application code until that Approve reply is recorded.
 
 ## Success
 

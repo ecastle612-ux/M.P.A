@@ -1,6 +1,9 @@
 # VENDOR-001 — Zero Friction Vendor Experience
 
-**Status:** Approved · Phase A **PASS** (certified) · Phase B locked  
+**Status:** Approved · Phase A **PASS** · Phase B **PASS** ([18](./18-phase-b-commercial-certification.md))  
+ 
+ 
+ 
 **Initiative ID:** VENDOR-001  
 **Priority:** HIGH  
 **Gate:** Design → Document → **Approve** → Implement  

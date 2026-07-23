@@ -13,6 +13,7 @@ import { MaintenanceActivityTimeline } from "../../../../components/maintenance/
 import { WorkOrderWorkflowPanel } from "../../../../components/maintenance/work-order-workflow-panel";
 import { VendorAssignmentPanel } from "../../../../components/vendor/vendor-assignment-panel";
 import { VendorJobSharePanel } from "../../../../components/vendor-jobs/vendor-job-share-panel";
+import { VendorInvoiceReviewPanel } from "../../../../components/vendor-jobs/vendor-invoice-review-panel";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { completedWorkOrderSuggestions } from "../../../../components/workflow/smart-suggestion-builders";
 import { SmartSuggestions } from "../../../../components/workflow/smart-suggestions";
@@ -400,6 +401,8 @@ export default async function WorkOrderDetailPage({
               canManage={canUpdate || canAssign}
             />
           ) : null}
+
+          <VendorInvoiceReviewPanel workOrderId={workOrder.id} canManage={canUpdate || canAssign} />
 
           <div id="timeline">
             <Card variant="elevated" className="space-y-3">

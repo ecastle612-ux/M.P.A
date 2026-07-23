@@ -13,6 +13,8 @@
 | ADR-025 | **Accepted** |
 | Unlocked | **Phase A only** |
 | Locked | Phases B–D until Phase A certification PASS |
+| Phase A cert | **PASS** ([15](./15-phase-a-commercial-certification.md)) |
+| Phase B | Still locked — Approve via [16](./16-phase-b-approval-scope.md) before Implement |
 
 ## Binding scope (approved)
 

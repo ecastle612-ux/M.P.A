@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button, Card } from "@mpa/ui";
 import type { VendorJobCard } from "../../lib/vendor-jobs/contracts";
+import { VendorInvoiceUpload } from "./vendor-invoice-upload";
 
 type Props = {
   token: string;
@@ -230,19 +231,22 @@ export function VendorJobCardView({ token, initialJob }: Props) {
       ) : null}
 
       {job.phase === "finished" ? (
-        <div className="space-y-3 rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)] p-5">
-          <p className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">✅ Work Submitted</p>
-          <p className="text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
-            Your work has been submitted to the property manager for review.
-          </p>
-          <p className="text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
-            You&apos;ll be notified once it has been reviewed.
-          </p>
-          {job.completedAt ? (
-            <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-              Submitted {new Date(job.completedAt).toLocaleString()}
+        <div className="space-y-4">
+          <div className="space-y-3 rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)] p-5">
+            <p className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">✅ Work Submitted</p>
+            <p className="text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
+              Your work has been submitted to the property manager for review.
             </p>
-          ) : null}
+            <p className="text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
+              You&apos;ll be notified once it has been reviewed.
+            </p>
+            {job.completedAt ? (
+              <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                Submitted {new Date(job.completedAt).toLocaleString()}
+              </p>
+            ) : null}
+          </div>
+          <VendorInvoiceUpload token={token} />
         </div>
       ) : null}
 

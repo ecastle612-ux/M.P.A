@@ -16,6 +16,7 @@ import {
 } from "../../../../lib/vendor/server";
 import { getServiceProviderIntelligence } from "../../../../lib/facility/provider-intelligence";
 import { ServiceProviderIntelligencePanel } from "../../../../components/facility/service-provider-intelligence-panel";
+import { VendorPaymentHistoryPanel } from "../../../../components/vendor-jobs/vendor-payment-history-panel";
 import { buildVendorCreatedSuccess } from "../../../../lib/workflow/shared/success-configs";
 
 export default async function VendorDetailPage({
@@ -202,6 +203,8 @@ export default async function VendorDetailPage({
           </Card>
 
           {intelligence ? <ServiceProviderIntelligencePanel intelligence={intelligence} /> : null}
+
+          <VendorPaymentHistoryPanel vendorId={vendor.id} />
         </>
       }
       contextRail={
