@@ -151,25 +151,48 @@ export async function assignVendorToWorkOrder(
           .maybeSingle()
       : { data: null };
     const tenantUserId = (tenantRow as { user_id: string | null } | null)?.user_id ?? null;
-    const recipientUserIds = [
+    const { maintenanceWorkOrderHref } = await import("../notifications/deep-links");
+    const staffRecipients = [
       ...new Set(
-        [row.created_by, row.assigned_to_user_id, tenantUserId].filter(
-          (id): id is string => Boolean(id) && id !== userId
+        [row.created_by, row.assigned_to_user_id].filter(
+          (id): id is string => Boolean(id) && id !== userId && id !== tenantUserId
         )
       )
     ];
-    if (recipientUserIds.length > 0) {
+    const title = isReassign ? "Vendor reassigned" : "Vendor assigned";
+    const body = `${row.work_order_number}: ${vendor} · ${row.title}`;
+    if (staffRecipients.length > 0) {
       await notify(
         {
           organizationId,
           actorUserId: userId,
-          eventKey: `maintenance.vendor_assigned:${workOrderId}`,
-          recipientUserIds,
+          eventKey: `maintenance.vendor_assigned:${workOrderId}:staff`,
+          recipientUserIds: staffRecipients,
           category: "maintenance",
           priority: "normal",
-          title: isReassign ? "Vendor reassigned" : "Vendor assigned",
-          body: `${row.work_order_number}: ${vendor} · ${row.title}`,
-          href: `/maintenance/${workOrderId}`,
+          title,
+          body,
+          href: maintenanceWorkOrderHref(workOrderId, false),
+          sourceEntityType: "maintenance_work_order",
+          sourceEntityId: workOrderId,
+          propertyId: row.property_id,
+          unitId: row.unit_id
+        },
+        supabase
+      ).catch(() => undefined);
+    }
+    if (tenantUserId && tenantUserId !== userId) {
+      await notify(
+        {
+          organizationId,
+          actorUserId: userId,
+          eventKey: `maintenance.vendor_assigned:${workOrderId}:tenant`,
+          recipientUserIds: [tenantUserId],
+          category: "maintenance",
+          priority: "normal",
+          title,
+          body,
+          href: maintenanceWorkOrderHref(workOrderId, true),
           sourceEntityType: "maintenance_work_order",
           sourceEntityId: workOrderId,
           propertyId: row.property_id,
@@ -286,7 +309,11 @@ export async function updateVendorAssignmentStatus(
     client: supabase
   });
 
-  if (input.assignmentStatus === "accepted" || input.assignmentStatus === "completed") {
+  if (
+    input.assignmentStatus === "accepted" ||
+    input.assignmentStatus === "completed" ||
+    input.assignmentStatus === "cancelled"
+  ) {
     const { data: workOrderRow } = await supabase
       .from("maintenance_work_orders")
       .select("id, title, work_order_number, created_by, assigned_to_user_id, property_id, unit_id")
@@ -313,20 +340,28 @@ export async function updateVendorAssignmentStatus(
         )
       ];
       if (recipientUserIds.length > 0) {
+        const { maintenanceWorkOrderHref } = await import("../notifications/deep-links");
         const isCompleted = input.assignmentStatus === "completed";
+        const isCancelled = input.assignmentStatus === "cancelled";
         await notify(
           {
             organizationId,
             actorUserId: userId,
             eventKey: isCompleted
               ? `maintenance.vendor_completed:${workOrderId}`
-              : `maintenance.vendor_accepted:${workOrderId}`,
+              : isCancelled
+                ? `maintenance.vendor_declined:${workOrderId}`
+                : `maintenance.vendor_accepted:${workOrderId}`,
             recipientUserIds,
             category: "maintenance",
             priority: "normal",
-            title: isCompleted ? "Vendor completed work order" : "Vendor accepted work order",
+            title: isCompleted
+              ? "Vendor completed work order"
+              : isCancelled
+                ? "Vendor declined / cancelled assignment"
+                : "Vendor accepted work order",
             body: `${row.work_order_number}: ${row.title}`,
-            href: `/maintenance/${workOrderId}`,
+            href: maintenanceWorkOrderHref(workOrderId, false),
             sourceEntityType: "maintenance_work_order",
             sourceEntityId: workOrderId,
             propertyId: row.property_id,

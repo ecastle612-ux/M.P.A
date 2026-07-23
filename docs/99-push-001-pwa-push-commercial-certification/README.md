@@ -2,12 +2,21 @@
 
 **Initiative ID:** PUSH-001  
 **Priority:** CRITICAL — launch-critical  
-**Status:** Design ✔ · Document ✔ · ✅ **Approved** · Implement unlocked  
+**Status:** Design ✔ · Document ✔ · ✅ **Approved** · Implement unlocked · ⏳ **Commercial PASS pending real-device evidence**  
 **Approved:** 2026-07-22 (`APPROVE PUSH-001`)  
+**Launch pack:** [13 — Launch readiness execution](./13-launch-readiness-execution.md)  
 **Parents:** [API-001](../44-api-001-onesignal-notification-foundation/README.md) · [API-001A](../45-api-001a-push-enrollment-device-registration/README.md) · [ADR-017](../18-decision-log/adr-017-onesignal-as-primary-push-provider.md)  
 **Related:** [DPX-003 G4](../96-dpx-003-commercial-product-experience/05-push-notification-certification.md) (superseded for commercial push PASS by this package)  
 **Constraint:** Forensic audit + certify + repair existing stack — **not** a new notification feature catalog  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · ADR-012  
+**CORE-002:** Blocker 5 — **serial after Blocker 4 (FIN-003)**  
+
+> ### Serial dependency (binding)
+>
+> Package Approve unlocks PUSH-001 forensic/cert work within this package.  
+> **CORE-002 Blocker 5 must not be marked CLOSED before Blocker 4 (FIN-003) progresses per serial order.**  
+> Ops-only real-device evidence (no schema) may be collected in parallel under CORE-002’s parallel exception — it does **not** jump the commercial blocker queue.  
+> Primary commercial focus remains FIN-003 Approve → Phase A. See [governance-audit-closeout](../00-governance/governance-audit-closeout.md).
 
 ---
 
@@ -48,6 +57,7 @@ Proven on **real** Desktop / Android / iPhone (within Apple-supported web push c
 | Pass criteria & deliverables | [10-pass-criteria.md](./10-pass-criteria.md) |
 | Approval | [11-approval.md](./11-approval.md) |
 | Roadmap / DPX relationship | [12-roadmap-relationship.md](./12-roadmap-relationship.md) |
+| Launch readiness execution | [13-launch-readiness-execution.md](./13-launch-readiness-execution.md) |
 
 ## Architecture (current — API-001)
 

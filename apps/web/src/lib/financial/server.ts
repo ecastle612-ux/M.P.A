@@ -535,26 +535,46 @@ export async function recordPayment(
     db
   );
 
-  const recipientUserIds = await resolveFinancialNotificationRecipients({
+  const { staffIds, tenantIds } = await resolveFinancialNotificationCohorts({
     organizationId,
     actorUserId: userId,
     tenantId: payment.tenantId,
     client: db
   });
-  if (recipientUserIds.length > 0) {
+  const { staffChargeHref, tenantPaymentsHref } = await import("../notifications/deep-links");
+  const paymentBody = `Payment ${payment.paymentNumber} for $${payment.amount.toFixed(2)}`;
+  if (tenantIds.length > 0) {
     await notify(
       {
         organizationId,
         actorUserId: userId,
-        eventKey: `financial.payment_received:${payment.id}`,
-        recipientUserIds,
+        eventKey: `financial.payment_received:${payment.id}:tenant`,
+        recipientUserIds: tenantIds,
         category: "financial",
         priority: "normal",
         title: "Payment recorded",
-        body: `Payment ${payment.paymentNumber} for $${payment.amount.toFixed(2)}`,
-        href: payment.rentChargeId
-          ? `/financials/charges/${payment.rentChargeId}`
-          : "/financials/charges",
+        body: paymentBody,
+        href: tenantPaymentsHref(),
+        sourceEntityType: "payment",
+        sourceEntityId: payment.id,
+        propertyId: payment.propertyId,
+        unitId: payment.unitId
+      },
+      db
+    ).catch(() => undefined);
+  }
+  if (staffIds.length > 0) {
+    await notify(
+      {
+        organizationId,
+        actorUserId: userId,
+        eventKey: `financial.payment_received:${payment.id}:staff`,
+        recipientUserIds: staffIds,
+        category: "financial",
+        priority: "normal",
+        title: "Payment recorded",
+        body: paymentBody,
+        href: staffChargeHref(payment.rentChargeId),
         sourceEntityType: "payment",
         sourceEntityId: payment.id,
         propertyId: payment.propertyId,
@@ -812,23 +832,61 @@ export async function generateOwnerStatement(
     }).catch(() => undefined);
   }
 
+  const { ownerReportsHref, staffOwnerStatementHref } = await import("../notifications/deep-links");
+  const statementTitle = `Owner statement ${statement.statementNumber}`;
+  const statementBody = `Statement generated for ${statement.statementPeriodStart} – ${statement.statementPeriodEnd}.`;
+
   await notify(
     {
       organizationId,
       actorUserId: userId,
-      eventKey: `financial.owner_statement:${statement.id}`,
+      eventKey: `financial.owner_statement:${statement.id}:staff`,
       recipientUserIds: [userId],
       category: "financial",
       priority: "normal",
-      title: `Owner statement ${statement.statementNumber}`,
-      body: `Statement generated for ${statement.statementPeriodStart} – ${statement.statementPeriodEnd}.`,
-      href: `/financials/owner-statements/${statement.id}`,
+      title: statementTitle,
+      body: statementBody,
+      href: staffOwnerStatementHref(statement.id),
       sourceEntityType: "owner_statement",
       sourceEntityId: statement.id,
       propertyId: statement.propertyId
     },
     db
   ).catch(() => undefined);
+
+  // PUSH-001 Owner matrix: notify property owners with Owner Portal destination.
+  const { data: ownerMemberships } = await db
+    .from("organization_memberships")
+    .select("user_id, roles")
+    .eq("organization_id", organizationId)
+    .eq("status", "active");
+  const ownerUserIds = [
+    ...new Set(
+      ((ownerMemberships ?? []) as Array<{ user_id: string; roles: string[] | null }>)
+        .filter((row) => Array.isArray(row.roles) && row.roles.includes("property_owner"))
+        .map((row) => row.user_id)
+        .filter((id) => id !== userId)
+    )
+  ];
+  if (ownerUserIds.length > 0) {
+    await notify(
+      {
+        organizationId,
+        actorUserId: userId,
+        eventKey: `financial.owner_statement:${statement.id}:owner`,
+        recipientUserIds: ownerUserIds,
+        category: "financial",
+        priority: "normal",
+        title: statementTitle,
+        body: statementBody,
+        href: ownerReportsHref(),
+        sourceEntityType: "owner_statement",
+        sourceEntityId: statement.id,
+        propertyId: statement.propertyId
+      },
+      db
+    ).catch(() => undefined);
+  }
 
   return statement;
 }
@@ -1358,7 +1416,7 @@ function escapeLike(value: string): string {
   return value.replace(/[%_\\]/g, "\\$&");
 }
 
-async function resolveFinancialNotificationRecipients({
+async function resolveFinancialNotificationCohorts({
   organizationId,
   actorUserId,
   tenantId,
@@ -1368,8 +1426,9 @@ async function resolveFinancialNotificationRecipients({
   actorUserId: string;
   tenantId: string | null;
   client: FinancialDbClient;
-}): Promise<string[]> {
-  const recipients = new Set<string>();
+}): Promise<{ staffIds: string[]; tenantIds: string[] }> {
+  const staffIds = new Set<string>();
+  const tenantIds = new Set<string>();
 
   if (tenantId) {
     const { data: tenant } = await client
@@ -1380,7 +1439,7 @@ async function resolveFinancialNotificationRecipients({
       .is("deleted_at", null)
       .maybeSingle();
     const tenantUserId = (tenant as { user_id?: string | null } | null)?.user_id;
-    if (tenantUserId && tenantUserId !== actorUserId) recipients.add(tenantUserId);
+    if (tenantUserId && tenantUserId !== actorUserId) tenantIds.add(tenantUserId);
 
     const { data: devices } = await client
       .from("resident_devices")
@@ -1390,7 +1449,7 @@ async function resolveFinancialNotificationRecipients({
       .is("deleted_at", null)
       .limit(5);
     for (const row of (devices ?? []) as Array<{ user_id: string | null }>) {
-      if (row.user_id && row.user_id !== actorUserId) recipients.add(row.user_id);
+      if (row.user_id && row.user_id !== actorUserId) tenantIds.add(row.user_id);
     }
   }
 
@@ -1401,11 +1460,11 @@ async function resolveFinancialNotificationRecipients({
     .eq("status", "active");
   for (const row of (memberships ?? []) as Array<{ user_id: string; roles: string[] | null }>) {
     if (Array.isArray(row.roles) && row.roles.includes("property_manager") && row.user_id !== actorUserId) {
-      recipients.add(row.user_id);
+      staffIds.add(row.user_id);
     }
   }
 
-  return [...recipients];
+  return { staffIds: [...staffIds], tenantIds: [...tenantIds] };
 }
 
 async function resolveClient(client?: FinancialDbClient | SupabaseClientType): Promise<FinancialDbClient> {

@@ -1,7 +1,7 @@
 # 05 — Deep Linking (Phase 5)
 
 **Package:** PUSH-001  
-**Status:** Draft — awaiting Approve  
+**Status:** Approved package · code paths repaired 2026-07-23 · cold-launch device Pass ☐ pending  
 
 ---
 

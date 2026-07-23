@@ -1321,19 +1321,19 @@ async function notifyPaymentStakeholders(
   receiptNumber: string,
   admin: BillingClient
 ) {
-  const recipientUserIds = new Set<string>();
+  const { staffFinancialTransactionsHref, tenantPaymentsHref } = await import(
+    "../notifications/deep-links"
+  );
 
+  const staffUserIds = new Set<string>();
   const { data: memberships } = await admin
     .from("organization_memberships")
     .select("user_id, roles")
     .eq("organization_id", attempt.organizationId)
     .eq("status", "active");
   for (const row of (memberships ?? []) as Array<{ user_id: string; roles: string[] | null }>) {
-    if (
-      Array.isArray(row.roles) &&
-      (row.roles.includes("property_manager") || row.roles.includes("owner") || row.roles.includes("org_admin"))
-    ) {
-      recipientUserIds.add(row.user_id);
+    if (Array.isArray(row.roles) && row.roles.includes("property_manager")) {
+      staffUserIds.add(row.user_id);
     }
   }
 
@@ -1343,28 +1343,116 @@ async function notifyPaymentStakeholders(
     .eq("id", attempt.tenantId)
     .eq("organization_id", attempt.organizationId)
     .maybeSingle();
-  if (tenant?.user_id) recipientUserIds.add(String(tenant.user_id));
+  const tenantUserId = tenant?.user_id ? String(tenant.user_id) : null;
 
-  if (recipientUserIds.size === 0) return;
+  const body = `${attempt.attemptNumber} · $${Number(attempt.amount).toFixed(2)} · Receipt ${receiptNumber}`;
+  const base = {
+    organizationId: attempt.organizationId,
+    actorUserId: null as string | null,
+    category: "financial" as const,
+    priority: "normal" as const,
+    title: "Rent payment received",
+    body,
+    sourceEntityType: "payment_attempt",
+    sourceEntityId: attempt.id,
+    propertyId,
+    unitId: null as string | null
+  };
 
-  await notify(
-    {
-      organizationId: attempt.organizationId,
-      actorUserId: null,
-      eventKey: `billing.payment.succeeded:${attempt.id}`,
-      recipientUserIds: [...recipientUserIds],
-      category: "financial",
-      priority: "normal",
-      title: "Rent payment received",
-      body: `${attempt.attemptNumber} · $${Number(attempt.amount).toFixed(2)} · Receipt ${receiptNumber}`,
-      href: `/financials/transactions`,
-      sourceEntityType: "payment_attempt",
-      sourceEntityId: attempt.id,
-      propertyId,
-      unitId: null
-    },
-    admin
-  ).catch(() => undefined);
+  // PUSH-001: role-correct deep links — never send tenants to staff financials.
+  if (tenantUserId) {
+    await notify(
+      {
+        ...base,
+        eventKey: `billing.payment.succeeded:${attempt.id}:tenant`,
+        recipientUserIds: [tenantUserId],
+        href: tenantPaymentsHref()
+      },
+      admin
+    ).catch(() => undefined);
+  }
+
+  const staffRecipients = [...staffUserIds].filter((id) => id !== tenantUserId);
+  if (staffRecipients.length > 0) {
+    await notify(
+      {
+        ...base,
+        eventKey: `billing.payment.succeeded:${attempt.id}:staff`,
+        recipientUserIds: staffRecipients,
+        href: staffFinancialTransactionsHref()
+      },
+      admin
+    ).catch(() => undefined);
+  }
+}
+
+async function notifyPaymentFailedStakeholders(
+  attempt: PaymentAttemptRecord,
+  propertyId: string | null,
+  admin: BillingClient
+) {
+  const { staffFinancialTransactionsHref, tenantPaymentsHref } = await import(
+    "../notifications/deep-links"
+  );
+
+  const { data: tenant } = await admin
+    .from("tenants")
+    .select("user_id")
+    .eq("id", attempt.tenantId)
+    .eq("organization_id", attempt.organizationId)
+    .maybeSingle();
+  const tenantUserId = tenant?.user_id ? String(tenant.user_id) : null;
+
+  const staffUserIds = new Set<string>();
+  const { data: memberships } = await admin
+    .from("organization_memberships")
+    .select("user_id, roles")
+    .eq("organization_id", attempt.organizationId)
+    .eq("status", "active");
+  for (const row of (memberships ?? []) as Array<{ user_id: string; roles: string[] | null }>) {
+    if (Array.isArray(row.roles) && row.roles.includes("property_manager")) {
+      staffUserIds.add(row.user_id);
+    }
+  }
+
+  const body = `${attempt.attemptNumber} · payment failed · $${Number(attempt.amount).toFixed(2)}`;
+  const base = {
+    organizationId: attempt.organizationId,
+    actorUserId: null as string | null,
+    category: "financial" as const,
+    priority: "high" as const,
+    title: "Rent payment failed",
+    body,
+    sourceEntityType: "payment_attempt",
+    sourceEntityId: attempt.id,
+    propertyId,
+    unitId: null as string | null
+  };
+
+  if (tenantUserId) {
+    await notify(
+      {
+        ...base,
+        eventKey: `billing.payment.failed:${attempt.id}:tenant`,
+        recipientUserIds: [tenantUserId],
+        href: tenantPaymentsHref()
+      },
+      admin
+    ).catch(() => undefined);
+  }
+
+  const staffRecipients = [...staffUserIds].filter((id) => id !== tenantUserId);
+  if (staffRecipients.length > 0) {
+    await notify(
+      {
+        ...base,
+        eventKey: `billing.payment.failed:${attempt.id}:staff`,
+        recipientUserIds: staffRecipients,
+        href: staffFinancialTransactionsHref()
+      },
+      admin
+    ).catch(() => undefined);
+  }
 }
 
 export async function applyProviderWebhook(
@@ -1469,6 +1557,9 @@ export async function applyProviderWebhook(
           { code },
           admin
         );
+        const failedPropertyId =
+          (attempt.metadata["propertyId"] as string | null | undefined) ?? null;
+        await notifyPaymentFailedStakeholders(attempt, failedPropertyId, admin);
       } else if (event.type === "requires_action") {
         await admin.from("payment_attempts").update({ status: "requires_action" }).eq("id", attempt.id);
       } else if (event.type === "processing") {
