@@ -1004,35 +1004,51 @@ export async function initiateResidentPayment(
 }
 
 async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: BillingClient) {
-  // Idempotent: if payment already linked, skip double-charge
-  if (attempt.paymentId) return;
+  // Idempotent: if payment already linked or terminal success, skip.
+  if (attempt.paymentId || attempt.status === "succeeded") return;
 
-  const { data: existingPayment } = await admin
+  const { data: existingPayments } = await admin
     .from("payments")
     .select("id")
     .eq("organization_id", attempt.organizationId)
     .contains("metadata", { paymentAttemptId: attempt.id })
-    .maybeSingle();
+    .limit(1);
+  const existingPayment = existingPayments?.[0] ?? null;
   if (existingPayment) {
     await admin
       .from("payment_attempts")
-      .update({ payment_id: existingPayment.id, status: "succeeded" })
+      .update({
+        payment_id: existingPayment.id,
+        status: "succeeded",
+        reconciled_at: attempt.reconciledAt ?? new Date().toISOString()
+      })
       .eq("id", attempt.id);
     return;
   }
 
-  const { data: attemptFresh } = await admin
+  // Atomic claim — Stripe may deliver checkout.session.completed + payment_intent.succeeded
+  // (and historically charge.succeeded) nearly simultaneously. Only the first claim settles.
+  const claimedAt = new Date().toISOString();
+  const { data: claimed } = await admin
     .from("payment_attempts")
-    .select("created_by")
+    .update({ reconciled_at: claimedAt })
     .eq("id", attempt.id)
+    .is("reconciled_at", null)
+    .is("payment_id", null)
+    .select("id, created_by, status")
     .maybeSingle();
-  const actorId = (attemptFresh?.created_by as string | null) ?? null;
+  if (!claimed) {
+    return;
+  }
+
+  const actorId = (claimed.created_by as string | null) ?? null;
   if (!actorId) {
     await admin
       .from("payment_attempts")
       .update({
         status: "awaiting_reconciliation",
-        failure_message: "Missing created_by actor for payment insert"
+        failure_message: "Missing created_by actor for payment insert",
+        reconciled_at: null
       })
       .eq("id", attempt.id);
     throw new Error("Payment apply requires created_by actor");
@@ -1090,7 +1106,11 @@ async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: Billi
     if (paymentInsert.error) {
       await admin
         .from("payment_attempts")
-        .update({ status: "awaiting_reconciliation", failure_message: paymentInsert.error.message })
+        .update({
+          status: "awaiting_reconciliation",
+          failure_message: paymentInsert.error.message,
+          reconciled_at: null
+        })
         .eq("id", attempt.id);
       throw new Error(paymentInsert.error.message);
     }
@@ -1111,11 +1131,31 @@ async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: Billi
     .update({
       status: "succeeded",
       payment_id: firstPaymentId,
-      reconciled_at: new Date().toISOString(),
+      reconciled_at: claimedAt,
       failure_code: null,
       failure_message: null
     })
     .eq("id", attempt.id);
+
+  // If no payment rows were created (e.g. charge already cleared), finish without duplicate side effects.
+  if (!firstPaymentId) {
+    const { data: linked } = await admin
+      .from("payments")
+      .select("id")
+      .eq("organization_id", attempt.organizationId)
+      .contains("metadata", { paymentAttemptId: attempt.id })
+      .limit(1);
+    await admin
+      .from("payment_attempts")
+      .update({
+        status: "succeeded",
+        payment_id: linked?.[0]?.id ?? null,
+        failure_code: null,
+        failure_message: null
+      })
+      .eq("id", attempt.id);
+    return;
+  }
 
   const propertyId =
     (attempt.metadata["propertyId"] as string | null | undefined) ??
@@ -1205,6 +1245,18 @@ async function issueReceipt(
   admin: BillingClient,
   propertyId?: string | null
 ): Promise<PaymentReceiptRecord> {
+  const { data: existingReceipt } = await admin
+    .from("payment_receipts")
+    .select("*")
+    .eq("organization_id", attempt.organizationId)
+    .eq("payment_attempt_id", attempt.id)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (existingReceipt) {
+    return mapReceipt(existingReceipt);
+  }
+
   const receiptNumber = billingNumber("RCPT");
   const payload = {
     attemptNumber: attempt.attemptNumber,

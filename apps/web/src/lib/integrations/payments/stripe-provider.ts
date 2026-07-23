@@ -107,12 +107,13 @@ function mapIntentStatus(status: string): PaymentAttemptRef["status"] {
 }
 
 function mapEventType(type: string): NormalizedPaymentEvent["type"] {
-  if (
-    type.includes("payment_intent.succeeded") ||
-    type === "charge.succeeded" ||
-    type === "checkout.session.completed"
-  ) {
+  // Prefer PaymentIntent / Checkout settlement. `charge.succeeded` is a duplicate
+  // success signal for the same PI and must not re-apply rent settlement.
+  if (type.includes("payment_intent.succeeded") || type === "checkout.session.completed") {
     return "succeeded";
+  }
+  if (type === "charge.succeeded") {
+    return "ignored";
   }
   if (type.includes("payment_intent.payment_failed") || type.includes("charge.failed")) return "failed";
   if (type.includes("requires_action") || type.includes("requires_source_action")) return "requires_action";

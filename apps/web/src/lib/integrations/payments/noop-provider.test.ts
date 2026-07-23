@@ -86,6 +86,26 @@ describe("stripe payment provider sandbox", () => {
   });
 });
 
+describe("stripe webhook event mapping", () => {
+  it("ignores charge.succeeded to prevent duplicate settlement", async () => {
+    const previousSecret = process.env["STRIPE_WEBHOOK_SECRET"];
+    delete process.env["STRIPE_WEBHOOK_SECRET"];
+    process.env["STRIPE_MODE"] = "sandbox";
+    const events = await stripePaymentProvider.parseWebhook(
+      {
+        id: "evt_test_charge_succeeded",
+        type: "charge.succeeded",
+        data: { object: { id: "ch_test", payment_intent: "pi_test", amount: 100, currency: "usd" } }
+      },
+      { "x-mpa-raw-body": "{}" }
+    );
+    expect(events).toHaveLength(1);
+    expect(events[0]?.type).toBe("ignored");
+    if (previousSecret) process.env["STRIPE_WEBHOOK_SECRET"] = previousSecret;
+    else delete process.env["STRIPE_WEBHOOK_SECRET"];
+  });
+});
+
 describe("friendly payment errors", () => {
   it("maps known codes", () => {
     expect(friendlyPaymentError("insufficient_funds")).toMatch(/Insufficient/i);
