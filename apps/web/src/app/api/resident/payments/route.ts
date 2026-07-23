@@ -135,8 +135,13 @@ export async function POST(request: Request) {
         },
         db
       );
+      const checkoutUrl =
+        typeof attempt.metadata?.["checkoutUrl"] === "string"
+          ? (attempt.metadata["checkoutUrl"] as string)
+          : null;
       return NextResponse.json({
         attempt,
+        checkoutUrl,
         friendlyError: attempt.failureMessage
       });
     }

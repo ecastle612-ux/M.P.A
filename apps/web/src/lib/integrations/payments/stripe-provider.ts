@@ -107,10 +107,16 @@ function mapIntentStatus(status: string): PaymentAttemptRef["status"] {
 }
 
 function mapEventType(type: string): NormalizedPaymentEvent["type"] {
-  if (type.includes("payment_intent.succeeded") || type === "charge.succeeded") return "succeeded";
+  if (
+    type.includes("payment_intent.succeeded") ||
+    type === "charge.succeeded" ||
+    type === "checkout.session.completed"
+  ) {
+    return "succeeded";
+  }
   if (type.includes("payment_intent.payment_failed") || type.includes("charge.failed")) return "failed";
   if (type.includes("requires_action") || type.includes("requires_source_action")) return "requires_action";
-  if (type.includes("canceled")) return "canceled";
+  if (type.includes("canceled") || type === "checkout.session.expired") return "canceled";
   if (type.includes("charge.refunded") || type.includes("refund")) return "refunded";
   if (type.includes("dispute")) return "dispute";
   if (type.includes("processing") || type.includes("payment_intent.created")) return "processing";
@@ -202,7 +208,66 @@ export const stripePaymentProvider: PaymentProvider = {
       return {
         externalAttemptId: `pi_sandbox_${input.attemptNumber}`,
         status: "processing",
-        clientSecret: `pi_sandbox_${input.attemptNumber}_secret_test`
+        clientSecret: `pi_sandbox_${input.attemptNumber}_secret_test`,
+        checkoutUrl: input.useCheckout
+          ? `https://checkout.stripe.com/c/pay/cs_test_sandbox_${input.attemptNumber}`
+          : null,
+        checkoutSessionId: input.useCheckout ? `cs_test_sandbox_${input.attemptNumber}` : null
+      };
+    }
+
+    // Hosted Checkout when no saved method (commercial cert + production resident pay).
+    if (input.useCheckout || (!input.externalPaymentMethodId && input.checkoutSuccessUrl)) {
+      const successUrl =
+        input.checkoutSuccessUrl ??
+        `${env("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000"}/portal/tenant/payments?paid=1`;
+      const cancelUrl =
+        input.checkoutCancelUrl ??
+        `${env("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000"}/portal/tenant/payments?canceled=1`;
+
+      const res = await stripeFetch("/checkout/sessions", {
+        method: "POST",
+        body: formBody({
+          mode: "payment",
+          customer: input.externalCustomerId,
+          success_url: `${successUrl}${successUrl.includes("?") ? "&" : "?"}session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: cancelUrl,
+          client_reference_id: input.attemptId,
+          "line_items[0][quantity]": "1",
+          "line_items[0][price_data][currency]": input.currency,
+          "line_items[0][price_data][unit_amount]": String(input.amountCents),
+          "line_items[0][price_data][product_data][name]":
+            input.description ?? `MPA payment ${input.attemptNumber}`,
+          "payment_intent_data[description]": input.description ?? `MPA payment ${input.attemptNumber}`,
+          "payment_intent_data[metadata][organization_id]": input.organizationId,
+          "payment_intent_data[metadata][attempt_id]": input.attemptId,
+          "payment_intent_data[metadata][attempt_number]": input.attemptNumber,
+          "metadata[organization_id]": input.organizationId,
+          "metadata[attempt_id]": input.attemptId,
+          "metadata[attempt_number]": input.attemptNumber,
+          "metadata[mpa_flow]": "resident_rent_checkout"
+        })
+      });
+      if (!res.ok) throw new Error(`Stripe Checkout Session failed: ${await res.text()}`);
+      const json = (await res.json()) as {
+        id: string;
+        url?: string | null;
+        payment_intent?: string | { id?: string } | null;
+        status?: string;
+      };
+      const paymentIntentId =
+        typeof json.payment_intent === "string"
+          ? json.payment_intent
+          : json.payment_intent && typeof json.payment_intent === "object"
+            ? json.payment_intent.id ?? null
+            : null;
+      if (!json.url) throw new Error("Stripe Checkout Session missing url");
+      return {
+        externalAttemptId: paymentIntentId ?? json.id,
+        status: "requires_action",
+        clientSecret: null,
+        checkoutUrl: json.url,
+        checkoutSessionId: json.id
       };
     }
 
@@ -235,6 +300,8 @@ export const stripePaymentProvider: PaymentProvider = {
       externalAttemptId: json.id,
       status: mapIntentStatus(json.status),
       clientSecret: json.client_secret ?? null,
+      checkoutUrl: null,
+      checkoutSessionId: null,
       failureCode: json.last_payment_error?.code ?? null,
       failureMessage: json.last_payment_error?.message ?? null
     };
@@ -304,28 +371,58 @@ export const stripePaymentProvider: PaymentProvider = {
         ? ((body["data"] as { object?: Record<string, unknown> }).object ?? {})
         : (body as Record<string, unknown>);
 
-    const externalPaymentId =
-      typeof dataObject["id"] === "string"
-        ? dataObject["id"]
-        : typeof dataObject["payment_intent"] === "string"
-          ? dataObject["payment_intent"]
-          : null;
+    const metadata =
+      dataObject["metadata"] && typeof dataObject["metadata"] === "object"
+        ? (dataObject["metadata"] as Record<string, unknown>)
+        : {};
+
+    let externalPaymentId: string | null = null;
+    if (type === "checkout.session.completed") {
+      const pi = dataObject["payment_intent"];
+      externalPaymentId =
+        typeof pi === "string" ? pi : pi && typeof pi === "object" ? String((pi as { id?: string }).id ?? "") || null : null;
+      // Fallback: BillingService can resolve by attempt_id in metadata / client_reference_id.
+      if (!externalPaymentId && typeof dataObject["id"] === "string") {
+        externalPaymentId = dataObject["id"];
+      }
+    } else if (typeof dataObject["payment_intent"] === "string") {
+      externalPaymentId = dataObject["payment_intent"];
+    } else if (typeof dataObject["id"] === "string" && String(dataObject["id"]).startsWith("pi_")) {
+      externalPaymentId = dataObject["id"];
+    } else if (typeof dataObject["id"] === "string" && type.includes("charge")) {
+      externalPaymentId =
+        typeof dataObject["payment_intent"] === "string" ? dataObject["payment_intent"] : dataObject["id"];
+    } else if (typeof dataObject["id"] === "string") {
+      externalPaymentId = dataObject["id"];
+    }
 
     const externalEventId =
       typeof body["id"] === "string" ? body["id"] : `stripe-${Date.now()}-${type}`;
 
+    const amountTotal =
+      typeof dataObject["amount_total"] === "number" ? dataObject["amount_total"] : null;
     const amount =
       typeof dataObject["amount"] === "number"
         ? dataObject["amount"]
         : typeof dataObject["amount_received"] === "number"
           ? dataObject["amount_received"]
+          : amountTotal;
+
+    const attemptId =
+      typeof metadata["attempt_id"] === "string"
+        ? metadata["attempt_id"]
+        : typeof dataObject["client_reference_id"] === "string"
+          ? dataObject["client_reference_id"]
           : null;
 
     return [
       {
         externalEventId,
         externalPaymentId,
-        type: mapEventType(type),
+        type:
+          type === "checkout.session.completed" && dataObject["payment_status"] === "unpaid"
+            ? "processing"
+            : mapEventType(type),
         amountCents: amount,
         currency: typeof dataObject["currency"] === "string" ? dataObject["currency"] : "usd",
         occurredAt: new Date().toISOString(),
@@ -333,10 +430,7 @@ export const stripePaymentProvider: PaymentProvider = {
           dataObject["last_payment_error"] && typeof dataObject["last_payment_error"] === "object"
             ? String((dataObject["last_payment_error"] as { code?: string }).code ?? "") || null
             : null,
-        message:
-          dataObject["last_payment_error"] && typeof dataObject["last_payment_error"] === "object"
-            ? String((dataObject["last_payment_error"] as { message?: string }).message ?? "") || null
-            : null,
+        message: attemptId ? `attempt_id:${attemptId}` : null,
         payloadDigest: externalEventId
       }
     ];

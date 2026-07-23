@@ -54,11 +54,16 @@ export function ResidentPaymentsView() {
     });
     const json = (await res.json()) as {
       attempt?: { status: string; failureMessage?: string | null; attemptNumber?: string };
+      checkoutUrl?: string | null;
       error?: { message?: string };
       friendlyError?: string;
     };
     if (!res.ok) {
       setError(json.friendlyError ?? json.error?.message ?? "Payment failed");
+      return;
+    }
+    if (json.checkoutUrl) {
+      window.location.assign(json.checkoutUrl);
       return;
     }
     if (json.attempt?.status === "failed") {

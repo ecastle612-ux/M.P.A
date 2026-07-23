@@ -45,12 +45,18 @@ export type CreatePaymentAttemptInput = {
   metadata?: Record<string, unknown>;
   confirm?: boolean;
   returnUrl?: string;
+  /** Hosted Stripe Checkout (preferred when no saved payment method). */
+  useCheckout?: boolean;
+  checkoutSuccessUrl?: string;
+  checkoutCancelUrl?: string;
 };
 
 export type PaymentAttemptRef = {
   externalAttemptId: string;
   status: "requires_action" | "processing" | "succeeded" | "failed" | "canceled";
   clientSecret?: string | null;
+  checkoutUrl?: string | null;
+  checkoutSessionId?: string | null;
   failureCode?: string | null;
   failureMessage?: string | null;
 };

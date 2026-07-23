@@ -7,6 +7,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@mpa/supabase";
 import { createAuthServerComponentClient, createServiceRoleServerClient } from "../auth/server";
 import { getPaymentProvider, resolveDefaultPaymentProviderId } from "../integrations/payments/registry";
+import { notify } from "../notifications/service";
 import { createRentCharge, recordFinancialActivity, generateFinancialNumber } from "../financial/server";
 import {
   AUTOPAY_CONSENT_VERSION,
@@ -858,6 +859,18 @@ export async function initiateResidentPayment(
 
   const attemptNumber = billingNumber("PA");
   const attemptId = crypto.randomUUID();
+  const appUrl = (process.env["NEXT_PUBLIC_APP_URL"] ?? "https://www.my-property-assistant.com").replace(
+    /\/$/,
+    ""
+  );
+  const useCheckout = !externalMethodId;
+  const chargeDescription = list
+    .map((c: { description?: string | null; charge_number?: string | null }) => c.description || c.charge_number)
+    .filter(Boolean)
+    .join("; ");
+  const paymentDescription =
+    chargeDescription ||
+    `MPA rent payment ${attemptNumber}`;
 
   const { error: attemptError } = await db
     .from("payment_attempts")
@@ -874,6 +887,11 @@ export async function initiateResidentPayment(
       status: "processing",
       source: input.source ?? "one_time",
       charge_ids: input.chargeIds,
+      metadata: {
+        chargeIds: input.chargeIds,
+        propertyId: list[0]?.property_id ?? null,
+        useCheckout
+      },
       created_by: userId
     })
     .select("*")
@@ -890,8 +908,11 @@ export async function initiateResidentPayment(
       ...(externalMethodId ? { externalPaymentMethodId: externalMethodId } : {}),
       amountCents: toCents(amount),
       currency: "usd",
-      description: `MPA payment ${attemptNumber}`,
+      description: paymentDescription,
       confirm: Boolean(externalMethodId),
+      useCheckout,
+      checkoutSuccessUrl: `${appUrl}/portal/tenant/payments?paid=1&attempt=${attemptId}`,
+      checkoutCancelUrl: `${appUrl}/portal/tenant/payments?canceled=1&attempt=${attemptId}`,
       metadata: { chargeIds: input.chargeIds }
     });
   } catch (err) {
@@ -911,10 +932,17 @@ export async function initiateResidentPayment(
     .from("payment_attempts")
     .update({
       external_attempt_id: providerRef.externalAttemptId,
-      status: providerRef.status,
+      status: providerRef.status === "requires_action" ? "requires_action" : providerRef.status,
       client_secret: providerRef.clientSecret ?? null,
       failure_code: providerRef.failureCode ?? null,
-      failure_message: providerRef.failureMessage ?? null
+      failure_message: providerRef.failureMessage ?? null,
+      metadata: {
+        chargeIds: input.chargeIds,
+        propertyId: list[0]?.property_id ?? null,
+        useCheckout,
+        checkoutUrl: providerRef.checkoutUrl ?? null,
+        checkoutSessionId: providerRef.checkoutSessionId ?? null
+      }
     })
     .eq("id", attemptId)
     .select("*")
@@ -929,7 +957,12 @@ export async function initiateResidentPayment(
     "billing.payment.initiated",
     `Payment ${attempt.attemptNumber} initiated`,
     userId,
-    { amount, provider: providerId },
+    {
+      amount,
+      provider: providerId,
+      checkoutSessionId: providerRef.checkoutSessionId ?? null,
+      useCheckout
+    },
     db
   );
 
@@ -937,6 +970,7 @@ export async function initiateResidentPayment(
     organizationId,
     tenantId: input.tenantId,
     leaseId: attempt.leaseId,
+    propertyId: (list[0]?.property_id as string | null) ?? null,
     entryType: "payment_pending",
     amount,
     relatedEntityType: "payment_attempt",
@@ -1083,10 +1117,25 @@ async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: Billi
     })
     .eq("id", attempt.id);
 
+  const propertyId =
+    (attempt.metadata["propertyId"] as string | null | undefined) ??
+    (chargeIds[0]
+      ? (
+          (
+            await admin
+              .from("rent_charges")
+              .select("property_id")
+              .eq("id", chargeIds[0])
+              .maybeSingle()
+          ).data?.property_id as string | null | undefined
+        ) ?? null
+      : null);
+
   await appendLedger({
     organizationId: attempt.organizationId,
     tenantId: attempt.tenantId,
     leaseId: attempt.leaseId,
+    propertyId,
     entryType: "payment",
     amount: attempt.amount,
     relatedEntityType: "payment_attempt",
@@ -1095,7 +1144,7 @@ async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: Billi
     client: admin
   });
 
-  const receipt = await issueReceipt(attempt, firstPaymentId, admin);
+  const receipt = await issueReceipt(attempt, firstPaymentId, admin, propertyId);
 
   await writeAudit(
     attempt.organizationId,
@@ -1104,15 +1153,57 @@ async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: Billi
     "billing.payment.succeeded",
     `Payment ${attempt.attemptNumber} succeeded`,
     null,
-    { paymentId: firstPaymentId, receiptId: receipt.id },
+    { paymentId: firstPaymentId, receiptId: receipt.id, propertyId },
     admin
   );
+
+  await recordFinancialActivity(
+    attempt.organizationId,
+    actorId,
+    "payment_received",
+    "payment_attempt",
+    attempt.id,
+    {
+      leaseId: attempt.leaseId,
+      propertyId,
+      tenantId: attempt.tenantId,
+      amount: attempt.amount,
+      summary: `Online payment ${attempt.attemptNumber} completed`,
+      payload: {
+        paymentId: firstPaymentId,
+        receiptId: receipt.id,
+        externalAttemptId: attempt.externalAttemptId,
+        provider: attempt.provider
+      }
+    },
+    admin
+  );
+
+  await recordFinancialActivity(
+    attempt.organizationId,
+    actorId,
+    "receipt_issued",
+    "payment_receipt",
+    receipt.id,
+    {
+      leaseId: attempt.leaseId,
+      propertyId,
+      tenantId: attempt.tenantId,
+      amount: attempt.amount,
+      summary: `Receipt ${receipt.receiptNumber} issued`,
+      payload: { paymentAttemptId: attempt.id, paymentId: firstPaymentId }
+    },
+    admin
+  );
+
+  await notifyPaymentStakeholders(attempt, propertyId, receipt.receiptNumber, admin);
 }
 
 async function issueReceipt(
   attempt: PaymentAttemptRecord,
   paymentId: string | null,
-  admin: BillingClient
+  admin: BillingClient,
+  propertyId?: string | null
 ): Promise<PaymentReceiptRecord> {
   const receiptNumber = billingNumber("RCPT");
   const payload = {
@@ -1149,6 +1240,7 @@ async function issueReceipt(
     organizationId: attempt.organizationId,
     tenantId: attempt.tenantId,
     leaseId: attempt.leaseId,
+    propertyId: propertyId ?? null,
     entryType: "receipt",
     amount: attempt.amount,
     relatedEntityType: "payment_receipt",
@@ -1169,6 +1261,58 @@ async function issueReceipt(
   );
 
   return receipt;
+}
+
+async function notifyPaymentStakeholders(
+  attempt: PaymentAttemptRecord,
+  propertyId: string | null,
+  receiptNumber: string,
+  admin: BillingClient
+) {
+  const recipientUserIds = new Set<string>();
+
+  const { data: memberships } = await admin
+    .from("organization_memberships")
+    .select("user_id, roles")
+    .eq("organization_id", attempt.organizationId)
+    .eq("status", "active");
+  for (const row of (memberships ?? []) as Array<{ user_id: string; roles: string[] | null }>) {
+    if (
+      Array.isArray(row.roles) &&
+      (row.roles.includes("property_manager") || row.roles.includes("owner") || row.roles.includes("org_admin"))
+    ) {
+      recipientUserIds.add(row.user_id);
+    }
+  }
+
+  const { data: tenant } = await admin
+    .from("tenants")
+    .select("user_id")
+    .eq("id", attempt.tenantId)
+    .eq("organization_id", attempt.organizationId)
+    .maybeSingle();
+  if (tenant?.user_id) recipientUserIds.add(String(tenant.user_id));
+
+  if (recipientUserIds.size === 0) return;
+
+  await notify(
+    {
+      organizationId: attempt.organizationId,
+      actorUserId: null,
+      eventKey: `billing.payment.succeeded:${attempt.id}`,
+      recipientUserIds: [...recipientUserIds],
+      category: "financial",
+      priority: "normal",
+      title: "Rent payment received",
+      body: `${attempt.attemptNumber} · $${Number(attempt.amount).toFixed(2)} · Receipt ${receiptNumber}`,
+      href: `/financials/transactions`,
+      sourceEntityType: "payment_attempt",
+      sourceEntityId: attempt.id,
+      propertyId,
+      unitId: null
+    },
+    admin
+  ).catch(() => undefined);
 }
 
 export async function applyProviderWebhook(
@@ -1207,12 +1351,41 @@ export async function applyProviderWebhook(
       continue;
     }
 
-    const { data: attemptRow } = await admin
-      .from("payment_attempts")
-      .select("*")
-      .eq("provider", provider.id)
-      .eq("external_attempt_id", event.externalPaymentId)
-      .maybeSingle();
+    let attemptRow = (
+      await admin
+        .from("payment_attempts")
+        .select("*")
+        .eq("provider", provider.id)
+        .eq("external_attempt_id", event.externalPaymentId)
+        .maybeSingle()
+    ).data;
+
+    // Checkout sessions may arrive before PI id is stored — resolve via attempt_id in message.
+    if (!attemptRow && event.message?.startsWith("attempt_id:")) {
+      const attemptId = event.message.slice("attempt_id:".length);
+      attemptRow = (
+        await admin.from("payment_attempts").select("*").eq("id", attemptId).eq("provider", provider.id).maybeSingle()
+      ).data;
+      if (attemptRow && event.externalPaymentId?.startsWith("pi_")) {
+        await admin
+          .from("payment_attempts")
+          .update({ external_attempt_id: event.externalPaymentId })
+          .eq("id", attemptId);
+        attemptRow = { ...attemptRow, external_attempt_id: event.externalPaymentId };
+      }
+    }
+
+    // Also match checkout session id stored as external_attempt_id.
+    if (!attemptRow && event.externalPaymentId?.startsWith("cs_")) {
+      attemptRow = (
+        await admin
+          .from("payment_attempts")
+          .select("*")
+          .eq("provider", provider.id)
+          .contains("metadata", { checkoutSessionId: event.externalPaymentId })
+          .maybeSingle()
+      ).data;
+    }
 
     if (!attemptRow) {
       results.push({ externalEventId: event.externalEventId, ignored: true, reason: "attempt not found" });
