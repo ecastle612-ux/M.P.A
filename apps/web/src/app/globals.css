@@ -38,10 +38,17 @@
   --mpa-color-text-primary: #12151a;
   --mpa-color-text-secondary: #4b5563;
   --mpa-color-text-muted: #6b7280;
+  --mpa-color-text-tertiary: var(--mpa-color-text-muted);
   --mpa-color-text-inverse: #f9fafb;
   --mpa-color-text-sidebar: #c4c9d1;
   --mpa-color-text-sidebar-active: #ffffff;
   --mpa-color-text-link: #0f6b56;
+
+  /* Compatibility aliases — prefer canonical names in new code */
+  --mpa-color-surface-muted: var(--mpa-color-bg-surface-muted);
+  --mpa-color-border: var(--mpa-color-border-default);
+  --mpa-color-brand: var(--mpa-color-brand-primary);
+  --mpa-color-action-primary: var(--mpa-color-brand-primary);
 
   /* Status */
   --mpa-color-status-success: #0e7a57;
@@ -264,6 +271,7 @@ body {
   --mpa-color-text-primary: #f3f4f6;
   --mpa-color-text-secondary: #cbd5e1;
   --mpa-color-text-muted: #94a3b8;
+  --mpa-color-text-tertiary: var(--mpa-color-text-muted);
   --mpa-color-brand-primary: #1fa87a;
   --mpa-color-brand-primary-hover: #32b98b;
   --mpa-color-brand-primary-active: #15825f;
@@ -272,6 +280,10 @@ body {
   --mpa-color-interactive-selected: #12352c;
   --mpa-color-interactive-disabled-bg: #202630;
   --mpa-color-interactive-disabled-text: #64748b;
+  --mpa-color-surface-muted: var(--mpa-color-bg-surface-muted);
+  --mpa-color-border: var(--mpa-color-border-default);
+  --mpa-color-brand: var(--mpa-color-brand-primary);
+  --mpa-color-action-primary: var(--mpa-color-brand-primary);
   color-scheme: dark;
 }
 

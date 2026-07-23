@@ -504,7 +504,7 @@ function CompleteStep({
 }) {
   return (
     <div className="space-y-4 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] text-2xl text-white">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] text-2xl text-[var(--mpa-color-text-inverse)]">
         ✓
       </div>
       <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">

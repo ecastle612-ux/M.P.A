@@ -286,7 +286,7 @@ export function ReportsView({
       ) : null}
 
       {versions && versionsFor ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--mpa-color-bg-overlay)] p-4 sm:items-center">
           <Card className="max-h-[80vh] w-full max-w-lg overflow-hidden">
             <div className="flex items-center justify-between border-b border-[var(--mpa-color-border-default)] px-4 py-3">
               <h3 className="font-display text-lg font-semibold">Previous versions</h3>

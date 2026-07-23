@@ -26,7 +26,7 @@ export default function NotFoundPage() {
         <div className="flex flex-wrap gap-2">
           <Link
             href="/dashboard"
-            className="rounded-md bg-[var(--mpa-color-action-primary)] px-3 py-2 text-sm font-semibold text-white"
+            className="rounded-md bg-[var(--mpa-color-action-primary)] px-3 py-2 text-sm font-semibold text-[var(--mpa-color-text-inverse)]"
           >
             Operations Center
           </Link>

@@ -44,12 +44,12 @@ export function AuthBrandShell({
             <div className="mb-10 transition-transform duration-500 ease-out">
               <BrandLogo purpose="login" priority />
             </div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">{eyebrow}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--mpa-color-text-inverse)]/70">{eyebrow}</p>
             <h1 className="mt-3 max-w-lg font-display text-4xl font-semibold leading-tight tracking-tight xl:text-5xl">
               {headline}
             </h1>
-            <p className="mt-4 max-w-md text-base leading-relaxed text-white/75">{support}</p>
-            <ul className="mt-10 space-y-3 text-sm text-white/65">
+            <p className="mt-4 max-w-md text-base leading-relaxed text-[var(--mpa-color-text-inverse)]/75">{support}</p>
+            <ul className="mt-10 space-y-3 text-sm text-[var(--mpa-color-text-inverse)]/65">
               <li className="flex gap-2">
                 <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--mpa-color-sidebar-accent)]" />
                 Operations, residents, and facility history in one workspace
@@ -68,7 +68,7 @@ export function AuthBrandShell({
           <section className="flex flex-col items-center justify-center">
             <div className="mb-6 flex w-full max-w-md flex-col items-center lg:hidden">
               <BrandLogo purpose="login" priority />
-              <p className="mt-4 text-center text-sm text-white/80">{headline}</p>
+              <p className="mt-4 text-center text-sm text-[var(--mpa-color-text-inverse)]/80">{headline}</p>
             </div>
 
             <div className="mpa-auth-card w-full max-w-md rounded-[var(--mpa-radius-xl)] border border-white/10 bg-[var(--mpa-color-bg-surface)] p-6 shadow-[var(--mpa-shadow-lg)] sm:p-8">

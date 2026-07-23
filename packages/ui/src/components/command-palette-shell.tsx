@@ -230,7 +230,7 @@ export function CommandPaletteShell({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-2 py-1 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-brand-primary)]"
+            className="rounded-md px-2 py-1 text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-interactive-row-hover)] hover:text-[var(--mpa-color-text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-border-focus)]"
           >
             Close
           </button>
@@ -243,15 +243,15 @@ export function CommandPaletteShell({
 function statusClass(variant: CommandPaletteStatusVariant | undefined): string {
   switch (variant) {
     case "success":
-      return "bg-emerald-50 text-emerald-700";
+      return "bg-[var(--mpa-color-status-success-subtle)] text-[var(--mpa-color-status-success)]";
     case "warning":
-      return "bg-amber-50 text-amber-800";
+      return "bg-[var(--mpa-color-status-warning-subtle)] text-[var(--mpa-color-status-warning)]";
     case "danger":
-      return "bg-red-50 text-red-700";
+      return "bg-[var(--mpa-color-status-danger-subtle)] text-[var(--mpa-color-status-danger)]";
     case "info":
-      return "bg-sky-50 text-sky-800";
+      return "bg-[var(--mpa-color-status-info-subtle)] text-[var(--mpa-color-status-info)]";
     default:
-      return "bg-gray-100 text-gray-700";
+      return "bg-[var(--mpa-color-bg-surface-muted)] text-[var(--mpa-color-text-secondary)]";
   }
 }
 

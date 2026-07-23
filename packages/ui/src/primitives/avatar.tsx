@@ -21,7 +21,7 @@ export function Avatar({ fallback, className, alt, src, ...props }: AvatarProps)
     <span
       aria-label={alt ?? fallback}
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-700",
+        "inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--mpa-color-bg-surface-muted)] text-xs font-semibold text-[var(--mpa-color-text-secondary)]",
         className,
       )}
     >

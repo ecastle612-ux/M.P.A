@@ -176,7 +176,7 @@ export function MoveOutWizard({ tenants }: { tenants: TenantListItem[] }) {
             key={label}
             className={`rounded-full px-3 py-1 text-xs ${
               index === step
-                ? "bg-[var(--mpa-color-brand-primary)] text-white"
+                ? "bg-[var(--mpa-color-brand-primary)] text-[var(--mpa-color-text-inverse)]"
                 : index < step
                   ? "bg-[var(--mpa-color-bg-surface-muted)] text-[var(--mpa-color-text-primary)]"
                   : "border border-[var(--mpa-color-border)] text-[var(--mpa-color-text-secondary)]"

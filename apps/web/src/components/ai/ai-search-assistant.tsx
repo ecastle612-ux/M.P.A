@@ -138,8 +138,8 @@ export function AiSearchAssistant({
               className={[
                 "rounded-md border px-3 py-2",
                 message.role === "user"
-                  ? "ml-8 border-[var(--mpa-color-brand-primary)]/20 bg-white"
-                  : "mr-8 border-[var(--mpa-color-border-default)] bg-white"
+                  ? "ml-8 border-[var(--mpa-color-brand-primary)]/20 bg-[var(--mpa-color-bg-surface)]"
+                  : "mr-8 border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]"
               ].join(" ")}
             >
               <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">

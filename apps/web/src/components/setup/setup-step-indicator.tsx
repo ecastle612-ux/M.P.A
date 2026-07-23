@@ -22,7 +22,7 @@ export function SetupStepIndicator({
                   step.complete
                     ? "bg-[var(--mpa-color-brand-primary-subtle)] text-[var(--mpa-color-brand-primary)]"
                     : isCurrent
-                      ? "bg-[var(--mpa-color-brand-primary)] text-white ring-2 ring-[var(--mpa-color-brand-primary)]/30"
+                      ? "bg-[var(--mpa-color-brand-primary)] text-[var(--mpa-color-text-inverse)] ring-2 ring-[var(--mpa-color-brand-primary)]/30"
                       : "bg-[var(--mpa-color-bg-surface-muted)] text-[var(--mpa-color-text-secondary)]"
                 ].join(" ")}
                 aria-current={isCurrent ? "step" : undefined}

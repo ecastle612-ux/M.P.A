@@ -85,7 +85,7 @@ export function PropertyQrPanel({
           <img
             src={qrDataUrl}
             alt={`QR code for ${propertyName} enrollment`}
-            className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-2"
+            className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-2"
             width={220}
             height={220}
           />

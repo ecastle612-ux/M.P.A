@@ -14,7 +14,7 @@ export function MaintenanceActivityTimeline({ events }: { events: MaintenanceAct
       {events.map((event, index) => (
         <li key={event.id} className={`relative pb-4 ${index === events.length - 1 ? "pb-0" : ""}`}>
           <span
-            className="absolute -left-[1.35rem] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-[var(--mpa-color-brand-primary)]"
+            className="absolute -left-[1.35rem] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-[var(--mpa-color-bg-surface)] bg-[var(--mpa-color-brand-primary)]"
             aria-hidden="true"
           />
           <div className="rounded-lg px-2 py-1">

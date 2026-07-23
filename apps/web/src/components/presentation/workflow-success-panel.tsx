@@ -28,7 +28,7 @@ export function WorkflowSuccessPanel({
     <Card className="border-[var(--mpa-color-brand-primary)]/30 bg-[var(--mpa-color-bg-surface-muted)]">
       <div className="flex items-start gap-3">
         <span
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] text-sm font-bold text-white"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] text-sm font-bold text-[var(--mpa-color-text-inverse)]"
           aria-hidden
         >
           ✓
@@ -70,7 +70,7 @@ export function WorkflowSuccessPanel({
                     className={[
                       "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
                       step.complete
-                        ? "bg-[var(--mpa-color-brand-primary)] text-white"
+                        ? "bg-[var(--mpa-color-brand-primary)] text-[var(--mpa-color-text-inverse)]"
                         : "border border-[var(--mpa-color-border-default)] text-[var(--mpa-color-text-secondary)]"
                     ].join(" ")}
                     aria-hidden

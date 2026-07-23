@@ -176,7 +176,7 @@ export function CreateFormContextRail({
                 className={[
                   "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
                   step.complete
-                    ? "bg-[var(--mpa-color-brand-primary)] text-white"
+                    ? "bg-[var(--mpa-color-brand-primary)] text-[var(--mpa-color-text-inverse)]"
                     : "border border-[var(--mpa-color-border-default)] text-[var(--mpa-color-text-secondary)]"
                 ].join(" ")}
                 aria-hidden

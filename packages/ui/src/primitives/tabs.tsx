@@ -13,6 +13,7 @@ import {
   type ReactNode
 } from "react";
 import { cn } from "../lib/cn";
+import { segmentedTrackClassName, segmentedTriggerClassName } from "../lib/nav-pill";
 
 type TabsContextValue = {
   activeValue: string;
@@ -45,7 +46,7 @@ export function Tabs({
       baseId,
       registerTabValue
     }),
-    [activeValue, baseId, registerTabValue, tabValues],
+    [activeValue, baseId, registerTabValue, tabValues]
   );
   return <TabsContext.Provider value={value}>{children}</TabsContext.Provider>;
 }
@@ -57,23 +58,19 @@ function useTabsContext(): TabsContextValue {
 }
 
 export function TabsList({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      role="tablist"
-      className={cn("inline-flex rounded-md bg-gray-100 p-1", className)}
-      {...props}
-    />
-  );
+  return <div role="tablist" className={cn(segmentedTrackClassName, className)} {...props} />;
 }
 
 export function TabsTrigger({
   value,
   className,
-  children
+  children,
+  disabled
 }: {
   value: string;
   className?: string;
   children: ReactNode;
+  disabled?: boolean;
 }) {
   const { activeValue, setActiveValue, tabValues, registerTabValue, baseId } = useTabsContext();
   const selected = activeValue === value;
@@ -87,17 +84,12 @@ export function TabsTrigger({
   function handleArrowNavigation(event: KeyboardEvent<HTMLButtonElement>) {
     const currentIndex = tabValues.indexOf(value);
     if (currentIndex === -1 || tabValues.length === 0) return;
-
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-
     event.preventDefault();
-
     const delta = event.key === "ArrowRight" ? 1 : -1;
     const nextIndex = (currentIndex + delta + tabValues.length) % tabValues.length;
     const nextValue = tabValues[nextIndex];
-    if (nextValue) {
-      setActiveValue(nextValue);
-    }
+    if (nextValue) setActiveValue(nextValue);
   }
 
   return (
@@ -107,16 +99,11 @@ export function TabsTrigger({
       aria-controls={panelId}
       type="button"
       aria-selected={selected}
+      disabled={disabled}
       tabIndex={selected ? 0 : -1}
       onClick={() => setActiveValue(value)}
       onKeyDown={handleArrowNavigation}
-      className={cn(
-        "rounded-sm px-3 py-1.5 text-sm",
-        selected
-          ? "bg-white text-[var(--mpa-color-text-primary)] shadow-sm"
-          : "text-[var(--mpa-color-text-secondary)] hover:text-[var(--mpa-color-text-primary)]",
-        className,
-      )}
+      className={segmentedTriggerClassName(selected, className)}
     >
       {children}
     </button>

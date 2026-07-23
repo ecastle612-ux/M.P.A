@@ -31,7 +31,7 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
         aria-labelledby={titleId}
         onMouseDown={(event) => event.stopPropagation()}
         className={cn(
-          "w-full max-w-lg rounded-xl bg-white p-5 shadow-2xl focus:outline-none",
+          "w-full max-w-lg rounded-xl bg-[var(--mpa-color-bg-surface)] p-5 shadow-[var(--mpa-shadow-lg)] focus:outline-none",
           className,
         )}
       >
@@ -42,7 +42,7 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-[var(--mpa-color-text-secondary)] hover:bg-gray-100"
+            className="rounded-md p-1 text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-interactive-row-hover)] hover:text-[var(--mpa-color-text-primary)]"
             aria-label="Close modal"
           >
             ✕

@@ -228,7 +228,7 @@ export function MigrationSwitchingExperience({
       <Card id="go-live" className="space-y-4 p-5">
         {snapshot.goLiveReady ? (
           <>
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] text-2xl text-white">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] text-2xl text-[var(--mpa-color-text-inverse)]">
               ✓
             </div>
             <div className="text-center">

@@ -31,7 +31,7 @@ export function Button({
         variant === "ghost" &&
           "text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-interactive-row-hover)] hover:text-[var(--mpa-color-text-primary)]",
         variant === "danger" &&
-          "bg-[var(--mpa-color-status-danger)] text-white shadow-[var(--mpa-shadow-xs)] hover:opacity-90",
+          "bg-[var(--mpa-color-status-danger)] text-[var(--mpa-color-text-inverse)] shadow-[var(--mpa-shadow-xs)] hover:opacity-90",
         className
       )}
       {...props}

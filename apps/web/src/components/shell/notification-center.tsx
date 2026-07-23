@@ -106,7 +106,7 @@ export function NotificationCenter() {
           <path d="M8.5 15.5a1.5 1.5 0 0 0 3 0" />
         </svg>
         <span className="hidden sm:inline">Alerts</span>
-        <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] px-1 text-[10px] font-semibold text-white">
+        <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] px-1 text-[10px] font-semibold text-[var(--mpa-color-text-inverse)]">
           {unreadCount > 99 ? "99+" : unreadCount}
         </span>
       </button>

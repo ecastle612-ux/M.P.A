@@ -73,9 +73,9 @@ export function BrandLogo({
   const markHeight = Math.round(markPx * MPA_LOGO_ASPECT_RATIO);
   const accessibleName = `${MPA_BRAND_NAME} ${MPA_BRAND_TAGLINE}`;
 
-  const textTone = surfaceTone === "dark-surface" ? "text-[#F3F4F6]" : "text-[#12151A]";
-  const mutedTone = surfaceTone === "dark-surface" ? "text-white/80" : "text-[#4B5563]";
-  const productTone = surfaceTone === "dark-surface" ? "text-white/55" : "text-[#6B7280]";
+  const textTone = surfaceTone === "dark-surface" ? "text-[var(--mpa-color-text-inverse)]" : "text-[var(--mpa-color-text-primary)]";
+  const mutedTone = surfaceTone === "dark-surface" ? "text-[var(--mpa-color-text-inverse)]/80" : "text-[var(--mpa-color-text-secondary)]";
+  const productTone = surfaceTone === "dark-surface" ? "text-[var(--mpa-color-text-inverse)]/55" : "text-[var(--mpa-color-text-muted)]";
 
   const mark = (
     // eslint-disable-next-line @next/next/no-img-element -- BrandLogo owns approved branding assets.

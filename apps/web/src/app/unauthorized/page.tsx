@@ -26,7 +26,7 @@ export default function UnauthorizedPage() {
         <div className="flex flex-wrap gap-2">
           <Link
             href="/master-admin"
-            className="rounded-md bg-[var(--mpa-color-action-primary)] px-3 py-2 text-sm font-semibold text-white"
+            className="rounded-md bg-[var(--mpa-color-action-primary)] px-3 py-2 text-sm font-semibold text-[var(--mpa-color-text-inverse)]"
           >
             Go to Mission Control
           </Link>

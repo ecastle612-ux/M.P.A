@@ -46,7 +46,7 @@ export function AppearanceSettingsPanel() {
               className={[
                 "rounded-[var(--mpa-radius-md)] border px-3 py-3 text-left transition-colors",
                 selected
-                  ? "border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-surface-muted)] shadow-[var(--mpa-shadow-xs)]"
+                  ? "border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-interactive-selected)] shadow-[var(--mpa-shadow-xs)]"
                   : "border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] hover:bg-[var(--mpa-color-interactive-row-hover)]"
               ].join(" ")}
             >

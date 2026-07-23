@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useState, useTransition } from "react";
-import { Input } from "@mpa/ui";
+import { Input, filledPillClassName } from "@mpa/ui";
 import type { OperationsCenterSnapshot } from "../../lib/master-admin/operations-center";
 import {
   getMissionControlQuickActions,
@@ -26,7 +26,7 @@ function severityClass(severity: "critical" | "warning" | "info"): string {
   if (severity === "warning") {
     return "border-[var(--mpa-color-status-warning)]/40 bg-[var(--mpa-color-status-warning)]/8";
   }
-  return "border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-surface-muted)]";
+  return "border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)]";
 }
 
 export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterSnapshot }) {
@@ -101,7 +101,7 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
               workspaces when you need them.
             </p>
           </div>
-          <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-surface-muted)] px-3 py-2 text-xs text-[var(--mpa-color-text-secondary)]">
+          <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] px-3 py-2 text-xs text-[var(--mpa-color-text-secondary)]">
             Active org{" "}
             <span className="font-medium text-[var(--mpa-color-text-primary)]">
               {snapshot.activeOrganizationName}
@@ -172,7 +172,7 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
           <span className="text-xs text-[var(--mpa-color-text-tertiary)]">Critical first</span>
         </div>
         {snapshot.attention.length === 0 ? (
-          <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-surface-muted)] px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
+          <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted)] px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
             All clear — nothing critical needs you right now.
           </p>
         ) : (
@@ -224,7 +224,7 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
             <Link
               key={kpi.id}
               href={kpi.href}
-              className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-3 transition hover:bg-[var(--mpa-color-surface-muted)]"
+              className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-3 transition hover:bg-[var(--mpa-color-bg-surface-muted)]"
             >
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--mpa-color-text-tertiary)]">
                 {kpi.label}
@@ -266,11 +266,7 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
                 key={item.id}
                 type="button"
                 onClick={() => setActiveWorkspace(item.id)}
-                className={
-                  active
-                    ? "shrink-0 rounded-md bg-[var(--mpa-color-text-primary)] px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-text-inverse)]"
-                    : "shrink-0 rounded-md border border-[var(--mpa-color-border-default)] px-3 py-1.5 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-surface-muted)]"
-                }
+                className={filledPillClassName(active)}
               >
                 {item.label}
               </button>

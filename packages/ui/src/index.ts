@@ -1,4 +1,5 @@
 export * from "./lib/cn";
+export * from "./lib/nav-pill";
 export * from "./tokens/canopy";
 export * from "./providers/theme-provider";
 

@@ -605,7 +605,7 @@ function PortfolioEmptyState({ permissions }: { permissions: OperationsPermissio
         {permissions.canCreateProperty ? (
           <Link
             href="/properties/new"
-            className="inline-flex rounded-md bg-[var(--mpa-color-brand-primary)] px-3 py-2 text-sm font-medium text-white"
+            className="inline-flex rounded-md bg-[var(--mpa-color-brand-primary)] px-3 py-2 text-sm font-medium text-[var(--mpa-color-text-inverse)]"
           >
             Create Property
           </Link>
@@ -613,7 +613,7 @@ function PortfolioEmptyState({ permissions }: { permissions: OperationsPermissio
         {permissions.canCreateUnit ? (
           <Link
             href="/units/new"
-            className="inline-flex rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm font-medium"
+            className="inline-flex rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm font-medium"
           >
             Create Unit
           </Link>
@@ -655,7 +655,7 @@ function ActivityTimelineCard({
           {activity.map((item, index) => (
             <li key={item.id} className={`relative pb-5 ${index === activity.length - 1 ? "pb-0" : ""}`}>
               <span
-                className="absolute -left-[1.35rem] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-[var(--mpa-color-brand-primary)]"
+                className="absolute -left-[1.35rem] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-[var(--mpa-color-bg-surface)] bg-[var(--mpa-color-brand-primary)]"
                 aria-hidden="true"
               />
               <Link

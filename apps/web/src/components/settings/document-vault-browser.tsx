@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Button, Card, Input } from "@mpa/ui";
+import { Button, Card, Input , navPillClassName} from "@mpa/ui";
 import type { VaultDocumentRecord } from "../../lib/vault/contracts";
 import {
   VAULT_BROWSER_CATEGORIES,
@@ -78,11 +78,7 @@ export function DocumentVaultBrowser({ initialDocuments }: { initialDocuments: V
               key={item.id}
               type="button"
               onClick={() => setCategory(item.id)}
-              className={
-                category === item.id
-                  ? "rounded-md bg-[var(--mpa-color-surface-muted)] px-3 py-1.5 text-sm font-medium"
-                  : "rounded-md px-3 py-1.5 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-surface-muted)]"
-              }
+              className={navPillClassName(category === item.id)}
             >
               {item.label}
             </button>

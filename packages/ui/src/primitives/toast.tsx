@@ -49,11 +49,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={item.id}
             role="status"
             className={cn(
-              "rounded-md border bg-white p-3 shadow-md",
-              item.variant === "info" && "border-[#1D6AA5]",
-              item.variant === "success" && "border-[#0E7A57]",
-              item.variant === "warning" && "border-[#B45309]",
-              item.variant === "danger" && "border-[#C0392B]",
+              "rounded-md border bg-[var(--mpa-color-bg-surface)] p-3 shadow-[var(--mpa-shadow-md)]",
+              item.variant === "info" && "border-[var(--mpa-color-status-info)]",
+              item.variant === "success" && "border-[var(--mpa-color-status-success)]",
+              item.variant === "warning" && "border-[var(--mpa-color-status-warning)]",
+              item.variant === "danger" && "border-[var(--mpa-color-status-danger)]",
             )}
           >
             <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">{item.title}</p>
