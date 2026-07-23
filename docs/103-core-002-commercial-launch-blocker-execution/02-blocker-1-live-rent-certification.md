@@ -121,12 +121,21 @@ Stripe delivered **three** distinct `succeeded` webhook events for the same PI w
 | Item | Value |
 |------|-------|
 | Checkout support commit | `7721040063b8cfc247b7cd066a8981595b173912` |
-| Idempotency fix commit | *(this cert commit)* |
+| Idempotency fix + cert commit | `da2d41db77d6b0635f42ac47e57cc1f93385f955` |
 | Deployment (live env pickup) | `dpl_7W1EotevcBFB5YBF7uZKrBrSkRAe` |
-| Deployment (idempotency fix) | *(post-commit deploy)* |
+| Deployment (idempotency fix) | `dpl_BApLpQh7scoiFU59fSN47oRH2V5Q` |
+
+### Post-deploy idempotency probes (production webhook)
+
+| Probe | Result |
+|-------|--------|
+| New `payment_intent.succeeded` for same PI | HTTP 200 `applied` — **no new payment/receipt** (still 1/1) |
+| Replay same `external_event_id` | HTTP 200 `ignored` / `duplicate` |
+| `charge.succeeded` | HTTP 200 `ignored` |
+| Charge balance after probes | `paid` / outstanding `$0.00` / `amount_paid=$1.00` |
 
 ---
 
 ## PASS criteria note
 
-PASS requires: one real live card payment, charge labeled as certification, full downstream reflection, no second Stripe charge, idempotent webhook handling going forward, no owner/vendor payout side effects. Met after remediation + fix deploy.
+PASS requires: one real live card payment, charge labeled as certification, full downstream reflection, no second Stripe charge, idempotent webhook handling going forward, no owner/vendor payout side effects. Met after remediation + fix deploy + probe verification.
