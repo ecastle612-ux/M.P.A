@@ -96,6 +96,10 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 95 | [ADMIN-003 Master Admin Operations Center](./95-admin-003-master-admin-operations-center/README.md) | Mission Control HQ (**Approved** · Slice A unlocked) |
 | 96 | [DPX-003 Commercial Product Experience](./96-dpx-003-commercial-product-experience/README.md) | Premium polish for Design Partner (**Approved** · Implement unlocked) |
 | 99 | [PUSH-001 PWA Push Commercial Certification](./99-push-001-pwa-push-commercial-certification/README.md) | Forensic push audit + real-device PASS (**Approved** · Implement unlocked) |
+| 100 | [BILL-001 SaaS Subscription Billing](./100-bill-001-saas-subscription-billing/README.md) | Stripe SaaS billing · Company Billing Center (Phase A **PASS**) |
+| 101 | [VENDOR-001 Zero Friction Vendor](./101-vendor-001-zero-friction-vendor-experience/README.md) | Tokenized QR Start/Finish (Phase A **PASS** · Phase B locked) |
+| 102 | [CORE-001 Commercial Platform Gap Analysis](./102-core-001-commercial-platform-gap-analysis/README.md) | Launch blockers · scorecard · roadmap (**Approved**) |
+| 103 | [CORE-002 Commercial Launch Blocker Execution](./103-core-002-commercial-launch-blocker-execution/README.md) | Close launch blockers in order (**Approved** · Blocker 1 active) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
