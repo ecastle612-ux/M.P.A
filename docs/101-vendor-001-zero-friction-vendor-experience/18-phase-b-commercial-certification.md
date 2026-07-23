@@ -71,8 +71,10 @@ Cert script: `apps/web/scripts/cert/vendor001-phase-b-cert.mjs`
 
 | Item | Value |
 |------|-------|
-| Commit | *(filled at commit time)* |
-| Deployment ID | *(filled after deploy)* |
+| Commit | `380bf86aae48c96f9c807e3d2d2abdb213e1a964` |
+| Deployment ID | `dpl_T6RpMQnEr93aAhqPTK35JddpPULA` |
+| Production host | `https://www.my-property-assistant.com` |
+| Prod probe | `/v/[token]` → 200 · invoice API invalid token → 410 · mark-paid unauth → 401 |
 
 ## Screenshots
 

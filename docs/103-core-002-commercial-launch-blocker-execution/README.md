@@ -34,7 +34,7 @@ This is an **execution** package. It does not invent new product scope beyond th
 | # | Blocker | Package / track | Gate note |
 |---|---------|-----------------|-----------|
 | **1** | Live Tenant Rent Collection Certification | EP-017 / API-005 | **PASS** — see `02-blocker-1-live-rent-certification.md` |
-| **2** | Vendor Payments | VENDOR-001 Phase B | Unlock after #1 PASS; Phase B Approve before build |
+| **2** | Vendor Payments | VENDOR-001 Phase B | **PASS** — [18 Phase B cert](../101-vendor-001-zero-friction-vendor-experience/18-phase-b-commercial-certification.md) |
 | **3** | Owner Portal | New Owner Portal MVP package | After #2 or parallel only if #1 PASS and staffing allows — **default: after #2** |
 | **4** | Owner Payouts | FIN-003 Phases B–E | Restore docs → Approve → implement; after portal foundation |
 | **5** | Push Notifications | PUSH-001 | Real-device commercial PASS |
@@ -53,10 +53,10 @@ Evidence: [`02-blocker-1-live-rent-certification.md`](./02-blocker-1-live-rent-c
 Resident → Stripe Checkout → Ledger → Property → Resident → Financial Activity → Notifications → Receipt → Reporting → Audit
 ```
 
-### Blocker 2 — Vendor Payments — **Awaiting Phase B Approve**
+### Blocker 2 — Vendor Payments — **PASS**
 
-Scope draft: [`docs/101-vendor-001-zero-friction-vendor-experience/16-phase-b-approval-scope.md`](../101-vendor-001-zero-friction-vendor-experience/16-phase-b-approval-scope.md).  
-No Phase B application code until that Approve reply is recorded.
+Evidence: [`docs/101-vendor-001-zero-friction-vendor-experience/18-phase-b-commercial-certification.md`](../101-vendor-001-zero-friction-vendor-experience/18-phase-b-commercial-certification.md).  
+Owner Portal remains deferred until Blocker 3.
 
 ## Success
 
