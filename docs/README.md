@@ -100,6 +100,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 101 | [VENDOR-001 Zero Friction Vendor](./101-vendor-001-zero-friction-vendor-experience/README.md) | Tokenized QR Start/Finish (Phase A **PASS** · Phase B locked) |
 | 102 | [CORE-001 Commercial Platform Gap Analysis](./102-core-001-commercial-platform-gap-analysis/README.md) | Launch blockers · scorecard · roadmap (**Approved**) |
 | 103 | [CORE-002 Commercial Launch Blocker Execution](./103-core-002-commercial-launch-blocker-execution/README.md) | Close launch blockers in order (**Approved** · Blocker 1 active) |
+| 106 | [PMX-004 Native PWA Parity](./106-pmx-004-native-pwa-parity/README.md) | Near-native PWA (**Phase 1 code ✔** · prod validation gate [17](./106-pmx-004-native-pwa-parity/17-phase-1-production-validation.md) · Phase 2 locked) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

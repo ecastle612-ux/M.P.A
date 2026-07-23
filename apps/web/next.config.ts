@@ -32,7 +32,28 @@ const nextConfig: NextConfig = {
       "media-src 'self' blob:"
     ].join("; ");
 
+    const swNoCache = [
+      { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+      { key: "Service-Worker-Allowed", value: "/" }
+    ] as const;
+
     return [
+      {
+        source: "/OneSignalSDKWorker.js",
+        headers: [...swNoCache]
+      },
+      {
+        source: "/sw-offline.js",
+        headers: [...swNoCache]
+      },
+      {
+        source: "/sw.js",
+        headers: [...swNoCache]
+      },
+      {
+        source: "/push/onesignal/OneSignalSDKWorker.js",
+        headers: [...swNoCache]
+      },
       {
         source: "/(.*)",
         headers: [

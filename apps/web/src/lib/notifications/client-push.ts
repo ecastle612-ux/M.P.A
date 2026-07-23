@@ -11,8 +11,11 @@ const SDK_SRC = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
 /**
  * Match OneSignal dashboard Typical site config (sync payload):
  * path `/`, worker `OneSignalSDKWorker.js`, scope `/`, customizationEnabled=false.
- * The root worker also hosts PWA offline handlers (see public/OneSignalSDKWorker.js).
- * Subdirectory copy at /push/onesignal/ remains for a future dashboard custom-path cutover.
+ *
+ * PMX-004 Phase 1: `/OneSignalSDKWorker.js` is the ONLY production worker. It
+ * importScripts OneSignal CDN SW + `/sw-offline.js` (offline/cache/update). Do not
+ * register `/sw.js` — dual root-scope script URLs race pushManager.subscribe (CP-003).
+ * Legacy copy under `/push/onesignal/` mirrors the canonical worker for cutover only.
  */
 const ONESIGNAL_SERVICE_WORKER_DIR = "/";
 const ONESIGNAL_SERVICE_WORKER_FILE = "OneSignalSDKWorker.js";

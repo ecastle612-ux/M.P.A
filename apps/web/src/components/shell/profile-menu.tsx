@@ -56,6 +56,8 @@ export function ProfileMenu({ fetchProfile = true }: { fetchProfile?: boolean })
   }, [displayName]);
 
   async function handleLogout() {
+    const { clearServiceWorkerUserCaches } = await import("../../lib/pwa/sw-client");
+    clearServiceWorkerUserCaches();
     await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
     router.replace("/login");
     setOpen(false);
