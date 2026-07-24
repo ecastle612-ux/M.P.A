@@ -23,7 +23,7 @@ Commercial readiness is **strong on money-in, owner self-serve, and certified mo
 | Owner Portal MVP | ✅ Complete · Certified PASS (Blocker 3 / OWNER-001) |
 | Owner payouts (Stripe Connect) | ✅ **CLOSED (PASS)** — FIN-003 package CERT PASS · [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) · live enable ops-gated |
 | Push commercial cert | ⏳ **ACTIVE** (Blocker 5 / PUSH-001) |
-| Performance | 🔒 Queued / paused (Blocker 6 / EP-019) |
+| Performance | 🔒 Queued / paused (Blocker 6 / EP-019) — [Blocker-6-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-6-Readiness.md); Not Approved · Implement locked |
 | Governance coherence | ✅ Healthy after audit closeout |
 | Active commercial-spine focus | **Blocker 5** — PUSH-001 commercial certification |
 
@@ -100,7 +100,7 @@ Execution order is **serial for commercial blocker closure**. Package Approve �
     ↓
 PUSH-001 — Blocker 5 commercial certification (ACTIVE focus)
     ↓
-EP-019 — Blocker 6 performance (resume / cert-only path)
+EP-019 — Blocker 6 performance (QUEUED · Not Approved · [Blocker-6-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-6-Readiness.md))
     ↓
 Commercial Launch Certification (readiness ≥ 9.5)
     ↓

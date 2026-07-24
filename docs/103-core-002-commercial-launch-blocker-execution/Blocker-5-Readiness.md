@@ -1,8 +1,9 @@
 # Blocker 5 Readiness — Push Notifications (PUSH-001)
 
 **Track:** [PUSH-001](../99-push-001-pwa-push-commercial-certification/README.md)  
-**Status:** ✅ PUSH-001 **APPROVED** · Implement unlocked · ⏳ Commercial **PASS pending** · Blocker 5 **OPEN**  
-**Updated:** 2026-07-23  
+**Status:** ✅ PUSH-001 **APPROVED** · Implement unlocked · ❌ Commercial cert **FAIL** (2026-07-24) · Blocker 5 **OPEN**  
+**Updated:** 2026-07-24  
+**Certification report:** [14](../99-push-001-pwa-push-commercial-certification/14-commercial-certification-report.md) — FAIL (no real-device evidence)  
 **Type:** Governance preflight (documentation only — no authorize · no implement)
 
 **Package:** [99](../99-push-001-pwa-push-commercial-certification/README.md)  
@@ -26,7 +27,7 @@ Independent governance preflight for CORE-002 **Blocker 5**. Determines PUSH-001
 | Package Design → Document → Approve | ✅ Complete | [README](../99-push-001-pwa-push-commercial-certification/README.md) · [11](../99-push-001-pwa-push-commercial-certification/11-approval.md) |
 | Implement unlocked | ✅ Yes | Gate registry · [11](../99-push-001-pwa-push-commercial-certification/11-approval.md) |
 | Serial predecessor (Blocker 4) | ✅ CLOSED | [Blocker-4-Closeout](./Blocker-4-Closeout.md) |
-| Commercial package PASS | ❌ Pending | No certification report; `artifacts/` empty of device evidence |
+| Commercial package PASS | ❌ **FAIL** (2026-07-24) | [14](../99-push-001-pwa-push-commercial-certification/14-commercial-certification-report.md) — device evidence still missing |
 | Blocker 5 CLOSED | ❌ OPEN | CORE-002 |
 | Commercial Launch | ❌ Not authorized | Master plan / gate |
 
@@ -138,16 +139,16 @@ API-001A (enrollment / devices)
 
 | Gate | Criterion | Status |
 |------|-----------|--------|
-| G1 | Android PWA receives | ☐ |
-| G2 | iPhone PWA receives | ☐ |
-| G3 | Desktop Chrome + Edge | ☐ |
-| G4 | Role matrix (implemented rows) | ☐ Device |
-| G5 | Deep links correct | ☐ Device |
-| G6 | No duplicates | ☐ |
-| G7 | Diagnostics healthy regs | ☐ |
-| G8 | MA / Settings Send Test | ☐ |
-| G9 | Physical-device evidence packaged | ☐ `artifacts/` empty |
-| G10 | typecheck · build · prod deploy verify | ☐ Confirm on cert closeout |
+| G1 | Android PWA receives | ❌ FAIL — not executed (2026-07-24) |
+| G2 | iPhone PWA receives | ❌ FAIL — not executed |
+| G3 | Desktop Chrome + Edge | ❌ FAIL — not executed |
+| G4 | Role matrix (implemented rows) | ❌ FAIL — Device ☐ |
+| G5 | Deep links correct | ❌ FAIL — code on prod; device unproven |
+| G6 | No duplicates | ❌ FAIL — not observed |
+| G7 | Diagnostics healthy regs | ❌ FAIL — not observed |
+| G8 | MA / Settings Send Test | ❌ FAIL — not executed |
+| G9 | Physical-device evidence packaged | ❌ FAIL — device folders empty |
+| G10 | typecheck · build · prod deploy verify | ⚠️ PARTIAL — prod `8b46d70` ✅ · web tsc ✅ · root tsc ❌ qa-e2e |
 
 ---
 

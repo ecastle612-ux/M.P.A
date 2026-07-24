@@ -5,6 +5,7 @@
 **Goal:** Drive commercial push to **PASS** (G1–G10)  
 **Code status:** Deep-link / wiring repairs recorded 2026-07-23 · commercial PASS still requires devices  
 **Blocker status:** CORE-002 Blocker 4 ✅ **CLOSED** · Blocker 5 **OPEN** — CLOSE allowed only after PUSH-001 package PASS  
+**Certification session (2026-07-24):** ❌ **FAIL** — [14-commercial-certification-report.md](./14-commercial-certification-report.md) (public prod preflight only; no physical-device evidence)  
 **Readiness:** [Blocker-5-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-5-Readiness.md)
 
 ---

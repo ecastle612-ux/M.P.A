@@ -57,7 +57,7 @@ Only the following remain on the commercial path after this freeze (in order):
 | # | Item | Gate note |
 |---|------|-----------|
 | 1 | **PUSH-001** | Blocker 5 — **current focus** after Blocker 4 CLOSED |
-| 2 | **EP-019** | Blocker 6 — resume / cert-only after notifications path |
+| 2 | **EP-019** | Blocker 6 — QUEUED · Not Approved · [Blocker-6-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-6-Readiness.md) |
 | 3 | **Commercial Launch Certification** | Target readiness ≥ 9.5 |
 | 4 | **GA** | General Availability |
 | 5 | **UI-001** | Future Release — after launch blockers clear |

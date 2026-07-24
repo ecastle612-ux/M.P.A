@@ -2,8 +2,9 @@
 
 **Initiative ID:** PUSH-001  
 **Priority:** CRITICAL — launch-critical  
-**Status:** Design ✔ · Document ✔ · ✅ **Approved** · Implement unlocked · ⏳ **Commercial PASS pending real-device evidence**  
+**Status:** Design ✔ · Document ✔ · ✅ **Approved** · Implement unlocked · ❌ **Commercial cert FAIL** (2026-07-24) — real-device evidence missing  
 **Approved:** 2026-07-22 (`APPROVE PUSH-001`)  
+**Certification report:** [14 — Commercial certification report](./14-commercial-certification-report.md) (**FAIL**)  
 **Launch pack:** [13 — Launch readiness execution](./13-launch-readiness-execution.md)  
 **Parents:** [API-001](../44-api-001-onesignal-notification-foundation/README.md) · [API-001A](../45-api-001a-push-enrollment-device-registration/README.md) · [ADR-017](../18-decision-log/adr-017-onesignal-as-primary-push-provider.md)  
 **Related:** [DPX-003 G4](../96-dpx-003-commercial-product-experience/05-push-notification-certification.md) (superseded for commercial push PASS by this package)  
@@ -60,6 +61,7 @@ Proven on **real** Desktop / Android / iPhone (within Apple-supported web push c
 | Approval | [11-approval.md](./11-approval.md) |
 | Roadmap / DPX relationship | [12-roadmap-relationship.md](./12-roadmap-relationship.md) |
 | Launch readiness execution | [13-launch-readiness-execution.md](./13-launch-readiness-execution.md) |
+| Commercial certification report | [14-commercial-certification-report.md](./14-commercial-certification-report.md) — ❌ **FAIL** (device evidence missing) |
 
 ## Architecture (current — API-001)
 

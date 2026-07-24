@@ -1,10 +1,12 @@
 # EP-019 — Performance & Speed Certification
 
 **Initiative ID:** EP-019  
-**Status:** Design ✔ · Document ✔ · **Paused** (await UX-009) · Implement locked  
+**Status:** Design ✔ · Document ✔ · **Paused** (await UX-009 complete) · ❌ **Not Approved** · Implement locked  
+**CORE-002:** Blocker 6 — **QUEUED** (serial after Blocker 5)  
+**Readiness:** [Blocker-6-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-6-Readiness.md) (2026-07-24)  
 **Constraint:** Evidence-first optimization only — no UI redesign, no feature removal, no a11y/security regressions  
 **Aligns with:** [15 Performance Standards](../15-performance-standards/index.md), Experience Architecture (21), UX Principles (07)  
-**Sequencing:** Paused behind [UX-009](../88-ux-009-cognitive-load-workflow-optimization/README.md) so baselines measure the reorganized IA, not pre-reorg layouts.
+**Sequencing:** Paused behind [UX-009](../88-ux-009-cognitive-load-workflow-optimization/README.md) so baselines measure the reorganized IA, not pre-reorg layouts. Commercial CLOSE serial after PUSH-001 / Blocker 5.
 
 ---
 
@@ -63,3 +65,5 @@ Static hypotheses may be documented before Approve (this package).
 ## Approval
 
 **Do not approve yet.** Complete and certify [UX-009](../88-ux-009-cognitive-load-workflow-optimization/README.md) first, then reply **`APPROVE EP-019`** to unlock baselines and evidence-gated optimizations.
+
+Commercial spine: do **not** claim Blocker 6 CLOSED or displace Blocker 5 focus. See [Blocker-6-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-6-Readiness.md).

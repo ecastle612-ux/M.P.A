@@ -37,7 +37,7 @@ This is an **execution** package. It does not invent new product scope beyond th
 | **3** | Owner Portal | [OWNER-001](../104-owner-001-commercial-owner-portal/README.md) | ✅ **CLOSED (PASS)** — [Blocker-3-Closeout](./Blocker-3-Closeout.md) · [28 cert](../104-owner-001-commercial-owner-portal/28-owner-001-certification.md) |
 | **4** | Owner Payouts | [FIN-003](../98-fin-003-owner-payout-stripe-connect/README.md) | ✅ **CLOSED (PASS)** — [Blocker-4-Closeout](./Blocker-4-Closeout.md) · [57 package cert](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md) |
 | **5** | Push Notifications | PUSH-001 | ⏳ **Active** — package Approved; Blocker 5 commercial closure in focus (serial after Blocker 4) |
-| **6** | Performance | EP-019 | Resume after money/ops blockers or as cert-only if no code |
+| **6** | Performance | EP-019 | ⏳ **Queued** — [Blocker-6-Readiness](./Blocker-6-Readiness.md); Not Approved · Implement locked; after Blocker 5 |
 
 **Serial default (binding for commercial blocker closure):** `1 → 2 → 3 → 4 → 5 → 6`
 
@@ -55,6 +55,7 @@ This is an **execution** package. It does not invent new product scope beyond th
 | [Blocker-4-Closeout.md](./Blocker-4-Closeout.md) | Blocker 4 formal closeout |
 | [Blocker-4-Readiness.md](./Blocker-4-Readiness.md) | Blocker 4 readiness checkpoint (historical) |
 | [Blocker-5-Readiness.md](./Blocker-5-Readiness.md) | Blocker 5 governance preflight (PUSH-001) |
+| [Blocker-6-Readiness.md](./Blocker-6-Readiness.md) | Blocker 6 governance preflight (EP-019) |
 | [02-blocker-1-live-rent-certification.md](./02-blocker-1-live-rent-certification.md) | Blocker 1 cert |
 | [01-blocker-1-live-rent-plan.md](./01-blocker-1-live-rent-plan.md) | Blocker 1 plan |
 
@@ -103,7 +104,21 @@ No further FIN-003 phase implementation required for Blocker 4. Live transfer en
 | Blocker 5 closure | ⏳ **OPEN** — serial commercial focus after Blocker 4 |
 | Commercial Launch | ❌ Not authorized |
 
-**Next action:** Execute PUSH-001 real-device commercial certification per [13](../99-push-001-pwa-push-commercial-certification/13-launch-readiness-execution.md) (recommended kickoff: `BEGIN PUSH-001 REAL-DEVICE CERTIFICATION`). Do **not** claim package PASS without physical-device evidence. Do **not** close Blocker 5 without cert. Do **not** claim Commercial Launch. Do **not** skip to Blocker 6 closure as a substitute.
+**Certification session (2026-07-24):** ❌ **FAIL** — [14](../99-push-001-pwa-push-commercial-certification/14-commercial-certification-report.md) (prod preflight only; no physical-device evidence).  
+
+**Next action:** Humans complete [13](../99-push-001-pwa-push-commercial-certification/13-launch-readiness-execution.md) on real devices → `RESUME PUSH-001 REAL-DEVICE CERTIFICATION — evidence attached`. Do **not** claim package PASS without physical-device evidence. Do **not** close Blocker 5 without cert. Do **not** claim Commercial Launch. Do **not** skip to Blocker 6 closure as a substitute.
+
+## Queued — Blocker 6 — Performance (EP-019)
+
+| Item | Status |
+|------|--------|
+| Readiness preflight | [Blocker-6-Readiness.md](./Blocker-6-Readiness.md) |
+| Package | [EP-019](../87-ep-019-performance-speed-certification/README.md) — **Paused** · ❌ Not Approved · Implement **locked** |
+| UX-009 sequencing | ❌ Not package-COMPLETE (EP-019 pause still binds) |
+| Blocker 6 closure | ⏳ **QUEUED** — after Blocker 5 CLOSE + `APPROVE EP-019` + measure/optimize/verdict |
+| Commercial Launch | ❌ Not authorized |
+
+**Do not** issue `APPROVE EP-019` while Blocker 5 remains the active commercial focus and UX-009 remains incomplete — see readiness note.
 
 **Governance audit:** [Project Roadmap Status](../00-governance/project-roadmap-status.md) · [Closeout](../00-governance/governance-audit-closeout.md) (2026-07-23).  
 **Master plan:** [Commercial Launch Master Plan](../00-governance/commercial-launch-master-plan.md).  
