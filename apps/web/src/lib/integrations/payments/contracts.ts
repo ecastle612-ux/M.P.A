@@ -33,6 +33,18 @@ export type PaymentMethodRef = {
   bankName?: string | null;
 };
 
+/**
+ * PAY-001 destination charge routing (locked shape).
+ * Server-resolved only — never accept client-supplied destination.
+ */
+export type DestinationChargeRouting = {
+  settlementAccountId: string;
+  applicationFeeAmountCents: number;
+  fundingMode: "destination";
+  propertyId?: string | null;
+  paymentAttemptId: string;
+};
+
 export type CreatePaymentAttemptInput = {
   organizationId: string;
   attemptId: string;
@@ -49,6 +61,8 @@ export type CreatePaymentAttemptInput = {
   useCheckout?: boolean;
   checkoutSuccessUrl?: string;
   checkoutCancelUrl?: string;
+  /** PAY-001: platform PI/Checkout + transfer_data.destination + application_fee_amount */
+  destinationRouting?: DestinationChargeRouting | null;
 };
 
 export type PaymentAttemptRef = {
@@ -94,6 +108,10 @@ export type NormalizedPaymentEvent = {
     | "partially_refunded"
     | "canceled"
     | "dispute"
+    | "dispute_opened"
+    | "dispute_won"
+    | "dispute_lost"
+    | "ach_return"
     | "ignored";
   amountCents?: number | null;
   currency?: string | null;
@@ -102,6 +120,8 @@ export type NormalizedPaymentEvent = {
   message?: string | null;
   payloadDigest?: string | null;
   ignored?: boolean;
+  /** Stripe dispute / refund / charge id when present */
+  externalCorrectionId?: string | null;
 };
 
 export type PaymentProvider = {

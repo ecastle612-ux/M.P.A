@@ -7,6 +7,7 @@ const ITEMS = [
   { href: "/settings/organization", label: "Organization", exact: false },
   { href: "/settings/team", label: "Team", exact: false },
   { href: "/settings/billing", label: "Billing", exact: false },
+  { href: "/settings/payouts", label: "Owner payouts", exact: false },
   { href: "/settings/appearance", label: "Appearance", exact: false },
   { href: "/settings/integrations", label: "Integrations", exact: false },
   { href: "/settings/documents", label: "Documents", exact: false },

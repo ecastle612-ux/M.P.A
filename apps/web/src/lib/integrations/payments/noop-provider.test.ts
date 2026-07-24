@@ -84,6 +84,54 @@ describe("stripe payment provider sandbox", () => {
     ).rejects.toThrow(/signature/i);
     delete process.env["STRIPE_WEBHOOK_SECRET"];
   });
+
+  it("refuses destination routing without STRIPE_SECRET_KEY (C1)", async () => {
+    const previous = process.env["STRIPE_SECRET_KEY"];
+    delete process.env["STRIPE_SECRET_KEY"];
+    process.env["STRIPE_MODE"] = "sandbox";
+
+    await expect(
+      stripePaymentProvider.createPaymentAttempt({
+        organizationId: "org",
+        attemptId: "att-dest",
+        attemptNumber: "PA-DEST",
+        externalCustomerId: "cus_sandbox_x",
+        amountCents: 20000,
+        currency: "usd",
+        useCheckout: true,
+        destinationRouting: {
+          settlementAccountId: "acct_settlement_test",
+          applicationFeeAmountCents: 250,
+          fundingMode: "destination",
+          propertyId: "prop-1",
+          paymentAttemptId: "att-dest"
+        }
+      })
+    ).rejects.toThrow(/STRIPE_SECRET_KEY|transfer_data/);
+
+    if (previous) process.env["STRIPE_SECRET_KEY"] = previous;
+  });
+});
+
+describe("noop payment provider destination refusal", () => {
+  it("rejects destinationRouting", async () => {
+    await expect(
+      noopPaymentProvider.createPaymentAttempt({
+        organizationId: "org",
+        attemptId: "att",
+        attemptNumber: "PA-1",
+        externalCustomerId: "noop-cus",
+        amountCents: 1000,
+        currency: "usd",
+        destinationRouting: {
+          settlementAccountId: "acct_x",
+          applicationFeeAmountCents: 0,
+          fundingMode: "destination",
+          paymentAttemptId: "att"
+        }
+      })
+    ).rejects.toThrow(/noop|transfer_data/i);
+  });
 });
 
 describe("stripe webhook event mapping", () => {

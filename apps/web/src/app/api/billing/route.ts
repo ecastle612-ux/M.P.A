@@ -14,6 +14,8 @@ import {
   publishInvoiceForCharges,
   reconcileAwaitingPayments,
   refundPaymentAttempt,
+  getMoneyInSettlementReconcile,
+  applyMoneyInSettlementReconcile,
   upsertBillingSchedule
 } from "../../../lib/billing/server";
 
@@ -46,6 +48,16 @@ export async function GET(request: Request) {
     if (tenantId && url.searchParams.get("ledger") === "1") {
       const entries = await getResidentLedger(organizationId, tenantId, supabase);
       return NextResponse.json({ entries }, { headers: { "Cache-Control": "no-store" } });
+    }
+
+    const settlementAttemptId = url.searchParams.get("settlementAttemptId");
+    if (settlementAttemptId && url.searchParams.get("reconcile") === "1") {
+      const report = await getMoneyInSettlementReconcile(
+        organizationId,
+        settlementAttemptId,
+        supabase
+      );
+      return NextResponse.json({ reconcile: report }, { headers: { "Cache-Control": "no-store" } });
     }
 
     const ops = await getBillingOpsSnapshot(organizationId, supabase);
@@ -156,6 +168,26 @@ export async function POST(request: Request) {
         supabase
       );
       return NextResponse.json({ refund });
+    }
+
+    if (action === "settlement_reconcile_apply") {
+      if (!evaluatePermission(authorization, "financial:admin")) {
+        return apiError(403, "FORBIDDEN", "Forbidden");
+      }
+      const attemptId = String(payload["attemptId"] ?? "");
+      const summary = String(payload["summary"] ?? "");
+      const ledgerNote = String(payload["ledgerNote"] ?? "");
+      const amountCents = typeof payload["amountCents"] === "number" ? payload["amountCents"] : 0;
+      if (!attemptId || !summary || !ledgerNote || !amountCents) {
+        return apiError(400, "INVALID_PAYLOAD", "attemptId, summary, ledgerNote, amountCents required");
+      }
+      const result = await applyMoneyInSettlementReconcile(organizationId, user.id, {
+        paymentAttemptId: attemptId,
+        summary,
+        ledgerNote,
+        amountCents
+      });
+      return NextResponse.json(result);
     }
 
     if (action === "pay") {

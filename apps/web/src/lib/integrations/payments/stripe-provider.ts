@@ -51,6 +51,128 @@ async function stripeFetch(path: string, init?: RequestInit): Promise<Response> 
   });
 }
 
+/**
+ * Exported for certification tests — locked destination charge form fields.
+ * Does not call Stripe.
+ */
+export function buildStripeDestinationChargeParams(
+  input: CreatePaymentAttemptInput,
+  prefix: "" | "payment_intent_data" = ""
+): Record<string, string> {
+  const routing = input.destinationRouting;
+  if (!routing || routing.fundingMode !== "destination") return {};
+  if (!routing.settlementAccountId.startsWith("acct_")) {
+    throw new Error("PAY-001 destinationRouting.settlementAccountId must be an acct_… id");
+  }
+  const destKey =
+    prefix === "payment_intent_data"
+      ? "payment_intent_data[transfer_data][destination]"
+      : "transfer_data[destination]";
+  const feeKey =
+    prefix === "payment_intent_data"
+      ? "payment_intent_data[application_fee_amount]"
+      : "application_fee_amount";
+  const params: Record<string, string> = {
+    [destKey]: routing.settlementAccountId,
+    ...(prefix === ""
+      ? {
+          "metadata[organization_id]": input.organizationId,
+          "metadata[settlement_account_id]": routing.settlementAccountId,
+          "metadata[mpa_rail]": "resident_rent",
+          "metadata[funding_mode]": "destination",
+          "metadata[payment_attempt_id]": routing.paymentAttemptId || input.attemptId,
+          "metadata[attempt_id]": input.attemptId,
+          "metadata[attempt_number]": input.attemptNumber
+        }
+      : {
+          "payment_intent_data[metadata][organization_id]": input.organizationId,
+          "payment_intent_data[metadata][settlement_account_id]": routing.settlementAccountId,
+          "payment_intent_data[metadata][mpa_rail]": "resident_rent",
+          "payment_intent_data[metadata][funding_mode]": "destination",
+          "payment_intent_data[metadata][payment_attempt_id]":
+            routing.paymentAttemptId || input.attemptId,
+          "payment_intent_data[metadata][attempt_id]": input.attemptId,
+          "payment_intent_data[metadata][attempt_number]": input.attemptNumber
+        })
+  };
+  if (routing.propertyId) {
+    if (prefix === "payment_intent_data") {
+      params["payment_intent_data[metadata][property_id]"] = routing.propertyId;
+      params["metadata[property_id]"] = routing.propertyId;
+    } else {
+      params["metadata[property_id]"] = routing.propertyId;
+    }
+  }
+  if (routing.applicationFeeAmountCents > 0) {
+    params[feeKey] = String(routing.applicationFeeAmountCents);
+  }
+  if (prefix === "payment_intent_data") {
+    params["metadata[organization_id]"] = input.organizationId;
+    params["metadata[settlement_account_id]"] = routing.settlementAccountId;
+    params["metadata[mpa_rail]"] = "resident_rent";
+    params["metadata[funding_mode]"] = "destination";
+    params["metadata[payment_attempt_id]"] = routing.paymentAttemptId || input.attemptId;
+    params["metadata[attempt_id]"] = input.attemptId;
+    params["metadata[attempt_number]"] = input.attemptNumber;
+  }
+  return params;
+}
+
+
+/**
+ * Retrieve transfer_data.destination from a live PaymentIntent (settle-time verify).
+ */
+export async function retrieveStripePaymentIntentDestination(
+  externalPaymentIntentId: string
+): Promise<string | null> {
+  if (!externalPaymentIntentId.startsWith("pi_")) return null;
+  if (!secretKey()) {
+    throw new Error("STRIPE_SECRET_KEY is required to retrieve PaymentIntent destination");
+  }
+  const res = await stripeFetch(`/payment_intents/${externalPaymentIntentId}`);
+  if (!res.ok) throw new Error(`Stripe retrieve PaymentIntent failed: ${await res.text()}`);
+  const json = (await res.json()) as {
+    transfer_data?: { destination?: string | null } | null;
+  };
+  const dest = json.transfer_data?.destination;
+  return typeof dest === "string" && dest.startsWith("acct_") ? dest : null;
+}
+
+/**
+ * Retrieve Connect Express available (and optionally pending) balance in USD cents.
+ * Cash SoT for money-in / refund preflight — never invent balances.
+ */
+export async function retrieveConnectAvailableBalanceCents(
+  connectedAccountId: string,
+  options?: { includePending?: boolean }
+): Promise<{ availableCents: number; pendingCents: number }> {
+  if (!connectedAccountId.startsWith("acct_")) {
+    throw new Error("retrieveConnectAvailableBalanceCents requires acct_… id");
+  }
+  if (!secretKey()) {
+    throw new Error("STRIPE_SECRET_KEY is required to retrieve Connect balance");
+  }
+  const res = await fetch(`${baseUrl()}/balance`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${secretKey()}`,
+      "Stripe-Account": connectedAccountId
+    }
+  });
+  if (!res.ok) throw new Error(`Stripe Connect balance retrieve failed: ${await res.text()}`);
+  const json = (await res.json()) as {
+    available?: Array<{ amount?: number; currency?: string }>;
+    pending?: Array<{ amount?: number; currency?: string }>;
+  };
+  const sumUsd = (rows: Array<{ amount?: number; currency?: string }> | undefined) =>
+    (rows ?? [])
+      .filter((r) => (r.currency ?? "usd").toLowerCase() === "usd")
+      .reduce((sum, r) => sum + (typeof r.amount === "number" ? r.amount : 0), 0);
+  const availableCents = sumUsd(json.available);
+  const pendingCents = options?.includePending ? sumUsd(json.pending) : 0;
+  return { availableCents, pendingCents };
+}
+
 function formBody(params: Record<string, string | undefined | null>): string {
   const body = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
@@ -115,10 +237,30 @@ function mapEventType(type: string): NormalizedPaymentEvent["type"] {
   if (type === "charge.succeeded") {
     return "ignored";
   }
+  if (type === "charge.dispute.created" || type.endsWith("dispute.created")) return "dispute_opened";
+  if (
+    type === "charge.dispute.closed" ||
+    type.includes("dispute.closed") ||
+    type.includes("dispute.funds_withdrawn") ||
+    type.includes("dispute.funds_reinstated")
+  ) {
+    // Outcome refined in parseWebhook from dispute status
+    return "dispute";
+  }
   if (type.includes("payment_intent.payment_failed") || type.includes("charge.failed")) return "failed";
   if (type.includes("requires_action") || type.includes("requires_source_action")) return "requires_action";
   if (type.includes("canceled") || type === "checkout.session.expired") return "canceled";
-  if (type.includes("charge.refunded") || type.includes("refund")) return "refunded";
+  // C2 — refund.* and charge.refunded refined in parseWebhook (amount_refunded / refund amount).
+  if (
+    type.includes("charge.refund.updated") ||
+    type.includes("refund.updated") ||
+    type.includes("refund.created") ||
+    type === "charge.refunded" ||
+    type.includes("charge.refunded")
+  ) {
+    return "partially_refunded";
+  }
+  if (type.includes("refund")) return "partially_refunded";
   if (type.includes("dispute")) return "dispute";
   if (type.includes("processing") || type.includes("payment_intent.created")) return "processing";
   return "ignored";
@@ -205,6 +347,15 @@ export const stripePaymentProvider: PaymentProvider = {
   },
 
   async createPaymentAttempt(input: CreatePaymentAttemptInput): Promise<PaymentAttemptRef> {
+    const idempotencyKey = `pay001-attempt-${input.attemptId}`;
+
+    // C1: keyless sandbox cannot apply transfer_data — refuse destination fiction.
+    if (input.destinationRouting?.fundingMode === "destination" && !secretKey()) {
+      throw new Error(
+        "PAY-001 destination charges require STRIPE_SECRET_KEY so transfer_data.destination can be applied"
+      );
+    }
+
     if (isSandboxMode() && !secretKey()) {
       return {
         externalAttemptId: `pi_sandbox_${input.attemptNumber}`,
@@ -228,6 +379,7 @@ export const stripePaymentProvider: PaymentProvider = {
 
       const res = await stripeFetch("/checkout/sessions", {
         method: "POST",
+        headers: { "Idempotency-Key": idempotencyKey },
         body: formBody({
           mode: "payment",
           customer: input.externalCustomerId,
@@ -246,7 +398,8 @@ export const stripePaymentProvider: PaymentProvider = {
           "metadata[organization_id]": input.organizationId,
           "metadata[attempt_id]": input.attemptId,
           "metadata[attempt_number]": input.attemptNumber,
-          "metadata[mpa_flow]": "resident_rent_checkout"
+          "metadata[mpa_flow]": "resident_rent_checkout",
+          ...buildStripeDestinationChargeParams(input, "payment_intent_data")
         })
       });
       if (!res.ok) throw new Error(`Stripe Checkout Session failed: ${await res.text()}`);
@@ -281,13 +434,15 @@ export const stripePaymentProvider: PaymentProvider = {
       "metadata[organization_id]": input.organizationId,
       "metadata[attempt_id]": input.attemptId,
       "metadata[attempt_number]": input.attemptNumber,
-      "automatic_payment_methods[enabled]": "true"
+      "automatic_payment_methods[enabled]": "true",
+      ...buildStripeDestinationChargeParams(input, "")
     };
     if (input.externalPaymentMethodId) params["payment_method"] = input.externalPaymentMethodId;
     if (input.returnUrl) params["return_url"] = input.returnUrl;
 
     const res = await stripeFetch("/payment_intents", {
       method: "POST",
+      headers: { "Idempotency-Key": idempotencyKey },
       body: formBody(params)
     });
     if (!res.ok) throw new Error(`Stripe createPaymentAttempt failed: ${await res.text()}`);
@@ -402,7 +557,7 @@ export const stripePaymentProvider: PaymentProvider = {
 
     const amountTotal =
       typeof dataObject["amount_total"] === "number" ? dataObject["amount_total"] : null;
-    const amount =
+    let amount: number | null =
       typeof dataObject["amount"] === "number"
         ? dataObject["amount"]
         : typeof dataObject["amount_received"] === "number"
@@ -412,27 +567,100 @@ export const stripePaymentProvider: PaymentProvider = {
     const attemptId =
       typeof metadata["attempt_id"] === "string"
         ? metadata["attempt_id"]
-        : typeof dataObject["client_reference_id"] === "string"
-          ? dataObject["client_reference_id"]
+        : typeof metadata["payment_attempt_id"] === "string"
+          ? metadata["payment_attempt_id"]
+          : typeof dataObject["client_reference_id"] === "string"
+            ? dataObject["client_reference_id"]
+            : null;
+
+    let mappedType =
+      type === "checkout.session.completed" && dataObject["payment_status"] === "unpaid"
+        ? ("processing" as const)
+        : mapEventType(type);
+
+    const failureCode =
+      dataObject["last_payment_error"] && typeof dataObject["last_payment_error"] === "object"
+        ? String((dataObject["last_payment_error"] as { code?: string }).code ?? "") || null
+        : typeof dataObject["failure_code"] === "string"
+          ? dataObject["failure_code"]
           : null;
+
+    // ACH return: bank debit failure / charge failed with ACH-ish codes after prior success path.
+    const failureCodeLower = (failureCode ?? "").toLowerCase();
+    if (
+      mappedType === "failed" &&
+      (failureCodeLower.includes("insufficient_funds") ||
+        failureCodeLower.includes("debit_not_authorized") ||
+        failureCodeLower.includes("account_closed") ||
+        failureCodeLower.includes("bank_account") ||
+        failureCodeLower === "nsf" ||
+        type.includes("charge.failed"))
+    ) {
+      const paymentMethodDetails = dataObject["payment_method_details"];
+      const isAchObject =
+        paymentMethodDetails &&
+        typeof paymentMethodDetails === "object" &&
+        ("us_bank_account" in (paymentMethodDetails as object) ||
+          "ach_debit" in (paymentMethodDetails as object));
+      if (isAchObject || failureCodeLower.includes("ach") || failureCodeLower === "nsf") {
+        mappedType = "ach_return";
+      }
+    }
+
+    // Dispute closed → won/lost from Stripe dispute status.
+    if (mappedType === "dispute" && (type.includes("dispute.closed") || type.includes("dispute.funds"))) {
+      const status = String(dataObject["status"] ?? "");
+      if (status === "won") mappedType = "dispute_won";
+      else if (status === "lost") mappedType = "dispute_lost";
+      else mappedType = "dispute_opened";
+    }
+
+    // C2 — refund amounts: never use Charge.amount as refund size.
+    const objectId = typeof dataObject["id"] === "string" ? String(dataObject["id"]) : "";
+    const isRefundObject = objectId.startsWith("re_") || type.includes("refund.created") || type.includes("refund.updated");
+    const isChargeRefunded = type === "charge.refunded" || type.includes("charge.refunded");
+    if (isChargeRefunded) {
+      const amountRefunded =
+        typeof dataObject["amount_refunded"] === "number" ? dataObject["amount_refunded"] : null;
+      const chargeAmount = typeof dataObject["amount"] === "number" ? dataObject["amount"] : null;
+      // amountCents carries cumulative amount_refunded for apply-path delta math.
+      amount = amountRefunded ?? amount;
+      if (amountRefunded != null && chargeAmount != null && amountRefunded < chargeAmount) {
+        mappedType = "partially_refunded";
+      } else if (amountRefunded != null && chargeAmount != null && amountRefunded >= chargeAmount) {
+        mappedType = "refunded";
+      }
+    } else if (isRefundObject) {
+      amount = typeof dataObject["amount"] === "number" ? dataObject["amount"] : amount;
+      // Single refund object — apply path treats as delta; status refined via cumulative.
+      mappedType = "partially_refunded";
+    }
+
+    const externalCorrectionId =
+      objectId.startsWith("dp_") || objectId.startsWith("re_")
+        ? objectId
+        : isChargeRefunded && objectId.startsWith("ch_")
+          ? `ch_refunded:${objectId}:${amount ?? 0}`
+          : null;
+
+    // Dispute objects nest charge → payment_intent
+    if (!externalPaymentId && dataObject["charge"] && typeof dataObject["charge"] === "object") {
+      const charge = dataObject["charge"] as { payment_intent?: string };
+      if (typeof charge.payment_intent === "string") externalPaymentId = charge.payment_intent;
+    }
 
     return [
       {
         externalEventId,
         externalPaymentId,
-        type:
-          type === "checkout.session.completed" && dataObject["payment_status"] === "unpaid"
-            ? "processing"
-            : mapEventType(type),
+        type: mappedType,
         amountCents: amount,
         currency: typeof dataObject["currency"] === "string" ? dataObject["currency"] : "usd",
         occurredAt: new Date().toISOString(),
-        failureCode:
-          dataObject["last_payment_error"] && typeof dataObject["last_payment_error"] === "object"
-            ? String((dataObject["last_payment_error"] as { code?: string }).code ?? "") || null
-            : null,
+        failureCode,
         message: attemptId ? `attempt_id:${attemptId}` : null,
-        payloadDigest: externalEventId
+        payloadDigest: externalEventId,
+        externalCorrectionId
       }
     ];
   }

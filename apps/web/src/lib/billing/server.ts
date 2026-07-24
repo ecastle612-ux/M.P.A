@@ -7,8 +7,32 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@mpa/supabase";
 import { createAuthServerComponentClient, createServiceRoleServerClient } from "../auth/server";
 import { getPaymentProvider, resolveDefaultPaymentProviderId } from "../integrations/payments/registry";
+import type { DestinationChargeRouting } from "../integrations/payments/contracts";
 import { notify } from "../notifications/service";
 import { createRentCharge, recordFinancialActivity, generateFinancialNumber } from "../financial/server";
+import {
+  applyMoneyInReconcileCorrection,
+  confirmChargeSettlementMapping,
+  correctionApplyKey,
+  feeReversalForRefund,
+  getOrgSettlementFundingSettings,
+  hasAppliedCorrectionKey,
+  isAchReturnPrincipalEligible,
+  loadSettlementMappingForAttempt,
+  mergeAttemptSettlementCorrectionMetadata,
+  nextCumulativeRefundedCents,
+  persistChargeSettlementMapping,
+  preflightDestinationRefund,
+  readCumulativeRefundedCents,
+  readSettlementCorrectionMeta,
+  reconcileMoneyInSettlement,
+  recordSettlementCorrectionAudit,
+  refundKindForCumulative,
+  refundStatusFromCumulative,
+  resolveSettlementFundingDecision,
+  writeFundingAudit
+} from "../settlement-funding";
+import { retrieveStripePaymentIntentDestination } from "../integrations/payments/stripe-provider";
 import {
   AUTOPAY_CONSENT_VERSION,
   friendlyPaymentError,
@@ -872,6 +896,80 @@ export async function initiateResidentPayment(
     chargeDescription ||
     `MPA rent payment ${attemptNumber}`;
 
+  const propertyId = (list[0]?.property_id as string | null) ?? null;
+  const amountCents = toCents(amount);
+
+  // PAY-001 Slice 1: resolve destination enrollment / readiness before provider create.
+  const fundingSettings = await getOrgSettlementFundingSettings(organizationId, db);
+  const destinationEnrolled = fundingSettings.destinationEnrolled === true;
+
+  const fundingDecision = await resolveSettlementFundingDecision({
+    organizationId,
+    chargeAmountCents: amountCents,
+    providerId,
+    client: db
+  });
+
+  if (fundingDecision.kind === "blocked") {
+    const { error: blockedInsertError } = await db.from("payment_attempts").insert({
+      id: attemptId,
+      organization_id: organizationId,
+      attempt_number: attemptNumber,
+      tenant_id: input.tenantId,
+      lease_id: input.leaseId ?? list[0]?.lease_id ?? null,
+      payment_method_id: paymentMethodId,
+      provider: providerId,
+      amount,
+      currency: "usd",
+      status: "failed",
+      source: input.source ?? "one_time",
+      charge_ids: input.chargeIds,
+      failure_code: fundingDecision.code,
+      failure_message: fundingDecision.message,
+      metadata: {
+        chargeIds: input.chargeIds,
+        propertyId,
+        useCheckout,
+        fundingMode: null,
+        destinationEnrolled,
+        fundingBlocked: true,
+        readinessFailed: fundingDecision.readiness.checks
+          .filter((c) => !c.pass)
+          .map((c) => c.id)
+      },
+      created_by: userId
+    });
+    if (blockedInsertError) throw new Error(blockedInsertError.message);
+
+    await writeFundingAudit({
+      organizationId,
+      entityType: "payment_attempt",
+      entityId: attemptId,
+      eventType: "funding.charge.blocked",
+      summary: fundingDecision.message,
+      actorUserId: userId,
+      payload: {
+        code: fundingDecision.code,
+        failedChecks: fundingDecision.readiness.checks.filter((c) => !c.pass).map((c) => c.id),
+        destinationEnrolled
+      },
+      client: db
+    });
+    throw new Error(fundingDecision.message);
+  }
+
+  const destinationRouting: DestinationChargeRouting | null =
+    fundingDecision.kind === "destination"
+      ? {
+          settlementAccountId: fundingDecision.settlementExternalAccountId,
+          applicationFeeAmountCents: fundingDecision.applicationFeeAmountCents,
+          fundingMode: "destination",
+          propertyId,
+          paymentAttemptId: attemptId
+        }
+      : null;
+  const fundingMode = fundingDecision.fundingMode;
+
   const { error: attemptError } = await db
     .from("payment_attempts")
     .insert({
@@ -889,14 +987,41 @@ export async function initiateResidentPayment(
       charge_ids: input.chargeIds,
       metadata: {
         chargeIds: input.chargeIds,
-        propertyId: list[0]?.property_id ?? null,
-        useCheckout
+        propertyId,
+        useCheckout,
+        fundingMode,
+        destinationEnrolled,
+        ...(destinationRouting
+          ? {
+              settlementAccountId: destinationRouting.settlementAccountId,
+              applicationFeeAmountCents: destinationRouting.applicationFeeAmountCents
+            }
+          : {})
       },
       created_by: userId
     })
     .select("*")
     .single();
   if (attemptError) throw new Error(attemptError.message);
+
+  // C4: persist mapping intent before Stripe create so create failures leave a durable row.
+  if (destinationRouting && fundingDecision.kind === "destination") {
+    await persistChargeSettlementMapping({
+      organizationId,
+      propertyId,
+      paymentAttemptId: attemptId,
+      provider: providerId,
+      settlementExternalAccountId: destinationRouting.settlementAccountId,
+      connectAccountId: fundingDecision.connectAccountId,
+      externalPaymentIntentId: null,
+      externalCheckoutSessionId: null,
+      fundingMode: "destination",
+      applicationFeeAmountCents: destinationRouting.applicationFeeAmountCents,
+      chargeAmountCents: amountCents,
+      currency: "usd",
+      metadata: { attemptNumber, source: input.source ?? "one_time", mappingPhase: "pre_create" }
+    });
+  }
 
   let providerRef;
   try {
@@ -906,14 +1031,15 @@ export async function initiateResidentPayment(
       attemptNumber,
       externalCustomerId: customer.external_customer_id,
       ...(externalMethodId ? { externalPaymentMethodId: externalMethodId } : {}),
-      amountCents: toCents(amount),
+      amountCents,
       currency: "usd",
       description: paymentDescription,
       confirm: Boolean(externalMethodId),
       useCheckout,
       checkoutSuccessUrl: `${appUrl}/portal/tenant/payments?paid=1&attempt=${attemptId}`,
       checkoutCancelUrl: `${appUrl}/portal/tenant/payments?canceled=1&attempt=${attemptId}`,
-      metadata: { chargeIds: input.chargeIds }
+      metadata: { chargeIds: input.chargeIds, fundingMode, destinationEnrolled },
+      ...(destinationRouting ? { destinationRouting } : {})
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Provider error";
@@ -925,7 +1051,52 @@ export async function initiateResidentPayment(
         retry_count: 1
       })
       .eq("id", attemptId);
+    if (destinationRouting) {
+      await db
+        .from("payment_settlement_mappings")
+        .update({ status: "failed", updated_at: new Date().toISOString() })
+        .eq("payment_attempt_id", attemptId)
+        .eq("organization_id", organizationId);
+    }
     throw err;
+  }
+
+  if (destinationRouting && fundingDecision.kind === "destination") {
+    await persistChargeSettlementMapping({
+      organizationId,
+      propertyId,
+      paymentAttemptId: attemptId,
+      provider: providerId,
+      settlementExternalAccountId: destinationRouting.settlementAccountId,
+      connectAccountId: fundingDecision.connectAccountId,
+      externalPaymentIntentId: providerRef.externalAttemptId.startsWith("pi_")
+        ? providerRef.externalAttemptId
+        : null,
+      externalCheckoutSessionId: providerRef.checkoutSessionId ?? null,
+      fundingMode: "destination",
+      applicationFeeAmountCents: destinationRouting.applicationFeeAmountCents,
+      chargeAmountCents: amountCents,
+      currency: "usd",
+      metadata: { attemptNumber, source: input.source ?? "one_time", mappingPhase: "post_create" }
+    });
+
+    await writeFundingAudit({
+      organizationId,
+      entityType: "payment_attempt",
+      entityId: attemptId,
+      eventType: "funding.charge.routed",
+      summary: `Destination charge routed to ${destinationRouting.settlementAccountId}`,
+      actorUserId: userId,
+      payload: {
+        settlementAccountId: destinationRouting.settlementAccountId,
+        applicationFeeAmountCents: destinationRouting.applicationFeeAmountCents,
+        amountCents,
+        provider: providerId,
+        externalAttemptId: providerRef.externalAttemptId,
+        destinationEnrolled: true
+      },
+      client: db
+    });
   }
 
   const { data: updated, error: updateError } = await db
@@ -938,10 +1109,18 @@ export async function initiateResidentPayment(
       failure_message: providerRef.failureMessage ?? null,
       metadata: {
         chargeIds: input.chargeIds,
-        propertyId: list[0]?.property_id ?? null,
+        propertyId,
         useCheckout,
+        fundingMode,
+        destinationEnrolled,
         checkoutUrl: providerRef.checkoutUrl ?? null,
-        checkoutSessionId: providerRef.checkoutSessionId ?? null
+        checkoutSessionId: providerRef.checkoutSessionId ?? null,
+        ...(destinationRouting
+          ? {
+              settlementAccountId: destinationRouting.settlementAccountId,
+              applicationFeeAmountCents: destinationRouting.applicationFeeAmountCents
+            }
+          : {})
       }
     })
     .eq("id", attemptId)
@@ -961,7 +1140,9 @@ export async function initiateResidentPayment(
       amount,
       provider: providerId,
       checkoutSessionId: providerRef.checkoutSessionId ?? null,
-      useCheckout
+      useCheckout,
+      fundingMode,
+      destinationEnrolled
     },
     db
   );
@@ -970,12 +1151,13 @@ export async function initiateResidentPayment(
     organizationId,
     tenantId: input.tenantId,
     leaseId: attempt.leaseId,
-    propertyId: (list[0]?.property_id as string | null) ?? null,
+    propertyId,
     entryType: "payment_pending",
     amount,
     relatedEntityType: "payment_attempt",
     relatedEntityId: attempt.id,
     summary: `Payment ${attempt.attemptNumber} processing`,
+    payload: { fundingMode },
     createdBy: userId,
     client: db
   });
@@ -1096,7 +1278,10 @@ async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: Billi
         metadata: {
           paymentAttemptId: attempt.id,
           provider: attempt.provider,
-          externalAttemptId: attempt.externalAttemptId
+          externalAttemptId: attempt.externalAttemptId,
+          fundingMode: attempt.metadata["fundingMode"] ?? null,
+          settlementAccountId: attempt.metadata["settlementAccountId"] ?? null,
+          applicationFeeAmountCents: attempt.metadata["applicationFeeAmountCents"] ?? null
         },
         created_by: actorId
       })
@@ -1171,6 +1356,21 @@ async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: Billi
         ) ?? null
       : null);
 
+  const fundingMode =
+    attempt.metadata["fundingMode"] === "destination"
+      ? "destination"
+      : attempt.metadata["fundingMode"] === "legacy_platform"
+        ? "legacy_platform"
+        : null;
+  const settlementAccountId =
+    typeof attempt.metadata["settlementAccountId"] === "string"
+      ? attempt.metadata["settlementAccountId"]
+      : null;
+  const applicationFeeAmountCents =
+    typeof attempt.metadata["applicationFeeAmountCents"] === "number"
+      ? attempt.metadata["applicationFeeAmountCents"]
+      : 0;
+
   await appendLedger({
     organizationId: attempt.organizationId,
     tenantId: attempt.tenantId,
@@ -1181,8 +1381,83 @@ async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: Billi
     relatedEntityType: "payment_attempt",
     relatedEntityId: attempt.id,
     summary: `Payment ${attempt.attemptNumber} succeeded`,
+    payload: {
+      fundingMode,
+      settlementAccountId,
+      applicationFeeAmountCents
+    },
     client: admin
   });
+
+  // C1/C3: confirm destination mapping + fee only after verified re-bind (and Stripe destination when retrievable).
+  if (fundingMode === "destination") {
+    let stripeReportedDestination: string | null | undefined = undefined;
+    if (
+      attempt.provider === "stripe" &&
+      attempt.externalAttemptId?.startsWith("pi_") &&
+      process.env["STRIPE_SECRET_KEY"]?.trim()
+    ) {
+      try {
+        stripeReportedDestination = await retrieveStripePaymentIntentDestination(
+          attempt.externalAttemptId
+        );
+      } catch {
+        stripeReportedDestination = null;
+      }
+    }
+
+    const confirmed = await confirmChargeSettlementMapping({
+      paymentAttemptId: attempt.id,
+      organizationId: attempt.organizationId,
+      externalPaymentIntentId: attempt.externalAttemptId,
+      actorUserId: actorId,
+      providerId: attempt.provider,
+      ...(stripeReportedDestination !== undefined
+        ? { stripeReportedDestination }
+        : {})
+    });
+
+    if (confirmed && applicationFeeAmountCents > 0) {
+      await appendLedger({
+        organizationId: attempt.organizationId,
+        tenantId: attempt.tenantId,
+        leaseId: attempt.leaseId,
+        propertyId,
+        entryType: "fee",
+        amount: fromCents(applicationFeeAmountCents),
+        relatedEntityType: "payment_attempt",
+        relatedEntityId: attempt.id,
+        summary: `Platform application fee for ${attempt.attemptNumber}`,
+        payload: {
+          fundingMode: "destination",
+          settlementAccountId: confirmed.settlementExternalAccountId,
+          applicationFeeAmountCents,
+          feeKind: "application_fee",
+          settlementVerified: true
+        },
+        client: admin
+      });
+    }
+  }
+
+  // C5 / A21: enrollment comes from attempt metadata written at create (never inferred from fundingMode alone).
+  const enrolledAtCreate = attempt.metadata["destinationEnrolled"] === true;
+  if (fundingMode === "legacy_platform" && enrolledAtCreate) {
+    await writeFundingAudit({
+      organizationId: attempt.organizationId,
+      entityType: "payment_attempt",
+      entityId: attempt.id,
+      eventType: "funding.alert.legacy_while_enrolled",
+      summary: `Unexpected legacy_platform success while destination enrolled for attempt ${attempt.attemptNumber}`,
+      actorUserId: actorId,
+      payload: {
+        paymentAttemptId: attempt.id,
+        fundingMode,
+        destinationEnrolled: true
+      },
+      client: admin
+    });
+  }
 
   const receipt = await issueReceipt(attempt, firstPaymentId, admin, propertyId);
 
@@ -1193,7 +1468,13 @@ async function applySucceededPayment(attempt: PaymentAttemptRecord, admin: Billi
     "billing.payment.succeeded",
     `Payment ${attempt.attemptNumber} succeeded`,
     null,
-    { paymentId: firstPaymentId, receiptId: receipt.id, propertyId },
+    {
+      paymentId: firstPaymentId,
+      receiptId: receipt.id,
+      propertyId,
+      fundingMode,
+      settlementAccountId
+    },
     admin
   );
 
@@ -1455,6 +1736,419 @@ async function notifyPaymentFailedStakeholders(
   }
 }
 
+/** C7 — restore rent charge amount_paid (outstanding via DB trigger). */
+async function restoreRentChargeOutstanding(
+  attempt: PaymentAttemptRecord,
+  restoreAmountDollars: number,
+  admin: BillingClient
+): Promise<void> {
+  let remaining = Math.round(Math.max(0, restoreAmountDollars) * 100) / 100;
+  if (remaining <= 0) return;
+  const chargeIds = [...attempt.chargeIds].reverse();
+  for (const chargeId of chargeIds) {
+    if (remaining <= 0) break;
+    const { data: charge } = await admin
+      .from("rent_charges")
+      .select("id, amount, amount_paid, status")
+      .eq("id", chargeId)
+      .eq("organization_id", attempt.organizationId)
+      .maybeSingle();
+    if (!charge) continue;
+    const paid = Number(charge.amount_paid ?? 0);
+    if (paid <= 0) continue;
+    const restore = Math.min(remaining, paid);
+    const newPaid = Math.round((paid - restore) * 100) / 100;
+    const chargeAmount = Number(charge.amount);
+    const newStatus =
+      newPaid <= 0.001 ? "pending" : newPaid >= chargeAmount - 0.001 ? "paid" : "partial";
+    await admin
+      .from("rent_charges")
+      .update({ amount_paid: newPaid, status: newStatus })
+      .eq("id", chargeId)
+      .eq("organization_id", attempt.organizationId);
+    remaining = Math.round((remaining - restore) * 100) / 100;
+  }
+}
+
+async function applySettlementRefundWebhook(
+  attempt: PaymentAttemptRecord,
+  event: { type: string; amountCents?: number | null; externalCorrectionId?: string | null },
+  admin: BillingClient
+) {
+  const priorCorrection = readSettlementCorrectionMeta(attempt.metadata);
+  const appliedKeys = priorCorrection["appliedCorrectionKeys"];
+  const chargeCents = toCents(attempt.amount);
+  const priorCumulative = readCumulativeRefundedCents(priorCorrection);
+  const externalId = event.externalCorrectionId ?? null;
+
+  // C2/C4 — charge.refunded carries cumulative amount_refunded; refund.* carries delta.
+  const isCumulativeSignal =
+    typeof externalId === "string" && externalId.startsWith("ch_refunded:");
+  const eventCents = event.amountCents != null ? Math.trunc(event.amountCents) : null;
+  let refundDeltaCents: number;
+  let nextCumulative: number;
+  if (isCumulativeSignal && eventCents != null) {
+    nextCumulative = Math.min(chargeCents, Math.max(priorCumulative, eventCents));
+    refundDeltaCents = Math.max(0, nextCumulative - priorCumulative);
+  } else {
+    refundDeltaCents = eventCents ?? Math.max(0, chargeCents - priorCumulative);
+    nextCumulative = nextCumulativeRefundedCents({
+      priorCumulativeCents: priorCumulative,
+      refundDeltaCents,
+      chargeAmountCents: chargeCents
+    });
+  }
+
+  const status = refundStatusFromCumulative(chargeCents, nextCumulative);
+  const kind = refundKindForCumulative(chargeCents, nextCumulative);
+  const applyKey = correctionApplyKey(kind, externalId, `refund-cum-${nextCumulative}`);
+
+  // C3 — logical idempotency (and skip zero-delta cumulative echoes).
+  if (hasAppliedCorrectionKey(appliedKeys, applyKey) || refundDeltaCents <= 0) {
+    await admin.from("payment_attempts").update({ status }).eq("id", attempt.id);
+    if (attempt.paymentId) {
+      await admin.from("payments").update({ status }).eq("id", attempt.paymentId);
+    }
+    await mergeAttemptSettlementCorrectionMetadata(
+      attempt.organizationId,
+      attempt.id,
+      {
+        webhookRefundStatus: status,
+        cumulativeRefundedCents: Math.max(priorCumulative, nextCumulative)
+      },
+      admin
+    );
+    return;
+  }
+
+  const fundingMode =
+    attempt.metadata["fundingMode"] === "destination"
+      ? "destination"
+      : attempt.metadata["fundingMode"] === "legacy_platform"
+        ? "legacy_platform"
+        : null;
+  const propertyId = (attempt.metadata["propertyId"] as string | null | undefined) ?? null;
+  const amount = fromCents(refundDeltaCents);
+
+  await admin.from("payment_attempts").update({ status }).eq("id", attempt.id);
+  if (attempt.paymentId) {
+    await admin.from("payments").update({ status }).eq("id", attempt.paymentId);
+  }
+
+  await appendLedger({
+    organizationId: attempt.organizationId,
+    tenantId: attempt.tenantId,
+    leaseId: attempt.leaseId,
+    propertyId,
+    entryType: "refund",
+    amount,
+    relatedEntityType: "payment_attempt",
+    relatedEntityId: attempt.id,
+    summary: `Refund on ${attempt.attemptNumber}`,
+    payload: {
+      fundingMode,
+      source: "payments_webhook",
+      excludesFromSafeCorpus: true,
+      externalCorrectionId: externalId,
+      refundDeltaCents,
+      cumulativeRefundedCents: nextCumulative
+    },
+    client: admin
+  });
+
+  // A-1 — proportional fee reversal on webhook-only path.
+  const mapping = await loadSettlementMappingForAttempt(attempt.organizationId, attempt.id, admin);
+  const feeReversalCents = feeReversalForRefund(mapping, refundDeltaCents);
+  if (feeReversalCents > 0) {
+    await appendLedger({
+      organizationId: attempt.organizationId,
+      tenantId: attempt.tenantId,
+      leaseId: attempt.leaseId,
+      propertyId,
+      entryType: "adjustment",
+      amount: -fromCents(feeReversalCents),
+      relatedEntityType: "payment_attempt",
+      relatedEntityId: attempt.id,
+      summary: `Application fee reversal for refund on ${attempt.attemptNumber}`,
+      payload: {
+        kind: "application_fee_reversal",
+        fundingMode: "destination",
+        applicationFeeReversalCents: feeReversalCents,
+        source: "payments_webhook"
+      },
+      client: admin
+    });
+  }
+
+  // C7
+  await restoreRentChargeOutstanding(attempt, amount, admin);
+
+  await recordSettlementCorrectionAudit({
+    organizationId: attempt.organizationId,
+    paymentAttemptId: attempt.id,
+    kind,
+    amountCents: refundDeltaCents,
+    actorUserId: null,
+    fundingMode,
+    externalId,
+    payload: {
+      source: "payments_webhook",
+      cumulativeRefundedCents: nextCumulative,
+      feeReversalCents
+    },
+    client: admin
+  });
+
+  const nextKeys = Array.isArray(appliedKeys) ? [...appliedKeys, applyKey] : [applyKey];
+  await mergeAttemptSettlementCorrectionMetadata(
+    attempt.organizationId,
+    attempt.id,
+    {
+      webhookRefundStatus: status,
+      lastRefundAmountCents: refundDeltaCents,
+      cumulativeRefundedCents: nextCumulative,
+      appliedCorrectionKeys: nextKeys,
+      excludesFromSafeCorpus: true,
+      ...(externalId ? { lastRefundExternalId: externalId } : {})
+    },
+    admin
+  );
+}
+
+async function applySettlementDisputeWebhook(
+  attempt: PaymentAttemptRecord,
+  event: {
+    type: string;
+    amountCents?: number | null;
+    externalCorrectionId?: string | null;
+  },
+  admin: BillingClient
+) {
+  const disputeStatus =
+    event.type === "dispute_won"
+      ? "won"
+      : event.type === "dispute_lost"
+        ? "lost"
+        : "opened";
+  const kind =
+    disputeStatus === "won"
+      ? ("dispute_won" as const)
+      : disputeStatus === "lost"
+        ? ("dispute_lost" as const)
+        : ("dispute_opened" as const);
+  const fundingMode =
+    attempt.metadata["fundingMode"] === "destination"
+      ? "destination"
+      : attempt.metadata["fundingMode"] === "legacy_platform"
+        ? "legacy_platform"
+        : null;
+  const propertyId = (attempt.metadata["propertyId"] as string | null | undefined) ?? null;
+  const amountCents = event.amountCents ?? toCents(attempt.amount);
+  const priorCorrection = readSettlementCorrectionMeta(attempt.metadata);
+  const appliedKeys = priorCorrection["appliedCorrectionKeys"];
+  const applyKey = correctionApplyKey(
+    kind,
+    event.externalCorrectionId,
+    `${attempt.id}:${disputeStatus}`
+  );
+
+  // C3 — skip duplicate logical dispute outcomes (e.g. funds_withdrawn echo).
+  if (hasAppliedCorrectionKey(appliedKeys, applyKey)) {
+    await mergeAttemptSettlementCorrectionMetadata(
+      attempt.organizationId,
+      attempt.id,
+      {
+        disputeStatus,
+        disputeExternalId: event.externalCorrectionId ?? null,
+        excludesFromSafeCorpus: disputeStatus !== "won"
+      },
+      admin
+    );
+    return;
+  }
+
+  if (disputeStatus === "opened") {
+    await appendLedger({
+      organizationId: attempt.organizationId,
+      tenantId: attempt.tenantId,
+      leaseId: attempt.leaseId,
+      propertyId,
+      entryType: "adjustment",
+      amount: 0,
+      relatedEntityType: "payment_attempt",
+      relatedEntityId: attempt.id,
+      summary: `Dispute opened on ${attempt.attemptNumber} — hold (not safe corpus)`,
+      payload: {
+        kind: "dispute_hold",
+        fundingMode,
+        excludesFromSafeCorpus: true,
+        externalCorrectionId: event.externalCorrectionId ?? null
+      },
+      client: admin
+    });
+  } else if (disputeStatus === "lost") {
+    await appendLedger({
+      organizationId: attempt.organizationId,
+      tenantId: attempt.tenantId,
+      leaseId: attempt.leaseId,
+      propertyId,
+      entryType: "adjustment",
+      amount: -fromCents(amountCents),
+      relatedEntityType: "payment_attempt",
+      relatedEntityId: attempt.id,
+      summary: `Dispute lost on ${attempt.attemptNumber}`,
+      payload: {
+        kind: "dispute_lost",
+        fundingMode,
+        excludesFromSafeCorpus: true,
+        externalCorrectionId: event.externalCorrectionId ?? null
+      },
+      client: admin
+    });
+    await admin
+      .from("payment_attempts")
+      .update({ status: "awaiting_reconciliation", failure_code: "dispute_lost" })
+      .eq("id", attempt.id);
+    // C7
+    await restoreRentChargeOutstanding(attempt, fromCents(amountCents), admin);
+  } else if (disputeStatus === "won") {
+    await appendLedger({
+      organizationId: attempt.organizationId,
+      tenantId: attempt.tenantId,
+      leaseId: attempt.leaseId,
+      propertyId,
+      entryType: "adjustment",
+      amount: 0,
+      relatedEntityType: "payment_attempt",
+      relatedEntityId: attempt.id,
+      summary: `Dispute won on ${attempt.attemptNumber} — hold released`,
+      payload: {
+        kind: "dispute_won",
+        fundingMode,
+        excludesFromSafeCorpus: false,
+        externalCorrectionId: event.externalCorrectionId ?? null
+      },
+      client: admin
+    });
+  }
+
+  await recordSettlementCorrectionAudit({
+    organizationId: attempt.organizationId,
+    paymentAttemptId: attempt.id,
+    kind,
+    amountCents,
+    actorUserId: null,
+    fundingMode,
+    externalId: event.externalCorrectionId ?? null,
+    payload: { source: "payments_webhook", disputeStatus },
+    client: admin
+  });
+
+  const nextKeys = Array.isArray(appliedKeys) ? [...appliedKeys, applyKey] : [applyKey];
+  await mergeAttemptSettlementCorrectionMetadata(
+    attempt.organizationId,
+    attempt.id,
+    {
+      disputeStatus,
+      disputeExternalId: event.externalCorrectionId ?? null,
+      excludesFromSafeCorpus: disputeStatus !== "won",
+      appliedCorrectionKeys: nextKeys
+    },
+    admin
+  );
+}
+
+async function applySettlementAchReturnWebhook(
+  attempt: PaymentAttemptRecord,
+  event: { amountCents?: number | null; externalCorrectionId?: string | null; failureCode?: string | null },
+  admin: BillingClient
+) {
+  const fundingMode =
+    attempt.metadata["fundingMode"] === "destination"
+      ? "destination"
+      : attempt.metadata["fundingMode"] === "legacy_platform"
+        ? "legacy_platform"
+        : null;
+  const propertyId = (attempt.metadata["propertyId"] as string | null | undefined) ?? null;
+  const amountCents = event.amountCents ?? toCents(attempt.amount);
+  const priorCorrection = readSettlementCorrectionMeta(attempt.metadata);
+  const appliedKeys = priorCorrection["appliedCorrectionKeys"];
+  const applyKey = correctionApplyKey("ach_return", event.externalCorrectionId, attempt.id);
+
+  // Always mark failed; principal reversal only when money was collected (C1).
+  await admin
+    .from("payment_attempts")
+    .update({
+      status: "failed",
+      failure_code: event.failureCode ?? "ach_return",
+      failure_message: isAchReturnPrincipalEligible(attempt.status)
+        ? "ACH return — funds excluded from safe collected corpus"
+        : "ACH payment failed before settlement — no principal reversal"
+    })
+    .eq("id", attempt.id);
+
+  if (attempt.paymentId) {
+    await admin.from("payments").update({ status: "failed" }).eq("id", attempt.paymentId);
+  }
+
+  // C1 — no reverse ledger when never succeeded.
+  if (!isAchReturnPrincipalEligible(attempt.status)) {
+    return;
+  }
+
+  // C3
+  if (hasAppliedCorrectionKey(appliedKeys, applyKey)) {
+    return;
+  }
+
+  await appendLedger({
+    organizationId: attempt.organizationId,
+    tenantId: attempt.tenantId,
+    leaseId: attempt.leaseId,
+    propertyId,
+    entryType: "adjustment",
+    amount: -fromCents(amountCents),
+    relatedEntityType: "payment_attempt",
+    relatedEntityId: attempt.id,
+    summary: `ACH return on ${attempt.attemptNumber}`,
+    payload: {
+      kind: "ach_return",
+      fundingMode,
+      excludesFromSafeCorpus: true,
+      externalCorrectionId: event.externalCorrectionId ?? null
+    },
+    client: admin
+  });
+
+  // C7
+  await restoreRentChargeOutstanding(attempt, fromCents(amountCents), admin);
+
+  await recordSettlementCorrectionAudit({
+    organizationId: attempt.organizationId,
+    paymentAttemptId: attempt.id,
+    kind: "ach_return",
+    amountCents,
+    actorUserId: null,
+    fundingMode,
+    externalId: event.externalCorrectionId ?? null,
+    payload: { source: "payments_webhook", failureCode: event.failureCode ?? null },
+    client: admin
+  });
+
+  const nextKeys = Array.isArray(appliedKeys) ? [...appliedKeys, applyKey] : [applyKey];
+  await mergeAttemptSettlementCorrectionMetadata(
+    attempt.organizationId,
+    attempt.id,
+    {
+      achReturned: true,
+      excludesFromSafeCorpus: true,
+      achReturnExternalId: event.externalCorrectionId ?? null,
+      appliedCorrectionKeys: nextKeys
+    },
+    admin
+  );
+}
+
 export async function applyProviderWebhook(
   providerId: string,
   payload: unknown,
@@ -1565,27 +2259,16 @@ export async function applyProviderWebhook(
       } else if (event.type === "processing") {
         await admin.from("payment_attempts").update({ status: "processing" }).eq("id", attempt.id);
       } else if (event.type === "refunded" || event.type === "partially_refunded") {
-        await admin
-          .from("payment_attempts")
-          .update({ status: event.type === "refunded" ? "refunded" : "partially_refunded" })
-          .eq("id", attempt.id);
-        if (attempt.paymentId) {
-          await admin
-            .from("payments")
-            .update({ status: event.type === "refunded" ? "refunded" : "partially_refunded" })
-            .eq("id", attempt.paymentId);
-        }
-        await appendLedger({
-          organizationId: attempt.organizationId,
-          tenantId: attempt.tenantId,
-          leaseId: attempt.leaseId,
-          entryType: "refund",
-          amount: event.amountCents != null ? fromCents(event.amountCents) : attempt.amount,
-          relatedEntityType: "payment_attempt",
-          relatedEntityId: attempt.id,
-          summary: `Refund on ${attempt.attemptNumber}`,
-          client: admin
-        });
+        await applySettlementRefundWebhook(attempt, event, admin);
+      } else if (
+        event.type === "dispute" ||
+        event.type === "dispute_opened" ||
+        event.type === "dispute_won" ||
+        event.type === "dispute_lost"
+      ) {
+        await applySettlementDisputeWebhook(attempt, event, admin);
+      } else if (event.type === "ach_return") {
+        await applySettlementAchReturnWebhook(attempt, event, admin);
       }
 
       await admin
@@ -1772,24 +2455,139 @@ export async function refundPaymentAttempt(
   }
   if (!attempt.externalAttemptId) throw new Error("Missing provider reference");
 
-  const provider = getPaymentProvider(attempt.provider);
   const refundAmount = amount ?? attempt.amount;
+  const refundAmountCents = toCents(refundAmount);
+  const priorCorrection = readSettlementCorrectionMeta(attempt.metadata);
+  const priorCumulative = readCumulativeRefundedCents(priorCorrection);
+  const chargeCents = toCents(attempt.amount);
+  const remainingRefundable = Math.max(0, chargeCents - priorCumulative);
+  if (refundAmountCents > remainingRefundable) {
+    throw new Error(
+      `Refund exceeds remaining refundable amount (requested=${refundAmountCents}¢, remaining=${remainingRefundable}¢)`
+    );
+  }
+
+  const fundingModeHint =
+    attempt.metadata["fundingMode"] === "destination"
+      ? "destination"
+      : attempt.metadata["fundingMode"] === "legacy_platform"
+        ? "legacy_platform"
+        : undefined;
+
+  // PAY-001 Slice 2: destination refunds fail closed when Express underfunded (A17).
+  // Allowed even when funding kill switch is off (historical destination charges).
+  const preflight = await preflightDestinationRefund({
+    organizationId,
+    paymentAttemptId: attempt.id,
+    refundAmountCents,
+    ...(fundingModeHint ? { fundingModeHint } : {})
+  });
+
+  const provider = getPaymentProvider(attempt.provider);
   const ref = await provider.refund({
     externalAttemptId: attempt.externalAttemptId,
-    amountCents: toCents(refundAmount),
+    amountCents: refundAmountCents,
     ...(reason !== undefined ? { reason } : {})
   });
+
+  const propertyId =
+    (attempt.metadata["propertyId"] as string | null | undefined) ??
+    preflight.mapping?.propertyId ??
+    null;
+
+  // C4 — cumulative refund accounting
+  const nextCumulative = nextCumulativeRefundedCents({
+    priorCumulativeCents: priorCumulative,
+    refundDeltaCents: refundAmountCents,
+    chargeAmountCents: preflight.mapping?.chargeAmountCents ?? chargeCents
+  });
+  const chargeForStatus = preflight.mapping?.chargeAmountCents ?? chargeCents;
+  const kind = refundKindForCumulative(chargeForStatus, nextCumulative);
+  const nextStatus = refundStatusFromCumulative(chargeForStatus, nextCumulative);
+  const applyKey = correctionApplyKey(kind, ref.externalRefundId, `api-${nextCumulative}`);
 
   await appendLedger({
     organizationId,
     tenantId: attempt.tenantId,
     leaseId: attempt.leaseId,
+    propertyId,
     entryType: "refund",
     amount: refundAmount,
     relatedEntityType: "payment_attempt",
     relatedEntityId: attempt.id,
     summary: `Refund ${ref.externalRefundId}`,
+    payload: {
+      fundingMode: preflight.fundingMode,
+      settlementAccountId: preflight.mapping?.settlementExternalAccountId ?? null,
+      externalRefundId: ref.externalRefundId,
+      excludesFromSafeCorpus: true,
+      refundDeltaCents: refundAmountCents,
+      cumulativeRefundedCents: nextCumulative
+    },
     createdBy: userId,
+    client: db
+  });
+
+  const feeReversalCents = feeReversalForRefund(preflight.mapping, refundAmountCents);
+  if (feeReversalCents > 0) {
+    await appendLedger({
+      organizationId,
+      tenantId: attempt.tenantId,
+      leaseId: attempt.leaseId,
+      propertyId,
+      entryType: "adjustment",
+      amount: -fromCents(feeReversalCents),
+      relatedEntityType: "payment_attempt",
+      relatedEntityId: attempt.id,
+      summary: `Application fee reversal for refund on ${attempt.attemptNumber}`,
+      payload: {
+        kind: "application_fee_reversal",
+        fundingMode: "destination",
+        applicationFeeReversalCents: feeReversalCents
+      },
+      createdBy: userId,
+      client: db
+    });
+  }
+
+  // C7
+  await restoreRentChargeOutstanding(attempt, refundAmount, db);
+
+  await db.from("payment_attempts").update({ status: nextStatus }).eq("id", attempt.id);
+  if (attempt.paymentId) {
+    await db.from("payments").update({ status: nextStatus }).eq("id", attempt.paymentId);
+  }
+
+  const appliedKeys = priorCorrection["appliedCorrectionKeys"];
+  const nextKeys = Array.isArray(appliedKeys) ? [...appliedKeys, applyKey] : [applyKey];
+
+  await mergeAttemptSettlementCorrectionMetadata(
+    organizationId,
+    attempt.id,
+    {
+      lastRefundExternalId: ref.externalRefundId,
+      lastRefundAmountCents: refundAmountCents,
+      lastRefundKind: kind,
+      cumulativeRefundedCents: nextCumulative,
+      appliedCorrectionKeys: nextKeys,
+      excludesFromSafeCorpus: true
+    },
+    db
+  );
+
+  await recordSettlementCorrectionAudit({
+    organizationId,
+    paymentAttemptId: attempt.id,
+    kind,
+    amountCents: refundAmountCents,
+    actorUserId: userId,
+    fundingMode: preflight.fundingMode,
+    externalId: ref.externalRefundId,
+    payload: {
+      reason: reason ?? null,
+      feeReversalCents,
+      cumulativeRefundedCents: nextCumulative
+    },
     client: db
   });
 
@@ -1800,11 +2598,55 @@ export async function refundPaymentAttempt(
     "billing.refund.completed",
     `Refund $${refundAmount} on ${attempt.attemptNumber}`,
     userId,
-    { externalRefundId: ref.externalRefundId, reason },
+    {
+      externalRefundId: ref.externalRefundId,
+      reason,
+      fundingMode: preflight.fundingMode,
+      feeReversalCents,
+      cumulativeRefundedCents: nextCumulative
+    },
     db
   );
 
   return ref;
+}
+
+// ---------------------------------------------------------------------------
+// PAY-001 Slice 2 — money-in reconcile (ops)
+// ---------------------------------------------------------------------------
+
+export async function getMoneyInSettlementReconcile(
+  organizationId: string,
+  paymentAttemptId: string,
+  client?: SupabaseClient<Database>
+) {
+  return reconcileMoneyInSettlement({
+    organizationId,
+    paymentAttemptId,
+    ...(client ? { client } : {})
+  });
+}
+
+export async function applyMoneyInSettlementReconcile(
+  organizationId: string,
+  userId: string,
+  input: {
+    paymentAttemptId: string;
+    summary: string;
+    ledgerNote: string;
+    amountCents: number;
+  }
+) {
+  // Domain entry — audit only; ledger apply stays explicit via existing adjustment APIs when needed.
+  await applyMoneyInReconcileCorrection({
+    organizationId,
+    paymentAttemptId: input.paymentAttemptId,
+    actorUserId: userId,
+    summary: input.summary,
+    ledgerNote: input.ledgerNote,
+    amountCents: input.amountCents
+  });
+  return { ok: true as const };
 }
 
 // ---------------------------------------------------------------------------

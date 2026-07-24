@@ -38,6 +38,10 @@ export function settingsNotificationsHref(): string {
   return "/settings/notifications";
 }
 
+export function settingsPayoutsHref(): string {
+  return "/settings/payouts";
+}
+
 export function masterAdminProvidersHref(): string {
   return "/master-admin/providers";
 }

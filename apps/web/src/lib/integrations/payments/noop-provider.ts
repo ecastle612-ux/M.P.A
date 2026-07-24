@@ -43,6 +43,12 @@ export const noopPaymentProvider: PaymentProvider = {
   },
 
   async createPaymentAttempt(input: CreatePaymentAttemptInput): Promise<PaymentAttemptRef> {
+    // C1: noop cannot apply Stripe transfer_data — never invent destination settlement.
+    if (input.destinationRouting?.fundingMode === "destination") {
+      throw new Error(
+        "PAY-001 destination charges are not supported by the noop payment provider (no transfer_data)"
+      );
+    }
     return {
       externalAttemptId: `noop-pi-${input.attemptNumber}`,
       status: "processing",

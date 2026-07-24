@@ -83,6 +83,8 @@ export const FOUNDATION_CAPABILITIES = [
   "financial:archive",
   "financial:delete",
   "financial:admin",
+  "payout:onboard",
+  "payout:manage",
   "ai:read",
   "ai:use",
   "migration:create",
