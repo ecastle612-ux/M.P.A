@@ -18,8 +18,8 @@
 > **Slice 2 ✅ PASS** — [26](./26-slice-2-final-certification.md).  
 > **Slice 3 ✅ COMPLETE** — [27](./27-slice-3-verification.md) · [28](./28-slice-3-completion.md).  
 > **Package: ✅ VERIFIED** — [32](./32-package-certification.md) (A1–A21 PASS).  
-> **FIN-003 Phase C ✅ AUTHORIZED** separately ([37](../98-fin-003-owner-payout-stripe-connect/37-phase-c-authorization.md)) — not by PAY-001. **Blocker 4 OPEN.**  
-> PAY-001 does **not** authorize owner payouts, transfers, or Blocker 4 CLOSE.
+> **FIN-003** package ✅ **CERTIFIED PASS** · CORE-002 Blocker 4 ✅ **CLOSED** ([Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md)) — not authorized by PAY-001 alone.  
+> PAY-001 does **not** authorize Commercial Launch or live owner transfers (`FIN003_TRANSFERS_ENABLED` remains ops-gated).
 
 ---
 
@@ -174,4 +174,4 @@ CORE-002 Blocker 4 CLOSED
 | [FIN-003 §32](../98-fin-003-owner-payout-stripe-connect/32-phase-c-prerequisites.md) | Phase C prerequisite gate |
 | [FIN-003 §33](../98-fin-003-owner-payout-stripe-connect/33-settlement-foundation-governance-review.md) | Governance decision → Option B |
 | [BILL-001](../100-bill-001-saas-subscription-billing/README.md) | Must remain separate |
-| [CORE-002](../103-core-002-commercial-launch-blocker-execution/README.md) | Blocker 4 remains OPEN until FIN-003 E |
+| [CORE-002](../103-core-002-commercial-launch-blocker-execution/README.md) | Blocker 4 ✅ CLOSED · focus Blocker 5 |

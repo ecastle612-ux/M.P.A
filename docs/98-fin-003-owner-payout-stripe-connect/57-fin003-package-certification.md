@@ -5,7 +5,9 @@
 **Date:** 2026-07-23  
 **Reviewer role:** Engineering / security / money-safety / commercial certification audit  
 **Authority:** Certifies the **complete FIN-003 package** (Phases A–E) against package ADRs, [11](./11-acceptance-criteria.md), PAY-001 predecessor, and phase certs  
-**Does not:** Implement code · close CORE-002 Blocker 4 · authorize Commercial Launch · enable live transfers
+**Did not (at issue):** Implement code · close CORE-002 Blocker 4 · authorize Commercial Launch · enable live transfers  
+
+**Post-cert governance:** Blocker 4 subsequently ✅ **CLOSED** via [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) (2026-07-23). Commercial Launch remains unauthorized.
 
 > **Adversarial stance:** attempt to prove the commercial payout system unsafe after Phases A–E.  
 > **Predecessor:** [PAY-001 Verified](../108-pay-001-settlement-funding-foundation/32-package-certification.md).  
@@ -27,8 +29,9 @@ Accepted residuals are **LOW / ops-enablement** only (Phase C lease TTL & balanc
 |-------|--------|
 | **Result** | **PASS** |
 | **Package status** | ✅ **CERTIFIED PASS** (commercial package) |
-| **Blocker 4** | ❌ Remains **OPEN** — **not closed by this document** |
-| **Blocker 4 recommendation** | ✅ **Recommend CORE-002 Blocker 4 closeout** (separate closeout record) |
+| **Blocker 4 (at cert issue)** | ❌ Remained **OPEN** — not closed by this certification document alone |
+| **Blocker 4 recommendation** | ✅ Recommend closeout — **executed** in [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) |
+| **Blocker 4 (current)** | ✅ **CLOSED** — [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) |
 | **Commercial Launch** | ❌ **Not authorized** |
 | **Live money-out** | Requires `FIN003_TRANSFERS_ENABLED` + migrations applied + eligible Connect + PAY-001 destination readiness |
 
@@ -197,19 +200,20 @@ Mapped to [11 — Acceptance criteria](./11-acceptance-criteria.md):
 | FIN-003 package Approve | ✅ Unchanged |
 | Phases A–E | ✅ Delivered · package **CERTIFIED PASS** |
 | PAY-001 | ✅ VERIFIED (predecessor) |
-| Blocker 4 | ❌ **OPEN** — **not closed here** |
+| Blocker 4 (at cert issue) | ❌ Remained OPEN — not closed by this document alone |
+| Blocker 4 (current) | ✅ **CLOSED** — [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) |
 | Commercial Launch | ❌ **Not authorized** |
 | Scheduling / auto cadence | ❌ Still deferred (correct) |
 
-### Recommendation (non-closing)
+### Closeout follow-through
 
-Governance **may execute CORE-002 Blocker 4 closeout** as a separate record, citing this package certification PASS, subject to:
+Governance executed CORE-002 Blocker 4 closeout as a separate record:
 
-1. Explicit Blocker 4 CLOSE document under CORE-002  
-2. Production enable checklist: migrations applied · Connect eligible · PAY-001 destination readiness · `FIN003_TRANSFERS_ENABLED` only when ops-approved  
+1. ✅ Explicit Blocker 4 CLOSE — [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md)  
+2. Production enable checklist remains ops/deployment (migrations · Connect eligible · PAY-001 destination readiness · `FIN003_TRANSFERS_ENABLED` only when ops-approved)  
 3. Optional live drill evidence archived for ops (R-PKG-LIVE)
 
-**This document does not close Blocker 4.**  
+**This certification document did not itself close Blocker 4** (closeout is separate).  
 **This document does not authorize Commercial Launch.**  
 **This document does not implement code.**
 
@@ -223,6 +227,7 @@ Governance **may execute CORE-002 Blocker 4 closeout** as a separate record, cit
 - [54 — Phase E verification](./54-phase-e-verification.md) · [55 — Phase E completion](./55-phase-e-completion.md)  
 - [56 — Operations runbook](./56-operations-runbook.md)  
 - [PAY-001 package certification](../108-pay-001-settlement-funding-foundation/32-package-certification.md)  
+- [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md)  
 - [Blocker-4-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Readiness.md)  
 - [Implementation Gate](../00-governance/implementation-gate.md)  
 - ADR-023 · ADR-024

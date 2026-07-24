@@ -1,6 +1,6 @@
 # CORE-002 — Commercial Launch Blocker Execution
 
-**Status:** ✅ **Approved** · Blockers 1–3 **CLOSED (PASS)** · **Current focus: Blocker 4** (Owner Payouts / FIN-003)  
+**Status:** ✅ **Approved** · Blockers 1–4 **CLOSED (PASS)** · **Current focus: Blocker 5** (Push Notifications / PUSH-001)  
 **Initiative ID:** CORE-002  
 **Priority:** CRITICAL  
 **Parent:** [CORE-001](../102-core-001-commercial-platform-gap-analysis/README.md) (**Approved**)  
@@ -35,8 +35,8 @@ This is an **execution** package. It does not invent new product scope beyond th
 | **1** | Live Tenant Rent Collection Certification | EP-017 / API-005 | ✅ **CLOSED (PASS)** — [`02-blocker-1-live-rent-certification.md`](./02-blocker-1-live-rent-certification.md) |
 | **2** | Vendor Payments | VENDOR-001 Phase B | ✅ **CLOSED (PASS)** — [18 Phase B cert](../101-vendor-001-zero-friction-vendor-experience/18-phase-b-commercial-certification.md) |
 | **3** | Owner Portal | [OWNER-001](../104-owner-001-commercial-owner-portal/README.md) | ✅ **CLOSED (PASS)** — [Blocker-3-Closeout](./Blocker-3-Closeout.md) · [28 cert](../104-owner-001-commercial-owner-portal/28-owner-001-certification.md) |
-| **4** | Owner Payouts | [FIN-003](../98-fin-003-owner-payout-stripe-connect/README.md) | ⏳ **Active** — Phase A ✅ **CERTIFIED** · Phase B ✅ **AUTHORIZED** · C–E 🔒 · [25](../98-fin-003-owner-payout-stripe-connect/25-phase-b-authorization.md) · [Blocker-4-Readiness](./Blocker-4-Readiness.md) |
-| **5** | Push Notifications | PUSH-001 | 🔒 **Serial after Blocker 4** — package Approved; Blocker 5 closure waits for FIN-003 path |
+| **4** | Owner Payouts | [FIN-003](../98-fin-003-owner-payout-stripe-connect/README.md) | ✅ **CLOSED (PASS)** — [Blocker-4-Closeout](./Blocker-4-Closeout.md) · [57 package cert](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md) |
+| **5** | Push Notifications | PUSH-001 | ⏳ **Active** — package Approved; Blocker 5 commercial closure in focus (serial after Blocker 4) |
 | **6** | Performance | EP-019 | Resume after money/ops blockers or as cert-only if no code |
 
 **Serial default (binding for commercial blocker closure):** `1 → 2 → 3 → 4 → 5 → 6`
@@ -45,14 +45,16 @@ This is an **execution** package. It does not invent new product scope beyond th
 |------|---------|
 | Do not mark Blocker 5 **CLOSED** before Blocker 4 | **Yes** |
 | PUSH-001 package may be Approved / Implement unlocked | **Yes** — does **not** authorize skipping serial blocker order |
-| Parallel ops-only evidence (real devices, no schema) | **Allowed after Blocker 1 PASS** — may collect PUSH-001 evidence **without** claiming Blocker 5 CLOSED and **without** displacing FIN-003 Phase A as primary focus |
+| Parallel ops-only FIN-003/PAY-001 production enable | **Allowed** — does not reopen Blocker 4; does not authorize Commercial Launch |
 
 ## Package contents (execution evidence)
 
 | Doc | Purpose |
 |-----|---------|
 | [Blocker-3-Closeout.md](./Blocker-3-Closeout.md) | Blocker 3 formal closeout |
-| [Blocker-4-Readiness.md](./Blocker-4-Readiness.md) | Blocker 4 planning checkpoint (no implement) |
+| [Blocker-4-Closeout.md](./Blocker-4-Closeout.md) | Blocker 4 formal closeout |
+| [Blocker-4-Readiness.md](./Blocker-4-Readiness.md) | Blocker 4 readiness checkpoint (historical) |
+| [Blocker-5-Readiness.md](./Blocker-5-Readiness.md) | Blocker 5 governance preflight (PUSH-001) |
 | [02-blocker-1-live-rent-certification.md](./02-blocker-1-live-rent-certification.md) | Blocker 1 cert |
 | [01-blocker-1-live-rent-plan.md](./01-blocker-1-live-rent-plan.md) | Blocker 1 plan |
 
@@ -79,25 +81,33 @@ Evidence: [`docs/101-vendor-001-zero-friction-vendor-experience/18-phase-b-comme
 | Commercial Readiness Review | ✅ **COMPLETE** — [29](../104-owner-001-commercial-owner-portal/29-commercial-readiness-review.md) |
 | Closeout | ✅ **CLOSED** — [Blocker-3-Closeout.md](./Blocker-3-Closeout.md) |
 
-No further OWNER-001 phase implementation. Material Owner Portal changes restart the Implementation Gate. Stripe Connect / FIN-003 remain Blocker 4.
+No further OWNER-001 phase implementation. Material Owner Portal changes restart the Implementation Gate.
 
-## Current focus — Blocker 4 — Owner Payouts (FIN-003)
+### Blocker 4 — Owner Payouts — ✅ CLOSED (PASS)
 
 | Item | Status |
 |------|--------|
-| Readiness checkpoint | [Blocker-4-Readiness.md](./Blocker-4-Readiness.md) |
-| ADR-023 | ✅ Accepted |
-| FIN-003 design package | ✅ **APPROVED** — [16 Approval Summary](../98-fin-003-owner-payout-stripe-connect/16-approval-summary.md) |
-| Approved By | Product Owner (2026-07-23) |
-| Phase A | ✅ **AUTHORIZED** — [17](../98-fin-003-owner-payout-stripe-connect/17-phase-a-readiness.md) |
-| Phases B–E | 🔒 **LOCKED** |
-| Code start | 🔒 Wait for `BEGIN FIN-003 PHASE A IMPLEMENTATION` |
+| Closeout | ✅ **CLOSED** — [Blocker-4-Closeout.md](./Blocker-4-Closeout.md) |
+| FIN-003 package cert | ✅ **PASS** — [57](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md) |
+| PAY-001 predecessor | ✅ **Verified** |
 
-**Next action:** Await explicit `BEGIN FIN-003 PHASE A IMPLEMENTATION` before any Stripe/code/schema/API work. Phases B–E remain locked.
+No further FIN-003 phase implementation required for Blocker 4. Live transfer enable remains ops/deployment (`FIN003_TRANSFERS_ENABLED`). Material new payout product features restart the Implementation Gate.
+
+## Current focus — Blocker 5 — Push Notifications (PUSH-001)
+
+| Item | Status |
+|------|--------|
+| Readiness preflight | [Blocker-5-Readiness.md](./Blocker-5-Readiness.md) |
+| Package | [PUSH-001](../99-push-001-pwa-push-commercial-certification/README.md) — **Approved** · Implement unlocked |
+| Commercial cert | ⏳ **PASS pending** real-device evidence (G1–G10) |
+| Blocker 5 closure | ⏳ **OPEN** — serial commercial focus after Blocker 4 |
+| Commercial Launch | ❌ Not authorized |
+
+**Next action:** Execute PUSH-001 real-device commercial certification per [13](../99-push-001-pwa-push-commercial-certification/13-launch-readiness-execution.md) (recommended kickoff: `BEGIN PUSH-001 REAL-DEVICE CERTIFICATION`). Do **not** claim package PASS without physical-device evidence. Do **not** close Blocker 5 without cert. Do **not** claim Commercial Launch. Do **not** skip to Blocker 6 closure as a substitute.
 
 **Governance audit:** [Project Roadmap Status](../00-governance/project-roadmap-status.md) · [Closeout](../00-governance/governance-audit-closeout.md) (2026-07-23).  
 **Master plan:** [Commercial Launch Master Plan](../00-governance/commercial-launch-master-plan.md).  
-**Freeze:** [Development Freeze Checkpoint](../00-governance/development-freeze-checkpoint.md) — Phase A governance unlocked; code awaits begin phrase.
+**Freeze:** [Development Freeze Checkpoint](../00-governance/development-freeze-checkpoint.md) — Blocker 4 CLOSED; focus Blocker 5.
 
 ## Success
 

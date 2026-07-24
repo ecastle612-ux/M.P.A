@@ -22,8 +22,8 @@ CORE-002 (Approved · blocker execution)
 │  #1 Live rent cert     ✅ CLOSED (PASS)                     │
 │  #2 Vendor payments    ✅ CLOSED (PASS)  VENDOR-001 B       │
 │  #3 Owner Portal       ✅ CLOSED (PASS)  OWNER-001          │
-│  #4 Owner Payouts      ⏳ ACTIVE         FIN-003 CERT PASS · B4 CLOSE pending │
-│  #5 Push notifications ⏳ QUEUED         PUSH-001           │
+│  #4 Owner Payouts      ✅ CLOSED (PASS)  FIN-003 · [B4 Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) │
+│  #5 Push notifications ⏳ ACTIVE         PUSH-001           │
 │  #6 Performance        ⏳ QUEUED         EP-019             │
 └─────────────────────────────────────────────────────────────┘
     ↓
@@ -34,7 +34,7 @@ Commercial Launch readiness target ≥ 9.5
 UI-001 (inherits UX-012 — Future Release polish package)
 ```
 
-**Current choke points:** (1) M0 **NO-GO** ([25](../113-core-003-implementation-master-plan/25-final-m0-production-readiness.md)) — auth regression ❌ **FAIL** (REG-COV-001) ([28](../113-core-003-implementation-master-plan/28-m0-authenticated-regression-certification.md) M0-REG-002); REG-STOR-001 ✅ on prod · devices; Infrastructure ✅ **PASS** ([27](../113-core-003-implementation-master-plan/27-m0-infrastructure-closeout.md)); PAY-001 package ✅ **VERIFIED** ([26](../113-core-003-implementation-master-plan/26-pay-001-production-closeout.md)) with live destination enable still ops-gated; Perf gate CONDITIONAL ✅ ([24](../113-core-003-implementation-master-plan/24-core-003-amd-m0-perf-framework-limit.md)); (2) UX-012 A locked until M0 GO; (3) FIN-003 package ✅ CERTIFIED PASS · Blocker 4 OPEN · closeout recommended ([57](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md)).
+**Current choke points:** (1) M0 **NO-GO** ([25](../113-core-003-implementation-master-plan/25-final-m0-production-readiness.md)) — auth regression ❌ **FAIL** (REG-COV-001) ([28](../113-core-003-implementation-master-plan/28-m0-authenticated-regression-certification.md) M0-REG-002); REG-STOR-001 ✅ on prod · devices; Infrastructure ✅ **PASS** ([27](../113-core-003-implementation-master-plan/27-m0-infrastructure-closeout.md)); PAY-001 package ✅ **VERIFIED** ([26](../113-core-003-implementation-master-plan/26-pay-001-production-closeout.md)) with live destination enable still ops-gated; Perf gate CONDITIONAL ✅ ([24](../113-core-003-implementation-master-plan/24-core-003-amd-m0-perf-framework-limit.md)); (2) UX-012 A locked until M0 GO; (3) CORE-002 Blocker 5 (PUSH-001) — Blocker 4 ✅ CLOSED ([Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md)).
 
 **Master plan:** [Commercial Launch Master Plan](./commercial-launch-master-plan.md) · **Implementation order:** [CORE-003](../113-core-003-implementation-master-plan/README.md)
 
@@ -45,10 +45,10 @@ UI-001 (inherits UX-012 — Future Release polish package)
 | Package ID | Status | Phase / slice | Implementation Gate | Dependencies | Owner (gate) | Next required action |
 |------------|--------|---------------|---------------------|--------------|--------------|----------------------|
 | **CORE-001** | Approved (superseded for execution) | Audit complete | N/A (docs-only package) | — | Product + Architect | Maintain as historical SoT; live status via CORE-002 |
-| **CORE-002** | Approved · Blockers 1–3 CLOSED | Focus: Blocker 4 | Money path via PAY-001 → FIN-003 C | CORE-001 | Product + Architect + Commercial | Keep Blocker 4 serial; #5/#6 only under parallel exception |
+| **CORE-002** | Approved · Blockers 1–4 CLOSED | Focus: Blocker 5 | PUSH-001 commercial cert | CORE-001 | Product + Architect + Commercial | Keep Blocker 5 serial; #6 only under parallel exception; Commercial Launch not authorized |
 | **CORE-003** | ✅ **APPROVED** (2026-07-23) | M0 AUTHORIZED · report **NO-GO** | N/A (governance · M0 in progress) | COM/AUTH/FIN/OPS/PMX/UX (+ PAY-001 Verified) | Product + Architect + CTO | Finish device cert + Perf; re-issue M0 GO; then await `AUTHORIZE UX-012 SLICE A` |
-| **FIN-003** | ✅ **APPROVED** | Package ✅ **CERTIFIED PASS** | Await Blocker 4 CLOSE record | ADR-023/024, OWNER-001, API-005, **PAY-001**, CORE-002 #4, **CORE-003** | Product Owner (2026-07-23) | Blocker 4 OPEN; closeout recommended; [57](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md) |
-| **PAY-001** | ✅ **Verified** ([32](../108-pay-001-settlement-funding-foundation/32-package-certification.md)) | Slice 1–3 ✅ · A1–A21 PASS | Q3b/Q4 before production enable; FIN-003 C authorize (separate) | API-005, FIN-003 A/B org settlement, ADR-023/024 | Product Owner (2026-07-23) | Do not authorize FIN-003 C here; Blocker 4 OPEN |
+| **FIN-003** | ✅ **APPROVED** | Package ✅ **CERTIFIED PASS** | Blocker 4 ✅ **CLOSED** | ADR-023/024, OWNER-001, API-005, **PAY-001**, CORE-002 #4, **CORE-003** | Product Owner (2026-07-23) | Ops enable checklist only; [57](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md) · [B4 Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) |
+| **PAY-001** | ✅ **Verified** ([32](../108-pay-001-settlement-funding-foundation/32-package-certification.md)) | Slice 1–3 ✅ · A1–A21 PASS | Q3b/Q4 before production enable | API-005, FIN-003 A/B org settlement, ADR-023/024 | Product Owner (2026-07-23) | Destination enable remains ops-gated; FIN-003 / Blocker 4 CLOSED |
 | **OWNER-001** | COMPLETE · CERTIFIED PASS · Blocker 3 CLOSED | Phases 1–8 done | Implement **finished** / package closed | CORE-002 #3 | Product + Architect | None for MVP; material changes restart gate |
 | **VENDOR-001** | Approved · Phase A/B PASS | B certified | Closed for B scope | CORE-002 #2 | Product + Architect | No active implement; Connect vendor payouts deferred |
 | **API-005** | Approved · Implemented | Resident payments | Extended by PAY-001 (Approved · Slice 1) | — | Architect | Maintain; PAY-001 Slice 1 adds destination routing when kicked off |
@@ -57,7 +57,7 @@ UI-001 (inherits UX-012 — Future Release polish package)
 | **COM-001** | ✅ **Approved with Amendments** | Slices A–E 🔒 | Implement **locked** until slice authorize | AUTH-001, BILL-001, FIN-003 (SoC), ADR-027, **CORE-003** | Product + Commercial + Architect + Finance | M2 after AUTH-B path; do not Authorize before M1 complete |
 | **OPS-001** | ✅ **Approved with Amendments** | Slices A–E 🔒 | Implement **locked** until slice authorize | ADR-005, ADR-028, MHF-001, API-001, EML-001, **CORE-003** | Product + Architect + Platform | After M0 + UX-A Validated: `AUTHORIZE OPS-001 SLICE A` |
 | **UX-012** | ✅ **Approved with Amendments** | Slices A–E 🔒 | Implement **locked** until slice authorize | Canopy Approved, OPS-001, ADR-029, UI-001 inherits, **CORE-003** | Product + UX + Architect | **Next code unlock after M0:** `AUTHORIZE UX-012 SLICE A` |
-| **PUSH-001** | Approved · Implement unlocked | Real-device cert | Unlocked (ops cert) | API-001/001A | Product + Architect | **Queued** after money blockers per CORE-002 serial default; parallel only if ops-only + no schema |
+| **PUSH-001** | Approved · Implement unlocked | Real-device cert pending | Unlocked (ops cert) | API-001/001A | Product + Architect | **Active** Blocker 5 — [Blocker-5-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-5-Readiness.md); `BEGIN PUSH-001 REAL-DEVICE CERTIFICATION` |
 | **EP-019** | Paused · Implement locked | — | Locked | UX-009 / money-ops sequencing | Architect | Resume after CORE-002 #4–#5 or cert-only path |
 | **EP-017** | Approved for Implement | Pilot readiness | In progress / scoreboard | EP-016 | Commercial + Architect | Refresh score after CORE-002 blockers close |
 | **DPX-001** | Approved · Implement unlocked | Philosophy + measurement | Unlocked within scope | — | Product | Ongoing filter for product work |
@@ -91,12 +91,12 @@ UI-001 (inherits UX-012 — Future Release polish package)
 | CORE-001 / CORE-002 | Execution packages |
 | VENDOR-001 | A/B PASS |
 | BILL-001 | Phase A implemented; B–E locked |
-| PUSH-001 | Approved · Implement unlocked (queued behind serial money path) |
+| PUSH-001 | Approved · Implement unlocked · Blocker 5 **ACTIVE** commercial focus |
 | DPX-001 / DPX-003 | Unlocked within scope |
 | ADMIN-001 / ADMIN-003 Slice A | Unlocked |
 | Canopy / Experience Architecture | Approved foundations |
-| **FIN-003** | ✅ APPROVED · Phase A CERTIFIED · Phase B AUTHORIZED · C–E LOCKED · code awaits Phase B begin phrase |
-| **PAY-001** | ✅ **VERIFIED** ([32](../108-pay-001-settlement-funding-foundation/32-package-certification.md)) · Slice 1–3 COMPLETE · Q4/Q3b before production enable · FIN-003 C 🔒 eligible to authorize |
+| **FIN-003** | ✅ APPROVED · Package ✅ CERTIFIED PASS · Blocker 4 ✅ CLOSED · live transfers ops-gated |
+| **PAY-001** | ✅ **VERIFIED** ([32](../108-pay-001-settlement-funding-foundation/32-package-certification.md)) · Slice 1–3 COMPLETE · Q4/Q3b before production enable |
 
 ### Draft / Awaiting Approval
 
@@ -109,8 +109,6 @@ UI-001 (inherits UX-012 — Future Release polish package)
 | Package | Reason |
 |---------|--------|
 | EP-019 | Paused behind UX-009 / sequencing; CORE-002 #6 later |
-| FIN-003 Phase B code | Awaits `BEGIN FIN-003 PHASE B IMPLEMENTATION` |
-| Phases C–E FIN-003 | 🔒 LOCKED until each authorized |
 | BILL-001 B–E | Locked pending phase authorize |
 
 ### Future Release
@@ -129,10 +127,10 @@ UI-001 (inherits UX-012 — Future Release polish package)
 |---------|------------------|
 | **PAY-001 Slice 1** | ✅ PASS ([18](../108-pay-001-settlement-funding-foundation/18-slice-1-final-certification.md)) |
 | **PAY-001 Slice 2** | ✅ PASS ([26](../108-pay-001-settlement-funding-foundation/26-slice-2-final-certification.md)) |
-| **PAY-001 package** | ✅ **VERIFIED** — [32](../108-pay-001-settlement-funding-foundation/32-package-certification.md); FIN-003 C 🔒 (eligible to authorize); Blocker 4 OPEN |
-| FIN-003 Phase B | Authorized — code awaits `BEGIN FIN-003 PHASE B IMPLEMENTATION` |
-| PUSH-001 | Package unlocked; **Blocker 5 closure serial after FIN-003**; ops-only evidence optional |
-| ADMIN-003 Slice A / DPX polish | Unlocked but must not displace CORE-002 serial money-out |
+| **PAY-001 package** | ✅ **VERIFIED** — [32](../108-pay-001-settlement-funding-foundation/32-package-certification.md); destination enable ops-gated |
+| **FIN-003 package** | ✅ **CERTIFIED PASS** · Blocker 4 ✅ **CLOSED** — [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) |
+| PUSH-001 | Package unlocked; **Blocker 5 current commercial focus**; closure not yet claimed |
+| ADMIN-003 Slice A / DPX polish | Unlocked but must not displace CORE-002 serial Blocker 5 |
 
 ---
 
@@ -179,12 +177,12 @@ CORE-001 ──(defines P0 blockers)──► CORE-002
                                       ▼
                                  Blocker 4
                                   FIN-003
-          ✅ APPROVED · A CERTIFIED · B AUTHORIZED · C–E 🔒
+                         ✅ CLOSED (PASS) · package CERT PASS
                                       │
                                       ▼
                                  Blocker 5
                                  PUSH-001
-                            Approved · queued
+                            Approved · ACTIVE focus
                                       │
                                       ▼
                                  Blocker 6
@@ -219,13 +217,13 @@ Notification / RBAC / Jobs / Audit
 | Commercial money-in (rent) | ✅ Closed |
 | Vendor payments | ✅ Closed |
 | Owner Portal | ✅ Closed |
-| Owner Payouts | ⏳ **Phase A CERTIFIED · Phase B AUTHORIZED** (code awaits Phase B begin phrase) |
-| Push commercial cert | Queued (#5) |
+| Owner Payouts | ✅ **CLOSED (PASS)** — FIN-003 package CERT PASS · [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) |
+| Push commercial cert | ⏳ **Active** (#5) |
 | Performance cert | Queued/paused (#6) |
 | SaaS billing | Phase A done; not a CORE-002 blocker |
 | Future UI-001 | Not opened |
 
-**Commercial readiness:** Still tracking ~8.3/10 baseline (EP-017) until Blockers 4–6 close and score is re-measured.
+**Commercial readiness:** Still tracking ~8.3/10 baseline (EP-017) until Blockers 5–6 close and score is re-measured. Commercial Launch **not authorized**.
 
 ---
 
@@ -233,25 +231,24 @@ Notification / RBAC / Jobs / Audit
 
 ### Primary (gate-correct)
 
-**Await `BEGIN FIN-003 PHASE D IMPLEMENTATION`.**
+**Execute CORE-002 Blocker 5 — PUSH-001 commercial certification / closeout path.**
 
-- ✅ FIN-003 APPROVED (Product Owner 2026-07-23)  
-- ✅ Phase A COMPLETE · CERTIFIED PASS ([23](../98-fin-003-owner-payout-stripe-connect/23-phase-a-certification.md))  
-- ✅ Phase B AUTHORIZED ([25](../98-fin-003-owner-payout-stripe-connect/25-phase-b-authorization.md))  
-- Do **not** implement transfers, schedules, splits, or money movement in B  
-- Phases C–E remain **LOCKED**
+- ✅ Blocker 4 CLOSED ([Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md))  
+- ✅ FIN-003 package CERTIFIED PASS ([57](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md))  
+- Do **not** claim Blocker 5 CLOSED without commercial cert evidence  
+- Do **not** authorize Commercial Launch  
 
-### Secondary (only if humans choose parallel ops work)
+### Secondary (ops / deployment — not Blocker 4 reopen)
 
-Under CORE-002 parallel exception (**ops-only, no schema**): real-device evidence collection for **PUSH-001** may proceed **without** displacing FIN-003 Phase B as the primary commercial path — and must not claim Blocker 5 CLOSED ahead of serial order without CORE-002 amendment.
+- FIN-003 / PAY-001 production enable checklist (`FIN003_TRANSFERS_ENABLED`, migrations, destination readiness)  
+- Optional live Stripe drill archival per [56](../98-fin-003-owner-payout-stripe-connect/56-operations-runbook.md)
 
 ### Do not recommend
 
-- FIN-003 Phase D code before begin phrase  
-- FIN-003 Phase E before separate authorize  
+- Reopening FIN-003 phases for Blocker 4  
 - Opening UI-001  
-- Skipping to EP-019 performance refactors that change product surface  
-- “Just build” money-out beyond authorized Phase B
+- Skipping to EP-019 / Blocker 6 closure as a substitute for Blocker 5  
+- Claiming Commercial Launch / GA
 
 ---
 
@@ -260,9 +257,9 @@ Under CORE-002 parallel exception (**ops-only, no schema**): real-device evidenc
 | Item | Result |
 |------|--------|
 | Active commercial spine audited | ✅ |
-| FIN-003 gate integrity | ✅ APPROVED · Phase A CERTIFIED · Phase B AUTHORIZED · C–E LOCKED |
+| FIN-003 gate integrity | ✅ APPROVED · Package CERTIFIED PASS · Blocker 4 CLOSED |
 | Inconsistencies | ✅ G-1–G-5 resolved / intentional — [closeout](./governance-audit-closeout.md) |
-| Next effort | **Await `BEGIN FIN-003 PHASE D IMPLEMENTATION`** |
+| Next effort | **Blocker 5 — PUSH-001 commercial certification** |
 
 ---
 

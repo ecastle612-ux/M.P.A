@@ -1,6 +1,6 @@
 # FIN-003 — Owner Payouts via Stripe Connect
 
-**Status:** ✅ **APPROVED** (2026-07-23) · Package ✅ **CERTIFIED PASS** ([57](./57-fin003-package-certification.md)) · Phase D residuals closed in E · Blocker 4 **OPEN** (closeout recommended, not executed)
+**Status:** ✅ **APPROVED** (2026-07-23) · Package ✅ **CERTIFIED PASS** ([57](./57-fin003-package-certification.md)) · Phase D residuals closed in E · Blocker 4 ✅ **CLOSED** ([Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md))
 **Initiative ID:** FIN-003  
 **Priority:** CRITICAL  
 **Type:** Commercial Launch Blocker #4 (CORE-002)  
@@ -8,7 +8,7 @@
 **Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
 **Architecture ADR:** [ADR-023](../18-decision-log/adr-023-stripe-connect-express-owner-payouts.md) (**Accepted**)  
 **Separation ADR:** [ADR-024](../18-decision-log/adr-024-saas-stripe-billing-separation.md) (**Accepted**)  
-**Parent execution:** [CORE-002](../103-core-002-commercial-launch-blocker-execution/README.md) · [Blocker-4-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Readiness.md)  
+**Parent execution:** [CORE-002](../103-core-002-commercial-launch-blocker-execution/README.md) · [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md)  
 **Settlement funding predecessor:** [PAY-001](../108-pay-001-settlement-funding-foundation/README.md) ✅ **Verified**  
 **Phase C:** ✅ **CERTIFIED PASS** — [46](./46-phase-c-pass-certification.md)  
 **Phase D:** ⚠️ **CERTIFIED CONDITIONAL PASS** — [49](./49-phase-d-verification.md) · [50](./50-phase-d-completion.md) · [51](./51-phase-d-certification.md)  
@@ -111,9 +111,10 @@ Distribute net owner proceeds from collected rent and related activity to proper
 | [52 — Phase E planning](./52-phase-e-planning.md) | Hardening / R-D1–R-D4 / ops / Blocker 4 evidence — ✅ **AUTHORIZED** |
 | [53 — Phase E authorization](./53-phase-e-authorization.md) | ✅ **Phase E AUTHORIZED** |
 | [54 — Phase E verification](./54-phase-e-verification.md) | Phase E quality + residual closeout — **PASS** |
-| [55 — Phase E completion](./55-phase-e-completion.md) | Phase E closeout · Blocker 4 still OPEN |
+| [55 — Phase E completion](./55-phase-e-completion.md) | Phase E closeout |
 | [56 — Operations runbook](./56-operations-runbook.md) | Production ops readiness |
-| [57 — FIN-003 package certification](./57-fin003-package-certification.md) | Independent commercial package cert — ✅ **PASS** · Blocker 4 closeout recommended (not closed) |
+| [57 — FIN-003 package certification](./57-fin003-package-certification.md) | Independent commercial package cert — ✅ **PASS** |
+| [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) | CORE-002 Blocker 4 ✅ **CLOSED** |
 | [PAY-001](../108-pay-001-settlement-funding-foundation/README.md) | Settlement Funding Foundation — ✅ **Verified** (predecessor to Phase C) |
 
 ---
@@ -128,8 +129,8 @@ Distribute net owner proceeds from collected rent and related activity to proper
 | D | Portal & notifications | ⚠️ **CERTIFIED CONDITIONAL PASS** — [51](./51-phase-d-certification.md) |
 | E | Hardening & cert | ✅ **COMPLETE** — [54](./54-phase-e-verification.md) · [55](./55-phase-e-completion.md) |
 
-> Commercial sequence: **[PAY-001](../108-pay-001-settlement-funding-foundation/README.md) ✅ Verified → FIN-003 package ✅ CERTIFIED PASS ([57](./57-fin003-package-certification.md)) → Blocker 4 CLOSE (recommended, not executed)**.  
-> Blocker 4 OPEN. Enable transfers only with `FIN003_TRANSFERS_ENABLED`. Commercial Launch not authorized.
+> Commercial sequence: **[PAY-001](../108-pay-001-settlement-funding-foundation/README.md) ✅ Verified → FIN-003 package ✅ CERTIFIED PASS ([57](./57-fin003-package-certification.md)) → Blocker 4 ✅ CLOSED ([Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md))**.  
+> Enable transfers only with `FIN003_TRANSFERS_ENABLED`. Commercial Launch not authorized.
 
 ---
 
@@ -164,7 +165,7 @@ Distribute net owner proceeds from collected rent and related activity to proper
 | **Phase D** | ⚠️ **CERTIFIED CONDITIONAL PASS** — [51](./51-phase-d-certification.md) |
 | **Phase E** | ✅ **COMPLETE** — [54](./54-phase-e-verification.md) · [55](./55-phase-e-completion.md) |
 | Package cert | ✅ **PASS** — [57](./57-fin003-package-certification.md) |
-| Blocker 4 | ❌ **OPEN** · closeout recommended (not executed) |
+| Blocker 4 | ✅ **CLOSED** — [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md) |
 
 ---
 

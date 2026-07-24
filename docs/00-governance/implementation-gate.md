@@ -103,13 +103,13 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | DPX-001 Design Partner Experience (Phase 6) | **Approved** — operator experience philosophy; Amendments A–G + roadmap rule bind future product work ([92](../92-dpx-001-design-partner-experience/README.md)) |
 | DPX-002 Complete Daily Workflow | **PASS** — gold-standard reference path; Amendments A–G; freeze binds successors ([93](../93-dpx-002-complete-daily-workflow/README.md)) |
 | DPX-003 Commercial Product Experience | **Approved** — cognitive load, empty states, tenant IA, push, theme, consistency, mobile, AI polish; no new modules ([96](../96-dpx-003-commercial-product-experience/README.md)) |
-| PUSH-001 PWA Push Commercial Certification | **Approved** · package Implement unlocked · CORE-002 Blocker 5 remains **serial after FIN-003** ([99](../99-push-001-pwa-push-commercial-certification/README.md) · [roadmap](./project-roadmap-status.md)) |
+| PUSH-001 PWA Push Commercial Certification | **Approved** · Implement unlocked · Blocker 5 **ACTIVE** · commercial PASS pending real-device evidence · [Blocker-5-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-5-Readiness.md) ([99](../99-push-001-pwa-push-commercial-certification/README.md)) |
 | ADMIN-001 Master Admin Impersonation | **Approved** — Portal Test Mode + Impersonation Center + audit ([71](../71-admin-001-master-admin-impersonation/README.md)) |
 | ADMIN-002 Master Admin Role Switcher | 📝 **Draft — Awaiting Approval** · Implement **locked** ([94](../94-admin-002-master-admin-role-switcher/README.md) · [02-approval](../94-admin-002-master-admin-role-switcher/02-approval.md) unsigned) |
 | ADMIN-003 Master Admin Operations Center | **Approved** — Mission Control HQ; **Slice A unlocked** ([95](../95-admin-003-master-admin-operations-center/README.md)) |
-| CORE-002 Commercial Launch Blocker Execution | **Approved** — Blockers 1–3 ✅ **CLOSED (PASS)**; Blocker 4 FIN-003 package ✅ **CERTIFIED PASS** ([57](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md)) · Blocker 4 ❌ **OPEN** (closeout recommended, not executed) |
+| CORE-002 Commercial Launch Blocker Execution | **Approved** — Blockers 1–4 ✅ **CLOSED (PASS)**; Blocker 4 closeout [Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md); **Current focus: Blocker 5** (PUSH-001); Commercial Launch not authorized |
 | OWNER-001 Commercial Owner Portal MVP | ✅ **COMPLETE** · ✅ **CERTIFIED PASS** · Blocker 3 ✅ **CLOSED**; no Stripe/FIN-003 ([104](../104-owner-001-commercial-owner-portal/README.md) · [28](../104-owner-001-commercial-owner-portal/28-owner-001-certification.md)) |
-| FIN-003 Owner Payouts (Stripe Connect) | ✅ **APPROVED** · Package ✅ **CERTIFIED PASS** ([57](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md)) · Blocker 4 OPEN (closeout recommended) · Commercial Launch not authorized |
+| FIN-003 Owner Payouts (Stripe Connect) | ✅ **APPROVED** · Package ✅ **CERTIFIED PASS** ([57](../98-fin-003-owner-payout-stripe-connect/57-fin003-package-certification.md)) · Blocker 4 ✅ **CLOSED** · Commercial Launch not authorized · live transfers ops-gated |
 | UX-010 Unified Image Acquisition | 📝 **Draft — Awaiting Approval** · Implement **locked** ([105](../105-ux-010-unified-image-acquisition/README.md) · [08](../105-ux-010-unified-image-acquisition/08-approval-checklist.md)) |
 | PAY-001 Settlement Funding Foundation | ✅ **Verified** (2026-07-23) — A1–A21 PASS · predecessor to FIN-003 Phase C (CERTIFIED PASS) · Q3b/Q4 before production destination enable ([32](../108-pay-001-settlement-funding-foundation/32-package-certification.md)) |
 
@@ -128,7 +128,7 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 - [Project Roadmap Status (Governance Audit)](./project-roadmap-status.md) — active package matrix · commercial spine · next effort
 - [Governance Audit Closeout](./governance-audit-closeout.md) — G-1–G-5 resolution record
 - [Commercial Launch Master Plan](./commercial-launch-master-plan.md) — consolidated remaining roadmap · launch checklist · risks
-- [Development Freeze Checkpoint](./development-freeze-checkpoint.md) — FIN-003 Phase E complete · Blocker 4 OPEN pending commercial cert
+- [Development Freeze Checkpoint](./development-freeze-checkpoint.md) — Blocker 4 CLOSED · focus Blocker 5 (PUSH-001)
 - [Product Requirements Registry](../31-product-requirements/index.md)
 - [Implementation Checklist](../31-product-requirements/implementation-checklist.md)
 - [Definition of Done](./definition-of-done.md)

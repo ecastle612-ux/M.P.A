@@ -9,14 +9,16 @@
 **Related:** [DPX-003 G4](../96-dpx-003-commercial-product-experience/05-push-notification-certification.md) (superseded for commercial push PASS by this package)  
 **Constraint:** Forensic audit + certify + repair existing stack — **not** a new notification feature catalog  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · ADR-012  
-**CORE-002:** Blocker 5 — **serial after Blocker 4 (FIN-003)**  
+**CORE-002:** Blocker 5 — **ACTIVE** commercial focus · predecessor Blocker 4 ✅ **CLOSED**  
+**Readiness:** [Blocker-5-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-5-Readiness.md)
 
 > ### Serial dependency (binding)
 >
 > Package Approve unlocks PUSH-001 forensic/cert work within this package.  
-> **CORE-002 Blocker 5 must not be marked CLOSED before Blocker 4 (FIN-003) progresses per serial order.**  
-> Ops-only real-device evidence (no schema) may be collected in parallel under CORE-002’s parallel exception — it does **not** jump the commercial blocker queue.  
-> Primary commercial focus remains FIN-003 Approve → Phase A. See [governance-audit-closeout](../00-governance/governance-audit-closeout.md).
+> **Blocker 4 (FIN-003) is CLOSED** — Blocker 5 may proceed to commercial CLOSE after PUSH-001 PASS.  
+> Do **not** mark Blocker 5 CLOSED without G1–G10 real-device evidence + certification report.  
+> Do **not** authorize Commercial Launch from this package alone.  
+> See [Blocker-5-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-5-Readiness.md).
 
 ---
 

@@ -3,8 +3,9 @@
 **Package:** PUSH-001  
 **Date:** 2026-07-23  
 **Goal:** Drive commercial push to **PASS** (G1–G10)  
-**Code status:** Engineering deep-link / wiring repairs in progress  
-**Blocker status:** CORE-002 Blocker 5 remains **serial** after FIN-003 Blocker 4 for commercial CLOSE — ops evidence may still be collected now
+**Code status:** Deep-link / wiring repairs recorded 2026-07-23 · commercial PASS still requires devices  
+**Blocker status:** CORE-002 Blocker 4 ✅ **CLOSED** · Blocker 5 **OPEN** — CLOSE allowed only after PUSH-001 package PASS  
+**Readiness:** [Blocker-5-Readiness](../103-core-002-commercial-launch-blocker-execution/Blocker-5-Readiness.md)
 
 ---
 
@@ -122,13 +123,14 @@ pnpm --filter @mpa/web build
 | Condition | Action |
 |-----------|--------|
 | All Hard PASS G1–G10 evidenced | Write certification report → mark PUSH-001 **PASS** |
-| Blocker 4 (FIN-003) not yet closed | May record PUSH-001 package PASS; **do not** mark CORE-002 Blocker 5 CLOSED until serial order allows |
+| Package PASS recorded | Execute CORE-002 **Blocker 5 CLOSE** as a separate closeout record |
 | Any platform FAIL | Stay FAIL; file RCA in [06](./06-failure-analysis.md) |
 
 ---
 
 ## Next human action
 
-1. Deploy the deep-link / wiring fixes to production.  
-2. Run this runbook on real devices.  
-3. Return results → agent packages PASS/FAIL closeout.
+1. Confirm deep-link / wiring fixes are on production (deploy if needed).  
+2. Run this runbook on real devices (recommended kickoff: `BEGIN PUSH-001 REAL-DEVICE CERTIFICATION`).  
+3. Return results → agent packages PASS/FAIL closeout.  
+4. If PASS → Blocker 5 CLOSE (separate governance). Do **not** authorize Commercial Launch.
