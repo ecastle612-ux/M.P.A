@@ -1,11 +1,13 @@
-"use client";
-
 import type { ReactNode } from "react";
-import { BrandLogo, BrandSurfaceTone } from "./brand-logo";
+import { BrandLogo } from "./brand-logo";
+import { BrandSurfaceTone } from "./brand-surface-tone";
 
 /**
  * UX-005 — Premium auth presentation shell.
+ * Server Component (M0-PERF-001): keeps marketing chrome out of the login client bundle.
  * Presentation only; does not alter authentication behavior.
+ *
+ * Auth chrome is always a dark surface → dark-mode logo via BrandLogo (BR-001).
  */
 export function AuthBrandShell({
   children,
@@ -20,7 +22,10 @@ export function AuthBrandShell({
 }) {
   return (
     <BrandSurfaceTone tone="dark-surface">
-      <div className="relative flex min-h-screen w-full overflow-hidden bg-[var(--mpa-color-bg-app)]">
+      <div
+        data-brand-surface="dark-surface"
+        className="relative flex min-h-screen w-full overflow-hidden bg-[var(--mpa-color-bg-app)]"
+      >
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
@@ -41,14 +46,18 @@ export function AuthBrandShell({
 
         <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-stretch gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-12 lg:px-10 lg:py-12">
           <section className="hidden flex-col justify-center text-[var(--mpa-color-text-inverse)] lg:flex">
-            <div className="mb-10 transition-transform duration-500 ease-out">
+            <div className="mb-10">
               <BrandLogo purpose="login" priority />
             </div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--mpa-color-text-inverse)]/70">{eyebrow}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--mpa-color-text-inverse)]/70">
+              {eyebrow}
+            </p>
             <h1 className="mt-3 max-w-lg font-display text-4xl font-semibold leading-tight tracking-tight xl:text-5xl">
               {headline}
             </h1>
-            <p className="mt-4 max-w-md text-base leading-relaxed text-[var(--mpa-color-text-inverse)]/75">{support}</p>
+            <p className="mt-4 max-w-md text-base leading-relaxed text-[var(--mpa-color-text-inverse)]/75">
+              {support}
+            </p>
             <ul className="mt-10 space-y-3 text-sm text-[var(--mpa-color-text-inverse)]/65">
               <li className="flex gap-2">
                 <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--mpa-color-sidebar-accent)]" />

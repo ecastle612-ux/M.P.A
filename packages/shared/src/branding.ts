@@ -11,9 +11,18 @@ export const MPA_BRAND_PRODUCT_LINE = "Property Operations OS";
 export type BrandSurfaceTone = "light-surface" | "dark-surface";
 export type BrandLogoTone = BrandSurfaceTone | "auto";
 
-/** ADR-019 approved assets — branding system only. */
+/**
+ * ADR-019 approved assets — branding system only. PNG kept for email/PDF/legacy.
+ *
+ * Filenames describe ink color of the mark (not the theme name):
+ * - logo-dark = default / light-theme logo (dark navy mark on light surfaces)
+ * - logo-light = dark-mode logo (light mark on dark surfaces)
+ */
 export const MPA_LOGO_LIGHT_PATH = "/branding/logo-light.png";
 export const MPA_LOGO_DARK_PATH = "/branding/logo-dark.png";
+/** M0-PERF-001 — WebP delivery for browser UI (PNG remains fallback). */
+export const MPA_LOGO_LIGHT_WEBP_PATH = "/branding/logo-light.webp";
+export const MPA_LOGO_DARK_WEBP_PATH = "/branding/logo-dark.webp";
 
 export const MPA_LOGO_ASPECT_RATIO = 1;
 export const MPA_LOGO_INTRINSIC_SIZE = 512;
@@ -79,8 +88,14 @@ export type BrandPresentation = {
   allowsIconOnly: boolean;
 };
 
+/** Light theme → default logo (logo-dark). Dark theme → dark-mode logo (logo-light). */
 export function logoPathForTone(tone: BrandSurfaceTone): string {
   return tone === "dark-surface" ? MPA_LOGO_LIGHT_PATH : MPA_LOGO_DARK_PATH;
+}
+
+/** Light theme → default logo WebP. Dark theme → dark-mode logo WebP. */
+export function logoWebpPathForTone(tone: BrandSurfaceTone): string {
+  return tone === "dark-surface" ? MPA_LOGO_LIGHT_WEBP_PATH : MPA_LOGO_DARK_WEBP_PATH;
 }
 
 export function logoPathForBackground(tone: BrandLogoTone, fallbackTone: BrandSurfaceTone = "light-surface"): string {

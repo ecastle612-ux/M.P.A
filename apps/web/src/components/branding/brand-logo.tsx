@@ -1,36 +1,25 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
-import { cn } from "@mpa/ui";
+import { cn } from "@mpa/ui/cn";
 import {
   MPA_BRAND_NAME,
   MPA_BRAND_PRODUCT_LINE,
   MPA_BRAND_TAGLINE,
   MPA_LOGO_ASPECT_RATIO,
   logoPathForTone,
+  logoWebpPathForTone,
   resolveBrandPresentation,
   type BrandLogoPurpose,
   type BrandLogoTone,
-  type BrandNameScale,
-  type BrandSurfaceTone
+  type BrandNameScale
 } from "../../lib/branding";
+import {
+  BrandSurfaceTone,
+  useBrandSurfaceTone,
+  useResolvedBrandSurfaceTone
+} from "./brand-surface-tone";
 
-const BrandSurfaceToneContext = createContext<BrandSurfaceTone>("light-surface");
-
-export function BrandSurfaceTone({
-  tone,
-  children
-}: {
-  tone: BrandLogoTone;
-  children: ReactNode;
-}) {
-  const resolvedTone = tone === "auto" ? "light-surface" : tone;
-  return <BrandSurfaceToneContext.Provider value={resolvedTone}>{children}</BrandSurfaceToneContext.Provider>;
-}
-
-export function useBrandSurfaceTone(): BrandSurfaceTone {
-  return useContext(BrandSurfaceToneContext);
-}
+export { BrandSurfaceTone, useBrandSurfaceTone };
 
 export type BrandLogoProps = {
   purpose: BrandLogoPurpose;
@@ -62,13 +51,15 @@ export function BrandLogo({
     );
   }
 
-  const surfaceTone = useContext(BrandSurfaceToneContext);
+  // Light theme / light surface → default logo (logo-dark asset).
+  // Dark theme / dark surface → dark-mode logo (logo-light asset).
+  const surfaceTone = useResolvedBrandSurfaceTone();
   const presentation = resolveBrandPresentation(purpose, { collapsed });
   const markPx = presentation.markPx;
   const showTypography =
     presentation.showBrandName || presentation.showTagline || presentation.showProductLine;
-  // Explicit: light chrome → logo-dark; dark chrome → logo-light.
   const logoSrc = logoPathForTone(surfaceTone);
+  const logoWebpSrc = logoWebpPathForTone(surfaceTone);
   const isDecorative = decorative || ariaHidden;
   const markHeight = Math.round(markPx * MPA_LOGO_ASPECT_RATIO);
   const accessibleName = `${MPA_BRAND_NAME} ${MPA_BRAND_TAGLINE}`;
@@ -78,19 +69,21 @@ export function BrandLogo({
   const productTone = surfaceTone === "dark-surface" ? "text-[var(--mpa-color-text-inverse)]/55" : "text-[var(--mpa-color-text-muted)]";
 
   const mark = (
-    // eslint-disable-next-line @next/next/no-img-element -- BrandLogo owns approved branding assets.
-    <img
-      src={logoSrc}
-      alt={isDecorative || showTypography ? "" : accessibleName}
-      width={markPx}
-      height={markHeight}
-      decoding="async"
-      fetchPriority={priority ? "high" : "auto"}
-      aria-hidden={isDecorative || showTypography || undefined}
-      className="block h-auto max-w-full shrink-0 object-contain"
-      style={{ width: markPx, height: "auto" }}
-      suppressHydrationWarning
-    />
+    <picture>
+      <source srcSet={logoWebpSrc} type="image/webp" />
+      <img
+        src={logoSrc}
+        alt={isDecorative || showTypography ? "" : accessibleName}
+        width={markPx}
+        height={markHeight}
+        decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
+        aria-hidden={isDecorative || showTypography || undefined}
+        className="block h-auto max-w-full shrink-0 object-contain"
+        style={{ width: markPx, height: "auto" }}
+        suppressHydrationWarning
+      />
+    </picture>
   );
 
   if (!showTypography) {
@@ -168,3 +161,6 @@ function brandNameClassName(scale: BrandNameScale, textTone: string): string {
       return cn("font-display text-base font-semibold tracking-tight", textTone);
   }
 }
+
+/** Re-export tone type alias for consumers that imported from this module. */
+export type { BrandLogoTone };

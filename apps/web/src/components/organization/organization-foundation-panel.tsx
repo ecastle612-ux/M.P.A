@@ -101,7 +101,7 @@ export function OrganizationFoundationPanel() {
           </div>
         ) : (
           <div className="mt-4 flex items-center gap-3">
-            <BrandLogo purpose="sidebar" collapsed />
+            <BrandLogo purpose="header" />
             <p className="text-sm text-[var(--mpa-color-text-secondary)]">
               Create an organization first, then invite your team from Settings.
             </p>

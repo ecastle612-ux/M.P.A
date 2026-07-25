@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
-import { BrandSurfaceTone } from "../branding/brand-logo";
+import { BrandSurfaceTone } from "../branding/brand-surface-tone";
 import { SidebarBrandHeader } from "./sidebar-brand-header";
 import { NAV_ICON_MAP } from "../presentation/nav-icons";
 import { getShellNavigationGroups, isRouteActive, shellHomeHref } from "./navigation-config";
@@ -78,9 +78,11 @@ export function Sidebar({ initialCollapsed = false }: { initialCollapsed?: boole
     persistCollapsed(!collapsed);
   }
 
+  // Sidebar chrome is always dark — use dark-mode logo for contrast (not app theme).
   return (
     <BrandSurfaceTone tone="dark-surface">
       <aside
+        data-brand-surface="dark-surface"
         className={[
           "hidden shrink-0 flex-col border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] lg:flex",
           "w-[var(--mpa-sidebar-width)]",
