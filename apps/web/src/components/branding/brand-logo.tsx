@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@mpa/ui/cn";
+import { cn } from "@mpa/ui";
 import {
   MPA_BRAND_NAME,
   MPA_BRAND_PRODUCT_LINE,
