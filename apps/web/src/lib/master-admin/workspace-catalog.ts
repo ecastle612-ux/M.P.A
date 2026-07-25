@@ -52,6 +52,16 @@ export const MASTER_ADMIN_WORKSPACES: WorkspaceDefinition[] = [
         description: "Notification and push settings"
       },
       {
+        href: "/settings/appearance",
+        label: "Settings · Appearance",
+        description: "Light / dark mode and display preferences"
+      },
+      {
+        href: "/settings",
+        label: "Settings",
+        description: "Organization, team, appearance, and integrations"
+      },
+      {
         href: "/master-admin/flags",
         label: "Feature Flags",
         description: "Public flags and provider credential presence"
@@ -110,6 +120,11 @@ export const MASTER_ADMIN_WORKSPACES: WorkspaceDefinition[] = [
         description: "Act as any user with audit trail"
       },
       {
+        href: "/master-admin/recovery",
+        label: "Auth Recovery",
+        description: "Org Admin recovery, ownership restore, escalations"
+      },
+      {
         href: "/portal",
         label: "Portal Testing",
         description: "Enter Resident, Vendor, Owner, Manager portals"
@@ -131,6 +146,11 @@ export const MASTER_ADMIN_WORKSPACES: WorkspaceDefinition[] = [
     label: "Sales",
     purpose: "Design Partners, demos, growth",
     items: [
+      {
+        href: "/master-admin/commercial",
+        label: "Commercial Pipeline",
+        description: "COM-001 opportunities and activation handoff"
+      },
       {
         href: "/master-admin/testing",
         label: "Demo Mode",
@@ -209,7 +229,8 @@ export const QUICK_ACTIONS = [
   { href: "/migration/new", label: "Launch Migration" },
   { href: "/master-admin/impersonation", label: "Impersonate User" },
   { href: "/portal", label: "Open Any Portal" },
-  { href: "/settings/team", label: "Invite Company" },
+  { href: "/settings/team", label: "Invite Team" },
+  { href: "/settings/appearance", label: "Appearance" },
   { href: "/master-admin/testing", label: "Launch Demo" },
   { href: "/communications/new", label: "Send Announcement" },
   { href: "/master-admin/providers", label: "View Integrations" },

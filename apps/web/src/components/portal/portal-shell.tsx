@@ -1,20 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Badge, Card } from "@mpa/ui";
 import { OrganizationSwitcher } from "../shell/organization-switcher";
 import { RoleSwitcher } from "../shell/role-switcher";
 import { ProfileMenu } from "../shell/profile-menu";
+import { ThemeModeToggle } from "../shell/theme-mode-toggle";
 import { BrandLogo } from "../branding/brand-logo";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 import { FloatingAiCopilot } from "../ai/floating-ai-copilot";
 import { AiRouteContextSync } from "../ai/ai-route-context-sync";
+import { PortalMobileBottomNav } from "./owner-mobile-bottom-nav";
+import type { PortalNavigationItem } from "./navigation";
 
-type PortalNavigationItem = {
-  href: string;
-  label: string;
-};
+function isNavItemActive(pathname: string, href: string, exact = false): boolean {
+  if (exact || href === "/portal/owner" || href === "/portal/tenant" || href === "/portal/vendor" || href === "/portal/manager") {
+    return pathname === href;
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 /**
  * Portal chrome uses the same ThemeProvider → BrandSurfaceTone path as the main app.
@@ -29,7 +35,9 @@ export function PortalShell({
   notificationSettingsHref = "/portal/tenant/preferences",
   showPushEnrollmentBanner = true,
   fetchProfile = true,
-  masterAdminBanner
+  masterAdminBanner,
+  mobileBottomNavigation,
+  consumerChrome = false
 }: {
   title: string;
   subtitle: string;
@@ -40,7 +48,15 @@ export function PortalShell({
   showPushEnrollmentBanner?: boolean | undefined;
   fetchProfile?: boolean | undefined;
   masterAdminBanner?: ReactNode;
+  /** When set, side nav is desktop-only and bottom tabs show on mobile. */
+  mobileBottomNavigation?: readonly PortalNavigationItem[] | undefined;
+  /** Quieter header for resident / consumer-facing portals. */
+  consumerChrome?: boolean | undefined;
 }) {
+  const pathname = usePathname() ?? "";
+  const hasMobileBottomNav = Boolean(mobileBottomNavigation?.length);
+  const showRoleBadge = Boolean(roleBadgeLabel?.trim()) && !consumerChrome;
+
   return (
     <div className="min-h-screen bg-[var(--mpa-color-bg-app)]">
       {masterAdminBanner}
@@ -49,10 +65,13 @@ export function PortalShell({
           <BrandLogo purpose="header" />
           <div className="min-w-0">
             <p className="truncate font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">{title}</p>
-            <p className="truncate text-xs text-[var(--mpa-color-text-secondary)]">{subtitle}</p>
+            {subtitle.trim() ? (
+              <p className="truncate text-xs text-[var(--mpa-color-text-secondary)]">{subtitle}</p>
+            ) : null}
           </div>
-          <Badge variant="neutral">{roleBadgeLabel}</Badge>
+          {showRoleBadge ? <Badge variant="neutral">{roleBadgeLabel}</Badge> : null}
           <div className="ml-auto flex flex-wrap items-center gap-2">
+            <ThemeModeToggle />
             <OrganizationSwitcher />
             <RoleSwitcher />
             <ProfileMenu fetchProfile={fetchProfile} />
@@ -62,27 +81,56 @@ export function PortalShell({
 
       {showPushEnrollmentBanner ? <PushEnrollmentBanner settingsHref={notificationSettingsHref} /> : null}
 
-      <div className="mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[15rem_1fr]">
-        <Card variant="elevated" className="h-fit p-1">
+      <div
+        className={
+          hasMobileBottomNav
+            ? "mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 pb-24 lg:grid-cols-[15rem_1fr] lg:pb-5"
+            : "mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[15rem_1fr]"
+        }
+      >
+        <Card
+          variant="elevated"
+          className={hasMobileBottomNav ? "hidden h-fit p-1 lg:block" : "h-fit p-1"}
+        >
           <p className="px-2 pt-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
             Navigation
           </p>
-          <nav className="mt-1 space-y-0.5 p-1">
-            {navigation.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="block rounded-[var(--mpa-radius-md)] px-2.5 py-2 text-sm text-[var(--mpa-color-text-secondary)] transition-colors hover:bg-[var(--mpa-color-bg-muted)] hover:text-[var(--mpa-color-text-primary)]"
-              >
-                {item.label}
-              </Link>
-            ))}
+          <nav className="mt-1 space-y-0.5 p-1" aria-label="Portal navigation">
+            {navigation.map((item) => {
+              const exactHome =
+                item.href === "/portal/owner" ||
+                item.href === "/portal/tenant" ||
+                item.href === "/portal/vendor" ||
+                item.href === "/portal/manager";
+              const active = isNavItemActive(pathname, item.href, exactHome);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={
+                    active
+                      ? "block rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-muted)] px-2.5 py-2 text-sm font-medium text-[var(--mpa-color-text-primary)] transition-colors"
+                      : "block rounded-[var(--mpa-radius-md)] px-2.5 py-2 text-sm text-[var(--mpa-color-text-secondary)] transition-colors hover:bg-[var(--mpa-color-bg-muted)] hover:text-[var(--mpa-color-text-primary)]"
+                  }
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
         </Card>
 
         <main className="space-y-5">{children}</main>
       </div>
-      {/* AI-001: same OS launcher on portal chrome (permission-gated inside component). */}
+
+      {mobileBottomNavigation?.length ? (
+        <PortalMobileBottomNav
+          items={mobileBottomNavigation}
+          ariaLabel={consumerChrome ? "Tenant mobile navigation" : "Mobile navigation"}
+        />
+      ) : null}
+
       <AiRouteContextSync />
       <FloatingAiCopilot />
     </div>

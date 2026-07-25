@@ -6,6 +6,7 @@ export type PortalNavigationItem = {
 export const MANAGER_PORTAL_NAVIGATION = [
   { href: "/portal/manager", label: "Manager home" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/settings", label: "Settings" },
   { href: "/profile", label: "Profile" }
 ] as const satisfies readonly PortalNavigationItem[];
 
@@ -61,11 +62,12 @@ export const TENANT_PORTAL_MORE_NAVIGATION = [
   { href: "/portal/tenant/community", label: "Community" },
   { href: "/portal/tenant/documents", label: "Documents" },
   { href: "/portal/tenant/maintenance/new", label: "New maintenance request" },
-  { href: "/portal/tenant/preferences", label: "Preferences" },
+  { href: "/portal/tenant/preferences", label: "Settings" },
   { href: "/profile", label: "Profile" }
 ] as const satisfies readonly PortalNavigationItem[];
 
 export const VENDOR_PORTAL_NAVIGATION = [
   { href: "/portal/vendor", label: "Work queue" },
+  { href: "/portal/vendor/settings", label: "Settings" },
   { href: "/profile", label: "Profile" }
 ] as const satisfies readonly PortalNavigationItem[];

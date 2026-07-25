@@ -1,5 +1,6 @@
 import { Card } from "@mpa/ui";
 import { Breadcrumbs } from "../../../../../components/shell/breadcrumbs";
+import { AppearanceSettingsPanel } from "../../../../../components/settings/appearance-settings-panel";
 import { NotificationPreferencesForm } from "../../../../../components/communication/notification-preferences-form";
 import { fetchAuthedApi } from "../../../../../lib/communication/server-fetch";
 import type { NotificationPreferencesRecord } from "../../../../../lib/communication/contracts";
@@ -39,9 +40,10 @@ export default async function TenantPreferencesPage() {
         <Breadcrumbs
           items={[
             { href: "/portal/tenant", label: "Tenant home" },
-            { label: "Preferences" }
+            { label: "Settings" }
           ]}
         />
+        <AppearanceSettingsPanel />
         <Card>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
             Notification preferences are not available yet. Defaults are shown below.
@@ -57,9 +59,10 @@ export default async function TenantPreferencesPage() {
       <Breadcrumbs
         items={[
           { href: "/portal/tenant", label: "Tenant home" },
-          { label: "Preferences" }
+          { label: "Settings" }
         ]}
       />
+      <AppearanceSettingsPanel />
       <NotificationPreferencesForm initialPreferences={preferences} />
     </div>
   );

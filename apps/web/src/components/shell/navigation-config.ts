@@ -126,6 +126,12 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         synonyms: ["work order", "work orders", "repair", "ticket", "inspection"]
       },
       {
+        href: "/activity",
+        label: "Activity",
+        mobileSection: "maintenance",
+        synonyms: ["timeline", "activity timeline", "ops activity"]
+      },
+      {
         href: "/vendors",
         label: "Vendors",
         mobileSection: "maintenance",
@@ -293,6 +299,13 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Notifications",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
+      },
+      {
+        href: "/settings",
+        label: "Settings",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["settings", "preferences", "appearance", "theme", "dark mode", "light mode"]
       }
     ]
   },

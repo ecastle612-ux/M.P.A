@@ -87,6 +87,28 @@ export function ProfileMenu({ fetchProfile = true }: { fetchProfile?: boolean })
           <Button className="mb-2 w-full" variant="secondary" size="sm" onClick={() => router.push("/profile")}>
             Profile
           </Button>
+          <Button
+            className="mb-2 w-full"
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              router.push("/settings/appearance");
+              setOpen(false);
+            }}
+          >
+            Appearance
+          </Button>
+          <Button
+            className="mb-2 w-full"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              router.push("/settings");
+              setOpen(false);
+            }}
+          >
+            Settings
+          </Button>
           <Button className="w-full" variant="ghost" size="sm" onClick={handleLogout}>
             Log out
           </Button>

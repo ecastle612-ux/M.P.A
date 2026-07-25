@@ -4,10 +4,7 @@ import { SettingsSubnav } from "../../../components/settings/settings-subnav";
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
   return (
-    <AppPage
-      wide
-      breadcrumbs={[{ href: "/dashboard", label: "Operations" }, { label: "Settings" }]}
-    >
+    <AppPage wide breadcrumbs={[{ label: "Settings" }]}>
       <SettingsSubnav />
       {children}
     </AppPage>
