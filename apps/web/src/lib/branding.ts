@@ -26,8 +26,18 @@ export {
   type BrandSurfaceTone
 } from "@mpa/shared";
 
-export const MPA_APP_ICON_192_PATH = "/icons/icon-192.png";
-export const MPA_APP_ICON_512_PATH = "/icons/icon-512.png";
-export const MPA_FAVICON_32_PATH = "/icons/favicon-32.png";
-export const MPA_FAVICON_16_PATH = "/icons/favicon-16.png";
-export const MPA_APPLE_TOUCH_ICON_PATH = "/icons/apple-touch-icon.png";
+/**
+ * PWA / favicon paths — default (light-theme) logo only.
+ * Filenames are versioned (`mpa-mark-*`) so stale black install icons cannot linger by URL.
+ */
+export const MPA_APP_ICON_192_PATH = "/icons/mpa-mark-192.png";
+export const MPA_APP_ICON_512_PATH = "/icons/mpa-mark-512.png";
+export const MPA_FAVICON_32_PATH = "/icons/mpa-favicon-32.png";
+export const MPA_FAVICON_16_PATH = "/icons/mpa-favicon-16.png";
+export const MPA_APPLE_TOUCH_ICON_PATH = "/icons/mpa-apple-touch.png";
+
+export const MPA_PWA_ICON_SIZES = [16, 32, 48, 64, 128, 192, 256, 512] as const;
+
+export function mpaMarkIconPath(size: (typeof MPA_PWA_ICON_SIZES)[number]): string {
+  return `/icons/mpa-mark-${size}.png`;
+}

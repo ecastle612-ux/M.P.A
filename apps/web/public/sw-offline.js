@@ -7,17 +7,17 @@
  */
 /* global self, caches, clients, Request, Response, URL, fetch */
 
-const MPA_SW_VERSION = "mpa-offline-v1";
-const SHELL_CACHE = "mpa-shell-v1";
-const RUNTIME_CACHE = "mpa-runtime-v1";
+const MPA_SW_VERSION = "mpa-offline-v2";
+const SHELL_CACHE = "mpa-shell-v2";
+const RUNTIME_CACHE = "mpa-runtime-v2";
 const RUNTIME_CACHE_MAX = 64;
 
 const PRECACHE_URLS = [
   "/",
   "/offline.html",
   "/manifest.webmanifest",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png"
+  "/icons/mpa-mark-192.png",
+  "/icons/mpa-mark-512.png"
 ];
 
 function isSameOrigin(url) {

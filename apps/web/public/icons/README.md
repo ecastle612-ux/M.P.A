@@ -1,11 +1,14 @@
 # M.P.A. PWA / favicon assets
 
-Homescreen / desktop / favicon icons use the **regular** brand logo
-(`/public/branding/logo-dark.png` — dark mark for light surfaces) on the
-manifest light background (`#F3F4F6`). Do **not** derive install icons from
-`logo-light.png` (dark-mode / dark-surface variant).
+Install / splash / favicon icons use **only** the default brand logo
+(`/public/branding/logo-dark.png`) on the light manifest background (`#F3F4F6`).
 
-PNG sizes for browsers and PWA manifest: 16, 32, 48, 64, 128, 192, 256, 512,
-plus `apple-touch-icon.png` (180) and favicon-16/32.
+Filenames use the `mpa-mark-*` / `mpa-favicon-*` / `mpa-apple-touch` prefix so
+legacy black `/icons/icon-*.png` URLs cannot keep serving a retired asset from
+CDN or device caches.
 
-UI surfaces must use the centralized adaptive React `<BrandLogo />` component.
+Do **not** derive install icons from `logo-light.png` (dark-mode UI variant).
+
+Sizes: 16, 32, 48, 64, 128, 192, 256, 512 (+ apple-touch 180, favicon 16/32).
+
+UI surfaces must use `<BrandLogo />`, never these install icons as product logos.

@@ -3,10 +3,10 @@ import {
   MPA_APP_ICON_192_PATH,
   MPA_APP_ICON_512_PATH,
   MPA_BRAND_NAME,
-  MPA_BRAND_TAGLINE
+  MPA_BRAND_TAGLINE,
+  MPA_PWA_ICON_SIZES,
+  mpaMarkIconPath
 } from "../lib/branding";
-
-const PWA_ICON_SIZES = [16, 32, 48, 64, 128, 192, 256, 512] as const;
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -18,8 +18,8 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#F3F4F6",
     theme_color: "#0D2645",
     icons: [
-      ...PWA_ICON_SIZES.map((size) => ({
-        src: `/icons/icon-${size}.png`,
+      ...MPA_PWA_ICON_SIZES.map((size) => ({
+        src: mpaMarkIconPath(size),
         sizes: `${size}x${size}`,
         type: "image/png" as const,
         purpose: "any" as const
