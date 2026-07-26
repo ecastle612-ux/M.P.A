@@ -14,7 +14,8 @@ VALIDATE PMX-004 PHASE 3
 **Authorization:** [§63](./63-pmx-004-phase-3-authorization.md) · [PMX-004 §22](../106-pmx-004-native-pwa-parity/22-phase-3-authorization.md)  
 
 > Validation only. No product-code changes.  
-> PMX-004 Phases 4–11 · UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI remain locked until their authorize phrases.
+> At validation time Phases 4–11 were locked; Phase 4 subsequently **AUTHORIZED** ([§66](./66-pmx-004-phase-4-authorization.md)).  
+> UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI remain locked until their authorize phrases.
 
 ---
 
@@ -28,7 +29,7 @@ VALIDATE PMX-004 PHASE 3
 | Package A7 (phase minimum) | ✅ Satisfied for Phase 3 |
 | Phase 1 / Phase 2 regression | ✅ Preserved |
 | Critical defects | ❌ None |
-| Phase 4 authorized? | ❌ No (correct — eligible only) |
+| Phase 4 authorized? | ❌ No at validation · **Follow-on:** subsequently **AUTHORIZED** ([§66](./66-pmx-004-phase-4-authorization.md)) |
 
 ---
 
@@ -36,6 +37,6 @@ VALIDATE PMX-004 PHASE 3
 
 1. ✅ Phrase **`VALIDATE PMX-004 PHASE 3` issued** · **PASS**.  
 2. ✅ Phase 3 **approved for program progression**.  
-3. ✅ PMX-004 Phase 4 is **eligible** for a future `AUTHORIZE PMX-004 PHASE 4` — **not** issued here.  
-4. ❌ Do **not** authorize UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under this phrase.  
-5. ❌ Do **not** begin Phase 4 implementation under this validation.
+3. ✅ PMX-004 Phase 4 subsequently **AUTHORIZED** — [§66](./66-pmx-004-phase-4-authorization.md).  
+4. ❌ Do **not** authorize UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the PMX-3 validate phrase.  
+5. ❌ Do **not** begin Phase 4 implementation under the Phase 3 validation phrase.

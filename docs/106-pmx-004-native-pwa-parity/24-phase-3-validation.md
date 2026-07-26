@@ -199,11 +199,11 @@ VALIDATE PMX-004 PHASE 3
 | Question | Answer |
 |----------|--------|
 | Is Phase 3 **Validated / approved for progression?** | ✅ **Yes — PASS** |
-| May PMX-004 Phase 4 be **authorized**? | ✅ **Eligible** (Phase 3 Validated; Phase 4 = Standalone Compliance per [05](./05-implementation-order.md)) — **not** issued here |
+| May PMX-004 Phase 4 be **authorized**? | ✅ **Eligible** at validation · subsequently **AUTHORIZED** ([25](./25-phase-4-authorization.md)) |
 | May UX-012 C / OPS-001 C / FIN-003 C / marketplace be authorized? | ❌ **No** under this phrase |
 | Begin any locked implementation now? | ❌ **No** |
 
-**Program next (not issued here):** governance may later issue `AUTHORIZE PMX-004 PHASE 4` in a dedicated authorize session.
+**Program next:** Phase 4 subsequently **AUTHORIZED** — [25](./25-phase-4-authorization.md) · [CORE-003 §66](../113-core-003-implementation-master-plan/66-pmx-004-phase-4-authorization.md). Implementation pending dedicated session.
 
 ---
 
@@ -212,5 +212,5 @@ VALIDATE PMX-004 PHASE 3
 | Role | Decision | Date |
 |------|----------|------|
 | Validation | ✅ **PASS** · `VALIDATE PMX-004 PHASE 3` | 2026-07-26 |
-| PMX-004 Phase 4 | 🔒 Eligible · **not** authorized | — |
+| PMX-004 Phase 4 | ✅ Subsequently **AUTHORIZED** ([25](./25-phase-4-authorization.md)) | Implementation pending |
 | UX-012 C–E · OPS-001 C–E · FIN-003 C–E · marketplace UI | 🔒 Locked | — |

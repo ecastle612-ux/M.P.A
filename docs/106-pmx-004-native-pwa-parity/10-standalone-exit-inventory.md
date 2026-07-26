@@ -1,8 +1,9 @@
 # 10 — Standalone Exit Inventory
 
 **Package:** PMX-004 · Phase 4  
-**Status:** Draft — Ready for Approval  
-**Rule:** Every exit must be Mitigated, Same-tab, In-app viewer, or Accepted-with-return.
+**Status:** ✅ **Authorized** (`AUTHORIZE PMX-004 PHASE 4` · 2026-07-26) — living inventory; re-scan at implementation start  
+**Rule:** Every exit must be Mitigated, Same-tab, In-app viewer, or Accepted-with-return.  
+**Authorize SoT:** [25 — Phase 4 Authorization](./25-phase-4-authorization.md)
 
 ---
 

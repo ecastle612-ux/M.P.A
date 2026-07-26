@@ -66,8 +66,9 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 20. ✅ **`AUTHORIZE PMX-004 PHASE 3` issued** ([63](./63-pmx-004-phase-3-authorization.md) · [PMX-004 §22](../106-pmx-004-native-pwa-parity/22-phase-3-authorization.md)).  
 21. ✅ PMX-004 Phase 3 **IMPLEMENTED** ([64](./64-pmx-004-phase-3-implementation.md) · [PMX-004 §23](../106-pmx-004-native-pwa-parity/23-phase-3-implementation.md)).  
 22. ✅ **`VALIDATE PMX-004 PHASE 3` → PASS** ([65](./65-pmx-004-phase-3-validation.md) · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md)).  
-22. ❌ Do **not** authorize PMX-004 Phases 4–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the PMX-3 implement phrase.  
-23. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
+23. ✅ **`AUTHORIZE PMX-004 PHASE 4` issued** ([66](./66-pmx-004-phase-4-authorization.md) · [PMX-004 §25](../106-pmx-004-native-pwa-parity/25-phase-4-authorization.md)). Implementation ⏳ pending · Validation 🔒.  
+24. ❌ Do **not** authorize PMX-004 Phases 5–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the PMX-4 authorize phrase.  
+25. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
 
 ---
 
@@ -140,6 +141,7 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | [63 — PMX-004 Phase 3 Authorization](./63-pmx-004-phase-3-authorization.md) | ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** · [PMX-004 §22](../106-pmx-004-native-pwa-parity/22-phase-3-authorization.md) |
 | [64 — PMX-004 Phase 3 Implementation](./64-pmx-004-phase-3-implementation.md) | ✅ **IMPLEMENTED** · [PMX-004 §23](../106-pmx-004-native-pwa-parity/23-phase-3-implementation.md) · ✅ **VALIDATED PASS** |
 | [65 — PMX-004 Phase 3 Validation](./65-pmx-004-phase-3-validation.md) | ✅ **PASS** · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md) · P3-01…P3-10 |
+| [66 — PMX-004 Phase 4 Authorization](./66-pmx-004-phase-4-authorization.md) | ✅ **AUTHORIZED** · Implementation ⏳ · [PMX-004 §25](../106-pmx-004-native-pwa-parity/25-phase-4-authorization.md) |
 
 ---
 
@@ -159,6 +161,7 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | UX-012 Slice B | ✅ **VALIDATED PASS** ([60](./60-ux-012-slice-b-validation.md) · [UX-012 §35](../112-ux-012-platform-experience-design-system/35-slice-b-validation.md)) |
 | PMX-004 Phase 2 | ✅ **VALIDATED PASS** ([62](./62-pmx-004-phase-2-validation.md) · [PMX-004 §21](../106-pmx-004-native-pwa-parity/21-phase-2-validation.md)) |
 | PMX-004 Phase 3 | ✅ **VALIDATED PASS** ([65](./65-pmx-004-phase-3-validation.md) · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md)) |
+| PMX-004 Phase 4 | ✅ **AUTHORIZED** ([66](./66-pmx-004-phase-4-authorization.md) · [PMX-004 §25](../106-pmx-004-native-pwa-parity/25-phase-4-authorization.md)) · Implementation ⏳ |
 
 ---
 
