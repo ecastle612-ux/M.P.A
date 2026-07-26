@@ -400,6 +400,99 @@ export type Database = {
           }
         ];
       };
+      facility_pm_schedules: {
+        Row: {
+          active: boolean;
+          asset_id: string | null;
+          cadence: string;
+          created_at: string;
+          created_by: string;
+          custom_interval_days: number | null;
+          default_assignee_user_id: string | null;
+          deleted_at: string | null;
+          id: string;
+          metadata: Json;
+          next_due: string;
+          organization_id: string;
+          property_id: string;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          active?: boolean;
+          asset_id?: string | null;
+          cadence: string;
+          created_at?: string;
+          created_by: string;
+          custom_interval_days?: number | null;
+          default_assignee_user_id?: string | null;
+          deleted_at?: string | null;
+          id?: string;
+          metadata?: Json;
+          next_due: string;
+          organization_id: string;
+          property_id: string;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          active?: boolean;
+          asset_id?: string | null;
+          cadence?: string;
+          created_at?: string;
+          created_by?: string;
+          custom_interval_days?: number | null;
+          default_assignee_user_id?: string | null;
+          deleted_at?: string | null;
+          id?: string;
+          metadata?: Json;
+          next_due?: string;
+          organization_id?: string;
+          property_id?: string;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      facility_pm_occurrences: {
+        Row: {
+          created_at: string;
+          due_on: string;
+          id: string;
+          metadata: Json;
+          organization_id: string;
+          schedule_id: string;
+          status: string;
+          updated_at: string;
+          work_order_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          due_on: string;
+          id?: string;
+          metadata?: Json;
+          organization_id: string;
+          schedule_id: string;
+          status?: string;
+          updated_at?: string;
+          work_order_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          due_on?: string;
+          id?: string;
+          metadata?: Json;
+          organization_id?: string;
+          schedule_id?: string;
+          status?: string;
+          updated_at?: string;
+          work_order_id?: string | null;
+        };
+        Relationships: [];
+      };
       facility_inventory_items: {
         Row: {
           assigned_technician_user_id: string | null;

@@ -22,12 +22,15 @@
 
 ## Slice B — Preventive Maintenance + Calendar
 
-**Authorize phrase:** `AUTHORIZE FAC-002 SLICE B`
+**Authorize phrase:** `AUTHORIZE FAC-002 SLICE B`  
+**Status:** ✅ Authorized 2026-07-25 · Shipping
 
 - PmSchedule / PmOccurrence  
-- Job to create draft WOs  
+- Job to create draft WOs (`submitted` / `assigned` — no separate WO draft status)  
 - `/facility/calendar` projection  
 - Notifications for PM due / assignment  
+- Migration: `supabase/migrations/20260726090000_fac002_slice_b_pm_calendar.sql`  
+
 
 ---
 

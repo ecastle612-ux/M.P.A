@@ -1,10 +1,11 @@
 # FAC-002 — Facility Operations V1.0
 
-**Status:** Design ✔ · Document ✔ · **Approved** (2026-07-25) · **Slice A authorized** (2026-07-25) · Implement in progress  
+**Status:** Design ✔ · Document ✔ · **Approved** (2026-07-25) · Slice A shipped · **Slice B authorized** (2026-07-25)  
 **Initiative ID:** FAC-002  
 **Design authorized:** `BEGIN FACILITY V1.0 DESIGN` (2026-07-25)  
 **Approved:** `APPROVE FAC-002` (2026-07-25 · Product Owner)  
-**Slice A authorized:** `AUTHORIZE FAC-002 SLICE A` (2026-07-25 · Product Owner)  
+**Slice A authorized:** `AUTHORIZE FAC-002 SLICE A` (2026-07-25 · Product Owner) · shipped  
+**Slice B authorized:** `AUTHORIZE FAC-002 SLICE B` (2026-07-25 · Product Owner)  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
 **Mission:** [V1.0 Implementation Mission](../00-governance/v1-0-implementation-mission.md) §7  
 **Subscription SoT:** [V1.0 Subscription Architecture](../00-governance/v1-0-subscription-architecture.md) — Facility is independently licensable  
@@ -30,7 +31,7 @@ FAC-001 already delivered permanent repair history, timeline, providers intellig
 | Design | ✔ Complete |
 | Document | ✔ Complete |
 | Approve | ✅ **Approved** 2026-07-25 — [17 Approval Checklist](./17-approval-checklist.md) |
-| Implement | 🔓 **Slice A authorized** 2026-07-25 — next authorize: `AUTHORIZE FAC-002 SLICE B` |
+| Implement | 🔓 **Slice B authorized** 2026-07-25 — next authorize: `AUTHORIZE FAC-002 SLICE C` |
 
 ---
 
@@ -74,6 +75,6 @@ FAC-001 already delivered permanent repair history, timeline, providers intellig
 
 ## Next phrase
 
-`AUTHORIZE FAC-002 SLICE B` — Preventive Maintenance + Calendar (per [14](./14-phased-delivery.md)).
+`AUTHORIZE FAC-002 SLICE C` — Assets V1 + Inspections (per [14](./14-phased-delivery.md)).
 
-Do **not** start Slice B/C/D until their Authorize phrases. Respect collision boundary (AUTH/shell/OPS/COM WIP).
+Do **not** start Slice C/D until their Authorize phrases. Respect collision boundary (AUTH/shell/OPS/COM WIP).

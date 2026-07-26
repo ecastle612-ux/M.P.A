@@ -166,6 +166,8 @@ export const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/maintenance": NavIconMaintenance,
   "/facility": NavIconMaintenance,
   "/facility/inventory": NavIconUnits,
+  "/facility/pm": NavIconMaintenance,
+  "/facility/calendar": NavIconDashboard,
   "/vendors": NavIconVendors,
   "/communications": NavIconCommunications,
   "/financials": NavIconFinancials,

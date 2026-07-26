@@ -60,16 +60,25 @@ export async function POST(request: Request, context: RouteContext) {
   try {
     if (action === "confirm") {
       const asset = await confirmUpload(user, assetId);
-      after(() => {
-        void processMediaAsset(assetId);
-      });
+      // Prefer after(); fall back if the runtime rejects scheduling (prod 500 guard).
+      try {
+        after(() => {
+          void processMediaAsset(assetId).catch(() => undefined);
+        });
+      } catch {
+        void processMediaAsset(assetId).catch(() => undefined);
+      }
       return NextResponse.json({ asset });
     }
     if (action === "reprocess") {
       const asset = await getMediaAsset(user, assetId);
-      after(() => {
-        void processMediaAsset(assetId);
-      });
+      try {
+        after(() => {
+          void processMediaAsset(assetId).catch(() => undefined);
+        });
+      } catch {
+        void processMediaAsset(assetId).catch(() => undefined);
+      }
       return NextResponse.json({ asset, reprocessQueued: true });
     }
     return apiError(400, "INVALID_ACTION", "Unsupported action");

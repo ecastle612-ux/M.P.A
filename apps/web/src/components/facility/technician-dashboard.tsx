@@ -88,6 +88,9 @@ export function TechnicianDashboard({
           <Link href="/facility/inventory" className={secondaryLinkClass}>
             Inventory
           </Link>
+          <Link href="/facility/calendar" className={secondaryLinkClass}>
+            Calendar
+          </Link>
           {canWriteInventory ? (
             <Link href="/facility/inventory/new" className={secondaryLinkClass}>
               Add inventory
