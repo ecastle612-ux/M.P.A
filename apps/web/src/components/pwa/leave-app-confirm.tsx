@@ -6,8 +6,8 @@ type LeaveAppConfirmProps = {
   open: boolean;
   onClose: () => void;
   href: string;
-  title?: string;
-  description?: string;
+  title?: string | undefined;
+  description?: string | undefined;
 };
 
 /**

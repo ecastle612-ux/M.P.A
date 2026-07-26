@@ -19,12 +19,12 @@ type StandaloneOpenLinkProps = Omit<ComponentPropsWithoutRef<"button">, "onClick
   href: string;
   children: ReactNode;
   /** Prefer in-app viewer for docs/media; confirm before leaving for other external URLs. */
-  mode?: "auto" | "viewer" | "leave-confirm" | "same-tab";
-  documentTitle?: string;
-  leaveTitle?: string;
-  leaveDescription?: string;
+  mode?: "auto" | "viewer" | "leave-confirm" | "same-tab" | undefined;
+  documentTitle?: string | undefined;
+  leaveTitle?: string | undefined;
+  leaveDescription?: string | undefined;
   /** When true, clone a single child element and attach the open handler (avoid nested buttons). */
-  asChild?: boolean;
+  asChild?: boolean | undefined;
 };
 
 /**

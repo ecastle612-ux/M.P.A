@@ -14,7 +14,7 @@ type StandaloneDocumentViewerProps = {
   open: boolean;
   onClose: () => void;
   href: string;
-  title?: string;
+  title?: string | undefined;
 };
 
 export function StandaloneDocumentViewer({ open, onClose, href, title }: StandaloneDocumentViewerProps) {
