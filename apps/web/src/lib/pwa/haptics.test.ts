@@ -31,6 +31,6 @@ describe("PMX-004 Phase 5 haptics", () => {
       media: "(prefers-reduced-motion: reduce)"
     }));
     triggerHaptic("confirm");
-    expect(vibrate).toHaveBeenCalledWith(10);
+    expect(vibrate).toHaveBeenCalledWith([10]);
   });
 });
