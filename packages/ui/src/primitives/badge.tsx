@@ -1,7 +1,12 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "../lib/cn";
 
-type BadgeVariant = "neutral" | "success" | "warning" | "danger" | "info";
+export type BadgeVariant = "neutral" | "success" | "warning" | "danger" | "info";
+
+export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
+  variant?: BadgeVariant;
+  showDot?: boolean;
+};
 
 const STATUS_DOT: Record<BadgeVariant, string> = {
   neutral: "bg-[var(--mpa-color-text-muted)]",
@@ -16,11 +21,11 @@ export function Badge({
   variant = "neutral",
   showDot = false,
   ...props
-}: HTMLAttributes<HTMLSpanElement> & { variant?: BadgeVariant; showDot?: boolean }) {
+}: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium leading-none",
+        "inline-flex items-center gap-[var(--mpa-space-1)] rounded-full px-[var(--mpa-space-2)] py-[var(--mpa-space-1)] text-[var(--mpa-font-size-micro)] font-[var(--mpa-font-weight-medium)] leading-none",
         variant === "neutral" && "bg-[var(--mpa-color-bg-surface-muted)] text-[var(--mpa-color-text-secondary)]",
         variant === "success" && "bg-[var(--mpa-color-status-success-subtle)] text-[var(--mpa-color-status-success)]",
         variant === "warning" && "bg-[var(--mpa-color-status-warning-subtle)] text-[var(--mpa-color-status-warning)]",

@@ -1,22 +1,22 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 import { cn } from "../lib/cn";
 
-export type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
+export type RadioProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
   label?: ReactNode;
 };
 
 /**
- * UX-012 Slice B — Checkbox with optional label.
+ * UX-012 Slice B — Radio primitive with optional label.
  * States: on / off / disabled + labeled.
  */
-export function Checkbox({ className, label, id, disabled, ...props }: CheckboxProps) {
+export function Radio({ className, label, id, disabled, ...props }: RadioProps) {
   const control = (
     <input
       id={id}
-      type="checkbox"
+      type="radio"
       disabled={disabled}
       className={cn(
-        "h-4 w-4 rounded-[var(--mpa-radius-sm)] border border-[var(--mpa-color-border-default)] text-[var(--mpa-color-brand-primary)] focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-brand-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50",
+        "h-4 w-4 border border-[var(--mpa-color-border-default)] text-[var(--mpa-color-brand-primary)] focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-brand-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}

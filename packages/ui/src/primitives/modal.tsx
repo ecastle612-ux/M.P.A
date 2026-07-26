@@ -21,7 +21,7 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mpa-color-bg-overlay)] p-4"
+      className="fixed inset-0 z-[var(--mpa-z-modal)] flex items-center justify-center bg-[var(--mpa-color-bg-overlay)] p-[var(--mpa-space-4)]"
       onMouseDown={onClose}
     >
       <div
