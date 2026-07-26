@@ -126,6 +126,22 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         synonyms: ["work order", "work orders", "repair", "ticket", "inspection"]
       },
       {
+        href: "/facility",
+        label: "Facility",
+        exact: true,
+        pinned: true,
+        mobileSection: "maintenance",
+        requiredCapability: "facility:dashboard",
+        synonyms: ["facility", "technician", "facility hub", "ops floor"]
+      },
+      {
+        href: "/facility/inventory",
+        label: "Inventory",
+        mobileSection: "maintenance",
+        requiredCapability: "facility:inventory:read",
+        synonyms: ["inventory", "parts", "tools", "equipment stock"]
+      },
+      {
         href: "/activity",
         label: "Activity",
         mobileSection: "maintenance",

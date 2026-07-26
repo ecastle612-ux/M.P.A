@@ -95,6 +95,8 @@ type WorkOrderListOptions = {
   propertyId?: string;
   unitId?: string;
   tenantId?: string;
+  /** FAC-002 Slice A — technician dashboard filter */
+  assignedToUserId?: string;
   sortBy?: "updated_at" | "due_date" | "priority" | "created_at";
   sortOrder?: "asc" | "desc";
   limit?: number;
@@ -130,6 +132,9 @@ export async function getWorkOrdersForOrganization(
   }
   if (options.tenantId) {
     query = query.eq("tenant_id", options.tenantId);
+  }
+  if (options.assignedToUserId) {
+    query = query.eq("assigned_to_user_id", options.assignedToUserId);
   }
 
   const trimmedSearch = options.search?.trim();

@@ -400,6 +400,94 @@ export type Database = {
           }
         ];
       };
+      facility_inventory_items: {
+        Row: {
+          assigned_technician_user_id: string | null;
+          category: string | null;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          id: string;
+          metadata: Json;
+          name: string;
+          notes: string | null;
+          organization_id: string;
+          primary_media_asset_id: string | null;
+          property_id: string | null;
+          purchase_date: string | null;
+          serial_number: string | null;
+          status: string;
+          updated_at: string;
+          updated_by: string | null;
+          warranty_ends_on: string | null;
+          warranty_notes: string | null;
+        };
+        Insert: {
+          assigned_technician_user_id?: string | null;
+          category?: string | null;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          id?: string;
+          metadata?: Json;
+          name: string;
+          notes?: string | null;
+          organization_id: string;
+          primary_media_asset_id?: string | null;
+          property_id?: string | null;
+          purchase_date?: string | null;
+          serial_number?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          warranty_ends_on?: string | null;
+          warranty_notes?: string | null;
+        };
+        Update: {
+          assigned_technician_user_id?: string | null;
+          category?: string | null;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          id?: string;
+          metadata?: Json;
+          name?: string;
+          notes?: string | null;
+          organization_id?: string;
+          primary_media_asset_id?: string | null;
+          property_id?: string | null;
+          purchase_date?: string | null;
+          serial_number?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          warranty_ends_on?: string | null;
+          warranty_notes?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "facility_inventory_items_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "facility_inventory_items_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "facility_inventory_items_primary_media_asset_id_fkey";
+            columns: ["primary_media_asset_id"];
+            isOneToOne: false;
+            referencedRelation: "media_assets";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       facility_assets: {
         Row: {
           asset_code: string;

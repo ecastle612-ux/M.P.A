@@ -7,12 +7,14 @@
 
 ## Slice A — Technician home + Inventory MVP
 
-**Authorize phrase:** `AUTHORIZE FAC-002 SLICE A`
+**Authorize phrase:** `AUTHORIZE FAC-002 SLICE A`  
+**Status:** ✅ Authorized 2026-07-25 · Implemented (awaiting migration apply + smoke)
 
-- Technician dashboard  
-- Inventory: Photo → Name → Save + list/detail/status  
-- Nav entry under Facility  
-- Permissions for dashboard + inventory  
+- Technician dashboard at `/facility`  
+- Inventory: Photo → Name → Save + list/detail/status (`/facility/inventory`)  
+- Nav: Facility + Inventory (capability-gated)  
+- Caps: `facility:dashboard`, `facility:inventory:read|write`  
+- Migration: `supabase/migrations/20260726080000_fac002_slice_a_inventory_dashboard.sql`
 
 **DoD subset:** mobile + desktop, RLS, empty states, no placeholder CTAs.
 
