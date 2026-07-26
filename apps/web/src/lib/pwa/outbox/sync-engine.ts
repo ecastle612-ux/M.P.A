@@ -261,9 +261,9 @@ export async function flushOutbox(organizationId: string | null): Promise<FlushR
         ...item,
         status: "syncing",
         updatedAt: Date.now(),
-        attempts: item.attempts + 1,
-        error: undefined
+        attempts: item.attempts + 1
       };
+      delete syncingItem.error;
       await putOutboxItem(syncingItem);
       notifyOutboxChanged();
 

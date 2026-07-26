@@ -49,10 +49,10 @@ export async function offlineAwareJsonFetch(input: {
     method: input.method,
     url: input.url,
     body: input.body,
-    headers: input.headers,
-    idempotencyKey: input.idempotencyKey,
     workflow: match.workflow,
-    label: match.label
+    label: match.label,
+    ...(input.headers ? { headers: input.headers } : {}),
+    ...(input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : {})
   });
   requestOutboxBackgroundSync();
   return { kind: "queued", outboxId: item.id, idempotencyKey: item.idempotencyKey };
