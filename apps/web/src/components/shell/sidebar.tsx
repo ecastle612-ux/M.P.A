@@ -96,8 +96,8 @@ export function Sidebar({ initialCollapsed = false }: { initialCollapsed?: boole
           className={[
             "flex shrink-0 border-b border-[var(--mpa-color-border-sidebar)]",
             collapsed
-              ? "min-h-[5.5rem] flex-col items-center justify-center gap-2 px-2 py-3"
-              : "min-h-[5.25rem] items-center justify-between gap-2 px-[18px] py-[18px]"
+              ? "min-h-[7.5rem] flex-col items-center justify-center gap-2 px-2 py-3"
+              : "min-h-[7rem] items-center justify-between gap-2 px-[18px] py-[18px]"
           ].join(" ")}
           suppressHydrationWarning
         >

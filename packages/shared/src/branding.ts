@@ -32,26 +32,26 @@ export const MPA_BRAND_EMBEDDED_TEXT_MIN_PX = 80;
 
 /** Display floors for hero/display marks. */
 export const MPA_BRAND_MIN_MARK_PX = {
-  icon: 48,
-  symbol: 52,
-  navigation: 80,
-  authentication: 160,
-  splash: 220
+  icon: 64,
+  symbol: 68,
+  navigation: 112,
+  authentication: 208,
+  splash: 280
 } as const;
 
 /**
  * @deprecated Prefer BrandLogoPurpose + resolveBrandPresentation.
  */
 export const MPA_LOGO_WIDTH = {
-  sidebarCollapsed: 48,
-  sidebarExpanded: 56,
-  navigation: 56,
-  login: 160,
-  loading: 160,
-  mobile: 80,
-  email: 56,
-  pdf: 56,
-  inline: 52
+  sidebarCollapsed: 64,
+  sidebarExpanded: 72,
+  navigation: 72,
+  login: 208,
+  loading: 208,
+  mobile: 112,
+  email: 72,
+  pdf: 72,
+  inline: 68
 } as const;
 
 export type BrandLogoPurpose =
@@ -189,7 +189,7 @@ export function resolveBrandPresentation(
       return {
         purpose,
         mode: "compact",
-        markPx: 96,
+        markPx: 128,
         markRole: "display",
         brandNameScale: "large",
         showBrandName: false,
