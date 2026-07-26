@@ -84,8 +84,9 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 38. ✅ **`AUTHORIZE PMX-004 PHASE 8` issued** ([81](./81-pmx-004-phase-8-authorization.md) · [PMX-004 §41](../106-pmx-004-native-pwa-parity/41-phase-8-authorization.md)).  
 39. ✅ PMX-004 Phase 8 **IMPLEMENTED** ([82](./82-pmx-004-phase-8-implementation.md) · [PMX-004 §42](../106-pmx-004-native-pwa-parity/42-phase-8-implementation.md)) · Production `f988ae5` · `dpl_FJyvRpYAeTYEvJL7P8admpkgupfZ`.  
 40. ✅ **`VALIDATE PMX-004 PHASE 8` → PASS** ([83](./83-pmx-004-phase-8-validation.md) · [PMX-004 §43](../106-pmx-004-native-pwa-parity/43-phase-8-validation.md)) · Phase 8 **Validated / Approved**.  
-41. ❌ Do **not** authorize PMX-004 Phases 9–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the Phase 8 validate phrase — Phase 9 authorize is **eligible** (recommend `AUTHORIZE PMX-004 PHASE 9`) but **not issued**.  
-42. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
+41. ❌ Do **not** authorize PMX-004 Phases 9–11 / UX-012 C–E / OPS-001 D–E / FIN-003 remaining / partner marketplace UI under the Phase 8 validate phrase — Phase 9 authorize remains **eligible** (recommend `AUTHORIZE PMX-004 PHASE 9`) but **not issued**.  
+42. ✅ **`AUTHORIZE OPS-001 SLICE C` issued** ([84](./84-ops-001-slice-c-authorization.md) · [OPS-001 §38](../111-ops-001-platform-operations-architecture/38-slice-c-authorization.md)) · CORE-003 **M3.3**. Next → dedicated implement → `VALIDATE OPS-001 SLICE C`.  
+43. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
 
 ---
 
@@ -176,6 +177,11 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | [81 — PMX-004 Phase 8 Authorization](./81-pmx-004-phase-8-authorization.md) | ✅ **AUTHORIZED** · ✅ **VALIDATED PASS** · Performance Optimization · [PMX-004 §41](../106-pmx-004-native-pwa-parity/41-phase-8-authorization.md) |
 | [82 — PMX-004 Phase 8 Implementation](./82-pmx-004-phase-8-implementation.md) | ✅ **IMPLEMENTED** · Production `f988ae5` · [PMX-004 §42](../106-pmx-004-native-pwa-parity/42-phase-8-implementation.md) |
 | [83 — PMX-004 Phase 8 Validation](./83-pmx-004-phase-8-validation.md) | ✅ **PASS** · [PMX-004 §43](../106-pmx-004-native-pwa-parity/43-phase-8-validation.md) · P8-01…P8-10 |
+| [84 — OPS-001 Slice C Authorization](./84-ops-001-slice-c-authorization.md) | ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** · [87](./87-ops-001-slice-c-validation-rerun.md) |
+| [85 — OPS-001 Slice C Validation](./85-ops-001-slice-c-validation.md) | ❌ **FAIL** (preserved) · [OPS-001 §40](../111-ops-001-platform-operations-architecture/40-slice-c-validation.md) |
+| [86 — OPS-001 Slice C Remediation](./86-ops-001-slice-c-remediation.md) | ✅ **COMPLETE** · R-C1 · [OPS-001 §41](../111-ops-001-platform-operations-architecture/41-slice-c-remediation.md) |
+| [87 — OPS-001 Slice C Validation Re-Run](./87-ops-001-slice-c-validation-rerun.md) | ✅ **PASS** · [OPS-001 §42](../111-ops-001-platform-operations-architecture/42-slice-c-validation-rerun.md) · OC-01…OC-10 |
+| [88 — OPS-001 Slice D Authorization](./88-ops-001-slice-d-authorization.md) | ✅ **AUTHORIZED** · AI Director · Automation · Analytics · [OPS-001 §43](../111-ops-001-platform-operations-architecture/43-slice-d-authorization.md) · OD-01…OD-10 |
 
 ---
 
@@ -192,6 +198,8 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | M0 Performance gate | ✅ **CONDITIONALLY SATISFIED** ([24](./24-core-003-amd-m0-perf-framework-limit.md)) |
 | AUTH-001 / COM-001 approved slices | ✅ A–E **COMPLETE** |
 | OPS-001 Slice B | ✅ **VALIDATED PASS** ([58](./58-ops-001-slice-b-validation.md) · [OPS-001 §37](../111-ops-001-platform-operations-architecture/37-slice-b-validation.md)) |
+| OPS-001 Slice C | ✅ **VALIDATED PASS** ([87](./87-ops-001-slice-c-validation-rerun.md) · [OPS-001 §42](../111-ops-001-platform-operations-architecture/42-slice-c-validation-rerun.md)) · prior FAIL ([85](./85-ops-001-slice-c-validation.md)) preserved |
+| OPS-001 Slice D | ✅ **AUTHORIZED** ([88](./88-ops-001-slice-d-authorization.md) · [OPS-001 §43](../111-ops-001-platform-operations-architecture/43-slice-d-authorization.md)) · Implement/Validate 🔒 |
 | UX-012 Slice B | ✅ **VALIDATED PASS** ([60](./60-ux-012-slice-b-validation.md) · [UX-012 §35](../112-ux-012-platform-experience-design-system/35-slice-b-validation.md)) |
 | PMX-004 Phase 2 | ✅ **VALIDATED PASS** ([62](./62-pmx-004-phase-2-validation.md) · [PMX-004 §21](../106-pmx-004-native-pwa-parity/21-phase-2-validation.md)) |
 | PMX-004 Phase 3 | ✅ **VALIDATED PASS** ([65](./65-pmx-004-phase-3-validation.md) · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md)) |

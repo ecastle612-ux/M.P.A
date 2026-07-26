@@ -277,7 +277,12 @@ export async function createWorkOrder(
     workOrderId: workOrder.id,
     eventType: "created",
     summary: `Work order ${workOrder.workOrderNumber} created`,
-    details: { status: workOrder.status, priority: workOrder.priority },
+    details: {
+      status: workOrder.status,
+      priority: workOrder.priority,
+      propertyId: workOrder.propertyId,
+      unitId: workOrder.unitId
+    },
     actorUserId: userId,
     client: supabase
   });
@@ -917,6 +922,8 @@ async function recordWorkOrderUpdateEvents({
   userId: string;
   existing: {
     status: string;
+    property_id: string;
+    unit_id: string | null;
     assigned_to_user_id: string | null;
     priority: string;
     due_date: string | null;
@@ -936,7 +943,12 @@ async function recordWorkOrderUpdateEvents({
         updates.status === "completed"
           ? "Work order completed"
           : `Status changed to ${toMaintenanceStatusLabel(updates.status)}`,
-      details: { from: existing.status, to: updates.status },
+      details: {
+        from: existing.status,
+        to: updates.status,
+        propertyId: existing.property_id,
+        unitId: existing.unit_id
+      },
       actorUserId: userId,
       client
     });
@@ -949,7 +961,11 @@ async function recordWorkOrderUpdateEvents({
       workOrderId,
       eventType: "assigned",
       summary: updates.assignedToUserId ? "Assigned to internal staff" : "Assignment cleared",
-      details: { assignedToUserId: updates.assignedToUserId },
+      details: {
+        assignedToUserId: updates.assignedToUserId,
+        propertyId: existing.property_id,
+        unitId: existing.unit_id
+      },
       actorUserId: userId,
       client
     });
@@ -1002,17 +1018,69 @@ async function recordActivityEvent({
   actorUserId: string;
   client: SupabaseClientType;
 }): Promise<void> {
-  const { error } = await client.from("maintenance_activity_events").insert({
-    organization_id: organizationId,
-    work_order_id: workOrderId,
-    event_type: eventType,
-    summary,
-    details: details as Json,
-    actor_user_id: actorUserId
-  });
+  const { mapMaintenanceActivityToCatalog, recordMaintenanceActivityWithOutbox } = await import(
+    "../ops"
+  );
+  const catalogType = mapMaintenanceActivityToCatalog(eventType, details);
 
-  if (error) {
-    throw new Error(error.message);
+  // Non-catalog activity: legacy table only (unchanged behavior).
+  if (!catalogType) {
+    const { error } = await client.from("maintenance_activity_events").insert({
+      organization_id: organizationId,
+      work_order_id: workOrderId,
+      event_type: eventType,
+      summary,
+      details: details as Json,
+      actor_user_id: actorUserId
+    });
+    if (error) throw new Error(error.message);
+    return;
+  }
+
+  // OPS-001 Slice A OA-02: legacy activity + outbox in one Postgres transaction.
+  const propertyId =
+    typeof details["propertyId"] === "string"
+      ? details["propertyId"]
+      : typeof details["property_id"] === "string"
+        ? details["property_id"]
+        : null;
+
+  try {
+    await recordMaintenanceActivityWithOutbox(client as never, {
+      organizationId,
+      workOrderId,
+      legacyEventType: eventType,
+      summary,
+      details,
+      actorUserId,
+      emit: {
+        eventType: catalogType,
+        organizationId,
+        subject: { type: "maintenance_work_order", id: workOrderId },
+        actor: { actor_type: "user", principal_id: actorUserId, label: "Team member" },
+        summary,
+        payload: { ...details, workOrderId, summary },
+        propertyId,
+        href: `/maintenance/${workOrderId}`,
+        visibility: "ops"
+      }
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (/ops_record_maintenance_activity_with_outbox|event_domain_events|does not exist|schema cache/i.test(message)) {
+      // Pre-migration environments: preserve legacy activity write.
+      const { error } = await client.from("maintenance_activity_events").insert({
+        organization_id: organizationId,
+        work_order_id: workOrderId,
+        event_type: eventType,
+        summary,
+        details: details as Json,
+        actor_user_id: actorUserId
+      });
+      if (error) throw new Error(error.message);
+      return;
+    }
+    throw err;
   }
 }
 

@@ -4,6 +4,8 @@ import type { Database, Json } from "@mpa/supabase";
 import { createAuthServerComponentClient, createServiceRoleServerClient } from "../auth/server";
 import { mediaBucket } from "../media/paths";
 import { notify } from "../notifications/service";
+import { mapMaintenanceActivityToCatalog } from "../ops/catalog";
+import { recordMaintenanceActivityWithOutbox } from "../ops/emit";
 import type { ArrivalLocation, VendorJobCard } from "./contracts";
 
 export type { ArrivalLocation, VendorJobCard } from "./contracts";
@@ -51,6 +53,10 @@ async function adminClient(): Promise<AnyClient> {
   return createServiceRoleServerClient() as AnyClient;
 }
 
+/**
+ * OPS-001 Slice C — vendor job lifecycle writes legacy activity + catalog outbox when mapped
+ * so Workflow Orchestration can advance the maintenance pilot without FAC UI redesign.
+ */
 async function recordActivity(
   admin: AnyClient,
   input: {
@@ -62,12 +68,42 @@ async function recordActivity(
     actorUserId?: string | null;
   }
 ) {
+  const details = input.details ?? {};
+  const catalogType = mapMaintenanceActivityToCatalog(input.eventType, details);
+
+  if (catalogType) {
+    await recordMaintenanceActivityWithOutbox(admin, {
+      organizationId: input.organizationId,
+      workOrderId: input.workOrderId,
+      legacyEventType: input.eventType,
+      summary: input.summary,
+      details,
+      actorUserId: input.actorUserId ?? null,
+      emit: {
+        eventType: catalogType,
+        organizationId: input.organizationId,
+        subject: { type: "maintenance_work_order", id: input.workOrderId },
+        actor: {
+          actor_type: input.actorUserId ? "user" : "vendor",
+          principal_id: input.actorUserId ?? null
+        },
+        summary: input.summary,
+        payload: {
+          summary: input.summary,
+          href: `/maintenance/${input.workOrderId}`,
+          ...details
+        }
+      }
+    });
+    return;
+  }
+
   await admin.from("maintenance_activity_events").insert({
     organization_id: input.organizationId,
     work_order_id: input.workOrderId,
     event_type: input.eventType,
     summary: input.summary,
-    details: (input.details ?? {}) as Json,
+    details: details as Json,
     actor_user_id: input.actorUserId ?? null
   });
 }
