@@ -50,7 +50,7 @@
 ## Slice D — WO materials/photos polish + Reports
 
 **Authorize phrase:** `AUTHORIZE FAC-002 SLICE D`  
-**Status:** ✅ Authorized 2026-07-26 · Shipped to Production (`83449be` + build fix `2e25470`, deploy `dpl_EPYuTPiVFcpWQyftFdGje4pan152`, 2026-07-26)
+**Status:** ✅ Authorized 2026-07-26 · Shipped to Production (`83449be` + build fix `2e25470`, deploy `dpl_EPYuTPiVFcpWQyftFdGje4pan152`, 2026-07-26) · Package ✅ **COMPLETE** ([19](./19-fac-002-package-certification.md))
 
 - WO materials + photo path consistency (`MediaImage` on detail)  
 - Technician / inventory / asset / monthly building reports (`/facility/reports`)  

@@ -1,0 +1,81 @@
+{
+  "generatedAt": "2026-07-26T12:55:06.275Z",
+  "baseURL": "https://www.my-property-assistant.com",
+  "rows": [
+    {
+      "id": "R1",
+      "role": "pm/technician-hub",
+      "path": "/facility",
+      "result": "PASS",
+      "evidence": "url=https://www.my-property-assistant.com/facility snippet=Dashboard\nFacility\nFacility\n\nWhat needs attention today — assigned to you first.\n\nNew work order\nInventory\nCalendar\nAdd inventory\nToday\n0\n\nNothing due today. Check overdue or pick "
+    },
+    {
+      "id": "R2",
+      "role": "pm/technician-wo",
+      "path": "https://www.my-property-assistant.com/maintenance/e52d891e-e176-45c1-8297-a65f71622f2f",
+      "result": "PASS",
+      "evidence": "Dashboard\nMaintenance\nWO-2026-0001\nMaintenance\n/\nQA Certification Property\n/\nWO-2026-0001\nPM: FAC-002 Slice B HVAC Filter 1785037486410\n\nWO-2026-0001 · General\n\nMedium\nSubmitted\n\nNeeds attention: No vendor assigned yet.\n"
+    },
+    {
+      "id": "R3",
+      "role": "manager-pm",
+      "path": "/facility/pm",
+      "result": "PASS",
+      "evidence": "Facility\nPreventive\nPreventive maintenance\n\nDefine the cadence once — M.P.A. drafts the work order when due.\n\nCalendar\nNew schedule\n\nFAC-002 Slice B HVAC Filter 1785037486410\n\nQA Certification Property · Monthly · Next 2"
+    },
+    {
+      "id": "R4",
+      "role": "manager-calendar",
+      "path": "/facility/calendar",
+      "result": "PASS",
+      "evidence": "Facility\nCalendar\nCalendar\n\nWork orders and preventive maintenance due this month.\n\nPrevious\nNext\nPreventive\n\nJuly 2026\n\n2026-07-26\n\nFAC-002 Slice B HVAC Filter 1785037486410\n\nPM occurrence · materialized\n\nmaterialized\n\n"
+    },
+    {
+      "id": "R5",
+      "role": "inventory-add",
+      "path": "/facility/inventory/new",
+      "result": "PASS",
+      "evidence": "photo=true name=true save=true snippet=Facility\nInventory\nAdd\nAdd inventory\n\nTake a photo, name the item, save. Everything else can wait.\n\n1. Photo\n\nMP\n\nInventory photo\n\nDrag & drop, tap to browse, or use camera. JPEG, "
+    },
+    {
+      "id": "R6",
+      "role": "inspection-list",
+      "path": "/facility/inspections",
+      "result": "PASS",
+      "evidence": "Dashboard\nFacility\nInspections\nInspections\n\nWalkthroughs with permanent Facility Record memory on complete.\n\nStart inspection\nAll statuses\nDraft\nIn progress\nCompleted\nCanceled\nFilter\n\nNo inspections yet.\n\nStart the first"
+    },
+    {
+      "id": "R7",
+      "role": "inspection-new",
+      "path": "/facility/inspections/new",
+      "result": "PASS",
+      "evidence": "Inspections\nNew\nStart inspection\n\nAd hoc walks are fine — templates are optional.\n\nTitle\nBuilding / site\nQA Certification Property\nTemplate (optional)\nAd hoc (no template)\nDue (optional)\nExtra checklist lines (optional)\n"
+    },
+    {
+      "id": "R8",
+      "role": "reports",
+      "path": "/facility/reports",
+      "result": "PASS",
+      "evidence": "Dashboard\nFacility\nReports\nFacility reports\n\nPrintable operational reports for technicians, inventory, assets, and monthly building activity.\n\nReport\nTechnician activity\nInventory status\nAsset register\nMonthly building\nB"
+    },
+    {
+      "id": "R9",
+      "role": "facility-surface-isolation",
+      "path": "/facility,/facility/inventory,/facility/pm,/facility/calendar,/facility/inspections,/facility/reports",
+      "result": "PASS",
+      "evidence": "No tenant/lease/rent CTAs in facility main content"
+    },
+    {
+      "id": "R10",
+      "role": "facility-only-org",
+      "path": "n/a",
+      "result": "SKIP",
+      "evidence": "No dedicated Property-unlicensed facility-only org in QA_E2E credentials; independence covered by FAC-002 §18 + R9. Operator follow-up optional."
+    }
+  ],
+  "summary": {
+    "pass": 9,
+    "fail": 0,
+    "skip": 1
+  }
+}
