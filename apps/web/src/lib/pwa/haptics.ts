@@ -5,8 +5,8 @@
 
 export type HapticKind = "confirm" | "destructive";
 
-const PATTERN: Record<HapticKind, number | number[]> = {
-  confirm: 10,
+const PATTERN: Record<HapticKind, number[]> = {
+  confirm: [10],
   destructive: [12, 40, 12]
 };
 
