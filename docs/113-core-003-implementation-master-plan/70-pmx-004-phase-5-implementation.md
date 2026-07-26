@@ -1,7 +1,7 @@
 # 70 — PMX-004 Phase 5 Implementation (Program Record)
 
 **Package:** CORE-003 · **PMX Phase 5**  
-**Status:** ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([71](./71-pmx-004-phase-5-validation.md) · [PMX-004 §31](../106-pmx-004-native-pwa-parity/31-phase-5-validation.md))  
+**Status:** ✅ **IMPLEMENTED** · Production `fd1e31a` / `dpl_Cx2jQ7nDt7EwyBeyrDg84YD1ETvU` · ✅ **VALIDATED PASS** ([71](./71-pmx-004-phase-5-validation.md) · [PMX-004 §31](../106-pmx-004-native-pwa-parity/31-phase-5-validation.md))  
 **Date:** 2026-07-26  
 
 **Authoritative implementation summary:** [PMX-004 §30](../106-pmx-004-native-pwa-parity/30-phase-5-implementation.md)  

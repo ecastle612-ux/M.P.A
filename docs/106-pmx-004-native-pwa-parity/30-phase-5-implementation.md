@@ -3,7 +3,7 @@
 **Package:** PMX-004  
 **Phase:** 5 — Native Mobile UX  
 **Authorization:** [29](./29-phase-5-authorization.md) · [CORE-003 §69](../113-core-003-implementation-master-plan/69-pmx-004-phase-5-authorization.md)  
-**Status:** ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([31](./31-phase-5-validation.md) · [CORE-003 §71](../113-core-003-implementation-master-plan/71-pmx-004-phase-5-validation.md))  
+**Status:** ✅ **IMPLEMENTED** · Shipped Production (`fd1e31a`, `dpl_Cx2jQ7nDt7EwyBeyrDg84YD1ETvU`) · ✅ **VALIDATED PASS** ([31](./31-phase-5-validation.md) · [CORE-003 §71](../113-core-003-implementation-master-plan/71-pmx-004-phase-5-validation.md))  
 **Date:** 2026-07-26  
 
 > Phases 6–11 **not** implemented. UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI **not** touched.  
@@ -135,7 +135,7 @@ apps/web
 
 | Phase | Status |
 |-------|--------|
-| 6 — Push Notification Certification | 🔒 Locked |
+| 6 — Push Notification Certification | ✅ **AUTHORIZED** ([32](./32-phase-6-authorization.md)) · Implementation pending |
 | 7 — Offline Reliability | 🔒 Locked |
 | 8 — Performance Optimization | 🔒 Locked |
 | 9 — Premium Native Features | 🔒 Locked |
