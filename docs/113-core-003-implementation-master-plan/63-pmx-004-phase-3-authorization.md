@@ -1,7 +1,7 @@
 # 63 — PMX-004 Phase 3 Authorization (Program Record)
 
 **Package:** CORE-003 · **PMX next unit (post–M2.5)**  
-**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([PMX-004 §23](../106-pmx-004-native-pwa-parity/23-phase-3-implementation.md) · [§64](./64-pmx-004-phase-3-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 3`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([PMX-004 §23](../106-pmx-004-native-pwa-parity/23-phase-3-implementation.md) · [§64](./64-pmx-004-phase-3-implementation.md)) · ✅ **VALIDATED PASS** ([§65](./65-pmx-004-phase-3-validation.md))  
 **Date:** 2026-07-26  
 **Binding phrase (issued):**
 

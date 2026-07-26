@@ -61,9 +61,13 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 15. ✅ **`AUTHORIZE COM-001 SLICE E` issued** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([54](./54-com-001-slice-e-authorization.md) · [55](./55-com-001-slice-e-validation.md) · [COM-001 §42](../110-com-001-customer-lifecycle-commercial-operations/42-slice-e-validation.md)).
 16. ✅ COM-001 approved slice workstream (A–E) **complete**.
 17. ✅ **`AUTHORIZE OPS-001 SLICE B` issued** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([57](./57-ops-001-slice-b-authorization.md) · [58](./58-ops-001-slice-b-validation.md) · [OPS-001 §37](../111-ops-001-platform-operations-architecture/37-slice-b-validation.md)).
-18. ✅ **UX-012 Slice B IMPLEMENTED** — M2.4 ([UX-012 §34](../112-ux-012-platform-experience-design-system/34-slice-b-implementation.md) · [59](./59-ux-012-slice-b-authorization.md)). Next → `VALIDATE UX-012 SLICE B`.
-19. ❌ Do **not** authorize UX-012 C–E / OPS-001 C–E / PMX-004 Phase 2 / FIN-003 C–E / partner marketplace UI under the UX-B phrase.
-20. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
+18. ✅ **`VALIDATE UX-012 SLICE B` → PASS** — M2.4 ([60](./60-ux-012-slice-b-validation.md) · [UX-012 §35](../112-ux-012-platform-experience-design-system/35-slice-b-validation.md)).
+19. ✅ **`VALIDATE PMX-004 PHASE 2` → PASS** — M2.5 ([62](./62-pmx-004-phase-2-validation.md) · [PMX-004 §21](../106-pmx-004-native-pwa-parity/21-phase-2-validation.md)).
+20. ✅ **`AUTHORIZE PMX-004 PHASE 3` issued** ([63](./63-pmx-004-phase-3-authorization.md) · [PMX-004 §22](../106-pmx-004-native-pwa-parity/22-phase-3-authorization.md)).  
+21. ✅ PMX-004 Phase 3 **IMPLEMENTED** ([64](./64-pmx-004-phase-3-implementation.md) · [PMX-004 §23](../106-pmx-004-native-pwa-parity/23-phase-3-implementation.md)).  
+22. ✅ **`VALIDATE PMX-004 PHASE 3` → PASS** ([65](./65-pmx-004-phase-3-validation.md) · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md)).  
+22. ❌ Do **not** authorize PMX-004 Phases 4–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the PMX-3 implement phrase.  
+23. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
 
 ---
 
@@ -129,7 +133,13 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | [56 — Next Workstream Recommendation](./56-next-workstream-recommendation.md) | ✅ Recommended OPS-B · subsequently **AUTHORIZED** ([57](./57-ops-001-slice-b-authorization.md)) |
 | [57 — OPS-001 Slice B Authorization](./57-ops-001-slice-b-authorization.md) | ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** · [58](./58-ops-001-slice-b-validation.md) |
 | [58 — OPS-001 Slice B Validation](./58-ops-001-slice-b-validation.md) | ✅ **PASS** · [OPS-001 §37](../111-ops-001-platform-operations-architecture/37-slice-b-validation.md) · OB-01…OB-10 |
-| [59 — UX-012 Slice B Authorization](./59-ux-012-slice-b-authorization.md) | ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** · [UX-012 §34](../112-ux-012-platform-experience-design-system/34-slice-b-implementation.md) |
+| [59 — UX-012 Slice B Authorization](./59-ux-012-slice-b-authorization.md) | ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** · [60](./60-ux-012-slice-b-validation.md) |
+| [60 — UX-012 Slice B Validation](./60-ux-012-slice-b-validation.md) | ✅ **PASS** · [UX-012 §35](../112-ux-012-platform-experience-design-system/35-slice-b-validation.md) · UB-01…UB-10 |
+| [61 — PMX-004 Phase 2 Authorization](./61-pmx-004-phase-2-authorization.md) | ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** · [62](./62-pmx-004-phase-2-validation.md) |
+| [62 — PMX-004 Phase 2 Validation](./62-pmx-004-phase-2-validation.md) | ✅ **PASS** · [PMX-004 §21](../106-pmx-004-native-pwa-parity/21-phase-2-validation.md) · P2-01…P2-10 |
+| [63 — PMX-004 Phase 3 Authorization](./63-pmx-004-phase-3-authorization.md) | ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** · [PMX-004 §22](../106-pmx-004-native-pwa-parity/22-phase-3-authorization.md) |
+| [64 — PMX-004 Phase 3 Implementation](./64-pmx-004-phase-3-implementation.md) | ✅ **IMPLEMENTED** · [PMX-004 §23](../106-pmx-004-native-pwa-parity/23-phase-3-implementation.md) · ✅ **VALIDATED PASS** |
+| [65 — PMX-004 Phase 3 Validation](./65-pmx-004-phase-3-validation.md) | ✅ **PASS** · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md) · P3-01…P3-10 |
 
 ---
 
@@ -146,7 +156,9 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | M0 Performance gate | ✅ **CONDITIONALLY SATISFIED** ([24](./24-core-003-amd-m0-perf-framework-limit.md)) |
 | AUTH-001 / COM-001 approved slices | ✅ A–E **COMPLETE** |
 | OPS-001 Slice B | ✅ **VALIDATED PASS** ([58](./58-ops-001-slice-b-validation.md) · [OPS-001 §37](../111-ops-001-platform-operations-architecture/37-slice-b-validation.md)) |
-| UX-012 Slice B | ✅ **IMPLEMENTED** ([UX-012 §34](../112-ux-012-platform-experience-design-system/34-slice-b-implementation.md)) · Validation pending |
+| UX-012 Slice B | ✅ **VALIDATED PASS** ([60](./60-ux-012-slice-b-validation.md) · [UX-012 §35](../112-ux-012-platform-experience-design-system/35-slice-b-validation.md)) |
+| PMX-004 Phase 2 | ✅ **VALIDATED PASS** ([62](./62-pmx-004-phase-2-validation.md) · [PMX-004 §21](../106-pmx-004-native-pwa-parity/21-phase-2-validation.md)) |
+| PMX-004 Phase 3 | ✅ **VALIDATED PASS** ([65](./65-pmx-004-phase-3-validation.md) · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md)) |
 
 ---
 

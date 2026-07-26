@@ -2,7 +2,7 @@
 
 **Package:** PMX-004 — Native PWA Parity  
 **Phase:** **3 — Native Application Shell**  
-**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([23](./23-phase-3-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 3`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([23](./23-phase-3-implementation.md)) · ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md))  
 **Authorization date:** 2026-07-26  
 **Implementation date:** 2026-07-26  
 **Binding phrase (issued):**
