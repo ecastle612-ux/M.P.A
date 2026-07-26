@@ -3,7 +3,7 @@
 **Initiative ID:** PMX-004  
 **Priority:** CRITICAL — commercial native-feel milestone  
 **Type:** Experience / Platform (PWA) — **not** a feature catalog  
-**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · **Prod deploy ✔** · Device certification ✅ **PASS** · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 3 ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md)) · Phase 4 ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md)) · Phase 5 ✅ **VALIDATED PASS** ([31](./31-phase-5-validation.md)) · Phase 6 ✅ **AUTHORIZED** ([32](./32-phase-6-authorization.md) · [CORE-003 §72](../113-core-003-implementation-master-plan/72-pmx-004-phase-6-authorization.md)) · Implementation 🔒 until dedicated session · Phases 7–11 🔒 **LOCKED**  
+**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · **Prod deploy ✔** · Device certification ✅ **PASS** · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 3 ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md)) · Phase 4 ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md)) · Phase 5 ✅ **VALIDATED PASS** ([31](./31-phase-5-validation.md)) · Phase 6 ❌ **VALIDATION FAIL** ([34](./34-phase-6-validation.md) · [CORE-003 §74](../113-core-003-implementation-master-plan/74-pmx-004-phase-6-validation.md)) · Remediation R1 (Production ship) · Phases 7–11 🔒 **LOCKED**  
 **Date:** 2026-07-23  
 **Author:** Lead Software Architect  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
@@ -67,12 +67,12 @@ The experience must feel **premium, polished, fast, and production-ready** while
 | Document | ✔ (this package + Amendments 01–03) |
 | **Approve** | ✔ **Approved with Amendments** (2026-07-23) |
 | Amendments 01–03 | ✔ Incorporated ([13](./13-native-ux-acceptance-matrix.md) · [14](./14-installation-success-funnel.md) · [15](./15-real-world-pilot.md)) |
-| Implement | ✔ Phase 1–5 complete · Phase 6 ✅ **AUTHORIZED** ([32](./32-phase-6-authorization.md)) · Implementation 🔒 |
+| Implement | ✔ Phase 1–5 complete · Phase 6 pack ⚠️ ship incomplete · ❌ Validation FAIL ([34](./34-phase-6-validation.md)) |
 | Phase 2 | ✅ **VALIDATED PASS** ([21](./21-phase-2-validation.md)) |
 | Phase 3 | ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md)) |
 | Phase 4 | ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md)) |
 | Phase 5 | ✅ **VALIDATED PASS** ([31](./31-phase-5-validation.md)) |
-| Phase 6 | ✅ **AUTHORIZED** · Implementation / certification 🔒 until dedicated session |
+| Phase 6 | ❌ **VALIDATION FAIL** ([34](./34-phase-6-validation.md)) · Remediate R1 → re-validate |
 | Phase 7–11 | 🔒 Locked until each `AUTHORIZE PMX-004 PHASE …` |
 | COMPLETE | 🔒 Requires scores + matrix PASS + funnel KPIs + Phase 11 pilot PASS |
 
@@ -117,6 +117,8 @@ Silence is not approval. Approval record: [12-approval-checklist.md](./12-approv
 | [30 — Phase 5 Implementation](./30-phase-5-implementation.md) | ✅ **IMPLEMENTED** · touch · skeletons · motion · haptics · drawer lock · matrix first pass · [CORE-003 §70](../113-core-003-implementation-master-plan/70-pmx-004-phase-5-implementation.md) |
 | [31 — Phase 5 Validation](./31-phase-5-validation.md) | ✅ **PASS** · `VALIDATE PMX-004 PHASE 5` · P5-01…P5-10 · [CORE-003 §71](../113-core-003-implementation-master-plan/71-pmx-004-phase-5-validation.md) |
 | [32 — Phase 6 Authorization](./32-phase-6-authorization.md) | ✅ **AUTHORIZED** · Push Notification Certification · P6-01…P6-10 · [CORE-003 §72](../113-core-003-implementation-master-plan/72-pmx-004-phase-6-authorization.md) |
+| [33 — Phase 6 Implementation](./33-phase-6-implementation.md) | ⚠️ Pack complete · Production ship incomplete · [CORE-003 §73](../113-core-003-implementation-master-plan/73-pmx-004-phase-6-implementation.md) |
+| [34 — Phase 6 Validation](./34-phase-6-validation.md) | ❌ **FAIL** · `VALIDATE PMX-004 PHASE 6` · R1 Production ship · [CORE-003 §74](../113-core-003-implementation-master-plan/74-pmx-004-phase-6-validation.md) |
 
 ---
 

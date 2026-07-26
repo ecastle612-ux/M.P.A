@@ -69,7 +69,7 @@ Phases below are **program phases (M0–M6)**, not FIN/PMX phase letters.
 
 **Exit:** UX-A, OPS-A, AUTH-A each Validated; PMX-004 Phase 1 remains Certified.
 
-**Next Authorized Action (official):** ✅ **`AUTHORIZE PMX-004 PHASE 6` issued** ([§72](./72-pmx-004-phase-6-authorization.md) · [PMX-004 §32](../106-pmx-004-native-pwa-parity/32-phase-6-authorization.md)). Next → dedicated **implementation / certification** session (Phase 6 scope only) → then `VALIDATE PMX-004 PHASE 6`. PMX Phases 7–11 · UX-C–E · OPS-C–E · FIN-003 C–E · partner marketplace UI remain locked.
+**Next Authorized Action (official):** ❌ **`VALIDATE PMX-004 PHASE 6` → FAIL** ([§74](./74-pmx-004-phase-6-validation.md) · [PMX-004 §34](../106-pmx-004-native-pwa-parity/34-phase-6-validation.md)). Next → **remediate R1** (commit + Production ship Phase 6 scoped deep-link repair only) → re-run `VALIDATE PMX-004 PHASE 6`. PMX Phases 7–11 · UX-C–E · OPS-C–E · FIN-003 C–E · partner marketplace UI remain locked.
 
 ---
 
