@@ -23,7 +23,7 @@
 ## Slice B — Preventive Maintenance + Calendar
 
 **Authorize phrase:** `AUTHORIZE FAC-002 SLICE B`  
-**Status:** ✅ Authorized 2026-07-25 · Shipping
+**Status:** ✅ Authorized 2026-07-25 · Shipped to Production (`290fdab`, 2026-07-25)
 
 - PmSchedule / PmOccurrence  
 - Job to create draft WOs (`submitted` / `assigned` — no separate WO draft status)  
