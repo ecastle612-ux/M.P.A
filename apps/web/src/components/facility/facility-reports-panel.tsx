@@ -6,7 +6,7 @@ import {
   FACILITY_REPORT_CATALOG,
   type FacilityReportModel,
   type FacilityReportType
-} from "../../lib/facility/reports";
+} from "../../lib/facility/reports-contracts";
 
 type PropertyOption = { id: string; name: string };
 

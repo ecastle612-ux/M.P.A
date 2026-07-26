@@ -62,78 +62,14 @@ async function recordActivity(
     actorUserId?: string | null;
   }
 ) {
-  const details = input.details ?? {};
-  const { mapMaintenanceActivityToCatalog, recordMaintenanceActivityWithOutbox } = await import(
-    "../ops"
-  );
-  const catalogType = mapMaintenanceActivityToCatalog(input.eventType, details);
-
-  if (!catalogType) {
-    await admin.from("maintenance_activity_events").insert({
-      organization_id: input.organizationId,
-      work_order_id: input.workOrderId,
-      event_type: input.eventType,
-      summary: input.summary,
-      details: details as Json,
-      actor_user_id: input.actorUserId ?? null
-    });
-    return;
-  }
-
-  const propertyId =
-    typeof details["propertyId"] === "string"
-      ? details["propertyId"]
-      : typeof details["property_id"] === "string"
-        ? details["property_id"]
-        : null;
-  const unitId =
-    typeof details["unitId"] === "string"
-      ? details["unitId"]
-      : typeof details["unit_id"] === "string"
-        ? details["unit_id"]
-        : null;
-
-  // OPS-001 Slice A OA-02: legacy activity + outbox in one Postgres transaction.
-  try {
-    await recordMaintenanceActivityWithOutbox(admin as never, {
-      organizationId: input.organizationId,
-      workOrderId: input.workOrderId,
-      legacyEventType: input.eventType,
-      summary: input.summary,
-      details,
-      actorUserId: input.actorUserId ?? null,
-      emit: {
-        eventType: catalogType,
-        organizationId: input.organizationId,
-        subject: { type: "maintenance_work_order", id: input.workOrderId },
-        actor: {
-          actor_type: input.actorUserId ? "user" : "vendor",
-          principal_id: input.actorUserId ?? null,
-          label: input.actorUserId ? "Team member" : "Vendor"
-        },
-        summary: input.summary,
-        payload: { ...details, workOrderId: input.workOrderId, summary: input.summary },
-        propertyId,
-        unitId,
-        href: `/maintenance/${input.workOrderId}`,
-        visibility: "ops"
-      }
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (/ops_record_maintenance_activity_with_outbox|event_domain_events|does not exist|schema cache/i.test(message)) {
-      await admin.from("maintenance_activity_events").insert({
-        organization_id: input.organizationId,
-        work_order_id: input.workOrderId,
-        event_type: input.eventType,
-        summary: input.summary,
-        details: details as Json,
-        actor_user_id: input.actorUserId ?? null
-      });
-      return;
-    }
-    throw err;
-  }
+  await admin.from("maintenance_activity_events").insert({
+    organization_id: input.organizationId,
+    work_order_id: input.workOrderId,
+    event_type: input.eventType,
+    summary: input.summary,
+    details: (input.details ?? {}) as Json,
+    actor_user_id: input.actorUserId ?? null
+  });
 }
 
 async function notifyManagers(

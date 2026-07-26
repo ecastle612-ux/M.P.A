@@ -2,11 +2,8 @@ import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
-import {
-  buildFacilityReport,
-  FACILITY_REPORT_CATALOG,
-  parseFacilityReportRequest
-} from "../../../../lib/facility/reports";
+import { FACILITY_REPORT_CATALOG, parseFacilityReportRequest } from "../../../../lib/facility/reports-contracts";
+import { buildFacilityReport } from "../../../../lib/facility/reports";
 import { apiError, apiInternalError, parseJsonBody } from "../../../../lib/api/http";
 
 export async function GET() {
