@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { Suspense, useEffect, useState, useTransition } from "react";
 import { Button, Card } from "@mpa/ui";
+
+import { LeaveAppConfirm } from "@/components/pwa/leave-app-confirm";
+import { ReturnToMpaBanner } from "@/components/pwa/return-to-mpa-banner";
 import type { ResidentPaymentDashboard } from "../../lib/billing/contracts";
 import { formatCurrency } from "../../lib/financial/contracts";
 
@@ -10,6 +13,7 @@ export function ResidentPaymentsView() {
   const [consentVersion, setConsentVersion] = useState("autopay-v1");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [leaveHref, setLeaveHref] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   function load() {
@@ -63,7 +67,7 @@ export function ResidentPaymentsView() {
       return;
     }
     if (json.checkoutUrl) {
-      window.location.assign(json.checkoutUrl);
+      setLeaveHref(json.checkoutUrl);
       return;
     }
     if (json.attempt?.status === "failed") {
@@ -148,6 +152,10 @@ export function ResidentPaymentsView() {
           Pay rent, manage methods, AutoPay, and receipts — mobile friendly.
         </p>
       </header>
+
+      <Suspense fallback={null}>
+        <ReturnToMpaBanner />
+      </Suspense>
 
       {error ? <p className="text-sm text-[var(--mpa-color-danger)]">{error}</p> : null}
       {message ? <p className="text-sm text-[var(--mpa-color-success)]">{message}</p> : null}
@@ -254,6 +262,14 @@ export function ResidentPaymentsView() {
           </ul>
         )}
       </Card>
+
+      <LeaveAppConfirm
+        open={Boolean(leaveHref)}
+        onClose={() => setLeaveHref(null)}
+        href={leaveHref ?? ""}
+        title="Continue to secure checkout?"
+        description="You’ll leave My Property Assistant briefly to pay in Stripe. When you’re done, you’ll return here."
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
+import { TrialStatusBanner } from "../../../../components/commercial/trial-status-banner";
 import { CompanyBillingCenter } from "../../../../components/settings/company-billing-center";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -44,16 +45,27 @@ export default async function SettingsBillingPage({
   const params = await searchParams;
   const saas = typeof params["saas"] === "string" ? params["saas"] : null;
   let notice: string | null = null;
-  if (saas === "success") notice = "Checkout completed. Your subscription will appear here once Stripe confirms.";
-  if (saas === "cancel") notice = "Checkout canceled. No changes were made.";
+  if (saas === "success") {
+    notice =
+      "Welcome back — checkout completed. You’re back in My Property Assistant. Your subscription will update once Stripe confirms.";
+  }
+  if (saas === "cancel") {
+    notice = "Welcome back — checkout canceled. You’re still in My Property Assistant; no changes were made.";
+  }
 
   return (
-    <CompanyBillingCenter
-      initialSnapshot={snapshot}
-      usage={usage}
-      canManage={evaluatePermission(authorization, "saas:manage")}
-      organizationName={org?.name ?? "your organization"}
-      notice={notice}
-    />
+    <div className="space-y-4">
+      <TrialStatusBanner
+        organizationId={organizationId}
+        canManage={evaluatePermission(authorization, "saas:manage")}
+      />
+      <CompanyBillingCenter
+        initialSnapshot={snapshot}
+        usage={usage}
+        canManage={evaluatePermission(authorization, "saas:manage")}
+        organizationName={org?.name ?? "your organization"}
+        notice={notice}
+      />
+    </div>
   );
 }

@@ -25,6 +25,7 @@ export async function GET(request: Request, context: RouteContext) {
     const url = new URL(request.url);
     const propertyId = url.searchParams.get("propertyId")?.trim() ?? "";
     if (!propertyId) return apiError(400, "INVALID_PAYLOAD", "propertyId is required");
+    const inline = url.searchParams.get("inline") === "1";
 
     const { versionId } = await context.params;
     const file = await ReportingService.downloadVersion({
@@ -38,7 +39,7 @@ export async function GET(request: Request, context: RouteContext) {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${file.filename}"`,
+        "Content-Disposition": `${inline ? "inline" : "attachment"}; filename="${file.filename}"`,
         "Cache-Control": "no-store"
       }
     });

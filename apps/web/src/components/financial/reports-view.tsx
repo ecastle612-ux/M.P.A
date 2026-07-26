@@ -2,6 +2,9 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Badge, Button, Card, PageHeader, useToast } from "@mpa/ui";
+
+import { StandaloneDocumentViewer } from "@/components/pwa/standalone-document-viewer";
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import {
   REPORT_CATALOG,
   type RecognitionBasis,
@@ -38,6 +41,8 @@ export function ReportsView({
   const [versions, setVersions] = useState<ReportVersionSummary[] | null>(null);
   const [versionsFor, setVersionsFor] = useState<ReportType | null>(null);
   const [statusByType, setStatusByType] = useState<Record<string, string>>({});
+  const [viewerHref, setViewerHref] = useState<string | null>(null);
+  const [viewerTitle, setViewerTitle] = useState<string | undefined>(undefined);
   const [generating, startGenerate] = useTransition();
   const [previewing, startPreview] = useTransition();
 
@@ -147,7 +152,8 @@ export function ReportsView({
           variant: "success"
         });
         if (version) {
-          window.open(version.downloadPath, "_blank", "noopener,noreferrer");
+          setViewerTitle(version.title);
+          setViewerHref(version.downloadPath);
         } else if (data.job.result?.pdfBase64) {
           downloadBase64Pdf(data.job.result.pdfBase64, `${type}.pdf`);
         }
@@ -310,15 +316,32 @@ export function ReportsView({
                         {new Date(version.generatedAt).toLocaleString()}
                       </p>
                     </div>
-                    <a href={version.downloadPath} target="_blank" rel="noreferrer">
-                      <Button variant="secondary">Download</Button>
-                    </a>
+                    <StandaloneOpenLink
+                      href={version.downloadPath}
+                      documentTitle={version.title}
+                      mode="viewer"
+                      className="inline-flex min-h-11 items-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 text-sm font-medium text-[var(--mpa-color-text-primary)]"
+                    >
+                      View / download
+                    </StandaloneOpenLink>
                   </li>
                 ))
               )}
             </ul>
           </Card>
         </div>
+      ) : null}
+
+      {viewerHref ? (
+        <StandaloneDocumentViewer
+          open
+          href={viewerHref}
+          title={viewerTitle}
+          onClose={() => {
+            setViewerHref(null);
+            setViewerTitle(undefined);
+          }}
+        />
       ) : null}
     </div>
   );

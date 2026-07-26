@@ -1,76 +1,58 @@
 # 10 — Standalone Exit Inventory
 
 **Package:** PMX-004 · Phase 4  
-**Status:** ✅ **Authorized** (`AUTHORIZE PMX-004 PHASE 4` · 2026-07-26) — living inventory; re-scan at implementation start  
+**Status:** ✅ **Implemented dispositions** (2026-07-26) — living inventory  
 **Rule:** Every exit must be Mitigated, Same-tab, In-app viewer, or Accepted-with-return.  
-**Authorize SoT:** [25 — Phase 4 Authorization](./25-phase-4-authorization.md)
+**Authorize SoT:** [25 — Phase 4 Authorization](./25-phase-4-authorization.md)  
+**Implementation:** [27 — Phase 4 Implementation](./27-phase-4-implementation.md)
 
 ---
 
-## 1. Inventory (static audit 2026-07-23)
+## 1. Inventory (audit 2026-07-23 · closed 2026-07-26)
 
-| ID | Location | Mechanism | User impact in standalone | Proposed disposition |
+| ID | Location | Mechanism (was) | Disposition | Status |
 | --- | --- | --- | --- | --- |
-| E01 | `owner-document-row.tsx` | `target="_blank"` | Leaves PWA for document | In-app viewer or same-tab |
-| E02 | `owner-reports-browser.tsx` | `target="_blank"` | Leaves PWA | In-app viewer or same-tab |
-| E03 | `owner-statement-row.tsx` | `target="_blank"` | Leaves PWA | In-app viewer or same-tab |
-| E04 | `document-vault-browser.tsx` | `target="_blank"` | Leaves PWA | In-app viewer or same-tab |
-| E05 | `portal/tenant/documents/page.tsx` | `target="_blank"` | Leaves PWA | In-app viewer or same-tab |
-| E06 | `facility/assets/[assetId]/page.tsx` | `target="_blank"` | Leaves PWA | In-app viewer or same-tab |
-| E07 | `facility/records/[recordId]/page.tsx` | `target="_blank"` | Leaves PWA | In-app viewer or same-tab |
-| E08 | `property-overview-panels.tsx` | `target="_blank"` | Leaves PWA | In-app / same-tab |
-| E09 | `vendor-invoice-review-panel.tsx` | `target="_blank"` | Leaves PWA | In-app PDF viewer |
-| E10 | `signing-progress-view.tsx` | `target="_blank"` to provider | Leaves PWA for e-sign | Same-window assign preferred; else Accepted-with-return |
-| E11 | `reports-view.tsx` | `window.open` + `_blank` | May block or exit | Download/`<a download>` or in-app |
-| E12 | `resident-payments-view.tsx` | `location.assign` Stripe | Unavoidable exit | Accepted-with-return (absolute success URL) |
-| E13 | `company-billing-center.tsx` | `location.assign` Stripe + `_blank` | Exit / new context | Accepted-with-return + audit blanks |
-| E14 | `deployment-badge.tsx` | `target="_blank"` | Admin/dev only | Acceptable external |
-| E15 | Email templates | `target="_blank"` links | Opens browser; may miss PWA | Document OS limitation; use HTTPS app URLs |
+| E01 | `owner-document-row.tsx` | `target="_blank"` | **In-app viewer** — `StandaloneOpenLink` | ✅ Mitigated |
+| E02 | `owner-reports-browser.tsx` | `target="_blank"` | **In-app viewer** — `StandaloneOpenLink` | ✅ Mitigated |
+| E03 | `owner-statement-row.tsx` | `target="_blank"` | **In-app viewer** — `StandaloneOpenLink` | ✅ Mitigated |
+| E04 | `document-vault-browser.tsx` | `target="_blank"` | **In-app viewer** — `StandaloneOpenLink` | ✅ Mitigated |
+| E05 | `portal/tenant/documents/page.tsx` | `target="_blank"` | **In-app viewer** — `StandaloneOpenLink` | ✅ Mitigated |
+| E06 | `facility/assets/[assetId]/page.tsx` | `target="_blank"` | **In-app viewer** — `StandaloneOpenLink` | ✅ Mitigated |
+| E07 | `facility/records/[recordId]/page.tsx` | `target="_blank"` | **In-app viewer** — `StandaloneOpenLink` | ✅ Mitigated |
+| E08 | `property-overview-panels.tsx` | `target="_blank"` | **In-app viewer** — `StandaloneOpenLink` | ✅ Mitigated |
+| E09 | `vendor-invoice-review-panel.tsx` | `target="_blank"` | **In-app viewer** — `StandaloneOpenLink` | ✅ Mitigated |
+| E10 | `signing-progress-view.tsx` | `target="_blank"` | **Accepted-with-return** — confirm + same-window `location.assign` | ✅ Mitigated |
+| E11 | `reports-view.tsx` | `window.open` + `_blank` | **In-app viewer** — viewer state + `StandaloneOpenLink`; no `window.open` | ✅ Mitigated |
+| E12 | `resident-payments-view.tsx` | `location.assign` Stripe | **Accepted-with-return** — confirm + absolute success/cancel URLs + `ReturnToMpaBanner` | ✅ Mitigated |
+| E13 | `company-billing-center.tsx` | Stripe assign + `_blank` invoices | **Accepted-with-return** (Checkout/Portal) · invoice PDF **viewer** · hosted invoice **leave-confirm** | ✅ Mitigated |
+| E14 | `deployment-badge.tsx` | `target="_blank"` | **Acceptable external** (admin/dev feedback) | ✅ Acceptable |
+| E15 | Email templates | `target="_blank"` in mail HTML | **Documented** — HTTPS `NEXT_PUBLIC_APP_URL` CTAs; iOS reopen notes ([26](./26-auth-deep-link-notes.md)) | ✅ Documented |
 
-Re-scan `apps/web` at Phase 4 start — inventory is living.
+Re-scan 2026-07-26: no additional in-app `_blank` / `window.open` exits beyond E14–E15.
 
 ---
 
-## 2. Mitigation patterns
+## 2. Mitigation patterns (shipped)
 
-### Pattern A — In-app document viewer
-
-Route or modal: `/documents/view?src=…` (signed URL) using iframe or object **if CSP `frame-src` allows storage host**. May require CSP amend (Approve note). Fallback: same-tab navigation to signed URL (still leaves chrome-less PWA if cross-origin — prefer blob fetch + object URL same-origin viewer).
-
-### Pattern B — Same-tab navigation
-
-Replace `_blank` with `router.push` or `<a>` without blank for same-origin; for cross-origin signed files prefer Pattern A.
-
-### Pattern C — Accepted-with-return
-
-Stripe / OAuth-like:
-
-1. Absolute `return_url` / `success_url` / `cancel_url` → `NEXT_PUBLIC_APP_URL` paths.  
-2. Landing route restores session (existing cookies).  
-3. Optional “Welcome back” toast.  
-4. Test on iOS standalone specifically.
-
-### Pattern D — Confirm before leave
-
-For rare external links: bottom sheet “Open outside M.P.A.?” → Continue / Cancel.
+| Pattern | Implementation |
+|---------|----------------|
+| **A — In-app viewer** | `StandaloneDocumentViewer` — fetch → blob object URL → iframe/img; CSP `frame-src 'self' blob:` |
+| **B — Same-tab** | Fallback “Open in this tab” + `triggerSameWindowDownload` |
+| **C — Accepted-with-return** | Absolute Stripe URLs + `ReturnToMpaBanner` + same-window assign after confirm |
+| **D — Confirm before leave** | `LeaveAppConfirm` Modal |
 
 ---
 
 ## 3. Auth / deep link notes
 
-| Flow | Standalone risk | Plan |
-| --- | --- | --- |
-| Password login | Low | No change |
-| Invite / reset email | Opens Safari | Keep HTTPS links; document re-open from Home Screen; consider Universal Links later (out of scope) |
-| Push deep link | Medium | Absolute URL; Phase 6 verify |
-| OAuth | N/A today | If added later, COOP `same-origin` may block popups — use redirect |
+See [26 — Auth / deep-link notes](./26-auth-deep-link-notes.md).
 
 ---
 
 ## 4. Phase 4 exit criteria
 
-- [ ] All E01–E13 dispositioned  
-- [ ] Device test: owner docs + vault + reports in standalone  
-- [ ] Stripe resident or company billing return PASS on Android + iPhone  
-- [ ] E-sign path documented with evidence  
-- [ ] CSP changes (if any) security-reviewed  
+- [x] All E01–E13 dispositioned  
+- [ ] Device test: owner docs + vault + reports in standalone (validation session)  
+- [ ] Stripe resident or company billing return PASS on Android + iPhone (validation session)  
+- [x] E-sign path documented with evidence (confirm + same-window)  
+- [x] CSP change (`frame-src 'self' blob:`) security-reviewed as Phase 4 scope (narrow amend; blob only)  

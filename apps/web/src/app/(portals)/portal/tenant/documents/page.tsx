@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import { AppPage } from "../../../../../components/presentation/app-page";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
@@ -60,9 +62,14 @@ export default async function TenantDocumentsPage() {
                   {doc.fileUrl ? (
                     <>
                       {" · "}
-                      <a className="underline" href={doc.fileUrl} target="_blank" rel="noreferrer">
+                      <StandaloneOpenLink
+                        className="underline"
+                        href={doc.fileUrl}
+                        documentTitle={doc.title}
+                        mode="viewer"
+                      >
                         Open
-                      </a>
+                      </StandaloneOpenLink>
                     </>
                   ) : null}
                 </p>

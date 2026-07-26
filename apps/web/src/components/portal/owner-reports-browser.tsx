@@ -2,6 +2,8 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import { Badge, Card, EmptyState, Input } from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import type { OwnerFinancialStatementRow } from "../../lib/owner-portal/financial-shared";
 import type { OwnerReportListItem } from "../../lib/owner-portal/reports-shared";
 import { OwnerStatementRow } from "./owner-statement-row";
@@ -36,14 +38,14 @@ function OwnerReportRow({ report }: { report: OwnerReportListItem }) {
         </div>
         {report.pdfAvailable && report.downloadHref ? (
           <p className="text-xs">
-            <a
+            <StandaloneOpenLink
               href={report.downloadHref}
-              target="_blank"
-              rel="noreferrer"
+              documentTitle={report.title}
+              mode="viewer"
               className="font-medium text-[var(--mpa-color-text-link)] underline"
             >
               Download PDF
-            </a>
+            </StandaloneOpenLink>
           </p>
         ) : (
           <p className="text-xs text-[var(--mpa-color-text-secondary)]">

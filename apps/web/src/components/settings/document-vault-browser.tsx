@@ -2,6 +2,8 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import { Button, Card, Input , navPillClassName} from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import type { VaultDocumentRecord } from "../../lib/vault/contracts";
 import {
   VAULT_BROWSER_CATEGORIES,
@@ -166,9 +168,14 @@ export function DocumentVaultBrowser({ initialDocuments }: { initialDocuments: V
                 </div>
               </dl>
               {selected.fileUrl ? (
-                <a href={selected.fileUrl} target="_blank" rel="noreferrer">
+                <StandaloneOpenLink
+                  href={selected.fileUrl}
+                  documentTitle={selected.title}
+                  mode="viewer"
+                  asChild
+                >
                   <Button type="button">Download / open</Button>
-                </a>
+                </StandaloneOpenLink>
               ) : (
                 <p className="text-sm text-[var(--mpa-color-text-secondary)]">
                   This entry is a vault reference without a downloadable file link yet.

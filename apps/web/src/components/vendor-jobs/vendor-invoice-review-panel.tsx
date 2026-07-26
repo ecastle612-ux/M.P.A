@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Button, Card } from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import type { VendorInvoiceRecord, VendorPaymentMethod } from "../../lib/vendor-payments/contracts";
 
 type Props = {
@@ -140,9 +142,14 @@ export function VendorInvoiceReviewPanel({ workOrderId, canManage }: Props) {
 
       <div className="flex flex-wrap gap-3 text-sm">
         {invoice.pdfSignedUrl ? (
-          <a className="text-[var(--mpa-color-brand-primary)] underline" href={invoice.pdfSignedUrl} target="_blank" rel="noreferrer">
+          <StandaloneOpenLink
+            className="text-[var(--mpa-color-brand-primary)] underline"
+            href={invoice.pdfSignedUrl}
+            documentTitle="Vendor invoice"
+            mode="viewer"
+          >
             Open PDF
-          </a>
+          </StandaloneOpenLink>
         ) : invoice.pdfPath ? (
           <span className="text-[var(--mpa-color-text-secondary)]">PDF on file</span>
         ) : null}

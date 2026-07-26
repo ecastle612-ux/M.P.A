@@ -1,4 +1,8 @@
+"use client";
+
 import { Badge, Card } from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import type { OwnerFinancialStatementRow } from "../../lib/owner-portal/financial-shared";
 
 export function OwnerStatementRow({ statement }: { statement: OwnerFinancialStatementRow }) {
@@ -18,14 +22,14 @@ export function OwnerStatementRow({ statement }: { statement: OwnerFinancialStat
         </div>
         {statement.downloadHref ? (
           <p className="text-xs">
-            <a
+            <StandaloneOpenLink
               href={statement.downloadHref}
-              target="_blank"
-              rel="noreferrer"
+              documentTitle={statement.statementNumber}
+              mode="viewer"
               className="font-medium text-[var(--mpa-color-text-link)] underline"
             >
               Download PDF
-            </a>
+            </StandaloneOpenLink>
           </p>
         ) : (
           <p className="text-xs text-[var(--mpa-color-text-secondary)]">

@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { Suspense, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, Card, Input, Modal } from "@mpa/ui";
+import { LeaveAppConfirm } from "@/components/pwa/leave-app-confirm";
+import { ReturnToMpaBanner } from "@/components/pwa/return-to-mpa-banner";
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import type { SaasBillingInterval, SaasPlanCode } from "../../lib/integrations/saas-billing/contracts";
 import type { SaasOrgSubscriptionSnapshot } from "../../lib/saas/contracts";
 import type { SaasUsageSnapshot } from "../../lib/saas/usage";
@@ -37,6 +40,7 @@ export function CompanyBillingCenter({
   notice
 }: Props) {
   const router = useRouter();
+  const [leaveHref, setLeaveHref] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +121,7 @@ export function CompanyBillingCenter({
           returnUrl: `${window.location.origin}/settings/billing`
         });
         if (json.portal?.url) {
-          window.location.assign(json.portal.url);
+          setLeaveHref(json.portal.url);
           return;
         }
         throw new Error("Portal URL missing");
@@ -140,7 +144,7 @@ export function CompanyBillingCenter({
           cancelUrl: `${window.location.origin}/settings/billing?saas=cancel`
         });
         if (json.session?.url) {
-          window.location.assign(json.session.url);
+          setLeaveHref(json.session.url);
           return;
         }
         throw new Error("Checkout URL missing");
@@ -496,24 +500,25 @@ export function CompanyBillingCenter({
                     <td className="py-3">
                       <div className="flex flex-wrap gap-2">
                         {inv.invoicePdf ? (
-                          <a
+                          <StandaloneOpenLink
                             className="text-[var(--mpa-color-brand-primary)] underline"
                             href={inv.invoicePdf}
-                            target="_blank"
-                            rel="noreferrer"
+                            documentTitle={`Invoice ${inv.externalInvoiceId}`}
+                            mode="viewer"
                           >
                             PDF
-                          </a>
+                          </StandaloneOpenLink>
                         ) : null}
                         {inv.hostedInvoiceUrl ? (
-                          <a
+                          <StandaloneOpenLink
                             className="text-[var(--mpa-color-brand-primary)] underline"
                             href={inv.hostedInvoiceUrl}
-                            target="_blank"
-                            rel="noreferrer"
+                            mode="leave-confirm"
+                            leaveTitle="Open Stripe invoice?"
+                            leaveDescription="You’ll open Stripe’s hosted invoice in this tab. Return here when you’re done."
                           >
                             Stripe invoice
-                          </a>
+                          </StandaloneOpenLink>
                         ) : null}
                         {!inv.invoicePdf && !inv.hostedInvoiceUrl ? (
                           <span className="text-[var(--mpa-color-text-tertiary)]">—</span>
@@ -561,6 +566,17 @@ export function CompanyBillingCenter({
         pending={pending}
         isFounderLeaving={confirmKind === "leave_founder"}
         hasOpenSub={hasOpenSub}
+      />
+
+      <Suspense fallback={null}>
+        <ReturnToMpaBanner />
+      </Suspense>
+      <LeaveAppConfirm
+        open={Boolean(leaveHref)}
+        href={leaveHref ?? ""}
+        title="Continue to Stripe?"
+        description="You’ll open Stripe Checkout or the Customer Portal in this tab. When you’re done, you’ll return to Billing in My Property Assistant."
+        onClose={() => setLeaveHref(null)}
       />
     </div>
   );

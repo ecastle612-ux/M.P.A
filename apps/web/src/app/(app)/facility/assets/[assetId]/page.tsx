@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge, Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import { DetailPageLayout } from "../../../../../components/presentation/detail-page-layout";
 import { EntityRelationshipChain } from "../../../../../components/presentation/entity-relationship-chain";
 import { RepairHistoryPanel } from "../../../../../components/facility/repair-history-panel";
@@ -323,14 +325,14 @@ export default async function FacilityAssetProfilePage({
                     >
                       <p className="font-medium">{doc.title}</p>
                       {doc.fileUrl ? (
-                        <a
+                        <StandaloneOpenLink
                           href={doc.fileUrl}
-                          target="_blank"
-                          rel="noreferrer"
+                          documentTitle={doc.title}
+                          mode="viewer"
                           className="text-xs font-medium text-[var(--mpa-color-brand-primary)]"
                         >
                           Open
-                        </a>
+                        </StandaloneOpenLink>
                       ) : null}
                     </li>
                   ))}

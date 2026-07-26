@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Card } from "@mpa/ui";
+import { Card } from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 
 type ProgressPayload = {
   recipient: { fullName: string; role: string; status: string; signingUrl: string | null };
@@ -83,9 +85,15 @@ export function SigningProgressView({ token }: { token: string }) {
         ) : null}
 
         {data.recipient.signingUrl ? (
-          <a href={data.recipient.signingUrl} target="_blank" rel="noreferrer">
-            <Button className="w-full">Continue signing</Button>
-          </a>
+          <StandaloneOpenLink
+            href={data.recipient.signingUrl}
+            mode="leave-confirm"
+            leaveTitle="Continue to e-sign?"
+            leaveDescription="You’ll leave My Property Assistant briefly to complete the signature ceremony. When you’re done, return here to continue."
+            className="flex min-h-11 w-full items-center justify-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-[var(--mpa-color-text-on-brand)]"
+          >
+            Continue signing
+          </StandaloneOpenLink>
         ) : (
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
             Waiting for invitation. Status: {data.recipient.status}

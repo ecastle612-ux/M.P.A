@@ -2,7 +2,7 @@
 
 **Package:** PMX-004 — Native PWA Parity  
 **Phase:** **4 — Standalone Compliance**  
-**Status:** ✅ **AUTHORIZED** · Implementation ⏳ **pending dedicated session** · Validation 🔒 until `VALIDATE PMX-004 PHASE 4`  
+**Status:** ✅ **AUTHORIZED** · Implementation ✅ **done** ([27](./27-phase-4-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 4`  
 **Authorization date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -231,5 +231,5 @@ If `VALIDATE PMX-004 PHASE 4` results in **FAIL**:
 | Role | Decision | Date |
 |------|----------|------|
 | Governance / Product Owner authority | ✅ **AUTHORIZE PMX-004 PHASE 4** | 2026-07-26 |
-| Implementation | ⏳ Pending dedicated session | — |
+| Implementation | ✅ **IMPLEMENTED** ([27](./27-phase-4-implementation.md)) | 2026-07-26 |
 | Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 4` | — |

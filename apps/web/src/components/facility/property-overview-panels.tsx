@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Button, Card } from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import type { FacilityRecordListItem, FacilityTimelineEvent } from "../../lib/facility/contracts";
 import { hrefForTimelineEvent, timelineIconForEventType } from "../../lib/facility/contracts";
 
@@ -90,14 +92,14 @@ export function PropertyOverviewPanels({
             {recentDocuments.slice(0, 5).map((doc) => (
               <li key={doc.id} className="py-2 text-sm text-[var(--mpa-color-text-secondary)]">
                 {doc.fileUrl ? (
-                  <a
+                  <StandaloneOpenLink
                     href={doc.fileUrl}
-                    target="_blank"
-                    rel="noreferrer"
+                    documentTitle={doc.title}
+                    mode="viewer"
                     className="font-medium text-[var(--mpa-color-brand-primary)]"
                   >
                     {doc.title}
-                  </a>
+                  </StandaloneOpenLink>
                 ) : (
                   <span className="font-medium text-[var(--mpa-color-text-primary)]">{doc.title}</span>
                 )}

@@ -1,4 +1,8 @@
+"use client";
+
 import { Badge, Card, EmptyState } from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import type { OwnerDocumentListItem } from "../../lib/owner-portal/documents-shared";
 
 export function OwnerDocumentRow({ document }: { document: OwnerDocumentListItem }) {
@@ -27,14 +31,13 @@ export function OwnerDocumentRow({ document }: { document: OwnerDocumentListItem
         </div>
         {document.available && document.downloadHref ? (
           <p className="text-xs">
-            <a
+            <StandaloneOpenLink
               href={document.downloadHref}
-              target="_blank"
-              rel="noreferrer"
+              documentTitle={document.title}
               className="font-medium text-[var(--mpa-color-text-link)] underline"
             >
               Download / view
-            </a>
+            </StandaloneOpenLink>
           </p>
         ) : (
           <p className="text-xs text-[var(--mpa-color-text-secondary)]">

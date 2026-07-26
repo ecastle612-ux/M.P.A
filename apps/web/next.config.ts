@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
       "base-uri 'self'",
       "object-src 'none'",
       "frame-ancestors 'none'",
+      // PMX-004 Phase 4: blob iframe preview for in-app document viewer
+      "frame-src 'self' blob:",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https:",
       "style-src 'self' 'unsafe-inline' https://onesignal.com https://cdn.onesignal.com",

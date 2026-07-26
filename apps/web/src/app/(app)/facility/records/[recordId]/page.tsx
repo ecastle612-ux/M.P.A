@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge, Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
+
+import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
 import { DetailPageLayout } from "../../../../../components/presentation/detail-page-layout";
 import { EntityRelationshipChain } from "../../../../../components/presentation/entity-relationship-chain";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
@@ -210,14 +212,14 @@ export default async function FacilityRecordDetailPage({
                       <>
                         {" "}
                         ·{" "}
-                        <a
+                        <StandaloneOpenLink
                           href={doc.fileUrl}
+                          documentTitle={doc.title}
+                          mode="viewer"
                           className="font-medium text-[var(--mpa-color-brand-primary)]"
-                          target="_blank"
-                          rel="noreferrer"
                         >
                           Open
-                        </a>
+                        </StandaloneOpenLink>
                       </>
                     ) : null}
                   </li>
@@ -229,14 +231,14 @@ export default async function FacilityRecordDetailPage({
                       <>
                         {" "}
                         ·{" "}
-                        <a
+                        <StandaloneOpenLink
                           href={doc.fileUrl}
+                          documentTitle={doc.title}
+                          mode="viewer"
                           className="font-medium text-[var(--mpa-color-brand-primary)]"
-                          target="_blank"
-                          rel="noreferrer"
                         >
                           Open
-                        </a>
+                        </StandaloneOpenLink>
                       </>
                     ) : null}
                   </li>
