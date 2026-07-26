@@ -77,8 +77,8 @@ Every implementation unit below is in scope for the master order. Status reflect
 | Phase 5 | Native Mobile UX + UX matrix first pass | ✅ **VALIDATED PASS** ([§71](./71-pmx-004-phase-5-validation.md) · [PMX-004 §31](../106-pmx-004-native-pwa-parity/31-phase-5-validation.md)) | Phase 5 Validated |
 | Phase 6 | Push certification | ❌ **VALIDATION FAIL** (latest [§76](./76-pmx-004-phase-6-validation-rerun-2.md) · prior [§75](./75-pmx-004-phase-6-validation-rerun.md) · [§74](./74-pmx-004-phase-6-validation.md) · [PMX-004 §36](../106-pmx-004-native-pwa-parity/36-phase-6-validation-rerun-2.md)) · Remediation R1 | Re-validate after Phase 6 deploy READY |
 | Phase 7 | Offline reliability | ✅ **VALIDATED PASS** ([80](./80-pmx-004-phase-7-validation.md) · [PMX-004 §40](../106-pmx-004-native-pwa-parity/40-phase-7-validation.md)) | Phase 1 (critical) · after Phase 6 Validated |
-| Phase 8 | Performance optimization | ✅ **IMPLEMENTED** ([82](./82-pmx-004-phase-8-implementation.md) · [PMX-004 §42](../106-pmx-004-native-pwa-parity/42-phase-8-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 8` | after Phase 7 Validated |
-| Phases 8–9 | Perf / premium | 🔒 Locked | Soft overlap rules in package 05 |
+| Phase 8 | Performance optimization | ✅ **VALIDATED PASS** ([83](./83-pmx-004-phase-8-validation.md) · [PMX-004 §43](../106-pmx-004-native-pwa-parity/43-phase-8-validation.md)) · Production `f988ae5` · `dpl_FJyvRpYAeTYEvJL7P8admpkgupfZ` | after Phase 7 Validated |
+| Phase 9 | Premium native features | 🔒 Locked · authorize **eligible** after Phase 8 PASS | after Phase 8 Validated |
 | Phase 10 | Production validation | 🔒 Locked | 1–9 |
 | Phase 11 | Real-world pilot | 🔒 Locked | Phase 10 — **COMPLETE gate** |
 

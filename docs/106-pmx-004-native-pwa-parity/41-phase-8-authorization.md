@@ -2,7 +2,7 @@
 
 **Package:** PMX-004 — Native PWA Parity  
 **Phase:** **8 — Performance Optimization**  
-**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([42](./42-phase-8-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 8`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([42](./42-phase-8-implementation.md)) · ✅ **VALIDATED PASS** ([43](./43-phase-8-validation.md))  
 **Authorization date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -215,10 +215,10 @@ If `VALIDATE PMX-004 PHASE 8` results in **FAIL**:
 |-------|--------|
 | **Authorize Phase 8?** | ✅ **YES — AUTHORIZED** |
 | **Begin implementation?** | ✅ **Eligible** in a dedicated implement session within this scope |
-| **Validation?** | 🔒 Until `VALIDATE PMX-004 PHASE 8` |
-| **Authorize Phases 9–11 / UX-C / OPS-C / FIN-C / marketplace UI / EP-019?** | ❌ **NO** |
+| **Validation?** | ✅ **PASS** ([43](./43-phase-8-validation.md)) |
+| **Authorize Phases 9–11 / UX-C / OPS-C / FIN-C / marketplace UI / EP-019?** | ❌ **NO** (Phase 9 authorize **eligible** — not issued here) |
 
-**Next:** Dedicated session → **`VALIDATE PMX-004 PHASE 8`** (implementation complete — [42](./42-phase-8-implementation.md); Production remeasure after deploy).
+**Next:** Dedicated session → recommend **`AUTHORIZE PMX-004 PHASE 9`** (not issued under this authorize).
 
 ---
 
@@ -228,4 +228,4 @@ If `VALIDATE PMX-004 PHASE 8` results in **FAIL**:
 |------|----------|------|
 | Governance / Product Owner authority | ✅ **AUTHORIZE PMX-004 PHASE 8** | 2026-07-26 |
 | Implementation | ✅ **IMPLEMENTED** ([42](./42-phase-8-implementation.md)) | 2026-07-26 |
-| Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 8` | — |
+| Validation | ✅ **PASS** — `VALIDATE PMX-004 PHASE 8` ([43](./43-phase-8-validation.md)) | 2026-07-26 |

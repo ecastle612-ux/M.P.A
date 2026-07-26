@@ -3,8 +3,10 @@
 **Package:** PMX-004  
 **Phase:** 8 — Performance Optimization  
 **Authorization:** [41](./41-phase-8-authorization.md) · [CORE-003 §81](../113-core-003-implementation-master-plan/81-pmx-004-phase-8-authorization.md)  
-**Status:** ✅ **IMPLEMENTED** · Validation 🔒 until `VALIDATE PMX-004 PHASE 8`  
+**Status:** ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([43](./43-phase-8-validation.md))  
 **Date:** 2026-07-26  
+**Production ship SHA:** `f988ae5b1168c6bbc8d09750700d20bc8eb938bc`  
+**Deployment ID:** `dpl_FJyvRpYAeTYEvJL7P8admpkgupfZ`  
 
 > Phases 9–11 **not** implemented. UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI · full EP-019 Approve **not** touched.  
 > Phases 1–7 preserved. OneSignal primary preserved. **No schema migrations.**  
@@ -48,7 +50,7 @@ Artifacts:
 - [baseline-login.report.html](./artifacts/phase-8-lighthouse/baseline-login.report.html)  
 - [baseline-login.report.json](./artifacts/phase-8-lighthouse/baseline-login.report.json)  
 
-**Final Production metrics** after these code changes require a Production deploy + Validation remeasure (`VALIDATE PMX-004 PHASE 8`). Lab after-scores were not substituted for Production.
+**Final Production metrics** (post-deploy Validation): Perf **69** · a11y **96** · BP **100** · LCP **1.8 s** · TBT **7.1 s** — see [43](./43-phase-8-validation.md) · [after-login.metrics.json](./artifacts/phase-8-lighthouse/after-login.metrics.json).
 
 ---
 
@@ -111,10 +113,10 @@ Artifacts:
 
 | Gate | Baseline | Post-implement Production | Notes |
 |------|----------|---------------------------|-------|
-| Perf ≥ 95 | 47 | 🔒 Pending deploy + Validation | Waiver candidate PERF-WAIVER-P8-01 if still below after OPT |
-| a11y ≥ 95 | 96 | Must not regress | — |
-| BP ≥ 100 | 100 | Must not regress | — |
-| PWA ≥ 100 | LH numeric N/A this run | Phase 2 installability PASS preserved | Validation may accept Phase 2 evidence |
+| Perf ≥ 95 | 47 | **69** | ✅ **PERF-WAIVER-P8-01** Product Accept ([43](./43-phase-8-validation.md)) |
+| a11y ≥ 95 | 96 | **96** | ✅ Met |
+| BP ≥ 100 | 100 | **100** | ✅ Met |
+| PWA ≥ 100 | LH numeric N/A | Phase 2 PASS + prod probes | ✅ **PWA-WAIVER-P8-01** Product Accept |
 
 ---
 
@@ -145,8 +147,9 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · marketplace UI ·
 ## 8. Recommendation
 
 1. ✅ Phase 8 implementation complete within authorized scope.  
-2. ✅ Proceed to dedicated session → **`VALIDATE PMX-004 PHASE 8`** (include Production remeasure after deploy).  
-3. ❌ Do **not** authorize or implement Phase 9+ / UX-C / OPS-C / FIN-C / marketplace / EP-019 Approve under this work.
+2. ✅ **`VALIDATE PMX-004 PHASE 8` → PASS** ([43](./43-phase-8-validation.md)).  
+3. ✅ Recommend next: **`AUTHORIZE PMX-004 PHASE 9`** (not issued under this implement record).  
+4. ❌ Do **not** authorize or implement Phase 9+ / UX-C / OPS-C / FIN-C / marketplace / EP-019 Approve under this work.
 
 ---
 
@@ -155,4 +158,4 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · marketplace UI ·
 | Role | Decision | Date |
 |------|----------|------|
 | Implementation | ✅ **IMPLEMENTED** (this document) | 2026-07-26 |
-| Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 8` | — |
+| Validation | ✅ **PASS** ([43](./43-phase-8-validation.md)) | 2026-07-26 |

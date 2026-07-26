@@ -37,7 +37,8 @@ VALIDATE PMX-004 PHASE 7
 | Step | Phrase | Status |
 |------|--------|--------|
 | Authorize Phase 8 | `AUTHORIZE PMX-004 PHASE 8` | ✅ Issued ([§81](./81-pmx-004-phase-8-authorization.md)) |
-| Implement / validate Phase 8 | After authorize | 🔒 Implement pending · Validation locked until `VALIDATE PMX-004 PHASE 8` |
+| Implement / validate Phase 8 | After authorize | ✅ Implemented · ✅ **VALIDATED PASS** ([§83](./83-pmx-004-phase-8-validation.md)) |
+| Authorize Phase 9 | `AUTHORIZE PMX-004 PHASE 9` | 🔒 Eligible · not issued |
 
 ---
 

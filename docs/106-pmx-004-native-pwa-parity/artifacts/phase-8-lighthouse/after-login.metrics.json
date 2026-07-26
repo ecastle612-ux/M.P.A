@@ -1,0 +1,20 @@
+{
+  "profile": "mobile-simulate /login Production AFTER Phase 8",
+  "url": "https://www.my-property-assistant.com/login",
+  "fetchTime": "2026-07-26T18:30:36.435Z",
+  "lighthouse": "12.6.0",
+  "deploymentId": "dpl_FJyvRpYAeTYEvJL7P8admpkgupfZ",
+  "sha": "f988ae5b1168c6bbc8d09750700d20bc8eb938bc",
+  "scores": {
+    "performance": 69,
+    "accessibility": 96,
+    "bestPractices": 100
+  },
+  "vitals": {
+    "LCP_ms": 1795.32,
+    "FCP_ms": 1045.32,
+    "CLS": 0,
+    "TBT_ms": 7069.5,
+    "SI_ms": 2930.616399470525
+  }
+}

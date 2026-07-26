@@ -82,9 +82,10 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 36. ✅ PMX-004 Phase 7 **IMPLEMENTED** ([79](./79-pmx-004-phase-7-implementation.md) · [PMX-004 §39](../106-pmx-004-native-pwa-parity/39-phase-7-implementation.md)).  
 37. ✅ **`VALIDATE PMX-004 PHASE 7` → PASS** ([80](./80-pmx-004-phase-7-validation.md) · [PMX-004 §40](../106-pmx-004-native-pwa-parity/40-phase-7-validation.md)).  
 38. ✅ **`AUTHORIZE PMX-004 PHASE 8` issued** ([81](./81-pmx-004-phase-8-authorization.md) · [PMX-004 §41](../106-pmx-004-native-pwa-parity/41-phase-8-authorization.md)).  
-39. ✅ PMX-004 Phase 8 **IMPLEMENTED** ([82](./82-pmx-004-phase-8-implementation.md) · [PMX-004 §42](../106-pmx-004-native-pwa-parity/42-phase-8-implementation.md)). Next → `VALIDATE PMX-004 PHASE 8`.  
-40. ❌ Do **not** authorize PMX-004 Phases 9–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the Phase 8 implement phrase.  
-41. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
+39. ✅ PMX-004 Phase 8 **IMPLEMENTED** ([82](./82-pmx-004-phase-8-implementation.md) · [PMX-004 §42](../106-pmx-004-native-pwa-parity/42-phase-8-implementation.md)) · Production `f988ae5` · `dpl_FJyvRpYAeTYEvJL7P8admpkgupfZ`.  
+40. ✅ **`VALIDATE PMX-004 PHASE 8` → PASS** ([83](./83-pmx-004-phase-8-validation.md) · [PMX-004 §43](../106-pmx-004-native-pwa-parity/43-phase-8-validation.md)) · Phase 8 **Validated / Approved**.  
+41. ❌ Do **not** authorize PMX-004 Phases 9–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the Phase 8 validate phrase — Phase 9 authorize is **eligible** (recommend `AUTHORIZE PMX-004 PHASE 9`) but **not issued**.  
+42. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
 
 ---
 
@@ -172,8 +173,9 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | [78 — PMX-004 Phase 7 Authorization](./78-pmx-004-phase-7-authorization.md) | ✅ **AUTHORIZED** · Offline Reliability · [PMX-004 §38](../106-pmx-004-native-pwa-parity/38-phase-7-authorization.md) |
 | [79 — PMX-004 Phase 7 Implementation](./79-pmx-004-phase-7-implementation.md) | ✅ **IMPLEMENTED** · [PMX-004 §39](../106-pmx-004-native-pwa-parity/39-phase-7-implementation.md) · ✅ **VALIDATED PASS** |
 | [80 — PMX-004 Phase 7 Validation](./80-pmx-004-phase-7-validation.md) | ✅ **PASS** · [PMX-004 §40](../106-pmx-004-native-pwa-parity/40-phase-7-validation.md) · P7-01…P7-10 |
-| [81 — PMX-004 Phase 8 Authorization](./81-pmx-004-phase-8-authorization.md) | ✅ **AUTHORIZED** · Performance Optimization · [PMX-004 §41](../106-pmx-004-native-pwa-parity/41-phase-8-authorization.md) |
-| [82 — PMX-004 Phase 8 Implementation](./82-pmx-004-phase-8-implementation.md) | ✅ **IMPLEMENTED** · [PMX-004 §42](../106-pmx-004-native-pwa-parity/42-phase-8-implementation.md) · Validation 🔒 |
+| [81 — PMX-004 Phase 8 Authorization](./81-pmx-004-phase-8-authorization.md) | ✅ **AUTHORIZED** · ✅ **VALIDATED PASS** · Performance Optimization · [PMX-004 §41](../106-pmx-004-native-pwa-parity/41-phase-8-authorization.md) |
+| [82 — PMX-004 Phase 8 Implementation](./82-pmx-004-phase-8-implementation.md) | ✅ **IMPLEMENTED** · Production `f988ae5` · [PMX-004 §42](../106-pmx-004-native-pwa-parity/42-phase-8-implementation.md) |
+| [83 — PMX-004 Phase 8 Validation](./83-pmx-004-phase-8-validation.md) | ✅ **PASS** · [PMX-004 §43](../106-pmx-004-native-pwa-parity/43-phase-8-validation.md) · P8-01…P8-10 |
 
 ---
 

@@ -1,7 +1,7 @@
 # 81 — PMX-004 Phase 8 Authorization (Program Record)
 
 **Package:** CORE-003 · **PMX next unit (post–Phase 7 Validated)**  
-**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([§82](./82-pmx-004-phase-8-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 8`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([§82](./82-pmx-004-phase-8-implementation.md)) · ✅ **VALIDATED PASS** ([§83](./83-pmx-004-phase-8-validation.md))  
 **Date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -58,8 +58,8 @@ VALIDATE PMX-004 PHASE 8
 
 | Item | Status |
 |------|--------|
-| PMX-004 Phase 8 (Performance Optimization · A11 Lighthouse) | ✅ **Authorized** · ✅ **Implemented** ([§82](./82-pmx-004-phase-8-implementation.md)) · 🔒 Validation pending |
-| PMX-004 Phase 9–11 | 🔒 **not** issued |
+| PMX-004 Phase 8 (Performance Optimization · A11 Lighthouse) | ✅ **Authorized** · ✅ **Implemented** ([§82](./82-pmx-004-phase-8-implementation.md)) · ✅ **Validated PASS** ([§83](./83-pmx-004-phase-8-validation.md)) |
+| PMX-004 Phase 9–11 | 🔒 **not** issued (Phase 9 authorize eligible) |
 | UX-012 Slice C–E | 🔒 **not** issued |
 | OPS-001 Slice C–E | 🔒 **not** issued |
 | FIN-003 Phases C–E | 🔒 Locked |
@@ -72,5 +72,6 @@ VALIDATE PMX-004 PHASE 8
 
 1. ✅ Phrase **`AUTHORIZE PMX-004 PHASE 8` issued**.  
 2. ✅ Phase 8 **IMPLEMENTED** ([§82](./82-pmx-004-phase-8-implementation.md) · [PMX-004 §42](../106-pmx-004-native-pwa-parity/42-phase-8-implementation.md)).  
-3. ✅ Proceed to dedicated session → **`VALIDATE PMX-004 PHASE 8`** (Production remeasure after deploy).  
-4. ❌ Do **not** authorize PMX-004 Phases 9–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI / EP-019 Approve without their own phrases.
+3. ✅ **`VALIDATE PMX-004 PHASE 8` → PASS** ([§83](./83-pmx-004-phase-8-validation.md) · [PMX-004 §43](../106-pmx-004-native-pwa-parity/43-phase-8-validation.md)).  
+4. ✅ Recommend next: **`AUTHORIZE PMX-004 PHASE 9`** (not issued under this authorize).  
+5. ❌ Do **not** authorize PMX-004 Phases 9–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI / EP-019 Approve without their own phrases.

@@ -3,7 +3,7 @@
 **Initiative ID:** PMX-004  
 **Priority:** CRITICAL — commercial native-feel milestone  
 **Type:** Experience / Platform (PWA) — **not** a feature catalog  
-**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · **Prod deploy ✔** · Device certification ✅ **PASS** · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 3 ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md)) · Phase 4 ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md)) · Phase 5 ✅ **VALIDATED PASS** ([31](./31-phase-5-validation.md)) · Phase 6 ✅ **VALIDATED PASS** ([37](./37-phase-6-validation-rerun-3.md) · [CORE-003 §77](../113-core-003-implementation-master-plan/77-pmx-004-phase-6-validation-rerun-3.md)) · Phase 7 ✅ **VALIDATED PASS** ([40](./40-phase-7-validation.md) · [CORE-003 §80](../113-core-003-implementation-master-plan/80-pmx-004-phase-7-validation.md)) · Phase 8 ✅ **IMPLEMENTED** ([42](./42-phase-8-implementation.md) · [CORE-003 §82](../113-core-003-implementation-master-plan/82-pmx-004-phase-8-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 8` · Phases 9–11 🔒 **LOCKED**  
+**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · **Prod deploy ✔** · Device certification ✅ **PASS** · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 3 ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md)) · Phase 4 ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md)) · Phase 5 ✅ **VALIDATED PASS** ([31](./31-phase-5-validation.md)) · Phase 6 ✅ **VALIDATED PASS** ([37](./37-phase-6-validation-rerun-3.md) · [CORE-003 §77](../113-core-003-implementation-master-plan/77-pmx-004-phase-6-validation-rerun-3.md)) · Phase 7 ✅ **VALIDATED PASS** ([40](./40-phase-7-validation.md) · [CORE-003 §80](../113-core-003-implementation-master-plan/80-pmx-004-phase-7-validation.md)) · Phase 8 ✅ **VALIDATED PASS** ([43](./43-phase-8-validation.md) · [CORE-003 §83](../113-core-003-implementation-master-plan/83-pmx-004-phase-8-validation.md)) · Production `f988ae5` · `dpl_FJyvRpYAeTYEvJL7P8admpkgupfZ` · Phases 9–11 🔒 **LOCKED** until `AUTHORIZE PMX-004 PHASE 9`  
 **Date:** 2026-07-23  
 **Author:** Lead Software Architect  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
@@ -67,15 +67,15 @@ The experience must feel **premium, polished, fast, and production-ready** while
 | Document | ✔ (this package + Amendments 01–03) |
 | **Approve** | ✔ **Approved with Amendments** (2026-07-23) |
 | Amendments 01–03 | ✔ Incorporated ([13](./13-native-ux-acceptance-matrix.md) · [14](./14-installation-success-funnel.md) · [15](./15-real-world-pilot.md)) |
-| Implement | ✔ Phase 1–8 complete · Phase 8 Validation 🔒 |
+| Implement | ✔ Phase 1–8 complete · Phase 8 ✅ Validated |
 | Phase 2 | ✅ **VALIDATED PASS** ([21](./21-phase-2-validation.md)) |
 | Phase 3 | ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md)) |
 | Phase 4 | ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md)) |
 | Phase 5 | ✅ **VALIDATED PASS** ([31](./31-phase-5-validation.md)) |
 | Phase 6 | ✅ **VALIDATED PASS** ([37](./37-phase-6-validation-rerun-3.md) · prior FAIL [34](./34-phase-6-validation.md)–[36](./36-phase-6-validation-rerun-2.md) preserved) |
 | Phase 7 | ✅ **VALIDATED PASS** ([40](./40-phase-7-validation.md) · [CORE-003 §80](../113-core-003-implementation-master-plan/80-pmx-004-phase-7-validation.md)) |
-| Phase 8 | ✅ **IMPLEMENTED** ([42](./42-phase-8-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 8` |
-| Phase 9–11 | 🔒 Locked until each `AUTHORIZE PMX-004 PHASE …` |
+| Phase 8 | ✅ **VALIDATED PASS** ([43](./43-phase-8-validation.md) · [42](./42-phase-8-implementation.md)) · Production `f988ae5` · `dpl_FJyvRpYAeTYEvJL7P8admpkgupfZ` |
+| Phase 9–11 | 🔒 Locked until each `AUTHORIZE PMX-004 PHASE …` · Phase 9 authorize **eligible** (not issued) |
 | COMPLETE | 🔒 Requires scores + matrix PASS + funnel KPIs + Phase 11 pilot PASS |
 
 Silence is not approval. Approval record: [12-approval-checklist.md](./12-approval-checklist.md).
@@ -127,8 +127,9 @@ Silence is not approval. Approval record: [12-approval-checklist.md](./12-approv
 | [38 — Phase 7 Authorization](./38-phase-7-authorization.md) | ✅ **AUTHORIZED** · Offline Reliability · P7-01…P7-10 · [CORE-003 §78](../113-core-003-implementation-master-plan/78-pmx-004-phase-7-authorization.md) |
 | [39 — Phase 7 Implementation](./39-phase-7-implementation.md) | ✅ **IMPLEMENTED** · IndexedDB outbox · allowlist · SyncStatus · idempotency · [CORE-003 §79](../113-core-003-implementation-master-plan/79-pmx-004-phase-7-implementation.md) |
 | [40 — Phase 7 Validation](./40-phase-7-validation.md) | ✅ **PASS** · `VALIDATE PMX-004 PHASE 7` · P7-01…P7-10 · [CORE-003 §80](../113-core-003-implementation-master-plan/80-pmx-004-phase-7-validation.md) |
-| [41 — Phase 8 Authorization](./41-phase-8-authorization.md) | ✅ **AUTHORIZED** · Performance Optimization · P8-01…P8-10 · [CORE-003 §81](../113-core-003-implementation-master-plan/81-pmx-004-phase-8-authorization.md) |
-| [42 — Phase 8 Implementation](./42-phase-8-implementation.md) | ✅ **IMPLEMENTED** · baseline · MediaImage · dynamic splits · hydration · fonts · [CORE-003 §82](../113-core-003-implementation-master-plan/82-pmx-004-phase-8-implementation.md) |
+| [41 — Phase 8 Authorization](./41-phase-8-authorization.md) | ✅ **AUTHORIZED** · ✅ **VALIDATED PASS** · Performance Optimization · P8-01…P8-10 · [CORE-003 §81](../113-core-003-implementation-master-plan/81-pmx-004-phase-8-authorization.md) |
+| [42 — Phase 8 Implementation](./42-phase-8-implementation.md) | ✅ **IMPLEMENTED** · Production `f988ae5` · [CORE-003 §82](../113-core-003-implementation-master-plan/82-pmx-004-phase-8-implementation.md) |
+| [43 — Phase 8 Validation](./43-phase-8-validation.md) | ✅ **PASS** · `VALIDATE PMX-004 PHASE 8` · P8-01…P8-10 · [CORE-003 §83](../113-core-003-implementation-master-plan/83-pmx-004-phase-8-validation.md) |
 
 ---
 
