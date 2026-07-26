@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button, Card } from "@mpa/ui";
 
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { StandaloneOpenLink } from "../pwa/standalone-open-link";
 import type { FacilityRecordListItem, FacilityTimelineEvent } from "../../lib/facility/contracts";
 import { hrefForTimelineEvent, timelineIconForEventType } from "../../lib/facility/contracts";
 

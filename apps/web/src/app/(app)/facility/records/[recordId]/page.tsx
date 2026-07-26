@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge, Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
 
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { StandaloneOpenLink } from "../../../../../components/pwa/standalone-open-link";
 import { DetailPageLayout } from "../../../../../components/presentation/detail-page-layout";
 import { EntityRelationshipChain } from "../../../../../components/presentation/entity-relationship-chain";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";

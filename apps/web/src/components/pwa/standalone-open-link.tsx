@@ -11,9 +11,9 @@ import {
   useState,
 } from "react";
 
-import { LeaveAppConfirm } from "@/components/pwa/leave-app-confirm";
-import { StandaloneDocumentViewer } from "@/components/pwa/standalone-document-viewer";
-import { classifyStandaloneHref, isAppOriginHref } from "@/lib/pwa/standalone-open";
+import { LeaveAppConfirm } from "./leave-app-confirm";
+import { StandaloneDocumentViewer } from "./standalone-document-viewer";
+import { classifyStandaloneHref, isAppOriginHref } from "../../lib/pwa/standalone-open";
 
 type StandaloneOpenLinkProps = Omit<ComponentPropsWithoutRef<"button">, "onClick" | "type"> & {
   href: string;

@@ -3,9 +3,9 @@
 import { Suspense, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, Card, Input, Modal } from "@mpa/ui";
-import { LeaveAppConfirm } from "@/components/pwa/leave-app-confirm";
-import { ReturnToMpaBanner } from "@/components/pwa/return-to-mpa-banner";
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { LeaveAppConfirm } from "../pwa/leave-app-confirm";
+import { ReturnToMpaBanner } from "../pwa/return-to-mpa-banner";
+import { StandaloneOpenLink } from "../pwa/standalone-open-link";
 import type { SaasBillingInterval, SaasPlanCode } from "../../lib/integrations/saas-billing/contracts";
 import type { SaasOrgSubscriptionSnapshot } from "../../lib/saas/contracts";
 import type { SaasUsageSnapshot } from "../../lib/saas/usage";

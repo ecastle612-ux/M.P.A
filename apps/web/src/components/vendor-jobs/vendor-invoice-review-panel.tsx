@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, Card } from "@mpa/ui";
 
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { StandaloneOpenLink } from "../pwa/standalone-open-link";
 import type { VendorInvoiceRecord, VendorPaymentMethod } from "../../lib/vendor-payments/contracts";
 
 type Props = {

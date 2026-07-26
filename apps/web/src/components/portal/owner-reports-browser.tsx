@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Badge, Card, EmptyState, Input } from "@mpa/ui";
 
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { StandaloneOpenLink } from "../pwa/standalone-open-link";
 import type { OwnerFinancialStatementRow } from "../../lib/owner-portal/financial-shared";
 import type { OwnerReportListItem } from "../../lib/owner-portal/reports-shared";
 import { OwnerStatementRow } from "./owner-statement-row";

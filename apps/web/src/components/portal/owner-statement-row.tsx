@@ -2,7 +2,7 @@
 
 import { Badge, Card } from "@mpa/ui";
 
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { StandaloneOpenLink } from "../pwa/standalone-open-link";
 import type { OwnerFinancialStatementRow } from "../../lib/owner-portal/financial-shared";
 
 export function OwnerStatementRow({ statement }: { statement: OwnerFinancialStatementRow }) {

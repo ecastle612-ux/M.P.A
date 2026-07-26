@@ -3,8 +3,8 @@
 import { useEffect, useState, useTransition } from "react";
 import { Badge, Button, Card, PageHeader, useToast } from "@mpa/ui";
 
-import { StandaloneDocumentViewer } from "@/components/pwa/standalone-document-viewer";
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { StandaloneDocumentViewer } from "../pwa/standalone-document-viewer";
+import { StandaloneOpenLink } from "../pwa/standalone-open-link";
 import {
   REPORT_CATALOG,
   type RecognitionBasis,

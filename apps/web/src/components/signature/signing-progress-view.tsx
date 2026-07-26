@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@mpa/ui";
 
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { StandaloneOpenLink } from "../pwa/standalone-open-link";
 
 type ProgressPayload = {
   recipient: { fullName: string; role: string; status: string; signingUrl: string | null };

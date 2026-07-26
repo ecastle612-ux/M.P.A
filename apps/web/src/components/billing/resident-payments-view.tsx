@@ -3,8 +3,8 @@
 import { Suspense, useEffect, useState, useTransition } from "react";
 import { Button, Card } from "@mpa/ui";
 
-import { LeaveAppConfirm } from "@/components/pwa/leave-app-confirm";
-import { ReturnToMpaBanner } from "@/components/pwa/return-to-mpa-banner";
+import { LeaveAppConfirm } from "../pwa/leave-app-confirm";
+import { ReturnToMpaBanner } from "../pwa/return-to-mpa-banner";
 import type { ResidentPaymentDashboard } from "../../lib/billing/contracts";
 import { formatCurrency } from "../../lib/financial/contracts";
 

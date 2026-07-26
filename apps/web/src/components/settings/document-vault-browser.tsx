@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Button, Card, Input , navPillClassName} from "@mpa/ui";
 
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { StandaloneOpenLink } from "../pwa/standalone-open-link";
 import type { VaultDocumentRecord } from "../../lib/vault/contracts";
 import {
   VAULT_BROWSER_CATEGORIES,

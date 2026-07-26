@@ -8,7 +8,7 @@ import {
   guessKindFromContentType,
   type StandaloneOpenKind,
   triggerSameWindowDownload,
-} from "@/lib/pwa/standalone-open";
+} from "../../lib/pwa/standalone-open";
 
 type StandaloneDocumentViewerProps = {
   open: boolean;

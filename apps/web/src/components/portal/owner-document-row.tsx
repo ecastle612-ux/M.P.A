@@ -2,7 +2,7 @@
 
 import { Badge, Card, EmptyState } from "@mpa/ui";
 
-import { StandaloneOpenLink } from "@/components/pwa/standalone-open-link";
+import { StandaloneOpenLink } from "../pwa/standalone-open-link";
 import type { OwnerDocumentListItem } from "../../lib/owner-portal/documents-shared";
 
 export function OwnerDocumentRow({ document }: { document: OwnerDocumentListItem }) {
