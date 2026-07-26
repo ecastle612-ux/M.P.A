@@ -34,7 +34,7 @@ export function InspectionRunPanel({
     setBusy(true);
     try {
       const action =
-        body && typeof body === "object" && "action" in body ? String(body.action ?? "") : "";
+        body && typeof body === "object" && "action" in body ? String(body["action"] ?? "") : "";
       const isAllowlistedItemUpdate = action === "update_item";
 
       // Phase 7: checklist item responses may queue offline; start/complete/add require connection.
