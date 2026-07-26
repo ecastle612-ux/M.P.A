@@ -3,7 +3,7 @@
 **Initiative ID:** PMX-004  
 **Priority:** CRITICAL — commercial native-feel milestone  
 **Type:** Experience / Platform (PWA) — **not** a feature catalog  
-**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · **Prod deploy ✔** · Device certification ✅ **PASS** · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 3 ✅ **IMPLEMENTED** ([23](./23-phase-3-implementation.md) · [CORE-003 §64](../113-core-003-implementation-master-plan/64-pmx-004-phase-3-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 3` · Phases 4–11 🔒 **LOCKED**  
+**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · **Prod deploy ✔** · Device certification ✅ **PASS** · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 3 ✅ **IMPLEMENTED + Production** (`2f2c23e` · `dpl_RuELMbR2gMK35nM6Snzkasy7Aaws` · [23](./23-phase-3-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 3` · Phases 4–11 🔒 **LOCKED**  
 **Date:** 2026-07-23  
 **Author:** Lead Software Architect  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  

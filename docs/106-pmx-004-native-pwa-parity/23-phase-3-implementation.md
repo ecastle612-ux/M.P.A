@@ -3,7 +3,7 @@
 **Package:** PMX-004  
 **Phase:** 3 — Native Application Shell  
 **Authorization:** [22](./22-phase-3-authorization.md) · [CORE-003 §63](../113-core-003-implementation-master-plan/63-pmx-004-phase-3-authorization.md)  
-**Status:** ✅ **IMPLEMENTED** · Validation 🔒 until `VALIDATE PMX-004 PHASE 3`  
+**Status:** ✅ **IMPLEMENTED** · Shipped to Production (`2f2c23e`, deploy `dpl_RuELMbR2gMK35nM6Snzkasy7Aaws`, 2026-07-26) · Validation 🔒 until `VALIDATE PMX-004 PHASE 3`  
 **Date:** 2026-07-26  
 
 > Phases 4–11 **not** implemented. UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI **not** touched.  
