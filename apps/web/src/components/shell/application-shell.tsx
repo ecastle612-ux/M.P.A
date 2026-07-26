@@ -11,6 +11,8 @@ import { ResponsiveNavigation } from "./responsive-navigation";
 import { BrandLogo } from "../branding/brand-logo";
 import { SetupGate } from "../setup/setup-gate";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
+import { PwaNativeOnboarding } from "../pwa/pwa-native-onboarding";
+import { NativeShellEffects } from "../pwa/native-shell-effects";
 import { DeploymentBadge } from "../launch/deployment-badge";
 import { FloatingAiCopilot } from "../ai/floating-ai-copilot";
 import { AiRouteContextSync } from "../ai/ai-route-context-sync";
@@ -59,10 +61,11 @@ export function ApplicationShell({
       </a>
       <CommandCenterTracker />
       {masterAdminBanner}
-      <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)]">
+      <NativeShellEffects />
+      <div className="mpa-native-shell flex min-h-[100dvh] min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)] pl-[var(--mpa-safe-left)] pr-[var(--mpa-safe-right)]">
         <Sidebar initialCollapsed={initialSidebarCollapsed} />
-        <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-          <header className="flex h-16 items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 lg:hidden">
+        <div className="flex min-h-[100dvh] min-h-screen min-w-0 flex-1 flex-col">
+          <header className="flex min-h-16 items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 pt-[var(--mpa-safe-top)] lg:hidden">
             <BrandLogo purpose="header" priority className="min-w-0" />
             <div className="flex shrink-0 items-center gap-2">
               <DeploymentBadge meta={deploymentMeta} />
@@ -70,8 +73,9 @@ export function ApplicationShell({
             </div>
           </header>
           <TopNavigation deploymentMeta={deploymentMeta} />
+          <PwaNativeOnboarding settingsHref="/settings/notifications" />
           <PushEnrollmentBanner settingsHref="/settings/notifications" />
-          <div id="app-content" className="mpa-app-main flex min-h-0 min-w-0 flex-col">
+          <div id="app-content" className="mpa-app-main mpa-native-shell-scroll flex min-h-0 min-w-0 flex-col pb-[var(--mpa-safe-bottom)]">
             {children}
           </div>
         </div>

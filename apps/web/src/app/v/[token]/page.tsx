@@ -13,7 +13,7 @@ export default async function VendorTokenJobPage({ params }: { params: Promise<{
   }
 
   return (
-    <main className="mpa-page min-h-screen bg-[var(--mpa-color-bg-canvas)] px-4 py-8">
+    <main className="mpa-page mpa-native-shell min-h-[100dvh] min-h-screen bg-[var(--mpa-color-bg-canvas)] px-4 py-8 pt-[calc(2rem+var(--mpa-safe-top))] pb-[calc(2rem+var(--mpa-safe-bottom))] pl-[max(1rem,var(--mpa-safe-left))] pr-[max(1rem,var(--mpa-safe-right))]">
       <div className="mx-auto mb-6 max-w-lg text-center">
         <p className="text-sm font-semibold tracking-wide text-[var(--mpa-color-brand-primary)]">M.P.A.</p>
         <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">Vendor job access — no login required</p>

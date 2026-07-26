@@ -7,6 +7,10 @@ import {
   MPA_PWA_ICON_SIZES,
   mpaMarkIconPath
 } from "../lib/branding";
+import {
+  MPA_PWA_BACKGROUND_COLOR_LIGHT,
+  MPA_PWA_THEME_COLOR_LIGHT
+} from "../lib/pwa/native-shell-theme";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -15,8 +19,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: `${MPA_BRAND_NAME} enterprise property management platform`,
     start_url: "/",
     display: "standalone",
-    background_color: "#F3F4F6",
-    theme_color: "#0D2645",
+    background_color: MPA_PWA_BACKGROUND_COLOR_LIGHT,
+    theme_color: MPA_PWA_THEME_COLOR_LIGHT,
     icons: [
       ...MPA_PWA_ICON_SIZES.map((size) => ({
         src: mpaMarkIconPath(size),

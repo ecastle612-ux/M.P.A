@@ -378,7 +378,13 @@ export function MediaUpload({
             onChange={(event) => {
               const file = event.target.files?.[0];
               event.target.value = "";
-              if (file) void beginWithFile(file);
+              if (file) {
+                // PMX-004 Phase 2 — lazy camera readiness (no onboarding pre-prompt).
+                if (intent.capture && typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("mpa:pwa-camera-intent"));
+                }
+                void beginWithFile(file);
+              }
             }}
           />
           <div className="flex flex-wrap gap-2">

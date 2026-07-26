@@ -3,7 +3,7 @@
 **Initiative ID:** PMX-004  
 **Priority:** CRITICAL — commercial native-feel milestone  
 **Type:** Experience / Platform (PWA) — **not** a feature catalog  
-**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · Architecture **CONDITIONAL APPROVAL** · Production validation ⏳ ([17](./17-phase-1-production-validation.md)) · Phase 2 🔒 **LOCKED**  
+**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · **Prod deploy ✔** · Device certification ✅ **PASS** · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 3 ✅ **IMPLEMENTED** ([23](./23-phase-3-implementation.md) · [CORE-003 §64](../113-core-003-implementation-master-plan/64-pmx-004-phase-3-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 3` · Phases 4–11 🔒 **LOCKED**  
 **Date:** 2026-07-23  
 **Author:** Lead Software Architect  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
@@ -67,8 +67,10 @@ The experience must feel **premium, polished, fast, and production-ready** while
 | Document | ✔ (this package + Amendments 01–03) |
 | **Approve** | ✔ **Approved with Amendments** (2026-07-23) |
 | Amendments 01–03 | ✔ Incorporated ([13](./13-native-ux-acceptance-matrix.md) · [14](./14-installation-success-funnel.md) · [15](./15-real-world-pilot.md)) |
-| Implement | ✔ Phase 1 code complete · ⏳ production device gate ([17](./17-phase-1-production-validation.md)) |
-| Phase 2+ | 🔒 Locked until [17](./17-phase-1-production-validation.md) Final PASS + `AUTHORIZE PMX-004 PHASE 2` |
+| Implement | ✔ Phase 1–2 complete · Phase 3 ✅ **IMPLEMENTED** ([23](./23-phase-3-implementation.md)) · Validation 🔒 |
+| Phase 2 | ✅ **VALIDATED PASS** ([21](./21-phase-2-validation.md)) |
+| Phase 3 | ✅ **IMPLEMENTED** · Validation 🔒 until `VALIDATE PMX-004 PHASE 3` |
+| Phase 4–11 | 🔒 Locked until each `AUTHORIZE PMX-004 PHASE …` |
 | COMPLETE | 🔒 Requires scores + matrix PASS + funnel KPIs + Phase 11 pilot PASS |
 
 Silence is not approval. Approval record: [12-approval-checklist.md](./12-approval-checklist.md).
@@ -97,6 +99,12 @@ Silence is not approval. Approval record: [12-approval-checklist.md](./12-approv
 | [15 — Real-World Pilot](./15-real-world-pilot.md) | **Amendment 03** — Phase 11 device pilot |
 | [16 — Phase 1 Verification](./16-phase-1-verification.md) | Phase 1 implementation report · CONDITIONAL PASS (code) |
 | [17 — Phase 1 Production Validation](./17-phase-1-production-validation.md) | **Production gate** · real devices · unlocks Phase 2 |
+| [18 — AMD Device Cert Owner Checklist](./18-pmx-004-amd-device-cert-owner-checklist.md) | ✅ **APPROVED** · evidence form = signed owner checklist (2026-07-24 forward) |
+| [19 — Phase 2 Authorization](./19-phase-2-authorization.md) | ✅ **AUTHORIZED** · Native Installation Experience · P2-01…P2-10 · [CORE-003 §61](../113-core-003-implementation-master-plan/61-pmx-004-phase-2-authorization.md) |
+| [20 — Phase 2 Implementation](./20-phase-2-implementation.md) | ✅ **IMPLEMENTED** · BIP · A2HS · checklist · funnel · post-install notify |
+| [21 — Phase 2 Validation](./21-phase-2-validation.md) | ✅ **PASS** · `VALIDATE PMX-004 PHASE 2` · P2-01…P2-10 |
+| [22 — Phase 3 Authorization](./22-phase-3-authorization.md) | ✅ **AUTHORIZED** · Native Application Shell · P3-01…P3-10 · [CORE-003 §63](../113-core-003-implementation-master-plan/63-pmx-004-phase-3-authorization.md) |
+| [23 — Phase 3 Implementation](./23-phase-3-implementation.md) | ✅ **IMPLEMENTED** · viewport · safe-area · keyboard · cold-start · [CORE-003 §64](../113-core-003-implementation-master-plan/64-pmx-004-phase-3-implementation.md) |
 
 ---
 

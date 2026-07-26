@@ -15,6 +15,10 @@ import {
   obtainPushSubscription,
   registerDeviceWithServer
 } from "../../lib/notifications/client-push";
+import { shouldDeferPushUntilInstalled } from "../../lib/pwa/onboarding-storage";
+import { detectPwaPlatform, isInstallCoachingEligible } from "../../lib/pwa/platform";
+import { isStandaloneDisplay } from "../../lib/pwa/standalone";
+import { useOrganizationContext } from "../shell/organization-context";
 
 /** Idle → Loading → Permission/Enroll → Enabled | Denied | Failed | Timeout */
 type EnrollmentState =
@@ -33,11 +37,25 @@ type EnrollmentState =
  * Non-intrusive post-sign-in push enrollment banner (API-001A + UX-001 WI-4).
  */
 export function PushEnrollmentBanner({ settingsHref }: { settingsHref: string }) {
+  const { activeOrganizationId } = useOrganizationContext();
   const [state, setState] = useState<EnrollmentState>("loading");
   const [toast, setToast] = useState<string | null>(null);
 
   const evaluate = useCallback(async () => {
     if (typeof window === "undefined") return;
+    const platform = detectPwaPlatform();
+    const standalone = isStandaloneDisplay();
+    if (
+      shouldDeferPushUntilInstalled(
+        activeOrganizationId,
+        standalone,
+        isInstallCoachingEligible(platform, false)
+      )
+    ) {
+      // PMX-004 Phase 2: ask notifications after install (PwaNativeOnboarding owns that step).
+      setState("idle");
+      return;
+    }
     if (isEnrollmentSuppressed()) {
       setState("idle");
       return;
@@ -65,7 +83,7 @@ export function PushEnrollmentBanner({ settingsHref }: { settingsHref: string })
     } catch {
       setState("idle");
     }
-  }, []);
+  }, [activeOrganizationId]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {

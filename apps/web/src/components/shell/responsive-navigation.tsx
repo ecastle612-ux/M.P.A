@@ -349,6 +349,7 @@ export function ResponsiveNavigation() {
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="mobile-nav-drawer"
+        className="mpa-chrome-control"
         onClick={() => (open ? closeDrawer() : openDrawer())}
       >
         Menu

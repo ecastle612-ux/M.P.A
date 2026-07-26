@@ -1,5 +1,6 @@
 import { Card } from "@mpa/ui";
 import { NotificationPreferencesForm } from "../../../../components/communication/notification-preferences-form";
+import { PwaInstallSettingsPanel } from "../../../../components/pwa/pwa-install-settings-panel";
 import { fetchAuthedApi } from "../../../../lib/communication/server-fetch";
 import type { NotificationPreferencesRecord } from "../../../../lib/communication/contracts";
 
@@ -42,6 +43,7 @@ export default async function NotificationSettingsPage() {
           </p>
         </Card>
       ) : null}
+      <PwaInstallSettingsPanel />
       <NotificationPreferencesForm initialPreferences={preferences} />
     </div>
   );

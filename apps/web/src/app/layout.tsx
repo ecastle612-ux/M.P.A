@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import Script from "next/script";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
@@ -17,6 +17,10 @@ import {
   resolveBrandAssetUrl
 } from "../lib/branding";
 import { serverEnv } from "../lib/env/server-env";
+import {
+  MPA_PWA_THEME_COLOR_DARK,
+  MPA_PWA_THEME_COLOR_LIGHT
+} from "../lib/pwa/native-shell-theme";
 import { readServerThemeState } from "../lib/theme/read-theme-cookies";
 import { brandSurfaceToneForMode, buildThemeInitScript } from "../lib/theme/theme-sync";
 
@@ -38,6 +42,19 @@ const appUrl = serverEnv.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
 const siteDescription = `${MPA_BRAND_NAME} — enterprise property operations for professional managers. Private Beta.`;
 const themeInitScript = buildThemeInitScript();
 
+
+/** PMX-004 Phase 3 — native viewport + status theme (viewport-fit=cover unlocks safe-area). */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: MPA_PWA_THEME_COLOR_LIGHT },
+    { media: "(prefers-color-scheme: dark)", color: MPA_PWA_THEME_COLOR_DARK },
+    { color: MPA_PWA_THEME_COLOR_LIGHT }
+  ]
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
@@ -46,6 +63,14 @@ export const metadata: Metadata = {
   },
   description: siteDescription,
   applicationName: MPA_BRAND_NAME,
+  appleWebApp: {
+    capable: true,
+    title: MPA_BRAND_NAME,
+    statusBarStyle: "black-translucent"
+  },
+  formatDetection: {
+    telephone: false
+  },
   alternates: {
     canonical: appUrl
   },

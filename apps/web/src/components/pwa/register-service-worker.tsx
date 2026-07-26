@@ -31,6 +31,8 @@ export function RegisterServiceWorker() {
     if (process.env.NODE_ENV !== "production") return;
 
     let cancelled = false;
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
 
     function onMessage(event: MessageEvent<MpaSwIncomingMessage>) {
       const data = event.data;
@@ -42,35 +44,53 @@ export function RegisterServiceWorker() {
 
     navigator.serviceWorker.addEventListener("message", onMessage);
 
-    void (async () => {
-      try {
-        const registration = await navigator.serviceWorker.register(CANONICAL_WORKER_URL, {
-          scope: "/"
-        });
-
-        if (cancelled) return;
-
-        if (registration.waiting) {
-          setUpdateVersion("update");
-        }
-
-        registration.addEventListener("updatefound", () => {
-          const installing = registration.installing;
-          if (!installing) return;
-          installing.addEventListener("statechange", () => {
-            if (installing.state === "installed" && navigator.serviceWorker.controller) {
-              setUpdateVersion("update");
-            }
+    // M0-PERF-001: defer registration until the main thread is idle so login TBT
+    // is not charged for SW install work. Still registers the same canonical worker.
+    const register = () => {
+      if (cancelled) return;
+      void (async () => {
+        try {
+          const registration = await navigator.serviceWorker.register(CANONICAL_WORKER_URL, {
+            scope: "/"
           });
-        });
-      } catch {
-        // Registration failure must not break the app shell.
-      }
-    })();
+
+          if (cancelled) return;
+
+          if (registration.waiting) {
+            setUpdateVersion("update");
+          }
+
+          registration.addEventListener("updatefound", () => {
+            const installing = registration.installing;
+            if (!installing) return;
+            installing.addEventListener("statechange", () => {
+              if (installing.state === "installed" && navigator.serviceWorker.controller) {
+                setUpdateVersion("update");
+              }
+            });
+          });
+        } catch {
+          // Registration failure must not break the app shell.
+        }
+      })();
+    };
+
+    const ric = window.requestIdleCallback;
+    if (typeof ric === "function") {
+      idleId = ric.call(window, register, { timeout: 2500 });
+    } else {
+      timeoutId = window.setTimeout(register, 1500);
+    }
 
     return () => {
       cancelled = true;
       navigator.serviceWorker.removeEventListener("message", onMessage);
+      if (idleId !== undefined && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
     };
   }, []);
 
@@ -79,7 +99,8 @@ export function RegisterServiceWorker() {
   return (
     <div
       role="status"
-      className="fixed inset-x-0 bottom-0 z-[80] border-t border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      className="fixed inset-x-0 z-[80] border-t border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 pb-[max(0.75rem,var(--mpa-safe-bottom))]"
+      style={{ bottom: "var(--mpa-keyboard-inset, 0px)" }}
     >
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
         <p className="text-sm text-[var(--mpa-color-text-primary)]">
@@ -88,7 +109,7 @@ export function RegisterServiceWorker() {
         <button
           type="button"
           onClick={onReload}
-          className="min-h-11 shrink-0 rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-[var(--mpa-color-text-on-brand)]"
+          className="mpa-chrome-control min-h-11 shrink-0 rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-[var(--mpa-color-text-on-brand)]"
         >
           Reload
         </button>

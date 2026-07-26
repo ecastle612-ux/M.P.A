@@ -283,6 +283,9 @@ export function VendorJobCardView({ token, initialJob }: Props) {
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 if (!file) return;
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("mpa:pwa-camera-intent"));
+                }
                 setBusy(true);
                 void uploadPhoto(file)
                   .catch((error: unknown) => {

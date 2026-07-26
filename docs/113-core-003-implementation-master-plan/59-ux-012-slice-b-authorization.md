@@ -1,7 +1,7 @@
 # 59 — UX-012 Slice B Authorization (Program Record)
 
 **Package:** CORE-003 · **M2.4**  
-**Status:** ✅ **AUTHORIZED** · Implementation ✅ **IMPLEMENTED** ([UX-012 §34](../112-ux-012-platform-experience-design-system/34-slice-b-implementation.md)) · Validation 🔒 until `VALIDATE UX-012 SLICE B`  
+**Status:** ✅ **AUTHORIZED** · Implementation ✅ **IMPLEMENTED** ([UX-012 §34](../112-ux-012-platform-experience-design-system/34-slice-b-implementation.md)) · Validation ✅ **PASS** ([§60](./60-ux-012-slice-b-validation.md) · [UX-012 §35](../112-ux-012-platform-experience-design-system/35-slice-b-validation.md))  
 **Date:** 2026-07-25  
 **Binding phrase (issued):**
 
@@ -51,7 +51,7 @@ VALIDATE UX-012 SLICE B
 
 | Item | Status |
 |------|--------|
-| UX-012 Slice B (core components · forms · navigation · tables · cards · tokenized maturity / a11y basics) | ✅ **Authorized** · ✅ **Implemented** ([UX-012 §34](../112-ux-012-platform-experience-design-system/34-slice-b-implementation.md)) · Validation pending |
+| UX-012 Slice B (core components · forms · navigation · tables · cards · tokenized maturity / a11y basics) | ✅ **Authorized** · ✅ **Implemented** · ✅ **Validated PASS** ([§60](./60-ux-012-slice-b-validation.md)) |
 | UX-012 Slice C | 🔒 **not** issued |
 | UX-012 Slice D–E | 🔒 **not** issued |
 | OPS-001 Slice C–E | 🔒 **not** issued |
@@ -65,5 +65,5 @@ VALIDATE UX-012 SLICE B
 
 1. ✅ Phrase **`AUTHORIZE UX-012 SLICE B` issued**.  
 2. ✅ **UX-012 Slice B implementation complete** — [UX-012 §34](../112-ux-012-platform-experience-design-system/34-slice-b-implementation.md).  
-3. ✅ Next: issue / run **`VALIDATE UX-012 SLICE B`** (UB-01…UB-10).  
+3. ✅ **`VALIDATE UX-012 SLICE B` → PASS** — [§60](./60-ux-012-slice-b-validation.md) · [UX-012 §35](../112-ux-012-platform-experience-design-system/35-slice-b-validation.md).  
 4. ❌ Do **not** authorize UX-012 C–E / OPS-001 C–E / PMX-004 Phase 2 / FIN-003 C–E / partner marketplace UI without their own phrases.

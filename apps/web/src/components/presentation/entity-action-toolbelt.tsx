@@ -39,7 +39,8 @@ export function EntityActionToolbelt({
     <nav
       aria-label={ariaLabel}
       data-mpa-toolbelt="true"
-      className="sticky bottom-16 z-30 -mx-1 border-t border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]/95 px-1 py-2 backdrop-blur-sm supports-[backdrop-filter]:bg-[var(--mpa-color-bg-surface)]/90 md:static md:bottom-auto md:z-0 md:mx-0 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none lg:bottom-0"
+      className="sticky bottom-16 z-30 -mx-1 border-t border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]/95 px-1 py-2 pb-[max(0.5rem,var(--mpa-safe-bottom))] backdrop-blur-sm supports-[backdrop-filter]:bg-[var(--mpa-color-bg-surface)]/90 md:static md:bottom-auto md:z-0 md:mx-0 md:border-0 md:bg-transparent md:p-0 md:pb-0 md:backdrop-blur-none lg:bottom-0"
+      style={{ marginBottom: "var(--mpa-keyboard-inset, 0px)" }}
     >
       <div className="flex flex-wrap items-center gap-2">
         {primary.map((action) => (

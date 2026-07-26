@@ -10,6 +10,8 @@ import { ProfileMenu } from "../shell/profile-menu";
 import { ThemeModeToggle } from "../shell/theme-mode-toggle";
 import { BrandLogo } from "../branding/brand-logo";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
+import { PwaNativeOnboarding } from "../pwa/pwa-native-onboarding";
+import { NativeShellEffects } from "../pwa/native-shell-effects";
 import { FloatingAiCopilot } from "../ai/floating-ai-copilot";
 import { AiRouteContextSync } from "../ai/ai-route-context-sync";
 import { PortalMobileBottomNav } from "./owner-mobile-bottom-nav";
@@ -64,9 +66,10 @@ export function PortalShell({
   const showRoleBadge = Boolean(roleBadgeLabel?.trim()) && !consumerChrome;
 
   return (
-    <div className="min-h-screen bg-[var(--mpa-color-bg-app)]">
+    <div className="mpa-native-shell min-h-[100dvh] min-h-screen bg-[var(--mpa-color-bg-app)] pl-[var(--mpa-safe-left)] pr-[var(--mpa-safe-right)]">
+      <NativeShellEffects />
       {masterAdminBanner}
-      <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 px-4 py-3 backdrop-blur-sm">
+      <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 px-4 pb-3 pt-[calc(0.75rem+var(--mpa-safe-top))] backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3">
           <BrandLogo purpose="header" />
           <div className="min-w-0">
@@ -85,13 +88,14 @@ export function PortalShell({
         </div>
       </header>
 
+      <PwaNativeOnboarding settingsHref={notificationSettingsHref} />
       {showPushEnrollmentBanner ? <PushEnrollmentBanner settingsHref={notificationSettingsHref} /> : null}
 
       <div
         className={
           hasMobileBottomNav
-            ? "mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 pb-24 lg:grid-cols-[15rem_1fr] lg:pb-5"
-            : "mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[15rem_1fr]"
+            ? "mpa-native-shell-scroll mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 pb-24 lg:grid-cols-[15rem_1fr] lg:pb-5"
+            : "mpa-native-shell-scroll mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[15rem_1fr]"
         }
       >
         <Card

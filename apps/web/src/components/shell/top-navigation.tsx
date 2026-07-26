@@ -26,7 +26,7 @@ export function TopNavigation({ deploymentMeta }: { deploymentMeta: DeploymentMe
   return (
     <header
       role="banner"
-      className="sticky top-0 z-30 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]/92 backdrop-blur-md"
+      className="sticky top-0 z-30 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]/92 backdrop-blur-md lg:pt-[var(--mpa-safe-top)]"
     >
       <div className="flex h-[var(--mpa-topbar-height)] w-full items-center gap-3 px-4 md:gap-4 md:px-5 lg:px-6">
         <div className="hidden min-w-0 flex-1 lg:block">

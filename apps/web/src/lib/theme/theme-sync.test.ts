@@ -27,10 +27,19 @@ describe("BR-002 theme sync", () => {
 
   it("theme init script sets data-brand-surface with data-theme", () => {
     const script = buildThemeInitScript();
-    expect(script).toContain('data-brand-surface');
+    expect(script).toContain("data-brand-surface");
     expect(script).toContain("dark-surface");
     expect(script).toContain("light-surface");
     expect(script).toContain("dataset.theme");
+  });
+
+  it("theme init script hardens cold-start theme-color and background", () => {
+    const script = buildThemeInitScript();
+    expect(script).toContain('meta[name="theme-color"]');
+    expect(script).toContain("#0D2645");
+    expect(script).toContain("#0B0D10");
+    expect(script).toContain("#F3F4F6");
+    expect(script).toContain("backgroundColor");
   });
 
   it("validates cookie/storage values", () => {

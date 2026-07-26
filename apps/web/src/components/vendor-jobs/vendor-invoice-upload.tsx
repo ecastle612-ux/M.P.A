@@ -190,6 +190,9 @@ export function VendorInvoiceUpload({ token }: Props) {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("mpa:pwa-camera-intent"));
+                }
                 setBusy(true);
                 void uploadFile(file, "photo")
                   .then((path) => setPhotoPaths((prev) => [...prev, path].slice(0, 12)))

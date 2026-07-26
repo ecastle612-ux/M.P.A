@@ -65,7 +65,8 @@ export function PortalMobileBottomNav({
   return (
     <nav
       aria-label={ariaLabel}
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm lg:hidden"
+      className="fixed inset-x-0 z-30 border-t border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]/95 pb-[max(var(--mpa-safe-bottom),env(safe-area-inset-bottom))] backdrop-blur-sm lg:hidden"
+      style={{ bottom: "var(--mpa-keyboard-inset, 0px)" }}
     >
       <ul
         className="mx-auto grid max-w-lg gap-0 px-1 pt-1"
@@ -81,8 +82,8 @@ export function PortalMobileBottomNav({
                 aria-current={active ? "page" : undefined}
                 className={
                   active
-                    ? "flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 rounded-[var(--mpa-radius-md)] px-1 text-[var(--mpa-color-brand-primary)] transition-colors"
-                    : "flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 rounded-[var(--mpa-radius-md)] px-1 text-[var(--mpa-color-text-secondary)] transition-colors hover:text-[var(--mpa-color-text-primary)]"
+                    ? "mpa-chrome-control flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 rounded-[var(--mpa-radius-md)] px-1 text-[var(--mpa-color-brand-primary)] transition-colors"
+                    : "mpa-chrome-control flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 rounded-[var(--mpa-radius-md)] px-1 text-[var(--mpa-color-text-secondary)] transition-colors hover:text-[var(--mpa-color-text-primary)]"
                 }
               >
                 <Icon className="h-5 w-5" />

@@ -4,11 +4,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * UX-012 Slice A — foundation CSS variables.
+ * Canonical TS SoT: packages/ui/src/tokens/canopy.ts (+ themeCssVariables).
+ * Keep :root values aligned with that map for SSR / auth (no ThemeProvider).
+ */
 :root {
-  /* Typography — Canopy */
+  /* Typography — families */
   --mpa-font-display: "Satoshi", var(--font-ibm-plex-sans), system-ui, sans-serif;
   --mpa-font-sans: var(--font-ibm-plex-sans), "Segoe UI", system-ui, sans-serif;
   --mpa-font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
+
+  /* Typography — scale / weight / tracking (Canopy) */
+  --mpa-font-size-display: 2rem;
+  --mpa-font-size-title: 1.5rem;
+  --mpa-font-size-heading: 1.125rem;
+  --mpa-font-size-subheading: 1rem;
+  --mpa-font-size-body: 0.875rem;
+  --mpa-font-size-body-lg: 0.9375rem;
+  --mpa-font-size-caption: 0.75rem;
+  --mpa-font-size-micro: 0.6875rem;
+  --mpa-font-size-mono: 0.8125rem;
+  --mpa-font-line-height-display: 1.2;
+  --mpa-font-line-height-title: 1.25;
+  --mpa-font-line-height-heading: 1.3;
+  --mpa-font-line-height-subheading: 1.35;
+  --mpa-font-line-height-body: 1.5;
+  --mpa-font-line-height-caption: 1.4;
+  --mpa-font-line-height-micro: 1.35;
+  --mpa-font-weight-regular: 400;
+  --mpa-font-weight-medium: 500;
+  --mpa-font-weight-semibold: 600;
+  --mpa-font-weight-bold: 700;
+  --mpa-font-tracking-tight: -0.02em;
+  --mpa-font-tracking-normal: 0;
+  --mpa-font-tracking-wide: 0.04em;
+
+  /* Spacing scale (4px base) */
+  --mpa-space-0: 0px;
+  --mpa-space-1: 4px;
+  --mpa-space-2: 8px;
+  --mpa-space-3: 12px;
+  --mpa-space-4: 16px;
+  --mpa-space-5: 20px;
+  --mpa-space-6: 24px;
+  --mpa-space-8: 32px;
+  --mpa-space-10: 40px;
+  --mpa-space-12: 48px;
+  --mpa-space-16: 64px;
+  --mpa-space-20: 80px;
+  --mpa-space-24: 96px;
 
   /* Brand */
   --mpa-color-brand-primary: #0f6b56;
@@ -81,33 +126,56 @@
   --mpa-shadow-focus: 0 0 0 3px var(--mpa-color-interactive-focus-ring);
 
   /* Radius */
+  --mpa-radius-none: 0px;
   --mpa-radius-sm: 4px;
   --mpa-radius-md: 8px;
   --mpa-radius-lg: 12px;
   --mpa-radius-xl: 16px;
+  --mpa-radius-full: 9999px;
 
   /* Motion */
+  --mpa-duration-instant: 0ms;
   --mpa-duration-fast: 120ms;
   --mpa-duration-normal: 200ms;
   --mpa-duration-moderate: 280ms;
+  --mpa-duration-slow: 400ms;
   --mpa-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --mpa-easing-exit: cubic-bezier(0.4, 0, 1, 1);
 
-  /* Layout — fluid workspace */
+  /* Icon / z */
+  --mpa-icon-size-sm: 14px;
+  --mpa-icon-size-md: 16px;
+  --mpa-icon-size-lg: 20px;
+  --mpa-icon-size-xl: 24px;
+  --mpa-z-sticky: 10;
+  --mpa-z-dropdown: 20;
+  --mpa-z-drawer: 30;
+  --mpa-z-modal: 40;
+  --mpa-z-toast: 50;
+  --mpa-z-command: 80;
+  --mpa-z-tooltip: 90;
+
+  /* Layout — fluid workspace (container spacing from space scale) */
   --mpa-shell-max-width: none;
   --mpa-content-max-width: none;
   --mpa-sidebar-width: 16.5rem;
   --mpa-sidebar-collapsed-width: 4.5rem;
   --mpa-topbar-height: 3.5rem;
-  /* UX-001 WI-6: tighter mobile density (enterprise) */
-  --mpa-content-padding-x: 0.75rem;
-  --mpa-content-padding-y: 0.75rem;
-  --mpa-content-padding-x-md: 1rem;
-  --mpa-content-padding-y-md: 1rem;
-  --mpa-content-padding-x-lg: 1.25rem;
-  --mpa-content-padding-y-lg: 1.25rem;
+  --mpa-content-padding-x: var(--mpa-space-3);
+  --mpa-content-padding-y: var(--mpa-space-3);
+  --mpa-content-padding-x-md: var(--mpa-space-4);
+  --mpa-content-padding-y-md: var(--mpa-space-4);
+  --mpa-content-padding-x-lg: var(--mpa-space-5);
+  --mpa-content-padding-y-lg: var(--mpa-space-5);
   --mpa-workspace-max-width: 1920px;
   --mpa-workspace-min-ratio: 0.94;
-  --mpa-workspace-rail-top: calc(var(--mpa-topbar-height) + 0.75rem);
+  --mpa-workspace-rail-top: calc(var(--mpa-topbar-height) + var(--mpa-space-3));
+  /* PMX-004 Phase 3 — native shell insets (safe-area + soft keyboard) */
+  --mpa-safe-top: env(safe-area-inset-top, 0px);
+  --mpa-safe-right: env(safe-area-inset-right, 0px);
+  --mpa-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --mpa-safe-left: env(safe-area-inset-left, 0px);
+  --mpa-keyboard-inset: 0px;
 }
 
 html,
@@ -115,12 +183,35 @@ body {
   margin: 0;
   padding: 0;
   font-family: var(--mpa-font-sans);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: var(--mpa-font-size-body);
+  line-height: var(--mpa-font-line-height-body);
+  font-weight: var(--mpa-font-weight-regular);
   background: var(--mpa-color-bg-app);
   color: var(--mpa-color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Contain document rubber-band; content regions keep native scroll */
+  overscroll-behavior-y: none;
+}
+
+/* Scrollable app content may still bounce internally without chaining to the document */
+.mpa-app-main,
+.mpa-native-shell-scroll {
+  overscroll-behavior-y: contain;
+}
+
+/* Chrome controls: reduce accidental double-tap zoom; pinch-zoom remains on document */
+.mpa-chrome-control {
+  touch-action: manipulation;
+}
+
+/* iOS focus zoom hygiene on form controls without disabling pinch globally */
+@media (max-width: 1023px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
 }
 
 *,
@@ -136,11 +227,67 @@ body {
 
 .font-display {
   font-family: var(--mpa-font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--mpa-font-tracking-tight);
 }
 
 .font-mono {
   font-family: var(--mpa-font-mono);
+  font-size: var(--mpa-font-size-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Semantic text styles — UX-012 Slice A */
+.mpa-text-display {
+  font-family: var(--mpa-font-display);
+  font-size: var(--mpa-font-size-display);
+  line-height: var(--mpa-font-line-height-display);
+  font-weight: var(--mpa-font-weight-semibold);
+  letter-spacing: var(--mpa-font-tracking-tight);
+}
+
+.mpa-text-title {
+  font-family: var(--mpa-font-display);
+  font-size: var(--mpa-font-size-title);
+  line-height: var(--mpa-font-line-height-title);
+  font-weight: var(--mpa-font-weight-semibold);
+  letter-spacing: var(--mpa-font-tracking-tight);
+}
+
+.mpa-text-heading {
+  font-family: var(--mpa-font-display);
+  font-size: var(--mpa-font-size-heading);
+  line-height: var(--mpa-font-line-height-heading);
+  font-weight: var(--mpa-font-weight-semibold);
+  letter-spacing: var(--mpa-font-tracking-tight);
+}
+
+.mpa-text-subheading {
+  font-family: var(--mpa-font-sans);
+  font-size: var(--mpa-font-size-subheading);
+  line-height: var(--mpa-font-line-height-subheading);
+  font-weight: var(--mpa-font-weight-medium);
+}
+
+.mpa-text-body {
+  font-family: var(--mpa-font-sans);
+  font-size: var(--mpa-font-size-body);
+  line-height: var(--mpa-font-line-height-body);
+  font-weight: var(--mpa-font-weight-regular);
+}
+
+.mpa-text-caption {
+  font-family: var(--mpa-font-sans);
+  font-size: var(--mpa-font-size-caption);
+  line-height: var(--mpa-font-line-height-caption);
+  font-weight: var(--mpa-font-weight-medium);
+}
+
+.mpa-text-micro {
+  font-family: var(--mpa-font-sans);
+  font-size: var(--mpa-font-size-micro);
+  line-height: var(--mpa-font-line-height-micro);
+  font-weight: var(--mpa-font-weight-medium);
+  letter-spacing: var(--mpa-font-tracking-wide);
 }
 
 /* Page layout — enterprise workspace (PX-006 Stage C) */
@@ -160,7 +307,7 @@ body {
 
 .mpa-workspace-grid {
   display: grid;
-  gap: 1rem;
+  gap: var(--mpa-space-4);
   align-items: start;
 }
 
@@ -175,15 +322,15 @@ body {
 @media (min-width: 1024px) {
   .mpa-workspace-grid {
     grid-template-columns: minmax(0, 2.2fr) minmax(15rem, 0.9fr);
-    gap: 1.25rem;
+    gap: var(--mpa-space-5);
   }
 
   .mpa-workspace-rail {
     position: sticky;
     top: var(--mpa-workspace-rail-top);
-    max-height: calc(100vh - var(--mpa-workspace-rail-top) - 1rem);
+    max-height: calc(100vh - var(--mpa-workspace-rail-top) - var(--mpa-space-4));
     overflow-y: auto;
-    padding-right: 0.125rem;
+    padding-right: var(--mpa-space-1);
   }
 }
 
@@ -223,23 +370,23 @@ body {
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 0.75rem 1rem;
+  gap: var(--mpa-space-3) var(--mpa-space-4);
 }
 
 .mpa-section-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: var(--mpa-font-size-micro);
+  font-weight: var(--mpa-font-weight-semibold);
+  letter-spacing: var(--mpa-font-tracking-wide);
   text-transform: uppercase;
   color: var(--mpa-color-text-muted);
 }
 
 .mpa-section-title {
   font-family: var(--mpa-font-display);
-  font-size: 1.0625rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  font-size: var(--mpa-font-size-heading);
+  font-weight: var(--mpa-font-weight-semibold);
+  letter-spacing: var(--mpa-font-tracking-tight);
+  line-height: var(--mpa-font-line-height-heading);
   color: var(--mpa-color-text-primary);
 }
 
@@ -272,9 +419,10 @@ body {
   --mpa-color-text-secondary: #cbd5e1;
   --mpa-color-text-muted: #94a3b8;
   --mpa-color-text-tertiary: var(--mpa-color-text-muted);
-  --mpa-color-brand-primary: #1fa87a;
-  --mpa-color-brand-primary-hover: #32b98b;
-  --mpa-color-brand-primary-active: #15825f;
+  /* M0-PERF Option B / a11y: match ThemeProvider dark brand so auth (CSS-only) meets AA. */
+  --mpa-color-brand-primary: #15825f;
+  --mpa-color-brand-primary-hover: #1fa87a;
+  --mpa-color-brand-primary-active: #0f6b56;
   --mpa-color-brand-primary-subtle: #12352c;
   --mpa-color-interactive-row-hover: #1b2028;
   --mpa-color-interactive-selected: #12352c;
@@ -340,8 +488,26 @@ body {
   animation: mpa-auth-rise 480ms ease-out;
 }
 
+/** Subtle section entrance (Tenant P0) — uses existing mpa-auth-rise keyframes. */
+.mpa-rise-in {
+  animation: mpa-auth-rise var(--mpa-motion-moderate, 280ms) ease-out both;
+}
+
+.mpa-rise-in-delay-1 {
+  animation-delay: 40ms;
+}
+
+.mpa-rise-in-delay-2 {
+  animation-delay: 80ms;
+}
+
+.mpa-rise-in-delay-3 {
+  animation-delay: 120ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .mpa-auth-card {
+  .mpa-auth-card,
+  .mpa-rise-in {
     animation: none;
   }
 }

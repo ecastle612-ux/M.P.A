@@ -1,7 +1,14 @@
 /**
  * BR-002 runtime stability — single theme source for SSR + client.
  * Cookie is authoritative for SSR; localStorage stays for client preference UX.
+ * PMX-004 Phase 3: also sync theme-color meta + html/body background for cold-start chrome.
  */
+
+import {
+  backgroundColorForMode,
+  syncNativeShellThemeChrome,
+  themeColorForMode
+} from "../pwa/native-shell-theme";
 
 export const THEME_PREFERENCE_STORAGE_KEY = "mpa:theme-preference";
 export const THEME_MODE_COOKIE = "mpa-theme-mode";
@@ -42,6 +49,7 @@ export function applyDocumentBrandSurface(mode: ThemeMode): void {
   if (document.body) {
     document.body.setAttribute("data-brand-surface", tone);
   }
+  syncNativeShellThemeChrome(mode);
 }
 
 /** Cookie write for browser (ThemeProvider / beforeInteractive). */
@@ -55,6 +63,10 @@ export function persistThemeCookies(preference: ThemePreference, mode: ThemeMode
 /** Inline script: must stay in sync with ThemeProvider resolution rules. */
 export function buildThemeInitScript(): string {
   // Prefer localStorage, then cookie preference, then DEFAULT_THEME_PREFERENCE (light).
-  // Also sets data-brand-surface so loading logos match theme before React hydrates.
-  return `try{var pk="${THEME_PREFERENCE_STORAGE_KEY}";var p=localStorage.getItem(pk);function cookieVal(n){var m=document.cookie.match(new RegExp("(?:^|; )"+n+"=([^;]*)"));return m?decodeURIComponent(m[1]):"";}if(p!=="light"&&p!=="dark"&&p!=="system"){var cp=cookieVal("${THEME_PREFERENCE_COOKIE}");p=(cp==="light"||cp==="dark"||cp==="system")?cp:"${DEFAULT_THEME_PREFERENCE}";}var cm=cookieVal("${THEME_MODE_COOKIE}");var m=(p==="light"||p==="dark")?p:(cm==="light"||cm==="dark")?cm:(p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):"light");var bs=m==="dark"?"dark-surface":"light-surface";document.documentElement.dataset.theme=m;document.documentElement.style.colorScheme=m;document.documentElement.setAttribute("data-brand-surface",bs);if(document.body)document.body.setAttribute("data-brand-surface",bs);var s=location.protocol==="https:"?"; Secure":"";document.cookie="${THEME_MODE_COOKIE}="+m+"; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax"+s;document.cookie="${THEME_PREFERENCE_COOKIE}="+p+"; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax"+s;try{localStorage.setItem(pk,p);}catch(_){}}catch(_){document.documentElement.dataset.theme="light";document.documentElement.style.colorScheme="light";document.documentElement.setAttribute("data-brand-surface","light-surface");}`;
+  // Also sets data-brand-surface + theme-color + branded backgrounds before paint (PMX-004 P3).
+  const lightTheme = themeColorForMode("light");
+  const darkTheme = themeColorForMode("dark");
+  const lightBg = backgroundColorForMode("light");
+  const darkBg = backgroundColorForMode("dark");
+  return `try{var pk="${THEME_PREFERENCE_STORAGE_KEY}";var p=localStorage.getItem(pk);function cookieVal(n){var m=document.cookie.match(new RegExp("(?:^|; )"+n+"=([^;]*)"));return m?decodeURIComponent(m[1]):"";}if(p!=="light"&&p!=="dark"&&p!=="system"){var cp=cookieVal("${THEME_PREFERENCE_COOKIE}");p=(cp==="light"||cp==="dark"||cp==="system")?cp:"${DEFAULT_THEME_PREFERENCE}";}var cm=cookieVal("${THEME_MODE_COOKIE}");var m=(p==="light"||p==="dark")?p:(cm==="light"||cm==="dark")?cm:(p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):"light");var bs=m==="dark"?"dark-surface":"light-surface";var tc=m==="dark"?"${darkTheme}":"${lightTheme}";var bg=m==="dark"?"${darkBg}":"${lightBg}";document.documentElement.dataset.theme=m;document.documentElement.style.colorScheme=m;document.documentElement.style.backgroundColor=bg;document.documentElement.setAttribute("data-brand-surface",bs);if(document.body){document.body.setAttribute("data-brand-surface",bs);document.body.style.backgroundColor=bg;}var meta=document.querySelector('meta[name="theme-color"]');if(!meta){meta=document.createElement("meta");meta.setAttribute("name","theme-color");document.head.appendChild(meta);}meta.setAttribute("content",tc);var s=location.protocol==="https:"?"; Secure":"";document.cookie="${THEME_MODE_COOKIE}="+m+"; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax"+s;document.cookie="${THEME_PREFERENCE_COOKIE}="+p+"; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax"+s;try{localStorage.setItem(pk,p);}catch(_){}}catch(_){document.documentElement.dataset.theme="light";document.documentElement.style.colorScheme="light";document.documentElement.style.backgroundColor="${lightBg}";document.documentElement.setAttribute("data-brand-surface","light-surface");}`;
 }
