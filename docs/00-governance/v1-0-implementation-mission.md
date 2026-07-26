@@ -68,6 +68,8 @@ Every screen must answer: *What does this user need to accomplish right now?*
 
 Customers purchase **modules** (Core + Property Operations and/or Facility Operations). Architecture must support **module licensing**.
 
+**Binding detail:** [V1.0 Subscription Architecture](./v1-0-subscription-architecture.md) — Core is never sold alone; Facility must work with Property off; hide unlicensed nav (no clutter).
+
 ---
 
 ## 5. Required scope — Core Platform

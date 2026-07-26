@@ -8,6 +8,8 @@
 
 Make Facility Operations a **complete, low-friction module** so organizations can run buildings without spreadsheets: assign work, prevent failures, track parts and assets, schedule visits, and report monthly — with vendors who never need logins.
 
+**Independence:** Must be fully usable with **Property Operations unlicensed** (no tenants, leases, rent, or owner/tenant portals). See [18](./18-facility-independence.md) and [Subscription Architecture](../00-governance/v1-0-subscription-architecture.md).
+
 ---
 
 ## In scope (V1.0 Facility module)
@@ -54,3 +56,6 @@ Make Facility Operations a **complete, low-friction module** so organizations ca
 - Parallel Facility Record / history databases  
 - Forcing AI for any workflow  
 - Redesigning Canopy or creating a second design language  
+- Requiring Property Operations (tenants/leases/rent/owner portal) for any Facility feature  
+- Showing Facility nav to orgs without `module:facility_operations`  
+- A second work-order product under Property Operations (WO is Facility-tagged)  

@@ -19,6 +19,8 @@ Version 1.0 requires a complete Facility Operations module. Today (HEAD):
 
 Facility buyers (schools, hospitals, hotels, churches, commercial) will not accept “work orders only.”
 
+Many of those buyers **never subscribe to Property Operations**. V1.0 requires Facility to stand alone on Core ([Subscription Architecture](../00-governance/v1-0-subscription-architecture.md)).
+
 ---
 
 ## Solution (design)
@@ -38,11 +40,12 @@ FAC-002 specifies V1.0 Facility Operations as **extensions of existing systems**
 
 ## Outcomes after full implement (post-Approve)
 
-- Facility module sellable under subscriptions (with BILL-001 entitlements later).  
+- Facility module sellable as **Core + Facility** (Property optional).  
 - Technicians and managers share one maintenance SoT.  
 - PM auto-generates work — users do not re-enter recurring tasks.  
 - Inventory add path is ≤3 steps.  
-- No second work-order system, no second vendor portal, no second history DB.
+- No second work-order system, no second vendor portal, no second history DB.  
+- Unlicensed modules hidden from nav (no grey items / upgrade clutter).
 
 ---
 

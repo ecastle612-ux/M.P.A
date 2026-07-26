@@ -27,6 +27,8 @@ Silence is not approval. Gate owner must check every box, then set README Status
 - [ ] [14 Phased Delivery](./14-phased-delivery.md) accepted  
 - [ ] [15 Acceptance Criteria](./15-acceptance-criteria.md) accepted  
 - [ ] [16 Risks & Non-Goals](./16-risks-and-non-goals.md) acknowledged  
+- [ ] [18 Facility Independence](./18-facility-independence.md) reviewed  
+- [ ] [V1.0 Subscription Architecture](../00-governance/v1-0-subscription-architecture.md) acknowledged  
 
 ---
 
@@ -39,6 +41,9 @@ Silence is not approval. Gate owner must check every box, then set README Status
 - [ ] Calendar is a projection, not a second SoT  
 - [ ] Collision boundary with AUTH/shell/OPS/COM WIP respected  
 - [ ] Production provider SoT unchanged (AppProviders + `@mpa/ui`)  
+- [ ] Facility works with Property Operations **off** (no tenants/leases/rent required)  
+- [ ] Work Orders are Facility-tagged (not a second Property WO product)  
+- [ ] Unlicensed modules hidden from nav (no disabled/upgrade clutter)  
 
 ---
 
@@ -50,6 +55,7 @@ Silence is not approval. Gate owner must check every box, then set README Status
 | D2 | Technician default route | `/facility` hub vs `/maintenance` — choose on Approve |
 | D3 | PM creates draft WO automatically? | Default **Yes** |
 | D4 | First implement slice after Approve | Default **Slice A** |
+| D5 | Facility-only place UX label | Default reuse `properties` as Building/Site copy when Property module off |
 
 ---
 

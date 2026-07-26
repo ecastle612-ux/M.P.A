@@ -7,8 +7,9 @@
 ## One platform
 
 ```
-Core Platform
-  └── Facility Operations module (licensed)
+Core Platform (never sold alone)
+  ├── Property Operations (optional license)  ← tenants, leases, rent, portals
+  └── Facility Operations (optional license) ← this package; independent of Property
         ├── Coordination: Work Orders, Calendar, Technician Dashboard
         ├── Memory: Facility Records + Timeline (FAC-001)
         ├── Registry: Assets (FAC-001+) + Inventory (new)
@@ -17,7 +18,15 @@ Core Platform
         └── Proof: Inspections + Reports
 ```
 
-Module licensing (BILL-001) will gate Facility routes/capabilities after entitlements land — design assumes `facility_operations` (or equivalent) entitlement; do not invent a second billing system.
+| SKU | Facility available? |
+|-----|---------------------|
+| Core + Facility | **Yes** — primary Facility-only path |
+| Core + Property + Facility | Yes — union nav |
+| Core + Property only | **No** Facility surfaces (WO is Facility-tagged) |
+
+Module licensing via BILL-001 entitlement keys `module:facility_operations` / `module:property_operations` ([Subscription Architecture](../00-governance/v1-0-subscription-architecture.md)). Do not invent a second billing system.
+
+**UI:** If Facility is unlicensed, omit Facility destinations from nav/search — do not show disabled items or upgrade clutter.
 
 ---
 
@@ -25,7 +34,8 @@ Module licensing (BILL-001) will gate Facility routes/capabilities after entitle
 
 | Entity | Role |
 |--------|------|
-| WorkOrder | Coordination unit (existing) |
+| Property (site) | Place of work — required for many Facility objects; **not** a Property Ops subscription |
+| WorkOrder | Coordination unit (existing) — **Facility module** |
 | FacilityRecord | Permanent history row (existing) |
 | FacilityAsset | Building equipment registry (existing + V1 fields) |
 | FacilityInventoryItem | Parts/tools/supplies (new) |
