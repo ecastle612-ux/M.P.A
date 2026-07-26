@@ -3,7 +3,7 @@
 **Initiative ID:** PMX-004  
 **Priority:** CRITICAL — commercial native-feel milestone  
 **Type:** Experience / Platform (PWA) — **not** a feature catalog  
-**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · **Prod deploy ✔** · Device certification ✅ **PASS** · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 3 ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md)) · Phase 4 ✅ **AUTHORIZED** ([25](./25-phase-4-authorization.md) · [CORE-003 §66](../113-core-003-implementation-master-plan/66-pmx-004-phase-4-authorization.md)) · Implementation ⏳ · Phases 5–11 🔒 **LOCKED**  
+**Status:** Design ✔ · Document ✔ · ✅ **APPROVED WITH AMENDMENTS** · **Phase 1 code ✔** · **Prod deploy ✔** · Device certification ✅ **PASS** · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 3 ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md)) · Phase 4 ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md)) · Phase 5 ✅ **AUTHORIZED** ([29](./29-phase-5-authorization.md) · [CORE-003 §69](../113-core-003-implementation-master-plan/69-pmx-004-phase-5-authorization.md)) · Implementation 🔒 until dedicated session · Phases 6–11 🔒 **LOCKED**  
 **Date:** 2026-07-23  
 **Author:** Lead Software Architect  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
@@ -67,11 +67,12 @@ The experience must feel **premium, polished, fast, and production-ready** while
 | Document | ✔ (this package + Amendments 01–03) |
 | **Approve** | ✔ **Approved with Amendments** (2026-07-23) |
 | Amendments 01–03 | ✔ Incorporated ([13](./13-native-ux-acceptance-matrix.md) · [14](./14-installation-success-funnel.md) · [15](./15-real-world-pilot.md)) |
-| Implement | ✔ Phase 1–3 complete · Phase 4 ✅ **AUTHORIZED** ([25](./25-phase-4-authorization.md)) · ⏳ Implementation pending |
+| Implement | ✔ Phase 1–4 complete · Phase 5 ✅ **AUTHORIZED** ([29](./29-phase-5-authorization.md)) · Implementation 🔒 |
 | Phase 2 | ✅ **VALIDATED PASS** ([21](./21-phase-2-validation.md)) |
 | Phase 3 | ✅ **VALIDATED PASS** ([24](./24-phase-3-validation.md)) |
-| Phase 4 | ✅ **AUTHORIZED** ([25](./25-phase-4-authorization.md)) · Implementation ⏳ · Validation 🔒 |
-| Phase 5–11 | 🔒 Locked until each `AUTHORIZE PMX-004 PHASE …` |
+| Phase 4 | ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md)) |
+| Phase 5 | ✅ **AUTHORIZED** · Implementation 🔒 until dedicated session |
+| Phase 6–11 | 🔒 Locked until each `AUTHORIZE PMX-004 PHASE …` |
 | COMPLETE | 🔒 Requires scores + matrix PASS + funnel KPIs + Phase 11 pilot PASS |
 
 Silence is not approval. Approval record: [12-approval-checklist.md](./12-approval-checklist.md).
@@ -107,7 +108,11 @@ Silence is not approval. Approval record: [12-approval-checklist.md](./12-approv
 | [22 — Phase 3 Authorization](./22-phase-3-authorization.md) | ✅ **AUTHORIZED** · ✅ **VALIDATED PASS** · Native Application Shell · P3-01…P3-10 · [CORE-003 §63](../113-core-003-implementation-master-plan/63-pmx-004-phase-3-authorization.md) |
 | [23 — Phase 3 Implementation](./23-phase-3-implementation.md) | ✅ **IMPLEMENTED** · viewport · safe-area · keyboard · cold-start · [CORE-003 §64](../113-core-003-implementation-master-plan/64-pmx-004-phase-3-implementation.md) |
 | [24 — Phase 3 Validation](./24-phase-3-validation.md) | ✅ **PASS** · `VALIDATE PMX-004 PHASE 3` · P3-01…P3-10 · [CORE-003 §65](../113-core-003-implementation-master-plan/65-pmx-004-phase-3-validation.md) |
-| [25 — Phase 4 Authorization](./25-phase-4-authorization.md) | ✅ **AUTHORIZED** · Standalone Compliance · P4-01…P4-10 · [CORE-003 §66](../113-core-003-implementation-master-plan/66-pmx-004-phase-4-authorization.md) |
+| [25 — Phase 4 Authorization](./25-phase-4-authorization.md) | ✅ **AUTHORIZED** · ✅ **VALIDATED PASS** · Standalone Compliance · P4-01…P4-10 · [CORE-003 §66](../113-core-003-implementation-master-plan/66-pmx-004-phase-4-authorization.md) |
+| [26 — Auth / Deep-Link Notes](./26-auth-deep-link-notes.md) | Phase 4 · invite/reset/iOS reopen documentation |
+| [27 — Phase 4 Implementation](./27-phase-4-implementation.md) | ✅ **IMPLEMENTED** · exit inventory · viewer · Stripe · e-sign · [CORE-003 §67](../113-core-003-implementation-master-plan/67-pmx-004-phase-4-implementation.md) |
+| [28 — Phase 4 Validation](./28-phase-4-validation.md) | ✅ **PASS** · `VALIDATE PMX-004 PHASE 4` · P4-01…P4-10 · [CORE-003 §68](../113-core-003-implementation-master-plan/68-pmx-004-phase-4-validation.md) |
+| [29 — Phase 5 Authorization](./29-phase-5-authorization.md) | ✅ **AUTHORIZED** · Native Mobile UX · P5-01…P5-10 · [CORE-003 §69](../113-core-003-implementation-master-plan/69-pmx-004-phase-5-authorization.md) |
 
 ---
 

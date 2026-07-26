@@ -30,8 +30,8 @@ VALIDATE PMX-004 PHASE 4
 | **Phrase** | ✅ `VALIDATE PMX-004 PHASE 4` recorded |
 | **Remediation required before PASS?** | ❌ **No** |
 | **Phase 4 approved for program progression?** | ✅ **YES** — Phase 4 **Validated** |
-| **Recommend `AUTHORIZE PMX-004 PHASE 5`?** | ✅ **Eligible** after this Validation — phrase **not issued** here |
-| **Begin Phase 5 / UX-C / OPS-C / FIN-C / marketplace?** | ❌ **NO** — locked until each explicit authorize |
+| **Recommend `AUTHORIZE PMX-004 PHASE 5`?** | ✅ **Eligible** after this Validation — subsequently **AUTHORIZED** ([29](./29-phase-5-authorization.md)) |
+| **Begin Phase 5 / UX-C / OPS-C / FIN-C / marketplace under this validate phrase?** | ❌ **NO** — Phase 5 requires its own authorize (issued separately); peers remain locked |
 
 ---
 
@@ -108,10 +108,10 @@ VALIDATE PMX-004 PHASE 4
 | Field | Result |
 |-------|--------|
 | **Validate Phase 4?** | ✅ **PASS** |
-| **Authorize Phase 5 now?** | ❌ **NO** — requires separate `AUTHORIZE PMX-004 PHASE 5` |
+| **Authorize Phase 5 under this validate phrase?** | ❌ **NO** at validation time — follow-on: ✅ **AUTHORIZED** ([29](./29-phase-5-authorization.md)) |
 | **Authorize UX-C / OPS-C / FIN-C / marketplace?** | ❌ **NO** |
 
-**Next:** Dedicated authorize session for Phase 5 (or other eligible packages) only when gate owners issue the phrase.
+**Next (at validation time):** Dedicated `AUTHORIZE PMX-004 PHASE 5` — **issued** ([29](./29-phase-5-authorization.md) · [CORE-003 §69](../113-core-003-implementation-master-plan/69-pmx-004-phase-5-authorization.md)). Implementation remains a dedicated session.
 
 ---
 
