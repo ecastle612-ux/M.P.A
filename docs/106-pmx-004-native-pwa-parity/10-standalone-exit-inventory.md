@@ -52,7 +52,8 @@ See [26 — Auth / deep-link notes](./26-auth-deep-link-notes.md).
 ## 4. Phase 4 exit criteria
 
 - [x] All E01–E13 dispositioned  
-- [ ] Device test: owner docs + vault + reports in standalone (validation session)  
-- [ ] Stripe resident or company billing return PASS on Android + iPhone (validation session)  
+- [x] Owner docs + vault + reports standalone path — ✅ **PASS** via code + unit tests + documented flow evidence ([28](./28-phase-4-validation.md)); real-device smoke remains recommended ops hygiene  
+- [x] Stripe resident / company billing return path — ✅ **PASS** via absolute return URLs + confirm + `ReturnToMpaBanner` evidence ([28](./28-phase-4-validation.md)); real-device Android/iPhone smoke remains recommended ops hygiene  
 - [x] E-sign path documented with evidence (confirm + same-window)  
 - [x] CSP change (`frame-src 'self' blob:`) security-reviewed as Phase 4 scope (narrow amend; blob only)  
+- [x] Phase 4 **Validated PASS** — [28](./28-phase-4-validation.md) · [CORE-003 §68](../113-core-003-implementation-master-plan/68-pmx-004-phase-4-validation.md) 

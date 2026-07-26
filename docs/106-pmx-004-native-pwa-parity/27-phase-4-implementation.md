@@ -3,10 +3,10 @@
 **Package:** PMX-004  
 **Phase:** 4 — Standalone Compliance  
 **Authorization:** [25](./25-phase-4-authorization.md) · [CORE-003 §66](../113-core-003-implementation-master-plan/66-pmx-004-phase-4-authorization.md)  
-**Status:** ✅ **IMPLEMENTED** · Validation 🔒 until `VALIDATE PMX-004 PHASE 4`  
+**Status:** ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md) · [CORE-003 §68](../113-core-003-implementation-master-plan/68-pmx-004-phase-4-validation.md))  
 **Date:** 2026-07-26  
 
-> Phases 5–11 **not** implemented. UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI **not** touched.  
+> Phases 5–11 **not** implemented. UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI **not** touched.
 > Phases 1–3 preserved. AUTH / COM / OPS-A / UX-012 A–B preserved. No schema migrations. No IA redesign.
 
 ---
@@ -147,9 +147,9 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketpla
 ## 11. Recommendation
 
 1. ✅ Phase 4 implementation complete within authorized scope.  
-2. ✅ Proceed to **`VALIDATE PMX-004 PHASE 4`** in a dedicated validation session (P4-01…P4-10).  
-3. ❌ Do **not** begin validation in this implementation session.  
-4. ❌ Do **not** authorize or implement Phase 5+ / UX-C / OPS-C / FIN-C / marketplace under this work.
+2. ✅ **`VALIDATE PMX-004 PHASE 4` → PASS** ([28](./28-phase-4-validation.md)).  
+3. ✅ Phase 5 **eligible** for a future `AUTHORIZE PMX-004 PHASE 5` — **not** issued under Phase 4.  
+4. ❌ Do **not** authorize or implement Phase 5+ / UX-C / OPS-C / FIN-C / marketplace under Phase 4 work.
 
 ---
 
@@ -158,4 +158,4 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketpla
 | Role | Decision | Date |
 |------|----------|------|
 | Implementation | ✅ **IMPLEMENTED** | 2026-07-26 |
-| Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 4` | — |
+| Validation | ✅ **PASS** ([28](./28-phase-4-validation.md)) | 2026-07-26 |

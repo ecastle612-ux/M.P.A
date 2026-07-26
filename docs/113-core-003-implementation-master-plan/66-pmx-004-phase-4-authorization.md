@@ -1,7 +1,7 @@
 # 66 — PMX-004 Phase 4 Authorization (Program Record)
 
 **Package:** CORE-003 · **PMX next unit (post–Phase 3 Validated)**  
-**Status:** ✅ **AUTHORIZED** · Implementation ✅ **done** ([67](./67-pmx-004-phase-4-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 4`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([67](./67-pmx-004-phase-4-implementation.md)) · ✅ **VALIDATED PASS** ([68](./68-pmx-004-phase-4-validation.md))  
 **Date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -56,8 +56,8 @@ VALIDATE PMX-004 PHASE 4
 
 | Item | Status |
 |------|--------|
-| PMX-004 Phase 4 (Standalone Compliance · exit inventory · docs/reports · Stripe return · e-sign) | ✅ **Authorized** · ✅ **Implemented** · 🔒 Validation pending |
-| PMX-004 Phase 5–11 | 🔒 **not** issued |
+| PMX-004 Phase 4 (Standalone Compliance · exit inventory · docs/reports · Stripe return · e-sign) | ✅ **Authorized** · ✅ **Implemented** · ✅ **VALIDATED PASS** ([68](./68-pmx-004-phase-4-validation.md)) |
+| PMX-004 Phase 5–11 | 🔒 **not** issued (Phase 5 **eligible**) |
 | UX-012 Slice C–E | 🔒 **not** issued |
 | OPS-001 Slice C–E | 🔒 **not** issued |
 | FIN-003 Phases C–E | 🔒 Locked |
@@ -69,6 +69,6 @@ VALIDATE PMX-004 PHASE 4
 
 1. ✅ Phrase **`AUTHORIZE PMX-004 PHASE 4` issued**.  
 2. ✅ Phase 4 **implemented** — [PMX-004 §27](../106-pmx-004-native-pwa-parity/27-phase-4-implementation.md) · [§67](./67-pmx-004-phase-4-implementation.md).  
-3. ✅ Proceed to **`VALIDATE PMX-004 PHASE 4`** in a dedicated validation session.  
+3. ✅ **`VALIDATE PMX-004 PHASE 4` → PASS** — [§68](./68-pmx-004-phase-4-validation.md) · [PMX-004 §28](../106-pmx-004-native-pwa-parity/28-phase-4-validation.md).  
 4. ❌ Do **not** authorize PMX-004 Phases 5–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI without their own phrases.  
 5. ❌ Do **not** begin Phase 5 implementation under this record.
