@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Button, Spinner } from "@mpa/ui";
 import {
@@ -8,8 +9,13 @@ import {
   type MediaKind,
   type MediaStatus
 } from "../../lib/media/constants";
-import { ImageEditorModal } from "./image-editor-modal";
 import { MediaImage } from "./media-image";
+
+/** PMX-004 Phase 8 — cropper (react-easy-crop) only loads when editing. */
+const ImageEditorModal = dynamic(
+  () => import("./image-editor-modal").then((m) => ({ default: m.ImageEditorModal })),
+  { ssr: false }
+);
 
 export type MediaUploadIntentConfig = {
   kind: MediaKind;

@@ -1,23 +1,62 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Avatar, Skeleton } from "@mpa/ui";
+import { Skeleton } from "@mpa/ui";
 import type { MediaVariant } from "../../lib/media/constants";
 
+const VARIANT_SIZE: Record<MediaVariant, number> = {
+  thumb: 48,
+  small: 96,
+  medium: 320,
+  large: 960,
+  original: 1280
+};
+
+function FallbackAvatar({
+  fallback,
+  className,
+  alt
+}: {
+  fallback: string;
+  className?: string;
+  alt: string;
+}) {
+  return (
+    <span
+      aria-label={alt || fallback}
+      className={
+        className ??
+        "inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--mpa-color-bg-surface-muted)] text-xs font-semibold text-[var(--mpa-color-text-secondary)]"
+      }
+    >
+      {fallback.slice(0, 2).toUpperCase()}
+    </span>
+  );
+}
+
+/**
+ * PMX-004 Phase 8 — MediaImage resolves signed URLs then renders via next/image.
+ * BrandLogo / QR / blob previews intentionally stay outside this path.
+ */
 export function MediaImage({
   mediaAssetId,
   variant = "small",
   alt,
   className,
-  fallback
+  fallback,
+  priority = false
 }: {
   mediaAssetId: string | null | undefined;
   variant?: MediaVariant;
   alt: string;
   className?: string;
   fallback?: string;
+  priority?: boolean;
 }) {
   const [resolved, setResolved] = useState<{ assetId: string; url: string | null } | null>(null);
+  const label = fallback ?? "MP";
+  const pixelSize = VARIANT_SIZE[variant] ?? VARIANT_SIZE.small;
 
   useEffect(() => {
     if (!mediaAssetId) {
@@ -43,7 +82,13 @@ export function MediaImage({
   }, [mediaAssetId, variant]);
 
   if (!mediaAssetId) {
-    return <Avatar src={undefined} fallback={fallback ?? "MP"} className={className} />;
+    return (
+      <FallbackAvatar
+        fallback={label}
+        alt={alt}
+        {...(className ? { className } : {})}
+      />
+    );
   }
 
   const ready = resolved?.assetId === mediaAssetId;
@@ -51,7 +96,27 @@ export function MediaImage({
     return <Skeleton className={className ?? "h-10 w-10 rounded-full"} />;
   }
 
+  if (!resolved.url) {
+    return (
+      <FallbackAvatar
+        fallback={label}
+        alt={alt}
+        {...(className ? { className } : {})}
+      />
+    );
+  }
+
   return (
-    <Avatar src={resolved.url ?? undefined} fallback={fallback ?? "MP"} className={className} alt={alt} />
+    <Image
+      src={resolved.url}
+      alt={alt}
+      width={pixelSize}
+      height={pixelSize}
+      sizes={`${pixelSize}px`}
+      priority={priority}
+      className={className ?? "h-10 w-10 rounded-full object-cover"}
+      // Signed Supabase URLs are short-lived; avoid optimizer cache of expired URLs.
+      unoptimized
+    />
   );
 }

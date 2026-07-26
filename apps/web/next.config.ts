@@ -1,5 +1,15 @@
 import type { NextConfig } from "next";
 
+function supabaseStorageHostname(): string {
+  const raw = process.env["NEXT_PUBLIC_SUPABASE_URL"];
+  if (!raw) return "placeholder.supabase.co";
+  try {
+    return new URL(raw).hostname;
+  } catch {
+    return "placeholder.supabase.co";
+  }
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -7,7 +17,15 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
   serverExternalPackages: ["sharp", "heic-convert"],
   images: {
-    formats: ["image/avif", "image/webp"]
+    formats: ["image/avif", "image/webp"],
+    // PMX-004 Phase 8 — allow org Supabase Storage host for MediaImage / next/image.
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: supabaseStorageHostname(),
+        pathname: "/storage/v1/object/**"
+      }
+    ]
   },
   async headers() {
     // OneSignal Web SDK (API-001 / LC-001K):

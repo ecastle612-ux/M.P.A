@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -13,10 +14,15 @@ import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 import { PwaNativeOnboarding } from "../pwa/pwa-native-onboarding";
 import { NativeShellEffects } from "../pwa/native-shell-effects";
 import { SyncStatusChip } from "../pwa/sync-status-chip";
-import { FloatingAiCopilot } from "../ai/floating-ai-copilot";
 import { AiRouteContextSync } from "../ai/ai-route-context-sync";
 import { PortalMobileBottomNav } from "./owner-mobile-bottom-nav";
 import type { PortalNavigationItem } from "./navigation";
+
+/** PMX-004 Phase 8 — defer heavy AI copilot until after portal paint. */
+const FloatingAiCopilot = dynamic(
+  () => import("../ai/floating-ai-copilot").then((m) => ({ default: m.FloatingAiCopilot })),
+  { ssr: false }
+);
 
 function isNavItemActive(pathname: string, href: string, exact = false): boolean {
   if (

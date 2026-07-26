@@ -4,7 +4,7 @@
 **Package:** PMX-004 Phase 7 — Offline Reliability  
 **Package summary:** [106 §39](../106-pmx-004-native-pwa-parity/39-phase-7-implementation.md)  
 **Authorization:** [§78](./78-pmx-004-phase-7-authorization.md) · [106 §38](../106-pmx-004-native-pwa-parity/38-phase-7-authorization.md)  
-**Status:** ✅ **IMPLEMENTED** · Validation 🔒 until `VALIDATE PMX-004 PHASE 7`  
+**Status:** ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([§80](./80-pmx-004-phase-7-validation.md))  
 **Date:** 2026-07-26  
 
 ---
@@ -31,8 +31,8 @@ IndexedDB outbox · allowlisted offline sync · SyncStatus UI · idempotency · 
 
 | Step | Phrase | Status |
 |------|--------|--------|
-| Validate Phase 7 | `VALIDATE PMX-004 PHASE 7` | 🔒 Not started |
-| Authorize Phase 8 | `AUTHORIZE PMX-004 PHASE 8` | 🔒 Locked until Phase 7 PASS |
+| Validate Phase 7 | `VALIDATE PMX-004 PHASE 7` | ✅ **PASS** ([§80](./80-pmx-004-phase-7-validation.md)) |
+| Authorize Phase 8 | `AUTHORIZE PMX-004 PHASE 8` | 🔒 Eligible · not issued |
 
 ---
 
@@ -41,4 +41,4 @@ IndexedDB outbox · allowlisted offline sync · SyncStatus UI · idempotency · 
 | Role | Decision | Date |
 |------|----------|------|
 | Implementation | ✅ **IMPLEMENTED** | 2026-07-26 |
-| Validation | 🔒 Pending | — |
+| Validation | ✅ **PASS** | 2026-07-26 |

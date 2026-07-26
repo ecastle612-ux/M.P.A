@@ -112,11 +112,11 @@ export const canopyTokens = {
   },
   font: {
     /** Legacy flat keys (ThemeProvider / consumers). */
-    display: 'Satoshi, "IBM Plex Sans", system-ui, sans-serif',
+    display: 'var(--font-ibm-plex-sans), "IBM Plex Sans", system-ui, sans-serif',
     sans: '"IBM Plex Sans", "Segoe UI", system-ui, sans-serif',
     mono: '"IBM Plex Mono", ui-monospace, monospace',
     /** Next.js font-loader aware stacks for :root CSS. */
-    cssDisplay: '"Satoshi", var(--font-ibm-plex-sans), system-ui, sans-serif',
+    cssDisplay: "var(--font-ibm-plex-sans), system-ui, sans-serif",
     cssSans: 'var(--font-ibm-plex-sans), "Segoe UI", system-ui, sans-serif',
     cssMono: "var(--font-ibm-plex-mono), ui-monospace, monospace",
     size: {

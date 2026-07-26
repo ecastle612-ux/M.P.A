@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAuthServerComponentClient } from "../../lib/auth/server";
 import { ApplicationShell } from "../../components/shell/application-shell";
+import { ShellProviders } from "../../components/shell/shell-providers";
 import { resolveAuthenticatedShellContext } from "../../lib/auth/get-shell-context";
 import { getSetupStatus } from "../../lib/setup/server";
 import { getDeploymentMeta } from "../../lib/launch/deployment-meta";
@@ -52,6 +53,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     !banner?.session;
 
   return (
+    <ShellProviders>
     <ApplicationShell
       availableRoles={effectiveRoles.length ? effectiveRoles : shellContext.availableRoles}
       defaultRole={defaultRole}
@@ -73,5 +75,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     >
       {children}
     </ApplicationShell>
+    </ShellProviders>
   );
 }

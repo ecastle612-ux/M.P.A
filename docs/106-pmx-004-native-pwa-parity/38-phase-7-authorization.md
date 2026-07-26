@@ -2,7 +2,7 @@
 
 **Package:** PMX-004 — Native PWA Parity  
 **Phase:** **7 — Offline Reliability**  
-**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([39](./39-phase-7-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 7`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([39](./39-phase-7-implementation.md)) · ✅ **VALIDATED PASS** ([40](./40-phase-7-validation.md))  
 **Authorization date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -222,7 +222,7 @@ If `VALIDATE PMX-004 PHASE 7` results in **FAIL**:
 | **Validation?** | 🔒 Until `VALIDATE PMX-004 PHASE 7` |
 | **Authorize Phases 8–11 / UX-C / OPS-C / FIN-C / marketplace UI?** | ❌ **NO** |
 
-**Next:** Dedicated session → **`VALIDATE PMX-004 PHASE 7`** (implementation complete — [39](./39-phase-7-implementation.md)).
+**Next:** Phase 7 ✅ **VALIDATED PASS** ([40](./40-phase-7-validation.md)). Phase 8 eligible for separate `AUTHORIZE PMX-004 PHASE 8` — not issued under this authorize.
 
 ---
 
@@ -232,4 +232,4 @@ If `VALIDATE PMX-004 PHASE 7` results in **FAIL**:
 |------|----------|------|
 | Governance / Product Owner authority | ✅ **AUTHORIZE PMX-004 PHASE 7** | 2026-07-26 |
 | Implementation | ✅ **IMPLEMENTED** ([39](./39-phase-7-implementation.md)) | 2026-07-26 |
-| Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 7` | — |
+| Validation | ✅ **PASS** ([40](./40-phase-7-validation.md)) | 2026-07-26 |

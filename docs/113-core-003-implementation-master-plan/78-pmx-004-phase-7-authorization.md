@@ -1,7 +1,7 @@
 # 78 — PMX-004 Phase 7 Authorization (Program Record)
 
 **Package:** CORE-003 · **PMX next unit (post–Phase 6 Validated)**  
-**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([§79](./79-pmx-004-phase-7-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 7`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([§79](./79-pmx-004-phase-7-implementation.md)) · ✅ **VALIDATED PASS** ([§80](./80-pmx-004-phase-7-validation.md))  
 **Date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -46,7 +46,7 @@ VALIDATE PMX-004 PHASE 7
 | PMX-004 Approved with Amendments | ✅ |
 | Next PMX authorize unit = Phase 7 | ✅ |
 | Serial rule (no unfinished Authorized PMX slice) | ✅ |
-| PMX-004 Phase 8 authorized? | ❌ No (correct — not issued) |
+| PMX-004 Phase 8 authorized? | ✅ Subsequently issued ([§81](./81-pmx-004-phase-8-authorization.md)) — not under Phase 7 phrase |
 | UX-012 Slice C authorized? | ❌ No (correct — locked) |
 | OPS-001 Slice C authorized? | ❌ No (correct — locked) |
 | FIN-003 Phases C–E authorized? | ❌ No (correct) |
@@ -60,8 +60,9 @@ VALIDATE PMX-004 PHASE 7
 
 | Item | Status |
 |------|--------|
-| PMX-004 Phase 7 (Offline Reliability · IndexedDB outbox · allowlisted sync · A10) | ✅ **Authorized** · ✅ **Implemented** ([§79](./79-pmx-004-phase-7-implementation.md)) · 🔒 Validation pending |
-| PMX-004 Phase 8–11 | 🔒 **not** issued |
+| PMX-004 Phase 7 (Offline Reliability · IndexedDB outbox · allowlisted sync · A10) | ✅ **Authorized** · ✅ **Implemented** · ✅ **Validated PASS** ([§80](./80-pmx-004-phase-7-validation.md)) |
+| PMX-004 Phase 8 | ✅ Subsequently **Authorized** ([§81](./81-pmx-004-phase-8-authorization.md)) |
+| PMX-004 Phase 9–11 | 🔒 **not** issued |
 | UX-012 Slice C–E | 🔒 **not** issued |
 | OPS-001 Slice C–E | 🔒 **not** issued |
 | FIN-003 Phases C–E | 🔒 Locked |
@@ -72,6 +73,7 @@ VALIDATE PMX-004 PHASE 7
 ## Recommendation
 
 1. ✅ Phrase **`AUTHORIZE PMX-004 PHASE 7` issued**.  
-2. ✅ Phase 7 **IMPLEMENTED** ([§79](./79-pmx-004-phase-7-implementation.md) · [PMX-004 §39](../106-pmx-004-native-pwa-parity/39-phase-7-implementation.md)).  
-3. ✅ Proceed to dedicated session → **`VALIDATE PMX-004 PHASE 7`**.  
-4. ❌ Do **not** authorize PMX-004 Phases 8–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI without their own phrases.
+2. ✅ Phase 7 **IMPLEMENTED** ([§79](./79-pmx-004-phase-7-implementation.md)).  
+3. ✅ **`VALIDATE PMX-004 PHASE 7` → PASS** ([§80](./80-pmx-004-phase-7-validation.md)).  
+4. ✅ Phase 8 **eligible** for `AUTHORIZE PMX-004 PHASE 8` — **not issued** under Phase 7 phrases.  
+5. ❌ Do **not** authorize PMX-004 Phases 8–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI without their own phrases.

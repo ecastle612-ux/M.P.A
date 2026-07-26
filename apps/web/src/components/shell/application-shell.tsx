@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import type { UserRole } from "@mpa/shared";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
@@ -14,9 +15,14 @@ import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 import { PwaNativeOnboarding } from "../pwa/pwa-native-onboarding";
 import { NativeShellEffects } from "../pwa/native-shell-effects";
 import { DeploymentBadge } from "../launch/deployment-badge";
-import { FloatingAiCopilot } from "../ai/floating-ai-copilot";
 import { AiRouteContextSync } from "../ai/ai-route-context-sync";
 import type { DeploymentMeta } from "../../lib/launch/deployment-meta";
+
+/** PMX-004 Phase 8 — defer heavy AI copilot until after shell paint. */
+const FloatingAiCopilot = dynamic(
+  () => import("../ai/floating-ai-copilot").then((m) => ({ default: m.FloatingAiCopilot })),
+  { ssr: false }
+);
 
 export function ApplicationShell({
   children,

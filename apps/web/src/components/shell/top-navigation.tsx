@@ -4,7 +4,6 @@ import type { DeploymentMeta } from "../../lib/launch/deployment-meta";
 import { OrganizationSwitcher } from "./organization-switcher";
 import { RoleSwitcher } from "./role-switcher";
 import { SyncStatusChip } from "../pwa/sync-status-chip";
-import { NotificationCenter } from "./notification-center";
 import { ProfileMenu } from "./profile-menu";
 import { ThemeModeToggle } from "./theme-mode-toggle";
 
@@ -15,12 +14,18 @@ const CommandCenter = dynamic(
   },
   {
     ssr: false,
-      loading: () => (
+    loading: () => (
       <div className="flex h-10 w-full items-center rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)] px-4 text-sm text-[var(--mpa-color-text-muted)]">
         Search properties, tenants, leases…
       </div>
     )
   }
+);
+
+/** PMX-004 Phase 8 — notification drawer loads on interaction path, not in first shell chunk. */
+const NotificationCenter = dynamic(
+  () => import("./notification-center").then((m) => ({ default: m.NotificationCenter })),
+  { ssr: false }
 );
 
 export function TopNavigation({ deploymentMeta }: { deploymentMeta: DeploymentMeta }) {

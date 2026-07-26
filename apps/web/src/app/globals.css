@@ -1,4 +1,5 @@
-@import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap");
+/* PMX-004 Phase 8 — removed Fontshare Satoshi @import (blocking third-party CSS).
+   Display/body typefaces load via next/font IBM Plex in app/layout.tsx. */
 
 @tailwind base;
 @tailwind components;
@@ -11,7 +12,8 @@
  */
 :root {
   /* Typography — families */
-  --mpa-font-display: "Satoshi", var(--font-ibm-plex-sans), system-ui, sans-serif;
+  /* PMX-004 Phase 8 — display stack uses loaded next/font (IBM Plex); no unloaded Satoshi face. */
+  --mpa-font-display: var(--font-ibm-plex-sans), system-ui, sans-serif;
   --mpa-font-sans: var(--font-ibm-plex-sans), "Segoe UI", system-ui, sans-serif;
   --mpa-font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
 

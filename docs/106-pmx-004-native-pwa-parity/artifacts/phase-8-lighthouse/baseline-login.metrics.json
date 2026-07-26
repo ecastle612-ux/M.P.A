@@ -1,0 +1,19 @@
+{
+  "profile": "mobile-simulate /login Production",
+  "url": "https://www.my-property-assistant.com/login",
+  "fetchTime": "2026-07-26T17:15:14.825Z",
+  "lighthouse": "12.6.0",
+  "scores": {
+    "performance": 47,
+    "accessibility": 96,
+    "bestPractices": 100
+  },
+  "vitals": {
+    "LCP_ms": 4769.8515,
+    "FCP_ms": 1149.8515,
+    "CLS": 0,
+    "TBT_ms": 9326.5,
+    "SI_ms": 6236.961711356614
+  },
+  "notes": "PWA category not scored by this LH run flags; installability audited separately in Phase 2. Baseline BEFORE Phase 8 code changes."
+}

@@ -77,7 +77,13 @@ export const FloatingAiCopilot = memo(function FloatingAiCopilot() {
   }, [open]);
 
   useEffect(() => {
-    transcriptRef.current?.scrollTo({ top: transcriptRef.current.scrollHeight, behavior: "smooth" });
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    transcriptRef.current?.scrollTo({
+      top: transcriptRef.current.scrollHeight,
+      behavior: reduceMotion ? "auto" : "smooth"
+    });
   }, [messages, isRunning, open]);
 
   const runPrompt = useCallback(

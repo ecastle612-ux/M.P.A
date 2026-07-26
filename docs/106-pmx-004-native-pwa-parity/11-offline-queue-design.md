@@ -1,7 +1,7 @@
 # 11 — Offline Queue Design
 
 **Package:** PMX-004 · Phase 7  
-**Status:** Draft — Ready for Approval  
+**Status:** Binding design SoT · Phase 7 ✅ **VALIDATED PASS** ([40](./40-phase-7-validation.md) · authorize [38](./38-phase-7-authorization.md)) · package Approved with Amendments  
 **Constraint:** **No database schema changes.** Client IndexedDB outbox + existing APIs.
 
 ---

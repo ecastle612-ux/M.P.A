@@ -44,7 +44,13 @@ export function AiSearchAssistant({
   }, [pendingPromptKey]);
 
   useEffect(() => {
-    transcriptRef.current?.scrollTo({ top: transcriptRef.current.scrollHeight, behavior: "smooth" });
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    transcriptRef.current?.scrollTo({
+      top: transcriptRef.current.scrollHeight,
+      behavior: reduceMotion ? "auto" : "smooth"
+    });
   }, [messages, isRunning]);
 
   async function runPrompt(input: { promptKey?: PromptKey; message?: string; conversationId?: string | null }) {

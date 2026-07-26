@@ -3,7 +3,7 @@
 **Package:** PMX-004  
 **Phase:** 7 — Offline Reliability  
 **Authorization:** [38](./38-phase-7-authorization.md) · [CORE-003 §78](../113-core-003-implementation-master-plan/78-pmx-004-phase-7-authorization.md)  
-**Status:** ✅ **IMPLEMENTED** · Validation 🔒 until `VALIDATE PMX-004 PHASE 7`  
+**Status:** ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([40](./40-phase-7-validation.md))  
 **Date:** 2026-07-26  
 
 > Phases 8–11 **not** implemented. UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI **not** touched.  
@@ -149,8 +149,9 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketpla
 ## 10. Recommendation
 
 1. ✅ Phase 7 implementation complete within authorized scope.  
-2. ✅ Proceed to dedicated session → **`VALIDATE PMX-004 PHASE 7`**.  
-3. ❌ Do **not** authorize or implement Phase 8+ / UX-C / OPS-C / FIN-C / marketplace under this work.
+2. ✅ **`VALIDATE PMX-004 PHASE 7` → PASS** ([40](./40-phase-7-validation.md)).  
+3. ✅ Phase 8 is **eligible** for a separate authorize phrase — not issued under implementation.  
+4. ❌ Do **not** authorize or implement Phase 8+ / UX-C / OPS-C / FIN-C / marketplace without their phrases.
 
 ---
 
@@ -159,4 +160,4 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketpla
 | Role | Decision | Date |
 |------|----------|------|
 | Implementation | ✅ **IMPLEMENTED** (this document) | 2026-07-26 |
-| Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 7` | — |
+| Validation | ✅ **PASS** ([40](./40-phase-7-validation.md)) | 2026-07-26 |

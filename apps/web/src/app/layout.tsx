@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import Script from "next/script";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
-import { AppProviders } from "./providers";
 import { BrandSurfaceTone } from "../components/branding/brand-logo";
 import { RegisterServiceWorker } from "../components/pwa/register-service-worker";
 import {
@@ -130,11 +129,15 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <Script id="mpa-theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body>
+        {/*
+          PMX-004 Phase 8 / M0-PERF Option B:
+          Theme/Toast/AuthSessionSync mount only via ShellProviders on (app)/(portals).
+          Auth routes stay CSS-token-only (html[data-theme] + globals) to cut hydration.
+          SW registration stays root-scoped for install/A2HS on /login.
+        */}
         <BrandSurfaceTone tone={brandTone}>
-          <AppProviders initialMode={theme.mode} initialPreference={theme.preference}>
-            <RegisterServiceWorker />
-            {children}
-          </AppProviders>
+          <RegisterServiceWorker />
+          {children}
         </BrandSurfaceTone>
       </body>
     </html>
