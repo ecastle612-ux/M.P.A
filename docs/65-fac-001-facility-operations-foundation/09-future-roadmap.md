@@ -15,6 +15,8 @@ Future features **consume Facility Records, Timeline, Assets, and Providers**. F
 
 ## Preventive maintenance
 
+> **V1.0 design ownership:** [FAC-002](../114-fac-002-facility-operations-v1/README.md) (Draft — Awaiting Approval). Do not implement from this roadmap alone.
+
 - Recurring schedules per asset/property  
 - Seasonal templates (HVAC spring/fall, smoke detectors, …)  
 - Compliance reminders (inspections, certifications)  

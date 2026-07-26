@@ -175,11 +175,10 @@ Ordered for **integrity first**, then commercial blocker, then V1.0 facility dep
 
 **Why third:** Paying-customer onboarding and recovery depend on it; currently mostly untracked.
 
-### Slice D — **Facility V1.0 foundation package (new gate)**
+### Slice D — **Facility V1.0 foundation package (FAC-002)**
 
-**Goal:** Design → Approve a Facility V1.0 package covering Inventory (photo→name→save), Preventive Maintenance, Calendar/Scheduling, Technician Dashboard, Inspections — then implement serially.
-
-**Why not first:** FAC-001 deferred most of this; starting code before Approve recreates friction. Largest net-new product surface.
+**Status:** Design package **drafted** — [FAC-002](../114-fac-002-facility-operations-v1/README.md) · Awaiting `APPROVE FAC-002`  
+**Goal:** Inventory (photo→name→save), PM, Calendar/Scheduling, Technician Dashboard, Inspections — implement only after Approve + slice Authorize.
 
 ### Slice E — **BILL-001 module entitlements**
 
