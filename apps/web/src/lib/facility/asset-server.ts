@@ -1,5 +1,5 @@
 import { createAuthServerComponentClient } from "../auth/server";
-import type { Json } from "@mpa/supabase";
+import type { Database, Json } from "@mpa/supabase";
 import {
   ASSET_TYPE_CODE_PREFIX,
   type CreateFacilityAssetInput,
@@ -7,7 +7,8 @@ import {
   type FacilityAssetListItem,
   type FacilityAssetLocationScope,
   type FacilityAssetStatus,
-  type ListFacilityAssetsOptions
+  type ListFacilityAssetsOptions,
+  type UpdateFacilityAssetInput
 } from "./asset-contracts";
 import { appendFacilityTimelineEvent } from "./timeline";
 
@@ -30,6 +31,12 @@ type FacilityAssetRow = {
   serial_number: string | null;
   expected_life_years: number | string | null;
   warranty_placeholder: string | null;
+  warranty_starts_on: string | null;
+  warranty_ends_on: string | null;
+  warranty_notes: string | null;
+  replacement_planned: boolean;
+  replacement_target_year: number | string | null;
+  replacement_notes: string | null;
   status: FacilityAssetStatus;
   location_note: string | null;
   notes: string | null;
@@ -47,7 +54,7 @@ type FacilityAssetRelationRow = FacilityAssetRow & {
 };
 
 const ASSET_SELECT =
-  "id, organization_id, property_id, building_id, unit_id, location_scope, asset_code, name, asset_type, custom_type_label, install_date, manufacturer, model, serial_number, expected_life_years, warranty_placeholder, status, location_note, notes, metadata, created_by, updated_by, created_at, updated_at, deleted_at, properties(name), units(unit_number)";
+  "id, organization_id, property_id, building_id, unit_id, location_scope, asset_code, name, asset_type, custom_type_label, install_date, manufacturer, model, serial_number, expected_life_years, warranty_placeholder, warranty_starts_on, warranty_ends_on, warranty_notes, replacement_planned, replacement_target_year, replacement_notes, status, location_note, notes, metadata, created_by, updated_by, created_at, updated_at, deleted_at, properties(name), units(unit_number)";
 
 async function resolveClient(client?: SupabaseClientType): Promise<SupabaseClientType> {
   return client ?? (await createAuthServerComponentClient());
@@ -80,6 +87,15 @@ function toFacilityAsset(row: FacilityAssetRow): FacilityAsset {
     serialNumber: row.serial_number,
     expectedLifeYears: Number.isFinite(life) ? life : null,
     warrantyPlaceholder: row.warranty_placeholder,
+    warrantyStartsOn: row.warranty_starts_on,
+    warrantyEndsOn: row.warranty_ends_on,
+    warrantyNotes: row.warranty_notes,
+    replacementPlanned: Boolean(row.replacement_planned),
+    replacementTargetYear:
+      row.replacement_target_year === null || row.replacement_target_year === undefined
+        ? null
+        : Number(row.replacement_target_year),
+    replacementNotes: row.replacement_notes,
     status: row.status,
     locationNote: row.location_note,
     notes: row.notes,
@@ -277,6 +293,12 @@ export async function createFacilityAsset(
       serial_number: input.serialNumber ?? null,
       expected_life_years: input.expectedLifeYears ?? null,
       warranty_placeholder: input.warrantyPlaceholder ?? null,
+      warranty_starts_on: input.warrantyStartsOn ?? null,
+      warranty_ends_on: input.warrantyEndsOn ?? null,
+      warranty_notes: input.warrantyNotes ?? null,
+      replacement_planned: input.replacementPlanned ?? false,
+      replacement_target_year: input.replacementTargetYear ?? null,
+      replacement_notes: input.replacementNotes ?? null,
       status: input.status ?? "active",
       location_note: input.locationNote ?? null,
       notes: input.notes ?? null,
@@ -332,6 +354,50 @@ export async function createFacilityAsset(
 
   if (!enriched) throw new Error("Asset enrichment failed");
   return enriched;
+}
+
+export async function updateFacilityAsset(
+  organizationId: string,
+  assetId: string,
+  userId: string,
+  input: UpdateFacilityAssetInput,
+  client?: SupabaseClientType
+): Promise<FacilityAssetListItem> {
+  const supabase = await resolveClient(client);
+  const patch: Database["public"]["Tables"]["facility_assets"]["Update"] = {
+    updated_by: userId
+  };
+  if (input.name !== undefined) patch.name = input.name.trim();
+  if (input.expectedLifeYears !== undefined) patch.expected_life_years = input.expectedLifeYears;
+  if (input.warrantyStartsOn !== undefined) patch.warranty_starts_on = input.warrantyStartsOn;
+  if (input.warrantyEndsOn !== undefined) patch.warranty_ends_on = input.warrantyEndsOn;
+  if (input.warrantyNotes !== undefined) {
+    patch.warranty_notes = input.warrantyNotes;
+    patch.warranty_placeholder = input.warrantyNotes;
+  }
+  if (input.warrantyPlaceholder !== undefined) {
+    patch.warranty_placeholder = input.warrantyPlaceholder;
+  }
+  if (input.replacementPlanned !== undefined) patch.replacement_planned = input.replacementPlanned;
+  if (input.replacementTargetYear !== undefined) {
+    patch.replacement_target_year = input.replacementTargetYear;
+  }
+  if (input.replacementNotes !== undefined) patch.replacement_notes = input.replacementNotes;
+  if (input.installDate !== undefined) patch.install_date = input.installDate;
+  if (input.notes !== undefined) patch.notes = input.notes;
+  if (input.status !== undefined) patch.status = input.status;
+
+  const { error } = await supabase
+    .from("facility_assets")
+    .update(patch)
+    .eq("organization_id", organizationId)
+    .eq("id", assetId)
+    .is("deleted_at", null);
+  if (error) throw new Error(error.message);
+
+  const asset = await getFacilityAssetForOrganization(organizationId, assetId, supabase);
+  if (!asset) throw new Error("Asset not found");
+  return asset;
 }
 
 export async function linkFacilityRecordToAsset(

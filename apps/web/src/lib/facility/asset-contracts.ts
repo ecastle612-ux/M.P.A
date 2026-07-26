@@ -40,6 +40,12 @@ export type FacilityAsset = {
   serialNumber: string | null;
   expectedLifeYears: number | null;
   warrantyPlaceholder: string | null;
+  warrantyStartsOn: string | null;
+  warrantyEndsOn: string | null;
+  warrantyNotes: string | null;
+  replacementPlanned: boolean;
+  replacementTargetYear: number | null;
+  replacementNotes: string | null;
   status: FacilityAssetStatus;
   locationNote: string | null;
   notes: string | null;
@@ -75,10 +81,114 @@ export type CreateFacilityAssetInput = {
   serialNumber?: string | null | undefined;
   expectedLifeYears?: number | null | undefined;
   warrantyPlaceholder?: string | null | undefined;
+  warrantyStartsOn?: string | null | undefined;
+  warrantyEndsOn?: string | null | undefined;
+  warrantyNotes?: string | null | undefined;
+  replacementPlanned?: boolean | undefined;
+  replacementTargetYear?: number | null | undefined;
+  replacementNotes?: string | null | undefined;
   status?: FacilityAssetStatus | undefined;
   locationNote?: string | null | undefined;
   notes?: string | null | undefined;
 };
+
+export type UpdateFacilityAssetInput = {
+  name?: string;
+  expectedLifeYears?: number | null;
+  warrantyStartsOn?: string | null;
+  warrantyEndsOn?: string | null;
+  warrantyNotes?: string | null;
+  warrantyPlaceholder?: string | null;
+  replacementPlanned?: boolean;
+  replacementTargetYear?: number | null;
+  replacementNotes?: string | null;
+  installDate?: string | null;
+  notes?: string | null;
+  status?: FacilityAssetStatus;
+};
+
+export type AssetLifeSummary = {
+  ageYears: number | null;
+  remainingYears: number | null;
+};
+
+export function computeAssetLifeSummary(
+  installDate: string | null,
+  expectedLifeYears: number | null
+): AssetLifeSummary {
+  if (!installDate) return { ageYears: null, remainingYears: null };
+  const install = new Date(`${installDate}T00:00:00.000Z`);
+  if (Number.isNaN(install.getTime())) return { ageYears: null, remainingYears: null };
+  const ageMs = Date.now() - install.getTime();
+  const ageYears = Math.max(0, Math.round((ageMs / (365.25 * 24 * 60 * 60 * 1000)) * 10) / 10);
+  if (expectedLifeYears == null) return { ageYears, remainingYears: null };
+  return {
+    ageYears,
+    remainingYears: Math.round((expectedLifeYears - ageYears) * 10) / 10
+  };
+}
+
+export function parseUpdateFacilityAssetInput(payload: unknown): UpdateFacilityAssetInput | null {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+  const value = payload as Record<string, unknown>;
+  const input: UpdateFacilityAssetInput = {};
+
+  if ("name" in value) {
+    const name = readString(value["name"], 1, 160);
+    if (!name) return null;
+    input.name = name;
+  }
+  if ("expectedLifeYears" in value) {
+    input.expectedLifeYears = readOptionalNumber(value["expectedLifeYears"]) ?? null;
+  }
+  if ("warrantyStartsOn" in value) {
+    input.warrantyStartsOn = readOptionalDate(value["warrantyStartsOn"]) ?? null;
+  }
+  if ("warrantyEndsOn" in value) {
+    input.warrantyEndsOn = readOptionalDate(value["warrantyEndsOn"]) ?? null;
+  }
+  if ("warrantyNotes" in value) {
+    input.warrantyNotes = readOptionalString(value["warrantyNotes"], 2000) ?? null;
+  }
+  if ("warrantyPlaceholder" in value) {
+    input.warrantyPlaceholder = readOptionalString(value["warrantyPlaceholder"], 500) ?? null;
+  }
+  if ("replacementPlanned" in value) {
+    if (typeof value["replacementPlanned"] !== "boolean") return null;
+    input.replacementPlanned = value["replacementPlanned"];
+  }
+  if ("replacementTargetYear" in value) {
+    const yearRaw = value["replacementTargetYear"];
+    if (yearRaw === null || yearRaw === "") {
+      input.replacementTargetYear = null;
+    } else {
+      const year =
+        typeof yearRaw === "number"
+          ? Math.trunc(yearRaw)
+          : typeof yearRaw === "string"
+            ? Number.parseInt(yearRaw, 10)
+            : NaN;
+      if (!Number.isFinite(year) || year < 2000 || year > 2100) return null;
+      input.replacementTargetYear = year;
+    }
+  }
+  if ("replacementNotes" in value) {
+    input.replacementNotes = readOptionalString(value["replacementNotes"], 2000) ?? null;
+  }
+  if ("installDate" in value) {
+    input.installDate = readOptionalDate(value["installDate"]) ?? null;
+  }
+  if ("notes" in value) {
+    input.notes = readOptionalString(value["notes"], 4000) ?? null;
+  }
+  if ("status" in value) {
+    if (!isFacilityAssetStatus(value["status"])) return null;
+    input.status = value["status"];
+  }
+
+  if (Object.keys(input).length === 0) return null;
+  return input;
+}
 
 export type ListFacilityAssetsOptions = {
   propertyId?: string | undefined;

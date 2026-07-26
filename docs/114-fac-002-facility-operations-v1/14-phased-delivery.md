@@ -36,11 +36,14 @@
 
 ## Slice C — Assets V1 + Inspections
 
-**Authorize phrase:** `AUTHORIZE FAC-002 SLICE C`
+**Authorize phrase:** `AUTHORIZE FAC-002 SLICE C`  
+**Status:** ✅ Authorized 2026-07-25 · Shipped to Production (pending SHA)
 
 - Asset warranty/manuals/expected life/replacement notes + PM deep links  
 - Inspection runs + Facility Record on complete  
 - Optional follow-up WO from failed items (confirm)  
+- Migration: `supabase/migrations/20260726100000_fac002_slice_c_assets_inspections.sql` (applied)  
+
 
 ---
 

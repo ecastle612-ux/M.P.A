@@ -7,10 +7,21 @@ import { PM_CADENCES, formatPmCadenceLabel, type PmCadence } from "../../lib/fac
 
 type PropertyOption = { id: string; name: string };
 
-export function PmScheduleCreateForm({ properties }: { properties: PropertyOption[] }) {
+export function PmScheduleCreateForm({
+  properties,
+  defaultPropertyId,
+  defaultAssetId
+}: {
+  properties: PropertyOption[];
+  defaultPropertyId?: string;
+  defaultAssetId?: string;
+}) {
   const router = useRouter();
   const [title, setTitle] = useState("");
-  const [propertyId, setPropertyId] = useState(properties[0]?.id ?? "");
+  const [propertyId, setPropertyId] = useState(
+    defaultPropertyId ?? properties[0]?.id ?? ""
+  );
+  const [assetId] = useState(defaultAssetId ?? "");
   const [cadence, setCadence] = useState<PmCadence>("monthly");
   const [nextDue, setNextDue] = useState(new Date().toISOString().slice(0, 10));
   const [customIntervalDays, setCustomIntervalDays] = useState("30");
@@ -33,6 +44,7 @@ export function PmScheduleCreateForm({ properties }: { properties: PropertyOptio
           propertyId,
           cadence,
           nextDue,
+          ...(assetId ? { assetId } : {}),
           ...(cadence === "custom"
             ? { customIntervalDays: Number.parseInt(customIntervalDays, 10) }
             : {})
@@ -58,6 +70,7 @@ export function PmScheduleCreateForm({ properties }: { properties: PropertyOptio
         <h1 className="text-2xl font-semibold text-[var(--mpa-color-text-primary)]">New PM schedule</h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
           Few required fields. Cadence presets keep planning light.
+          {assetId ? " Linked to the selected asset." : ""}
         </p>
       </div>
 

@@ -24,7 +24,8 @@ type FacilityRecordRow = {
   unit_id: string | null;
   building_id: string | null;
   asset_id: string | null;
-  work_order_id: string;
+  work_order_id: string | null;
+  inspection_run_id: string | null;
   legacy_vendor_id: string | null;
   service_provider_display_name: string | null;
   service_provider_type: ServiceProviderType;
@@ -73,7 +74,7 @@ type WorkOrderSnapshot = {
 };
 
 const FACILITY_RECORD_SELECT =
-  "id, organization_id, property_id, unit_id, building_id, asset_id, work_order_id, legacy_vendor_id, service_provider_display_name, service_provider_type, assigned_staff_user_id, issue, resolution, completed_at, warranty_placeholder, invoice_placeholder, lifecycle_status, status, correction_of_id, correction_reason, corrected_by, corrected_at, photo_document_ids, document_ids, metadata, created_by, updated_by, created_at, updated_at, properties(name), units(unit_number), maintenance_work_orders(work_order_number), facility_assets(asset_code, name)";
+  "id, organization_id, property_id, unit_id, building_id, asset_id, work_order_id, inspection_run_id, legacy_vendor_id, service_provider_display_name, service_provider_type, assigned_staff_user_id, issue, resolution, completed_at, warranty_placeholder, invoice_placeholder, lifecycle_status, status, correction_of_id, correction_reason, corrected_by, corrected_at, photo_document_ids, document_ids, metadata, created_by, updated_by, created_at, updated_at, properties(name), units(unit_number), maintenance_work_orders(work_order_number), facility_assets(asset_code, name)";
 
 async function resolveClient(client?: SupabaseClientType): Promise<SupabaseClientType> {
   return client ?? (await createAuthServerComponentClient());
@@ -93,6 +94,7 @@ function toFacilityRecord(row: FacilityRecordRow): FacilityRecord {
     buildingId: row.building_id,
     assetId: row.asset_id,
     workOrderId: row.work_order_id,
+    inspectionRunId: row.inspection_run_id,
     legacyVendorId: row.legacy_vendor_id,
     serviceProviderDisplayName: row.service_provider_display_name,
     serviceProviderType: row.service_provider_type,
@@ -234,6 +236,24 @@ export async function getFacilityRecordForOrganization(
     .select(FACILITY_RECORD_SELECT)
     .eq("organization_id", organizationId)
     .eq("id", recordId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return toFacilityRecordListItem(data as unknown as FacilityRecordRelationRow);
+}
+
+export async function getFacilityRecordByInspectionRunId(
+  organizationId: string,
+  inspectionRunId: string,
+  client?: SupabaseClientType
+): Promise<FacilityRecordListItem | null> {
+  const supabase = await resolveClient(client);
+  const { data, error } = await supabase
+    .from("facility_records")
+    .select(FACILITY_RECORD_SELECT)
+    .eq("organization_id", organizationId)
+    .eq("inspection_run_id", inspectionRunId)
+    .eq("status", "active")
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
@@ -453,6 +473,144 @@ export async function upsertFacilityRecordOnWorkOrderCompleted(
 }
 
 /**
+ * Idempotent: exactly one active Facility Record per completed inspection run.
+ */
+export async function upsertFacilityRecordOnInspectionCompleted(
+  organizationId: string,
+  inspectionRunId: string,
+  userId: string,
+  client?: SupabaseClientType
+): Promise<FacilityRecord> {
+  const supabase = await resolveClient(client);
+
+  const { data: run, error: runError } = await supabase
+    .from("facility_inspection_runs")
+    .select(
+      "id, organization_id, property_id, unit_id, title, status, completed_at, notes, assigned_to_user_id"
+    )
+    .eq("organization_id", organizationId)
+    .eq("id", inspectionRunId)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (runError) throw new Error(runError.message);
+  if (!run) throw new Error("Inspection not found");
+  if (run.status !== "completed") throw new Error("Inspection is not completed");
+
+  const { data: items, error: itemsError } = await supabase
+    .from("facility_inspection_items")
+    .select("label, result, notes")
+    .eq("organization_id", organizationId)
+    .eq("run_id", inspectionRunId)
+    .order("sort_order", { ascending: true });
+  if (itemsError) throw new Error(itemsError.message);
+
+  const failCount = (items ?? []).filter((item) => item.result === "fail").length;
+  const issue = `Inspection · ${run.title}`;
+  const resolutionParts = [
+    run.notes?.trim() || null,
+    `Items: ${(items ?? []).length}. Failed: ${failCount}.`,
+    ...(items ?? [])
+      .filter((item) => item.result === "fail")
+      .map((item) => `Fail: ${item.label}${item.notes ? ` — ${item.notes}` : ""}`)
+  ].filter(Boolean);
+  const resolution = resolutionParts.join("\n") || "Inspection completed.";
+  const completedAt = run.completed_at ?? new Date().toISOString();
+
+  const existing = await getFacilityRecordByInspectionRunId(organizationId, inspectionRunId, supabase);
+  if (existing) {
+    const { data, error } = await supabase
+      .from("facility_records")
+      .update({
+        property_id: run.property_id,
+        unit_id: run.unit_id,
+        assigned_staff_user_id: run.assigned_to_user_id,
+        issue,
+        resolution,
+        completed_at: completedAt,
+        lifecycle_status: "finalized",
+        service_provider_type: run.assigned_to_user_id ? "internal_staff" : "unassigned",
+        updated_by: userId,
+        metadata: {
+          ...existing.metadata,
+          source: "inspection",
+          inspectionRunId,
+          failCount,
+          refreshedAt: new Date().toISOString()
+        } as Json
+      } satisfies Database["public"]["Tables"]["facility_records"]["Update"])
+      .eq("organization_id", organizationId)
+      .eq("id", existing.id)
+      .eq("status", "active")
+      .select(FACILITY_RECORD_SELECT)
+      .single();
+    if (error || !data) throw new Error(error?.message ?? "Facility record update failed");
+    return toFacilityRecordListItem(data as unknown as FacilityRecordRelationRow);
+  }
+
+  const { data, error } = await supabase
+    .from("facility_records")
+    .insert({
+      organization_id: organizationId,
+      property_id: run.property_id,
+      unit_id: run.unit_id,
+      building_id: null,
+      work_order_id: null,
+      inspection_run_id: inspectionRunId,
+      legacy_vendor_id: null,
+      service_provider_display_name: null,
+      service_provider_type: run.assigned_to_user_id ? "internal_staff" : "unassigned",
+      assigned_staff_user_id: run.assigned_to_user_id,
+      issue,
+      resolution,
+      completed_at: completedAt,
+      warranty_placeholder: null,
+      invoice_placeholder: null,
+      lifecycle_status: "finalized",
+      status: "active",
+      photo_document_ids: [],
+      document_ids: [],
+      metadata: {
+        source: "inspection",
+        inspectionRunId,
+        failCount
+      } as Json,
+      created_by: userId,
+      updated_by: userId
+    })
+    .select(FACILITY_RECORD_SELECT)
+    .single();
+
+  if (error || !data) throw new Error(error?.message ?? "Facility record creation failed");
+  const record = toFacilityRecordListItem(data as unknown as FacilityRecordRelationRow);
+
+  await appendFacilityTimelineEvent(
+    organizationId,
+    {
+      propertyId: record.propertyId,
+      unitId: record.unitId,
+      buildingId: record.buildingId,
+      eventType: "facility.inspection_completed",
+      occurredAt: record.completedAt,
+      title: "Inspection Completed",
+      summary: `${run.title}${failCount > 0 ? ` · ${failCount} failed item(s)` : ""}`,
+      actorUserId: userId,
+      sourceEntityType: "facility_inspection_run",
+      sourceEntityId: inspectionRunId,
+      facilityRecordId: record.id,
+      href: `/facility/inspections/${inspectionRunId}`,
+      payload: {
+        inspectionRunId,
+        facilityRecordId: record.id,
+        failCount
+      }
+    },
+    supabase
+  );
+
+  return record;
+}
+
+/**
  * Administrative correction: supersede prior active record and mint a corrected active row.
  * Audited via correction_reason / corrected_by / corrected_at and a timeline event.
  */
@@ -488,6 +646,7 @@ export async function correctFacilityRecord(
       building_id: existing.buildingId,
       asset_id: existing.assetId,
       work_order_id: existing.workOrderId,
+      inspection_run_id: existing.inspectionRunId,
       legacy_vendor_id:
         input.legacyVendorId !== undefined ? input.legacyVendorId : existing.legacyVendorId,
       service_provider_display_name:

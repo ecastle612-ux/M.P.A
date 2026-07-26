@@ -55,11 +55,19 @@ export function RepairHistoryPanel({
                     View record
                   </Button>
                 </Link>
-                <Link href={`/maintenance/${record.workOrderId}`}>
-                  <Button variant="ghost" size="sm">
-                    Work order
-                  </Button>
-                </Link>
+                {record.workOrderId ? (
+                  <Link href={`/maintenance/${record.workOrderId}`}>
+                    <Button variant="ghost" size="sm">
+                      Work order
+                    </Button>
+                  </Link>
+                ) : record.inspectionRunId ? (
+                  <Link href={`/facility/inspections/${record.inspectionRunId}`}>
+                    <Button variant="ghost" size="sm">
+                      Inspection
+                    </Button>
+                  </Link>
+                ) : null}
               </div>
             </li>
           ))}

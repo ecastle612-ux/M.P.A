@@ -57,7 +57,8 @@ export type FacilityRecord = {
   unitId: string | null;
   buildingId: string | null;
   assetId: string | null;
-  workOrderId: string;
+  workOrderId: string | null;
+  inspectionRunId: string | null;
   legacyVendorId: string | null;
   serviceProviderDisplayName: string | null;
   serviceProviderType: ServiceProviderType;
@@ -335,6 +336,9 @@ export function hrefForTimelineEvent(event: Pick<FacilityTimelineEvent, "href" |
   if (event.href) return event.href;
   if (event.facilityRecordId) return `/facility/records/${event.facilityRecordId}`;
   if (event.workOrderId) return `/maintenance/${event.workOrderId}`;
+  if (event.sourceEntityType === "facility_inspection_run" && event.sourceEntityId) {
+    return `/facility/inspections/${event.sourceEntityId}`;
+  }
   if (event.sourceEntityType === "lease") return `/leases/${event.sourceEntityId}`;
   if (event.sourceEntityType === "tenant") return `/tenants/${event.sourceEntityId}`;
   if (event.sourceEntityType === "announcement") return `/communications/${event.sourceEntityId}`;

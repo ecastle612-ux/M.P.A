@@ -135,15 +135,18 @@ function toOccurrence(row: OccurrenceRow): FacilityPmOccurrence {
 
 export async function listPmSchedules(
   organizationId: string,
+  options: { assetId?: string } = {},
   client?: SupabaseClientType
 ): Promise<FacilityPmScheduleListItem[]> {
   const supabase = await resolveClient(client);
-  const { data, error } = await supabase
+  let query = supabase
     .from("facility_pm_schedules")
     .select(SCHEDULE_SELECT)
     .eq("organization_id", organizationId)
     .is("deleted_at", null)
     .order("next_due", { ascending: true });
+  if (options.assetId) query = query.eq("asset_id", options.assetId);
+  const { data, error } = await query;
   if (error) throw new Error(error.message);
   const rows = (data ?? []) as ScheduleRow[];
   const names = await propertyNameMap(

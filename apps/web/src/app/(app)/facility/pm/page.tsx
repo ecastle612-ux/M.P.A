@@ -36,7 +36,7 @@ export default async function FacilityPmPage() {
     redirect("/unauthorized");
   }
 
-  const items = await listPmSchedules(organizationId, supabase);
+  const items = await listPmSchedules(organizationId, {}, supabase);
 
   return (
     <AppPage

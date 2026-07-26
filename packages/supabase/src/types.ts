@@ -493,6 +493,156 @@ export type Database = {
         };
         Relationships: [];
       };
+      facility_inspection_templates: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          description: string | null;
+          id: string;
+          items: Json;
+          metadata: Json;
+          name: string;
+          organization_id: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          description?: string | null;
+          id?: string;
+          items?: Json;
+          metadata?: Json;
+          name: string;
+          organization_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          description?: string | null;
+          id?: string;
+          items?: Json;
+          metadata?: Json;
+          name?: string;
+          organization_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      facility_inspection_runs: {
+        Row: {
+          assigned_to_user_id: string | null;
+          completed_at: string | null;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          due_on: string | null;
+          id: string;
+          metadata: Json;
+          notes: string | null;
+          organization_id: string;
+          property_id: string;
+          started_at: string | null;
+          status: string;
+          template_id: string | null;
+          title: string;
+          unit_id: string | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          assigned_to_user_id?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by: string;
+          deleted_at?: string | null;
+          due_on?: string | null;
+          id?: string;
+          metadata?: Json;
+          notes?: string | null;
+          organization_id: string;
+          property_id: string;
+          started_at?: string | null;
+          status?: string;
+          template_id?: string | null;
+          title: string;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          assigned_to_user_id?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          due_on?: string | null;
+          id?: string;
+          metadata?: Json;
+          notes?: string | null;
+          organization_id?: string;
+          property_id?: string;
+          started_at?: string | null;
+          status?: string;
+          template_id?: string | null;
+          title?: string;
+          unit_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      facility_inspection_items: {
+        Row: {
+          created_at: string;
+          id: string;
+          label: string;
+          metadata: Json;
+          notes: string | null;
+          organization_id: string;
+          photo_media_asset_ids: string[];
+          result: string | null;
+          run_id: string;
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          label: string;
+          metadata?: Json;
+          notes?: string | null;
+          organization_id: string;
+          photo_media_asset_ids?: string[];
+          result?: string | null;
+          run_id: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          label?: string;
+          metadata?: Json;
+          notes?: string | null;
+          organization_id?: string;
+          photo_media_asset_ids?: string[];
+          result?: string | null;
+          run_id?: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       facility_inventory_items: {
         Row: {
           assigned_technician_user_id: string | null;
@@ -602,12 +752,18 @@ export type Database = {
           notes: string | null;
           organization_id: string;
           property_id: string;
+          replacement_notes: string | null;
+          replacement_planned: boolean;
+          replacement_target_year: number | null;
           serial_number: string | null;
           status: string;
           unit_id: string | null;
           updated_at: string;
           updated_by: string | null;
+          warranty_ends_on: string | null;
+          warranty_notes: string | null;
           warranty_placeholder: string | null;
+          warranty_starts_on: string | null;
         };
         Insert: {
           asset_code: string;
@@ -629,12 +785,18 @@ export type Database = {
           notes?: string | null;
           organization_id: string;
           property_id: string;
+          replacement_notes?: string | null;
+          replacement_planned?: boolean;
+          replacement_target_year?: number | null;
           serial_number?: string | null;
           status?: string;
           unit_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
+          warranty_ends_on?: string | null;
+          warranty_notes?: string | null;
           warranty_placeholder?: string | null;
+          warranty_starts_on?: string | null;
         };
         Update: {
           asset_code?: string;
@@ -656,12 +818,18 @@ export type Database = {
           notes?: string | null;
           organization_id?: string;
           property_id?: string;
+          replacement_notes?: string | null;
+          replacement_planned?: boolean;
+          replacement_target_year?: number | null;
           serial_number?: string | null;
           status?: string;
           unit_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
+          warranty_ends_on?: string | null;
+          warranty_notes?: string | null;
           warranty_placeholder?: string | null;
+          warranty_starts_on?: string | null;
         };
         Relationships: [
           {
@@ -694,6 +862,7 @@ export type Database = {
           created_by: string;
           document_ids: string[];
           id: string;
+          inspection_run_id: string | null;
           invoice_placeholder: string | null;
           issue: string;
           legacy_vendor_id: string | null;
@@ -710,7 +879,7 @@ export type Database = {
           updated_at: string;
           updated_by: string | null;
           warranty_placeholder: string | null;
-          work_order_id: string;
+          work_order_id: string | null;
         };
         Insert: {
           asset_id?: string | null;
@@ -725,6 +894,7 @@ export type Database = {
           created_by: string;
           document_ids?: string[];
           id?: string;
+          inspection_run_id?: string | null;
           invoice_placeholder?: string | null;
           issue: string;
           legacy_vendor_id?: string | null;
@@ -741,7 +911,7 @@ export type Database = {
           updated_at?: string;
           updated_by?: string | null;
           warranty_placeholder?: string | null;
-          work_order_id: string;
+          work_order_id?: string | null;
         };
         Update: {
           asset_id?: string | null;
@@ -756,6 +926,7 @@ export type Database = {
           created_by?: string;
           document_ids?: string[];
           id?: string;
+          inspection_run_id?: string | null;
           invoice_placeholder?: string | null;
           issue?: string;
           legacy_vendor_id?: string | null;
@@ -772,7 +943,7 @@ export type Database = {
           updated_at?: string;
           updated_by?: string | null;
           warranty_placeholder?: string | null;
-          work_order_id?: string;
+          work_order_id?: string | null;
         };
         Relationships: [
           {
@@ -809,6 +980,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "maintenance_work_orders";
             referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "facility_records_inspection_run_id_fkey";
+            columns: ["inspection_run_id"];
+            isOneToOne: false;
+            referencedRelation: "facility_inspection_runs";
+            referencedColumns: ["id"];
           }
         ];
       };

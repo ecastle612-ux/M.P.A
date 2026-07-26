@@ -1,18 +1,19 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../../../components/presentation/app-page";
-import { PmScheduleCreateForm } from "../../../../../components/facility/pm-schedule-create-form";
+import { InspectionCreateForm } from "../../../../../components/facility/inspection-create-form";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../../lib/organization/server";
 import { getPropertiesForOrganization } from "../../../../../lib/property/server";
+import { listInspectionTemplates } from "../../../../../lib/facility/inspection-server";
 
-export default async function FacilityPmNewPage({
+export default async function FacilityInspectionNewPage({
   searchParams
 }: {
-  searchParams: Promise<{ assetId?: string; propertyId?: string }>;
+  searchParams: Promise<{ propertyId?: string }>;
 }) {
-  const { assetId, propertyId } = await searchParams;
+  const { propertyId } = await searchParams;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -25,36 +26,41 @@ export default async function FacilityPmNewPage({
       <AppPage
         wide
         breadcrumbs={[
-          { href: "/facility/pm", label: "Preventive" },
+          { href: "/facility/inspections", label: "Inspections" },
           { label: "New" }
         ]}
       >
         <Card>
-          <h1 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">No active organization</h1>
+          <h1 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">
+            No active organization
+          </h1>
         </Card>
       </AppPage>
     );
   }
 
   const authorization = await resolveAuthorizationContext(user, organizationId);
-  if (!evaluatePermission(authorization, "facility:pm:write")) {
+  if (!evaluatePermission(authorization, "facility:inspection:write")) {
     redirect("/unauthorized");
   }
 
-  const properties = await getPropertiesForOrganization(organizationId, supabase, { limit: 200 });
+  const [properties, templates] = await Promise.all([
+    getPropertiesForOrganization(organizationId, supabase, { limit: 200 }),
+    listInspectionTemplates(organizationId, supabase)
+  ]);
 
   return (
     <AppPage
       wide
       breadcrumbs={[
-        { href: "/facility/pm", label: "Preventive" },
+        { href: "/facility/inspections", label: "Inspections" },
         { label: "New" }
       ]}
     >
-      <PmScheduleCreateForm
+      <InspectionCreateForm
         properties={properties.map((property) => ({ id: property.id, name: property.name }))}
+        templates={templates}
         {...(propertyId ? { defaultPropertyId: propertyId } : {})}
-        {...(assetId ? { defaultAssetId: assetId } : {})}
       />
     </AppPage>
   );

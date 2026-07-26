@@ -5,19 +5,22 @@ import { DetailPageLayout } from "../../../../../components/presentation/detail-
 import { EntityRelationshipChain } from "../../../../../components/presentation/entity-relationship-chain";
 import { RepairHistoryPanel } from "../../../../../components/facility/repair-history-panel";
 import { PropertyTimeline } from "../../../../../components/facility/property-timeline";
+import { AssetV1Editor } from "../../../../../components/facility/asset-v1-editor";
 import { createAuthServerComponentClient } from "../../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../../lib/organization/server";
 import { getFacilityAssetForOrganization } from "../../../../../lib/facility/asset-server";
 import {
+  computeAssetLifeSummary,
   formatAssetStatusLabel,
   formatAssetTypeLabel,
   formatLocationScopeLabel
 } from "../../../../../lib/facility/asset-contracts";
+import { listPmSchedules } from "../../../../../lib/facility/pm-server";
 import { listFacilityRecords } from "../../../../../lib/facility/server";
 import { listFacilityTimelineEvents } from "../../../../../lib/facility/timeline";
 import { getVaultDocumentsForEntity } from "../../../../../lib/vault/server";
-import { FutureReleaseNotice } from "../../../../../components/experience/future-release-notice";
+import { formatPmCadenceLabel } from "../../../../../lib/facility/pm-contracts";
 
 export default async function FacilityAssetProfilePage({
   params
@@ -42,7 +45,13 @@ export default async function FacilityAssetProfilePage({
   const asset = await getFacilityAssetForOrganization(organizationId, assetId, supabase);
   if (!asset) redirect("/properties");
 
-  const [repairs, propertyTimeline, vaultDocuments] = await Promise.all([
+  const canWriteAsset =
+    evaluatePermission(authorization, "facility:asset:write") ||
+    evaluatePermission(authorization, "maintenance:update");
+  const canReadPm = evaluatePermission(authorization, "facility:pm:read");
+  const canWritePm = evaluatePermission(authorization, "facility:pm:write");
+
+  const [repairs, propertyTimeline, vaultDocuments, pmSchedules] = await Promise.all([
     listFacilityRecords(organizationId, { assetId, limit: 50 }, supabase),
     listFacilityTimelineEvents(
       organizationId,
@@ -53,7 +62,8 @@ export default async function FacilityAssetProfilePage({
       },
       supabase
     ),
-    getVaultDocumentsForEntity(organizationId, "asset", assetId, supabase)
+    getVaultDocumentsForEntity(organizationId, "asset", assetId, supabase),
+    canReadPm ? listPmSchedules(organizationId, { assetId }, supabase) : Promise.resolve([])
   ]);
 
   const repairIds = new Set(repairs.map((repair) => repair.id));
@@ -70,6 +80,13 @@ export default async function FacilityAssetProfilePage({
     return type.includes("photo") || type.includes("image") || type.includes("media");
   });
   const documents = vaultDocuments.filter((doc) => !photos.some((photo) => photo.id === doc.id));
+  const life = computeAssetLifeSummary(asset.installDate, asset.expectedLifeYears);
+  const warrantySummary =
+    asset.warrantyNotes?.trim() ||
+    asset.warrantyPlaceholder?.trim() ||
+    (asset.warrantyEndsOn
+      ? `Ends ${new Date(asset.warrantyEndsOn).toLocaleDateString()}`
+      : null);
 
   return (
     <DetailPageLayout
@@ -93,11 +110,12 @@ export default async function FacilityAssetProfilePage({
       hero={
         <DetailHero
           title={`${asset.assetCode} · ${asset.name}`}
-          subtitle="Asset profile · read-only registry identity"
+          subtitle="Asset profile · warranty, life, PM, and repair history"
           badges={
             <>
               <Badge>{formatAssetTypeLabel(asset.assetType, asset.customTypeLabel)}</Badge>
               <Badge>{formatAssetStatusLabel(asset.status)}</Badge>
+              {asset.replacementPlanned ? <Badge>Replacement planned</Badge> : null}
             </>
           }
           actions={
@@ -115,12 +133,18 @@ export default async function FacilityAssetProfilePage({
                 value={asset.lastRepairAt ? new Date(asset.lastRepairAt).toLocaleDateString() : "—"}
               />
               <DetailMetric
-                label="Install date"
-                value={asset.installDate ? new Date(asset.installDate).toLocaleDateString() : "—"}
+                label="Age"
+                value={life.ageYears != null ? `${life.ageYears} yrs` : "—"}
               />
               <DetailMetric
-                label="Expected life"
-                value={asset.expectedLifeYears != null ? `${asset.expectedLifeYears} yrs` : "—"}
+                label="Remaining life"
+                value={
+                  life.remainingYears != null
+                    ? `${life.remainingYears} yrs`
+                    : asset.expectedLifeYears != null
+                      ? `${asset.expectedLifeYears} yrs expected`
+                      : "—"
+                }
               />
             </>
           }
@@ -162,12 +186,85 @@ export default async function FacilityAssetProfilePage({
 
             <Card className="space-y-3">
               <h2 className="text-base font-semibold">Warranty</h2>
+              <dl className="grid gap-2 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="text-[var(--mpa-color-text-tertiary)]">Starts</dt>
+                  <dd>
+                    {asset.warrantyStartsOn
+                      ? new Date(asset.warrantyStartsOn).toLocaleDateString()
+                      : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--mpa-color-text-tertiary)]">Ends</dt>
+                  <dd>
+                    {asset.warrantyEndsOn
+                      ? new Date(asset.warrantyEndsOn).toLocaleDateString()
+                      : "—"}
+                  </dd>
+                </div>
+              </dl>
               <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                {asset.warrantyPlaceholder?.trim() ||
-                  "No warranty notes on file for this asset yet."}
+                {warrantySummary || "No warranty notes on file for this asset yet."}
               </p>
+              {asset.replacementPlanned ? (
+                <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                  Replacement planned
+                  {asset.replacementTargetYear ? ` · target ${asset.replacementTargetYear}` : ""}
+                  {asset.replacementNotes ? ` · ${asset.replacementNotes}` : ""}
+                </p>
+              ) : null}
             </Card>
           </div>
+
+          {canWriteAsset ? (
+            <Card>
+              <AssetV1Editor asset={asset} />
+            </Card>
+          ) : null}
+
+          <Card className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-base font-semibold">Preventive maintenance</h2>
+              {canWritePm ? (
+                <Link
+                  href={`/facility/pm/new?assetId=${asset.id}&propertyId=${asset.propertyId}`}
+                  className="text-sm font-medium text-[var(--mpa-color-brand-primary)]"
+                >
+                  Add schedule
+                </Link>
+              ) : null}
+            </div>
+            {!canReadPm ? (
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                Preventive maintenance is not available for this role.
+              </p>
+            ) : pmSchedules.length === 0 ? (
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                No PM schedules linked to this asset yet.
+              </p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {pmSchedules.map((schedule) => (
+                  <li key={schedule.id}>
+                    <Link
+                      href={`/facility/pm/${schedule.id}`}
+                      className="font-medium text-[var(--mpa-color-brand-primary)]"
+                    >
+                      {schedule.title}
+                    </Link>
+                    <span className="text-[var(--mpa-color-text-secondary)]">
+                      {" · "}
+                      {formatPmCadenceLabel(schedule.cadence)}
+                      {" · next "}
+                      {new Date(schedule.nextDue).toLocaleDateString()}
+                      {schedule.overdue ? " · overdue" : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
 
           <div id="repair-history">
             <RepairHistoryPanel
@@ -189,15 +286,19 @@ export default async function FacilityAssetProfilePage({
 
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="space-y-3">
-              <h2 className="text-base font-semibold">Documents</h2>
+              <h2 className="text-base font-semibold">Documents / manuals</h2>
               {documents.length === 0 ? (
                 <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                  No vault documents attached. Document Vault references appear here when linked to this asset.
+                  No vault documents attached. Document Vault references appear here when linked to
+                  this asset.
                 </p>
               ) : (
                 <ul className="space-y-2 text-sm">
                   {documents.map((doc) => (
-                    <li key={doc.id} className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2">
+                    <li
+                      key={doc.id}
+                      className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2"
+                    >
                       <p className="font-medium">{doc.title}</p>
                       <p className="text-xs text-[var(--mpa-color-text-secondary)]">
                         {doc.documentType.replaceAll("_", " ")}
@@ -210,11 +311,16 @@ export default async function FacilityAssetProfilePage({
             <Card className="space-y-3">
               <h2 className="text-base font-semibold">Photos</h2>
               {photos.length === 0 ? (
-                <p className="text-sm text-[var(--mpa-color-text-secondary)]">No photos on file for this asset.</p>
+                <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                  No photos on file for this asset.
+                </p>
               ) : (
                 <ul className="space-y-2 text-sm">
                   {photos.map((doc) => (
-                    <li key={doc.id} className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2">
+                    <li
+                      key={doc.id}
+                      className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2"
+                    >
                       <p className="font-medium">{doc.title}</p>
                       {doc.fileUrl ? (
                         <a
@@ -232,13 +338,6 @@ export default async function FacilityAssetProfilePage({
               )}
             </Card>
           </div>
-
-          <FutureReleaseNotice
-            title="Preventive planning"
-            description="Scheduled preventive maintenance and replacement planning for this asset are not enabled yet. Repair history and the property timeline remain the source of truth today."
-            primaryHref={`/properties/${asset.propertyId}#assets`}
-            primaryLabel="Back to property assets"
-          />
         </>
       }
     />

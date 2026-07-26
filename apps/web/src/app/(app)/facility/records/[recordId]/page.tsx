@@ -35,7 +35,9 @@ export default async function FacilityRecordDetailPage({
   if (!record) redirect("/maintenance");
 
   const [vaultDocuments, timeline, propertyAssets] = await Promise.all([
-    getVaultDocumentsForEntity(organizationId, "maintenance", record.workOrderId, supabase),
+    record.workOrderId
+      ? getVaultDocumentsForEntity(organizationId, "maintenance", record.workOrderId, supabase)
+      : Promise.resolve([]),
     listFacilityTimelineEvents(
       organizationId,
       {
@@ -71,7 +73,21 @@ export default async function FacilityRecordDetailPage({
             ...(record.unitId && record.unitNumber
               ? [{ href: `/units/${record.unitId}`, label: `Unit ${record.unitNumber}` }]
               : []),
-            { href: `/maintenance/${record.workOrderId}`, label: record.workOrderNumber ?? "Work order" },
+            ...(record.workOrderId
+              ? [
+                  {
+                    href: `/maintenance/${record.workOrderId}`,
+                    label: record.workOrderNumber ?? "Work order"
+                  }
+                ]
+              : record.inspectionRunId
+                ? [
+                    {
+                      href: `/facility/inspections/${record.inspectionRunId}`,
+                      label: "Inspection"
+                    }
+                  ]
+                : []),
             { label: "Facility Record" }
           ]}
         />
@@ -108,9 +124,16 @@ export default async function FacilityRecordDetailPage({
           }
           actions={
             <>
-              <Link href={`/maintenance/${record.workOrderId}`}>
-                <Button>Open work order</Button>
-              </Link>
+              {record.workOrderId ? (
+                <Link href={`/maintenance/${record.workOrderId}`}>
+                  <Button>Open work order</Button>
+                </Link>
+              ) : null}
+              {record.inspectionRunId ? (
+                <Link href={`/facility/inspections/${record.inspectionRunId}`}>
+                  <Button>Open inspection</Button>
+                </Link>
+              ) : null}
               <Link href={`/properties/${record.propertyId}#property-timeline`}>
                 <Button variant="ghost">Property history</Button>
               </Link>

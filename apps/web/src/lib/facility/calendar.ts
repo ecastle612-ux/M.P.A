@@ -38,7 +38,7 @@ export async function getFacilityCalendarItems(
       supabase
     ),
     listPmOccurrences(organizationId, { from, to, limit: 300 }, supabase),
-    listPmSchedules(organizationId, supabase)
+    listPmSchedules(organizationId, {}, supabase)
   ]);
 
   const items: FacilityCalendarItem[] = [];

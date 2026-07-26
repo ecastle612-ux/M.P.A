@@ -29,12 +29,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ rec
     const record = await getFacilityRecordForOrganization(organizationId, recordId, supabase);
     if (!record) return apiError(404, "NOT_FOUND", "Not found");
 
-    const vaultDocuments = await getVaultDocumentsForEntity(
-      organizationId,
-      "maintenance",
-      record.workOrderId,
-      supabase
-    );
+    const vaultDocuments = record.workOrderId
+      ? await getVaultDocumentsForEntity(
+          organizationId,
+          "maintenance",
+          record.workOrderId,
+          supabase
+        )
+      : [];
 
     return NextResponse.json({ record, vaultDocuments });
   } catch {

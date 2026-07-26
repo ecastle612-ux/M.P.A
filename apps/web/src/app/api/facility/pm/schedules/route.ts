@@ -24,7 +24,7 @@ export async function GET() {
       return apiError(403, "FORBIDDEN", "Forbidden");
     }
 
-    const items = await listPmSchedules(organizationId, supabase);
+    const items = await listPmSchedules(organizationId, {}, supabase);
     return NextResponse.json({ items }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return apiInternalError();
