@@ -7,7 +7,7 @@
 **Slice A authorized:** `AUTHORIZE FAC-002 SLICE A` (2026-07-25 · Product Owner) · shipped  
 **Slice B authorized:** `AUTHORIZE FAC-002 SLICE B` (2026-07-25 · Product Owner) · shipped  
 **Slice C authorized:** `AUTHORIZE FAC-002 SLICE C` (2026-07-25 · Product Owner) · shipped  
-**Slice D authorized:** `AUTHORIZE FAC-002 SLICE D` (2026-07-26 · Product Owner) · shipped  
+**Slice D authorized:** `AUTHORIZE FAC-002 SLICE D` (2026-07-26 · Product Owner) · shipped to Production (`dpl_EPYuTPiVFcpWQyftFdGje4pan152`)  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
 **Mission:** [V1.0 Implementation Mission](../00-governance/v1-0-implementation-mission.md) §7  
 **Subscription SoT:** [V1.0 Subscription Architecture](../00-governance/v1-0-subscription-architecture.md) — Facility is independently licensable  
