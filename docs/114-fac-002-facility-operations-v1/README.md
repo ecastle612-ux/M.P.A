@@ -33,7 +33,7 @@ FAC-001 already delivered permanent repair history, timeline, providers intellig
 | Design | ✔ Complete |
 | Document | ✔ Complete |
 | Approve | ✅ **Approved** 2026-07-25 — [17 Approval Checklist](./17-approval-checklist.md) |
-| Implement | 🔓 **Slice D authorized** 2026-07-26 — FAC-002 V1.0 slice delivery in progress |
+| Implement | ✅ **Slices A–D shipped** — FAC-002 V1.0 operational layer complete |
 
 ---
 
@@ -77,4 +77,4 @@ FAC-001 already delivered permanent repair history, timeline, providers intellig
 
 ## Next phrase
 
-Slice D authorized — ship FAC-002 V1.0 operational layer closeout (materials, photo render, reports, vendor accept/decline). Respect collision boundary (AUTH/shell/OPS/COM WIP).
+FAC-002 V1.0 slices A–D are shipped. Further Facility work requires a new Design → Document → Approve package (or an explicit authorize phrase for a scoped follow-up).

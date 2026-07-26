@@ -50,7 +50,7 @@
 ## Slice D — WO materials/photos polish + Reports
 
 **Authorize phrase:** `AUTHORIZE FAC-002 SLICE D`  
-**Status:** ✅ Authorized 2026-07-26 · Shipped to Production (pending SHA)
+**Status:** ✅ Authorized 2026-07-26 · Shipped (`83449be`, 2026-07-26) — Production deploy pending valid Vercel auth
 
 - WO materials + photo path consistency (`MediaImage` on detail)  
 - Technician / inventory / asset / monthly building reports (`/facility/reports`)  
