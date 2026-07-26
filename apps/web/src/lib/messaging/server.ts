@@ -554,7 +554,8 @@ export async function createMessageInThread(
     const residentRecipients =
       residentUserId && recipientUserIds.has(residentUserId) ? [residentUserId] : [];
 
-    // PUSH-001: role-correct deep links — tenant portal vs staff communications.
+    // PUSH-001 / PMX-004 Phase 6: role-correct deep links — tenant portal vs staff communications.
+    const { staffMessagingHref, tenantMessagingHref } = await import("../notifications/deep-links");
     await Promise.all([
       staffRecipients.length > 0
         ? notify(
@@ -567,7 +568,7 @@ export async function createMessageInThread(
               priority: "normal",
               title: "New message",
               body: `${thread.subject}: ${input.body.slice(0, 120)}`,
-              href: `/communications/threads/${threadId}`,
+              href: staffMessagingHref(threadId),
               sourceEntityType: "conversation_thread",
               sourceEntityId: threadId,
               propertyId: thread.property_id ?? null
@@ -586,7 +587,7 @@ export async function createMessageInThread(
               priority: "normal",
               title: "New message",
               body: `${thread.subject}: ${input.body.slice(0, 120)}`,
-              href: `/portal/tenant/messages?thread=${encodeURIComponent(threadId)}`,
+              href: tenantMessagingHref(threadId),
               sourceEntityType: "conversation_thread",
               sourceEntityId: threadId,
               propertyId: thread.property_id ?? null

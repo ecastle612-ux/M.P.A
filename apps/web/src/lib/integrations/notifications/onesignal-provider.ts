@@ -9,7 +9,7 @@ import type {
 } from "./contracts";
 
 /** OneSignal `url` must be absolute for reliable cold-launch deep links on mobile. */
-function absoluteNotificationUrl(href: string | null | undefined): string | undefined {
+export function absoluteNotificationUrl(href: string | null | undefined): string | undefined {
   if (!href?.trim()) return undefined;
   const value = href.trim();
   if (value.startsWith("http://") || value.startsWith("https://")) return value;

@@ -4,6 +4,8 @@ import {
   ownerReportsHref,
   staffChargeHref,
   staffFinancialTransactionsHref,
+  staffMessagingHref,
+  tenantMessagingHref,
   tenantPaymentsHref
 } from "./deep-links";
 
@@ -23,7 +25,12 @@ describe("notification deep links (PUSH-001)", () => {
     expect(maintenanceWorkOrderHref("wo-1", false)).toBe("/maintenance/wo-1");
   });
 
-  it("routes owners to owner portal", () => {
-    expect(ownerReportsHref()).toBe("/portal/owner");
+  it("routes owners to owner reports", () => {
+    expect(ownerReportsHref()).toBe("/portal/owner/reports");
+  });
+
+  it("routes messaging by audience", () => {
+    expect(tenantMessagingHref("thread-1")).toBe("/portal/tenant/messages?thread=thread-1");
+    expect(staffMessagingHref("thread-1")).toBe("/communications/threads/thread-1");
   });
 });

@@ -75,6 +75,35 @@ describe("onesignalProvider current App API Key model", () => {
     expect(result.externalId).toBe("notif-1");
   });
 
+  it("send posts absolute url for relative deep links", async () => {
+    process.env["ONESIGNAL_APP_ID"] = "11111111-1111-4111-8111-111111111111";
+    process.env["ONESIGNAL_API_KEY"] = "os_v2_app_testkey_abcdefghijklmnopqrstuvwxyz0123456789";
+    process.env["NEXT_PUBLIC_APP_URL"] = "https://www.my-property-assistant.com";
+
+    const notificationId = "11111111-1111-4111-8111-111111111111";
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>;
+      expect(body["url"]).toBe("https://www.my-property-assistant.com/portal/tenant/payments");
+      return new Response(JSON.stringify({ id: "notif-2" }), { status: 200 });
+    });
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    const result = await onesignalProvider.send({
+      organizationId: "org-1",
+      notificationId,
+      idempotencyKey: "org:event:user",
+      userId: "user-1",
+      externalSubscriptionIds: ["sub-1"],
+      title: "Pay",
+      body: "Due",
+      category: "payments",
+      priority: "normal",
+      href: "/portal/tenant/payments"
+    });
+
+    expect(result.status).toBe("sent");
+  });
+
   it("registerDevice remains client-subscription passthrough", async () => {
     const result = await onesignalProvider.registerDevice({
       organizationId: "org-1",
