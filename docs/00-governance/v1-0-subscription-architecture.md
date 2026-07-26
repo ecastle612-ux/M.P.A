@@ -265,7 +265,8 @@ This document is **Product Owner direction**. Material changes restart documenta
 
 Suggested follow-ons (separate Authorize):
 
-- `APPROVE FAC-002` — only after independence amendments accepted  
+- ✅ `APPROVE FAC-002` recorded 2026-07-25  
+- Next: `AUTHORIZE FAC-002 SLICE A`  
 - Later: BILL / nav entitlements slice for hard module hide  
 
 ---

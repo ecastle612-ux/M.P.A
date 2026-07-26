@@ -1,7 +1,7 @@
 # 00 — Executive Summary
 
 **Package:** FAC-002  
-**Status:** Draft — Awaiting Approval
+**Status:** ✅ **Approved** 2026-07-25 · Implement by slice Authorize only
 
 ---
 

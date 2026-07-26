@@ -109,7 +109,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 111 | [OPS-001 Platform Operations Architecture](./111-ops-001-platform-operations-architecture/README.md) | Platform OS · events · command center · AI ops (**Approved with Amendments** · Implement locked) |
 | 112 | [UX-012 Platform Experience & Design System](./112-ux-012-platform-experience-design-system/README.md) | Looks/feels/interacts · Canopy-bound (**Approved with Amendments** · Implement locked) |
 | 113 | [CORE-003 Implementation Master Plan](./113-core-003-implementation-master-plan/README.md) | Authoritative cross-package order (**APPROVED** · AMD Perf gate [24](./113-core-003-implementation-master-plan/24-core-003-amd-m0-perf-framework-limit.md) · M0 **NO-GO** · UX-012 locked) |
-| 114 | [FAC-002 Facility Operations V1.0](./114-fac-002-facility-operations-v1/README.md) | Inventory · PM · calendar · tech dashboard · inspections (**Draft — Awaiting Approval**) |
+| 114 | [FAC-002 Facility Operations V1.0](./114-fac-002-facility-operations-v1/README.md) | Inventory · PM · calendar · tech dashboard · inspections (**Approved** · slice Authorize) |
 | 106 | [PMX-004 Native PWA Parity](./106-pmx-004-native-pwa-parity/README.md) | Near-native PWA (**Phase 1 code ✔** · prod validation gate [17](./106-pmx-004-native-pwa-parity/17-phase-1-production-validation.md) · Phase 2 locked) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
@@ -145,7 +145,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [V1.0 Implementation Mission](./00-governance/v1-0-implementation-mission.md) | Version 1.0 product bar · modules · completeness criteria |
 | [V1.0 Subscription Architecture](./00-governance/v1-0-subscription-architecture.md) | Core + modules · Facility independence · hide unlicensed nav |
 | [V1.0 Gap Audit](./00-governance/v1-0-gap-audit.md) | HEAD vs V1.0 mission · risks · priority slices |
-| [FAC-002 Facility Operations V1.0](./114-fac-002-facility-operations-v1/README.md) | Facility module design · Draft — Awaiting Approval |
+| [FAC-002 Facility Operations V1.0](./114-fac-002-facility-operations-v1/README.md) | Facility module design · **Approved** · next `AUTHORIZE FAC-002 SLICE A` |
 | [Project Roadmap Status](./00-governance/project-roadmap-status.md) | Governance audit · active package matrix · next effort |
 | [Governance Audit Closeout](./00-governance/governance-audit-closeout.md) | Resolved inconsistencies G-1–G-5 |
 | [Commercial Launch Master Plan](./00-governance/commercial-launch-master-plan.md) | Consolidated post-cleanup roadmap · launch checklist · risks |

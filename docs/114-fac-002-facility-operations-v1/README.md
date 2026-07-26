@@ -26,10 +26,10 @@ FAC-001 already delivered permanent repair history, timeline, providers intellig
 
 | Stage | Status |
 |-------|--------|
-| Design | ✔ This package |
-| Document | ✔ This package |
-| Approve | ❌ Pending — use [17 Approval Checklist](./17-approval-checklist.md) |
-| Implement | 🔒 **Locked** until Approved + slice Authorize phrases |
+| Design | ✔ Complete |
+| Document | ✔ Complete |
+| Approve | ✅ **Approved** 2026-07-25 — [17 Approval Checklist](./17-approval-checklist.md) |
+| Implement | 🔓 Unlocked **per slice** after Authorize phrase — next: `AUTHORIZE FAC-002 SLICE A` |
 
 ---
 
@@ -71,6 +71,8 @@ FAC-001 already delivered permanent repair history, timeline, providers intellig
 
 ---
 
-## Next phrase (after Approve)
+## Next phrase
 
-Suggested: `APPROVE FAC-002` then `AUTHORIZE FAC-002 SLICE A` (per [14](./14-phased-delivery.md)).
+`AUTHORIZE FAC-002 SLICE A` — Technician dashboard + Inventory MVP (per [14](./14-phased-delivery.md)).
+
+Do **not** start Slice B/C/D until their Authorize phrases. Respect collision boundary (AUTH/shell/OPS/COM WIP).

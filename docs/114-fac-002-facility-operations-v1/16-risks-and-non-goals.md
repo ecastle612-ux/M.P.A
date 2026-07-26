@@ -15,6 +15,8 @@
 | Push unavailable | Workflows work via in-app + email |
 | Overwhelming PM dashboard | Calendar is one deep link; tech dashboard separate |
 | Cert docs ahead of HEAD | Slice DoD requires shippable baseline |
+| Facility coupled to rental IA | [18 Independence](./18-facility-independence.md) + subscription SoT |
+| Showing unlicensed modules | Hide nav — no grey/upgrade clutter |
 
 ---
 

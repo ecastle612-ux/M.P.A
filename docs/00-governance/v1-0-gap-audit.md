@@ -177,8 +177,8 @@ Ordered for **integrity first**, then commercial blocker, then V1.0 facility dep
 
 ### Slice D — **Facility V1.0 foundation package (FAC-002)**
 
-**Status:** Design package drafted + **Facility independence amended** — [FAC-002](../114-fac-002-facility-operations-v1/README.md) · [Subscription Architecture](./v1-0-subscription-architecture.md) · Awaiting `APPROVE FAC-002`  
-**Goal:** Inventory / PM / calendar / tech dashboard / inspections; **Core + Facility** without Property; implement only after Approve + slice Authorize.
+**Status:** ✅ **Approved** 2026-07-25 — [FAC-002](../114-fac-002-facility-operations-v1/README.md) · [Subscription Architecture](./v1-0-subscription-architecture.md) · next `AUTHORIZE FAC-002 SLICE A`  
+**Goal:** Inventory / PM / calendar / tech dashboard / inspections; **Core + Facility** without Property; implement per slice Authorize only.
 
 ### Slice E — **BILL-001 module entitlements**
 
