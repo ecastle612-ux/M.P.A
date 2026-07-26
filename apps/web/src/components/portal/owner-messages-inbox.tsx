@@ -206,25 +206,35 @@ export function OwnerMessagesInbox({
 
     setSubmitting(true);
     setSendError(null);
-    const response = await fetch(`/api/messaging/threads/${selectedId}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      // Owner ↔ PM threads: internal visibility avoids resident fan-out (existing visibility model).
-      body: JSON.stringify({ body: body.trim(), visibility: "internal" })
-    });
-    setSubmitting(false);
-
-    if (!response.ok) {
-      setSendError(
-        response.status === 403
-          ? "Replies are not enabled for this account."
-          : "Unable to send reply right now."
-      );
-      return;
+    try {
+      const { getClientOrganizationId, offlineAwareJsonFetch } = await import("../../lib/pwa/outbox");
+      const organizationId = getClientOrganizationId() ?? "unknown";
+      const result = await offlineAwareJsonFetch({
+        organizationId,
+        method: "POST",
+        url: `/api/messaging/threads/${selectedId}/messages`,
+        // Owner ↔ PM threads: internal visibility avoids resident fan-out (existing visibility model).
+        body: { body: body.trim(), visibility: "internal" }
+      });
+      setSubmitting(false);
+      if (result.kind === "queued") {
+        setBody("");
+        return;
+      }
+      if (!result.response.ok) {
+        setSendError(
+          result.response.status === 403
+            ? "Replies are not enabled for this account."
+            : "Unable to send reply right now."
+        );
+        return;
+      }
+      setBody("");
+      await loadThread(selectedId);
+    } catch (error) {
+      setSubmitting(false);
+      setSendError(error instanceof Error ? error.message : "Unable to send reply right now.");
     }
-
-    setBody("");
-    await loadThread(selectedId);
   }
 
   if (items.length === 0) {

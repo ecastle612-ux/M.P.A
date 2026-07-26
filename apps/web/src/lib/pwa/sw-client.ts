@@ -40,3 +40,8 @@ export function requestServiceWorkerSkipWaiting(): void {
     registration.waiting?.postMessage({ type: "MPA_SKIP_WAITING" });
   });
 }
+
+/** PMX-004 Phase 7 — ask SW to register Background Sync / wake clients for outbox flush. */
+export function requestOutboxBackgroundSync(): void {
+  postToServiceWorker({ type: "MPA_REQUEST_SYNC" });
+}

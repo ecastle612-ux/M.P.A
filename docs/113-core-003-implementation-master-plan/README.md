@@ -73,11 +73,15 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 27. ✅ PMX-004 Phase 5 **IMPLEMENTED** ([70](./70-pmx-004-phase-5-implementation.md) · [PMX-004 §30](../106-pmx-004-native-pwa-parity/30-phase-5-implementation.md)).  
 28. ✅ **`VALIDATE PMX-004 PHASE 5` → PASS** ([71](./71-pmx-004-phase-5-validation.md) · [PMX-004 §31](../106-pmx-004-native-pwa-parity/31-phase-5-validation.md)).  
 29. ✅ **`AUTHORIZE PMX-004 PHASE 6` issued** ([72](./72-pmx-004-phase-6-authorization.md) · [PMX-004 §32](../106-pmx-004-native-pwa-parity/32-phase-6-authorization.md)).  
-30. ⚠️ PMX-004 Phase 6 pack prepared ([73](./73-pmx-004-phase-6-implementation.md) · [PMX-004 §33](../106-pmx-004-native-pwa-parity/33-phase-6-implementation.md)) · Production ship incomplete.  
-31. ❌ **`VALIDATE PMX-004 PHASE 6` → FAIL** ([74](./74-pmx-004-phase-6-validation.md) · [PMX-004 §34](../106-pmx-004-native-pwa-parity/34-phase-6-validation.md)).  
-32. ❌ Re-run **FAIL** ([75](./75-pmx-004-phase-6-validation-rerun.md) · [PMX-004 §35](../106-pmx-004-native-pwa-parity/35-phase-6-validation-rerun.md)) · R1 still open.  
-33. ❌ Do **not** authorize PMX-004 Phases 7–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the Phase 6 validate phrase.  
-34. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
+30. ✅ PMX-004 Phase 6 **IMPLEMENTED** + Production ship R1 ([73](./73-pmx-004-phase-6-implementation.md) · [PMX-004 §33](../106-pmx-004-native-pwa-parity/33-phase-6-implementation.md)) · `5a6129c` · `dpl_9RNtpiWqc5pDXEa9dzrV26hnKcKp`.  
+31. ❌ Historical **`VALIDATE PMX-004 PHASE 6` → FAIL** ([74](./74-pmx-004-phase-6-validation.md) · [PMX-004 §34](../106-pmx-004-native-pwa-parity/34-phase-6-validation.md)) — preserved.  
+32. ❌ Historical re-run **FAIL** ([75](./75-pmx-004-phase-6-validation-rerun.md) · [PMX-004 §35](../106-pmx-004-native-pwa-parity/35-phase-6-validation-rerun.md)) — preserved.  
+33. ❌ Historical re-run #2 **FAIL** ([76](./76-pmx-004-phase-6-validation-rerun-2.md) · [PMX-004 §36](../106-pmx-004-native-pwa-parity/36-phase-6-validation-rerun-2.md)) — preserved.  
+34. ✅ Re-run #3 **`VALIDATE PMX-004 PHASE 6` → PASS** ([77](./77-pmx-004-phase-6-validation-rerun-3.md) · [PMX-004 §37](../106-pmx-004-native-pwa-parity/37-phase-6-validation-rerun-3.md)) · R1 closed.  
+35. ✅ **`AUTHORIZE PMX-004 PHASE 7` issued** ([78](./78-pmx-004-phase-7-authorization.md) · [PMX-004 §38](../106-pmx-004-native-pwa-parity/38-phase-7-authorization.md)).  
+36. ✅ PMX-004 Phase 7 **IMPLEMENTED** ([79](./79-pmx-004-phase-7-implementation.md) · [PMX-004 §39](../106-pmx-004-native-pwa-parity/39-phase-7-implementation.md)). Next → `VALIDATE PMX-004 PHASE 7`.  
+37. ❌ Do **not** authorize PMX-004 Phases 8–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the Phase 7 implement phrase.  
+38. Three AUTH deferred roles (Org Admin / Leasing / Facility Tech) are **certified under AUTH Slice D** ([33](./33-core-003-amd-m0-auth-role-cert-defer.md) · [AUTH-001 §46](../109-auth-001-organization-provisioning-authentication/46-slice-d-validation.md)).
 
 ---
 
@@ -159,7 +163,11 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | [72 — PMX-004 Phase 6 Authorization](./72-pmx-004-phase-6-authorization.md) | ✅ **AUTHORIZED** · [PMX-004 §32](../106-pmx-004-native-pwa-parity/32-phase-6-authorization.md) |
 | [73 — PMX-004 Phase 6 Implementation](./73-pmx-004-phase-6-implementation.md) | ⚠️ Pack · ship incomplete · [PMX-004 §33](../106-pmx-004-native-pwa-parity/33-phase-6-implementation.md) |
 | [74 — PMX-004 Phase 6 Validation](./74-pmx-004-phase-6-validation.md) | ❌ **FAIL** (preserved) · [PMX-004 §34](../106-pmx-004-native-pwa-parity/34-phase-6-validation.md) |
-| [75 — PMX-004 Phase 6 Validation Re-Run](./75-pmx-004-phase-6-validation-rerun.md) | ❌ **FAIL** · R1 still open · [PMX-004 §35](../106-pmx-004-native-pwa-parity/35-phase-6-validation-rerun.md) |
+| [75 — PMX-004 Phase 6 Validation Re-Run](./75-pmx-004-phase-6-validation-rerun.md) | ❌ **FAIL** (preserved) · [PMX-004 §35](../106-pmx-004-native-pwa-parity/35-phase-6-validation-rerun.md) |
+| [76 — PMX-004 Phase 6 Validation Re-Run #2](./76-pmx-004-phase-6-validation-rerun-2.md) | ❌ **FAIL** (preserved) · [PMX-004 §36](../106-pmx-004-native-pwa-parity/36-phase-6-validation-rerun-2.md) |
+| [77 — PMX-004 Phase 6 Validation Re-Run #3](./77-pmx-004-phase-6-validation-rerun-3.md) | ✅ **PASS** · post-R1 · [PMX-004 §37](../106-pmx-004-native-pwa-parity/37-phase-6-validation-rerun-3.md) |
+| [78 — PMX-004 Phase 7 Authorization](./78-pmx-004-phase-7-authorization.md) | ✅ **AUTHORIZED** · Offline Reliability · [PMX-004 §38](../106-pmx-004-native-pwa-parity/38-phase-7-authorization.md) |
+| [79 — PMX-004 Phase 7 Implementation](./79-pmx-004-phase-7-implementation.md) | ✅ **IMPLEMENTED** · [PMX-004 §39](../106-pmx-004-native-pwa-parity/39-phase-7-implementation.md) · Validation 🔒 |
 
 ---
 
@@ -181,7 +189,8 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | PMX-004 Phase 3 | ✅ **VALIDATED PASS** ([65](./65-pmx-004-phase-3-validation.md) · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md)) |
 | PMX-004 Phase 4 | ✅ **VALIDATED PASS** ([68](./68-pmx-004-phase-4-validation.md) · [PMX-004 §28](../106-pmx-004-native-pwa-parity/28-phase-4-validation.md)) |
 | PMX-004 Phase 5 | ✅ **VALIDATED PASS** ([71](./71-pmx-004-phase-5-validation.md) · [PMX-004 §31](../106-pmx-004-native-pwa-parity/31-phase-5-validation.md)) |
-| PMX-004 Phase 6 | ❌ **VALIDATION FAIL** (re-run [75](./75-pmx-004-phase-6-validation-rerun.md) · prior [74](./74-pmx-004-phase-6-validation.md)) · R1 open |
+| PMX-004 Phase 6 | ✅ **VALIDATED PASS** ([77](./77-pmx-004-phase-6-validation-rerun-3.md) · prior FAIL [76](./76-pmx-004-phase-6-validation-rerun-2.md)–[74](./74-pmx-004-phase-6-validation.md) preserved) |
+| PMX-004 Phase 7 | ✅ **IMPLEMENTED** ([79](./79-pmx-004-phase-7-implementation.md) · [PMX-004 §39](../106-pmx-004-native-pwa-parity/39-phase-7-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 7` |
 
 ---
 

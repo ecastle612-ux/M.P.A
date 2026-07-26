@@ -199,6 +199,50 @@ export function WorkOrderForm({
         unitId: values.unitId || null,
         tenantId: values.tenantId || null
       });
+
+      // Phase 7: create always requires connection; edit/update may queue offline.
+      if (mode === "create" && typeof navigator !== "undefined" && !navigator.onLine) {
+        setSubmitting(false);
+        setApiError("This action requires a connection. Reconnect and try again.");
+        return;
+      }
+
+      if (mode === "edit" && typeof navigator !== "undefined" && !navigator.onLine) {
+        const { getClientOrganizationId, offlineAwareJsonFetch } = await import("../../lib/pwa/outbox");
+        const organizationId = getClientOrganizationId();
+        if (!organizationId) {
+          setSubmitting(false);
+          setApiError("This action requires a connection. Reconnect and try again.");
+          return;
+        }
+        try {
+          const result = await offlineAwareJsonFetch({
+            organizationId,
+            method: "PATCH",
+            url: `/api/maintenance/${workOrder?.id ?? ""}`,
+            body: { action: "update", ...payload }
+          });
+          setSubmitting(false);
+          if (result.kind === "queued") {
+            setApiError(null);
+            router.push(`/maintenance/${workOrder?.id ?? ""}?from=queued-offline`);
+            return;
+          }
+          if (!result.response.ok) {
+            const failure = await result.response.json().catch(() => ({}));
+            setApiError(readApiError(failure, "Unable to save work order. Check property and title, then retry."));
+            return;
+          }
+          router.push(`/maintenance/${workOrder?.id ?? ""}`);
+          router.refresh();
+          return;
+        } catch (error) {
+          setSubmitting(false);
+          setApiError(error instanceof Error ? error.message : "Unable to save work order offline.");
+          return;
+        }
+      }
+
       const response = await fetch(
         mode === "create" ? "/api/maintenance" : `/api/maintenance/${workOrder?.id ?? ""}`,
         {

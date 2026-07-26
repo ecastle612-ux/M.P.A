@@ -122,6 +122,35 @@ export function MediaUpload({
       setStatusMessage("Preparing upload…");
 
       const contentHash = await sha256Hex(blob);
+
+      // PMX-004 Phase 7 — queue photo when offline (allowlisted media intent path).
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        const { enqueueMediaUpload, getClientOrganizationId } = await import("../../lib/pwa/outbox");
+        const { requestOutboxBackgroundSync } = await import("../../lib/pwa/sw-client");
+        const organizationId = intent.organizationId ?? getClientOrganizationId();
+        if (!organizationId) {
+          setPhase("failed");
+          setError("This action requires a connection. Reconnect and try again.");
+          return;
+        }
+        await enqueueMediaUpload({
+          organizationId,
+          blob,
+          filename,
+          mimeType,
+          contentHash: contentHash ?? `offline-${Date.now()}`,
+          kind: intent.kind,
+          entityType: intent.entityType ?? null,
+          entityId: intent.entityId ?? null,
+          replaceAssetId: value
+        });
+        requestOutboxBackgroundSync();
+        setPhase("ready");
+        setProgress(100);
+        setStatusMessage("Photo queued — will upload when online");
+        return;
+      }
+
       const intentResponse = await fetch("/api/media/intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

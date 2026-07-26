@@ -57,6 +57,19 @@ export function ProfileMenu({ fetchProfile = true }: { fetchProfile?: boolean })
 
   async function handleLogout() {
     const { clearServiceWorkerUserCaches } = await import("../../lib/pwa/sw-client");
+    const { clearEntireOutbox, listActiveOutboxItems } = await import("../../lib/pwa/outbox");
+    try {
+      const pending = await listActiveOutboxItems();
+      if (pending.length > 0) {
+        const confirmed = window.confirm(
+          `You have ${pending.length} change(s) waiting to sync. Log out and discard the offline queue?`
+        );
+        if (!confirmed) return;
+      }
+      await clearEntireOutbox();
+    } catch {
+      // Outbox unavailable — continue logout.
+    }
     clearServiceWorkerUserCaches();
     await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
     router.replace("/login");

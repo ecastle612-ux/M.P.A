@@ -33,11 +33,65 @@ export function InspectionRunPanel({
     setError(null);
     setBusy(true);
     try {
-      const response = await fetch(`/api/facility/inspections/${run.id}`, {
+      const action =
+        body && typeof body === "object" && "action" in body ? String(body.action ?? "") : "";
+      const isAllowlistedItemUpdate = action === "update_item";
+
+      // Phase 7: checklist item responses may queue offline; start/complete/add require connection.
+      if (typeof navigator !== "undefined" && !navigator.onLine && !isAllowlistedItemUpdate) {
+        throw new Error("This action requires a connection. Reconnect and try again.");
+      }
+
+      const { getClientOrganizationId, offlineAwareJsonFetch } = await import(
+        "../../lib/pwa/outbox"
+      );
+      const organizationId = getClientOrganizationId();
+      if (!organizationId && typeof navigator !== "undefined" && !navigator.onLine) {
+        throw new Error("This action requires a connection. Reconnect and try again.");
+      }
+
+      const result = await offlineAwareJsonFetch({
+        organizationId: organizationId ?? "unknown",
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
+        url: `/api/facility/inspections/${run.id}`,
+        body
       });
+
+      if (result.kind === "queued") {
+        // Optimistic local checklist update while queued.
+        if (isAllowlistedItemUpdate) {
+          const itemId = typeof body["itemId"] === "string" ? body["itemId"] : null;
+          if (itemId) {
+            setRun((current) => ({
+              ...current,
+              items: current.items.map((row) => {
+                if (row.id !== itemId) return row;
+                return {
+                  ...row,
+                  ...(typeof body["result"] === "string"
+                    ? { result: body["result"] as InspectionItemResult }
+                    : {}),
+                  ...(typeof body["notes"] === "string" ? { notes: body["notes"] } : {})
+                };
+              }),
+              failCount: current.items
+                .map((row) => {
+                  if (row.id !== itemId) return row;
+                  return {
+                    ...row,
+                    ...(typeof body["result"] === "string"
+                      ? { result: body["result"] as InspectionItemResult }
+                      : {})
+                  };
+                })
+                .filter((row) => row.result === "fail").length
+            }));
+          }
+        }
+        return;
+      }
+
+      const response = result.response;
       const payload = (await response.json().catch(() => null)) as Record<string, unknown> | null;
       if (!response.ok) {
         throw new Error(

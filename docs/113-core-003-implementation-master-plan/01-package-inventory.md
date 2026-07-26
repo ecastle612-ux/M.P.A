@@ -75,8 +75,8 @@ Every implementation unit below is in scope for the master order. Status reflect
 | Phase 3 | Native Application Shell | ✅ **VALIDATED PASS** ([§65](./65-pmx-004-phase-3-validation.md) · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md)) | Phase 3 Validated |
 | Phase 4 | Standalone Compliance | ✅ **VALIDATED PASS** ([§68](./68-pmx-004-phase-4-validation.md) · [PMX-004 §28](../106-pmx-004-native-pwa-parity/28-phase-4-validation.md)) | Phase 4 Validated |
 | Phase 5 | Native Mobile UX + UX matrix first pass | ✅ **VALIDATED PASS** ([§71](./71-pmx-004-phase-5-validation.md) · [PMX-004 §31](../106-pmx-004-native-pwa-parity/31-phase-5-validation.md)) | Phase 5 Validated |
-| Phase 6 | Push certification | ❌ **VALIDATION FAIL** (re-run [§75](./75-pmx-004-phase-6-validation-rerun.md) · prior [§74](./74-pmx-004-phase-6-validation.md) · [PMX-004 §35](../106-pmx-004-native-pwa-parity/35-phase-6-validation-rerun.md)) · Remediation R1 | Re-validate after Phase 6 deploy READY |
-| Phase 7 | Offline reliability | 🔒 Locked | Phase 1 (critical) |
+| Phase 6 | Push certification | ❌ **VALIDATION FAIL** (latest [§76](./76-pmx-004-phase-6-validation-rerun-2.md) · prior [§75](./75-pmx-004-phase-6-validation-rerun.md) · [§74](./74-pmx-004-phase-6-validation.md) · [PMX-004 §36](../106-pmx-004-native-pwa-parity/36-phase-6-validation-rerun-2.md)) · Remediation R1 | Re-validate after Phase 6 deploy READY |
+| Phase 7 | Offline reliability | ✅ **IMPLEMENTED** ([79](./79-pmx-004-phase-7-implementation.md) · [PMX-004 §39](../106-pmx-004-native-pwa-parity/39-phase-7-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 7` | Phase 1 (critical) · after Phase 6 Validated |
 | Phases 8–9 | Perf / premium | 🔒 Locked | Soft overlap rules in package 05 |
 | Phase 10 | Production validation | 🔒 Locked | 1–9 |
 | Phase 11 | Real-world pilot | 🔒 Locked | Phase 10 — **COMPLETE gate** |

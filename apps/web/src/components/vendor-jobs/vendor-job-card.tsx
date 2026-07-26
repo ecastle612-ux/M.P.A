@@ -123,6 +123,20 @@ export function VendorJobCardView({ token, initialJob }: Props) {
   }
 
   async function uploadPhoto(file: File) {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      const { enqueueVendorPhoto, getClientOrganizationId } = await import("../../lib/pwa/outbox");
+      const { requestOutboxBackgroundSync } = await import("../../lib/pwa/sw-client");
+      await enqueueVendorPhoto({
+        organizationId: getClientOrganizationId() ?? "vendor-token",
+        token,
+        blob: file,
+        filename: file.name,
+        mimeType: file.type || "image/jpeg"
+      });
+      requestOutboxBackgroundSync();
+      setMessage("Photo queued — will upload when online.");
+      return;
+    }
     const form = new FormData();
     form.append("file", file);
     const response = await fetch(`/api/vendor-jobs/${encodeURIComponent(token)}/photo`, {

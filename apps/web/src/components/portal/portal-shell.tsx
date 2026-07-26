@@ -12,6 +12,7 @@ import { BrandLogo } from "../branding/brand-logo";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 import { PwaNativeOnboarding } from "../pwa/pwa-native-onboarding";
 import { NativeShellEffects } from "../pwa/native-shell-effects";
+import { SyncStatusChip } from "../pwa/sync-status-chip";
 import { FloatingAiCopilot } from "../ai/floating-ai-copilot";
 import { AiRouteContextSync } from "../ai/ai-route-context-sync";
 import { PortalMobileBottomNav } from "./owner-mobile-bottom-nav";
@@ -83,6 +84,7 @@ export function PortalShell({
             <ThemeModeToggle />
             <OrganizationSwitcher />
             <RoleSwitcher />
+            <SyncStatusChip />
             <ProfileMenu fetchProfile={fetchProfile} />
           </div>
         </div>

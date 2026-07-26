@@ -3,6 +3,7 @@ import { DeploymentBadge } from "../launch/deployment-badge";
 import type { DeploymentMeta } from "../../lib/launch/deployment-meta";
 import { OrganizationSwitcher } from "./organization-switcher";
 import { RoleSwitcher } from "./role-switcher";
+import { SyncStatusChip } from "../pwa/sync-status-chip";
 import { NotificationCenter } from "./notification-center";
 import { ProfileMenu } from "./profile-menu";
 import { ThemeModeToggle } from "./theme-mode-toggle";
@@ -40,6 +41,7 @@ export function TopNavigation({ deploymentMeta }: { deploymentMeta: DeploymentMe
           <ThemeModeToggle />
           <OrganizationSwitcher />
           <RoleSwitcher />
+          <SyncStatusChip />
           <NotificationCenter />
           <ProfileMenu />
         </div>

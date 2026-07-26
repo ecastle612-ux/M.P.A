@@ -28,27 +28,51 @@ export function ConversationView({
     if (!body.trim()) return;
     setSubmitting(true);
     setError(null);
-    const response = await fetch(`/api/messaging/threads/${thread.id}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body: body.trim(), visibility })
-    });
-    setSubmitting(false);
-    if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as { message?: string } | null;
-      setError(payload?.message ?? "Unable to send message.");
-      return;
+    const messageBody = { body: body.trim(), visibility };
+    try {
+      const { getClientOrganizationId, offlineAwareJsonFetch } = await import("../../lib/pwa/outbox");
+      const organizationId = getClientOrganizationId();
+      if (!organizationId && !navigator.onLine) {
+        setError("This action requires a connection. Reconnect and try again.");
+        setSubmitting(false);
+        return;
+      }
+      const result = await offlineAwareJsonFetch({
+        organizationId: organizationId ?? "unknown",
+        method: "POST",
+        url: `/api/messaging/threads/${thread.id}/messages`,
+        body: messageBody
+      });
+      setSubmitting(false);
+      if (result.kind === "queued") {
+        setBody("");
+        setError(null);
+        setThread((current) => ({
+          ...current,
+          lastMessagePreview: `${messageBody.body.slice(0, 120)} (pending sync)`,
+          lastMessageAt: new Date().toISOString()
+        }));
+        return;
+      }
+      if (!result.response.ok) {
+        const payload = (await result.response.json().catch(() => null)) as { message?: string } | null;
+        setError(payload?.message ?? "Unable to send message.");
+        return;
+      }
+      const payload = (await result.response.json()) as { message: ThreadDetail["messages"][number] };
+      setThread((current) => ({
+        ...current,
+        messages: [...current.messages, payload.message],
+        lastMessagePreview: payload.message.body.slice(0, 120),
+        lastMessageAt: payload.message.createdAt,
+        status: "unread"
+      }));
+      setBody("");
+      router.refresh();
+    } catch (error) {
+      setSubmitting(false);
+      setError(error instanceof Error ? error.message : "Unable to send message.");
     }
-    const payload = (await response.json()) as { message: ThreadDetail["messages"][number] };
-    setThread((current) => ({
-      ...current,
-      messages: [...current.messages, payload.message],
-      lastMessagePreview: payload.message.body.slice(0, 120),
-      lastMessageAt: payload.message.createdAt,
-      status: "unread"
-    }));
-    setBody("");
-    router.refresh();
   }
 
   async function markRead() {

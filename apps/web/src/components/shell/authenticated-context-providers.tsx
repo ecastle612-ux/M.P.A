@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import type { UserRole } from "@mpa/shared";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
+import { OutboxProvider } from "../pwa/outbox-provider";
 import { OrganizationProvider } from "./organization-context";
 import { RoleProvider } from "./role-context";
 import { SessionPermissionsProvider } from "./use-session-permissions";
@@ -57,7 +58,7 @@ export function AuthenticatedContextProviders({
           initialPermissions={initialPermissions}
           masterAdminOnlyShell={masterAdminOnlyShell}
         >
-          {children}
+          <OutboxProvider>{children}</OutboxProvider>
         </SessionPermissionsProvider>
       </RoleProvider>
     </OrganizationProvider>

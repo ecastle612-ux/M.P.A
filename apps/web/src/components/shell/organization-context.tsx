@@ -77,6 +77,10 @@ export function OrganizationProvider({
       activeOrganizationId,
       activeOrganization,
       setActiveOrganization: async (organizationId) => {
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          window.alert("This action requires a connection. Reconnect and try again.");
+          return;
+        }
         const response = await fetch("/api/organizations/switch", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

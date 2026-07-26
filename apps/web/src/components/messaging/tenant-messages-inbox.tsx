@@ -64,15 +64,26 @@ export function TenantMessagesInbox({
   async function sendReply() {
     if (!selectedId || !body.trim()) return;
     setSubmitting(true);
-    const response = await fetch(`/api/messaging/threads/${selectedId}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body: body.trim(), visibility: "resident" })
-    });
-    setSubmitting(false);
-    if (response.ok) {
-      setBody("");
-      await loadMessages(selectedId);
+    try {
+      const { getClientOrganizationId, offlineAwareJsonFetch } = await import("../../lib/pwa/outbox");
+      const organizationId = getClientOrganizationId() ?? "unknown";
+      const result = await offlineAwareJsonFetch({
+        organizationId,
+        method: "POST",
+        url: `/api/messaging/threads/${selectedId}/messages`,
+        body: { body: body.trim(), visibility: "resident" }
+      });
+      setSubmitting(false);
+      if (result.kind === "queued") {
+        setBody("");
+        return;
+      }
+      if (result.response.ok) {
+        setBody("");
+        await loadMessages(selectedId);
+      }
+    } catch {
+      setSubmitting(false);
     }
   }
 
