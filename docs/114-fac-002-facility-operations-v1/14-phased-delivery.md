@@ -37,7 +37,7 @@
 ## Slice C — Assets V1 + Inspections
 
 **Authorize phrase:** `AUTHORIZE FAC-002 SLICE C`  
-**Status:** ✅ Authorized 2026-07-25 · Shipped to Production (pending SHA)
+**Status:** ✅ Authorized 2026-07-25 · Shipped to Production (`e5f26d6`, 2026-07-25)
 
 - Asset warranty/manuals/expected life/replacement notes + PM deep links  
 - Inspection runs + Facility Record on complete  
