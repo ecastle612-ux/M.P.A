@@ -106,11 +106,11 @@ VALIDATE PMX-004 PHASE 5
 | Field | Result |
 |-------|--------|
 | **Validate Phase 5?** | ✅ **PASS** |
-| **Authorize Phase 6 now?** | ❌ **NO** — requires separate `AUTHORIZE PMX-004 PHASE 6` |
+| **Authorize Phase 6 under this validate phrase?** | ❌ **NO** at validation time — follow-on: ✅ **AUTHORIZED** ([32](./32-phase-6-authorization.md)) |
 | **Authorize UX-C / OPS-C / FIN-C / marketplace?** | ❌ **NO** |
 | **Claim COMPLETE / full A14?** | ❌ **NO** |
 
-**Next:** Dedicated authorize session for Phase 6 (or other eligible packages) only when gate owners issue the phrase.
+**Next (at validation time):** Dedicated `AUTHORIZE PMX-004 PHASE 6` — **issued** ([32](./32-phase-6-authorization.md) · [CORE-003 §72](../113-core-003-implementation-master-plan/72-pmx-004-phase-6-authorization.md)). Implementation / certification remains a dedicated session.
 
 ---
 

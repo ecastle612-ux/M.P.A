@@ -74,10 +74,10 @@ Every implementation unit below is in scope for the master order. Status reflect
 | Phase 2 | Native Installation Experience | ✅ **VALIDATED PASS** ([§62](./62-pmx-004-phase-2-validation.md) · [PMX-004 §21](../106-pmx-004-native-pwa-parity/21-phase-2-validation.md)) | Phase 1 Final PASS + authorize issued |
 | Phase 3 | Native Application Shell | ✅ **VALIDATED PASS** ([§65](./65-pmx-004-phase-3-validation.md) · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md)) | Phase 3 Validated |
 | Phase 4 | Standalone Compliance | ✅ **VALIDATED PASS** ([§68](./68-pmx-004-phase-4-validation.md) · [PMX-004 §28](../106-pmx-004-native-pwa-parity/28-phase-4-validation.md)) | Phase 4 Validated |
-| Phase 5 | Native Mobile UX + UX matrix first pass | ✅ **AUTHORIZED** ([§69](./69-pmx-004-phase-5-authorization.md) · [PMX-004 §29](../106-pmx-004-native-pwa-parity/29-phase-5-authorization.md)) · 🔒 Implementation pending | Authorize issued · await dedicated implement |
-| Phases 6, 8–9 | Push / perf / premium | 🔒 Locked | Soft overlap rules in package 05 · later authorize phrases |
-| Phase 6 | Push certification | 🔒 Locked | Phase 1 + PUSH-001 |
+| Phase 5 | Native Mobile UX + UX matrix first pass | ✅ **VALIDATED PASS** ([§71](./71-pmx-004-phase-5-validation.md) · [PMX-004 §31](../106-pmx-004-native-pwa-parity/31-phase-5-validation.md)) | Phase 5 Validated |
+| Phase 6 | Push certification | ✅ **AUTHORIZED** ([§72](./72-pmx-004-phase-6-authorization.md) · [PMX-004 §32](../106-pmx-004-native-pwa-parity/32-phase-6-authorization.md)) · 🔒 Implementation pending | Authorize issued · await dedicated cert/implement |
 | Phase 7 | Offline reliability | 🔒 Locked | Phase 1 (critical) |
+| Phases 8–9 | Perf / premium | 🔒 Locked | Soft overlap rules in package 05 |
 | Phase 10 | Production validation | 🔒 Locked | 1–9 |
 | Phase 11 | Real-world pilot | 🔒 Locked | Phase 10 — **COMPLETE gate** |
 
