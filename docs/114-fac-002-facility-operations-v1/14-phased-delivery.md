@@ -8,7 +8,7 @@
 ## Slice A — Technician home + Inventory MVP
 
 **Authorize phrase:** `AUTHORIZE FAC-002 SLICE A`  
-**Status:** ✅ Authorized 2026-07-25 · Implemented (awaiting migration apply + smoke)
+**Status:** ✅ Authorized 2026-07-25 · Shipped to Production (`d1f4dfe`, 2026-07-25)
 
 - Technician dashboard at `/facility`  
 - Inventory: Photo → Name → Save + list/detail/status (`/facility/inventory`)  
