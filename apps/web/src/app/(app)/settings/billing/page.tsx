@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
-import { TrialStatusBanner } from "../../../../components/commercial/trial-status-banner";
 import { CompanyBillingCenter } from "../../../../components/settings/company-billing-center";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -54,18 +53,12 @@ export default async function SettingsBillingPage({
   }
 
   return (
-    <div className="space-y-4">
-      <TrialStatusBanner
-        organizationId={organizationId}
-        canManage={evaluatePermission(authorization, "saas:manage")}
-      />
-      <CompanyBillingCenter
-        initialSnapshot={snapshot}
-        usage={usage}
-        canManage={evaluatePermission(authorization, "saas:manage")}
-        organizationName={org?.name ?? "your organization"}
-        notice={notice}
-      />
-    </div>
+    <CompanyBillingCenter
+      initialSnapshot={snapshot}
+      usage={usage}
+      canManage={evaluatePermission(authorization, "saas:manage")}
+      organizationName={org?.name ?? "your organization"}
+      notice={notice}
+    />
   );
 }
