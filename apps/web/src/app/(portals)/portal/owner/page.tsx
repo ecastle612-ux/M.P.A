@@ -1,32 +1,62 @@
+import { redirect } from "next/navigation";
+import { Card } from "@mpa/ui";
 import { AppPage } from "../../../../components/presentation/app-page";
-import { FutureReleaseNotice } from "../../../../components/experience/future-release-notice";
+import { OwnerPortalDashboard } from "../../../../components/portal/owner-portal-dashboard";
 import { MasterAdminPortalDemoPanel } from "../../../../components/master-admin/master-admin-portal-demo-panel";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
+import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { getActiveMasterAdminSession } from "../../../../lib/master-admin/session";
+import {
+  loadOwnerPortalDashboard,
+  type OwnerPortalDashboardModel
+} from "../../../../lib/owner-portal/dashboard";
 
 export default async function OwnerPortalPage() {
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
-  const session = user ? await getActiveMasterAdminSession(user.id) : null;
+  if (!user) redirect("/login");
+
+  const organizationId = await resolveActiveOrganizationIdForUser(user.id);
+  if (!organizationId) redirect("/dashboard");
+
+  const session = await getActiveMasterAdminSession(user.id);
   const inPortalTest = session?.mode === "portal_test" && session.portal === "owner";
 
-  if (inPortalTest) {
+  let model: OwnerPortalDashboardModel | null = null;
+  let loadError: string | null = null;
+
+  try {
+    model = await loadOwnerPortalDashboard({ user, organizationId, supabase });
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "Owner dashboard failed to load.";
+  }
+
+  if (!model) {
     return (
       <AppPage breadcrumbs={[{ href: "/portal", label: "Portals" }, { label: "Owner" }]}>
-        <MasterAdminPortalDemoPanel portal="owner" />
+        <Card variant="elevated" className="space-y-2 p-5">
+          <h1 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
+            Dashboard unavailable
+          </h1>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            We couldn’t load your owner dashboard right now. Retry in a moment, or contact your property
+            manager if this continues.
+          </p>
+          {loadError ? (
+            <p className="text-xs text-[var(--mpa-color-text-secondary)]">{loadError}</p>
+          ) : null}
+        </Card>
       </AppPage>
     );
   }
 
   return (
     <AppPage breadcrumbs={[{ href: "/portal", label: "Portals" }, { label: "Owner" }]}>
-      <FutureReleaseNotice
-        title="Owner Portal"
-        description="The Owner Portal will become available during a future release. Property owners can use shared reporting and statements from the main workspace when granted access."
-        primaryHref="/portal"
-        primaryLabel="Back to Portals"
+      <OwnerPortalDashboard
+        model={model}
+        demoPanel={inPortalTest ? <MasterAdminPortalDemoPanel portal="owner" /> : null}
       />
     </AppPage>
   );

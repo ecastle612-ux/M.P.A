@@ -1,6 +1,6 @@
 # CORE-002 — Commercial Launch Blocker Execution
 
-**Status:** ✅ **Approved** · Blockers 1–4 **CLOSED (PASS)** · **Current focus: Blocker 5** (Push Notifications / PUSH-001)  
+**Status:** ✅ **Approved** · Blockers 1–4 **CLOSED (PASS)** · **Blocker 5 real-device cert ABANDONED** (2026-07-25) · **Active product focus: V1.0 Slice A** (Owner Portal ship integrity)  
 **Initiative ID:** CORE-002  
 **Priority:** CRITICAL  
 **Parent:** [CORE-001](../102-core-001-commercial-platform-gap-analysis/README.md) (**Approved**)  

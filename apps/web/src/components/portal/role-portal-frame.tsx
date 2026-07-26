@@ -5,11 +5,7 @@ import type { UserRole } from "@mpa/shared";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
 import { AuthenticatedContextProviders } from "../shell/authenticated-context-providers";
 import { PortalShell } from "./portal-shell";
-
-type PortalNavigationItem = {
-  href: string;
-  label: string;
-};
+import type { PortalNavigationItem } from "./navigation";
 
 export function RolePortalFrame({
   children,
@@ -23,7 +19,10 @@ export function RolePortalFrame({
   navigation,
   showPushEnrollmentBanner,
   fetchProfile,
-  masterAdminBanner
+  masterAdminBanner,
+  notificationSettingsHref,
+  mobileBottomNavigation,
+  consumerChrome
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -37,6 +36,9 @@ export function RolePortalFrame({
   showPushEnrollmentBanner?: boolean | undefined;
   fetchProfile?: boolean | undefined;
   masterAdminBanner?: ReactNode;
+  notificationSettingsHref?: string | undefined;
+  mobileBottomNavigation?: readonly PortalNavigationItem[] | undefined;
+  consumerChrome?: boolean | undefined;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -53,6 +55,9 @@ export function RolePortalFrame({
         showPushEnrollmentBanner={showPushEnrollmentBanner}
         fetchProfile={fetchProfile}
         masterAdminBanner={masterAdminBanner}
+        notificationSettingsHref={notificationSettingsHref}
+        mobileBottomNavigation={mobileBottomNavigation}
+        consumerChrome={consumerChrome}
       >
         {children}
       </PortalShell>

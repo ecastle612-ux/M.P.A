@@ -1,5 +1,9 @@
 # Blocker 5 Readiness — Push Notifications (PUSH-001)
 
+> **2026-07-25:** Real-device certification path **ABANDONED** by Product Owner.  
+> See [push-001-real-device-cert-abandoned.md](../00-governance/push-001-real-device-cert-abandoned.md).  
+> Do **not** resume device cert. Active focus: [V1.0 Slice A](../00-governance/v1-0-slice-a-owner-portal-ship-integrity.md).
+
 **Track:** [PUSH-001](../99-push-001-pwa-push-commercial-certification/README.md)  
 **Status:** ✅ PUSH-001 **APPROVED** · Implement unlocked · ❌ Commercial cert **FAIL** (2026-07-24) · Blocker 5 **OPEN**  
 **Updated:** 2026-07-24  

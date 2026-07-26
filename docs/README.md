@@ -92,7 +92,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 92 | [DPX-001 Design Partner Experience](./92-dpx-001-design-partner-experience/README.md) | Phase 6 — operator experience philosophy (**Approved** · Amendments A–G) |
 | 93 | [DPX-002 Complete Daily Workflow](./93-dpx-002-complete-daily-workflow/README.md) | Gold-standard reference workflow (**PASS** · Amendments A–G) |
 | 93 | [AI-001 Global Copilot Runtime Certification](./93-ai-001-global-copilot-runtime-certification/README.md) | Floating AI OS launcher runtime (**Awaiting User Verification**) |
-| 94 | [ADMIN-002 Master Admin Role Switcher](./94-admin-002-master-admin-role-switcher/README.md) | Role-play placement and IA (**Approved**) |
+| 94 | [ADMIN-002 Master Admin Role Switcher](./94-admin-002-master-admin-role-switcher/README.md) | Role-play placement and IA (**Draft — Awaiting Approval** · Implement locked) |
 | 95 | [ADMIN-003 Master Admin Operations Center](./95-admin-003-master-admin-operations-center/README.md) | Mission Control HQ (**Approved** · Slice A unlocked) |
 | 96 | [DPX-003 Commercial Product Experience](./96-dpx-003-commercial-product-experience/README.md) | Premium polish for Design Partner (**Approved** · Implement unlocked) |
 | 99 | [PUSH-001 PWA Push Commercial Certification](./99-push-001-pwa-push-commercial-certification/README.md) | Forensic push audit + real-device PASS (**Approved** · Implement unlocked) |
@@ -100,6 +100,15 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 101 | [VENDOR-001 Zero Friction Vendor](./101-vendor-001-zero-friction-vendor-experience/README.md) | Tokenized QR Start/Finish (Phase A **PASS** · Phase B locked) |
 | 102 | [CORE-001 Commercial Platform Gap Analysis](./102-core-001-commercial-platform-gap-analysis/README.md) | Launch blockers · scorecard · roadmap (**Approved**) |
 | 103 | [CORE-002 Commercial Launch Blocker Execution](./103-core-002-commercial-launch-blocker-execution/README.md) | Close launch blockers in order (**Approved** · Blocker 1 active) |
+| 104 | [OWNER-001 Commercial Owner Portal](./104-owner-001-commercial-owner-portal/README.md) | Owner Portal MVP (**COMPLETE** · CERTIFIED PASS) |
+| 105 | [UX-010 Unified Image Acquisition](./105-ux-010-unified-image-acquisition/README.md) | Capture Photo + Upload From Device standard (**Draft** · Implement locked) |
+| 107 | [UI-001 Platform Experience](./107-ui-001-platform-experience/README.md) | Platform design principles from Tenant Home (**Future** · Implement locked) |
+| 108 | [PAY-001 Settlement Funding Foundation](./108-pay-001-settlement-funding-foundation/README.md) | Destination charges → org settlement (**Draft** · Implement locked · blocks FIN-003 Phase C) |
+| 109 | [AUTH-001 Organization Provisioning & Authentication](./109-auth-001-organization-provisioning-authentication/README.md) | Org provisioning · username identity · account hierarchy (**Approved with Amendments** · Implement locked) |
+| 110 | [COM-001 Customer Lifecycle & Commercial Operations](./110-com-001-customer-lifecycle-commercial-operations/README.md) | Lead → customer → renew/cancel (**Approved with Amendments** · Implement locked) |
+| 111 | [OPS-001 Platform Operations Architecture](./111-ops-001-platform-operations-architecture/README.md) | Platform OS · events · command center · AI ops (**Approved with Amendments** · Implement locked) |
+| 112 | [UX-012 Platform Experience & Design System](./112-ux-012-platform-experience-design-system/README.md) | Looks/feels/interacts · Canopy-bound (**Approved with Amendments** · Implement locked) |
+| 113 | [CORE-003 Implementation Master Plan](./113-core-003-implementation-master-plan/README.md) | Authoritative cross-package order (**APPROVED** · AMD Perf gate [24](./113-core-003-implementation-master-plan/24-core-003-amd-m0-perf-framework-limit.md) · M0 **NO-GO** · UX-012 locked) |
 | 106 | [PMX-004 Native PWA Parity](./106-pmx-004-native-pwa-parity/README.md) | Near-native PWA (**Phase 1 code ✔** · prod validation gate [17](./106-pmx-004-native-pwa-parity/17-phase-1-production-validation.md) · Phase 2 locked) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
@@ -132,6 +141,12 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | Document | Purpose |
 |----------|---------|
 | [Implementation Gate](./00-governance/implementation-gate.md) | Design → Document → Approve → Implement (permanent) |
+| [V1.0 Implementation Mission](./00-governance/v1-0-implementation-mission.md) | Version 1.0 product bar · modules · completeness criteria |
+| [V1.0 Gap Audit](./00-governance/v1-0-gap-audit.md) | HEAD vs V1.0 mission · risks · priority slices |
+| [Project Roadmap Status](./00-governance/project-roadmap-status.md) | Governance audit · active package matrix · next effort |
+| [Governance Audit Closeout](./00-governance/governance-audit-closeout.md) | Resolved inconsistencies G-1–G-5 |
+| [Commercial Launch Master Plan](./00-governance/commercial-launch-master-plan.md) | Consolidated post-cleanup roadmap · launch checklist · risks |
+| [Development Freeze Checkpoint](./00-governance/development-freeze-checkpoint.md) | FIN-003 Approve done · Phase A authorized · code awaits begin phrase |
 | [Product Requirements Registry](./31-product-requirements/index.md) | Must-have features, roadmaps, competitive advantages |
 | [Definition of Done](./00-governance/definition-of-done.md) | Mandatory completion criteria for every phase/feature |
 

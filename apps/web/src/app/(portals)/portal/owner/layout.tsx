@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { resolveAuthenticatedShellContext } from "../../../../lib/auth/get-shell-context";
-import { OWNER_PORTAL_NAVIGATION } from "../../../../components/portal/navigation";
+import {
+  OWNER_PORTAL_MOBILE_BOTTOM_NAVIGATION,
+  OWNER_PORTAL_NAVIGATION
+} from "../../../../components/portal/navigation";
 import { RolePortalFrame } from "../../../../components/portal/role-portal-frame";
 import {
   canAccessPortalAsMasterAdmin,
@@ -49,9 +52,11 @@ export default async function OwnerPortalLayout({ children }: { children: ReactN
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       title="Property Owner Portal"
-      subtitle="Owner portfolio and reporting views."
+      subtitle="Portfolio performance, documents, and updates."
       roleBadgeLabel="Owner"
       navigation={OWNER_PORTAL_NAVIGATION}
+      mobileBottomNavigation={OWNER_PORTAL_MOBILE_BOTTOM_NAVIGATION}
+      notificationSettingsHref="/portal/owner/settings"
       masterAdminBanner={
         banner ? (
           <MasterAdminModeBanner
