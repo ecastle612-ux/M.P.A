@@ -1,8 +1,9 @@
 # FAC-002 — Facility Operations V1.0
 
-**Status:** Design ✔ · Document ✔ · **Draft — Awaiting Approval** · Implement **locked**  
+**Status:** Design ✔ · Document ✔ · **Approved** (2026-07-25) · Implement unlocked **by slice only**  
 **Initiative ID:** FAC-002  
-**Authorized:** `BEGIN FACILITY V1.0 DESIGN` (2026-07-25)  
+**Design authorized:** `BEGIN FACILITY V1.0 DESIGN` (2026-07-25)  
+**Approved:** `APPROVE FAC-002` (2026-07-25 · Product Owner)  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
 **Mission:** [V1.0 Implementation Mission](../00-governance/v1-0-implementation-mission.md) §7  
 **Subscription SoT:** [V1.0 Subscription Architecture](../00-governance/v1-0-subscription-architecture.md) — Facility is independently licensable  

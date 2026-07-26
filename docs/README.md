@@ -143,6 +143,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 |----------|---------|
 | [Implementation Gate](./00-governance/implementation-gate.md) | Design → Document → Approve → Implement (permanent) |
 | [V1.0 Implementation Mission](./00-governance/v1-0-implementation-mission.md) | Version 1.0 product bar · modules · completeness criteria |
+| [V1.0 Subscription Architecture](./00-governance/v1-0-subscription-architecture.md) | Core + modules · Facility independence · hide unlicensed nav |
 | [V1.0 Gap Audit](./00-governance/v1-0-gap-audit.md) | HEAD vs V1.0 mission · risks · priority slices |
 | [FAC-002 Facility Operations V1.0](./114-fac-002-facility-operations-v1/README.md) | Facility module design · Draft — Awaiting Approval |
 | [Project Roadmap Status](./00-governance/project-roadmap-status.md) | Governance audit · active package matrix · next effort |
