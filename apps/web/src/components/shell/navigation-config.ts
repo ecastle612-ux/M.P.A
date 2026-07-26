@@ -163,6 +163,13 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         synonyms: ["inspection", "inspections", "checklist", "walkthrough"]
       },
       {
+        href: "/facility/reports",
+        label: "Facility reports",
+        mobileSection: "maintenance",
+        requiredCapability: "facility:report:read",
+        synonyms: ["facility reports", "technician report", "inventory report", "asset register"]
+      },
+      {
         href: "/activity",
         label: "Activity",
         mobileSection: "maintenance",

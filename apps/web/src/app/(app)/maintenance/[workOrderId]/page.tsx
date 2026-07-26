@@ -25,6 +25,8 @@ import { getActivityForWorkOrder, getAssigneesForOrganization, getWorkOrderForOr
 import { getThreadBySourceEntity } from "../../../../lib/messaging/server";
 import { MaintenanceConversationPanel } from "../../../../components/messaging/maintenance-conversation-panel";
 import { getFacilityRecordByWorkOrderId } from "../../../../lib/facility/server";
+import { WorkOrderMaterialsPanel } from "../../../../components/facility/work-order-materials-panel";
+import { WorkOrderPhotoBlock } from "../../../../components/facility/work-order-photo-block";
 import { getVendorAssignmentsForWorkOrder, getVendorsForOrganization } from "../../../../lib/vendor/server";
 import {
   buildWorkOrderCompletedSuccess,
@@ -59,6 +61,7 @@ export default async function WorkOrderDetailPage({
   }
 
   const canAssignVendor = evaluatePermission(authorization, "vendor:assign");
+  const canUpdateWorkOrder = evaluatePermission(authorization, "maintenance:update");
 
   const [workOrder, activity, assignees, vendorAssignments, vendors, maintenanceThread, facilityRecord] =
     await Promise.all([
@@ -421,23 +424,14 @@ export default async function WorkOrderDetailPage({
             </div>
           </DiscloseSection>
 
+          <div id="materials">
+            <WorkOrderMaterialsPanel workOrderId={workOrder.id} canWrite={canUpdateWorkOrder} />
+          </div>
+
           <div id="attachments">
             <Card variant="elevated" className="space-y-3">
               <h2 className="mpa-section-title">Attachments & notes</h2>
-              {workOrder.photoPlaceholder?.startsWith("media:") ? (
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Photos</p>
-                  <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                    Photo attached to this work order. Open Edit to replace or update the image.
-                  </p>
-                </div>
-              ) : (
-                <AttachmentNoteBlock
-                  label="Photos"
-                  value={workOrder.photoPlaceholder}
-                  emptyMessage="No photo yet. Use Edit details to attach one."
-                />
-              )}
+              <WorkOrderPhotoBlock photoPlaceholder={workOrder.photoPlaceholder} />
               <AttachmentNoteBlock
                 label="Documents"
                 value={workOrder.documentPlaceholder}

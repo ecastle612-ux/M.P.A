@@ -64,6 +64,7 @@ export const FOUNDATION_CAPABILITIES = [
   "facility:asset:write",
   "facility:inspection:read",
   "facility:inspection:write",
+  "facility:report:read",
   "vendor:create",
   "vendor:read",
   "vendor:update",

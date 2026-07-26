@@ -26,6 +26,50 @@ export function VendorJobCardView({ token, initialJob }: Props) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  async function acceptJob() {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const response = await fetch(`/api/vendor-jobs/${encodeURIComponent(token)}/accept`, {
+        method: "POST"
+      });
+      if (!response.ok) {
+        setMessage(await readJobError(response));
+        return;
+      }
+      const body = (await response.json()) as { job: VendorJobCard };
+      setJob(body.job);
+      setMessage("Job accepted. You can start when you arrive on site.");
+    } catch {
+      setMessage("Unable to accept the job. Check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function declineJob() {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const response = await fetch(`/api/vendor-jobs/${encodeURIComponent(token)}/decline`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "Vendor declined" })
+      });
+      if (!response.ok) {
+        setMessage(await readJobError(response));
+        return;
+      }
+      const body = (await response.json()) as { job: VendorJobCard };
+      setJob(body.job);
+      setMessage("You declined this job. The property manager has been notified.");
+    } catch {
+      setMessage("Unable to decline the job. Check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function startJob() {
     setBusy(true);
     setMessage(null);
@@ -171,6 +215,27 @@ export function VendorJobCardView({ token, initialJob }: Props) {
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">Estimated time: {job.estimatedTime}</p>
       ) : null}
 
+      {job.phase === "pending_accept" ? (
+        <div className="space-y-2">
+          <Button type="button" className="w-full" size="lg" disabled={busy} onClick={() => void acceptJob()}>
+            {busy ? "Accepting…" : "Accept job"}
+          </Button>
+          <Button
+            type="button"
+            className="w-full"
+            size="lg"
+            variant="secondary"
+            disabled={busy}
+            onClick={() => void declineJob()}
+          >
+            Decline
+          </Button>
+          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+            Accept to confirm you can take this job. Decline notifies the property manager.
+          </p>
+        </div>
+      ) : null}
+
       {job.phase === "ready" ? (
         <div className="space-y-2">
           <Button type="button" className="w-full" size="lg" disabled={busy} onClick={() => void startJob()}>
@@ -178,6 +243,15 @@ export function VendorJobCardView({ token, initialJob }: Props) {
           </Button>
           <p className="text-xs text-[var(--mpa-color-text-secondary)]">
             Location is optional. If you allow it, we record an approximate arrival point for the property manager.
+          </p>
+        </div>
+      ) : null}
+
+      {job.phase === "declined" ? (
+        <div className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)] p-5">
+          <p className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Job declined</p>
+          <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+            This link is no longer active. The property manager has been notified.
           </p>
         </div>
       ) : null}

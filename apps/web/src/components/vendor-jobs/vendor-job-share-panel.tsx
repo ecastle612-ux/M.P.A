@@ -115,7 +115,7 @@ export function VendorJobSharePanel({
   }
 
   const smsBody = shareUrl
-    ? `Work order ${workOrderNumber} at ${propertyLabel}. Open to start the job (no login): ${shareUrl}`
+    ? `Work order ${workOrderNumber} at ${propertyLabel}. Open the secure link to Accept or Decline, then start the job (no login): ${shareUrl}`
     : "";
   const emailSubject = encodeURIComponent(`Work order ${workOrderNumber}`);
   const emailBody = encodeURIComponent(smsBody);

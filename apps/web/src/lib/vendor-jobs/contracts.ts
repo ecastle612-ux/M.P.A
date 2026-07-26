@@ -10,7 +10,8 @@ export type VendorJobCard = {
   managerPhone: string | null;
   managerEmail: string | null;
   status: string;
-  phase: "ready" | "on_site" | "finished" | "unavailable";
+  phase: "pending_accept" | "ready" | "on_site" | "finished" | "declined" | "unavailable";
+  assignmentStatus: string | null;
   startedAt: string | null;
   completedAt: string | null;
   arrivalRecordedWithLocation: boolean;

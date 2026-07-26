@@ -2,6 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@mpa/supabase";
 import { createAuthServerComponentClient, createServiceRoleServerClient } from "../auth/server";
+import { mediaBucket } from "../media/paths";
 import { notify } from "../notifications/service";
 import type { ArrivalLocation, VendorJobCard } from "./contracts";
 
@@ -61,14 +62,78 @@ async function recordActivity(
     actorUserId?: string | null;
   }
 ) {
-  await admin.from("maintenance_activity_events").insert({
-    organization_id: input.organizationId,
-    work_order_id: input.workOrderId,
-    event_type: input.eventType,
-    summary: input.summary,
-    details: (input.details ?? {}) as Json,
-    actor_user_id: input.actorUserId ?? null
-  });
+  const details = input.details ?? {};
+  const { mapMaintenanceActivityToCatalog, recordMaintenanceActivityWithOutbox } = await import(
+    "../ops"
+  );
+  const catalogType = mapMaintenanceActivityToCatalog(input.eventType, details);
+
+  if (!catalogType) {
+    await admin.from("maintenance_activity_events").insert({
+      organization_id: input.organizationId,
+      work_order_id: input.workOrderId,
+      event_type: input.eventType,
+      summary: input.summary,
+      details: details as Json,
+      actor_user_id: input.actorUserId ?? null
+    });
+    return;
+  }
+
+  const propertyId =
+    typeof details["propertyId"] === "string"
+      ? details["propertyId"]
+      : typeof details["property_id"] === "string"
+        ? details["property_id"]
+        : null;
+  const unitId =
+    typeof details["unitId"] === "string"
+      ? details["unitId"]
+      : typeof details["unit_id"] === "string"
+        ? details["unit_id"]
+        : null;
+
+  // OPS-001 Slice A OA-02: legacy activity + outbox in one Postgres transaction.
+  try {
+    await recordMaintenanceActivityWithOutbox(admin as never, {
+      organizationId: input.organizationId,
+      workOrderId: input.workOrderId,
+      legacyEventType: input.eventType,
+      summary: input.summary,
+      details,
+      actorUserId: input.actorUserId ?? null,
+      emit: {
+        eventType: catalogType,
+        organizationId: input.organizationId,
+        subject: { type: "maintenance_work_order", id: input.workOrderId },
+        actor: {
+          actor_type: input.actorUserId ? "user" : "vendor",
+          principal_id: input.actorUserId ?? null,
+          label: input.actorUserId ? "Team member" : "Vendor"
+        },
+        summary: input.summary,
+        payload: { ...details, workOrderId: input.workOrderId, summary: input.summary },
+        propertyId,
+        unitId,
+        href: `/maintenance/${input.workOrderId}`,
+        visibility: "ops"
+      }
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (/ops_record_maintenance_activity_with_outbox|event_domain_events|does not exist|schema cache/i.test(message)) {
+      await admin.from("maintenance_activity_events").insert({
+        organization_id: input.organizationId,
+        work_order_id: input.workOrderId,
+        event_type: input.eventType,
+        summary: input.summary,
+        details: details as Json,
+        actor_user_id: input.actorUserId ?? null
+      });
+      return;
+    }
+    throw err;
+  }
 }
 
 async function notifyManagers(
@@ -249,7 +314,7 @@ export async function getVendorJobCard(rawToken: string): Promise<VendorJobCard>
   const { data: wo } = await admin
     .from("maintenance_work_orders")
     .select(
-      "id, organization_id, work_order_number, title, description, status, property_id, unit_id, assigned_to_user_id, created_by, metadata, deleted_at"
+      "id, organization_id, work_order_number, title, description, status, property_id, unit_id, assigned_to_user_id, created_by, current_vendor_assignment_id, metadata, deleted_at"
     )
     .eq("id", token["work_order_id"])
     .eq("organization_id", token["organization_id"])
@@ -258,6 +323,17 @@ export async function getVendorJobCard(rawToken: string): Promise<VendorJobCard>
 
   if (!wo) {
     throw Object.assign(new Error("Work order not found"), { code: "not_found", status: 404 });
+  }
+
+  let assignmentStatus: string | null = null;
+  if (wo.current_vendor_assignment_id) {
+    const { data: assignment } = await admin
+      .from("maintenance_vendor_assignments")
+      .select("assignment_status")
+      .eq("id", wo.current_vendor_assignment_id)
+      .eq("organization_id", wo.organization_id)
+      .maybeSingle();
+    assignmentStatus = (assignment?.assignment_status as string | null) ?? null;
   }
 
   const { data: property } = await admin
@@ -306,8 +382,13 @@ export async function getVendorJobCard(rawToken: string): Promise<VendorJobCard>
     phase = "finished";
   } else if (status === "vendor_on_site" || session?.started_at) {
     phase = "on_site";
+  } else if (assignmentStatus === "cancelled") {
+    phase = "declined";
   } else if (status === "cancelled") {
     phase = "unavailable";
+  } else if (assignmentStatus === "pending" || assignmentStatus === "awaiting_response") {
+    // Explicit Accept required before Start when assignment is awaiting vendor response.
+    phase = "pending_accept";
   }
 
   const meta = (wo.metadata ?? {}) as Record<string, unknown>;
@@ -333,9 +414,153 @@ export async function getVendorJobCard(rawToken: string): Promise<VendorJobCard>
     managerEmail,
     status,
     phase,
+    assignmentStatus,
     startedAt: (session?.started_at as string | null) ?? null,
     completedAt: (session?.completed_at as string | null) ?? null,
     arrivalRecordedWithLocation: Boolean(session?.arrival_latitude != null)
+  };
+}
+
+export async function acceptVendorJob(rawToken: string): Promise<VendorJobCard> {
+  const admin = await adminClient();
+  const resolved = await loadTokenRow(admin, rawToken);
+  if (!resolved || "error" in resolved) {
+    throw Object.assign(new Error("Link unavailable"), { code: resolved?.error ?? "not_found", status: 410 });
+  }
+  const token = resolved.token as Record<string, unknown>;
+
+  const { data: wo } = await admin
+    .from("maintenance_work_orders")
+    .select(
+      "id, organization_id, work_order_number, title, status, property_id, unit_id, assigned_to_user_id, created_by, current_vendor_assignment_id"
+    )
+    .eq("id", token["work_order_id"])
+    .eq("organization_id", token["organization_id"])
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (!wo) throw Object.assign(new Error("Work order not found"), { status: 404 });
+
+  const now = new Date().toISOString();
+  if (wo.current_vendor_assignment_id) {
+    await admin
+      .from("maintenance_vendor_assignments")
+      .update({
+        assignment_status: "accepted",
+        accepted_at: now,
+        updated_at: now
+      })
+      .eq("id", wo.current_vendor_assignment_id)
+      .eq("organization_id", wo.organization_id)
+      .in("assignment_status", ["pending", "awaiting_response", "accepted"]);
+  }
+
+  if (wo.status === "submitted" || wo.status === "triaged" || wo.status === "assigned") {
+    await admin
+      .from("maintenance_work_orders")
+      .update({ status: "assigned", updated_at: now })
+      .eq("id", wo.id)
+      .eq("organization_id", wo.organization_id);
+  }
+
+  await recordActivity(admin, {
+    organizationId: String(wo.organization_id),
+    workOrderId: String(wo.id),
+    eventType: "vendor_job_accepted",
+    summary: "Vendor accepted the job",
+    details: { acceptedAt: now, propertyId: wo.property_id, unitId: wo.unit_id }
+  });
+
+  await notifyManagers(
+    admin,
+    String(wo.organization_id),
+    wo,
+    "Vendor accepted job",
+    `${wo.work_order_number}: ${wo.title}`,
+    `maintenance.vendor_accepted:${wo.id}:${now}`
+  );
+
+  return getVendorJobCard(rawToken);
+}
+
+export async function declineVendorJob(
+  rawToken: string,
+  input: { reason?: string | null } = {}
+): Promise<VendorJobCard> {
+  const admin = await adminClient();
+  const resolved = await loadTokenRow(admin, rawToken);
+  if (!resolved || "error" in resolved) {
+    throw Object.assign(new Error("Link unavailable"), { code: resolved?.error ?? "not_found", status: 410 });
+  }
+  const token = resolved.token as Record<string, unknown>;
+
+  const { data: wo } = await admin
+    .from("maintenance_work_orders")
+    .select(
+      "id, organization_id, work_order_number, title, status, property_id, unit_id, assigned_to_user_id, created_by, current_vendor_assignment_id"
+    )
+    .eq("id", token["work_order_id"])
+    .eq("organization_id", token["organization_id"])
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (!wo) throw Object.assign(new Error("Work order not found"), { status: 404 });
+
+  const now = new Date().toISOString();
+  const reason = input.reason?.trim() || "Vendor declined the job";
+
+  if (wo.current_vendor_assignment_id) {
+    await admin
+      .from("maintenance_vendor_assignments")
+      .update({
+        assignment_status: "cancelled",
+        cancelled_at: now,
+        cancellation_reason: reason,
+        is_current: false,
+        updated_at: now
+      })
+      .eq("id", wo.current_vendor_assignment_id)
+      .eq("organization_id", wo.organization_id);
+  }
+
+  await admin
+    .from("vendor_work_order_tokens")
+    .update({ revoked_at: now })
+    .eq("id", token["id"]);
+
+  await recordActivity(admin, {
+    organizationId: String(wo.organization_id),
+    workOrderId: String(wo.id),
+    eventType: "vendor_job_declined",
+    summary: "Vendor declined the job",
+    details: { declinedAt: now, reason, propertyId: wo.property_id, unitId: wo.unit_id }
+  });
+
+  await notifyManagers(
+    admin,
+    String(wo.organization_id),
+    wo,
+    "Vendor declined job",
+    `${wo.work_order_number}: ${wo.title}${reason ? ` — ${reason}` : ""}`,
+    `maintenance.vendor_declined:${wo.id}:${now}`
+  );
+
+  // Token is revoked — return a terminal card without reloading the revoked token.
+  return {
+    tokenPrefix: String(token["token_prefix"]),
+    workOrderId: String(wo.id),
+    workOrderNumber: String(wo.work_order_number),
+    title: String(wo.title),
+    description: null,
+    propertyAddress: "Property",
+    estimatedTime: null,
+    managerName: null,
+    managerPhone: null,
+    managerEmail: null,
+    status: String(wo.status),
+    phase: "declined",
+    assignmentStatus: "cancelled",
+    startedAt: null,
+    completedAt: null,
+    arrivalRecordedWithLocation: false
   };
 }
 
@@ -347,6 +572,20 @@ export async function startVendorJob(
     clientTimestamp?: string | null;
   }
 ): Promise<VendorJobCard> {
+  const card = await getVendorJobCard(rawToken);
+  if (card.phase === "pending_accept") {
+    throw Object.assign(new Error("Accept the job before starting."), {
+      code: "accept_required",
+      status: 409
+    });
+  }
+  if (card.phase === "declined" || card.phase === "unavailable") {
+    throw Object.assign(new Error("This job is no longer available."), {
+      code: "unavailable",
+      status: 410
+    });
+  }
+
   const admin = await adminClient();
   const resolved = await loadTokenRow(admin, rawToken);
   if (!resolved || "error" in resolved) {
@@ -432,7 +671,9 @@ export async function startVendorJob(
       locationGranted: Boolean(location),
       latitude: location?.latitude ?? null,
       longitude: location?.longitude ?? null,
-      accuracyM: location?.accuracyM ?? null
+      accuracyM: location?.accuracyM ?? null,
+      propertyId: wo.property_id,
+      unitId: wo.unit_id
     }
   });
 
@@ -544,7 +785,9 @@ export async function finishVendorJob(
     details: {
       completedAt: now,
       notesPresent: Boolean(notes),
-      photoCount: photoPaths.length
+      photoCount: photoPaths.length,
+      propertyId: wo.property_id,
+      unitId: wo.unit_id
     }
   });
 
@@ -573,7 +816,7 @@ export async function uploadVendorJobPhoto(
   const ext = file.fileName.includes(".") ? file.fileName.split(".").pop()?.slice(0, 8) : "jpg";
   const path = `${token["organization_id"]}/${token["work_order_id"]}/${Date.now()}-${randomBytes(4).toString("hex")}.${ext || "jpg"}`;
 
-  const { error } = await admin.storage.from("media").upload(path, file.bytes, {
+  const { error } = await admin.storage.from(mediaBucket()).upload(path, file.bytes, {
     contentType: file.contentType || "image/jpeg",
     upsert: false
   });

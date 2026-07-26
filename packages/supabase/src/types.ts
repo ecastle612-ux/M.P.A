@@ -601,6 +601,51 @@ export type Database = {
         };
         Relationships: [];
       };
+      facility_work_order_materials: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          id: string;
+          inventory_item_id: string | null;
+          metadata: Json;
+          name: string;
+          organization_id: string;
+          quantity: number;
+          sort_order: number;
+          updated_at: string;
+          updated_by: string | null;
+          work_order_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          inventory_item_id?: string | null;
+          metadata?: Json;
+          name: string;
+          organization_id: string;
+          quantity?: number;
+          sort_order?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          work_order_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          inventory_item_id?: string | null;
+          metadata?: Json;
+          name?: string;
+          organization_id?: string;
+          quantity?: number;
+          sort_order?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          work_order_id?: string;
+        };
+        Relationships: [];
+      };
       facility_inspection_items: {
         Row: {
           created_at: string;

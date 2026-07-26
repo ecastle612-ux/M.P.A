@@ -49,11 +49,14 @@
 
 ## Slice D — WO materials/photos polish + Reports
 
-**Authorize phrase:** `AUTHORIZE FAC-002 SLICE D`
+**Authorize phrase:** `AUTHORIZE FAC-002 SLICE D`  
+**Status:** ✅ Authorized 2026-07-26 · Shipped to Production (pending SHA)
 
-- WO materials + photo path consistency  
-- Technician / inventory / asset / monthly building reports  
-- Vendor Accept/Decline + SMS/email gap close (if not already done)
+- WO materials + photo path consistency (`MediaImage` on detail)  
+- Technician / inventory / asset / monthly building reports (`/facility/reports`)  
+- Vendor Accept/Decline on token job + SMS/email share copy  
+- Caps: `facility:report:read`  
+- Migration: `supabase/migrations/20260726110000_fac002_slice_d_materials_reports.sql` (applied)
 
 ---
 
