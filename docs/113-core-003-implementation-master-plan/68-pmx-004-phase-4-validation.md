@@ -28,7 +28,7 @@ VALIDATE PMX-004 PHASE 4
 | Package A8–A9 (phase minimum) | ✅ Satisfied for Phase 4 |
 | Phase 1–3 regression | ✅ Preserved |
 | Critical defects | ❌ None |
-| Phase 5 authorized? | ❌ **No** — eligible only after separate authorize phrase |
+| Phase 5 authorized? | ❌ **No** at validation time · **Follow-on:** ✅ **AUTHORIZED** ([§69](./69-pmx-004-phase-5-authorization.md)) |
 
 ---
 
@@ -36,5 +36,5 @@ VALIDATE PMX-004 PHASE 4
 
 1. ✅ Phrase **`VALIDATE PMX-004 PHASE 4` issued** · **PASS**.  
 2. ✅ Phase 4 **approved for program progression**.  
-3. ✅ Phase 5 **eligible** for a future `AUTHORIZE PMX-004 PHASE 5` — **not** issued here.  
-4. ❌ Do **not** authorize UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under this validate phrase.
+3. ✅ Phase 5 subsequently **AUTHORIZED** — [§69](./69-pmx-004-phase-5-authorization.md) · [PMX-004 §29](../106-pmx-004-native-pwa-parity/29-phase-5-authorization.md).  
+4. ❌ Do **not** authorize UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI under the Phase 4 validate phrase.
