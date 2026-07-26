@@ -35,10 +35,11 @@ export function Button({
       aria-busy={loading || undefined}
       disabled={isDisabled}
       className={cn(
-        "inline-flex items-center justify-center gap-[var(--mpa-space-2)] rounded-[var(--mpa-radius-md)] font-[var(--mpa-font-weight-medium)] transition-all duration-[var(--mpa-duration-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        size === "sm" && "h-8 px-[var(--mpa-space-3)] text-[var(--mpa-font-size-caption)]",
-        size === "md" && "h-9 px-[var(--mpa-space-4)] text-[var(--mpa-font-size-body)]",
-        size === "lg" && "h-11 px-[var(--mpa-space-5)] text-[var(--mpa-font-size-body)]",
+        "mpa-chrome-control inline-flex items-center justify-center gap-[var(--mpa-space-2)] rounded-[var(--mpa-radius-md)] font-[var(--mpa-font-weight-medium)] transition-all duration-[var(--mpa-duration-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        /* PMX-004 Phase 5: default md ≥ 44px touch; sm remains dense for desktop chrome only */
+        size === "sm" && "h-8 min-h-8 px-[var(--mpa-space-3)] text-[var(--mpa-font-size-caption)]",
+        size === "md" && "h-11 min-h-11 px-[var(--mpa-space-4)] text-[var(--mpa-font-size-body)]",
+        size === "lg" && "h-11 min-h-11 px-[var(--mpa-space-5)] text-[var(--mpa-font-size-body)]",
         variant === "primary" &&
           "bg-[var(--mpa-color-brand-primary)] font-[var(--mpa-font-weight-semibold)] text-[var(--mpa-color-text-inverse)] shadow-[var(--mpa-shadow-xs)] hover:bg-[var(--mpa-color-brand-primary-hover)] active:bg-[var(--mpa-color-brand-primary-active)]",
         variant === "secondary" &&

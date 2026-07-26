@@ -1,7 +1,7 @@
 # 69 — PMX-004 Phase 5 Authorization (Program Record)
 
 **Package:** CORE-003 · **PMX next unit (post–Phase 4 Validated)**  
-**Status:** ✅ **AUTHORIZED** · Implementation 🔒 until dedicated session · Validation 🔒 until `VALIDATE PMX-004 PHASE 5`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([70](./70-pmx-004-phase-5-implementation.md)) · ✅ **VALIDATED PASS** ([71](./71-pmx-004-phase-5-validation.md))  
 **Date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -58,8 +58,8 @@ VALIDATE PMX-004 PHASE 5
 
 | Item | Status |
 |------|--------|
-| PMX-004 Phase 5 (Native Mobile UX · touch · skeletons · motion · matrix first pass) | ✅ **Authorized** · 🔒 Implementation pending |
-| PMX-004 Phase 6–11 | 🔒 **not** issued |
+| PMX-004 Phase 5 (Native Mobile UX · touch · skeletons · motion · matrix first pass) | ✅ **Authorized** · ✅ **Implemented** · ✅ **VALIDATED PASS** ([71](./71-pmx-004-phase-5-validation.md)) |
+| PMX-004 Phase 6–11 | 🔒 **not** issued (Phase 6 **eligible**) |
 | UX-012 Slice C–E | 🔒 **not** issued |
 | OPS-001 Slice C–E | 🔒 **not** issued |
 | FIN-003 Phases C–E | 🔒 Locked |
@@ -70,7 +70,7 @@ VALIDATE PMX-004 PHASE 5
 ## Recommendation
 
 1. ✅ Phrase **`AUTHORIZE PMX-004 PHASE 5` issued**.  
-2. ✅ Begin **PMX-004 Phase 5 implementation** in a **dedicated** implementation session per [PMX-004 §29](../106-pmx-004-native-pwa-parity/29-phase-5-authorization.md).  
-3. ❌ Do **not** begin implementation in this authorize session.  
+2. ✅ Phase 5 **implemented** — [PMX-004 §30](../106-pmx-004-native-pwa-parity/30-phase-5-implementation.md) · [§70](./70-pmx-004-phase-5-implementation.md).  
+3. ✅ **`VALIDATE PMX-004 PHASE 5` → PASS** — [§71](./71-pmx-004-phase-5-validation.md) · [PMX-004 §31](../106-pmx-004-native-pwa-parity/31-phase-5-validation.md).  
 4. ❌ Do **not** authorize PMX-004 Phases 6–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI without their own phrases.  
-5. After implementation → dedicated session → `VALIDATE PMX-004 PHASE 5`.
+5. ❌ Do **not** begin Phase 6 implementation under this record.

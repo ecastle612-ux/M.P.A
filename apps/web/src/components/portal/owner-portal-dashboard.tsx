@@ -105,7 +105,7 @@ function ListItemRow({ item }: { item: OwnerDashboardListItem }) {
       <li>
         <Link
           href={item.href}
-          className="block rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-3 py-2.5 transition-colors hover:border-[var(--mpa-color-border-default)]"
+          className="mpa-list-row mpa-chrome-control flex flex-col justify-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-3 py-3 transition-colors hover:border-[var(--mpa-color-border-default)]"
         >
           {content}
         </Link>
@@ -114,7 +114,7 @@ function ListItemRow({ item }: { item: OwnerDashboardListItem }) {
   }
   return (
     <li>
-      <div className="rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] px-3 py-2.5">
+      <div className="mpa-list-row flex flex-col justify-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] px-3 py-3">
         {content}
       </div>
     </li>
@@ -130,7 +130,7 @@ export function OwnerPortalDashboard({
 }) {
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
+      <div className="mpa-rise-in space-y-1">
         <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
           {model.welcomeName ? `Welcome, ${model.welcomeName}` : "Owner dashboard"}
         </h1>
@@ -143,7 +143,7 @@ export function OwnerPortalDashboard({
       {demoPanel}
 
       {model.attentionItems.length > 0 ? (
-        <section aria-labelledby="owner-attention-heading" className="space-y-3">
+        <section aria-labelledby="owner-attention-heading" className="mpa-rise-in mpa-rise-in-delay-1 space-y-3">
           <h2
             id="owner-attention-heading"
             className="text-sm font-semibold text-[var(--mpa-color-text-primary)]"
@@ -158,7 +158,7 @@ export function OwnerPortalDashboard({
         </section>
       ) : null}
 
-      <section aria-labelledby="owner-metrics-heading" className="space-y-3">
+      <section aria-labelledby="owner-metrics-heading" className="mpa-rise-in mpa-rise-in-delay-2 space-y-3">
         <h2 id="owner-metrics-heading" className="sr-only">
           Portfolio metrics
         </h2>

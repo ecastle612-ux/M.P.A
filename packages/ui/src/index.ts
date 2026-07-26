@@ -1,5 +1,7 @@
 export * from "./lib/cn";
 export * from "./lib/nav-pill";
+export * from "./lib/scroll-lock";
+export * from "./lib/focus-trap";
 export * from "./tokens";
 export * from "./maturity";
 export * from "./providers/theme-provider";

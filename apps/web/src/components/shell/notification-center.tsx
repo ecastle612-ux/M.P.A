@@ -98,7 +98,7 @@ export function NotificationCenter() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls="notification-menu"
-        className="relative inline-flex h-9 items-center gap-2 rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-3 text-sm text-[var(--mpa-color-text-secondary)] shadow-[var(--mpa-shadow-xs)] transition-colors hover:bg-[var(--mpa-color-interactive-row-hover)]"
+      className="mpa-chrome-control mpa-touch-target relative inline-flex items-center gap-2 rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-3 text-sm text-[var(--mpa-color-text-secondary)] shadow-[var(--mpa-shadow-xs)] transition-colors hover:bg-[var(--mpa-color-interactive-row-hover)]"
         aria-label={`Open notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
       >
         <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">

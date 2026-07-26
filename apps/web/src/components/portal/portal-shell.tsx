@@ -105,7 +105,7 @@ export function PortalShell({
           <p className="px-2 pt-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--mpa-color-text-secondary)]">
             Navigation
           </p>
-          <nav className="mt-1 space-y-0.5 p-1" aria-label="Portal navigation">
+          <nav className="mt-1 mpa-list-stack p-1" aria-label="Portal navigation">
             {navigation.map((item) => {
               const active = isNavItemActive(pathname, item.href);
               return (
@@ -114,8 +114,8 @@ export function PortalShell({
                   href={item.href}
                   className={
                     active
-                      ? "block rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-muted)] px-2.5 py-2 text-sm font-medium text-[var(--mpa-color-text-primary)]"
-                      : "block rounded-[var(--mpa-radius-md)] px-2.5 py-2 text-sm text-[var(--mpa-color-text-secondary)] transition-colors hover:bg-[var(--mpa-color-bg-muted)] hover:text-[var(--mpa-color-text-primary)]"
+                      ? "mpa-list-row mpa-chrome-control flex items-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-muted)] px-2.5 py-2.5 text-sm font-medium text-[var(--mpa-color-text-primary)]"
+                      : "mpa-list-row mpa-chrome-control flex items-center rounded-[var(--mpa-radius-md)] px-2.5 py-2.5 text-sm text-[var(--mpa-color-text-secondary)] transition-colors hover:bg-[var(--mpa-color-bg-muted)] hover:text-[var(--mpa-color-text-primary)]"
                   }
                 >
                   {item.label}

@@ -108,43 +108,79 @@ export function MessagingInbox({
           />
         )
       ) : (
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeaderCell>Conversation</TableHeaderCell>
-                <TableHeaderCell>Type</TableHeaderCell>
-                <TableHeaderCell>Property</TableHeaderCell>
-                <TableHeaderCell>Status</TableHeaderCell>
-                <TableHeaderCell>Unread</TableHeaderCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {pagedItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <Link href={`/communications/threads/${item.id}`} className="font-medium text-[var(--mpa-color-brand-primary)] hover:underline">
-                      {item.subject}
-                    </Link>
-                    {item.lastMessagePreview ? (
-                      <p className="mt-0.5 line-clamp-1 text-xs text-[var(--mpa-color-text-secondary)]">{item.lastMessagePreview}</p>
-                    ) : null}
-                  </TableCell>
-                  <TableCell>{threadTypeLabel(item.threadType as ThreadType)}</TableCell>
-                  <TableCell>
-                    {[item.propertyName, item.unitNumber ? `Unit ${item.unitNumber}` : null].filter(Boolean).join(" · ") || "—"}
-                  </TableCell>
-                  <TableCell>
+        <>
+          {/* PMX-004 Phase 5 — mobile dense list ≥44px rows; table retained on md+ */}
+          <ul className="mpa-list-stack px-4 py-3 md:hidden">
+            {pagedItems.map((item) => (
+              <li key={item.id}>
+                <Link
+                  href={`/communications/threads/${item.id}`}
+                  className="mpa-list-row mpa-chrome-control flex flex-col justify-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] px-3 py-3"
+                >
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="font-medium text-[var(--mpa-color-text-primary)]">{item.subject}</span>
                     <Badge variant={item.status === "unread" ? "warning" : item.status === "resolved" ? "success" : "info"}>
                       {threadStatusLabel(item.status as ThreadStatus)}
                     </Badge>
-                  </TableCell>
-                  <TableCell>{item.unreadCount > 0 ? item.unreadCount : "—"}</TableCell>
+                  </span>
+                  <span className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                    {threadTypeLabel(item.threadType as ThreadType)}
+                    {" · "}
+                    {[item.propertyName, item.unitNumber ? `Unit ${item.unitNumber}` : null].filter(Boolean).join(" · ") || "—"}
+                    {item.unreadCount > 0 ? ` · ${item.unreadCount} unread` : null}
+                  </span>
+                  {item.lastMessagePreview ? (
+                    <span className="mt-0.5 line-clamp-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                      {item.lastMessagePreview}
+                    </span>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <TableContainer className="hidden md:block">
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableHeaderCell>Conversation</TableHeaderCell>
+                  <TableHeaderCell>Type</TableHeaderCell>
+                  <TableHeaderCell>Property</TableHeaderCell>
+                  <TableHeaderCell>Status</TableHeaderCell>
+                  <TableHeaderCell>Unread</TableHeaderCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {pagedItems.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <Link
+                        href={`/communications/threads/${item.id}`}
+                        className="mpa-touch-target inline-flex items-center font-medium text-[var(--mpa-color-brand-primary)] hover:underline"
+                      >
+                        {item.subject}
+                      </Link>
+                      {item.lastMessagePreview ? (
+                        <p className="mt-0.5 line-clamp-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                          {item.lastMessagePreview}
+                        </p>
+                      ) : null}
+                    </TableCell>
+                    <TableCell>{threadTypeLabel(item.threadType as ThreadType)}</TableCell>
+                    <TableCell>
+                      {[item.propertyName, item.unitNumber ? `Unit ${item.unitNumber}` : null].filter(Boolean).join(" · ") || "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={item.status === "unread" ? "warning" : item.status === "resolved" ? "success" : "info"}>
+                        {threadStatusLabel(item.status as ThreadStatus)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{item.unreadCount > 0 ? item.unreadCount : "—"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
       )}
     </DataTableLayout>
   );

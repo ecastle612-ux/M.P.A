@@ -2,6 +2,8 @@
 
 import { Button, Modal } from "@mpa/ui";
 
+import { triggerHaptic } from "../../lib/pwa/haptics";
+
 type LeaveAppConfirmProps = {
   open: boolean;
   onClose: () => void;
@@ -12,6 +14,7 @@ type LeaveAppConfirmProps = {
 
 /**
  * Pattern D — confirm before leaving the installed / standalone session for external providers.
+ * PMX-004 Phase 5: optional confirm haptic (workflow does not depend on vibrate).
  */
 export function LeaveAppConfirm({
   open,
@@ -34,6 +37,7 @@ export function LeaveAppConfirm({
             type="button"
             variant="primary"
             onClick={() => {
+              triggerHaptic("confirm");
               onClose();
               window.location.assign(href);
             }}

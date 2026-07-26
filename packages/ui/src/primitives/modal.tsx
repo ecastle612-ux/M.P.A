@@ -42,7 +42,7 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-interactive-row-hover)] hover:text-[var(--mpa-color-text-primary)]"
+            className="mpa-chrome-control inline-flex h-11 min-h-11 w-11 min-w-11 items-center justify-center rounded-[var(--mpa-radius-md)] text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-interactive-row-hover)] hover:text-[var(--mpa-color-text-primary)]"
             aria-label="Close modal"
           >
             ✕

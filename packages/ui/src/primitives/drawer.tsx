@@ -84,7 +84,7 @@ export function Drawer({
               type="button"
               onClick={onClose}
               tabIndex={open ? 0 : -1}
-              className="rounded-md p-1 text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-app)]"
+              className="mpa-chrome-control inline-flex h-11 min-h-11 w-11 min-w-11 items-center justify-center rounded-[var(--mpa-radius-md)] text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-app)]"
               aria-label="Close drawer"
             >
               ✕

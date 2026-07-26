@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useScrollLock } from "./scroll-lock";
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * SH-002 / SH-003: Trap focus while `active` is true.
+ * SH-002 / SH-003 / PMX-004 Phase 5: Trap focus while `active` is true.
  *
  * - Do not depend on `onEscape` identity (inline callbacks remount the effect).
  * - Never call `.focus()` on effect re-runs while the user already focuses inside.
  * - On deactivate, restore prior focus only if focus is still inside the trap
  *   (avoids yanking focus during unrelated cleanups).
+ * - Body scroll is locked while active (nested-safe via useScrollLock).
  */
 export function useFocusTrap<TElement extends HTMLElement>(
   active: boolean,
@@ -22,6 +24,8 @@ export function useFocusTrap<TElement extends HTMLElement>(
   const onEscapeRef = useRef(onEscape);
   const wasActiveRef = useRef(false);
   onEscapeRef.current = onEscape;
+
+  useScrollLock(active);
 
   useEffect(() => {
     const container = containerRef.current;

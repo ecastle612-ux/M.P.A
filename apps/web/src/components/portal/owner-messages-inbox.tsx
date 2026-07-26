@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Badge, Button, Card, EmptyState, Textarea } from "@mpa/ui";
+import { Badge, Button, Card, EmptyState, Skeleton, Textarea } from "@mpa/ui";
 import {
   formatOwnerActivityLabel,
   formatOwnerParticipantRole,
@@ -258,14 +258,14 @@ export function OwnerMessagesInbox({
       <div className="grid gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <Card variant="elevated" className="space-y-2 p-3">
           <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Conversations</h2>
-          <ul className="max-h-[32rem] space-y-1 overflow-y-auto">
+          <ul className="mpa-list-stack max-h-[32rem] overflow-y-auto">
             {items.map((item) => (
               <li key={item.id}>
                 <button
                   type="button"
                   onClick={() => void loadThread(item.id)}
                   className={[
-                    "w-full rounded-[var(--mpa-radius-md)] px-2 py-2.5 text-left text-sm transition-colors",
+                    "mpa-list-row mpa-chrome-control w-full rounded-[var(--mpa-radius-md)] px-3 py-3 text-left text-sm transition-colors",
                     selectedId === item.id
                       ? "bg-[var(--mpa-color-bg-muted)] text-[var(--mpa-color-text-primary)]"
                       : "text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-muted)] hover:text-[var(--mpa-color-text-primary)]"
@@ -335,7 +335,11 @@ export function OwnerMessagesInbox({
               </div>
 
               {loadingThread ? (
-                <p className="text-sm text-[var(--mpa-color-text-secondary)]">Loading messages…</p>
+                <div className="space-y-2" role="status" aria-label="Loading messages">
+                  <Skeleton className="h-16 w-full rounded-[var(--mpa-radius-md)]" />
+                  <Skeleton className="h-16 w-full rounded-[var(--mpa-radius-md)]" />
+                  <Skeleton className="h-16 w-3/4 rounded-[var(--mpa-radius-md)]" />
+                </div>
               ) : threadError ? (
                 <p className="text-sm text-[var(--mpa-color-status-danger)]">{threadError}</p>
               ) : messages.length === 0 ? (

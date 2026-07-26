@@ -2,6 +2,8 @@
 
 import { Button, Modal } from "@mpa/ui";
 
+import { triggerHaptic } from "../../lib/pwa/haptics";
+
 export type ConfirmActionDialogProps = {
   open: boolean;
   title: string;
@@ -16,6 +18,7 @@ export type ConfirmActionDialogProps = {
 
 /**
  * UX-003 confirmation standard — explain consequence, support cancel.
+ * PMX-004 Phase 5: optional haptic on confirm (destructive pattern when tone=danger).
  */
 export function ConfirmActionDialog({
   open,
@@ -44,7 +47,10 @@ export function ConfirmActionDialog({
             type="button"
             variant={tone === "danger" ? "danger" : "primary"}
             disabled={busy}
-            onClick={() => void onConfirm()}
+            onClick={() => {
+              triggerHaptic(tone === "danger" ? "destructive" : "confirm");
+              void onConfirm();
+            }}
           >
             {busy ? "Working…" : confirmLabel}
           </Button>

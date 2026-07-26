@@ -174,6 +174,10 @@ export const canopyTokens = {
     20: "80px",
     24: "96px"
   },
+  /** PMX-004 Phase 5 — WCAG / native minimum interactive target */
+  touch: {
+    min: "44px"
+  },
   shadow: {
     xs: "0 1px 2px rgb(18 21 26 / 0.04)",
     sm: "0 1px 3px rgb(18 21 26 / 0.06), 0 1px 2px rgb(18 21 26 / 0.04)",

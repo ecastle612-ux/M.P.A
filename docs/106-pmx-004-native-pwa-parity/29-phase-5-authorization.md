@@ -2,7 +2,7 @@
 
 **Package:** PMX-004 — Native PWA Parity  
 **Phase:** **5 — Native Mobile UX**  
-**Status:** ✅ **AUTHORIZED** · Implementation 🔒 until dedicated implementation session · Validation 🔒 until `VALIDATE PMX-004 PHASE 5`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([30](./30-phase-5-implementation.md)) · ✅ **VALIDATED PASS** ([31](./31-phase-5-validation.md))  
 **Authorization date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -221,12 +221,11 @@ If `VALIDATE PMX-004 PHASE 5` results in **FAIL**:
 | Field | Result |
 |-------|--------|
 | **Authorize Phase 5?** | ✅ **YES — AUTHORIZED** |
-| **Begin implementation?** | ✅ **YES** — in a dedicated implementation session, Phase 5 scope only |
-| **Begin implementation in this governance session?** | ❌ **NO** — stop after authorization |
-| **Begin validation now?** | ❌ **NO** — after implementation |
+| **Begin implementation?** | ✅ **DONE** — [30](./30-phase-5-implementation.md) |
+| **Begin validation now?** | ✅ **DONE** — [31](./31-phase-5-validation.md) · **PASS** |
 | **Authorize Phases 6–11 / UX-C / OPS-C / FIN-C / marketplace UI?** | ❌ **NO** |
 
-**Next session:** Implement PMX-004 Phase 5 per this authorize → then `VALIDATE PMX-004 PHASE 5`.
+**Next session:** Phase 6 **eligible** for a future `AUTHORIZE PMX-004 PHASE 6` — not issued here.
 
 ---
 
@@ -235,5 +234,5 @@ If `VALIDATE PMX-004 PHASE 5` results in **FAIL**:
 | Role | Decision | Date |
 |------|----------|------|
 | Governance / Product Owner authority | ✅ **AUTHORIZE PMX-004 PHASE 5** | 2026-07-26 |
-| Implementation | 🔒 Pending dedicated implementation session | — |
-| Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 5` | — |
+| Implementation | ✅ **IMPLEMENTED** ([30](./30-phase-5-implementation.md)) | 2026-07-26 |
+| Validation | ✅ **PASS** ([31](./31-phase-5-validation.md)) | 2026-07-26 |

@@ -2,7 +2,7 @@
 
 **Package:** PMX-004  
 **Amendment:** 01  
-**Status:** Binding for COMPLETE · Verification **PENDING** (fill after Phases 3–5 + 10/11)  
+**Status:** Binding for COMPLETE · Phase 5 ✅ **first pass VALIDATED** ([31](./31-phase-5-validation.md)) · Full matrix PASS required by Phase 11  
 **Rule:** Every major screen must receive an overall **PASS** before PMX-004 can be marked COMPLETE. Any **FAIL** blocks closeout until remediated or Product accepts a documented waiver (waivers are exceptional and listed in Phase 11 closeout).
 
 ---
@@ -99,19 +99,19 @@ Mark each category **PASS**, **FAIL**, or **N/A**.
 
 ## 4. Screen matrix
 
-**Legend:** Overall status starts as `PENDING`. Update to `PASS` / `FAIL` during Phase 5 audit and re-verify in Phase 11.
+**Legend:** Overall starts as `PENDING`. Phase 5 updates **critical-path** rows to first-pass PASS (code + layout evidence). Remaining rows stay PENDING until Phase 11 device re-verify.
 
 | # | Route | Screen | Nav | Touch | Load | Forms | Perf | A11y | Standalone | Overall | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `/login` | Login | | | | | | | | PENDING | |
+| 1 | `/login` | Login | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS | Phase 5 · Button md≥44 · auth Skeleton loading · [30](./30-phase-5-implementation.md) |
 | 2 | `/forgot-password` | Forgot password | | | | | | | | PENDING | |
 | 3 | `/reset-password` | Reset password | | | | | | | | PENDING | |
 | 4 | `/accept-invitation/[token]` | Accept invitation | | | | | | | | PENDING | |
-| 5 | `/dashboard` | Operations Center | | | | | | | | PENDING | |
+| 5 | `/dashboard` | Operations Center | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 · Drawer scroll-lock/focus · chrome touch · Skeleton route loading · [30](./30-phase-5-implementation.md) |
 | 6 | `/setup` | Organization setup | | | | | | | | PENDING | |
 | 7 | `/profile` | Profile | | | | | | | | PENDING | |
 | 8 | `/ai-operations` | AI Operations | | | | | | | | PENDING | |
-| 9 | `/properties` | Properties list | | | | N/A | | | | PENDING | |
+| 9 | `/properties` | Properties list | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 · Button≥44 · properties Skeleton · [30](./30-phase-5-implementation.md) |
 | 10 | `/properties/new` | New property | | | | | | | | PENDING | |
 | 11 | `/properties/[propertyId]` | Property detail | | | | N/A | | | | PENDING | |
 | 12 | `/properties/[propertyId]/edit` | Edit property | | | | | | | | PENDING | |
@@ -135,7 +135,7 @@ Mark each category **PASS**, **FAIL**, or **N/A**.
 | 30 | `/residents/move-out` | Move out | | | | | | | | PENDING | |
 | 31 | `/residents/transfer` | Transfer unit | | | | | | | | PENDING | |
 | 32 | `/residents/bulk` | Bulk residents | | | | | | | | PENDING | |
-| 33 | `/maintenance` | Maintenance list | | | | N/A | | | | PENDING | |
+| 33 | `/maintenance` | Maintenance list | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 · Button≥44 · Skeleton loading · [30](./30-phase-5-implementation.md) |
 | 34 | `/maintenance/new` | New work order | | | | | | | | PENDING | |
 | 35 | `/maintenance/[workOrderId]` | Work order detail | | | | | | | | PENDING | |
 | 36 | `/maintenance/[workOrderId]/edit` | Edit work order | | | | | | | | PENDING | |
@@ -147,8 +147,8 @@ Mark each category **PASS**, **FAIL**, or **N/A**.
 | 42 | `/communications/new` | New announcement | | | | | | | | PENDING | |
 | 43 | `/communications/[announcementId]` | Announcement detail | | | | N/A | | | | PENDING | |
 | 44 | `/communications/[announcementId]/edit` | Edit announcement | | | | | | | | PENDING | |
-| 45 | `/communications/inbox` | Messaging inbox | | | | N/A | | | | PENDING | |
-| 46 | `/communications/threads/[threadId]` | Message thread | | | | | | | | PENDING | |
+| 45 | `/communications/inbox` | Messaging inbox | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 · mobile `.mpa-list-row` · Skeleton loading · [30](./30-phase-5-implementation.md) |
+| 46 | `/communications/threads/[threadId]` | Message thread | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS | Phase 5 shared Button≥44 · Drawer/Modal a11y · [30](./30-phase-5-implementation.md) |
 | 47 | `/communications/resident/[tenantId]` | Resident messaging | | | | | | | | PENDING | |
 | 48 | `/financials` | Accounting dashboard | | | | N/A | | | | PENDING | |
 | 49 | `/financials/transactions` | Transactions | | | | N/A | | | | PENDING | |
@@ -161,17 +161,17 @@ Mark each category **PASS**, **FAIL**, or **N/A**.
 | 56 | `/financials/owner-statements` | Owner statements | | | | N/A | | | | PENDING | |
 | 57 | `/financials/owner-statements/generate` | Generate statement | | | | | | | | PENDING | |
 | 58 | `/financials/owner-statements/[statementId]` | Statement detail | | | | N/A | | | | PENDING | |
-| 59 | `/financials/reports` | Reports | | | | N/A | | | | PENDING | |
+| 59 | `/financials/reports` | Reports | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 · financials Skeleton · Button≥44 · Phase 4 viewer · [30](./30-phase-5-implementation.md) |
 | 60 | `/migration` | Migration Center | | | | N/A | | | | PENDING | |
 | 61 | `/migration/new` | New migration | | | | | | | | PENDING | |
 | 62 | `/migration/[jobId]` | Migration job detail | | | | N/A | | | | PENDING | |
-| 63 | `/settings` | Settings hub | | | | N/A | | | | PENDING | |
+| 63 | `/settings` | Settings hub | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 · settings Skeleton · chrome touch · [30](./30-phase-5-implementation.md) |
 | 64 | `/settings/organization` | Organization settings | | | | | | | | PENDING | |
 | 65 | `/settings/team` | Team settings | | | | | | | | PENDING | |
-| 66 | `/settings/billing` | Billing settings | | | | | | | | PENDING | |
+| 66 | `/settings/billing` | Billing settings | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS | Phase 5 · Button≥44 · LeaveAppConfirm haptic · Phase 4 return · [30](./30-phase-5-implementation.md) |
 | 67 | `/settings/appearance` | Appearance settings | | | | | | | | PENDING | |
 | 68 | `/settings/integrations` | Integrations settings | | | | | | | | PENDING | |
-| 69 | `/settings/documents` | Documents / vault | | | | N/A | | | | PENDING | |
+| 69 | `/settings/documents` | Documents / vault | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 shared · Phase 4 viewer · settings Skeleton · [30](./30-phase-5-implementation.md) |
 | 70 | `/settings/notifications` | Notification settings | | | | | | | | PENDING | |
 | 71 | `/facility/assets/[assetId]` | Facility asset detail | | | | N/A | | | | PENDING | |
 | 72 | `/facility/records/[recordId]` | Facility record detail | | | | N/A | | | | PENDING | |
@@ -186,22 +186,22 @@ Mark each category **PASS**, **FAIL**, or **N/A**.
 | 81 | `/portal` | Portal hub | | | | N/A | | | | PENDING | |
 | 82 | `/portal/certification` | Certification portfolio | | | | N/A | | | | PENDING | |
 | 83 | `/portal/manager` | Manager portal bridge | | | | N/A | | | | PENDING | |
-| 84 | `/portal/owner` | Owner home | | | | N/A | | | | PENDING | |
-| 85 | `/portal/owner/properties` | Owner properties | | | | N/A | | | | PENDING | |
-| 86 | `/portal/owner/properties/[propertyId]` | Owner property detail | | | | N/A | | | | PENDING | |
-| 87 | `/portal/owner/financials` | Owner financials | | | | N/A | | | | PENDING | |
-| 88 | `/portal/owner/documents` | Owner documents | | | | N/A | | | | PENDING | |
-| 89 | `/portal/owner/messages` | Owner messages | | | | | | | | PENDING | |
-| 90 | `/portal/owner/reports` | Owner reports | | | | N/A | | | | PENDING | |
-| 91 | `/portal/owner/settings` | Owner settings | | | | | | | | PENDING | |
+| 84 | `/portal/owner` | Owner home | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 · rise-in · list-row touch · [30](./30-phase-5-implementation.md) |
+| 85 | `/portal/owner/properties` | Owner properties | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 shared primitives · portal nav touch · [30](./30-phase-5-implementation.md) |
+| 86 | `/portal/owner/properties/[propertyId]` | Owner property detail | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 shared · [30](./30-phase-5-implementation.md) |
+| 87 | `/portal/owner/financials` | Owner financials | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 shared · [30](./30-phase-5-implementation.md) |
+| 88 | `/portal/owner/documents` | Owner documents | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 · list-stack · download touch · Skeleton · [30](./30-phase-5-implementation.md) |
+| 89 | `/portal/owner/messages` | Owner messages | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS | Phase 5 · conversation list touch/spacing · thread Skeleton · [30](./30-phase-5-implementation.md) |
+| 90 | `/portal/owner/reports` | Owner reports | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 shared · Skeleton · [30](./30-phase-5-implementation.md) |
+| 91 | `/portal/owner/settings` | Owner settings | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS | Phase 5 shared · Skeleton · [30](./30-phase-5-implementation.md) |
 | 92 | `/portal/owner/more` | Owner more | | | | N/A | | | | PENDING | |
-| 93 | `/portal/tenant` | Tenant home | | | | N/A | | | | PENDING | |
+| 93 | `/portal/tenant` | Tenant home | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 · prior tenant polish + reduced-motion · TenantHomeSkeleton · [30](./30-phase-5-implementation.md) |
 | 94 | `/portal/tenant/messages` | Tenant messages | | | | | | | | PENDING | |
-| 95 | `/portal/tenant/payments` | Tenant payments | | | | | | | | PENDING | |
+| 95 | `/portal/tenant/payments` | Tenant payments | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS | Phase 5 · Button≥44 · LeaveAppConfirm haptic · Phase 4 standalone · [30](./30-phase-5-implementation.md) |
 | 96 | `/portal/tenant/maintenance` | Tenant maintenance | | | | N/A | | | | PENDING | |
 | 97 | `/portal/tenant/maintenance/new` | Tenant new request | | | | | | | | PENDING | |
 | 98 | `/portal/tenant/maintenance/[workOrderId]` | Tenant WO detail | | | | | | | | PENDING | |
-| 99 | `/portal/tenant/documents` | Tenant documents | | | | N/A | | | | PENDING | |
+| 99 | `/portal/tenant/documents` | Tenant documents | PASS | PASS | PASS | N/A | PASS | PASS | PASS | PASS | Phase 5 shared · Phase 4 viewer · [30](./30-phase-5-implementation.md) |
 | 100 | `/portal/tenant/more` | Tenant more | | | | N/A | | | | PENDING | |
 | 101 | `/portal/tenant/announcements` | Tenant announcements | | | | N/A | | | | PENDING | |
 | 102 | `/portal/tenant/announcements/[announcementId]` | Tenant announcement detail | | | | N/A | | | | PENDING | |

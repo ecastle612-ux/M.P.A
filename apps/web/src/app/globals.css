@@ -55,6 +55,9 @@
   --mpa-space-20: 80px;
   --mpa-space-24: 96px;
 
+  /* PMX-004 Phase 5 — minimum interactive target (WCAG / native feel) */
+  --mpa-touch-min: 44px;
+
   /* Brand */
   --mpa-color-brand-primary: #0f6b56;
   --mpa-color-brand-primary-hover: #0c5a48;
@@ -202,6 +205,32 @@ body {
 
 /* Chrome controls: reduce accidental double-tap zoom; pinch-zoom remains on document */
 .mpa-chrome-control {
+  touch-action: manipulation;
+}
+
+/**
+ * PMX-004 Phase 5 — ensure primary interactive controls meet ≥44×44 CSS px.
+ * Prefer on icon buttons, list rows, and chrome toggles (not dense desktop-only sm).
+ */
+.mpa-touch-target {
+  box-sizing: border-box;
+  min-height: var(--mpa-touch-min, 44px);
+  min-width: var(--mpa-touch-min, 44px);
+  touch-action: manipulation;
+}
+
+/**
+ * Dense mobile lists — token rhythm between tappable rows (T2–T3).
+ */
+.mpa-list-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mpa-space-2);
+}
+
+.mpa-list-row {
+  box-sizing: border-box;
+  min-height: var(--mpa-touch-min, 44px);
   touch-action: manipulation;
 }
 
@@ -490,7 +519,7 @@ body {
 
 /** Subtle section entrance (Tenant P0) — uses existing mpa-auth-rise keyframes. */
 .mpa-rise-in {
-  animation: mpa-auth-rise var(--mpa-motion-moderate, 280ms) ease-out both;
+  animation: mpa-auth-rise var(--mpa-duration-moderate, 280ms) ease-out both;
 }
 
 .mpa-rise-in-delay-1 {

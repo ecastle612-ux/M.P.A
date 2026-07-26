@@ -34,7 +34,7 @@ export function OwnerDocumentRow({ document }: { document: OwnerDocumentListItem
             <StandaloneOpenLink
               href={document.downloadHref}
               documentTitle={document.title}
-              className="font-medium text-[var(--mpa-color-text-link)] underline"
+              className="mpa-touch-target mpa-chrome-control inline-flex items-center font-medium text-[var(--mpa-color-text-link)] underline"
             >
               Download / view
             </StandaloneOpenLink>
@@ -63,7 +63,7 @@ export function OwnerDocumentsList({
   }
 
   return (
-    <ul className="space-y-2">
+    <ul className="mpa-list-stack">
       {documents.map((document) => (
         <OwnerDocumentRow key={document.id} document={document} />
       ))}

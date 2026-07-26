@@ -20,7 +20,7 @@ export function ThemeModeToggle() {
       onClick={() => setPreference(next)}
       aria-label={`Switch to ${next} mode`}
       title={label}
-      className="inline-flex h-9 shrink-0 items-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-2.5 text-xs font-semibold text-[var(--mpa-color-text-primary)] transition-colors hover:bg-[var(--mpa-color-interactive-row-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-border-focus)]"
+      className="mpa-chrome-control mpa-touch-target inline-flex shrink-0 items-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-2.5 text-xs font-semibold text-[var(--mpa-color-text-primary)] transition-colors hover:bg-[var(--mpa-color-interactive-row-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mpa-color-border-focus)]"
     >
       {label}
     </button>
