@@ -28,13 +28,15 @@
 
 | ID | Status |
 |----|--------|
-| C1 Ship-tree | 🟡 `release/rc1` — deploy to Vercel required |
+| C1 Ship-tree | ✅ Pushed `origin/release/rc1` @ `8886790` |
 | C2 Migrations | ✅ Attested on `mpa-prod` |
-| C3 Stripe SaaS ops | 🔴 [Runbook](./rc1-stripe-saas-operator-runbook.md) |
-| C4 Env matrix | 🟡 Doc ready — Vercel confirmation ☐ |
-| C5 Production build | ✅ Working-tree PASS — re-attest on deploy SHA |
+| C3 Stripe SaaS ops | 🔴 Session create PASS · **card runbook incomplete** |
+| C4 Env matrix | 🟡 Present · **SignWell missing** (`noop`) |
+| C5 Production build | ✅ Deploy `dpl_42or57S16d5iKpJXkoFRduwMjV4K` Ready on www |
 
-**Recommended next:** Deploy `release/rc1` → confirm Vercel env (C4) → run Stripe SaaS runbook (C3). No new features until Critical ops close.
+**Certification:** [rc1-final-certification-report.md](./rc1-final-certification-report.md) · **Decision: READY FOR LIMITED BETA**
+
+**Recommended next:** Complete Stripe operator runbook + enable SignWell · then seek Commercial Launch authorize. **No new features** until authorized.
 
 ## Latest completed feature
 
