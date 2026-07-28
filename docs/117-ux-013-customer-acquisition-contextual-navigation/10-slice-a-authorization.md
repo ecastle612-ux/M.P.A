@@ -35,7 +35,15 @@ AUTH / COM / BILL money rail / provision / Guided Setup / SignWell / entitlement
 
 ## Exit criteria
 
-- [ ] Modules → Pricing → Checkout path works without Trial CTA  
-- [ ] Existing Checkout / provision / Setup still function  
-- [ ] Relevant tests + production build pass  
-- [ ] Commit, push, deploy, production verify  
+- [x] Modules → Pricing → Checkout path works without Trial CTA  
+- [x] Existing Checkout / provision / Setup still function (API rejects public trial only; provision unchanged)  
+- [x] Relevant tests + production build pass  
+- [x] Commit, push, deploy, production verify  
+
+### Production verification (2026-07-28)
+
+| Surface | Result |
+|---------|--------|
+| `/` | Modules-first CTAs; no Free Trial messaging |
+| `/modules` | Property / Facility / Both selection |
+| `/pricing?modules=both` | Professional + Business + Enterprise; no Trial card |

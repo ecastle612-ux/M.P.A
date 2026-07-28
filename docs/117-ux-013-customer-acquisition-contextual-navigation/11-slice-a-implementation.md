@@ -2,9 +2,12 @@
 
 **Package:** UX-013  
 **Slice:** A  
-**Status:** ✅ Implemented (pending deploy verify)  
+**Status:** ✅ Implemented · Deployed · Verified  
 **Date:** 2026-07-28  
-**Authorize:** `AUTHORIZE UX-013 SLICE A` · [10](./10-slice-a-authorization.md)
+**Authorize:** `AUTHORIZE UX-013 SLICE A` · [10](./10-slice-a-authorization.md)  
+**Commit:** `ed7115b78ff1e904966c1bc9b2f96469c86859e8` · branch `release/rc1`  
+**Deployment:** `dpl_5DM6zuGi3MPYRRvoHZojdWKNTbKK` · Production READY  
+**Aliases:** `https://m-p-a-web.vercel.app` · `https://www.my-property-assistant.com`
 
 ---
 
