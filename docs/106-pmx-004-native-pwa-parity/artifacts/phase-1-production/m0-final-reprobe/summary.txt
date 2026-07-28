@@ -1,0 +1,9 @@
+unified_sw_importScripts=True
+sw_offline_version=True
+manifest_standalone=True
+hsts=True
+csp=True
+header_strict-transport-security=True
+header_content-security-policy=True
+header_x-frame-options=True
+header_x-content-type-options=True

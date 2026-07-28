@@ -70,6 +70,7 @@ Commercial launch requires PM companies to pay M.P.A. automatically. Without a d
 | [17 — Phase A certification](./17-phase-a-certification.md) | Foundation exit |
 | [18 — Phase B blocked](./18-phase-b-blocked-pending-phase-a.md) | Prerequisite gate |
 | [19 — Phase A commercial certification](./19-phase-a-commercial-certification.md) | Ops evidence / verdict |
+| [20 — Phase C entitlement enforcement](./20-phase-c-entitlement-enforcement.md) | Hard create-property / invite gates |
 
 ---
 
@@ -80,7 +81,7 @@ Commercial launch requires PM companies to pay M.P.A. automatically. Without a d
 | Design | ✔ |
 | Document | ✔ |
 | Approve | ✔ **APPROVE BILL-001** (2026-07-22) |
-| Implement | ✔ Phase A unlocked · B–E locked |
+| Implement | ✔ Phase A+B+C · D–E remain for metrics/cert |
 
 ---
 

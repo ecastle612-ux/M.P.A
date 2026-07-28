@@ -206,40 +206,42 @@ async function certifyStripe(): Promise<ProviderCertification> {
   return { provider: "Stripe", mode, overall: overallOf(checks), checks };
 }
 
-async function certifyDropboxSign(): Promise<ProviderCertification> {
-  const selected = resolveDefaultSignatureProviderId();
+async function certifySignWell(): Promise<ProviderCertification> {
+  let selected = "noop";
+  try {
+    selected = resolveDefaultSignatureProviderId();
+  } catch {
+    selected = env("SIGNATURE_PROVIDER") ?? "noop";
+  }
   const checks: ProviderCheckResult[] = [];
-  const key = env("DROPBOX_SIGN_API_KEY") ?? env("HELLOSIGN_API_KEY");
-  const sandbox = !key || env("DROPBOX_SIGN_MODE") === "sandbox";
-  const mode =
-    selected === "dropbox_sign" || selected === "hellosign" ? (sandbox ? "sandbox" : "live") : `provider=${selected}`;
+  const key = env("SIGNWELL_API_KEY");
+  const sandbox = !key || env("SIGNWELL_MODE") === "sandbox";
+  const mode = selected === "signwell" ? (sandbox ? "sandbox" : "live") : `provider=${selected}`;
 
-  if (selected !== "dropbox_sign" && selected !== "hellosign") {
+  if (selected !== "signwell") {
     checks.push(
       check(
         "configuration",
         selected === "noop" ? "warn" : "fail",
-        `SIGNATURE_PROVIDER=${selected}. Dropbox Sign is not active.`,
-        "Set SIGNATURE_PROVIDER=dropbox_sign with a sandbox API key."
+        `SIGNATURE_PROVIDER=${selected}. SignWell is not active.`,
+        "Set SIGNATURE_PROVIDER=signwell with a SignWell API key."
       )
     );
   }
 
   checks.push(
     key
-      ? check("authentication", "pass", "Dropbox Sign API key present.")
+      ? check("authentication", "pass", "SignWell API key present.")
       : check(
           "authentication",
-          selected === "dropbox_sign" || selected === "hellosign" ? "fail" : "warn",
-          "DROPBOX_SIGN_API_KEY missing.",
-          "Add a Dropbox Sign test API key for sandbox certification."
+          selected === "signwell" ? "fail" : "warn",
+          "SIGNWELL_API_KEY missing.",
+          "Add a SignWell API key for sandbox/test certification."
         )
   );
 
   try {
-    const provider = getSignatureProvider(
-      selected === "dropbox_sign" || selected === "hellosign" ? selected : "noop"
-    );
+    const provider = getSignatureProvider(selected === "signwell" ? "signwell" : "noop");
     checks.push(
       check(
         "successful_request",
@@ -249,7 +251,10 @@ async function certifyDropboxSign(): Promise<ProviderCertification> {
     );
 
     const events = await provider.parseWebhook(
-      { event: { event_type: "signature_request_sent", event_time: Math.floor(Date.now() / 1000) }, signature_request: { signature_request_id: "cert-env" } },
+      {
+        event: { type: "document_sent", time: Math.floor(Date.now() / 1000), hash: "cert-sim" },
+        data: { object: { id: "cert-env" } }
+      },
       { "x-mpa-simulate": "1" }
     );
     checks.push(
@@ -271,31 +276,31 @@ async function certifyDropboxSign(): Promise<ProviderCertification> {
   }
 
   checks.push(
-    env("DROPBOX_SIGN_WEBHOOK_SECRET") || env("HELLOSIGN_WEBHOOK_SECRET")
-      ? check("callback_webhook", "pass", "Webhook signing secret configured.")
+    env("SIGNWELL_WEBHOOK_ID")
+      ? check("callback_webhook", "pass", "SignWell webhook ID configured for event hash verification.")
       : check(
           "callback_webhook",
           sandbox ? "warn" : "fail",
-          "Webhook secret missing — simulate header accepted in sandbox.",
-          "Configure DROPBOX_SIGN_WEBHOOK_SECRET from the Dropbox Sign app."
+          "SIGNWELL_WEBHOOK_ID missing — simulate header accepted in sandbox.",
+          "Configure SIGNWELL_WEBHOOK_ID from SignWell Settings → Webhooks."
         )
   );
   checks.push(
     check(
       "failure_handling",
       "pass",
-      "Signature webhooks verify signatures; failures audit to signature_audit_events; duplicates via integrations_webhook_events."
+      "Signature webhooks verify event hashes; failures audit to signature_audit_events; duplicates via integrations_webhook_events."
     )
   );
   checks.push(
     check(
       "retry_recovery",
       "pass",
-      "Packages can be resent/canceled through domain APIs; simulate blocked in production without ALLOW_SIMULATE."
+      "Packages can be resent/canceled through domain APIs; simulate blocked in production without SIGNWELL_ALLOW_SIMULATE."
     )
   );
 
-  return { provider: "Dropbox Sign", mode, overall: overallOf(checks), checks };
+  return { provider: "SignWell", mode, overall: overallOf(checks), checks };
 }
 
 async function certifyCheckr(): Promise<ProviderCertification> {
@@ -639,7 +644,7 @@ export async function runProviderCertification(): Promise<ProviderCertification[
   const [onesignal, stripe, dropbox, checkr, storage, auth] = await Promise.all([
     certifyOneSignal(),
     certifyStripe(),
-    certifyDropboxSign(),
+    certifySignWell(),
     certifyCheckr(),
     certifySupabaseStorage(),
     certifySupabaseAuth()

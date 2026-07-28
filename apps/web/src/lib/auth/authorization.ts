@@ -1,4 +1,9 @@
-import { evaluateCapability, type PermissionCapability, type UserRole } from "@mpa/shared";
+import {
+  evaluateCapability,
+  isUserRole,
+  type PermissionCapability,
+  type UserRole
+} from "@mpa/shared";
 import type { User } from "@supabase/supabase-js";
 import { userHasMasterAdminCapability } from "../master-admin/access";
 import { createAuthServerClient } from "./server";
@@ -11,10 +16,7 @@ type ResolvedAuthorizationContext = ReturnType<typeof buildAuthorizationContext>
 };
 
 function toUserRoles(roles: readonly string[]): UserRole[] {
-  return roles.filter(
-    (role): role is UserRole =>
-      role === "property_manager" || role === "property_owner" || role === "tenant" || role === "vendor"
-  );
+  return roles.filter((role): role is UserRole => isUserRole(role));
 }
 
 async function resolvePermissionsForRoles(organizationId: string | null, roles: readonly UserRole[]) {
@@ -26,7 +28,7 @@ async function resolvePermissionsForRoles(organizationId: string | null, roles: 
   const { data: grants, error: grantsError } = await supabase
     .from("role_permission_grants")
     .select("capability_key")
-    .in("role", [...roles]);
+    .in("role", [...roles] as never);
 
   if (grantsError) {
     throw new Error(grantsError.message);
@@ -39,7 +41,7 @@ async function resolvePermissionsForRoles(organizationId: string | null, roles: 
       .from("organization_permission_overrides")
       .select("capability_key, effect")
       .eq("organization_id", organizationId)
-      .in("role", [...roles]);
+      .in("role", [...roles] as never);
 
     if (overridesError) {
       throw new Error(overridesError.message);

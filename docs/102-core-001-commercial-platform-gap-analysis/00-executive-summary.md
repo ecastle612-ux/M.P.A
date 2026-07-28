@@ -1,7 +1,8 @@
 # 00 — Executive Summary
 
 **Package:** CORE-001  
-**Date:** 2026-07-22
+**Date:** 2026-07-22  
+**Document class:** ⚠️ **Historical Snapshot** — live status: [CORE-002](../103-core-002-commercial-launch-blocker-execution/README.md)
 
 ---
 
@@ -26,7 +27,7 @@ Can a paying property management company switch to M.P.A. **tomorrow** and run P
 | SaaS subscription billing | BILL-001 Phase A **PASS** |
 | Financial reports + statements (PM-side) | FIN-001 · Phase 10 |
 | Migration / switching narrative | MIG-001 · MX-001 |
-| Auth + tenant portal + vendor portal | Phase 3 / UX-005 |
+| Auth + tenant portal (+ vendor secure links; Vendor Portal retired) | Phase 3 / UX-005 / VENDOR-001 |
 
 ---
 

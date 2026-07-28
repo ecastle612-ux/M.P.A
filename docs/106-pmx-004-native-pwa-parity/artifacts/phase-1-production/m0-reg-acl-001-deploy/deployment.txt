@@ -1,0 +1,16 @@
+deployment_id=dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf
+deployment_url=https://m-p-a-3uhuplb8c-ecastle612-uxs-projects.vercel.app
+aliases=www.my-property-assistant.com,my-property-assistant.com,m-p-a-web.vercel.app
+target=production
+status=READY
+created=2026-07-23T23:45:44-05:00
+confirmed=2026-07-24T16:10:00-05:00
+includes=REG-ACL-001 ops-shell-access middleware + (app) layout gate
+redeploy_under_this_auth=no
+redeploy_reason=Production already serving REG-ACL-001; avoid shipping unrelated working-tree changes
+inspector=https://vercel.com/ecastle612-uxs-projects/m-p-a-web/HFdpfdy5jS8kdQKSUKa6iKcU4hBf
+unit_tests=ops-shell-access.test.ts 4/4 PASS
+anon_route_protection=PASS
+anon_api_properties=401 PASS
+migrations=none
+env_changes=none

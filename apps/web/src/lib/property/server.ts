@@ -1,5 +1,6 @@
 import { createAuthServerComponentClient } from "../auth/server";
 import type { Database, Json } from "@mpa/supabase";
+import { assertCanCreateProperty, throwIfDenied } from "../saas/entitlement-gate";
 import type { CreatePropertyInput, PropertyRecord, UpdatePropertyInput } from "./contracts";
 
 type PropertyRow = {
@@ -117,6 +118,7 @@ export async function createProperty(
   input: CreatePropertyInput,
   client?: SupabaseClientType
 ): Promise<PropertyRecord> {
+  throwIfDenied(await assertCanCreateProperty(organizationId));
   const supabase = await resolveClient(client);
   const { data, error } = await supabase
     .from("properties")

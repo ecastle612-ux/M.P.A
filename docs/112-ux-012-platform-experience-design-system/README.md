@@ -1,6 +1,6 @@
 # UX-012 — Platform Experience & Design System
 
-**Status:** ✅ **APPROVED WITH AMENDMENTS** · Slice A ✅ **VALIDATED** ([32](./32-slice-a-validation.md)) · Slice B ✅ **IMPLEMENTED** ([34](./34-slice-b-implementation.md)) · Validation 🔒 until `VALIDATE UX-012 SLICE B` · Slices C–E 🔒 **LOCKED**  
+**Status:** ✅ **APPROVED WITH AMENDMENTS** · Slice A ✅ **VALIDATED** ([32](./32-slice-a-validation.md)) · Slice B ✅ **VALIDATED** ([35](./35-slice-b-validation.md)) · Slices C–E 🔒 **LOCKED**  
 **Initiative ID:** UX-012  
 **ID note:** UX-001 remains [Zero Friction Hardening](../69-ux-001-zero-friction-hardening/README.md); this package is the Design System & Experience SoT.  
 **Priority:** CRITICAL (experience foundation)  
@@ -16,7 +16,7 @@
 **Last Updated:** 2026-07-23 (Amendments A01–A08 incorporated)
 
 > **Slice A is VALIDATED** ([32](./32-slice-a-validation.md)).  
-> **Slice B is IMPLEMENTED** ([34](./34-slice-b-implementation.md)) under [33](./33-slice-b-authorization.md) · [CORE-003 §59](../113-core-003-implementation-master-plan/59-ux-012-slice-b-authorization.md). Next: `VALIDATE UX-012 SLICE B`.  
+> **Slice B is VALIDATED PASS** ([35](./35-slice-b-validation.md) · [CORE-003 §60](../113-core-003-implementation-master-plan/60-ux-012-slice-b-validation.md)).  
 > Do **not** begin Slices C–E · OPS-001 C–E · PMX-004 Phase 2 without their authorize phrases.  
 > **UI-001 must inherit UX-012** as its governing design system and experience SoT.
 
@@ -102,6 +102,7 @@ UX-012 is the final foundational architecture package for how M.P.A. **looks, fe
 | [32 — Slice A Validation](./32-slice-a-validation.md) | ✅ **PASS** · `VALIDATE UX-012 SLICE A` |
 | [33 — Slice B Authorization](./33-slice-b-authorization.md) | ✅ **AUTHORIZED** · core components · forms · nav · tables · cards · UB-01…UB-10 |
 | [34 — Slice B Implementation](./34-slice-b-implementation.md) | ✅ **IMPLEMENTED** · primitives · FormField · nav · table density · maturity |
+| [35 — Slice B Validation](./35-slice-b-validation.md) | ✅ **PASS** · `VALIDATE UX-012 SLICE B` · UB-01…UB-10 |
 
 ---
 
@@ -117,18 +118,18 @@ UX-012 is the final foundational architecture package for how M.P.A. **looks, fe
 | Validate Slice A | ✔ **VALIDATED** · [32](./32-slice-a-validation.md) |
 | **Authorize Slice B** | ✔ **AUTHORIZED** (2026-07-25) · [33](./33-slice-b-authorization.md) |
 | Implement Slice B | ✔ **IMPLEMENTED** · [34](./34-slice-b-implementation.md) · C–E 🔒 |
-| Validate Slice B | 🔒 Pending `VALIDATE UX-012 SLICE B` |
+| Validate Slice B | ✔ **VALIDATED** · [35](./35-slice-b-validation.md) |
 
 ---
 
 ## Implementation slices
 
-Authoritative: **[19](./19-implementation-slices.md)** · Authorization: **[30](./30-slice-a-authorization.md)** · **[33](./33-slice-b-authorization.md)** · Implementation: **[34](./34-slice-b-implementation.md)**
+Authoritative: **[19](./19-implementation-slices.md)** · Authorization: **[30](./30-slice-a-authorization.md)** · **[33](./33-slice-b-authorization.md)** · Implementation: **[34](./34-slice-b-implementation.md)** · Validation: **[35](./35-slice-b-validation.md)**
 
 | Slice | Deliverables | Status |
 |-------|--------------|--------|
 | **A** | Tokens · Typography · Spacing · Color | ✅ **VALIDATED** |
-| **B** | Core components · Forms · Nav · Tables · Cards | ✅ **IMPLEMENTED** ([34](./34-slice-b-implementation.md)) · Validation pending |
+| **B** | Core components · Forms · Nav · Tables · Cards | ✅ **VALIDATED** ([35](./35-slice-b-validation.md)) |
 | **C** | Role dashboards · Command Center · Role experiences | 🔒 |
 | **D** | AI · Motion · Accessibility · Responsive | 🔒 |
 | **E** | Polish · Microinteractions · Performance · Final UX validation | 🔒 |
@@ -137,7 +138,7 @@ Authoritative: **[19](./19-implementation-slices.md)** · Authorization: **[30](
 AUTHORIZE UX-012 SLICE A   ← issued 2026-07-24
 VALIDATE UX-012 SLICE A    ← issued 2026-07-24
 AUTHORIZE UX-012 SLICE B   ← issued 2026-07-25 · [33](./33-slice-b-authorization.md)
-VALIDATE UX-012 SLICE B    ← pending (implementation complete · [34](./34-slice-b-implementation.md))
+VALIDATE UX-012 SLICE B    ← issued 2026-07-26 · PASS · [35](./35-slice-b-validation.md)
 ```
 
 ---

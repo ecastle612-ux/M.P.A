@@ -110,7 +110,7 @@ export async function POST(request: Request, context: RouteContext) {
 
     if (action === "simulate_complete") {
       if (!evaluatePermission(authorization, "signature:send")) return apiError(403, "FORBIDDEN", "Forbidden");
-      if (process.env["NODE_ENV"] === "production" && process.env["DROPBOX_SIGN_ALLOW_SIMULATE"] !== "true") {
+      if (process.env["NODE_ENV"] === "production" && process.env["SIGNWELL_ALLOW_SIMULATE"] !== "true") {
         return apiError(403, "FORBIDDEN", "Simulate disabled in production");
       }
       const detail = await simulateSandboxCompletion(organizationId, packageId, user.id, supabase);

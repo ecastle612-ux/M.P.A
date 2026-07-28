@@ -13,6 +13,8 @@ import type { SetupStatus } from "../../lib/setup/types";
 import { SetupStepIndicator } from "./setup-step-indicator";
 import { useOrganizationContext } from "../shell/organization-context";
 import { readApiError } from "../../lib/api/client-error";
+import { RecoveryContactPanel } from "../settings/recovery-contact-panel";
+import { ACQ_FUNNEL_EVENTS, emitAcqFunnelEvent } from "../../lib/acquire/funnel";
 
 const SETUP_CELEBRATED_KEY = "mpa.setup.celebrated.v1";
 
@@ -36,6 +38,24 @@ export function SetupWizard({
     return window.localStorage.getItem("mpa.setup.welcome.v1") !== "true";
   });
   const [showCelebration, setShowCelebration] = useState(celebrate && initialStatus.isComplete);
+
+  useEffect(() => {
+    emitAcqFunnelEvent(
+      ACQ_FUNNEL_EVENTS.guidedSetupStarted,
+      {},
+      { oncePerSession: true, dedupeKey: "setup_started" }
+    );
+  }, []);
+
+  useEffect(() => {
+    if (status.isComplete && status.commerciallyActive) {
+      emitAcqFunnelEvent(
+        ACQ_FUNNEL_EVENTS.guidedSetupCompleted,
+        {},
+        { oncePerSession: true, dedupeKey: "setup_completed" }
+      );
+    }
+  }, [status.isComplete, status.commerciallyActive]);
 
   const currentStep = showCelebration
     ? "complete"
@@ -235,17 +255,28 @@ export function SetupWizard({
           <EntityStep
             title="Activate your first lease"
             description="Prefer finishing through guided Move in. Standalone New lease is advanced only."
-            nextStep="After activation, setup wraps up and you’ll enter the Operations Center."
+            nextStep="After activation, finish setup by confirming your recovery contact and marking the organization active."
             primaryHref="/residents/move-in"
             primaryLabel="Continue Move in →"
             secondaryHref="/leases/new?setup=1"
             secondaryLabel="New lease (advanced)"
           />
         ) : null}
+        {currentStep === "finish" ? (
+          <FinishSetupStep
+            commerciallyActive={status.commerciallyActive}
+            recoveryContactReady={status.recoveryContactReady}
+            commercialStatus={status.commercialStatus}
+            onChanged={() => {
+              void refreshStatus();
+            }}
+          />
+        ) : null}
         {currentStep === "complete" ? (
           <CompleteStep
             completionPercent={status.completionPercent}
             steps={progressSteps}
+            commerciallyActive={status.commerciallyActive}
             onContinue={() => {
               window.localStorage.setItem(SETUP_CELEBRATED_KEY, "true");
               setShowCelebration(false);
@@ -493,13 +524,47 @@ function EntityStep({
   );
 }
 
+function FinishSetupStep({
+  commerciallyActive,
+  recoveryContactReady,
+  commercialStatus,
+  onChanged
+}: {
+  commerciallyActive: boolean;
+  recoveryContactReady: boolean;
+  commercialStatus: string | null;
+  onChanged: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
+        Finish setup
+      </h2>
+      <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+        Add a secondary recovery contact, verify it, then mark the organization active. Your workspace stays in{" "}
+        <span className="font-medium text-[var(--mpa-color-text-primary)]">
+          {commercialStatus ?? "pending setup"}
+        </span>{" "}
+        until this step is done — portfolio data alone is not enough to operate commercially.
+      </p>
+      <ul className="space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
+        <li>{recoveryContactReady ? "✓" : "○"} Recovery contact verified and acknowledged</li>
+        <li>{commerciallyActive ? "✓" : "○"} Organization commercially active</li>
+      </ul>
+      <RecoveryContactPanel canUpdate onChanged={onChanged} />
+    </div>
+  );
+}
+
 function CompleteStep({
   completionPercent,
   steps,
+  commerciallyActive,
   onContinue
 }: {
   completionPercent: number;
   steps: Array<{ id: string; label: string; complete: boolean }>;
+  commerciallyActive: boolean;
   onContinue: () => void;
 }) {
   return (
@@ -508,13 +573,16 @@ function CompleteStep({
         ✓
       </div>
       <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
-        You&apos;re ready to operate
+        {commerciallyActive ? "You're ready to operate" : "Almost ready"}
       </h2>
       <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        Setup is complete. The Operations Center will show what needs attention today — move-ins, maintenance,
-        payments, and more.
+        {commerciallyActive
+          ? "Setup is complete and your organization is active. The Operations Center will show what needs attention today — move-ins, maintenance, payments, and more."
+          : "Portfolio setup looks complete, but your organization is not commercially active yet. Finish recovery contact verification and activation before day-to-day operations."}
       </p>
-      <p className="text-sm font-medium text-[var(--mpa-color-brand-primary)]">{completionPercent}% portfolio setup</p>
+      <p className="text-sm font-medium text-[var(--mpa-color-brand-primary)]">
+        {completionPercent}% setup complete
+      </p>
       <ul className="mx-auto max-w-sm space-y-1 text-left text-sm">
         {steps.map((step) => (
           <li key={step.id} className="flex items-center gap-2">
@@ -523,7 +591,9 @@ function CompleteStep({
           </li>
         ))}
       </ul>
-      <Button onClick={onContinue}>Open Operations Center →</Button>
+      <Button onClick={onContinue} disabled={!commerciallyActive}>
+        {commerciallyActive ? "Open Operations Center →" : "Finish activation first"}
+      </Button>
     </div>
   );
 }

@@ -1,165 +1,81 @@
-"use client";
+import type { ReactNode } from "react";
+import { Button, FormField, FormSection, Input, Link } from "@mpa/ui/auth";
+import { signInAction } from "../../lib/auth/login-actions";
 
-import Link from "next/link";
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { Button, FormSection, Input } from "@mpa/ui";
-import { createAuthClient } from "../../lib/auth/client";
-
-type AuthMode = "sign_in" | "sign_up";
-
-export function LoginForm() {
-  const router = useRouter();
-  const supabase = createAuthClient();
-  const [mode, setMode] = useState<AuthMode>("sign_in");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setNotice(null);
-
-    if (mode === "sign_up" && password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    setLoading(true);
-
-    if (mode === "sign_up") {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password
-      });
-
-      setLoading(false);
-
-      if (signUpError) {
-        setError(signUpError.message);
-        return;
-      }
-
-      setNotice("Account created. Check your inbox for verification, then sign in.");
-      setMode("sign_in");
-      setPassword("");
-      setConfirmPassword("");
-      return;
-    }
-
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    setLoading(false);
-
-    if (signInError) {
-      setError(signInError.message);
-      return;
-    }
-
-    const isMasterAdmin = signInData.user?.app_metadata?.["dev_master_admin"] === true;
-    router.replace(isMasterAdmin ? "/master-admin" : "/dashboard");
-  }
-
+/**
+ * AUTH-001 Slice A — username + password sign-in (invitation-only; no public signup).
+ * Server Component; UX-012 Slice B FormField via @mpa/ui/auth + --mpa-* classes.
+ */
+export function LoginForm({
+  error = null,
+  notice = null,
+  next = null
+}: {
+  error?: string | null;
+  notice?: string | null;
+  next?: string | null;
+}) {
   return (
     <FormSection
       className="w-full max-w-md"
-      title={mode === "sign_in" ? "Sign In" : "Create Account"}
-      description={
-        mode === "sign_in"
-          ? "Enter your credentials to open the Property Operations OS."
-          : "Create your account. We’ll send a verification email when required."
-      }
+      title="Sign In"
+      description="Enter your username and password to open the Property Operations OS."
     >
-      <div className="grid grid-cols-2 gap-2">
-        <Button
-          type="button"
-          variant={mode === "sign_in" ? "primary" : "secondary"}
-          onClick={() => {
-            setMode("sign_in");
-            setError(null);
-            setNotice(null);
-          }}
+      <form className="space-y-[var(--mpa-space-4)]" action={signInAction}>
+        {next ? <input type="hidden" name="next" value={next} /> : null}
+        <FormField
+          htmlFor="username"
+          label="Username"
+          required
+          hint="Login uses your M.P.A. username. Existing design-partner accounts may use email during migration."
         >
-          Sign in
-        </Button>
-        <Button
-          type="button"
-          variant={mode === "sign_up" ? "primary" : "secondary"}
-          onClick={() => {
-            setMode("sign_up");
-            setError(null);
-            setNotice(null);
-          }}
-        >
-          Sign up
-        </Button>
-      </div>
-
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="email">
-            Email
-          </label>
           <Input
-            id="email"
-            type="email"
+            id="username"
+            name="username"
+            type="text"
             required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            error={Boolean(error)}
           />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="password">
-            Password
-          </label>
+        </FormField>
+        <FormField htmlFor="password" label="Password" required>
           <Input
             id="password"
+            name="password"
             type="password"
             required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
+            error={Boolean(error)}
           />
-        </div>
-        {mode === "sign_up" ? (
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="confirm-password">
-              Confirm password
-            </label>
-            <Input
-              id="confirm-password"
-              type="password"
-              required
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-            />
-          </div>
-        ) : null}
-        {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}
-        <Button className="w-full" disabled={loading} type="submit">
-          {loading
-            ? mode === "sign_in"
-              ? "Signing in..."
-              : "Creating account..."
-            : mode === "sign_in"
-              ? "Sign in"
-              : "Create account"}
-        </Button>
-        {mode === "sign_in" ? (
-          <p className="text-center text-sm text-[var(--mpa-color-text-secondary)]">
-            <Link className="underline hover:text-[var(--mpa-color-text-primary)]" href="/forgot-password">
-              Forgot your password?
-            </Link>
+        </FormField>
+        {error ? (
+          <p role="alert" className="mpa-text-caption text-[var(--mpa-color-feedback-error)]">
+            {error}
           </p>
         ) : null}
+        {notice ? <p className="mpa-text-caption text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}
+        <Button className="w-full" type="submit">
+          Sign in
+        </Button>
+        <p className="mpa-text-caption text-center text-[var(--mpa-color-text-secondary)]">
+          <Link href="/forgot-password">Forgot your password?</Link>
+        </p>
+        <p className="mpa-text-micro text-center text-[var(--mpa-color-text-muted)]">
+          Team accounts are invitation-only.{" "}
+          <Link href="/pricing">New to M.P.A.? See pricing</Link>
+        </p>
       </form>
     </FormSection>
+  );
+}
+
+/** @deprecated Sign-up mode removed under AUTH-001 invitation-only. */
+export type LoginFormMode = "sign_in";
+
+export function InvitationOnlyNotice({ children }: { children?: ReactNode }) {
+  return (
+    <p className="mpa-text-caption text-[var(--mpa-color-text-secondary)]">{children}</p>
   );
 }

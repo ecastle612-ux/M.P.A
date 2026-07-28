@@ -4,6 +4,7 @@ import type { Database, Json } from "@mpa/supabase";
 import { createAuthServerComponentClient, createServiceRoleServerClient } from "../auth/server";
 import { createExpense, recordFinancialActivity } from "../financial/server";
 import { sendWorkflowEmail } from "../integrations/email/delivery";
+import { mediaBucket } from "../media/paths";
 import { notify } from "../notifications/service";
 import type {
   VendorFinancialHistory,
@@ -79,7 +80,7 @@ function mapPayment(row: Record<string, unknown>): VendorPaymentRecord {
 
 async function signedMediaUrl(admin: AnyClient, path: string | null): Promise<string | null> {
   if (!path || path.startsWith("pending:")) return null;
-  const { data } = await admin.storage.from("media").createSignedUrl(path, 60 * 60);
+  const { data } = await admin.storage.from(mediaBucket()).createSignedUrl(path, 60 * 60);
   return data?.signedUrl ?? null;
 }
 
@@ -279,7 +280,7 @@ export async function uploadVendorInvoiceFile(
         ? file.fileName.split(".").pop()?.slice(0, 8) || "jpg"
         : "jpg";
   const path = `${token["organization_id"]}/${token["work_order_id"]}/invoice-${Date.now()}-${randomBytes(4).toString("hex")}.${ext}`;
-  const { error } = await admin.storage.from("media").upload(path, file.bytes, {
+  const { error } = await admin.storage.from(mediaBucket()).upload(path, file.bytes, {
     contentType: file.contentType || (kind === "pdf" ? "application/pdf" : "image/jpeg"),
     upsert: false
   });

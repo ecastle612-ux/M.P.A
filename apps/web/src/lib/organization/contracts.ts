@@ -14,12 +14,14 @@ export type SwitchOrganizationInput = {
 export type InviteOrganizationMemberInput = {
   email: string;
   roles: UserRole[];
+  propertyIds?: string[];
 };
 
 export type UpdateOrganizationMembershipInput = {
   membershipId: string;
   roles?: UserRole[];
   status?: "active" | "inactive";
+  propertyIds?: string[];
 };
 
 export type UpdateOrganizationInput = {
@@ -78,7 +80,14 @@ export function parseInviteOrganizationMemberInput(payload: unknown): InviteOrga
   if (!isEmail(email) || roles.length === 0) {
     return null;
   }
-  return { email, roles };
+  const propertyIds = Array.isArray(value["propertyIds"])
+    ? value["propertyIds"].filter((id): id is string => typeof id === "string" && isUuid(id))
+    : undefined;
+  return {
+    email,
+    roles,
+    ...(propertyIds !== undefined ? { propertyIds } : {})
+  };
 }
 
 export function parseUpdateOrganizationInput(payload: unknown): UpdateOrganizationInput | null {
@@ -118,6 +127,12 @@ export function parseUpdateOrganizationMembershipInput(payload: unknown): Update
   }
   if (status) {
     result.status = status;
+  }
+  const propertyIds = Array.isArray(value["propertyIds"])
+    ? value["propertyIds"].filter((id): id is string => typeof id === "string" && isUuid(id))
+    : undefined;
+  if (propertyIds !== undefined) {
+    result.propertyIds = propertyIds;
   }
   return result;
 }

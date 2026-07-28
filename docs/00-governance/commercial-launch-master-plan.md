@@ -173,9 +173,10 @@ Single checklist for launch readiness. Items may be Partially Complete where pri
 - [ ] Allocation / schedule controls authorized only in approved FIN-003 phases
 - [ ] Regression smoke after Blockers 4–5
 
-### Vendor Portal
+### Vendor participation (secure links — Vendor Portal retired)
 
 - [x] VENDOR-001 Phase B commercial cert PASS
+- [x] Authenticated Vendor Portal retired (product correction 2026-07-26)
 - [ ] No accidental coupling to owner Connect payouts (ADR-004 separate)
 
 ### Documentation

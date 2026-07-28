@@ -10,9 +10,10 @@ When authenticated subject has `master_admin`, replace dead-end **Return to Oper
 | CTA | Target |
 | --- | --- |
 | Open Resident Portal | Resident portal in Test Mode |
-| Open Vendor Portal | Vendor portal in Test Mode |
 | Open Owner Portal | Owner portal in Test Mode (even if unfinished for production) |
 | Open Manager Portal | Manager / Operations experience labeled as Manager Portal Test Mode (or dedicated shell when it exists; until then Operations Center under Test Mode banner is acceptable if documented in implementation notes) |
+
+Vendor Portal Test Mode is **removed** (product correction 2026-07-26). Vendors use secure `/v/[token]` links; Master Admin uses Vendor Directory for internal vendor records.
 
 Non–Master Admin users: **unchanged** current hub behavior.
 
@@ -42,5 +43,5 @@ Visual rules (Canopy):
 
 From Impersonation Center (or Master Admin Testing):
 
-- Launch directly into Resident / Vendor / Owner / Manager Test Mode without searching for a user.
+- Launch directly into Resident / Owner / Manager Test Mode without searching for a user.
 - Same banner and exit semantics.

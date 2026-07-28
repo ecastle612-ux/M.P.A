@@ -19,6 +19,7 @@ export type MoveInChecklist = {
   welcomeSms: boolean;
   pushEnabled: boolean;
   documentsUploaded: boolean;
+  acknowledgementSigned: boolean;
 };
 
 export type MoveOutChecklist = {
@@ -29,6 +30,7 @@ export type MoveOutChecklist = {
   depositResolved: boolean;
   documentsArchived: boolean;
   accessDisabled: boolean;
+  acknowledgementSigned: boolean;
 };
 
 export type MoveInDraftInput = {
@@ -134,7 +136,8 @@ export function emptyMoveInChecklist(): MoveInChecklist {
     welcomeEmail: false,
     welcomeSms: false,
     pushEnabled: false,
-    documentsUploaded: false
+    documentsUploaded: false,
+    acknowledgementSigned: false
   };
 }
 
@@ -146,7 +149,8 @@ export function emptyMoveOutChecklist(): MoveOutChecklist {
     finalBalanceSettled: false,
     depositResolved: false,
     documentsArchived: false,
-    accessDisabled: false
+    accessDisabled: false,
+    acknowledgementSigned: false
   };
 }
 

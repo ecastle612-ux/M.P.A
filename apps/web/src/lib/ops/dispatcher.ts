@@ -83,11 +83,25 @@ async function runConsumers(client: OpsDbClient, row: DomainEventRow): Promise<v
     payload: row.payload,
     correlation_id: row.correlation_id
   });
+  // OPS-001 Slice D — Automation Engine + AI Operations Director.
+  const domainLike = {
+    event_id: row.event_id,
+    event_type: row.event_type,
+    organization_id: row.organization_id,
+    subject: row.subject as { type?: string; id?: string },
+    payload: row.payload,
+    correlation_id: row.correlation_id,
+    causation_id: row.causation_id
+  };
+  const { consumeEventForAutomation } = await import("./automation-engine");
+  await consumeEventForAutomation(client, domainLike);
+  const { consumeEventForAiDirector } = await import("./ai-director");
+  await consumeEventForAiDirector(client, domainLike);
 }
 
 /**
  * Process a single outbox event through registered consumers
- * (TimelineProjector + Notification Center + Workflow Orchestration). Always uses service role.
+ * (Timeline + Notify + Workflow + Automation + AI Director). Always uses service role.
  */
 export async function processOutboxEvent(eventId: string): Promise<"processed" | "failed"> {
   const client = serviceClient();

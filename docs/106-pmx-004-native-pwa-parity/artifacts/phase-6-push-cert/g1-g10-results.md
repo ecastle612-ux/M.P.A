@@ -9,7 +9,7 @@
 | **G2** | iPhone PWA receives | ✅ **PASS** | Phase 1 T4 PASS · iPhone 16 Pro A2HS (Apple capability noted) |
 | **G3** | Desktop Chrome + Edge | ✅ **Accepted deferral** | Non-blocking Product Accept — Phase 6 minimum = mobile installed PWA (see `product-accept-deferrals.md`) |
 | **G4** | Role matrix (implemented rows) | ✅ **PASS** (wired) | Code wiring + Phase 1 T4; unimplemented matrix rows remain deferred (PUSH-001 §03) |
-| **G5** | Deep links correct | ✅ **PASS** | Absolute URLs · role helpers · unit tests · Phase 1 T4 tap · Phase 6 owner/reports repair |
+| **G5** | Deep links correct | ✅ **PASS** | Absolute URLs · role helpers · unit tests · Phase 1 T4 tap · Phase 6 owner/reports repair · **Production-true** on `5a6129c` / `dpl_9RNtpiWqc5pDXEa9dzrV26hnKcKp` ([37](../../../37-phase-6-validation-rerun-3.md)) |
 | **G6** | No duplicates (same event key) | ✅ **PASS** | `eventKey` + DB idempotency (`23505`) · OneSignal UUID idempotency key |
 | **G7** | Diagnostics healthy registrations | ✅ **PASS** (code + prior attest) | MA `/master-admin/notifications` diagnostics path present; Phase 1 enroll PASS on devices |
 | **G8** | MA / Settings Send Test path | ✅ **PASS** (path certified) | `api/master-admin/notifications/test` + Settings test exist; Phase 1 T4 delivery covers exercised sends |

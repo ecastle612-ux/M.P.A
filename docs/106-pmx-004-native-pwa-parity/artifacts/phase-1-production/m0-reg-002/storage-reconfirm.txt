@@ -1,0 +1,6 @@
+upload OK
+signed OK
+download 200 application/pdf
+legacy_media ERR:Bucket not found
+buckets media-private:public=false
+cleanup OK

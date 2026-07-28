@@ -1,0 +1,15 @@
+{
+  "url": "https://www.my-property-assistant.com/properties",
+  "apiProbe": {
+    "status": 200,
+    "itemCount": 1,
+    "names": [
+      "QA Certification Property"
+    ]
+  },
+  "bodyIncludesQa": true,
+  "htmlIncludesQa": true,
+  "bodySample": "Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendors Communications • Inbox Accounting • Reports AI Operations WORKSPACE Migration Center Settings Profile Portals Start work, continue jobs, search records… ⌘K Private Beta · v1.0.0-beta · pr002 · Feedback soon Alerts 0 QP Dashboard Properties PROPERTIES 1 1 active → TOTAL UNITS 2 OCCUPANCY 50% 1/2 occupied → VACANCIES 1 AI recommendations ",
+  "emptyState": false,
+  "loading": false
+}

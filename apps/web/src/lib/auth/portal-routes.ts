@@ -9,7 +9,8 @@ export function toPortalPath(role: UserRole): string {
     case "tenant":
       return "/portal/tenant";
     case "vendor":
-      return "/portal/vendor";
+      // Product correction: Vendor Portal retired — secure action links only.
+      return "/vendor-access";
     default:
       return "/portal";
   }

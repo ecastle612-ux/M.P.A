@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { noopSaasBillingProvider } from "./noop-provider";
-import { stripeSaasBillingProvider } from "./stripe-provider";
+import { stripeSaasBillingProvider, resolveSandboxCheckoutSuccessUrl } from "./stripe-provider";
 import { getSaasBillingProvider, resolveDefaultSaasBillingProviderId } from "./registry";
 import { resolvePlanFromPriceId, resolvePriceId } from "./plan-catalog";
 
@@ -36,6 +36,19 @@ describe("noop SaaS billing provider", () => {
     });
     expect(checkout.sessionId).toContain("noop_cs");
     expect(checkout.url).toContain("session_id=");
+
+    const publicCheckout = await noopSaasBillingProvider.createCheckoutSession({
+      customerEmail: "buyer@acme.test",
+      priceId: "noop_price",
+      planCode: "business",
+      billingInterval: "month",
+      successUrl: "http://localhost/acquire/success?session_id={CHECKOUT_SESSION_ID}",
+      cancelUrl: "http://localhost/acquire/canceled",
+      metadata: { mpa_acq: "public", buyer_company_name: "Acme" }
+    });
+    expect(publicCheckout.url).toContain(publicCheckout.sessionId);
+    expect(publicCheckout.url).not.toContain("{CHECKOUT_SESSION_ID}");
+    expect(publicCheckout.url).toContain("plan=business");
 
     const portal = await noopSaasBillingProvider.createPortalSession({
       externalCustomerId: customer.externalCustomerId,
@@ -138,5 +151,16 @@ describe("plan catalog", () => {
     expect(ref?.priceId).toContain("price_saas_sandbox_professional_month");
     expect(resolvePlanFromPriceId(ref?.priceId)?.planCode).toBe("professional");
     if (previous) process.env["STRIPE_SAAS_PRICE_PROFESSIONAL_MONTHLY"] = previous;
+  });
+});
+
+describe("ACQ-001 sandbox Checkout success URL", () => {
+  it("replaces Stripe CHECKOUT_SESSION_ID template", () => {
+    expect(
+      resolveSandboxCheckoutSuccessUrl(
+        "http://localhost/acquire/success?session_id={CHECKOUT_SESSION_ID}",
+        "cs_saas_sandbox_1"
+      )
+    ).toBe("http://localhost/acquire/success?session_id=cs_saas_sandbox_1");
   });
 });

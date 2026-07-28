@@ -4,8 +4,10 @@ import {
   type DevMasterAdminUserContext
 } from "@mpa/shared";
 import { createAuthServerComponentClient } from "../auth/server";
+import { organizationHasReadyRecoveryContact } from "../auth/recovery/recovery-contact";
 import { resolveActiveOrganizationIdForUser, getOrganizationsForUser } from "../organization/server";
 import { getPortfolioCounts } from "../workflow/server/portfolio-counts";
+import { buildSetupStepCompletion } from "./completion";
 import { SETUP_STEP_LABELS, SETUP_STEPS, type SetupStep } from "./constants";
 import type { SetupStatus, SetupStepStatus } from "./types";
 
@@ -56,9 +58,19 @@ export async function getSetupStatus(
   let vendorsCount = 0;
   let paymentsCount = 0;
   let invitationsCount = 0;
+  let recoveryContactReady = false;
+  let commercialStatus: string | null = null;
 
   if (organizationId) {
-    const portfolioCounts = await getPortfolioCounts(organizationId);
+    const [portfolioCounts, recoveryReady, orgRow] = await Promise.all([
+      getPortfolioCounts(organizationId),
+      organizationHasReadyRecoveryContact(organizationId).catch(() => false),
+      supabase
+        .from("organizations")
+        .select("commercial_status")
+        .eq("id", organizationId)
+        .maybeSingle()
+    ]);
     propertiesCount = portfolioCounts.properties;
     unitsCount = portfolioCounts.units;
     tenantsCount = portfolioCounts.tenants;
@@ -67,29 +79,27 @@ export async function getSetupStatus(
     vendorsCount = portfolioCounts.vendors;
     paymentsCount = portfolioCounts.payments;
     invitationsCount = portfolioCounts.invitations;
+    recoveryContactReady = recoveryReady;
+    const orgData = orgRow.data as { commercial_status?: string | null } | null;
+    commercialStatus =
+      orgData?.commercial_status != null ? String(orgData.commercial_status) : null;
   }
 
   const hasOrganization = organizations.length > 0;
   // Invite is optional — never block setup completion / SetupGate on skipped invites.
   const inviteComplete = inviteSkipped || invitationsCount > 0;
-
-  const stepCompletion: Record<SetupStep, boolean> = {
-    welcome: true,
-    profile: profileComplete,
-    organization: hasOrganization,
-    invite: inviteComplete,
-    property: propertiesCount > 0,
-    units: unitsCount > 0,
-    tenant: tenantsCount > 0,
-    lease: leasesCount > 0,
-    complete:
-      profileComplete &&
-      hasOrganization &&
-      propertiesCount > 0 &&
-      unitsCount > 0 &&
-      tenantsCount > 0 &&
-      leasesCount > 0
-  };
+  const commerciallyActive = commercialStatus === "active";
+  const stepCompletion = buildSetupStepCompletion({
+    profileComplete,
+    hasOrganization,
+    inviteComplete,
+    propertiesCount,
+    unitsCount,
+    tenantsCount,
+    leasesCount,
+    recoveryContactReady,
+    commerciallyActive
+  });
 
   const steps: SetupStepStatus[] = SETUP_STEPS.filter((step) => step !== "complete").map((step) => ({
     id: step,
@@ -124,6 +134,10 @@ export async function getSetupStatus(
       invitations: invitationsCount
     },
     profileComplete,
-    inviteSkipped
+    inviteSkipped,
+    recoveryContactReady,
+    commerciallyActive,
+    commercialStatus,
+    organizationId
   };
 }

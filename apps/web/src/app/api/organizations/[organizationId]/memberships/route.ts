@@ -50,8 +50,10 @@ export async function GET(_request: Request, context: { params: Promise<{ organi
   }
 
   const memberships = data ?? [];
+  const membershipIds = memberships.map((row) => row.id);
   const userIds = memberships.map((row) => row.user_id);
   const profileByUserId = new Map<string, { displayName: string | null; contactEmail: string | null }>();
+  const propertyIdsByMembershipId = new Map<string, string[]>();
 
   if (userIds.length > 0) {
     const service = createServiceRoleServerClient();
@@ -69,13 +71,31 @@ export async function GET(_request: Request, context: { params: Promise<{ organi
     }
   }
 
+  if (membershipIds.length > 0) {
+    const service = createServiceRoleServerClient();
+    const scopeClient = service ?? supabase;
+    const { data: scopes } = await scopeClient
+      .from("membership_property_scopes")
+      .select("membership_id, property_id")
+      .eq("organization_id", organizationId)
+      .in("membership_id", membershipIds);
+
+    for (const scope of (scopes ?? []) as Array<{ membership_id: string; property_id: string }>) {
+      const membershipId = String(scope.membership_id);
+      const existing = propertyIdsByMembershipId.get(membershipId) ?? [];
+      existing.push(String(scope.property_id));
+      propertyIdsByMembershipId.set(membershipId, existing);
+    }
+  }
+
   return NextResponse.json({
     memberships: memberships.map((row) => {
       const profile = profileByUserId.get(row.user_id);
       return {
         ...row,
         display_name: profile?.displayName ?? null,
-        contact_email: profile?.contactEmail ?? null
+        contact_email: profile?.contactEmail ?? null,
+        property_ids: propertyIdsByMembershipId.get(row.id) ?? []
       };
     }),
     canUpdate: authz.canUpdateMemberships

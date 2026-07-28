@@ -141,6 +141,8 @@
 
 ## Phase 6 — Push Notification Certification
 
+**Status:** ✅ **IMPLEMENTED / CERTIFIED** ([33](./33-phase-6-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 6`
+
 Aligns with [PUSH-001](../99-push-001-pwa-push-commercial-certification/10-pass-criteria.md).
 
 ### Work
@@ -154,6 +156,8 @@ Aligns with [PUSH-001](../99-push-001-pwa-push-commercial-certification/10-pass-
 ### Done when
 
 - PUSH-001 G1–G10 PASS (or explicit deferred with Product Accept for non-blocking cells).
+
+**Evidence:** [artifacts/phase-6-push-cert/](./artifacts/phase-6-push-cert/README.md)
 
 ---
 

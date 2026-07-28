@@ -20,6 +20,18 @@ import {
 } from "./contracts";
 
 type SupabaseClientType = Awaited<ReturnType<typeof createAuthServerComponentClient>>;
+// API-004 signature tables may lag generated Database types.
+type SignatureClientLoose = {
+  from: (table: string) => {
+    select: (columns: string) => SignatureQuery;
+  };
+};
+type SignatureQuery = {
+  eq: (column: string, value: unknown) => SignatureQuery;
+  limit: (count: number) => SignatureQuery;
+  maybeSingle: () => Promise<{ data: unknown }>;
+  then?: unknown;
+} & PromiseLike<{ data: unknown[] | null }>;
 
 /** Loose table access for tables not yet in generated Database types (e.g. rent_charges). */
 function db(client: SupabaseClientType) {
@@ -49,6 +61,7 @@ export type MoveInResult = {
   checklist: MoveInChecklist;
   invitationSent: boolean;
   welcomeSent: boolean;
+  pendingAcknowledgement?: boolean;
 };
 
 export type MoveOutResult = {
@@ -142,7 +155,7 @@ export async function buildMoveInChecklist(
   if (leaseId) {
     const { data: lease } = await supabase
       .from("leases")
-      .select("id, status, signed_at, security_deposit")
+      .select("id, status, signed_at, security_deposit, metadata")
       .eq("organization_id", organizationId)
       .eq("id", leaseId)
       .is("deleted_at", null)
@@ -150,6 +163,11 @@ export async function buildMoveInChecklist(
     if (lease) {
       checklist.leaseGenerated = true;
       checklist.leaseSigned = Boolean(lease.signed_at) || lease.status === "signed" || lease.status === "active";
+      const leaseMeta =
+        lease.metadata && typeof lease.metadata === "object" && !Array.isArray(lease.metadata)
+          ? (lease.metadata as Record<string, unknown>)
+          : {};
+      checklist.acknowledgementSigned = Boolean(leaseMeta["moveInAcknowledgementCompletedAt"]);
 
       if (Number(lease.security_deposit) <= 0) {
         checklist.depositReceived = true;
@@ -171,6 +189,19 @@ export async function buildMoveInChecklist(
           Number(depositCharge.outstanding_balance) <= 0 ||
           depositCharge.status === "paid";
       }
+    }
+
+    if (!checklist.acknowledgementSigned) {
+      const { data: moveInPkg } = await (supabase as unknown as SignatureClientLoose)
+        .from("signature_requests")
+        .select("id, status")
+        .eq("organization_id", organizationId)
+        .eq("lease_id", leaseId)
+        .eq("request_type", "move_in_form")
+        .eq("status", "completed")
+        .limit(1)
+        .maybeSingle();
+      checklist.acknowledgementSigned = Boolean(moveInPkg);
     }
   }
 
@@ -390,19 +421,43 @@ export async function completeResidentMoveIn(
     );
   }
 
+  const { getOrganizationSignatureSettings, createSignaturePackage } = await import("../signature/server");
+  const { isMoveInAcknowledgementRequired } = await import("../signature/settings");
+  const signatureSettings = await getOrganizationSignatureSettings(organizationId, supabase);
+  const ackRequired = isMoveInAcknowledgementRequired(signatureSettings);
+  let preChecklist = await buildMoveInChecklist(organizationId, tenant.id, lease.id, supabase);
+  if (ackRequired && !preChecklist.acknowledgementSigned) {
+    try {
+      await createSignaturePackage(
+        organizationId,
+        userId,
+        {
+          leaseId: lease.id,
+          tenantId: tenant.id,
+          documentType: "move_in_form"
+        },
+        supabase
+      );
+    } catch {
+      // Package may already exist — checklist/UI will surface it.
+    }
+  }
+
   const invitationSent = await inviteResidentPortal(organizationId, tenant.email, userId, supabase);
   let welcomeSent = false;
   if (input.sendWelcome !== false) {
     welcomeSent = await sendWelcomeNotifications(organizationId, userId, tenant, lease, supabase);
   }
 
+  const pendingAcknowledgement = ackRequired && !preChecklist.acknowledgementSigned;
   const activatedTenant = await updateTenant(
     organizationId,
     tenant.id,
     userId,
     {
       status: "active",
-      lifecycleStatus: input.activateLease === false ? "awaiting_signature" : "active",
+      lifecycleStatus:
+        input.activateLease === false || pendingAcknowledgement ? "awaiting_signature" : "active",
       moveInDate: input.moveInDate,
       propertyId: input.propertyId,
       unitId: input.unitId,
@@ -414,7 +469,8 @@ export async function completeResidentMoveIn(
         guarantors: input.guarantors,
         welcomeEmailSentAt: welcomeSent ? new Date().toISOString() : tenant.metadata["welcomeEmailSentAt"],
         portalInviteSentAt: invitationSent ? new Date().toISOString() : tenant.metadata["portalInviteSentAt"],
-        moveInCompletedAt: new Date().toISOString()
+        moveInPendingAcknowledgement: pendingAcknowledgement,
+        ...(pendingAcknowledgement ? {} : { moveInCompletedAt: new Date().toISOString() })
       }
     },
     supabase
@@ -426,6 +482,7 @@ export async function completeResidentMoveIn(
   checklist.leaseSigned = lease.status === "signed" || lease.status === "active" || Boolean(lease.signedAt);
   checklist.portalReady = checklist.portalReady || invitationSent;
   checklist.welcomeEmail = checklist.welcomeEmail || welcomeSent;
+  if (pendingAcknowledgement) checklist.acknowledgementSigned = false;
 
   await updateTenant(
     organizationId,
@@ -434,7 +491,8 @@ export async function completeResidentMoveIn(
     {
       metadata: {
         ...finalTenant.metadata,
-        moveInChecklist: checklist
+        moveInChecklist: checklist,
+        moveInPendingAcknowledgement: pendingAcknowledgement
       }
     },
     supabase
@@ -445,19 +503,22 @@ export async function completeResidentMoveIn(
     finalTenant.id,
     lease.id,
     userId,
-    "move_in_completed",
-    `Resident activated: ${finalTenant.firstName} ${finalTenant.lastName}`,
+    pendingAcknowledgement ? "move_in_started" : "move_in_completed",
+    pendingAcknowledgement
+      ? `Move-in pending acknowledgement: ${finalTenant.firstName} ${finalTenant.lastName}`
+      : `Resident activated: ${finalTenant.firstName} ${finalTenant.lastName}`,
     {
       leaseId: lease.id,
       invitationSent,
       welcomeSent,
       checklist,
-      occupancyUpdated: true
+      occupancyUpdated: true,
+      pendingAcknowledgement
     },
     supabase
   );
 
-  if (finalTenant.propertyId) {
+  if (finalTenant.propertyId && !pendingAcknowledgement) {
     const { ingestResidentMovedIn } = await import("../facility/ingest");
     await ingestResidentMovedIn({
       organizationId,
@@ -475,7 +536,8 @@ export async function completeResidentMoveIn(
     lease,
     checklist,
     invitationSent,
-    welcomeSent
+    welcomeSent,
+    pendingAcknowledgement
   };
 }
 
@@ -487,6 +549,8 @@ export async function getMoveOutContext(
   tenant: TenantRecord & { propertyName: string | null; unitNumber: string | null };
   lease: LeaseRecord | null;
   balance: number;
+  acknowledgementSigned: boolean;
+  acknowledgementRequired: boolean;
 }> {
   const supabase = await resolveClient(client);
   const tenant = await getTenantForOrganization(organizationId, tenantId, supabase);
@@ -520,7 +584,39 @@ export async function getMoveOutContext(
     );
   }
 
-  return { tenant, lease, balance };
+  const leaseMeta = lease?.metadata ?? {};
+  let acknowledgementSigned =
+    Boolean(leaseMeta["moveOutAcknowledgementCompletedAt"]) ||
+    Boolean(tenant.metadata["moveOutAcknowledgementCompletedAt"]);
+  if (!acknowledgementSigned && lease) {
+    const { data: moveOutPkg } = await (supabase as unknown as SignatureClientLoose)
+      .from("signature_requests")
+      .select("id, status, metadata")
+      .eq("organization_id", organizationId)
+      .eq("lease_id", lease.id)
+      .eq("request_type", "general_pdf")
+      .eq("status", "completed")
+      .limit(20);
+    acknowledgementSigned = ((moveOutPkg ?? []) as Array<{ metadata?: unknown }>).some((row) => {
+      const meta =
+        row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata)
+          ? (row.metadata as Record<string, unknown>)
+          : {};
+      return meta["kind"] === "move_out_ack";
+    });
+  }
+
+  const { getOrganizationSignatureSettings } = await import("../signature/server");
+  const { isMoveOutAcknowledgementRequired } = await import("../signature/settings");
+  const settings = await getOrganizationSignatureSettings(organizationId, supabase);
+
+  return {
+    tenant,
+    lease,
+    balance,
+    acknowledgementSigned,
+    acknowledgementRequired: isMoveOutAcknowledgementRequired(settings)
+  };
 }
 
 export async function completeResidentMoveOut(
@@ -532,6 +628,12 @@ export async function completeResidentMoveOut(
   const supabase = await resolveClient(client);
   const context = await getMoveOutContext(organizationId, input.tenantId, supabase);
   const leaseId = input.leaseId ?? context.lease?.id ?? null;
+
+  if (context.acknowledgementRequired && !context.acknowledgementSigned) {
+    throw new Error(
+      "Move-out acknowledgement must be signed before move-out can be completed. Open the lease and send the Move-Out Acknowledgement."
+    );
+  }
 
   await updateTenant(
     organizationId,
@@ -592,7 +694,8 @@ export async function completeResidentMoveOut(
     accessDisabled,
     depositResolved: Boolean(input.depositDisposition && input.depositDisposition !== "pending"),
     finalBalanceSettled:
-      context.balance <= 0 || Boolean(input.checklist?.finalBalanceSettled) || Boolean(input.finalChargesAmount != null)
+      context.balance <= 0 || Boolean(input.checklist?.finalBalanceSettled) || Boolean(input.finalChargesAmount != null),
+    acknowledgementSigned: context.acknowledgementSigned
   };
 
   const tenant = await updateTenant(

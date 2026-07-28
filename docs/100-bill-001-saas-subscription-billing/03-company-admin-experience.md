@@ -15,7 +15,7 @@
 | Billing History | List of invoices with status + amounts |
 | Invoices | Open hosted invoice URL / PDF |
 | Payment Method | Summary + change via Customer Portal (card data never stored in M.P.A.) |
-| Usage | Properties / units / residents vs plan limits (tracking now; enforcement Phase C) |
+| Usage | Properties / seats vs plan limits (**enforced** Phase C) |
 | Upgrade | Checkout (new) or Portal plan change (existing) |
 | Downgrade | Via Portal with confirmation of price / effective date / proration |
 | Cancel | Cancel at period end via Portal; access until then |

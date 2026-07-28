@@ -29,4 +29,9 @@ describe("PMX-004 Phase 4 standalone open classification", () => {
     expect(guessKindFromContentType("application/pdf", "/x")).toBe("pdf");
     expect(guessKindFromContentType("image/png", "/x")).toBe("image");
   });
+
+  it("adds inline=1 for reporting preview downloads", () => {
+    expect(hrefForInAppPreview("/api/reporting/versions/v1/download?propertyId=p")).toContain("inline=1");
+    expect(hrefForInAppPreview("https://cdn.example/a.pdf")).toBe("https://cdn.example/a.pdf");
+  });
 });

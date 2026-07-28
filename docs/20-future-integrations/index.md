@@ -24,7 +24,7 @@ M.P.A. owns the **workflow graph**. Third-party systems own specialized capabili
 | Provider | Workflow | Integration Point | Priority |
 |----------|----------|-------------------|----------|
 | **Checkr** (recommended first) / **TransUnion SmartMove** / RentPrep / Equifax | Tenant screening | Webhook + Edge Function — design: [API-003](../48-api-003-background-screening/README.md) (INT-201) | P1 (Phase 5) |
-| **Dropbox Sign** (recommended first) / **DocuSign** / Adobe Acrobat Sign / SignNow / PandaDoc | Lease signing & digital execution | Webhook + Edge Function — design: [API-004](../50-api-004-electronic-signatures/README.md) (INT-202) | P1 (Phase 5) |
+| **SignWell** (V1.0) / **DocuSign** / Adobe Acrobat Sign / SignNow / PandaDoc | Lease signing & digital execution | Webhook — design: [API-004](../50-api-004-electronic-signatures/README.md) · [ADR-030](../18-decision-log/adr-030-signwell-as-primary-esign-provider.md) (INT-202) | P1 (Phase 5) |
 | **Zillow Rental Manager** | Listing syndication | API integration | P2 |
 | **Apartments.com** | Listing syndication | API integration | P2 |
 

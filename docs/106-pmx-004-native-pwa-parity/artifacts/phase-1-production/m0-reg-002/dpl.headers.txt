@@ -1,0 +1,66 @@
+HTTP/2 302 
+cache-control: no-store, max-age=0
+content-type: text/plain
+date: Fri, 24 Jul 2026 03:03:58 GMT
+location: https://vercel.com/sso-api?url=https%3A%2F%2Fm-p-a-e8eug8z68-ecastle612-uxs-projects.vercel.app%2Flogin&nonce=31861fa0e1cfb59e40893fc8808f423aac800c3afdf09abe81c1c5e4c9a8fcea
+server: Vercel
+set-cookie: _vercel_sso_nonce=5d6e2e3e40acc0515ee0b4da54d31df8da422774c4755337; Max-Age=3600; Path=/; Secure; HttpOnly; SameSite=Lax
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+x-frame-options: DENY
+x-robots-tag: noindex
+x-vercel-id: cle1::pqzx7-1784862238269-56d31ecc2589
+
+HTTP/2 307 
+age: 0
+cache-control: public, max-age=0, must-revalidate
+content-security-policy: default-src 'self' vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: www.google.com www.gstatic.com *.youtube.com *.youtube-nocookie.com *.ytimg.com *.twimg.com cdn.ampproject.org *.googleapis.com *.fides-cdn.ethyca.com *.ethyca.com cdn.ethyca.com cdn.vercel-insights.com va.vercel-scripts.com cdp.vercel.com vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;child-src *.youtube.com *.youtube-nocookie.com *.stripe.com www.google.com github.com calendly.com *.vusercontent.net *.vercel.run vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;style-src 'self' 'unsafe-inline' *.googleapis.com vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;img-src * blob: data:;media-src 'self' videos.ctfassets.net user-images.githubusercontent.com replicate.delivery *.public.blob.vercel-storage.com *.private.blob.vercel-storage.com blob: data: vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;connect-src wss://ws-us3.pusher.com data: * https://*.contentful.com cdp.vercel.com;font-src 'self' *.vercel.com *.gstatic.com vercel.live;frame-ancestors 'self' https://vercel.com https://app.contentful.com https://*.contentful.com https://*.vercel.sh https://*.vercel.com;worker-src 'self' *.vercel.com blob:
+date: Fri, 24 Jul 2026 03:03:58 GMT
+feature-policy: fullscreen 'self'; camera 'none'
+location: /login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Fm-p-a-e8eug8z68-ecastle612-uxs-projects.vercel.app%252Flogin%26nonce%3D31861fa0e1cfb59e40893fc8808f423aac800c3afdf09abe81c1c5e4c9a8fcea
+referrer-policy: origin-when-cross-origin
+server: Vercel
+set-cookie: visitor-id=2BUvgTBlLS7fHyyuA6KcG; Path=/; Max-Age=86400
+set-cookie: _v-anonymous-id=KUSGxcNi9xeIN77l1onLI; Path=/; Max-Age=7776000; SameSite=Lax; Secure; Domain=.vercel.com
+set-cookie: _v-anonymous-id-renewed=1; Path=/; Max-Age=86400; SameSite=Lax; Secure; Domain=.vercel.com
+set-cookie: _v-consent=%7B%22essential%22%3Atrue%2C%22analytics%22%3Atrue%2C%22marketing%22%3Atrue%2C%22functional%22%3Atrue%2C%22version%22%3A1%7D; Path=/; Max-Age=31536000; SameSite=Lax; Secure; Domain=.vercel.com
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-content-type-options: nosniff
+x-dns-prefetch-control: on
+x-download-options: noopen
+x-frame-options: DENY
+x-matched-path: /api/sso
+x-nextjs-rewritten-path: /api/sso
+x-vercel-cache: MISS
+x-vercel-id: cle1::sfo1::mvhq7-1784862238485-a4534fab55f2
+x-xss-protection: 0
+
+HTTP/2 200 
+accept-ranges: bytes
+access-control-allow-origin: *
+age: 7942
+cache-control: public, max-age=0, must-revalidate
+content-disposition: inline
+content-security-policy: default-src 'self' vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: www.google.com www.gstatic.com *.youtube.com *.youtube-nocookie.com *.ytimg.com *.twimg.com cdn.ampproject.org *.googleapis.com *.fides-cdn.ethyca.com *.ethyca.com cdn.ethyca.com cdn.vercel-insights.com va.vercel-scripts.com cdp.vercel.com vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;child-src *.youtube.com *.youtube-nocookie.com *.stripe.com www.google.com github.com calendly.com *.vusercontent.net *.vercel.run vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;style-src 'self' 'unsafe-inline' *.googleapis.com vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;img-src * blob: data:;media-src 'self' videos.ctfassets.net user-images.githubusercontent.com replicate.delivery *.public.blob.vercel-storage.com *.private.blob.vercel-storage.com blob: data: vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;connect-src wss://ws-us3.pusher.com data: * https://*.contentful.com cdp.vercel.com;font-src 'self' *.vercel.com *.gstatic.com vercel.live;frame-ancestors 'self' https://vercel.com https://app.contentful.com https://*.contentful.com https://*.vercel.sh https://*.vercel.com;worker-src 'self' *.vercel.com blob:
+content-type: text/html; charset=utf-8
+date: Fri, 24 Jul 2026 03:03:58 GMT
+feature-policy: fullscreen 'self'; camera 'none'
+link: <https://avatars.githubusercontent.com>; rel=preconnect; crossorigin="", <https://py8fhxnkzwtsqdo9.public.blob.vercel-storage.com>; rel=preconnect; crossorigin="", <https://images.ctfassets.net>; rel=preconnect; crossorigin="", <https://accounts.google.com>; rel=preconnect; crossorigin="", </_next/static/immutable/media/797e433ab948586e.p.1v5bejj26fx9h.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/immutable/media/Geist_Variable-s.p.2v-cf9syxr5ni.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2"
+referrer-policy: origin-when-cross-origin
+server: Vercel
+set-cookie: visitor-id=N8AIHoCg-MhIaIKlniz_X; Path=/; Max-Age=86400
+set-cookie: _v-anonymous-id=TYKn35uQwA1ZR2bwMl7_C; Path=/; Max-Age=7776000; SameSite=Lax; Secure; Domain=.vercel.com
+set-cookie: _v-anonymous-id-renewed=1; Path=/; Max-Age=86400; SameSite=Lax; Secure; Domain=.vercel.com
+set-cookie: _v-consent=%7B%22essential%22%3Atrue%2C%22analytics%22%3Atrue%2C%22marketing%22%3Atrue%2C%22functional%22%3Atrue%2C%22version%22%3A1%7D; Path=/; Max-Age=31536000; SameSite=Lax; Secure; Domain=.vercel.com
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+x-content-type-options: nosniff
+x-dns-prefetch-control: on
+x-download-options: noopen
+x-frame-options: DENY
+x-matched-path: /login
+x-nextjs-prerender: 1
+x-nextjs-stale-time: 300
+x-vercel-cache: HIT
+x-vercel-id: cle1::87j2z-1784862238652-a0952f9ed45b
+x-xss-protection: 0
+

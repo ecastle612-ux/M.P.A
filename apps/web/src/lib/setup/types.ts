@@ -25,6 +25,12 @@ export type SetupStatus = {
   };
   profileComplete: boolean;
   inviteSkipped: boolean;
+  /** Secondary recovery contact verified + acknowledged (AUTH-001 Finish Setup). */
+  recoveryContactReady: boolean;
+  /** Organization commercial_status === active. */
+  commerciallyActive: boolean;
+  commercialStatus: string | null;
+  organizationId: string | null;
 };
 
 export type WorkflowAction = {

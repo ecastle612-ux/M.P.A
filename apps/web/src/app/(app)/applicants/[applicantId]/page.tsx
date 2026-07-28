@@ -123,6 +123,9 @@ export default async function ApplicantDetailPage({
           {canReadSignature ? (
             <SignaturePackagePanel
               applicantId={applicantId}
+              documentType="lease_agreement"
+              title="Lease Agreement"
+              createLabel="Create lease signature package"
               canCreate={canCreateSignature}
               canSend={canSendSignature}
             />

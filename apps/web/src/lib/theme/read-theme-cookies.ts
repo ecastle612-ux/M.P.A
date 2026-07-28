@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import {
+  DEFAULT_THEME_PREFERENCE,
   THEME_MODE_COOKIE,
   THEME_PREFERENCE_COOKIE,
   isThemeMode,
@@ -14,15 +15,17 @@ export type ServerThemeState = {
 };
 
 /**
- * Authoritative SSR theme. Defaults to light only when no cookie exists yet
- * (first visit). Subsequent requests use the cookie written by beforeInteractive / ThemeProvider.
+ * Authoritative SSR theme. First visit (no cookies) defaults to light.
+ * Subsequent requests use the cookie written by beforeInteractive / ThemeProvider.
  */
 export async function readServerThemeState(): Promise<ServerThemeState> {
   const jar = await cookies();
   const modeRaw = jar.get(THEME_MODE_COOKIE)?.value;
   const preferenceRaw = jar.get(THEME_PREFERENCE_COOKIE)?.value;
 
-  const preference: ThemePreference = isThemePreference(preferenceRaw) ? preferenceRaw : "system";
+  const preference: ThemePreference = isThemePreference(preferenceRaw)
+    ? preferenceRaw
+    : DEFAULT_THEME_PREFERENCE;
   const mode: ThemeMode = isThemeMode(modeRaw)
     ? modeRaw
     : preference === "light" || preference === "dark"

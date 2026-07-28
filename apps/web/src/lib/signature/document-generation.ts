@@ -1,12 +1,11 @@
 import { createHash } from "node:crypto";
 import {
-  DEFAULT_LEASE_REQUIRED_FIELDS,
-  DEFAULT_LEASE_TEMPLATE,
   mergeTemplate,
   missingMergeFields,
   type MergeFieldContext,
   type SignatureDocumentType
 } from "./contracts";
+import { resolveDocumentTemplate } from "./templates";
 
 export type GeneratedDocument = {
   title: string;
@@ -59,12 +58,14 @@ export function generateDocumentFromTemplate(input: {
   documentType: SignatureDocumentType;
   templateBody?: string;
   requiredFields?: string[];
+  kind?: string | null;
   context: MergeFieldContext;
   version?: number;
   preview?: boolean;
 }): GeneratedDocument {
-  const template = input.templateBody ?? DEFAULT_LEASE_TEMPLATE;
-  const required = input.requiredFields ?? DEFAULT_LEASE_REQUIRED_FIELDS;
+  const resolved = resolveDocumentTemplate(input.documentType, input.kind);
+  const template = input.templateBody ?? resolved.templateBody;
+  const required = input.requiredFields ?? resolved.requiredFields;
   const missing = missingMergeFields(template, input.context, required);
   let contentText = mergeTemplate(template, input.context);
   if (input.preview) {
@@ -72,7 +73,7 @@ export function generateDocumentFromTemplate(input: {
   }
   const pdf = buildSimplePdf(contentText);
   return {
-    title: input.title,
+    title: input.title || resolved.title,
     documentType: input.documentType,
     contentText,
     contentHash: hashContent(contentText),

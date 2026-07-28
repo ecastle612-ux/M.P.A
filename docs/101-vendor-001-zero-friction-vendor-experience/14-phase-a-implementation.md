@@ -26,7 +26,7 @@
 
 - Invoice upload, payment profile, Pay Vendor, expense/owner reports (Phase B+)  
 - Storing bank secrets  
-- Requiring `/portal/vendor` login for Start/Finish
+- Requiring vendor login / Vendor Portal for Start/Finish (portal retired)
 
 ## Share-link note
 

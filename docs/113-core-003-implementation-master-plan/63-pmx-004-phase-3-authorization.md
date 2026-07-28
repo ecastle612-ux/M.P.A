@@ -55,7 +55,7 @@ VALIDATE PMX-004 PHASE 3
 
 | Item | Status |
 |------|--------|
-| PMX-004 Phase 3 (Native Application Shell · viewport · safe-area · keyboard · cold-start) | ✅ **Authorized** · ✅ **Implemented** · 🔒 Validation pending |
+| PMX-004 Phase 3 (Native Application Shell · viewport · safe-area · keyboard · cold-start) | ✅ **Authorized** · ✅ **Implemented** · ✅ **Validated PASS** |
 | PMX-004 Phase 4–11 | 🔒 **not** issued |
 | UX-012 Slice C–E | 🔒 **not** issued |
 | OPS-001 Slice C–E | 🔒 **not** issued |
@@ -68,6 +68,7 @@ VALIDATE PMX-004 PHASE 3
 
 1. ✅ Phrase **`AUTHORIZE PMX-004 PHASE 3` issued**.  
 2. ✅ Phase 3 **implemented** — [PMX-004 §23](../106-pmx-004-native-pwa-parity/23-phase-3-implementation.md) · [§64](./64-pmx-004-phase-3-implementation.md).  
-3. ✅ Proceed to **`VALIDATE PMX-004 PHASE 3`** in a dedicated validation session.  
-4. ❌ Do **not** authorize PMX-004 Phases 4–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI without their own phrases.  
-5. ❌ Do **not** begin Phase 4 implementation under this record.
+3. ✅ Phase 3 **validated PASS** — [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md) · [§65](./65-pmx-004-phase-3-validation.md).  
+4. ✅ Phase 4 is **eligible** for a future `AUTHORIZE PMX-004 PHASE 4` — **not** issued under this authorize record.  
+5. ❌ Do **not** authorize PMX-004 Phases 4–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI without their own phrases.  
+6. ❌ Do **not** begin Phase 4 implementation under this record.

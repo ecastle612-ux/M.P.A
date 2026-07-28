@@ -36,7 +36,8 @@
 - Grace / past_due behavior  
 - Founder grant path (Master Admin)  
 
-**Exit:** Hard blocks respected in create-property / invite flows.
+**Exit:** Hard blocks respected in create-property / invite flows.  
+**Status:** Implemented 2026-07-27 — see [20-phase-c-entitlement-enforcement.md](./20-phase-c-entitlement-enforcement.md).
 
 ---
 
@@ -61,4 +62,4 @@
 
 - Dual Stripe accounts (optional later)  
 - Complex metered billing  
-- Public marketing pricing page redesign (Canopy) beyond functional Checkout
+- Public marketing pricing page redesign (Canopy) beyond functional Checkout → **moved to [ACQ-001](../115-acq-001-self-service-customer-acquisition/README.md)**

@@ -314,11 +314,43 @@ export default async function LeaseDetailPage({
               canUpdate={canUpdate}
             />
             {canReadSignature ? (
-              <SignaturePackagePanel
-                leaseId={lease.id}
-                canCreate={canCreateSignature}
-                canSend={canSendSignature}
-              />
+              <>
+                <SignaturePackagePanel
+                  leaseId={lease.id}
+                  documentType="lease_agreement"
+                  title="Lease Agreement"
+                  createLabel="Create lease signature package"
+                  canCreate={canCreateSignature}
+                  canSend={canSendSignature}
+                />
+                <SignaturePackagePanel
+                  leaseId={lease.id}
+                  documentType="lease_renewal"
+                  title="Lease Renewal"
+                  createLabel="Create renewal signature package"
+                  canCreate={canCreateSignature}
+                  canSend={canSendSignature}
+                />
+                <SignaturePackagePanel
+                  leaseId={lease.id}
+                  tenantId={lease.primaryTenantId}
+                  documentType="move_in_form"
+                  title="Move-In Acknowledgement"
+                  createLabel="Send move-in acknowledgement"
+                  canCreate={canCreateSignature}
+                  canSend={canSendSignature}
+                />
+                <SignaturePackagePanel
+                  leaseId={lease.id}
+                  tenantId={lease.primaryTenantId}
+                  documentType="general_pdf"
+                  kind="move_out_ack"
+                  title="Move-Out Acknowledgement"
+                  createLabel="Send move-out acknowledgement"
+                  canCreate={canCreateSignature}
+                  canSend={canSendSignature}
+                />
+              </>
             ) : null}
             <div id="documents">
               <LeaseDocumentsPanel documents={lease.documents} />

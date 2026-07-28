@@ -1,0 +1,30 @@
+Vercel CLI 56.5.0 (Node.js 26.5.0)
+Retrieving project…
+Fetching deployments in ecastle612-uxs-projects
+> Production deployments for ecastle612-uxs-projects/m-p-a-web [182ms]
+
+  Age     Project                               Deployment                                                     Status      Environment     Duration     Username          
+  3m      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-e8eug8z68-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  10h     ecastle612-uxs-projects/m-p-a-web     https://m-p-a-c7byh5dng-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  20h     ecastle612-uxs-projects/m-p-a-web     https://m-p-a-jt27al8nl-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-9qkrw3pj7-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-ri2h5ddqo-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-38ktqxteb-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-omvxh21lx-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-rc0ed4pb0-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-ngreihgph-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-8qq3rk6sd-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-rm4rzvzdf-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-h5myno3ud-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-n4242p5wv-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-fm8yd5dci-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-owgnnh9lf-ecastle612-uxs-projects.vercel.app     ● Error     Production      57s          ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-ltmv246kf-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-4maht19r3-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-1nb2prvwd-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  1d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-dbt5o7a6r-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+  2d      ecastle612-uxs-projects/m-p-a-web     https://m-p-a-r9ytuxdak-ecastle612-uxs-projects.vercel.app     ● Ready     Production      2m           ecastle612-ux     
+
+https://m-p-a-e8eug8z68-ecastle612-uxs-projects.vercel.app
+https://m-p-a-c7byh5dng-ecastle612-uxs-projects.vercel.app
+https://m-p-a-jt27al8nl-ecastle612-uxs-projects.vercel.app

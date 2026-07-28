@@ -41,9 +41,9 @@ test.describe("Expanded workflows @p1 @nightly", () => {
     await expect(asPm).not.toHaveURL(/\/login/);
   });
 
-  test("vendor portal loads @p1 @nightly", async ({ asVendor }) => {
+  test("vendor portal retired redirects to vendor-access @p1 @nightly", async ({ asVendor }) => {
     await asVendor.goto("/portal/vendor");
-    await expect(asVendor).not.toHaveURL(/\/login/);
+    await expect(asVendor).toHaveURL(/\/vendor-access/);
   });
 
   test("owner portal loads @p1 @nightly", async ({ asOwner }) => {

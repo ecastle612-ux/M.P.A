@@ -56,7 +56,7 @@ mpa/
 
 | Web Portal | Mobile App | Priority |
 |------------|------------|----------|
-| Vendor portal | Vendor app | P0 — vendors are mobile-first |
+| Vendor secure links (`/v/[token]`) | Optional future Vendor app | P0 — vendors are mobile-first; no authenticated web portal |
 | Tenant portal | Tenant app | P0 — maintenance + payments |
 | Owner portal | Owner app | P1 — report viewing, approvals |
 | PM portal | PM app (limited) | P2 — approvals, notifications, emergency triage |

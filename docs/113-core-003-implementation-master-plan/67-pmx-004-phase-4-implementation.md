@@ -1,7 +1,7 @@
 # 67 — PMX-004 Phase 4 Implementation (Program Record)
 
 **Package:** CORE-003 · **PMX Phase 4**  
-**Status:** ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([68](./68-pmx-004-phase-4-validation.md) · [PMX-004 §28](../106-pmx-004-native-pwa-parity/28-phase-4-validation.md))  
+**Status:** ✅ **IMPLEMENTED** · Production `521fa1f` / `dpl_9zkFEhVyiEYUYA5Gc1UW6CEChCfo` · ✅ **VALIDATED PASS** ([68](./68-pmx-004-phase-4-validation.md) · [PMX-004 §28](../106-pmx-004-native-pwa-parity/28-phase-4-validation.md))  
 **Date:** 2026-07-26  
 
 **Authoritative implementation summary:** [PMX-004 §27](../106-pmx-004-native-pwa-parity/27-phase-4-implementation.md)  

@@ -11,7 +11,7 @@
 |-------|------|---------|
 | 0 | Domain | Entities, permissions, timeline, audit |
 | 1 | Document generation | Templates, merge fields, preview |
-| 2 | Dropbox Sign provider | Adapter, webhooks, retry, sandbox |
+| 2 | SignWell provider | Adapter, webhooks, retry, sandbox (ADR-030; Dropbox Sign retired) |
 | 3 | Signer experience | Applicant/resident progress, mobile entry |
 | 4 | PM dashboard | Pending, remind, resend, cancel, status |
 | 5 | Vault integration | Executed PDFs, certificates, audit |
@@ -40,14 +40,15 @@
 
 ---
 
-## Slice 2 — Dropbox Sign provider
+## Slice 2 — SignWell provider
 
-- `DropboxSignProvider` implementing `SignatureProvider`
-- Webhook route + signature verification + idempotency
+- `SignWellProvider` implementing `SignatureProvider`
+- Webhook route + event-hash verification + idempotency
 - Sandbox + simulate path for CI
 - Retry/backoff for outbound API
-- **Done when:** Sandbox envelope create → webhook → status update works end-to-end
+- **Done when:** test_mode create → webhook → status update works end-to-end
 
+> Historical note: Phase 1 originally shipped Dropbox Sign; replaced by SignWell per ADR-030.
 ---
 
 ## Slice 3 — Signer experience
@@ -132,7 +133,7 @@
 ## Recommended rollout
 
 1. Approve package (lock Q1–Q6)  
-2. Implement slices 0 → 2 (domain + templates + Dropbox Sign sandbox)  
+2. Implement slices 0 → 2 (domain + templates + SignWell sandbox)  
 3. Slices 3–5 (UX + vault) behind org flag  
 4. Slice 6 Ops/CC  
 5. Slice 7 hardening + production keys  

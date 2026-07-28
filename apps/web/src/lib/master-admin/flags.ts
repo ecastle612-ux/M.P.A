@@ -19,7 +19,7 @@ export function getMasterAdminFlagSnapshot(): MasterAdminFlagSnapshot {
     providerEnvPresent: {
       STRIPE_SECRET_KEY: present(process.env["STRIPE_SECRET_KEY"]),
       CHECKR_API_KEY: present(process.env["CHECKR_API_KEY"]),
-      DROPBOX_SIGN_API_KEY: present(process.env["DROPBOX_SIGN_API_KEY"]),
+      SIGNWELL_API_KEY: present(process.env["SIGNWELL_API_KEY"]),
       ONESIGNAL_REST_API_KEY: present(process.env["ONESIGNAL_REST_API_KEY"]),
       RESEND_API_KEY: present(process.env["RESEND_API_KEY"]),
       TWILIO_AUTH_TOKEN: present(process.env["TWILIO_AUTH_TOKEN"]),

@@ -3,7 +3,7 @@
 **Package:** OPS-001  
 **Amendment:** A09 (finalized slice board)  
 **Status:** Binding (Approved with Amendments)  
-**Implementation:** Slice A ✅ **VALIDATED** ([34](./34-slice-a-validation-rerun.md)) · Slice B ✅ **VALIDATED** ([37](./37-slice-b-validation.md)) · Slice C ✅ **VALIDATED** ([42](./42-slice-c-validation-rerun.md)) · Slice D ✅ **AUTHORIZED** ([43](./43-slice-d-authorization.md)) · Implement/Validate 🔒 · E 🔒 until explicitly authorized  
+**Implementation:** Slice A ✅ **VALIDATED** ([34](./34-slice-a-validation-rerun.md)) · Slice B ✅ **VALIDATED** ([37](./37-slice-b-validation.md)) · Slice C ✅ **VALIDATED** ([42](./42-slice-c-validation-rerun.md)) · Slice D ✅ **VALIDATED** ([46](./46-slice-d-validation.md)) · Slice E ✅ **VALIDATED** ([49](./49-slice-e-validation.md)) · Package ✅ **COMPLETE**  
 **Methodology:** Same gated pattern as AUTH-001 / COM-001 / PMX-004
 
 ---
@@ -27,6 +27,8 @@ AUTHORIZE OPS-001 SLICE C
 VALIDATE OPS-001 SLICE C
 AUTHORIZE OPS-001 SLICE D
 VALIDATE OPS-001 SLICE D
+AUTHORIZE OPS-001 SLICE E
+VALIDATE OPS-001 SLICE E
 ```
 
 No OPS slice implementation is authorized until its explicit `AUTHORIZE OPS-001 SLICE …` phrase is recorded.
@@ -89,8 +91,8 @@ No OPS slice implementation is authorized until its explicit `AUTHORIZE OPS-001 
 | A | ✔ | ✅ | ✅ ([31](./31-slice-a-implementation.md)) · remediations ✅ ([33](./33-slice-a-remediation.md)) | ✅ **PASS** ([34](./34-slice-a-validation-rerun.md)) · prior FAIL ([32](./32-slice-a-validation.md)) |
 | B | ✔ | ✅ ([35](./35-slice-b-authorization.md)) | ✅ ([36](./36-slice-b-implementation.md)) | ✅ **PASS** ([37](./37-slice-b-validation.md)) |
 | C | ✔ | ✅ ([38](./38-slice-c-authorization.md)) | ✅ ([39](./39-slice-c-implementation.md)) | ✅ **PASS** ([42](./42-slice-c-validation-rerun.md)) · prior FAIL ([40](./40-slice-c-validation.md)) |
-| D | ✔ | ✅ ([43](./43-slice-d-authorization.md)) | 🔒 | 🔒 |
-| E | ✔ | 🔒 | 🔒 | 🔒 |
+| D | ✔ | ✅ ([43](./43-slice-d-authorization.md)) | ✅ ([44](./44-slice-d-implementation.md)) · prod ✅ ([45](./45-slice-d-remediation.md)) | ✅ **PASS** ([46](./46-slice-d-validation.md)) |
+| E | ✔ | ✅ ([47](./47-slice-e-authorization.md)) | ✅ ([48](./48-slice-e-implementation.md)) | ✅ ([49](./49-slice-e-validation.md)) |
 
 ---
 

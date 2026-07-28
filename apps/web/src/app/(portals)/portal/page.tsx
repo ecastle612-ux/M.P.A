@@ -4,6 +4,10 @@ import { PortalAvailabilityHub } from "../../../components/portal/portal-availab
 import { ApplicationShell } from "../../../components/shell/application-shell";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { resolveAuthenticatedShellContext } from "../../../lib/auth/get-shell-context";
+import {
+  assignedSurfaceHome,
+  canAccessOperationsShell
+} from "../../../lib/auth/ops-shell-access";
 import { getSetupStatus } from "../../../lib/setup/server";
 import { getDeploymentMeta } from "../../../lib/launch/deployment-meta";
 import { assertMasterAdminUser, getMasterAdminBannerModel } from "../../../lib/master-admin/session";
@@ -36,6 +40,11 @@ export default async function PortalIndexPage() {
   const masterAdminOnlyShell =
     isMasterAdmin && shellContext.availableRoles.length === 0 && !banner?.session;
 
+  // Portal hub is an Ops shell surface — portal-only roles go to their assigned home.
+  if (!canAccessOperationsShell(shellContext.availableRoles, isMasterAdmin)) {
+    redirect(assignedSurfaceHome(shellContext.availableRoles, isMasterAdmin));
+  }
+
   return (
     <ApplicationShell
       availableRoles={shellContext.availableRoles}
@@ -43,6 +52,7 @@ export default async function PortalIndexPage() {
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       initialPermissions={shellContext.permissions}
+      initialEntitledModules={shellContext.entitledModules}
       masterAdminOnlyShell={masterAdminOnlyShell}
       isSetupComplete={setupStatus.isComplete || isMasterAdmin}
       deploymentMeta={getDeploymentMeta()}

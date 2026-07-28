@@ -24,6 +24,9 @@ import {
   type SaasOrgSubscriptionSnapshot,
   type SaasSubscriptionRecord
 } from "./contracts";
+import { bindEntitlementSnapshot } from "../auth/entitlements";
+import { activateOpportunityFromPayment } from "../commercial/activation";
+import { notifySubscriptionEntitlementChange } from "./lifecycle-notify";
 
 // saas_* tables may not yet be in generated Database types.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -307,6 +310,60 @@ export async function createSaasPortalSession(
   return portal;
 }
 
+/**
+ * COM-001 Slice D / BILL-001 — stop future SaaS charges at period end.
+ * Updates provider + local mirror; does not create a parallel money rail.
+ */
+export async function requestSaasCancelAtPeriodEnd(
+  organizationId: string,
+  actorUserId: string | null,
+  client?: SupabaseClient<Database>
+): Promise<{
+  mode: "cancel_at_period_end" | "already_canceling" | "already_canceled" | "no_subscription";
+  subscription: SaasSubscriptionRecord | null;
+}> {
+  const admin = await adminClient();
+  const db = client ?? admin;
+  const snapshot = await getOrgSaasSnapshot(organizationId, db);
+  if (!snapshot.subscription) {
+    return { mode: "no_subscription", subscription: null };
+  }
+  const sub = snapshot.subscription;
+  if (sub.status === "canceled") {
+    return { mode: "already_canceled", subscription: sub };
+  }
+  if (sub.cancelAtPeriodEnd) {
+    return { mode: "already_canceling", subscription: sub };
+  }
+
+  const provider = getSaasBillingProvider(sub.provider);
+  const normalized = await provider.cancelSubscriptionAtPeriodEnd({
+    externalSubscriptionId: sub.externalSubscriptionId
+  });
+  const mirrored = await upsertMirroredSubscription(
+    admin,
+    provider.id,
+    organizationId,
+    normalized
+  );
+
+  await writeAudit(
+    organizationId,
+    "saas_subscription",
+    mirrored.id,
+    "saas.subscription.cancel_at_period_end",
+    "Subscription set to cancel at period end",
+    actorUserId,
+    {
+      externalSubscriptionId: mirrored.externalSubscriptionId,
+      cancelAtPeriodEnd: mirrored.cancelAtPeriodEnd
+    },
+    admin
+  );
+
+  return { mode: "cancel_at_period_end", subscription: mirrored };
+}
+
 async function resolveOrgIdForCustomer(
   admin: SaasClient,
   providerId: string,
@@ -412,17 +469,12 @@ async function upsertMirroredSubscription(
     row = inserted as Record<string, unknown>;
   }
 
-  await admin.from("saas_entitlement_snapshots").upsert(
-    {
-      organization_id: organizationId,
-      plan_code: planCode,
-      features: {},
-      limits: {},
-      source_subscription_id: row["id"],
-      computed_at: new Date().toISOString()
-    },
-    { onConflict: "organization_id" }
-  );
+  await bindEntitlementSnapshot({
+    organizationId,
+    planCode,
+    sourceSubscriptionId: String(row["id"]),
+    client: admin
+  });
 
   return mapSubscription(row);
 }
@@ -527,12 +579,43 @@ export async function applySaasProviderWebhook(
       if (event.type === "checkout_completed") {
         if (event.externalSubscriptionId) {
           const sub = await provider.getSubscription(event.externalSubscriptionId);
-          const orgId = await resolveOrgIdForCustomer(
+          let orgId = await resolveOrgIdForCustomer(
             admin,
             provider.id,
             sub.externalCustomerId || event.externalCustomerId,
             event.organizationId
           );
+
+          // COM-001 Slice A → AUTH-001: Payment Successful activation (Won ↛ org).
+          if (!orgId) {
+            const hints = event.activation;
+            const planCode = (hints?.planCode || sub.planCode || "professional") as SaasPlanCode;
+            const company =
+              hints?.buyerCompanyName?.trim() ||
+              hints?.buyerLegalName?.trim() ||
+              null;
+            const email = hints?.buyerContactEmail?.trim().toLowerCase() || null;
+            if (company && email) {
+              const activated = await activateOpportunityFromPayment({
+                idempotencyKey: `saas:${provider.id}:checkout:${event.externalEventId}`,
+                planCode,
+                buyerCompanyName: company,
+                buyerContactEmail: email,
+                buyerLegalName: hints?.buyerLegalName ?? null,
+                organizationType: hints?.organizationType ?? "property_manager",
+                saasSubscriptionId: sub.externalSubscriptionId,
+                externalCustomerId: sub.externalCustomerId || event.externalCustomerId || null,
+                externalSubscriptionId: sub.externalSubscriptionId,
+                provider: provider.id,
+                correlationId: event.externalEventId,
+                opportunityId: hints?.opportunityId ?? null,
+                salesOwnerId: hints?.salesOwnerId ?? null,
+                implementationPreference: hints?.implementationPreference ?? null
+              });
+              orgId = activated.organizationId;
+            }
+          }
+
           if (!orgId) {
             results.push({
               externalEventId: event.externalEventId,
@@ -552,6 +635,13 @@ export async function applySaasProviderWebhook(
             { externalSubscriptionId: sub.externalSubscriptionId },
             admin
           );
+          await notifySubscriptionEntitlementChange({
+            organizationId: orgId,
+            planCode: sub.planCode ?? "professional",
+            status: sub.status,
+            eventType: "checkout",
+            client: admin
+          });
           await admin
             .from("saas_webhook_events")
             .update({
@@ -606,6 +696,14 @@ export async function applySaasProviderWebhook(
           { externalSubscriptionId: mirrored.externalSubscriptionId, status: mirrored.status },
           admin
         );
+        await notifySubscriptionEntitlementChange({
+          organizationId: orgId,
+          planCode: mirrored.planCode,
+          status: mirrored.status,
+          eventType: event.type === "subscription_deleted" ? "deleted" : "upsert",
+          subscriptionId: mirrored.id,
+          client: admin
+        });
         await admin
           .from("saas_webhook_events")
           .update({

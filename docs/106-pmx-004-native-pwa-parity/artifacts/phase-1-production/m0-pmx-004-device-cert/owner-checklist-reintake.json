@@ -1,0 +1,41 @@
+{
+  "session": "PMX-004 OWNER CHECKLIST RE-INTAKE",
+  "ranAt": "2026-07-24T22:57:00Z",
+  "amendment": "PMX-004-AMD-DEVICE-CERT-OWNER-CHECKLIST",
+  "amendmentEffective": "2026-07-24",
+  "deploymentId": "dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf",
+  "checklistPath": "docs/106-pmx-004-native-pwa-parity/artifacts/phase-1-production/m0-pmx-004-device-cert/owner-device-certification-checklist.md",
+  "taskClaims": {
+    "physicalTestingCompletedByProjectOwner": true,
+    "signedChecklistIsRequiredArtifact": true
+  },
+  "checklistVerification": {
+    "filePresent": true,
+    "statusBanner": "TEMPLATE — UNSIGNED",
+    "projectOwnerNameFilled": false,
+    "signatureFilled": false,
+    "signatureDateFilled": false,
+    "productionUrlConfirmed": false,
+    "deployIdFilled": false,
+    "galaxyModelFilled": false,
+    "pixelModelFilled": false,
+    "iphoneModelFilled": false,
+    "galaxyOverallPassChecked": false,
+    "pixelOverallPassChecked": false,
+    "iphoneOverallPassChecked": false,
+    "overallPhase1PassChecked": false,
+    "anyTestRowResultFilled": false
+  },
+  "tests1to7CompletePerChecklist": false,
+  "devicesCertifiedByOwnerOnChecklist": {
+    "galaxy": false,
+    "pixel": false,
+    "iphone": false
+  },
+  "historicalFailRecordsAltered": false,
+  "overall": "FAIL",
+  "blocker": "UNSIGNED_OR_INCOMPLETE_OWNER_CHECKLIST",
+  "gateDevice001Resolved": false,
+  "recommendFinalM0Rerun": false,
+  "rationale": "Amendment accepts a signed owner checklist in lieu of mandatory screenshots, but the checklist on file remains an empty UNSIGNED template. Task-brief claims alone are not PASS evidence per amendment §3.6 / protocol 17 §0.1."
+}

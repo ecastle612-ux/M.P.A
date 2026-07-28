@@ -5,6 +5,9 @@ import {
   evaluatePermission,
   resolveAuthorizationContext
 } from "../../../../../lib/auth/authorization";
+import { createAndDeliverInvitation } from "../../../../../lib/auth/invitations/service";
+import { EntitlementGateError } from "../../../../../lib/saas/entitlement-gate";
+import { apiError } from "../../../../../lib/api/http";
 
 async function requirePermission(
   supabase: Awaited<ReturnType<typeof createAuthServerClient>>,
@@ -37,7 +40,9 @@ export async function GET(_request: Request, context: { params: Promise<{ organi
 
   const { data, error } = await supabase
     .from("organization_invitations")
-    .select("id, email, roles, status, token, expires_at, created_at")
+    .select(
+      "id, email, roles, status, token, expires_at, created_at, username, delivery_status, last_delivered_at, provisioned_user_id, property_ids"
+    )
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false });
 
@@ -48,6 +53,9 @@ export async function GET(_request: Request, context: { params: Promise<{ organi
   return NextResponse.json({ invitations: data ?? [] });
 }
 
+/**
+ * AUTH-001 Slice C — create invitation, provision invitee principal, deliver credentials.
+ */
 export async function POST(request: Request, context: { params: Promise<{ organizationId: string }> }) {
   const { organizationId } = await context.params;
   const supabase = await createAuthServerClient();
@@ -64,31 +72,37 @@ export async function POST(request: Request, context: { params: Promise<{ organi
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
-    .from("organization_invitations")
-    .insert({
-      organization_id: organizationId,
+  try {
+    const result = await createAndDeliverInvitation({
+      organizationId,
       email: parsed.email,
       roles: parsed.roles,
-      invited_by: authz.user.id
-    })
-    .select("id, email, roles, status, token, expires_at")
-    .single();
+      invitedBy: authz.user.id,
+      ...(parsed.propertyIds !== undefined ? { propertyIds: parsed.propertyIds } : {})
+    });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json(
+      {
+        invitation: {
+          id: result.invitation.id,
+          email: result.invitation.email,
+          roles: result.invitation.roles,
+          status: result.invitation.status,
+          token: result.invitation.token,
+          expires_at: result.invitation.expiresAt,
+          username: result.invitation.username,
+          delivery_status: result.invitation.deliveryStatus,
+          property_ids: result.invitation.propertyIds
+        },
+        resent: result.resent
+      },
+      { status: result.resent ? 200 : 201 }
+    );
+  } catch (err) {
+    if (err instanceof EntitlementGateError) {
+      return apiError(err.denial.httpStatus, err.denial.code.toUpperCase(), err.denial.message);
+    }
+    const message = err instanceof Error ? err.message : "Failed to create invitation";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
-
-  if (data?.token) {
-    const { sendInvitationEmail } = await import("../../../../../lib/integrations/email/delivery");
-    await sendInvitationEmail({
-      organizationId,
-      email: data.email as string,
-      token: data.token as string,
-      roles: Array.isArray(data.roles) ? (data.roles as string[]) : parsed.roles,
-      invitationId: data.id as string
-    }).catch(() => undefined);
-  }
-
-  return NextResponse.json({ invitation: data }, { status: 201 });
 }

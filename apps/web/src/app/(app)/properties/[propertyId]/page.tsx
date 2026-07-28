@@ -18,6 +18,7 @@ import { PropertyFinancialPanel } from "../../../../components/financial/propert
 import { RepairHistoryPanel } from "../../../../components/facility/repair-history-panel";
 import { PropertyTimeline } from "../../../../components/facility/property-timeline";
 import { PropertyOverviewPanels } from "../../../../components/facility/property-overview-panels";
+import { SignaturePackagePanel } from "../../../../components/signature/signature-package-panel";
 import { RepairHistoryFilters } from "../../../../components/facility/repair-history-filters";
 import { AssetsPanel } from "../../../../components/facility/assets-panel";
 import { toPropertyStatusLabel, toPropertyTypeLabel } from "../../../../lib/property/contracts";
@@ -72,6 +73,9 @@ export default async function PropertyDetailPage({
       ? await getBuildingQrForProperty(organizationId, propertyId, supabase)
       : null;
   const canUpdateProperty = evaluatePermission(authorization, "property:update");
+  const canCreateSignature = evaluatePermission(authorization, "signature:create");
+  const canSendSignature = evaluatePermission(authorization, "signature:send");
+  const canReadSignature = evaluatePermission(authorization, "signature:read");
   const canCreateUnit = evaluatePermission(authorization, "unit:create");
   const canReadTenant = evaluatePermission(authorization, "tenant:read");
   const canCreateTenant = evaluatePermission(authorization, "tenant:create");
@@ -472,6 +476,23 @@ export default async function PropertyDetailPage({
               <p>Email: {property.ownerContactEmail ?? "—"}</p>
               <p>Phone: {property.ownerContactPhone ?? "—"}</p>
             </div>
+            {canReadSignature ? (
+              <div className="mt-4">
+                <SignaturePackagePanel
+                  propertyId={property.id}
+                  documentType="owner_agreement"
+                  title="Owner Management Agreement"
+                  createLabel="Send management agreement"
+                  canCreate={canCreateSignature && Boolean(property.ownerContactEmail)}
+                  canSend={canSendSignature}
+                />
+                {!property.ownerContactEmail ? (
+                  <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">
+                    Add an owner contact email on the property to send a management agreement.
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </Card>
 
           <PropertyFinancialPanel

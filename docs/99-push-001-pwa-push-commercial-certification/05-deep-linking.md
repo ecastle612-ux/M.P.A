@@ -1,7 +1,7 @@
 # 05 — Deep Linking (Phase 5)
 
 **Package:** PUSH-001  
-**Status:** Approved package · code paths repaired 2026-07-23 · cold-launch device Pass ☐ pending  
+**Status:** Approved package · code paths repaired 2026-07-23 · PMX-004 Phase 6 deep-link pack 2026-07-26 · cold-launch device Pass via Phase 1 T4 attestation (see PMX-004 `artifacts/phase-6-push-cert/`) 
 
 ---
 
@@ -21,7 +21,7 @@ No generic homepage redirects. Absolute URLs on OneSignal `url` (via `NEXT_PUBLI
 | Announcement | `/portal/tenant/announcements/{id}` (tenant) | Confirm staff/owner variants if notified |
 | Payment (tenant) | `/portal/tenant/payments` (or charge detail if available) | Prefer entity detail when exists |
 | Payment (PM) | Charge or `/financials` | Prefer charge detail over generic list when possible |
-| Owner statement | Statement detail route | Must not home |
+| Owner statement | `/portal/owner/reports` (reports browser) | ✅ Phase 6 repair (was portal home) |
 | Payout | Payout / statement financial surface | Must not home |
 | Test | `/settings/notifications` | OK |
 | Master Admin alerts | Specific MA page | Not Mission Control home unless that is the only correct surface |

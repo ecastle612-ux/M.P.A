@@ -12,6 +12,8 @@ import { notify } from "../notifications/service";
 import { createVaultDocument } from "../vault/server";
 import { recordApplicantEvent } from "../applicant/events";
 import { generateDocumentFromTemplate } from "./document-generation";
+import { advanceBusinessWorkflowAfterSignature } from "./workflow-advance";
+import { resolveDocumentTemplate } from "./templates";
 import {
   buildProgress,
   type CreateSignaturePackageInput,
@@ -174,7 +176,8 @@ async function getSettings(organizationId: string, client: SignatureClient) {
       owner_required: false,
       expiration_days: 14,
       max_reminders: 3,
-      activate_resident_on_complete: true
+      activate_resident_on_complete: true,
+      metadata: {}
     }
   );
 }
@@ -222,9 +225,56 @@ async function buildLeaseMergeContext(
   };
 }
 
+async function buildPropertyOwnerMergeContext(
+  organizationId: string,
+  propertyId: string,
+  client: SignatureClient
+): Promise<{ context: MergeFieldContext; propertyId: string }> {
+  const { data: property, error } = await client
+    .from("properties")
+    .select(
+      "id, name, address_line_1, city, state_region, postal_code, ownership_entity_name, owner_contact_name, owner_contact_email"
+    )
+    .eq("organization_id", organizationId)
+    .eq("id", propertyId)
+    .maybeSingle();
+  if (error || !property) throw new Error(error?.message ?? "Property not found");
+  const { data: org } = await client.from("organizations").select("name").eq("id", organizationId).maybeSingle();
+  const address = [property.address_line_1, property.city, property.state_region, property.postal_code]
+    .filter(Boolean)
+    .join(", ");
+  const ownerName =
+    (property.owner_contact_name as string | null)?.trim() ||
+    (property.ownership_entity_name as string | null)?.trim() ||
+    "Owner";
+  return {
+    propertyId,
+    context: {
+      property_name: property.name ?? "Property",
+      property_address: address || "Address on file",
+      unit_number: "—",
+      org_name: (org?.name as string) ?? "Organization",
+      primary_name: ownerName,
+      primary_email: (property.owner_contact_email as string | null) ?? "",
+      lease_start: "",
+      lease_end: "",
+      rent_amount: "",
+      deposit_amount: ""
+    }
+  };
+}
+
 export async function listSignaturePackages(
   organizationId: string,
-  filters: { applicantId?: string; leaseId?: string; status?: string } = {},
+  filters: {
+    applicantId?: string;
+    leaseId?: string;
+    propertyId?: string;
+    tenantId?: string;
+    documentType?: string;
+    kind?: string;
+    status?: string;
+  } = {},
   client?: SignatureClient
 ): Promise<SignaturePackageRecord[]> {
   const supabase = await resolveClient(client);
@@ -235,11 +285,23 @@ export async function listSignaturePackages(
     .order("created_at", { ascending: false });
   if (filters.applicantId) query = query.eq("applicant_id", filters.applicantId);
   if (filters.leaseId) query = query.eq("lease_id", filters.leaseId);
+  if (filters.propertyId) query = query.eq("property_id", filters.propertyId);
+  if (filters.tenantId) query = query.eq("tenant_id", filters.tenantId);
+  if (filters.documentType) query = query.eq("request_type", filters.documentType);
   if (filters.status) query = query.eq("status", filters.status);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return (data ?? []).map((row: Record<string, unknown>) => mapPackage(row));
+  let packages = (data ?? []).map((row: Record<string, unknown>) => mapPackage(row));
+  if (filters.kind) {
+    packages = packages.filter((pkg: SignaturePackageRecord) => pkg.metadata["kind"] === filters.kind);
+  } else if (filters.documentType === "general_pdf") {
+    // Unscoped general_pdf lists exclude workflow-specific kinds (e.g. move_out_ack).
+    packages = packages.filter((pkg: SignaturePackageRecord) => !pkg.metadata["kind"]);
+  }
+  return packages;
 }
+
+export { getSettings as getOrganizationSignatureSettings };
 
 export async function getSignaturePackageDetail(
   organizationId: string,
@@ -302,15 +364,20 @@ export async function createSignaturePackage(
   const documentType = (input.documentType ?? "lease_agreement") as SignatureDocumentType;
   const orderMode = (input.orderMode ?? settings.default_order_mode ?? "sequential") as SignatureOrderMode;
 
-  let propertyId: string | null = null;
+  let propertyId: string | null = input.propertyId ?? null;
   let unitId: string | null = null;
+  let tenantId: string | null = input.tenantId ?? null;
   const applicantId = input.applicantId ?? null;
+  const workflowKind =
+    input.kind ??
+    (typeof input.metadata?.["kind"] === "string" ? String(input.metadata["kind"]) : null);
+  const resolvedTemplate = resolveDocumentTemplate(documentType, workflowKind);
   let mergeContext: MergeFieldContext = {
     property_name: "Property",
     property_address: "Address on file",
     unit_number: "—",
     org_name: "Organization",
-    primary_name: "Resident",
+    primary_name: "Signer",
     primary_email: "",
     lease_start: "",
     lease_end: "",
@@ -321,8 +388,14 @@ export async function createSignaturePackage(
   if (input.leaseId) {
     const leaseCtx = await buildLeaseMergeContext(organizationId, input.leaseId, supabase);
     mergeContext = leaseCtx.context;
-    propertyId = leaseCtx.propertyId;
+    propertyId = leaseCtx.propertyId ?? propertyId;
     unitId = leaseCtx.unitId;
+    if (!tenantId) {
+      tenantId = (leaseCtx.lease["primary_tenant_id"] as string | null) ?? null;
+    }
+  } else if (propertyId && documentType === "owner_agreement") {
+    const ownerCtx = await buildPropertyOwnerMergeContext(organizationId, propertyId, supabase);
+    mergeContext = ownerCtx.context;
   } else if (applicantId) {
     const { data: applicant } = await supabase
       .from("applicants")
@@ -348,9 +421,20 @@ export async function createSignaturePackage(
     }
   }
 
+  if (!input.leaseId && !applicantId && !propertyId) {
+    throw new Error("leaseId, applicantId, or propertyId is required");
+  }
+
   const expiresAt = new Date(
     Date.now() + Number(settings.expiration_days ?? 14) * 24 * 60 * 60 * 1000
   ).toISOString();
+
+  const packageMetadata: Record<string, unknown> = {
+    mergeContext,
+    ...(input.metadata ?? {}),
+    ...(workflowKind ? { kind: workflowKind } : {}),
+    sign002Slice: "A"
+  };
 
   const { data: created, error } = await supabase
     .from("signature_requests")
@@ -360,17 +444,18 @@ export async function createSignaturePackage(
       lease_id: input.leaseId ?? null,
       property_id: propertyId,
       unit_id: unitId,
+      tenant_id: tenantId,
       screening_case_id: input.screeningCaseId ?? null,
       request_number: packageNumber,
       provider: providerId,
       request_type: documentType,
       status: "draft",
       order_mode: orderMode,
-      subject: input.subject ?? `Please sign: ${documentType.replaceAll("_", " ")}`,
+      subject: input.subject ?? `Please sign: ${resolvedTemplate.title}`,
       message: input.message ?? null,
       expires_at: expiresAt,
       vault_status: "not_required",
-      metadata: { mergeContext } as Json,
+      metadata: packageMetadata as Json,
       created_by: userId,
       updated_by: userId
     })
@@ -381,22 +466,33 @@ export async function createSignaturePackage(
   const pkg = mapPackage(created as Record<string, unknown>);
 
   // Recipients
+  const defaultRole =
+    documentType === "owner_agreement"
+      ? ("property_owner" as const)
+      : ("primary_applicant" as const);
   const recipients =
     input.recipients && input.recipients.length > 0
       ? input.recipients
       : [
           {
-            role: "primary_applicant" as const,
-            fullName: String(mergeContext['primary_name'] || "Primary signer"),
-            email: String(mergeContext['primary_email'] || "") || null,
+            role: defaultRole,
+            fullName: String(mergeContext["primary_name"] || "Primary signer"),
+            email: String(mergeContext["primary_email"] || "") || null,
             signingOrder: 1,
             signingGroup: 1,
             isRequired: true,
-            applicantId
+            applicantId,
+            tenantId
           }
         ];
 
-  if (settings.pm_countersign === "required_last") {
+  const requirePmCountersign =
+    settings.pm_countersign === "required_last" &&
+    (documentType === "lease_agreement" ||
+      documentType === "lease_renewal" ||
+      documentType === "owner_agreement");
+
+  if (requirePmCountersign) {
     const { data: profile } = await supabase
       .from("user_profiles")
       .select("display_name, contact_email")
@@ -411,6 +507,20 @@ export async function createSignaturePackage(
       isRequired: true,
       userId
     });
+  }
+
+  if (settings.owner_required === true && documentType === "lease_agreement" && propertyId) {
+    const ownerCtx = await buildPropertyOwnerMergeContext(organizationId, propertyId, supabase);
+    if (ownerCtx.context["primary_email"]) {
+      recipients.push({
+        role: "property_owner",
+        fullName: String(ownerCtx.context["primary_name"] || "Owner"),
+        email: String(ownerCtx.context["primary_email"]),
+        signingOrder: recipients.length + 1,
+        signingGroup: recipients.length + 1,
+        isRequired: true
+      });
+    }
   }
 
   for (const recipient of recipients) {
@@ -435,8 +545,9 @@ export async function createSignaturePackage(
 
   // Generate document (Slice 1)
   const generated = generateDocumentFromTemplate({
-    title: pkg.subject ?? "Agreement",
+    title: pkg.subject ?? resolvedTemplate.title,
     documentType,
+    kind: workflowKind,
     context: mergeContext,
     preview: true
   });
@@ -459,7 +570,7 @@ export async function createSignaturePackage(
     .from("signature_requests")
     .update({
       status: nextStatus,
-      metadata: { mergeContext, missingFields: generated.missingFields } as Json,
+      metadata: { ...packageMetadata, mergeContext, missingFields: generated.missingFields } as Json,
       updated_by: userId
     })
     .eq("id", pkg.id)
@@ -505,9 +616,12 @@ export async function regeneratePreview(
   }
 
   const mergeContext = (detail.package.metadata["mergeContext"] as MergeFieldContext) ?? {};
+  const kind =
+    typeof detail.package.metadata["kind"] === "string" ? String(detail.package.metadata["kind"]) : null;
   const generated = generateDocumentFromTemplate({
     title: detail.package.subject ?? "Agreement",
     documentType: detail.package.documentType,
+    kind,
     context: mergeContext,
     preview: true
   });
@@ -574,9 +688,12 @@ export async function sendSignaturePackage(
 
   // Finalize non-preview document
   const mergeContext = (detail.package.metadata["mergeContext"] as MergeFieldContext) ?? {};
+  const kind =
+    typeof detail.package.metadata["kind"] === "string" ? String(detail.package.metadata["kind"]) : null;
   const finalDoc = generateDocumentFromTemplate({
     title: detail.package.subject ?? "Agreement",
     documentType: detail.package.documentType,
+    kind,
     context: mergeContext,
     preview: false
   });
@@ -832,9 +949,28 @@ async function syncVaultAndActivate(
     const vaultUserId = (pkgRow?.created_by as string) || actorUserId;
     if (!vaultUserId) throw new Error("No actor for vault write");
 
-    const entityType = detail.package.leaseId ? "lease" : detail.package.applicantId ? "applicant" : "lease";
-    const entityId = detail.package.leaseId ?? detail.package.applicantId;
-    if (!entityId) throw new Error("Package missing lease/applicant link for vault");
+    const kind =
+      typeof detail.package.metadata["kind"] === "string" ? String(detail.package.metadata["kind"]) : null;
+    let entityType: "lease" | "applicant" | "property" | "tenant" = "lease";
+    let entityId: string | null = detail.package.leaseId ?? detail.package.applicantId;
+    if (detail.package.documentType === "owner_agreement" && detail.package.propertyId) {
+      entityType = "property";
+      entityId = detail.package.propertyId;
+    } else if (detail.package.leaseId) {
+      entityType = "lease";
+      entityId = detail.package.leaseId;
+    } else if (detail.package.applicantId) {
+      entityType = "applicant";
+      entityId = detail.package.applicantId;
+    } else if (detail.package.tenantId) {
+      entityType = "tenant";
+      entityId = detail.package.tenantId;
+    } else if (detail.package.propertyId) {
+      entityType = "property";
+      entityId = detail.package.propertyId;
+    }
+    if (!entityId) throw new Error("Package missing entity link for vault");
+    void kind;
 
     let certificateDocId: string | null = null;
     for (const artifact of executed) {
@@ -914,27 +1050,32 @@ async function syncVaultAndActivate(
       client
     );
 
-    // Lease executed
-    if (detail.package.leaseId) {
-      await client
-        .from("leases")
-        .update({ status: "signed", updated_by: vaultUserId })
-        .eq("id", detail.package.leaseId)
-        .eq("organization_id", organizationId);
+    // SIGN-002 Slice A — advance originating workflows (lease, renewal, owner, move-in/out)
+    const refreshed = await getSignaturePackageDetail(organizationId, packageId, client);
+    if (refreshed) {
+      const advanced = await advanceBusinessWorkflowAfterSignature({
+        organizationId,
+        package: refreshed.package,
+        actorUserId: vaultUserId,
+        client
+      });
       await writeAudit(
         organizationId,
         packageId,
-        "lease.executed",
-        "Lease marked signed/executed after signatures + vault sync",
+        "signature.workflow.advanced",
+        "Business workflow advanced after signature completion",
         vaultUserId,
-        { leaseId: detail.package.leaseId },
+        { advanced: advanced.advanced },
         client
       );
     }
 
-    // Resident activation ONLY after vault sync (Q4)
+    // Resident activation ONLY after vault sync for lease agreements (Q4 / SIGN-002 A1)
     const settings = await getSettings(organizationId, client);
-    if (settings.activate_resident_on_complete !== false) {
+    if (
+      settings.activate_resident_on_complete !== false &&
+      detail.package.documentType === "lease_agreement"
+    ) {
       await activateResidentFromPackage(organizationId, packageId, vaultUserId, client);
     }
   } catch (error) {
@@ -1309,13 +1450,19 @@ export async function simulateSandboxCompletion(
   }
 
   await applyProviderWebhook(
-    detail.package.provider === "hellosign" ? "dropbox_sign" : detail.package.provider,
+    detail.package.provider,
     {
       id: `sim-complete-${Date.now()}`,
-      type: "signature_request_all_signed",
-      event_type: "signature_request_all_signed",
+      type: "document_completed",
+      event: {
+        type: "document_completed",
+        time: Math.floor(Date.now() / 1000),
+        hash: `sim-complete-${Date.now()}`
+      },
       externalReference: detail.package.externalReference,
-      signature_request: { signature_request_id: detail.package.externalReference, is_complete: true }
+      data: {
+        object: { id: detail.package.externalReference, status: "Completed" }
+      }
     },
     { "x-mpa-simulate": "1", "x-mpa-raw-body": "{}" }
   );

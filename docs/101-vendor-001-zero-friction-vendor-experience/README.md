@@ -28,7 +28,7 @@ Vendors lose time before they can work: app installs, passwords, and PM-mediated
 | Vendor general ledger / full accounting | ADR-010 defer accounting |
 | Storing bank/ACH numbers in M.P.A. | Use payment providers later; preference + history only |
 | Requiring native app download | Browser-first QR flow |
-| Replacing authenticated `/portal/vendor` | Optional later dashboard; token flow is primary |
+| Restoring authenticated Vendor Portal | **Retired** (2026-07-26) — secure links are the only vendor participation plane |
 
 ## Signature workflow
 
@@ -72,7 +72,7 @@ Maximum **3 taps** on site: Scan → Start → Finish. Everything else is automa
 ## Current baseline (as-built)
 
 - Org `vendors` + `maintenance_work_orders` + assignments exist.
-- Authenticated `/portal/vendor` can patch assignment status — **requires login**.
+- Authenticated Vendor Portal (`/portal/vendor`) is **retired** — vendors use `/v/[token]` only.
 - Property QR exists for resident join — **not** work-order vendor QR.
 - Vendor invoice/payout tables are placeholders only.
 

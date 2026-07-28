@@ -1,0 +1,48 @@
+=== OneSignal worker ===
+/* PMX-004 Phase 1 — Canonical production service worker (scope "/").
+ *
+ * Single registration target for:
+ *   1) OneSignal Web Push (CDN SW)
+ *   2) M.P.A. offline / cache / update / sync foundation (sw-offline.js)
+ *
+ * Do NOT register /sw.js (or any second root-scope worker) alongside this file —
+ * competing script URLs abort pushManager.subscribe (CP-003).
+ *
+ * OneSignal dashboard Typical site: path `/`, worker `OneSignalSDKWorker.js`, scope `/`.
+ */
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+importScripts("/sw-offline.js");
+
+=== sw-offline markers ===
+/* PMX-004 Phase 1 — M.P.A. offline / cache / update module.
+const MPA_SW_VERSION = "mpa-offline-v1";
+const SHELL_CACHE = "mpa-shell-v1";
+const RUNTIME_CACHE = "mpa-runtime-v1";
+const RUNTIME_CACHE_MAX = 64;
+const PRECACHE_URLS = [
+  "/offline.html",
+  const cache = await caches.open(RUNTIME_CACHE);
+  if (keys.length <= RUNTIME_CACHE_MAX) return;
+  const excess = keys.length - RUNTIME_CACHE_MAX;
+  const cache = await caches.open(RUNTIME_CACHE);
+  const cache = await caches.open(SHELL_CACHE);
+    PRECACHE_URLS.map(async (url) => {
+  const keep = new Set([SHELL_CACHE, RUNTIME_CACHE]);
+  await caches.delete(RUNTIME_CACHE);
+  // Keep shell precache (public offline page / icons); drop any navigations in shell that aren't precache list.
+  const shell = await caches.open(SHELL_CACHE);
+      if (!PRECACHE_URLS.includes(path)) {
+  const shell = await caches.open(SHELL_CACHE);
+  const offline = await shell.match("/offline.html");
+
+=== manifest ===
+{"name":"M.P.A. My Property Assistant","short_name":"M.P.A.","description":"M.P.A. enterprise property management platform","start_url":"/","display":"standalone","background_color":"#F3F4F6","theme_color":"#0D2645","icons":[{"src":"/icons/icon-16.png","sizes":"16x16","type":"image/png","purpose":"any"},{"src":"/icons/icon-32.png","sizes":"32x32","type":"image/png","purpose":"any"},{"src":"/icons/icon-48.png","sizes":"48x48","type":"image/png","purpose":"any"},{"src":"/icons/icon-64.png","sizes":"64x64","type":"image/png","purpose":"any"},{"src":"/icons/icon-128.png","sizes":"128x128","type":"image/png","purpose":"any"},{"src":"/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"/icons/icon-256.png","sizes":"256x256","type":"image/png","purpose":"any"},{"src":"/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},{"src":"/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"maskable"},{"src":"/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}
+=== sw.js ===
+/* DEPRECATED — do not register this file.
+ * Canonical production worker: /OneSignalSDKWorker.js (PMX-004 Phase 1).
+ *
+ * If an older client still has this script URL controlling scope `/`, this stub
+ * provides offline handlers only until the next page load registers the canonical
+ * unified worker (which replaces this registration).
+ */
+importScripts("/sw-offline.js");

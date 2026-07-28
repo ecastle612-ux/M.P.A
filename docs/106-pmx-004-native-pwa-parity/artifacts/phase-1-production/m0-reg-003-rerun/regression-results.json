@@ -1,0 +1,376 @@
+{
+  "ranAt": "2026-07-24T21:41:21.190Z",
+  "baseURL": "https://www.my-property-assistant.com",
+  "deploymentId": "dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf",
+  "gate": "implemented-role-regression-rerun",
+  "counts": {
+    "pass": 57,
+    "fail": 2,
+    "skip": 3,
+    "total": 62
+  },
+  "overallExecutable": "FAIL",
+  "architectureBlockedRoles": [
+    "organization_admin",
+    "leasing_agent",
+    "facility_technician"
+  ],
+  "consoleByRole": [
+    {
+      "role": "A.pm_auth",
+      "errors": []
+    },
+    {
+      "role": "B.masterAdmin",
+      "errors": []
+    },
+    {
+      "role": "B.property_manager",
+      "errors": []
+    },
+    {
+      "role": "B.property_owner",
+      "errors": []
+    },
+    {
+      "role": "B.tenant",
+      "errors": []
+    },
+    {
+      "role": "B.vendor",
+      "errors": []
+    },
+    {
+      "role": "C.pm",
+      "errors": []
+    },
+    {
+      "role": "D.vendor",
+      "errors": []
+    },
+    {
+      "role": "D.owner",
+      "errors": []
+    },
+    {
+      "role": "D.tenant",
+      "errors": []
+    },
+    {
+      "role": "B.master",
+      "errors": []
+    }
+  ],
+  "checks": [
+    {
+      "id": "A.login.all_roles_storage",
+      "result": "PASS",
+      "detail": "auth-setup saved master-admin/pm/owner/vendor/resident"
+    },
+    {
+      "id": "A.login.pm",
+      "result": "PASS",
+      "detail": "landed https://www.my-property-assistant.com/dashboard"
+    },
+    {
+      "id": "A.session_refresh.pm",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard → https://www.my-property-assistant.com/dashboard"
+    },
+    {
+      "id": "A.logout.api",
+      "result": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "A.logout.redirect",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "A.logout.api_properties",
+      "result": "PASS",
+      "detail": "status=401"
+    },
+    {
+      "id": "A.session_expired.owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "A.anon/dashboard",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "A.anon/portal/tenant",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "A.anon/master-admin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "A.anon.api_properties",
+      "result": "PASS",
+      "detail": "status=401"
+    },
+    {
+      "id": "A.relogin.pm",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard"
+    },
+    {
+      "id": "A.login.refresh_states",
+      "result": "PASS",
+      "detail": "storage states refreshed after logout probes"
+    },
+    {
+      "id": "B.landing.masterAdmin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/master-admin :: Skip to content MISSION CONTROL Mission Control PLATFORM Platform Health Integrations Feature Flags Notifications CUSTOMERS Organizations & "
+    },
+    {
+      "id": "B.session_refresh.masterAdmin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/master-admin"
+    },
+    {
+      "id": "B.landing.property_manager",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Lease"
+    },
+    {
+      "id": "B.session_refresh.property_manager",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard"
+    },
+    {
+      "id": "B.landing.property_owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials Documents Messages "
+    },
+    {
+      "id": "B.session_refresh.property_owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner"
+    },
+    {
+      "id": "B.landing.tenant",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home QT NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Property Unit 101 Friday,"
+    },
+    {
+      "id": "B.session_refresh.tenant",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant"
+    },
+    {
+      "id": "B.landing.vendor",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Profile Vendor home QA C"
+    },
+    {
+      "id": "B.session_refresh.vendor",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor"
+    },
+    {
+      "id": "B.escalation.pm_to_master",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Lease"
+    },
+    {
+      "id": "B.escalation.owner_to_ops_properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials"
+    },
+    {
+      "id": "B.history.owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner M NAVIGATION Dashboard Pr"
+    },
+    {
+      "id": "B.escalation.tenant_to_ops_properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home QT NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Prope"
+    },
+    {
+      "id": "B.history.tenant",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home M NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA "
+    },
+    {
+      "id": "B.escalation.vendor_to_ops_properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Prof"
+    },
+    {
+      "id": "B.history.vendor",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor M NAVIGAT"
+    },
+    {
+      "id": "B.escalation.tenant_to_owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/unauthorized :: ACCESS CHECK You don’t have access to this page What happened: Your current role in this organization doesn’t include permission for that ar"
+    },
+    {
+      "id": "B.escalation.pm_to_tenant",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/unauthorized :: ACCESS CHECK You don’t have access to this page What happened: Your current role in this organization doesn’t include permission for that ar"
+    },
+    {
+      "id": "C.pm/dashboard",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm/properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/properties :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm/units",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/units :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm/tenants",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/tenants :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm/maintenance",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/maintenance :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm/vendors",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/vendors :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm/leases",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/leases :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm/financials",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/financials :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm/communications",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/communications :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm/settings",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/settings/organization :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move ou"
+    },
+    {
+      "id": "C.pm.qa_property_visible",
+      "result": "FAIL",
+      "detail": "Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendors Communications • I"
+    },
+    {
+      "id": "C.api.pm.properties",
+      "result": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "D.vendor.portal",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Profile Vendor home QA C"
+    },
+    {
+      "id": "D.api.vendor.properties",
+      "result": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "D.owner/portal/owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner M NAVIGATION Dashboard Pr"
+    },
+    {
+      "id": "D.owner/portal/owner/properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner/properties :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard P"
+    },
+    {
+      "id": "D.owner/portal/owner/documents",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner/documents :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard P"
+    },
+    {
+      "id": "D.owner/portal/owner/messages",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner/messages :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard P"
+    },
+    {
+      "id": "D.owner/portal/owner/reports",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner/reports :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard P"
+    },
+    {
+      "id": "D.owner/portal/owner/settings",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner/settings :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard P"
+    },
+    {
+      "id": "D.api.owner.properties",
+      "result": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "D.tenant.portal",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home M NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Property Unit 101 Friday, "
+    },
+    {
+      "id": "D.tenant.loading_resolved",
+      "result": "PASS",
+      "detail": "Home M NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, "
+    },
+    {
+      "id": "D.api.tenant.properties",
+      "result": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "E.org_isolation.pm_properties",
+      "result": "FAIL",
+      "detail": "seesQa=false seesIsolation=false :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Lease"
+    },
+    {
+      "id": "B.role.masterAdmin.mission",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/master-admin :: Skip to content MISSION CONTROL Mission Control PLATFORM Platform Health Integrations Feature Flags Notifications CUSTOMERS Organizations & "
+    },
+    {
+      "id": "B.role.organization_admin",
+      "result": "SKIP",
+      "detail": "Deferred AUTH-001 Slice D — not M0 blocker"
+    },
+    {
+      "id": "B.role.leasing_agent",
+      "result": "SKIP",
+      "detail": "Deferred AUTH-001 Slice D — not M0 blocker"
+    },
+    {
+      "id": "B.role.facility_technician",
+      "result": "SKIP",
+      "detail": "Deferred AUTH-001 Slice D — not M0 blocker"
+    },
+    {
+      "id": "F.ui.console_material",
+      "result": "PASS",
+      "detail": "no material console/page errors"
+    }
+  ]
+}

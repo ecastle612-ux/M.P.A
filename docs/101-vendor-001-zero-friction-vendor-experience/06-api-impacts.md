@@ -40,4 +40,4 @@ All verify hashed token, org/WO binding, status preconditions, rate limits.
 ## Explicit non-touch
 
 - Do not change Stripe SaaS (`BILL-001`) or rent payments webhooks.  
-- Do not require `/portal/vendor` auth for Start/Finish.
+- Do not require vendor login / Vendor Portal auth for Start/Finish (portal retired).

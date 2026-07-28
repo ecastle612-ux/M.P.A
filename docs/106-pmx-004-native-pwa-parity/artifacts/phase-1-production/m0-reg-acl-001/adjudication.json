@@ -1,0 +1,36 @@
+{
+  "ranAt": "2026-07-24T21:20:00.000Z",
+  "deploymentId": "dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf",
+  "automatedOverall": "FAIL",
+  "automatedCounts": { "pass": 58, "fail": 1, "skip": 0, "total": 59 },
+  "adjudicatedOverall": "PASS",
+  "falsePositives": [
+    {
+      "ids": ["integrity.console_errors"],
+      "reason": "Minified React error #418 (SSR/client text mismatch). Observed on portal surfaces with time-of-day greeting copy (e.g. 'Good Afternoon'). Not Ops-shell escalation, not SetupGate, not an auth redirect regression, and not introduced by REG-ACL-001 middleware/layout gates.",
+      "disposition": "PASS for REG-ACL-001 — non-blocking hydration noise; out of REG-ACL scope"
+    }
+  ],
+  "notes": [
+    "Portal roles receiving GET /api/properties 200 with org-scoped items is consistent with Phase 4 grants (tenant/vendor/owner have property:read). Not Ops UI privilege escalation.",
+    "/admin remains a non-existent route; PAGE MISSING recovery copy mentioning Operations Center is not an Ops shell render (harness updated to classify correctly)."
+  ],
+  "regAclCriteria": {
+    "anonymous_routes": "PASS",
+    "anonymous_api": "PASS — /api/properties 401",
+    "login_storage_states": "PASS",
+    "session_refresh": "PASS — all implemented roles",
+    "session_expired": "PASS — cleared cookies → /login",
+    "logout": "PASS — API 200, redirect /login, API 401 after",
+    "relogin": "PASS — PM → /dashboard",
+    "tenant_ops_routes": "PASS — immediate redirect to /portal/tenant; no SetupGate",
+    "vendor_ops_routes": "PASS — immediate redirect to /portal/vendor; no SetupGate",
+    "owner_ops_routes": "PASS — immediate redirect to /portal/owner; no SetupGate",
+    "pm_ops_allowed": "PASS",
+    "pm_deny_master_admin": "PASS",
+    "master_admin_hq": "PASS",
+    "portal_isolation": "PASS — tenant→owner and PM→tenant → /unauthorized",
+    "history_nav": "PASS — no Ops shell after back/forward",
+    "authorized_api_pm": "PASS — /api/properties 200 before logout"
+  }
+}

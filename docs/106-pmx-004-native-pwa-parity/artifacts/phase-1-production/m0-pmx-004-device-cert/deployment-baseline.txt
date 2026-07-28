@@ -1,0 +1,9 @@
+deployment_id=dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf
+deployment_url=https://m-p-a-3uhuplb8c-ecastle612-uxs-projects.vercel.app
+aliases=www.my-property-assistant.com,my-property-assistant.com,m-p-a-web.vercel.app
+target=production
+status=READY
+confirmed=2026-07-24T21:49:00Z
+includes=REG-ACL-001 ops-shell-access middleware + (app) layout gate
+prior_gates=REG-ACL Deploy COMPLETE · REG-ACL Production Verification PASS · Implemented-Role Regression Rerun PASS
+inspector=https://vercel.com/ecastle612-uxs-projects/m-p-a-web/HFdpfdy5jS8kdQKSUKa6iKcU4hBf

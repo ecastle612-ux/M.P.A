@@ -1,0 +1,31 @@
+{
+  "organization": {
+    "id": "86547058-1166-4e7d-94b6-7ff17632f989",
+    "name": "MPA QA Certification",
+    "slug": "mpa-qa-certification"
+  },
+  "isolationOrganization": {
+    "id": "e399ec77-5062-460e-b180-9d80081a76c6",
+    "name": "MPA QA Isolation Control",
+    "slug": "mpa-qa-isolation"
+  },
+  "counts": {
+    "properties": 1,
+    "buildings": "N/A — no buildings table; property is the portfolio unit",
+    "units": 2,
+    "tenants": 2,
+    "vendors": 1,
+    "facilityTechnicians": "N/A — role not in membership CHECK",
+    "maintenanceRequests": 1,
+    "vendorJobTokens": 1,
+    "documents": 1,
+    "messageThreads": 1,
+    "ownerStatements": 1,
+    "leases": 1
+  },
+  "labels": {
+    "metadataFlags": ["qa_certification", "exclude_from_analytics", "suppress_notifications"],
+    "emailDomain": "qa.mpa.local",
+    "naming": "QA Certification *"
+  }
+}

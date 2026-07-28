@@ -12,8 +12,10 @@ const config = [
         {
           patterns: [
             {
-              group: ["@mpa/*/*"],
-              message: "Import package public APIs only (e.g. @mpa/ui)."
+              // Allow documented @mpa/ui package.exports subpaths (M0-PERF Option B).
+              group: ["@mpa/*/*", "!@mpa/ui/auth", "!@mpa/ui/cn", "!@mpa/ui/shell"],
+              message:
+                "Import package public APIs only (e.g. @mpa/ui, @mpa/ui/auth, @mpa/ui/shell)."
             },
             {
               group: ["**/packages/*"],

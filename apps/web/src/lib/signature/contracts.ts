@@ -76,7 +76,7 @@ export type SignatureVaultStatus = (typeof SIGNATURE_VAULT_STATUSES)[number];
 
 export type SignatureProviderId =
   | "noop"
-  | "dropbox_sign"
+  | "signwell"
   | "docusign"
   | "adobe_sign"
   | "signnow"
@@ -177,11 +177,16 @@ export type SignatureOpsSnapshot = {
 export type CreateSignaturePackageInput = {
   leaseId?: string | null;
   applicantId?: string | null;
+  propertyId?: string | null;
+  tenantId?: string | null;
   screeningCaseId?: string | null;
   documentType?: SignatureDocumentType;
+  /** Workflow discriminator (e.g. move_out_ack) stored in package metadata.kind */
+  kind?: string | null;
   orderMode?: SignatureOrderMode;
   subject?: string;
   message?: string;
+  metadata?: Record<string, unknown>;
   recipients?: Array<{
     role: SignatureRecipientRole;
     fullName: string;

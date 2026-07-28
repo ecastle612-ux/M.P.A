@@ -1,0 +1,34 @@
+Vercel CLI 56.5.0 (Node.js 26.5.0)
+Fetching deployment "m-p-a-e8eug8z68-ecastle612-uxs-projects.vercel.app" in ecastle612-uxs-projects
+> Fetched deployment "m-p-a-e8eug8z68-ecastle612-uxs-projects.vercel.app" in ecastle612-uxs-projects [535ms]
+
+  General
+
+    id		dpl_HKHS54QHqS6w5d6NaMqBGr5qF53o
+    name	m-p-a-web
+    target	production
+    status	● Ready
+    url		https://m-p-a-e8eug8z68-ecastle612-uxs-projects.vercel.app
+    created	Thu Jul 23 2026 22:00:52 GMT-0500 (Central Daylight Time) [3m ago]
+
+
+  Aliases
+
+    ╶ https://m-p-a-web.vercel.app
+    ╶ https://my-property-assistant.com
+    ╶ https://www.my-property-assistant.com
+    ╶ https://m-p-a-web-ecastle612-uxs-projects.vercel.app
+    ╶ https://m-p-a-web-ecastle612-ux-ecastle612-uxs-projects.vercel.app
+    
+
+  Builds
+
+    ┌ .        [0ms]
+    ├── λ _middleware (190.46KB) [bom1, fra1, gru1, iad1, lhr1, sfo1, sin1, syd1]
+    ├── λ index (3.37MB) [iad1]
+    ├── λ _not-found (3.37MB) [iad1]
+    ├── λ _not-found.rsc (3.37MB) [iad1]
+    ├── λ accept-invitation/[token] (3.37MB) [iad1]
+    └── 529 output items hidden
+    
+

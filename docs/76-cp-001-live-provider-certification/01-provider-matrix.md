@@ -18,7 +18,7 @@ Status values surfaced in Settings → Integrations:
 | **Resend** | Env / roadmap INT-303 | N/A (adapter not shipped) | INT-303 + verified domain SPF/DKIM | Env + optional domains probe | **No** |
 | **Twilio** | Env / roadmap INT-302 | N/A (adapter not shipped) | INT-302 + approved numbers + consent | Env + optional account probe | **No** |
 | **OneSignal** | API-001 | Test app OK | Prod app + HTTPS origin + App API Key | Env + App API health | Yes (when selected) |
-| **Dropbox Sign** | API-004 | Yes | Live key + webhook secret + simulate off | Env + account probe | Yes (when selected) |
+| **SignWell** | API-004 | Yes | Live key + webhook ID + simulate off | Env + `/me` probe | Yes (when selected) |
 | **Checkr** | API-003 | Yes | Live key + webhook secret + simulate off | Env + account probe | Yes (when selected) |
 | **Google Maps** | Optional client key | Yes | Referrer-restricted prod key | Env | Presentation only |
 
@@ -30,7 +30,7 @@ Status values surfaced in Settings → Integrations:
 | --- | --- | --- |
 | Stripe | Noop / failed intent messaging | Set sandbox keys; review webhook secret |
 | OneSignal | Push `failed` / `skipped`; in-app still works | Fix App API Key; check subscription state |
-| Dropbox Sign | Noop envelope / webhook ignore | Sandbox key + webhook secret |
+| SignWell | Noop envelope / webhook ignore | API key + webhook ID |
 | Checkr | Local sandbox simulation unless `CHECKR_REQUIRE_LIVE` | Sandbox key or keep simulator |
 | Resend | No outbound mail; invites in DB | Supabase Auth SMTP or waive |
 | Twilio | No SMS send | Keep Disabled; communicate in UI |

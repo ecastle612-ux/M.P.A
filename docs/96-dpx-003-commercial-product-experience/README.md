@@ -31,7 +31,7 @@ Earlier DPX-002 freeze listed **DPX-003 = Leasing**. This package **supersedes t
 | --- | --- | --- |
 | 1 | Cognitive load reduction (80/20 hierarchy) | [02](./02-cognitive-load-audit.md) |
 | 2 | Empty state certification | [03](./03-empty-state-certification.md) |
-| 3 | Tenant experience (communication-first) | [04](./04-tenant-experience.md) |
+| 3 | Tenant experience (communication-first) | [04](./04-tenant-experience.md) · Home [13](./13-tenant-home-screen.md) · **First-impression audit** [14](./14-tenant-first-impression-audit.md) |
 | 4 | Push notification certification | [05](./05-push-notification-certification.md) |
 | 5 | Theme certification (Sev-1 instability) | [06](./06-theme-certification.md) |
 | 6 | Design consistency | [07](./07-design-consistency.md) |

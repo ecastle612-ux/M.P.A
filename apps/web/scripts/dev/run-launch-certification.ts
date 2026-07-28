@@ -113,32 +113,36 @@ async function checkOneSignal(): Promise<Check[]> {
   ];
 }
 
-async function checkDropboxSign(): Promise<Check[]> {
-  const key = env("DROPBOX_SIGN_API_KEY") ?? env("HELLOSIGN_API_KEY");
+async function checkSignWell(): Promise<Check[]> {
+  const key = env("SIGNWELL_API_KEY");
   const provider = env("SIGNATURE_PROVIDER") ?? "noop";
-  if (!key || (provider !== "dropbox_sign" && provider !== "hellosign")) {
+  if (!key || provider !== "signwell") {
     return [
       {
-        id: "dropbox.config",
-        blocker: "Dropbox Sign",
+        id: "signwell.config",
+        blocker: "SignWell",
         status: "blocked",
         detail: `Sandbox not configured (SIGNATURE_PROVIDER=${provider}, API key ${key ? "set" : "missing"}).`
       }
     ];
   }
   try {
-    const sig = getSignatureProvider("dropbox_sign");
+    const sig = getSignatureProvider("signwell");
     const events = await sig.parseWebhook(
       {
-        event: { event_type: "signature_request_all_signed", event_hash: `lc001-${Date.now()}` },
-        signature_request: { signature_request_id: "lc001-env" }
+        event: {
+          type: "document_completed",
+          time: Math.floor(Date.now() / 1000),
+          hash: `lc001-${Date.now()}`
+        },
+        data: { object: { id: "lc001-env" } }
       },
       { "x-mpa-simulate": "1" }
     );
     return [
       {
-        id: "dropbox.webhook_parse",
-        blocker: "Dropbox Sign",
+        id: "signwell.webhook_parse",
+        blocker: "SignWell",
         status: Array.isArray(events) ? "pass" : "fail",
         detail: `Webhook parse events=${events.length}`
       }
@@ -146,10 +150,10 @@ async function checkDropboxSign(): Promise<Check[]> {
   } catch (error) {
     return [
       {
-        id: "dropbox.request",
-        blocker: "Dropbox Sign",
+        id: "signwell.request",
+        blocker: "SignWell",
         status: "fail",
-        detail: error instanceof Error ? error.message : "Dropbox Sign probe failed"
+        detail: error instanceof Error ? error.message : "SignWell probe failed"
       }
     ];
   }
@@ -352,20 +356,20 @@ async function main() {
   const [
     stripe,
     onesignal,
-    dropbox,
+    signwell,
     checkr,
     authStorage,
     providers
   ] = await Promise.all([
     checkStripe(),
     checkOneSignal(),
-    checkDropboxSign(),
+    checkSignWell(),
     checkCheckr(),
     checkAuthStorage(),
     runProviderCertification()
   ]);
 
-  const checks = [...stripe, ...onesignal, ...dropbox, ...checkr, ...authStorage, ...checkEmail(), ...checkScale()];
+  const checks = [...stripe, ...onesignal, ...signwell, ...checkr, ...authStorage, ...checkEmail(), ...checkScale()];
 
   const summary = {
     pass: checks.filter((c) => c.status === "pass").length,
@@ -377,7 +381,7 @@ async function main() {
   const p0Open = [
     summary.blocked > 0 || checks.some((c) => c.blocker === "Stripe" && c.status !== "pass"),
     checks.some((c) => c.id === "onesignal.api_health" && c.status !== "pass"),
-    checks.some((c) => c.blocker === "Dropbox Sign" && c.status === "blocked"),
+    checks.some((c) => c.blocker === "SignWell" && c.status === "blocked"),
     checks.some((c) => c.blocker === "Checkr" && c.status === "blocked"),
     checks.some((c) => c.blocker === "Email Deliverability" && c.status === "blocked")
   ].some(Boolean);

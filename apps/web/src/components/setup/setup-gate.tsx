@@ -2,18 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-
-const SETUP_ALLOWED_PREFIXES = [
-  "/setup",
-  "/master-admin",
-  "/portal",
-  "/properties/new",
-  "/units/new",
-  "/tenants/new",
-  "/leases/new",
-  "/profile",
-  "/api/"
-];
+import { isPathAllowedDuringSetup } from "../../lib/setup/completion";
 
 export function SetupGate({ isSetupComplete }: { isSetupComplete: boolean }) {
   const pathname = usePathname();
@@ -23,8 +12,9 @@ export function SetupGate({ isSetupComplete }: { isSetupComplete: boolean }) {
     if (isSetupComplete) return;
     // Never yank Master Admin HQ into the PM setup wizard.
     if (pathname.startsWith("/master-admin")) return;
-    const allowed = SETUP_ALLOWED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-    if (!allowed && pathname !== "/login") {
+    // Portal surfaces have their own shells — never funnel them into Ops /setup.
+    if (pathname.startsWith("/portal")) return;
+    if (!isPathAllowedDuringSetup(pathname) && pathname !== "/login") {
       router.replace("/setup");
     }
   }, [isSetupComplete, pathname, router]);

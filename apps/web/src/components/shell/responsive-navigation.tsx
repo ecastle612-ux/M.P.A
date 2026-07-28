@@ -153,7 +153,8 @@ export function ResponsiveNavigation() {
     canAccess,
     permissions,
     loaded: permissionsLoaded,
-    masterAdminOnlyShell
+    masterAdminOnlyShell,
+    entitledModules
   } = useSessionPermissions();
   const { organizations } = useOrganizationContext();
   // Prefetch signals while closed so first open paint already has health/badges.
@@ -161,7 +162,10 @@ export function ResponsiveNavigation() {
   const favorites = useSyncExternalStore(subscribeNavHistory, getFavoritesSnapshot, getEmptyHistorySnapshot);
   const recents = useSyncExternalStore(subscribeNavHistory, getRecentsSnapshot, getEmptyHistorySnapshot);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const navOptions = useMemo(() => ({ masterAdminOnlyShell }), [masterAdminOnlyShell]);
+  const navOptions = useMemo(
+    () => ({ masterAdminOnlyShell, entitledModules }),
+    [masterAdminOnlyShell, entitledModules]
+  );
 
   const accessibleItems = useMemo(
     () =>

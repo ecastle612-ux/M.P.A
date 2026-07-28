@@ -1,13 +1,127 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { clientEnv } from "./lib/env/client-env";
+import {
+  assignedSurfaceHome,
+  canAccessOperationsPath,
+  canAccessOperationsShell,
+  flattenMembershipRoles,
+  isOperationsShellPath
+} from "./lib/auth/ops-shell-access";
+import type { PasswordState } from "./lib/auth/identity/types";
+import { ACTIVE_ORGANIZATION_COOKIE } from "./lib/organization/contracts";
+
+async function principalRequiresFirstLoginGate(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("identity_principals")
+    .select("password_state, must_accept_terms, status")
+    .eq("auth_provider_subject", userId)
+    .maybeSingle();
+
+  if (!data) return false;
+  const status = String(data["status"] ?? "");
+  if (status === "disabled" || status === "locked" || status === "archived") return false;
+  const passwordState = String(data["password_state"] ?? "") as PasswordState;
+  if (passwordState === "temporary_issued" || passwordState === "reset_required") return true;
+  return Boolean(data["must_accept_terms"]);
+}
+
+async function principalRequiresContactVerification(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("identity_principals")
+    .select("must_verify_contact, password_state, must_accept_terms, status")
+    .eq("auth_provider_subject", userId)
+    .maybeSingle();
+  if (!data) return false;
+  const status = String(data["status"] ?? "");
+  if (status === "disabled" || status === "locked" || status === "archived") return false;
+  const passwordState = String(data["password_state"] ?? "") as PasswordState;
+  if (passwordState === "temporary_issued" || passwordState === "reset_required") return false;
+  if (Boolean(data["must_accept_terms"])) return false;
+  return Boolean(data["must_verify_contact"]);
+}
 
 function isMasterAdminUser(user: { app_metadata?: Record<string, unknown> } | null): boolean {
   return user?.app_metadata?.["dev_master_admin"] === true;
 }
 
-function homePathForUser(user: { app_metadata?: Record<string, unknown> } | null): string {
-  return isMasterAdminUser(user) ? "/master-admin" : "/portal";
+async function resolveMembershipRoles(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string
+): Promise<string[]> {
+  const { data } = await supabase
+    .from("organization_memberships")
+    .select("roles")
+    .eq("user_id", userId)
+    .eq("status", "active");
+  return flattenMembershipRoles(data ?? []);
+}
+
+async function resolvePrimaryOrganizationType(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("organization_memberships")
+    .select("roles, organizations(organization_type)")
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .limit(20);
+  if (!data?.length) return null;
+  for (const row of data) {
+    const roles = Array.isArray(row.roles) ? row.roles : [];
+    if (roles.includes("organization_admin")) {
+      const org = row.organizations as { organization_type?: string | null } | null;
+      return org?.organization_type ?? null;
+    }
+  }
+  const first = data[0]?.organizations as { organization_type?: string | null } | null | undefined;
+  return first?.organization_type ?? null;
+}
+
+async function homePathForAuthenticatedUser(
+  supabase: ReturnType<typeof createServerClient>,
+  user: { id: string; app_metadata?: Record<string, unknown> }
+): Promise<string> {
+  const isMasterAdmin = isMasterAdminUser(user);
+  const roles = await resolveMembershipRoles(supabase, user.id);
+  const organizationType = roles.includes("organization_admin")
+    ? await resolvePrimaryOrganizationType(supabase, user.id)
+    : null;
+  return assignedSurfaceHome(roles, isMasterAdmin, { organizationType });
+}
+
+/** COM-001 Slice D — freeze/archive export-only navigation (AUTH Cancelled posture). */
+async function resolveOffboardingMutationBlock(
+  supabase: ReturnType<typeof createServerClient>,
+  request: NextRequest,
+  userId: string
+): Promise<"none" | "export_only" | "archived"> {
+  const orgId = request.cookies.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
+  if (!orgId) return "none";
+  const { data: membership } = await supabase
+    .from("organization_memberships")
+    .select("id")
+    .eq("organization_id", orgId)
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .maybeSingle();
+  if (!membership) return "none";
+  const { data } = await supabase
+    .from("commercial_offboarding_states")
+    .select("stage")
+    .eq("organization_id", orgId)
+    .maybeSingle();
+  const stage = data ? String(data["stage"] ?? "none") : "none";
+  if (stage === "archived") return "archived";
+  if (stage === "frozen" || stage === "archive_scheduled") return "export_only";
+  return "none";
 }
 
 export async function middleware(request: NextRequest) {
@@ -76,13 +190,23 @@ export async function middleware(request: NextRequest) {
     return redirectResponse;
   }
 
+  // Product correction: Vendor Portal retired — no authenticated vendor portal experience.
+  if (pathname === "/portal/vendor" || pathname.startsWith("/portal/vendor/")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/vendor-access";
+    return NextResponse.redirect(url);
+  }
+
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
   const isRootRoute = pathname === "/";
   const isLoginRoute = pathname.startsWith("/login");
+  const isFirstLoginRoute = pathname.startsWith("/first-login");
+  const isVerifyContactRoute = pathname.startsWith("/verify-contact");
   const isForgotPasswordRoute = pathname.startsWith("/forgot-password");
+  const isAcceptInvitationRoute = pathname.startsWith("/accept-invitation");
   const isProtected =
     !isDevPortalCertificationRoute &&
     (pathname.startsWith("/dashboard") ||
@@ -106,10 +230,49 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/setup") ||
       pathname.startsWith("/accounting"));
 
-  if (isRootRoute) {
+  if ((isFirstLoginRoute || isVerifyContactRoute) && !user) {
     const url = request.nextUrl.clone();
-    url.pathname = user ? homePathForUser(user) : "/login";
+    url.pathname = "/login";
     return NextResponse.redirect(url);
+  }
+
+  // AUTH-001 Slice A: first-login / forced password-change gate (before product/home routing).
+  if (user && !isFirstLoginRoute && !isResetPasswordRoute && !isVerifyContactRoute) {
+    const needsGate = await principalRequiresFirstLoginGate(supabase, user.id);
+    if (
+      needsGate &&
+      (isProtected || isLoginRoute || isRootRoute || isForgotPasswordRoute || isAcceptInvitationRoute)
+    ) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/first-login";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // AUTH-001 Slice C: contact email verification gate after first-login.
+  if (
+    user &&
+    !isFirstLoginRoute &&
+    !isVerifyContactRoute &&
+    !isResetPasswordRoute &&
+    !isAcceptInvitationRoute
+  ) {
+    const needsContact = await principalRequiresContactVerification(supabase, user.id);
+    if (needsContact && (isProtected || isLoginRoute || isRootRoute || isForgotPasswordRoute)) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/verify-contact";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  if (isRootRoute) {
+    if (user) {
+      const url = request.nextUrl.clone();
+      url.pathname = await homePathForAuthenticatedUser(supabase, user);
+      return NextResponse.redirect(url);
+    }
+    // ACQ-001 Slice A — anonymous visitors see the public landing page.
+    return response;
   }
 
   if (isProtected && !user) {
@@ -120,7 +283,8 @@ export async function middleware(request: NextRequest) {
 
   if ((isLoginRoute || isForgotPasswordRoute) && user) {
     const url = request.nextUrl.clone();
-    url.pathname = homePathForUser(user);
+    const needsGate = await principalRequiresFirstLoginGate(supabase, user.id);
+    url.pathname = needsGate ? "/first-login" : await homePathForAuthenticatedUser(supabase, user);
     return NextResponse.redirect(url);
   }
 
@@ -131,6 +295,52 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // COM-001 Slice D: frozen / archived orgs → export-only settings (Ops shell only; portals untouched).
+  if (user && !isMasterAdminUser(user) && isOperationsShellPath(pathname)) {
+    const block = await resolveOffboardingMutationBlock(supabase, request, user.id);
+    const exportAllowed =
+      pathname.startsWith("/settings") || pathname.startsWith("/profile");
+    if ((block === "archived" || block === "export_only") && !exportAllowed) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/settings/organization";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // REG-ACL-001 + AUTH-001 Slice D: portal-only roles never enter Ops;
+  // leasing/technician are path-scoped inside Ops.
+  if (user && isOperationsShellPath(pathname)) {
+    const isMasterAdmin = isMasterAdminUser(user);
+    const roles = await resolveMembershipRoles(supabase, user.id);
+    if (!canAccessOperationsShell(roles, isMasterAdmin)) {
+      const url = request.nextUrl.clone();
+      url.pathname = await homePathForAuthenticatedUser(supabase, user);
+      if (url.pathname === pathname) {
+        url.pathname = "/unauthorized";
+      }
+      return NextResponse.redirect(url);
+    }
+    if (!canAccessOperationsPath(pathname, roles, isMasterAdmin)) {
+      const url = request.nextUrl.clone();
+      url.pathname = await homePathForAuthenticatedUser(supabase, user);
+      if (url.pathname === pathname) {
+        url.pathname = "/unauthorized";
+      }
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Master Admin HQ routes require Master Admin capability.
+  if (user && pathname.startsWith("/master-admin") && !isMasterAdminUser(user)) {
+    const roles = await resolveMembershipRoles(supabase, user.id);
+    const url = request.nextUrl.clone();
+    url.pathname = assignedSurfaceHome(roles, false);
+    if (url.pathname.startsWith("/master-admin")) {
+      url.pathname = "/unauthorized";
+    }
+    return NextResponse.redirect(url);
+  }
+
   return response;
 }
 
@@ -138,6 +348,8 @@ export const config = {
   matcher: [
     "/",
     "/dashboard/:path*",
+    "/inbox/:path*",
+    "/activity/:path*",
     "/master-admin/:path*",
     "/portal/:path*",
     "/profile/:path*",
@@ -159,8 +371,11 @@ export const config = {
     "/accounting/:path*",
     "/join/:path*",
     "/login",
+    "/first-login",
     "/forgot-password",
     "/reset-password",
-    "/accept-invitation/:path*"
+    "/accept-invitation/:path*",
+    "/verify-contact",
+    "/verify-contact/:path*"
   ]
 };

@@ -35,6 +35,7 @@ export function ApplicationShell({
   masterAdminBanner,
   initialSidebarCollapsed = false,
   initialPermissions = [],
+  initialEntitledModules = null,
   masterAdminOnlyShell = false
 }: {
   children: ReactNode;
@@ -47,6 +48,7 @@ export function ApplicationShell({
   masterAdminBanner?: ReactNode;
   initialSidebarCollapsed?: boolean;
   initialPermissions?: string[];
+  initialEntitledModules?: string[] | null;
   masterAdminOnlyShell?: boolean;
 }) {
   return (
@@ -56,6 +58,7 @@ export function ApplicationShell({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
       initialPermissions={initialPermissions}
+      initialEntitledModules={initialEntitledModules}
       masterAdminOnlyShell={masterAdminOnlyShell}
     >
       <SetupGate isSetupComplete={isSetupComplete} />

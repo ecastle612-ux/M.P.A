@@ -40,7 +40,7 @@ M.P.A. has matured substantially since the PX-007 desk assessment. Core property
 | Command Center | Implemented | In scope |
 | Resident Portal | Partial | In scope — payments/announcements/messages; home shell |
 | Owner Portal | Shell | **Out of beta scope** |
-| Vendor Portal | Shell | **Out of beta scope** |
+| Vendor Portal | Retired | **Removed from product** (2026-07-26) — secure `/v/[token]` links only |
 | Offline Sync | Shell | **Out of beta scope** (static offline page only) |
 
 ---

@@ -1,7 +1,7 @@
 # 72 — PMX-004 Phase 6 Authorization (Program Record)
 
 **Package:** CORE-003 · **PMX next unit (post–Phase 5 Validated)**  
-**Status:** ✅ **AUTHORIZED** · Implementation 🔒 until dedicated session · Validation 🔒 until `VALIDATE PMX-004 PHASE 6`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED / CERTIFIED** ([73](./73-pmx-004-phase-6-implementation.md) · [PMX-004 §33](../106-pmx-004-native-pwa-parity/33-phase-6-implementation.md)) · Validation 🔒 until `VALIDATE PMX-004 PHASE 6`  
 **Date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -59,7 +59,7 @@ VALIDATE PMX-004 PHASE 6
 
 | Item | Status |
 |------|--------|
-| PMX-004 Phase 6 (Push Notification Certification · device matrix · deep links · PUSH-001 G1–G10) | ✅ **Authorized** · 🔒 Implementation / certification pending |
+| PMX-004 Phase 6 (Push Notification Certification · device matrix · deep links · PUSH-001 G1–G10) | ✅ **Authorized** · ✅ **Implemented / Certified** · 🔒 Validation pending |
 | PMX-004 Phase 7–11 | 🔒 **not** issued |
 | UX-012 Slice C–E | 🔒 **not** issued |
 | OPS-001 Slice C–E | 🔒 **not** issued |
@@ -71,7 +71,6 @@ VALIDATE PMX-004 PHASE 6
 ## Recommendation
 
 1. ✅ Phrase **`AUTHORIZE PMX-004 PHASE 6` issued**.  
-2. ✅ Begin **PMX-004 Phase 6 implementation / certification** in a **dedicated** session per [PMX-004 §32](../106-pmx-004-native-pwa-parity/32-phase-6-authorization.md).  
-3. ❌ Do **not** begin implementation in this authorize session.  
-4. ❌ Do **not** authorize PMX-004 Phases 7–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI without their own phrases.  
-5. After implementation / evidence packaging → dedicated session → `VALIDATE PMX-004 PHASE 6`.
+2. ✅ Phase 6 **IMPLEMENTED / CERTIFIED** — [§73](./73-pmx-004-phase-6-implementation.md) · [PMX-004 §33](../106-pmx-004-native-pwa-parity/33-phase-6-implementation.md).  
+3. ✅ Proceed to dedicated session → **`VALIDATE PMX-004 PHASE 6`**.  
+4. ❌ Do **not** authorize PMX-004 Phases 7–11 / UX-012 C–E / OPS-001 C–E / FIN-003 C–E / partner marketplace UI without their own phrases.

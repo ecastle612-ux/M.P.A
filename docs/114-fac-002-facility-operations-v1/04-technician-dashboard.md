@@ -30,7 +30,7 @@ Technician opens M.P.A. and immediately sees **what to do now** — not a PM por
 | `facility_technician` | Technician dashboard |
 | Facility manager / org admin (Facility-only) | Facility hub + calendar; **no** rental portfolio chrome |
 | `property_manager` with both modules | Existing Ops dashboard; Facility hub in nav |
-| Vendor | Existing vendor portal — unchanged |
+| Vendor | No portal — secure `/v/[token]` action links only (Vendor Portal retired) |
 
 ---
 

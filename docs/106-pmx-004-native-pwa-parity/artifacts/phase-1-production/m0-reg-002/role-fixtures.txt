@@ -1,0 +1,7 @@
+QA_E2E_AUTH_ENABLED=false
+qa/e2e/.env=MISSING
+qa/e2e/.env.local=MISSING
+qa/e2e/auth/*.json=MISSING
+auth.users qa*/e2e*=NONE (prior query)
+available_memberships=property_manager example.com users only; no owner/vendor/tenant/leasing/facility QA accounts with known passwords
+session_used=Master Admin browser session (ecastle612) active org M.P.A. Development

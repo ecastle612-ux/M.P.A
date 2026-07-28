@@ -69,7 +69,7 @@ Phases below are **program phases (M0–M6)**, not FIN/PMX phase letters.
 
 **Exit:** UX-A, OPS-A, AUTH-A each Validated; PMX-004 Phase 1 remains Certified.
 
-**Next Authorized Action (official):** ✅ **`AUTHORIZE OPS-001 SLICE D` issued** ([§88](./88-ops-001-slice-d-authorization.md) · [OPS-001 §43](../111-ops-001-platform-operations-architecture/43-slice-d-authorization.md)) · CORE-003 **M4.3**. Next → dedicated implement session within §43 scope → **`VALIDATE OPS-001 SLICE D`**. OPS-001 Slice E · UX-C–E · PMX 9–11 · FIN remaining · partner marketplace UI remain locked until each explicit authorize. PMX Phase 9 remains separately eligible (**not issued**).
+**Next Authorized Action (official):** ✅ **OPS-001 Slice E VALIDATED PASS** ([OPS-001 §49](../111-ops-001-platform-operations-architecture/49-slice-e-validation.md) · [§92](./92-ops-001-slice-e-validation.md)) · CORE-003 **M5.3** closed · OPS-001 A–E ✅ **COMPLETE**. Next program units remain separately gated (e.g. UX-012 C · PMX Phase 9 · FIN remaining · marketplace) — **no authorize issued here**.
 
 ---
 

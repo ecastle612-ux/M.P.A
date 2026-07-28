@@ -1,0 +1,193 @@
+{
+  "ranAt": "2026-07-24T03:41:07.761Z",
+  "baseURL": "https://www.my-property-assistant.com",
+  "counts": {
+    "pass": 26,
+    "fail": 5,
+    "skip": 4,
+    "total": 35
+  },
+  "overallExecutable": "FAIL",
+  "architectureBlockedRoles": [
+    "organization_admin",
+    "leasing_agent",
+    "facility_technician"
+  ],
+  "checks": [
+    {
+      "id": "A.login.pm",
+      "result": "PASS",
+      "detail": "landed https://www.my-property-assistant.com/dashboard"
+    },
+    {
+      "id": "A.logout",
+      "result": "SKIP",
+      "detail": "logout control not found on /profile"
+    },
+    {
+      "id": "B.role.masterAdmin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/master-admin :: Skip to content MISSION CONTROL Mission Control PLATFORM Platform Health Integrations Feature Flags Notifications CUSTOMERS Organizations & People Import / Migr"
+    },
+    {
+      "id": "B.role.property_manager",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendor"
+    },
+    {
+      "id": "B.role.property_owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner M NAVIGATION Dashboard Properties Financials Documents Messages Reports Settings Port"
+    },
+    {
+      "id": "B.role.tenant",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home M NAVIGATION Home Messages Rent Maintenance Documents More AI"
+    },
+    {
+      "id": "B.role.vendor",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor M NAVIGATION Work queue Profile Vendor home QA Certification Vendor w"
+    },
+    {
+      "id": "B.escalation.pm_to_master",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/master-admin :: Loading your workspace…"
+    },
+    {
+      "id": "B.owner.ops_properties_read",
+      "result": "FAIL",
+      "detail": "Expected by property:read grant · https://www.my-property-assistant.com/properties · seesQa=false"
+    },
+    {
+      "id": "B.escalation.tenant_to_ops_properties",
+      "result": "FAIL",
+      "detail": "https://www.my-property-assistant.com/properties :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendor"
+    },
+    {
+      "id": "B.escalation.vendor_to_ops_properties",
+      "result": "FAIL",
+      "detail": "HIGH: SetupGate exposed Ops shell · https://www.my-property-assistant.com/setup"
+    },
+    {
+      "id": "B.escalation.tenant_to_owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/unauthorized :: ACCESS CHECK You don’t have access to this page What happened: Your current role in this organization doesn’t include permission for that area. How to fix it: S"
+    },
+    {
+      "id": "C.pm./properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/properties :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • "
+    },
+    {
+      "id": "C.pm./units",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/units :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • "
+    },
+    {
+      "id": "C.pm./tenants",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/tenants :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • "
+    },
+    {
+      "id": "C.pm./maintenance",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/maintenance :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • "
+    },
+    {
+      "id": "C.pm./vendors",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/vendors :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • "
+    },
+    {
+      "id": "C.pm./inbox",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/inbox :: PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fi"
+    },
+    {
+      "id": "C.pm./documents",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/documents :: PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fi"
+    },
+    {
+      "id": "C.pm./reports",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/reports :: PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fi"
+    },
+    {
+      "id": "C.pm./financials",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/financials :: Loading your workspace…"
+    },
+    {
+      "id": "C.pm./leases",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/leases :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • "
+    },
+    {
+      "id": "C.pm./notifications",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/notifications :: PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fi"
+    },
+    {
+      "id": "C.pm.qa_property_visible",
+      "result": "FAIL",
+      "detail": "Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendors Communications • Inbox Accounting • Re"
+    },
+    {
+      "id": "D.vendor.portal",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor M NAVIGATION Work queue Profile Vendor home QA Certification Vendor w"
+    },
+    {
+      "id": "D.owner./portal/owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner M NAVIGATION Dashboard Properties Financials "
+    },
+    {
+      "id": "D.owner./portal/owner/properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner/properties :: Property Owner Portal Portfolio performance, documents, and updates. Owner M NAVIGATION Dashboard Properties Financials "
+    },
+    {
+      "id": "D.owner./portal/owner/financials",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner/financials :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials"
+    },
+    {
+      "id": "D.owner./portal/owner/documents",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner/documents :: Property Owner Portal Portfolio performance, documents, and updates. Owner M NAVIGATION Dashboard Properties Financials "
+    },
+    {
+      "id": "D.tenant.portal",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home M NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Property Unit 101 Friday, July 24 For you View"
+    },
+    {
+      "id": "E.org_isolation.pm_properties",
+      "result": "FAIL",
+      "detail": "seesQa=false seesIsolation=false :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendor"
+    },
+    {
+      "id": "B.role.masterAdmin.mission",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/master-admin :: Skip to content MISSION CONTROL Mission Control PLATFORM Platform Health Integrations Feature Flags Notifications CUSTOMERS Organizations & People Import / Migr"
+    },
+    {
+      "id": "B.role.organization_admin",
+      "result": "SKIP",
+      "detail": "Not in organization_memberships_roles_check / USER_ROLES — architecture STOP"
+    },
+    {
+      "id": "B.role.leasing_agent",
+      "result": "SKIP",
+      "detail": "Not in organization_memberships_roles_check / USER_ROLES — architecture STOP"
+    },
+    {
+      "id": "B.role.facility_technician",
+      "result": "SKIP",
+      "detail": "Not in organization_memberships_roles_check / USER_ROLES — architecture STOP"
+    }
+  ]
+}

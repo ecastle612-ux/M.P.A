@@ -197,7 +197,7 @@ knowing active tenancy, lease dates, and unit occupancy context from Phase 5.
 |-------------|-----------------|
 | Vendor profiles and onboarding | Vendor Management |
 | Vendor assignment and dispatch baseline | Maintenance, Vendor Management |
-| Vendor portal job inbox | Vendor Management |
+| Vendor secure-link job card (no Vendor Portal) | Vendor Management |
 | Vendor quality and compliance tracking | Vendor Management |
 
 **Dependency rationale:** Vendor workflows should be driven by real maintenance
@@ -340,7 +340,7 @@ Cross-cutting UX sprints that do not add business modules. Each follows the Impl
 
 | Decision | Needed By | Options |
 |----------|-----------|---------|
-| Lease signing provider | Phase 5+ | Dropbox Sign recommended first — design: [API-004](../50-api-004-electronic-signatures/README.md) (DocuSign / Adobe / SignNow / PandaDoc later) |
+| Lease signing provider | Phase 5+ | **SignWell** (ADR-030) — design: [API-004](../50-api-004-electronic-signatures/README.md) (DocuSign / Adobe / SignNow / PandaDoc later) |
 | Tenant screening provider | Phase 5+ | [API-003](../48-api-003-background-screening/README.md) — Checkr recommended first; SmartMove / RentPrep / Equifax adapters |
 | Resident payments provider | Phase 8+ | Stripe recommended first — design: [API-005](../51-api-005-resident-payments-billing/README.md) (Plaid ACH / Finix / Dwolla / Authorize.net later) |
 | Vendor payout model | Phase 7/8 | Internal ledger vs external payout rail |

@@ -10,6 +10,16 @@ import type {
   SaasCustomerRef
 } from "./contracts";
 
+/** Prefer Stripe's `{CHECKOUT_SESSION_ID}` template; append only when absent. */
+function resolveNoopCheckoutSuccessUrl(successUrl: string, sessionId: string, planCode: string): string {
+  if (successUrl.includes("{CHECKOUT_SESSION_ID}")) {
+    const base = successUrl.replaceAll("{CHECKOUT_SESSION_ID}", sessionId);
+    return `${base}${base.includes("?") ? "&" : "?"}plan=${planCode}`;
+  }
+  const joiner = successUrl.includes("?") ? "&" : "?";
+  return `${successUrl}${joiner}session_id=${sessionId}&plan=${planCode}`;
+}
+
 /**
  * Local/CI SaaS billing provider — no external network.
  */
@@ -17,13 +27,16 @@ export const noopSaasBillingProvider: SaasBillingProvider = {
   id: "noop",
 
   async ensureCustomer(input: EnsureSaasCustomerInput): Promise<SaasCustomerRef> {
-    return { externalCustomerId: `noop_cus_saas_${input.organizationId.slice(0, 8)}` };
+    const seed = (input.organizationId ?? input.email ?? "public").toString().slice(0, 8);
+    return { externalCustomerId: `noop_cus_saas_${seed}` };
   },
 
   async createCheckoutSession(input: CreateCheckoutSessionInput): Promise<CheckoutSessionRef> {
     const sessionId = `noop_cs_${Date.now()}`;
-    const url = `${input.successUrl}${input.successUrl.includes("?") ? "&" : "?"}session_id=${sessionId}&plan=${input.planCode}`;
-    return { sessionId, url };
+    return {
+      sessionId,
+      url: resolveNoopCheckoutSuccessUrl(input.successUrl, sessionId, input.planCode)
+    };
   },
 
   async createPortalSession(input: CreatePortalSessionInput): Promise<PortalSessionRef> {
@@ -46,6 +59,17 @@ export const noopSaasBillingProvider: SaasBillingProvider = {
       cancelAtPeriodEnd: false,
       canceledAt: null,
       endedAt: null
+    };
+  },
+
+  async cancelSubscriptionAtPeriodEnd(input: {
+    externalSubscriptionId: string;
+  }): Promise<NormalizedSubscription> {
+    const current = await this.getSubscription(input.externalSubscriptionId);
+    return {
+      ...current,
+      cancelAtPeriodEnd: true,
+      canceledAt: new Date().toISOString()
     };
   },
 

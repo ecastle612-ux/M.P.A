@@ -1,6 +1,9 @@
 /**
- * Phase 3 foundation database types.
- * Replace by running `supabase gen types typescript` once the project is linked.
+ * Phase 3 foundation database types + RC1 Critical patches.
+ * Full regen from mpa-prod deferred (breaks existing selects); patched:
+ * - organization_invitations.property_ids
+ * - membership_property_scopes
+ * Attested against mpa-prod 2026-07-28.
  */
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
@@ -55,6 +58,7 @@ export type Database = {
           id: string;
           invited_by: string;
           organization_id: string;
+          property_ids: string[];
           roles: string[];
           status: "accepted" | "expired" | "pending" | "revoked";
           token: string;
@@ -69,6 +73,7 @@ export type Database = {
           id?: string;
           invited_by: string;
           organization_id: string;
+          property_ids?: string[];
           roles?: string[];
           status?: "accepted" | "expired" | "pending" | "revoked";
           token?: string;
@@ -83,6 +88,7 @@ export type Database = {
           id?: string;
           invited_by?: string;
           organization_id?: string;
+          property_ids?: string[];
           roles?: string[];
           status?: "accepted" | "expired" | "pending" | "revoked";
           token?: string;
@@ -135,6 +141,52 @@ export type Database = {
             columns: ["organization_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      membership_property_scopes: {
+        Row: {
+          created_at: string;
+          id: string;
+          membership_id: string;
+          organization_id: string;
+          property_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          membership_id: string;
+          organization_id: string;
+          property_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          membership_id?: string;
+          organization_id?: string;
+          property_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "membership_property_scopes_membership_id_fkey";
+            columns: ["membership_id"];
+            isOneToOne: false;
+            referencedRelation: "organization_memberships";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "membership_property_scopes_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "membership_property_scopes_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
             referencedColumns: ["id"];
           }
         ];

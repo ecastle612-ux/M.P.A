@@ -1,5 +1,10 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
+import { CommunicationTimelinePanel } from "../../../../components/commercial/communication-timeline-panel";
+import { FeatureDiscoveryBanner } from "../../../../components/commercial/feature-discovery-banner";
+import { ImplementationProgressCard } from "../../../../components/commercial/implementation-progress-card";
+import { OrgHealthCard } from "../../../../components/commercial/org-health-card";
+import { OrgOffboardingCard } from "../../../../components/commercial/org-offboarding-card";
 import {
   OrganizationSettingsPanel,
   type OrganizationSettingsDetails
@@ -39,10 +44,25 @@ export default async function OrganizationSettingsPage() {
     );
   }
 
+  const canManage = evaluatePermission(authorization, "authorization:manage");
+
   return (
-    <OrganizationSettingsPanel
-      initialOrganization={(data as OrganizationSettingsDetails | null) ?? null}
-      canManage={evaluatePermission(authorization, "authorization:manage")}
-    />
+    <div className="space-y-4">
+      <FeatureDiscoveryBanner organizationId={organizationId} canManage={canManage} />
+      <OrgHealthCard organizationId={organizationId} />
+      <ImplementationProgressCard
+        organizationId={organizationId}
+        canManage={canManage}
+      />
+      <CommunicationTimelinePanel
+        organizationId={organizationId}
+        canAddNote={canManage}
+      />
+      <OrgOffboardingCard organizationId={organizationId} canManage={canManage} />
+      <OrganizationSettingsPanel
+        initialOrganization={(data as OrganizationSettingsDetails | null) ?? null}
+        canManage={canManage}
+      />
+    </div>
   );
 }

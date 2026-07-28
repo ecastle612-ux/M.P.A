@@ -1,0 +1,12 @@
+ranAt=2026-07-24T21:49:31Z
+deploymentId=dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf
+login=HTTP/2 200 
+manifest_display=standalone
+manifest_icons=10
+sw_onesignal_status=HTTP/2 200 
+sw_has_importScripts=3
+sw_offline_status=HTTP/2 200 
+offline_html_status=HTTP/2 200 
+hsts=strict-transport-security: max-age=31536000; includeSubDomains; preload
+sw_cache=cache-control: no-cache, no-store, must-revalidate
+sw_allowed=service-worker-allowed: /

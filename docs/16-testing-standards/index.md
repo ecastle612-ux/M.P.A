@@ -197,6 +197,7 @@ jobs:
 - **15** Performance Standards — load testing
 - **47** [QA-001 — Automated Quality Assurance & AI Testing Foundation](../47-qa-001-automated-quality-assurance/README.md) — Playwright platform, workflow library, visual/a11y/perf, CI gates (Design/Document; Approve before implement)
 - **48** [API-003 — Background Screening & Applicant Verification](../48-api-003-background-screening/README.md) — ScreeningService + provider abstraction, FCRA/consent/adverse action (Approved · Implemented)
-- **50** [API-004 — Electronic Signatures & Digital Lease Execution](../50-api-004-electronic-signatures/README.md) — SignatureService + Dropbox Sign-first abstraction (Approved · Implemented)
+- **50** [API-004 — Electronic Signatures & Digital Lease Execution](../50-api-004-electronic-signatures/README.md) — SignatureService + SignWell (Approved · Implemented · ADR-030)
+- **116** [SIGN-002 — Electronic Signature Workflow Integrations](../116-sign-002-electronic-signature-workflow-integrations/README.md) — Property / Facility / Core workflow design (**Draft — Ready for Approval**)
 - **51** [API-005 — Resident Payments & Billing Platform](../51-api-005-resident-payments-billing/README.md) — BillingService + PaymentProvider / Stripe-first (Approved · Implemented)
 - **52** [RC-001 — Beta Readiness & Design Partner Certification](../52-rc-001-beta-readiness/README.md) — Design Partner GO (constrained)

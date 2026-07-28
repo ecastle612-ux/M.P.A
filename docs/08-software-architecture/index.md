@@ -17,8 +17,8 @@ M.P.A. is a multi-sided, workflow-connected SaaS platform built on:
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           Client Applications                            │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌─────────────┐ │
-│  │  PM Portal   │  │ Owner Portal │  │Tenant Portal │  │Vendor Portal│ │
-│  │  (desktop+)  │  │  (responsive)│  │   (mobile+)  │  │  (mobile+)  │ │
+│  │  PM Portal   │  │ Owner Portal │  │Tenant Portal │  │Vendor links │ │
+│  │  (desktop+)  │  │  (responsive)│  │   (mobile+)  │  │ (/v/[token])│ │
 │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬──────┘ │
 └─────────┼─────────────────┼─────────────────┼─────────────────┼────────┘
           │                 │                 │                 │
@@ -203,7 +203,7 @@ Implemented foundation routing in the Next.js app includes:
   `/accept-invitation/[token]`
 - Foundation app routes: `/dashboard`, `/profile`
 - Portal routes: `/portal`, `/portal/manager`, `/portal/owner`,
-  `/portal/tenant`, `/portal/vendor`
+  `/portal/tenant` (Vendor Portal retired — vendors use `/v/[token]`)
 - Guard outcomes: `/unauthorized`, custom `not-found`
 
 Route guard behavior:

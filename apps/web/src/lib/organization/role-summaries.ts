@@ -1,19 +1,53 @@
 import type { UserRole } from "@mpa/shared";
 
-export const STAFF_INVITE_ROLES: UserRole[] = ["property_manager", "property_owner"];
+export const STAFF_INVITE_ROLES: UserRole[] = [
+  "organization_admin",
+  "property_manager",
+  "leasing_agent",
+  "facility_technician",
+  "property_owner"
+];
 
 export const ROLE_PERMISSION_SUMMARIES: Record<
   UserRole,
   { label: string; summary: string; capabilities: string[] }
 > = {
+  organization_admin: {
+    label: "Organization administrator",
+    summary: "Full tenant-plane administration for the purchased organization.",
+    capabilities: [
+      "Manage users, roles, and invitations",
+      "Manage properties, units, residents, and leases",
+      "Run accounting, maintenance, and communications",
+      "Configure organization settings and authorization"
+    ]
+  },
   property_manager: {
     label: "Property manager",
-    summary: "Full day-to-day operations across portfolio, team, and integrations.",
+    summary: "Day-to-day operations across portfolio, team, and integrations.",
     capabilities: [
       "Manage properties, units, residents, and leases",
       "Invite and deactivate team members",
       "Run accounting, maintenance, and communications",
       "Configure organization settings"
+    ]
+  },
+  leasing_agent: {
+    label: "Leasing agent",
+    summary: "Leasing pipeline on assigned properties.",
+    capabilities: [
+      "Work applicants, leases, and residents on assigned properties",
+      "Read property and unit context",
+      "Communicate with prospects and residents as granted"
+    ]
+  },
+  facility_technician: {
+    label: "Facility technician",
+    summary: "Maintenance execution on assigned properties.",
+    capabilities: [
+      "Create and update maintenance work on assigned properties",
+      "Read property, unit, and vendor context as granted",
+      "Upload work documentation"
     ]
   },
   property_owner: {
@@ -37,11 +71,12 @@ export const ROLE_PERMISSION_SUMMARIES: Record<
   },
   vendor: {
     label: "Vendor",
-    summary: "Vendor portal access for assigned work.",
+    summary:
+      "Legacy membership label only. Vendors are not authenticated portal users — they work via secure action links.",
     capabilities: [
-      "Access the vendor portal",
-      "Update assigned maintenance work",
-      "Manage personal profile"
+      "Participate through secure invitation/action links",
+      "No Vendor Portal sign-in or dashboard",
+      "Managed internally via Vendor Directory and Facility Operations"
     ]
   }
 };

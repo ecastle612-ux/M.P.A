@@ -10,7 +10,9 @@ Accepted
 The initial architecture treated vendors as contacts on work orders. The product philosophy defines the Vendor Marketplace as core infrastructure. Vendors have cross-organization identity, compliance requirements, reputation, bidding, and Stripe Connect payouts — a fundamentally different data shape than PM org records.
 
 ## Decision
-Vendor marketplace is a **first-class domain** with global vendor identity (`marketplace_vendors`), separate from any single PM organization. PM orgs link to vendors via `marketplace_org_vendor_links`. Dedicated vendor portal route group.
+Vendor marketplace is a **first-class domain** with global vendor identity (`marketplace_vendors`), separate from any single PM organization. PM orgs link to vendors via `marketplace_org_vendor_links`.
+
+**Amendment (2026-07-26):** A dedicated authenticated Vendor Portal route group is **not** part of the product. Field vendors use tokenized `/v/[token]` links (ADR-025). Org Vendor Directory remains the internal management surface. Marketplace UI remains separately gated.
 
 ## Consequences
 **Easier:** Marketplace scales independently, vendor reputation works cross-org, Stripe Connect payouts are clean.

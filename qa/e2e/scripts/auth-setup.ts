@@ -41,7 +41,7 @@ async function main() {
       const auth = new AuthPage(page);
       await auth.goto();
       await auth.signIn(creds.email, creds.password);
-      await page.waitForURL(/\/(dashboard|setup|portal)/, { timeout: 45_000 });
+      await page.waitForURL(/\/(dashboard|setup|portal|master-admin)/, { timeout: 45_000 });
       await context.storageState({ path: path.join(authDir, file) });
       await context.close();
       console.log(`Saved storage state for ${role} → ${file}`);

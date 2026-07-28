@@ -26,7 +26,9 @@ export default async function ManagerPortalLayout({ children }: { children: Reac
     redirect("/dashboard");
   }
 
-  const hasRole = shellContext.availableRoles.includes("property_manager");
+  const hasRole =
+    shellContext.availableRoles.includes("organization_admin") ||
+    shellContext.availableRoles.includes("property_manager");
   const masterAccess = await canAccessPortalAsMasterAdmin(
     user,
     shellContext.defaultOrganizationId,
@@ -41,11 +43,14 @@ export default async function ManagerPortalLayout({ children }: { children: Reac
       ? await resolveEffectiveRolesForSession(masterAccess.session)
       : shellContext.availableRoles;
   const banner = await getMasterAdminBannerModel(user);
+  const defaultRole = effectiveRoles.includes("organization_admin")
+    ? "organization_admin"
+    : "property_manager";
 
   return (
     <RolePortalFrame
       availableRoles={effectiveRoles.length ? effectiveRoles : shellContext.availableRoles}
-      defaultRole="property_manager"
+      defaultRole={defaultRole}
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       title="Property Manager Portal"

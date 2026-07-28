@@ -1,0 +1,30 @@
+/dashboard HTTP/2 307 
+/dashboard cache-control: public, max-age=0, must-revalidate
+/dashboard content-security-policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://onesignal.com https://cdn.onesignal.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://api.onesignal.com; connect-src 'self' https: wss:; worker-src 'self' blob: https://cdn.onesignal.com; manifest-src 'self'; media-src 'self' blob:
+/dashboard content-type: text/plain
+/dashboard cross-origin-opener-policy: same-origin
+/settings HTTP/2 307 
+/settings cache-control: public, max-age=0, must-revalidate
+/settings content-security-policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://onesignal.com https://cdn.onesignal.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://api.onesignal.com; connect-src 'self' https: wss:; worker-src 'self' blob: https://cdn.onesignal.com; manifest-src 'self'; media-src 'self' blob:
+/settings content-type: text/plain
+/settings cross-origin-opener-policy: same-origin
+/portal/owner HTTP/2 307 
+/portal/owner cache-control: public, max-age=0, must-revalidate
+/portal/owner content-security-policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://onesignal.com https://cdn.onesignal.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://api.onesignal.com; connect-src 'self' https: wss:; worker-src 'self' blob: https://cdn.onesignal.com; manifest-src 'self'; media-src 'self' blob:
+/portal/owner content-type: text/plain
+/portal/owner cross-origin-opener-policy: same-origin
+/properties HTTP/2 307 
+/properties cache-control: public, max-age=0, must-revalidate
+/properties content-security-policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://onesignal.com https://cdn.onesignal.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://api.onesignal.com; connect-src 'self' https: wss:; worker-src 'self' blob: https://cdn.onesignal.com; manifest-src 'self'; media-src 'self' blob:
+/properties content-type: text/plain
+/properties cross-origin-opener-policy: same-origin
+/tenants HTTP/2 307 
+/tenants cache-control: public, max-age=0, must-revalidate
+/tenants content-security-policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://onesignal.com https://cdn.onesignal.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://api.onesignal.com; connect-src 'self' https: wss:; worker-src 'self' blob: https://cdn.onesignal.com; manifest-src 'self'; media-src 'self' blob:
+/tenants content-type: text/plain
+/tenants cross-origin-opener-policy: same-origin
+/maintenance HTTP/2 307 
+/maintenance cache-control: public, max-age=0, must-revalidate
+/maintenance content-security-policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://onesignal.com https://cdn.onesignal.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://api.onesignal.com; connect-src 'self' https: wss:; worker-src 'self' blob: https://cdn.onesignal.com; manifest-src 'self'; media-src 'self' blob:
+/maintenance content-type: text/plain
+/maintenance cross-origin-opener-policy: same-origin

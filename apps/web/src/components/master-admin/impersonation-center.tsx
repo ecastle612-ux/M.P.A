@@ -19,7 +19,6 @@ type PropertyRow = { id: string; name: string; code: string | null };
 
 const EMERGENCY_PORTALS: Array<{ portal: MasterAdminPortal; label: string }> = [
   { portal: "resident", label: "Resident Portal" },
-  { portal: "vendor", label: "Vendor Portal" },
   { portal: "owner", label: "Owner Portal" },
   { portal: "manager", label: "Manager Portal" }
 ];

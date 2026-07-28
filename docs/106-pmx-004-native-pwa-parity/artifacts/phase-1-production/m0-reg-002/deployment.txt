@@ -1,0 +1,7 @@
+deployment_id=dpl_HKHS54QHqS6w5d6NaMqBGr5qF53o
+deployment_url=https://m-p-a-e8eug8z68-ecastle612-uxs-projects.vercel.app
+aliases=www.my-property-assistant.com,my-property-assistant.com,m-p-a-web.vercel.app
+target=production
+status=READY
+created=2026-07-23T22:00:52-05:00
+remediation=REG-STOR-001 mediaBucket() in vendor-payments + vendor-jobs

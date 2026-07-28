@@ -24,7 +24,7 @@
 | Limitation | Notes |
 |------------|-------|
 | Owner portal business workflows | Shell only |
-| Vendor portal business workflows | Shell only — vendors managed from PM app |
+| Authenticated Vendor Portal | **Retired** — vendors use secure action links; managed from Vendor Directory / Facility Ops |
 | Offline field sync / upload queue | PWA caches static assets + offline page only |
 | Full general ledger / trust accounting | Deferred (ADR-010) |
 | Bank reconciliation / QuickBooks sync | Future |

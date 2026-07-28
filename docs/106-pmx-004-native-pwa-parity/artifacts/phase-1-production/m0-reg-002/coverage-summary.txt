@@ -1,0 +1,3 @@
+deploy=dpl_HKHS54QHqS6w5d6NaMqBGr5qF53o READY production aliased to www.my-property-assistant.com
+REG-STOR-001=PASS upload/sign/download media-private; legacy media absent; code CLEAN
+multi_role_fixtures=MISSING -> Group B cannot PASS

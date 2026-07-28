@@ -5,6 +5,7 @@ import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/se
 import { createProperty, getPropertiesForOrganization } from "../../../lib/property/server";
 import { parseCreatePropertyInput } from "../../../lib/property/contracts";
 import { apiError, apiInternalError, parseJsonBody, parsePaginationParams } from "../../../lib/api/http";
+import { EntitlementGateError } from "../../../lib/saas/entitlement-gate";
 
 export async function GET(request: Request) {
   try {
@@ -67,6 +68,9 @@ export async function POST(request: Request) {
     const property = await createProperty(organizationId, user.id, input, supabase);
     return NextResponse.json({ property }, { status: 201 });
   } catch (error) {
+    if (error instanceof EntitlementGateError) {
+      return apiError(error.denial.httpStatus, error.denial.code.toUpperCase(), error.denial.message);
+    }
     const message = error instanceof Error ? error.message : "Property creation failed";
     return apiError(400, "PROPERTY_CREATE_FAILED", message);
   }

@@ -6,7 +6,7 @@ Accepted and implemented
 
 ## Objective
 
-Create four role-aligned portal shells that share identity and design language
+Create role-aligned portal shells that share identity and design language
 while preserving role-specific navigation and layout framing.
 
 ## Portal Shells
@@ -14,7 +14,8 @@ while preserving role-specific navigation and layout framing.
 1. Property Manager Portal
 2. Owner Portal
 3. Tenant Portal
-4. Vendor Portal
+
+**Amendment (2026-07-26):** Vendor Portal removed from the product. Vendors participate only via secure `/v/[token]` action links; internal staff use Vendor Directory.
 
 ## Shared Foundation Responsibilities
 
@@ -47,7 +48,7 @@ while preserving role-specific navigation and layout framing.
 
 ## Quality Requirements
 
-- Accessibility baseline parity across all four shells
+- Accessibility baseline parity across portal shells
 - Responsive navigation behavior preserved
 - No duplication of core auth/org/guard logic between portals
 
@@ -56,7 +57,7 @@ while preserving role-specific navigation and layout framing.
 - `/portal/manager`
 - `/portal/owner`
 - `/portal/tenant`
-- `/portal/vendor`
 - `/portal` role-aware resolver route
 - `/unauthorized` explicit access-denied route
 - shared profile route `/profile` for identity editing
+- `/vendor-access` retirement notice (legacy vendor membership / old `/portal/vendor` bookmarks)

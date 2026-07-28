@@ -1,66 +1,39 @@
 # 08 — Provider Comparison
 
 **Package:** API-004  
-**Status:** Draft — Ready for Approval
+**Status:** Amended (ADR-030) — historical matrix retained
 
 ---
 
-## Recommendation
+## V1.0 lock
 
-**Phase 1 primary provider: Dropbox Sign (formerly HelloSign).**
+**Production primary provider: SignWell** ([ADR-030](../18-decision-log/adr-030-signwell-as-primary-esign-provider.md)).
 
-Rationale relative to M.P.A. goals:
-
-| Criterion | Dropbox Sign | Notes |
-|-----------|--------------|-------|
-| SMB / mid-market fit | Strong | Matches early M.P.A. customer profile |
-| Embedded / email signing | Mature | Fits “stay in M.P.A.” progress + provider ceremony |
-| API + webhooks | Mature | Required for Ops/timeline |
-| Certificate of completion | Yes | Vault requirement |
-| Sandbox | Available | CI/dev |
-| Template lock-in risk | Manageable | Prefer M.P.A.-generated PDFs |
-| Brand familiarity | High (HelloSign legacy) | INT-202 already cites HelloSign |
-
-DocuSign remains the strongest enterprise alternative and should be the **first follow-on adapter**.
+Dropbox Sign (formerly HelloSign) was the Phase 1 recommendation and implementation. It has been **retired from runtime** after feature-parity validation ([12 — SignWell migration](./12-signwell-migration.md)).
 
 ---
 
-## Comparison matrix
+## Historical comparison matrix
 
-| Capability | Dropbox Sign | DocuSign | Adobe Acrobat Sign | SignNow | PandaDoc |
-|------------|--------------|----------|--------------------|---------|----------|
-| Envelope / request API | ✔ | ✔ | ✔ | ✔ | ✔ |
-| Webhooks | ✔ | ✔ (Connect) | ✔ | ✔ | ✔ |
-| Embedded signing | ✔ | ✔ | ✔ | ✔ | ✔ |
-| Multi-signer order | ✔ | ✔ | ✔ | ✔ | ✔ |
-| Certificate of completion | ✔ | ✔ | ✔ | ✔ | ✔ |
-| Enterprise SSO / advanced ID | Moderate | Strong | Strong | Moderate | Moderate |
-| Document generation / CPQ | Light | Add-ons | Light | Light | Strong |
-| Typical cost posture | Mid | Higher | Higher | Lower | Mid |
-| M.P.A. Phase 1 fit | **Primary** | Future #1 | Future | Future | Future |
+| Capability | SignWell (V1.0) | Dropbox Sign (retired) | DocuSign | Adobe Acrobat Sign | SignNow | PandaDoc |
+|------------|-----------------|------------------------|----------|--------------------|---------|----------|
+| Envelope / request API | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
+| Webhooks | ✔ (event hash) | ✔ | ✔ (Connect) | ✔ | ✔ | ✔ |
+| Embedded signing | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
+| Multi-signer order | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
+| Certificate / audit trail | ✔ (in completed PDF) | ✔ | ✔ | ✔ | ✔ | ✔ |
+| M.P.A. V1.0 fit | **Primary** | Retired | Future | Future | Future | Future |
 
 Scores are directional for product design, not a procurement award.
 
 ---
 
-## Why not DocuSign first?
-
-DocuSign is excellent and remains INT-202’s historical label. For M.P.A. Phase 1:
-
-- Higher complexity/cost for initial leasing volume
-- Dropbox Sign covers required ceremony + webhooks + certificates
-- Abstraction makes a later DocuSign adapter non-breaking
-
-Approve may still select DocuSign first if commercial/enterprise requirements demand it — the architecture does not hard-code Dropbox Sign beyond the recommended adapter order.
-
----
-
 ## Adapter roadmap
 
-1. `noop` (exists)  
-2. `dropbox_sign` (Phase 1)  
-3. `docusign`  
-4. `adobe_sign`  
+1. `noop` (local/CI)  
+2. `signwell` (**V1.0 production**)  
+3. `docusign` (future)  
+4. `adobe_sign` (future)  
 5. `signnow` / `pandadoc` as demand appears  
 
-**No provider failover mesh in Phase 1.**
+**No provider failover mesh in V1.0.**

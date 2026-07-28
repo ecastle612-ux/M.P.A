@@ -2,7 +2,7 @@
 
 **Package:** PMX-004 — Native PWA Parity  
 **Phase:** **6 — Push Notification Certification**  
-**Status:** ✅ **AUTHORIZED** · Implementation 🔒 until dedicated implementation session · Validation 🔒 until `VALIDATE PMX-004 PHASE 6`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([33](./33-phase-6-implementation.md)) · ✅ **VALIDATED PASS** ([37](./37-phase-6-validation-rerun-3.md) · prior FAIL [34](./34-phase-6-validation.md)–[36](./36-phase-6-validation-rerun-2.md) preserved)  
 **Authorization date:** 2026-07-26  
 **Binding phrase (issued):**
 
@@ -214,12 +214,11 @@ If `VALIDATE PMX-004 PHASE 6` results in **FAIL**:
 | Field | Result |
 |-------|--------|
 | **Authorize Phase 6?** | ✅ **YES — AUTHORIZED** |
-| **Begin implementation?** | ✅ **YES** — in a dedicated implementation/certification session, Phase 6 scope only |
-| **Begin implementation in this governance session?** | ❌ **NO** — stop after authorization |
-| **Begin validation now?** | ❌ **NO** — after implementation / evidence packaging |
+| **Implementation / certification pack?** | ⚠️ Pack complete · **Production ship incomplete** ([33](./33-phase-6-implementation.md)) |
+| **Validation?** | ❌ **FAIL** (latest [36](./36-phase-6-validation-rerun-2.md) · prior [35](./35-phase-6-validation-rerun.md) · [34](./34-phase-6-validation.md)) |
 | **Authorize Phases 7–11 / UX-C / OPS-C / FIN-C / marketplace UI?** | ❌ **NO** |
 
-**Next session:** Implement / certify PMX-004 Phase 6 per this authorize → then `VALIDATE PMX-004 PHASE 6`.
+**Next:** Remediate R1 (scoped commit + Production READY) → re-issue `VALIDATE PMX-004 PHASE 6`.
 
 ---
 
@@ -228,5 +227,5 @@ If `VALIDATE PMX-004 PHASE 6` results in **FAIL**:
 | Role | Decision | Date |
 |------|----------|------|
 | Governance / Product Owner authority | ✅ **AUTHORIZE PMX-004 PHASE 6** | 2026-07-26 |
-| Implementation | 🔒 Pending dedicated implementation / certification session | — |
-| Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 6` | — |
+| Implementation / Certification | ⚠️ Pack complete · ship incomplete ([33](./33-phase-6-implementation.md)) | 2026-07-26 |
+| Validation | ❌ **FAIL** ([36](./36-phase-6-validation-rerun-2.md)) | 2026-07-26 |

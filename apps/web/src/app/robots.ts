@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { ACQ_INDEXABLE_PATHS, ACQ_NOINDEX_PATHS } from "../lib/acquire/seo";
 import { serverEnv } from "../lib/env/server-env";
 
 export default function robots(): MetadataRoute.Robots {
@@ -17,8 +18,9 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/login", "/forgot-password"],
+      allow: [...ACQ_INDEXABLE_PATHS, "/login", "/forgot-password"],
       disallow: [
+        ...ACQ_NOINDEX_PATHS,
         "/dashboard",
         "/portal",
         "/api/",
@@ -37,7 +39,11 @@ export default function robots(): MetadataRoute.Robots {
         "/residents",
         "/ai-operations",
         "/setup",
-        "/profile"
+        "/profile",
+        "/inbox",
+        "/master-admin",
+        "/first-login",
+        "/accept-invitation"
       ]
     },
     sitemap: `${base}/sitemap.xml`

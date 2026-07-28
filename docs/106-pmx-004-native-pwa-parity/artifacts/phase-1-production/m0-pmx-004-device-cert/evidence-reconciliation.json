@@ -1,0 +1,76 @@
+{
+  "session": "PMX-004 EVIDENCE RECONCILIATION",
+  "ranAt": "2026-07-24T22:52:00Z",
+  "claim": "Human operator completed required physical device testing",
+  "claimSupportedByRepositoryEvidence": false,
+  "deploymentId": "dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf",
+  "searched": [
+    "docs/106-pmx-004-native-pwa-parity/artifacts/phase-1-production/m0-pmx-004-device-cert/test-1..test-7",
+    "docs/106-pmx-004-native-pwa-parity/artifacts/phase-1-production/test-1..test-7",
+    "docs/106-pmx-004-native-pwa-parity media named galaxy/pixel/iphone/operator",
+    "Desktop/Downloads recent image/video globs (none matching)"
+  ],
+  "deviceMediaFileCounts": {
+    "m0-pmx-004-device-cert/test-1": 0,
+    "m0-pmx-004-device-cert/test-2": 0,
+    "m0-pmx-004-device-cert/test-3": 0,
+    "m0-pmx-004-device-cert/test-4": 0,
+    "m0-pmx-004-device-cert/test-5": 0,
+    "m0-pmx-004-device-cert/test-6": 0,
+    "m0-pmx-004-device-cert/test-7": 0
+  },
+  "nonDeviceArtifactsPresent": [
+    "server-probes/* (HTTPS/manifest/SW/offline — not physical-device Tests 1–7)",
+    "artifacts/phase-1-production/test-2/* (server SW probe text only)",
+    "lighthouse/login.final-screenshot.jpg (desktop Lighthouse — Test 8 only; not device substitute)"
+  ],
+  "fabricated": false,
+  "overall": "FAIL",
+  "blocker": "GATE-DEVICE-001",
+  "gateDevice001Resolved": false,
+  "recommendFinalM0Rerun": false,
+  "missingEvidence": [
+    {
+      "device": "Samsung Galaxy",
+      "mode": "Chrome installed PWA standalone",
+      "missing": [
+        "test-1 install/standalone/icon/splash screenshots or video",
+        "test-2 on-device SW registration evidence",
+        "test-3 offline / airplane-mode evidence",
+        "test-4 push permission/delivery/tap evidence",
+        "test-5 update-flow evidence",
+        "test-6 auth login/logout/session evidence",
+        "test-7 standalone regression evidence",
+        "operator metadata: model, OS, browser, build badge"
+      ]
+    },
+    {
+      "device": "Google Pixel",
+      "mode": "Chrome installed PWA standalone",
+      "missing": [
+        "test-1 install/standalone/icon/splash screenshots or video",
+        "test-2 on-device SW registration evidence",
+        "test-3 offline / airplane-mode evidence",
+        "test-4 push permission/delivery/tap evidence",
+        "test-5 update-flow evidence",
+        "test-6 auth login/logout/session evidence",
+        "test-7 standalone regression evidence",
+        "operator metadata: model, OS, browser, build badge"
+      ]
+    },
+    {
+      "device": "iPhone",
+      "mode": "Safari Add to Home Screen standalone",
+      "missing": [
+        "test-1 A2HS/standalone/icon/splash screenshots or video",
+        "test-2 on-device SW registration evidence",
+        "test-3 offline / airplane-mode evidence",
+        "test-4 push permission/delivery/tap evidence",
+        "test-5 update-flow evidence",
+        "test-6 auth login/logout/session evidence",
+        "test-7 standalone regression evidence",
+        "operator metadata: model, OS, browser, build badge"
+      ]
+    }
+  ]
+}

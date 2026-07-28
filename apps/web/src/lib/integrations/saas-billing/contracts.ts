@@ -19,7 +19,8 @@ export type SaasSubscriptionStatus =
   | "paused";
 
 export type EnsureSaasCustomerInput = {
-  organizationId: string;
+  /** May be omitted for pre-organization (public self-serve) Checkout. */
+  organizationId?: string | null;
   email?: string | null;
   name?: string | null;
   metadata?: Record<string, unknown>;
@@ -30,15 +31,20 @@ export type SaasCustomerRef = {
 };
 
 export type CreateCheckoutSessionInput = {
-  organizationId: string;
-  externalCustomerId: string;
+  /** Null/omitted for public ACQ Checkout before org exists. */
+  organizationId?: string | null;
+  /** When set, Checkout attaches this Stripe customer. */
+  externalCustomerId?: string | null;
+  /** Used when no externalCustomerId (new public buyer). */
+  customerEmail?: string | null;
   priceId: string;
   planCode: SaasPlanCode;
   billingInterval: SaasBillingInterval;
   successUrl: string;
   cancelUrl: string;
   trialPeriodDays?: number | null;
-  metadata?: Record<string, unknown>;
+  /** Flat string metadata merged onto session + subscription_data. */
+  metadata?: Record<string, string>;
 };
 
 export type CheckoutSessionRef = {
@@ -85,6 +91,19 @@ export type NormalizedSaasInvoice = {
   paidAt: string | null;
 };
 
+/** AUTH-001 / COM-001 — optional activation hints when checkout creates a new org. */
+export type SaasActivationHints = {
+  buyerCompanyName?: string | null;
+  buyerContactEmail?: string | null;
+  buyerLegalName?: string | null;
+  planCode?: SaasPlanCode | null;
+  organizationType?: string | null;
+  /** COM-001 Slice A — link checkout to pipeline opportunity. */
+  opportunityId?: string | null;
+  salesOwnerId?: string | null;
+  implementationPreference?: "professional" | "ai_guided" | null;
+};
+
 export type NormalizedSaasEvent = {
   externalEventId: string;
   type:
@@ -97,10 +116,16 @@ export type NormalizedSaasEvent = {
   organizationId?: string | null;
   externalCustomerId?: string | null;
   externalSubscriptionId?: string | null;
+  /** Present on checkout_completed when metadata carries provision inputs. */
+  activation?: SaasActivationHints | null;
   subscription?: NormalizedSubscription | null;
   invoice?: NormalizedSaasInvoice | null;
   occurredAt: string;
   message?: string | null;
+};
+
+export type CancelSubscriptionAtPeriodEndInput = {
+  externalSubscriptionId: string;
 };
 
 export type SaasBillingProvider = {
@@ -109,5 +134,9 @@ export type SaasBillingProvider = {
   createCheckoutSession(input: CreateCheckoutSessionInput): Promise<CheckoutSessionRef>;
   createPortalSession(input: CreatePortalSessionInput): Promise<PortalSessionRef>;
   getSubscription(externalSubscriptionId: string): Promise<NormalizedSubscription>;
+  /** COM-001 Slice D / BILL-001 — stop future charges at period end (no parallel money rail). */
+  cancelSubscriptionAtPeriodEnd(
+    input: CancelSubscriptionAtPeriodEndInput
+  ): Promise<NormalizedSubscription>;
   parseWebhook(payload: unknown, headers: Record<string, string>): Promise<NormalizedSaasEvent[]>;
 };

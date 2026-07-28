@@ -1,0 +1,25 @@
+HTTP/2 200 
+accept-ranges: bytes
+access-control-allow-origin: *
+age: 61010
+cache-control: no-cache, no-store, must-revalidate
+content-disposition: inline; filename="OneSignalSDKWorker.js"
+content-security-policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://onesignal.com https://cdn.onesignal.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://api.onesignal.com; connect-src 'self' https: wss:; worker-src 'self' blob: https://cdn.onesignal.com; manifest-src 'self'; media-src 'self' blob:
+content-type: application/javascript; charset=utf-8
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-site
+date: Fri, 24 Jul 2026 21:49:29 GMT
+etag: "f55d1ce10b6f4b0728c26e380f96906c"
+last-modified: Fri, 24 Jul 2026 04:52:39 GMT
+permissions-policy: camera=(self), microphone=(), geolocation=(self), usb=(), payment=()
+referrer-policy: strict-origin-when-cross-origin
+server: Vercel
+service-worker-allowed: /
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-matched-path: /OneSignalSDKWorker.js
+x-vercel-cache: HIT
+x-vercel-id: cle1::vmbzt-1784929769858-4bfd907522b0
+content-length: 576
+

@@ -1,0 +1,17 @@
+https=True
+hsts=True
+csp=True
+xfo=True
+nosniff=True
+manifest_standalone=True
+unified_sw=True
+sw_offline_v1=True
+tls_letsencrypt=True
+apex_redirect_www=True
+supabase_active_healthy=True
+storage_media_private_nonpublic=True
+storage_rls_policies=True
+storage_objects_present=True
+onesignal_health=ok
+sentry_env_absent=True
+structured_logging_present=True

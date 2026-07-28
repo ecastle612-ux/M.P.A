@@ -2,26 +2,32 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { Button, Card, Input } from "@mpa/ui";
+import { useEffect, useMemo, useRef, useState, useActionState, type FormEvent } from "react";
+import { Button, Card, Input } from "@mpa/ui/auth";
 import { createAuthClient } from "../../lib/auth/client";
+import {
+  authenticatedPasswordChangeAction,
+  type LoginActionState
+} from "../../lib/auth/login-actions";
 import {
   detectRecoveryFlow,
   parseRecoveryParams,
   stripRecoveryParamsFromUrl
 } from "../../lib/auth/password-recovery";
 
+const initialState: LoginActionState = {};
+
+/**
+ * AUTH-001 Slice A — recovery password change through Identity Adapter after session establish.
+ */
 export function ResetPasswordForm() {
   const router = useRouter();
   const supabase = useMemo(() => createAuthClient(), []);
   const hasInitializedRecovery = useRef(false);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [sessionReady, setSessionReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  const [state, formAction, pending] = useActionState(authenticatedPasswordChangeAction, initialState);
 
   useEffect(() => {
     if (hasInitializedRecovery.current) return;
@@ -41,8 +47,6 @@ export function ResetPasswordForm() {
           );
         }
 
-        // Middleware may already have exchanged ?code= and cleaned the URL.
-        // Client still handles hash tokens / token_hash / leftover code as fallback.
         if (recoveryFlow === "code" && recoveryParams.code) {
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(recoveryParams.code);
           if (exchangeError) throw exchangeError;
@@ -66,10 +70,10 @@ export function ResetPasswordForm() {
 
         const {
           data: { session },
-          error: sessionError
+          error: sessionErrorValue
         } = await supabase.auth.getSession();
 
-        if (sessionError) throw sessionError;
+        if (sessionErrorValue) throw sessionErrorValue;
         if (!session) {
           throw new Error(
             recoveryParams.errorDescription ??
@@ -85,7 +89,7 @@ export function ResetPasswordForm() {
           recoveryError instanceof Error
             ? recoveryError.message
             : "Unable to verify your reset link. Request a new password reset email.";
-        setError(message);
+        setSessionError(message);
         setSessionReady(false);
       } finally {
         const cleanPath = stripRecoveryParamsFromUrl(new URL(window.location.href));
@@ -101,36 +105,21 @@ export function ResetPasswordForm() {
     };
   }, [supabase]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setNotice(null);
-
-    if (!sessionReady) {
-      setError("Recovery session missing or expired. Request a new password reset email.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    setLoading(true);
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-    setLoading(false);
-
-    if (updateError) {
-      setError(updateError.message);
-      return;
-    }
-
-    await supabase.auth.signOut();
-    setNotice("Password updated. Redirecting to sign in...");
-    window.setTimeout(() => {
+  useEffect(() => {
+    if (!state.notice) return;
+    const timer = window.setTimeout(() => {
       router.replace("/login");
     }, 800);
+    return () => window.clearTimeout(timer);
+  }, [state.notice, router]);
+
+  function handleInvalidSessionSubmit(event: FormEvent<HTMLFormElement>) {
+    if (!sessionReady) {
+      event.preventDefault();
+    }
   }
+
+  const error = sessionError ?? state.error ?? null;
 
   return (
     <Card className="w-full max-w-md">
@@ -138,9 +127,9 @@ export function ResetPasswordForm() {
         Set a new password
       </h1>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        Complete your password reset with a new secure password.
+        Complete your password reset with a new secure password (at least 12 characters).
       </p>
-      <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
+      <form className="mt-4 space-y-3" action={formAction} onSubmit={handleInvalidSessionSubmit}>
         {sessionLoading ? (
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">Verifying reset link...</p>
         ) : null}
@@ -148,30 +137,20 @@ export function ResetPasswordForm() {
           <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="password">
             New password
           </label>
-          <Input
-            id="password"
-            type="password"
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
+          <Input id="password" name="password" type="password" required minLength={12} />
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="confirm-password">
+          <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="confirmPassword">
             Confirm password
           </label>
-          <Input
-            id="confirm-password"
-            type="password"
-            required
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-          />
+          <Input id="confirmPassword" name="confirmPassword" type="password" required minLength={12} />
         </div>
         {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}
-        <Button className="w-full" disabled={loading || sessionLoading || !sessionReady} type="submit">
-          {sessionLoading ? "Verifying link..." : loading ? "Updating..." : "Update password"}
+        {state.notice ? (
+          <p className="text-sm text-[var(--mpa-color-brand-primary)]">{state.notice}</p>
+        ) : null}
+        <Button className="w-full" disabled={pending || sessionLoading || !sessionReady} type="submit">
+          {sessionLoading ? "Verifying link..." : pending ? "Updating..." : "Update password"}
         </Button>
         <p className="text-center text-sm text-[var(--mpa-color-text-secondary)]">
           <Link className="underline" href="/login">

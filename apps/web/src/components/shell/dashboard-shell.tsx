@@ -1,12 +1,15 @@
 import { Breadcrumbs } from "./breadcrumbs";
 import { OrganizationFoundationPanel } from "../organization/organization-foundation-panel";
 import { OperationsCenterView } from "../operations-center/operations-center-view";
+import { CommandCenterHomePanel } from "../ops/command-center-home-panel";
 import { formatRefreshTime } from "../../lib/format/time";
 import type { DashboardSnapshot } from "../../lib/dashboard/server";
+import type { CommandCenterHomeComposition } from "../../lib/ops/command-center-home";
 
 export function DashboardShell({
   organizationName,
   snapshot,
+  commandCenterHome = null,
   userGreetingName = null,
   timeGreeting = "Good morning",
   permissions = {
@@ -35,6 +38,7 @@ export function DashboardShell({
 }: {
   organizationName: string | null;
   snapshot: DashboardSnapshot | null;
+  commandCenterHome?: CommandCenterHomeComposition | null;
   userGreetingName?: string | null;
   timeGreeting?: string;
   permissions?: {
@@ -81,13 +85,16 @@ export function DashboardShell({
   }
 
   return (
-    <OperationsCenterView
-      initialSnapshot={snapshot}
-      organizationName={organizationName}
-      userGreetingName={userGreetingName}
-      timeGreeting={timeGreeting}
-      permissions={permissions}
-      initialRefreshedAt={formatRefreshTime(new Date())}
-    />
+    <div className="space-y-[var(--mpa-space-6)]">
+      <CommandCenterHomePanel initialHome={commandCenterHome} />
+      <OperationsCenterView
+        initialSnapshot={snapshot}
+        organizationName={organizationName}
+        userGreetingName={userGreetingName}
+        timeGreeting={timeGreeting}
+        permissions={permissions}
+        initialRefreshedAt={formatRefreshTime(new Date())}
+      />
+    </div>
   );
 }

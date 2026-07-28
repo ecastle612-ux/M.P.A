@@ -44,7 +44,7 @@ Pattern reference: [20 Future Integrations](../20-future-integrations/index.md)
 | ID | Integration | Priority | Workflow touchpoints | Phase |
 |----|-------------|----------|---------------------|-------|
 | INT-201 | TransUnion / Checkr screening — design: [API-003](../48-api-003-background-screening/README.md) (Checkr recommended first) | HIGH | Move In | 5, 10 |
-| INT-202 | DocuSign / HelloSign (Dropbox Sign) e-sign — design: [API-004](../50-api-004-electronic-signatures/README.md) (Dropbox Sign recommended first) | HIGH | Move In, Lease Renewal | 5 |
+| INT-202 | SignWell e-sign (V1.0) — platform: [API-004](../50-api-004-electronic-signatures/README.md) · [ADR-030](../18-decision-log/adr-030-signwell-as-primary-esign-provider.md) · workflows: [SIGN-002](../116-sign-002-electronic-signature-workflow-integrations/README.md) (Draft) | HIGH | Move In, Lease Renewal | 5 |
 | INT-203 | Credit report storage (metadata) — covered by [API-003](../48-api-003-background-screening/README.md) vault/retention | HIGH | Tenant record | 5 |
 | INT-204 | Application portal syndication | MEDIUM | Vacancy Fill | 9+ |
 

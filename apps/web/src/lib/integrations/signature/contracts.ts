@@ -1,6 +1,6 @@
 /**
- * SignatureProvider abstraction (API-004).
- * Business modules must never import Dropbox Sign / DocuSign SDKs — only SignatureService.
+ * SignatureProvider abstraction (API-004 / ADR-030).
+ * Business modules must never import SignWell / DocuSign SDKs — only SignatureService.
  */
 
 export type EnvelopeDocument = {

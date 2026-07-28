@@ -3,8 +3,8 @@
 **Package:** UX-012  
 **Slice:** B — Core components  
 **Authorization:** [33](./33-slice-b-authorization.md) · [CORE-003 §59](../113-core-003-implementation-master-plan/59-ux-012-slice-b-authorization.md)  
-**Status:** ✅ **IMPLEMENTED** · Validation 🔒 until `VALIDATE UX-012 SLICE B`  
-**Date:** 2026-07-25  
+**Status:** ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([35](./35-slice-b-validation.md))  
+**Date:** 2026-07-25 · Validated 2026-07-26  
 
 > Slices C–E **not** implemented. No Command Center productization, role playbook homes, AI chrome, motion shipping, full a11y sweep, or final polish.  
 > OPS-001 C–E · PMX-004 Phase 2 · FIN-003 C–E · certified partner marketplace UI **not** touched.  
@@ -104,10 +104,10 @@ Implementation session applied [25](./25-design-quality-standards.md) and [28](.
 | Field | Result |
 |-------|--------|
 | **Slice B implemented?** | ✅ **YES** |
-| **Begin validation now?** | ✅ Ready for `VALIDATE UX-012 SLICE B` (owner phrase) |
+| **Begin validation now?** | ✅ Completed — [35](./35-slice-b-validation.md) |
 | **Authorize C–E / OPS-C / PMX-2 / FIN-C / marketplace?** | ❌ **NO** |
 
-**Next session:** Issue / run `VALIDATE UX-012 SLICE B` against UB-01…UB-10.
+**Follow-on:** `VALIDATE UX-012 SLICE B` → ✅ **PASS** ([35](./35-slice-b-validation.md) · [CORE-003 §60](../113-core-003-implementation-master-plan/60-ux-012-slice-b-validation.md)).
 
 ---
 
@@ -116,4 +116,4 @@ Implementation session applied [25](./25-design-quality-standards.md) and [28](.
 | Role | Decision | Date |
 |------|----------|------|
 | Implementation | ✅ **IMPLEMENTED** (Slice B scope) | 2026-07-25 |
-| Validation | 🔒 Pending `VALIDATE UX-012 SLICE B` | — |
+| Validation | ✅ **PASS** · `VALIDATE UX-012 SLICE B` | 2026-07-26 |

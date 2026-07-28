@@ -101,7 +101,18 @@ export const OPS_SLICE_A_EVENT_TYPES = [
   "ops.workflow.started",
   "ops.workflow.step.entered",
   "ops.workflow.step.exited",
-  "ops.workflow.completed"
+  "ops.workflow.completed",
+  // OPS-001 Slice D (secret-free AI / automation / KPI outcomes)
+  "ai.recommendation.generated",
+  "ai.recommendation.applied",
+  "ai.recommendation.rejected",
+  "ops.automation.fired",
+  "ops.automation.failed",
+  "ops.kpi.materialized",
+  // OPS-001 Slice E (secret-free command surface outcomes)
+  "ops.quick_action.invoked",
+  "ops.inbox.opened",
+  "ops.search.performed"
 ] as const;
 
 export type OpsSliceAEventType = (typeof OPS_SLICE_A_EVENT_TYPES)[number];

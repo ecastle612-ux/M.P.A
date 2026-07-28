@@ -45,10 +45,10 @@ export default async function MasterAdminImpersonationPage() {
       roleLabel: primaryRole.replaceAll("_", " "),
       redirectTo: roles.includes("tenant")
         ? "/portal/tenant"
-        : roles.includes("vendor")
-          ? "/portal/vendor"
-          : roles.includes("property_owner")
-            ? "/portal/owner"
+        : roles.includes("property_owner")
+          ? "/portal/owner"
+          : roles.includes("vendor")
+            ? "/vendor-access"
             : "/dashboard"
     };
   });

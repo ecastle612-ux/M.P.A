@@ -1,0 +1,10 @@
+deploy=dpl_HKHS54QHqS6w5d6NaMqBGr5qF53o READY www.my-property-assistant.com
+REG-STOR-001=PASS
+GroupA=CONDITIONAL/FAIL (logout OK; successful login not re-proven)
+GroupB=FAIL missing QA role fixtures
+GroupC=CONDITIONAL PASS PM/admin surfaces
+GroupD=PASS
+GroupE=FAIL not device-proven
+GroupF=CONDITIONAL
+Overall=FAIL
+HIGH_CRITICAL_new=none

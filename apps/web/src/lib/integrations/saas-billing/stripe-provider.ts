@@ -27,6 +27,15 @@ function env(name: string): string | undefined {
   return value ? value : undefined;
 }
 
+/** Prefer Stripe's `{CHECKOUT_SESSION_ID}` template; append only when absent. */
+export function resolveSandboxCheckoutSuccessUrl(successUrl: string, sessionId: string): string {
+  if (successUrl.includes("{CHECKOUT_SESSION_ID}")) {
+    return successUrl.replaceAll("{CHECKOUT_SESSION_ID}", sessionId);
+  }
+  const joiner = successUrl.includes("?") ? "&" : "?";
+  return `${successUrl}${joiner}session_id=${sessionId}`;
+}
+
 function isSandboxMode(): boolean {
   if (env("STRIPE_MODE") === "sandbox" || env("STRIPE_MODE") === "test") return true;
   const key = env("STRIPE_SECRET_KEY");
@@ -245,14 +254,17 @@ export const stripeSaasBillingProvider: SaasBillingProvider = {
 
   async ensureCustomer(input: EnsureSaasCustomerInput): Promise<SaasCustomerRef> {
     if (isSandboxMode() && !secretKey()) {
-      return { externalCustomerId: `cus_saas_sandbox_${input.organizationId.slice(0, 8)}` };
+      const seed = (input.organizationId ?? input.email ?? "public").toString().slice(0, 8);
+      return { externalCustomerId: `cus_saas_sandbox_${seed}` };
     }
     const res = await stripeFetch("/customers", {
       method: "POST",
       body: formBody({
         email: input.email ?? undefined,
         name: input.name ?? undefined,
-        "metadata[organization_id]": input.organizationId,
+        ...(input.organizationId
+          ? { "metadata[organization_id]": input.organizationId }
+          : { "metadata[mpa_acq]": "public" }),
         "metadata[mpa_rail]": "saas"
       })
     });
@@ -266,28 +278,43 @@ export const stripeSaasBillingProvider: SaasBillingProvider = {
       const sessionId = `cs_saas_sandbox_${Date.now()}`;
       return {
         sessionId,
-        url: `${input.successUrl}${input.successUrl.includes("?") ? "&" : "?"}session_id=${sessionId}`
+        url: resolveSandboxCheckoutSuccessUrl(input.successUrl, sessionId)
       };
     }
 
     const params: Record<string, string | undefined | null> = {
       mode: "subscription",
-      customer: input.externalCustomerId,
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
       "line_items[0][price]": input.priceId,
       "line_items[0][quantity]": "1",
-      "metadata[organization_id]": input.organizationId,
       "metadata[plan_code]": input.planCode,
       "metadata[billing_interval]": input.billingInterval,
       "metadata[mpa_rail]": "saas",
-      "subscription_data[metadata][organization_id]": input.organizationId,
       "subscription_data[metadata][plan_code]": input.planCode,
       "subscription_data[metadata][billing_interval]": input.billingInterval,
       "subscription_data[metadata][mpa_rail]": "saas"
     };
+
+    if (input.organizationId) {
+      params["metadata[organization_id]"] = input.organizationId;
+      params["subscription_data[metadata][organization_id]"] = input.organizationId;
+    }
+
+    if (input.externalCustomerId) {
+      params["customer"] = input.externalCustomerId;
+    } else if (input.customerEmail) {
+      params["customer_email"] = input.customerEmail;
+    }
+
     if (input.trialPeriodDays != null && input.trialPeriodDays > 0) {
       params["subscription_data[trial_period_days]"] = String(input.trialPeriodDays);
+    }
+
+    for (const [key, value] of Object.entries(input.metadata ?? {})) {
+      if (!value) continue;
+      params[`metadata[${key}]`] = value;
+      params[`subscription_data[metadata][${key}]`] = value;
     }
 
     const res = await stripeFetch("/checkout/sessions", {
@@ -340,6 +367,27 @@ export const stripeSaasBillingProvider: SaasBillingProvider = {
     return normalizeSubscription((await res.json()) as Record<string, unknown>);
   },
 
+  async cancelSubscriptionAtPeriodEnd(input: {
+    externalSubscriptionId: string;
+  }): Promise<NormalizedSubscription> {
+    if (isSandboxMode() && !secretKey()) {
+      const current = await this.getSubscription(input.externalSubscriptionId);
+      return {
+        ...current,
+        cancelAtPeriodEnd: true,
+        canceledAt: new Date().toISOString()
+      };
+    }
+    const res = await stripeFetch(`/subscriptions/${input.externalSubscriptionId}`, {
+      method: "POST",
+      body: formBody({ cancel_at_period_end: "true" })
+    });
+    if (!res.ok) {
+      throw new Error(`Stripe cancel at period end failed: ${await res.text()}`);
+    }
+    return normalizeSubscription((await res.json()) as Record<string, unknown>);
+  },
+
   async parseWebhook(payload: unknown, headers: Record<string, string>): Promise<NormalizedSaasEvent[]> {
     const rawBody = headers["x-mpa-raw-body"] ?? JSON.stringify(payload ?? {});
     if (!verifySaasStripeSignature(headers, rawBody)) {
@@ -371,6 +419,9 @@ export const stripeSaasBillingProvider: SaasBillingProvider = {
         typeof dataObject["customer"] === "string"
           ? dataObject["customer"]
           : String(asRecord(dataObject["customer"])["id"] ?? "");
+      const customerDetails = asRecord(dataObject["customer_details"]);
+      const planFromMeta =
+        typeof meta["plan_code"] === "string" ? (meta["plan_code"] as SaasPlanCode) : null;
       return [
         {
           externalEventId,
@@ -378,6 +429,34 @@ export const stripeSaasBillingProvider: SaasBillingProvider = {
           organizationId,
           externalCustomerId: customerId || null,
           externalSubscriptionId: subId || null,
+          activation: {
+            buyerCompanyName:
+              (typeof meta["buyer_company_name"] === "string" && meta["buyer_company_name"]) ||
+              (typeof meta["company_name"] === "string" && meta["company_name"]) ||
+              (typeof customerDetails["name"] === "string" && customerDetails["name"]) ||
+              null,
+            buyerContactEmail:
+              (typeof meta["buyer_contact_email"] === "string" && meta["buyer_contact_email"]) ||
+              (typeof dataObject["customer_email"] === "string" && dataObject["customer_email"]) ||
+              (typeof customerDetails["email"] === "string" && customerDetails["email"]) ||
+              null,
+            buyerLegalName:
+              (typeof meta["buyer_legal_name"] === "string" && meta["buyer_legal_name"]) ||
+              (typeof customerDetails["name"] === "string" && customerDetails["name"]) ||
+              null,
+            planCode: planFromMeta,
+            organizationType:
+              typeof meta["organization_type"] === "string" ? meta["organization_type"] : null,
+            opportunityId:
+              typeof meta["opportunity_id"] === "string" ? meta["opportunity_id"] : null,
+            salesOwnerId:
+              typeof meta["sales_owner_id"] === "string" ? meta["sales_owner_id"] : null,
+            implementationPreference:
+              meta["implementation_preference"] === "professional" ||
+              meta["implementation_preference"] === "ai_guided"
+                ? meta["implementation_preference"]
+                : null
+          },
           occurredAt
         }
       ];

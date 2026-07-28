@@ -159,11 +159,13 @@ Organization
   └── Billing
 ```
 
-### Vendor Portal
+### Vendor participation (no portal)
 
 ```
-Jobs → Bids → Active → Completed → Payments → Profile
+Secure action link (/v/[token]) → Accept / Decline → Start → Photos / Notes → Complete
 ```
+
+Internal staff manage vendors via Vendor Directory + Facility Operations. There is no authenticated Vendor Portal.
 
 ### Owner Portal
 

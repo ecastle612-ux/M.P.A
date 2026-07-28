@@ -9,7 +9,7 @@ describe("PT-001 provider certification", () => {
       expect.arrayContaining([
         "OneSignal",
         "Stripe",
-        "Dropbox Sign",
+        "SignWell",
         "Checkr",
         "Resend",
         "Twilio",

@@ -21,7 +21,7 @@ NEXT_PUBLIC_APP_URL=
 |---------|-----|---------------|
 | Notifications | `NOTIFICATION_PROVIDER` | `noop` or `onesignal` |
 | Screening | `SCREENING_PROVIDER` | `noop` or `checkr` |
-| Signatures | `SIGNATURE_PROVIDER` | `noop` or `dropbox_sign` |
+| Signatures | `SIGNATURE_PROVIDER` | `noop` or `signwell` |
 | Payments | `PAYMENT_PROVIDER` | `noop` or `stripe` |
 
 ### Checkr
@@ -33,13 +33,13 @@ CHECKR_MODE=sandbox
 CHECKR_ALLOW_SIMULATE=false   # true only in CI/dev
 ```
 
-### Dropbox Sign
+### SignWell
 
 ```
-DROPBOX_SIGN_API_KEY=
-DROPBOX_SIGN_WEBHOOK_SECRET=
-DROPBOX_SIGN_MODE=sandbox
-DROPBOX_SIGN_ALLOW_SIMULATE=false
+SIGNWELL_API_KEY=
+SIGNWELL_WEBHOOK_ID=
+SIGNWELL_MODE=sandbox
+SIGNWELL_ALLOW_SIMULATE=false
 ```
 
 ### Stripe
@@ -66,7 +66,7 @@ NEXT_PUBLIC_ONESIGNAL_APP_ID=
 Point provider dashboards to:
 
 - `{APP_URL}/api/webhooks/screening/checkr`  
-- `{APP_URL}/api/webhooks/signature/dropbox_sign`  
+- `{APP_URL}/api/webhooks/signature/signwell`  
 - `{APP_URL}/api/webhooks/payments/stripe`  
 
 ## 4. Roles

@@ -158,6 +158,8 @@ export function NavIconMasterAdmin(props: IconProps) {
 
 export const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/dashboard": NavIconDashboard,
+  "/inbox": NavIconCommunications,
+  "/activity": NavIconDashboard,
   "/properties": NavIconProperties,
   "/units": NavIconUnits,
   "/applicants": NavIconApplicants,
@@ -186,6 +188,5 @@ export const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/settings/notifications": NavIconCommunications,
   "/settings/team": NavIconApplicants,
   "/settings/appearance": NavIconSettings,
-  "/portal/vendor/settings": NavIconSettings,
   "/portal/tenant/preferences": NavIconSettings
 };

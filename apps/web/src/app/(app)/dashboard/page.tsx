@@ -7,6 +7,7 @@ import { formatHumanGreetingName, formatHumanOrganizationName, getTimeGreeting }
 import { userHasMasterAdminCapability } from "../../../lib/master-admin/access";
 import { getOrganizationsForUser, resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
 import { getUserDisplayNameForGreeting } from "../../../lib/profile/server-fetch";
+import { composeCommandCenterHome } from "../../../lib/ops/command-center-home";
 
 export default async function DashboardPage() {
   const supabase = await createAuthServerComponentClient();
@@ -31,10 +32,16 @@ export default async function DashboardPage() {
     redirect("/unauthorized");
   }
 
-  const [snapshot, organizations, profileDisplayName] = await Promise.all([
+  const [snapshot, organizations, profileDisplayName, commandCenterHome] = await Promise.all([
     getDashboardSnapshot(organizationId, supabase, user.id),
     getOrganizationsForUser(user.id),
-    getUserDisplayNameForGreeting(user.id, user.email ?? null)
+    getUserDisplayNameForGreeting(user.id, user.email ?? null),
+    composeCommandCenterHome({
+      organizationId,
+      principalId: user.id,
+      rolePlane: authorization.roles[0] ?? "unknown",
+      permissions: authorization.permissions
+    }).catch(() => null)
   ]);
   const organizationName = organizations.find((organization) => organization.id === organizationId)?.name ?? null;
   const organizationDisplayName = organizationName ? formatHumanOrganizationName(organizationName) : null;
@@ -67,6 +74,7 @@ export default async function DashboardPage() {
     <DashboardShell
       organizationName={organizationDisplayName}
       snapshot={snapshot}
+      commandCenterHome={commandCenterHome}
       permissions={permissions}
       userGreetingName={userGreetingName}
       timeGreeting={getTimeGreeting()}

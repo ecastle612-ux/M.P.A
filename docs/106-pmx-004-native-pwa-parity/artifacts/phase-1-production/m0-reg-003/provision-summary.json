@@ -1,0 +1,30 @@
+{
+  "organization": {
+    "id": "86547058-1166-4e7d-94b6-7ff17632f989",
+    "name": "MPA QA Certification",
+    "slug": "mpa-qa-certification"
+  },
+  "isolationOrganizationId": "e399ec77-5062-460e-b180-9d80081a76c6",
+  "propertyId": "c3c7cf94-e760-4661-96ce-9b94f1029437",
+  "unitIds": [
+    "66797d7e-131b-4df9-8651-d54bcedbef6d",
+    "aa2d0f57-557e-4c34-b689-fb3a0fb99bba"
+  ],
+  "vendorId": "01898b80-c9ae-4a2f-9356-92ebe79c512e",
+  "workOrderId": "aebf4f4f-834d-4f63-b988-e346ba4c4936",
+  "leaseNumber": "QA-LEASE-001",
+  "emails": {
+    "masterAdmin": "qa-master-admin@qa.mpa.local",
+    "orgAdminProxy": "qa-org-admin@qa.mpa.local",
+    "pm": "qa-pm@qa.mpa.local",
+    "owner": "qa-owner@qa.mpa.local",
+    "vendor": "qa-vendor@qa.mpa.local",
+    "tenant": "qa-tenant@qa.mpa.local"
+  },
+  "architectureGaps": [
+    "organization_admin — not in organization_memberships_roles_check",
+    "leasing_agent — not in organization_memberships_roles_check",
+    "facility_technician — not in organization_memberships_roles_check"
+  ],
+  "credentialsFile": "qa/e2e/.env.local (gitignored)"
+}

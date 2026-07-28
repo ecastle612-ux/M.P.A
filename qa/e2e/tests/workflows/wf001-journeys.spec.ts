@@ -59,10 +59,12 @@ test.describe("WF-001 workflow journeys @p1 @nightly @auth", () => {
     await expect(asPm.getByText(/work order|maintenance|create/i).first()).toBeVisible({ timeout: 15_000 });
   });
 
-  test("vendor portal work queue loads @p1 @nightly", async ({ asVendor }) => {
+  test("vendor portal is retired — secure-link notice @p1 @nightly", async ({ asVendor }) => {
     await asVendor.goto("/portal/vendor");
-    await expect(asVendor).not.toHaveURL(/\/login/);
-    await expect(asVendor.getByText(/work queue|assigned|vendor/i).first()).toBeVisible({ timeout: 15_000 });
+    await expect(asVendor).toHaveURL(/\/vendor-access/);
+    await expect(asVendor.getByText(/vendor portal has been retired|secure invitation|action link/i).first()).toBeVisible({
+      timeout: 15_000
+    });
   });
 
   test("payments financials and resident payments load @p1 @nightly", async ({ asPm, asResident }) => {

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { resolveAuthenticatedShellContext } from "../../../../lib/auth/get-shell-context";
-import { TENANT_PORTAL_NAVIGATION } from "../../../../components/portal/navigation";
+import { TENANT_PORTAL_MOBILE_BOTTOM_NAVIGATION, TENANT_PORTAL_NAVIGATION } from "../../../../components/portal/navigation";
 import { RolePortalFrame } from "../../../../components/portal/role-portal-frame";
 import {
   canAccessPortalAsMasterAdmin,
@@ -48,10 +48,12 @@ export default async function TenantPortalLayout({ children }: { children: React
       defaultRole="tenant"
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
-      title="Tenant Portal"
-      subtitle="Payments, maintenance, messages, and documents for your home."
+      title="Home"
+      subtitle=""
       roleBadgeLabel="Tenant"
       navigation={TENANT_PORTAL_NAVIGATION}
+      consumerChrome
+      mobileBottomNavigation={TENANT_PORTAL_MOBILE_BOTTOM_NAVIGATION}
       masterAdminBanner={
         banner ? (
           <MasterAdminModeBanner

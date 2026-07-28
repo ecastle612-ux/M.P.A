@@ -1,0 +1,5 @@
+media-private createSignedUrl: OK
+media-private signed GET: HTTP 200 application/pdf
+storage.listBuckets: media-private public=false (only)
+media bucket upload probe: ERR Bucket not found
+vendor-payments/server.ts uses storage.from("media")

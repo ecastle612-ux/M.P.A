@@ -1,0 +1,9 @@
+upload OK
+signed_url OK
+download_via_signed 200 content_type application/pdf PDF_OK
+buckets media-private:public=false
+bucket_private true
+legacy_media_bucket ERR:Bucket not found
+cleanup_remove OK
+existing_object_signed OK
+existing_object_fetch 200 application/pdf

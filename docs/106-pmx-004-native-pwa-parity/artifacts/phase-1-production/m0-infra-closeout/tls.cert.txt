@@ -1,0 +1,4 @@
+notBefore=Jul 19 09:18:53 2026 GMT
+notAfter=Oct 17 09:18:52 2026 GMT
+subject= /CN=www.my-property-assistant.com
+issuer= /C=US/O=Let's Encrypt/CN=YR2

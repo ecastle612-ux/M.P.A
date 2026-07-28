@@ -90,6 +90,11 @@ async function executeJob(
         consolidated: result.consolidated
       };
     }
+    case "ops_kpi_materialize": {
+      const { materializeAllOrgKpis } = await import("./operational-analytics");
+      const result = await materializeAllOrgKpis(db);
+      return { orgs: result.orgs, kpiTotal: result.kpiTotal };
+    }
     default:
       return { skipped: true, reason: "unknown_job_type", jobType: schedule.job_type };
   }

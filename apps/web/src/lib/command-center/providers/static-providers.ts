@@ -4,7 +4,9 @@ import { applyUsageRanking } from "../ranking";
 import type { CommandCenterProvider, CommandCenterResult } from "../types";
 
 const NAV_ITEMS = [
-  { id: "nav-dashboard", label: "Open Today's Work", href: "/dashboard#todays-work", shortcut: "G D", icon: "⌁" },
+  { id: "nav-dashboard", label: "Open Command Center", href: "/dashboard", shortcut: "G D", icon: "⌁" },
+  { id: "nav-ops-inbox", label: "Open Ops Inbox", href: "/inbox", shortcut: null, icon: "→" },
+  { id: "nav-activity", label: "Open Activity Timeline", href: "/activity", shortcut: null, icon: "→" },
   { id: "nav-properties", label: "Open Property list", href: "/properties", shortcut: "G P", icon: "→" },
   { id: "nav-units", label: "Open Unit list", href: "/units", shortcut: "G U", icon: "→" },
   { id: "nav-applicants", label: "Open Applicant list", href: "/applicants", shortcut: "G A", icon: "→" },

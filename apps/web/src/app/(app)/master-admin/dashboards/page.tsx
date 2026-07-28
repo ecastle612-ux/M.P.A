@@ -10,7 +10,7 @@ const DASHBOARDS = [
   { href: "/portal/tenant", label: "Tenant portal", description: "Resident experience" },
   { href: "/portal/owner", label: "Owner portal", description: "Owner experience" },
   { href: "/portal/manager", label: "Manager portal", description: "Manager experience" },
-  { href: "/portal/vendor", label: "Vendor portal", description: "Vendor experience" }
+  { href: "/vendors", label: "Vendor Directory", description: "Internal vendor management" }
 ] as const;
 
 export default function MasterAdminDashboardsPage() {

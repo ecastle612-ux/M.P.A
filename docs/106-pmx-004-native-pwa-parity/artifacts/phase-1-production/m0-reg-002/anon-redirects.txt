@@ -1,0 +1,4 @@
+/dashboard -> 307 https://www.my-property-assistant.com/login
+/properties -> 307 https://www.my-property-assistant.com/login
+/portal/owner -> 307 https://www.my-property-assistant.com/login
+/settings -> 307 https://www.my-property-assistant.com/login

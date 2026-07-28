@@ -1,8 +1,11 @@
 # ADMIN-002 — Master Admin Role Switcher
 
-**Status:** Design ✔ · Document ✔ · **Draft — Awaiting Approval** · Implement **locked**  
+**Status:** Design ✔ · Document ✔ · 📝 **Draft — Awaiting Approval** · Implement **locked**  
 **Depends on:** [ADMIN-001](../71-admin-001-master-admin-impersonation/README.md) **PASS** (Portal Test Mode + Impersonation Center + audit)  
-**Initiative ID:** ADMIN-002
+**Initiative ID:** ADMIN-002  
+**Authority:** This README + [02-approval.md](./02-approval.md) are authoritative. Empty approval checkboxes = **not Approved**.
+
+> **Governance note (2026-07-23):** The Implementation Gate registry briefly listed ADMIN-002 as Approved in error. Corrected — see [governance-audit-closeout](../00-governance/governance-audit-closeout.md). Existing shell `RoleSwitcher` (membership active-role select) is **not** ADMIN-002 delivery.
 
 ---
 

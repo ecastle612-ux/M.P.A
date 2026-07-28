@@ -15,6 +15,7 @@ const CHECKLIST_LABELS: Array<{ key: keyof MoveOutChecklist; label: string }> = 
   { key: "keysReturned", label: "Keys returned" },
   { key: "finalBalanceSettled", label: "Final balance settled" },
   { key: "depositResolved", label: "Deposit refunded or withheld" },
+  { key: "acknowledgementSigned", label: "Move-out acknowledgement signed" },
   { key: "documentsArchived", label: "Documents archived" },
   { key: "accessDisabled", label: "Resident access disabled" }
 ];
@@ -26,6 +27,8 @@ type MoveOutContext = {
   tenant: TenantListItem;
   lease: { id: string; leaseNumber: string; status: string } | null;
   balance: number;
+  acknowledgementSigned?: boolean;
+  acknowledgementRequired?: boolean;
 };
 
 export function MoveOutWizard({ tenants }: { tenants: TenantListItem[] }) {
@@ -77,6 +80,12 @@ export function MoveOutWizard({ tenants }: { tenants: TenantListItem[] }) {
       setContext(json.context ?? null);
       setArchivedUnitId(json.context?.tenant.unitId ?? null);
       if (json.context?.tenant.moveOutDate) setMoveOutDate(json.context.tenant.moveOutDate);
+      if (json.context) {
+        setChecklist((current) => ({
+          ...current,
+          acknowledgementSigned: Boolean(json.context?.acknowledgementSigned)
+        }));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load resident");
     } finally {
@@ -281,6 +290,18 @@ export function MoveOutWizard({ tenants }: { tenants: TenantListItem[] }) {
           <p className="rounded-md border border-dashed border-[var(--mpa-color-border)] bg-[var(--mpa-color-bg-surface-muted)] px-3 py-2 text-xs text-[var(--mpa-color-text-secondary)]">
             {INSPECTION_COMING_SOON}
           </p>
+          {context?.acknowledgementRequired && !context.acknowledgementSigned ? (
+            <p className="rounded-md border border-[var(--mpa-color-border)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+              Move-out acknowledgement is required.{" "}
+              {context.lease ? (
+                <Link className="text-[var(--mpa-color-brand)] underline" href={`/leases/${context.lease.id}`}>
+                  Open lease to send acknowledgement
+                </Link>
+              ) : (
+                "Open the lease to send the Move-Out Acknowledgement first."
+              )}
+            </p>
+          ) : null}
           <ul className="space-y-2">
             {CHECKLIST_LABELS.map((item) => (
               <li key={item.key}>
@@ -289,6 +310,7 @@ export function MoveOutWizard({ tenants }: { tenants: TenantListItem[] }) {
                     type="checkbox"
                     checked={checklist[item.key]}
                     onChange={() => toggleChecklist(item.key)}
+                    disabled={item.key === "acknowledgementSigned"}
                   />
                   <span>{item.label}</span>
                 </label>
@@ -320,7 +342,13 @@ export function MoveOutWizard({ tenants }: { tenants: TenantListItem[] }) {
             Continue
           </Button>
         ) : (
-          <Button disabled={loading} onClick={() => setConfirmOpen(true)}>
+          <Button
+            disabled={
+              loading ||
+              Boolean(context?.acknowledgementRequired && !context.acknowledgementSigned)
+            }
+            onClick={() => setConfirmOpen(true)}
+          >
             {loading ? "Completing…" : "Complete move-out"}
           </Button>
         )}

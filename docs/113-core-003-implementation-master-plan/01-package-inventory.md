@@ -55,13 +55,13 @@ Every implementation unit below is in scope for the master order. Status reflect
 
 | Unit | Name | Status | Package-internal depends |
 |------|------|--------|---------------------------|
-| Slice A | Event Bus + Activity Timeline | 🔒 Locked | Approved package |
-| Slice B | Notification Center + Reminder + Scheduler | 🔒 Locked | A Validated |
-| Slice C | Task Engine + Workflow + Priority | 🔒 Locked | B Validated |
+| Slice A | Event Bus + Activity Timeline | ✅ **VALIDATED PASS** ([OPS-001 §34](../111-ops-001-platform-operations-architecture/34-slice-a-validation-rerun.md)) | Approved package |
+| Slice B | Notification Center + Reminder + Scheduler | ✅ **VALIDATED PASS** ([§58](./58-ops-001-slice-b-validation.md) · [OPS-001 §37](../111-ops-001-platform-operations-architecture/37-slice-b-validation.md)) | A Validated |
+| Slice C | Task Engine + Workflow + Priority | ✅ **AUTHORIZED** ([§84](./84-ops-001-slice-c-authorization.md) · [OPS-001 §38](../111-ops-001-platform-operations-architecture/38-slice-c-authorization.md)) · Implement/Validate 🔒 | B Validated |
 | Slice D | AI Operations Director + Automation + Analytics | 🔒 Locked | C Validated |
 | Slice E | Unified Inbox + Command Center + Search + Quick Actions | 🔒 Locked | D Validated |
 
-**Unlock:** `AUTHORIZE OPS-001 SLICE A`  
+**Unlock:** `AUTHORIZE OPS-001 SLICE C` issued (2026-07-26) · next → dedicated implement → `VALIDATE OPS-001 SLICE C`  
 **Rule:** Modules emit into OPS; no parallel buses.
 
 ---

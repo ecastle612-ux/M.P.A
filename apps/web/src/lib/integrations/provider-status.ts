@@ -145,15 +145,15 @@ export function getProviderStatusCenter(): ProviderStatusItem[] {
   });
 
   const signatureProvider = (env("SIGNATURE_PROVIDER") ?? "noop").toLowerCase();
-  const dropboxSelected = signatureProvider === "dropbox_sign" || signatureProvider === "hellosign";
-  const dropboxCreds = hasValue(env("DROPBOX_SIGN_API_KEY") ?? env("HELLOSIGN_API_KEY"));
-  const dropboxModeKind = genericMode(env("DROPBOX_SIGN_MODE"), dropboxCreds ? "live" : "unknown");
-  const dropboxWebhook = hasValue(env("DROPBOX_SIGN_WEBHOOK_SECRET") ?? env("HELLOSIGN_WEBHOOK_SECRET"));
-  const dropboxStatus = resolveProviderPosture({
-    selected: dropboxSelected,
-    credentialsPresent: dropboxCreds,
-    mode: dropboxModeKind,
-    webhookConfigured: dropboxWebhook,
+  const signwellSelected = signatureProvider === "signwell";
+  const signwellCreds = hasValue(env("SIGNWELL_API_KEY"));
+  const signwellModeKind = genericMode(env("SIGNWELL_MODE"), signwellCreds ? "live" : "unknown");
+  const signwellWebhook = hasValue(env("SIGNWELL_WEBHOOK_ID"));
+  const signwellStatus = resolveProviderPosture({
+    selected: signwellSelected,
+    credentialsPresent: signwellCreds,
+    mode: signwellModeKind,
+    webhookConfigured: signwellWebhook,
     webhookRequiredForProduction: true
   });
 
@@ -340,26 +340,26 @@ export function getProviderStatusCenter(): ProviderStatusItem[] {
       webhookReady: null
     },
     {
-      id: "dropbox_sign",
-      name: "Dropbox Sign",
+      id: "signwell",
+      name: "SignWell",
       category: "Signatures",
-      status: dropboxStatus,
-      environment: environmentLabel(dropboxStatus, dropboxModeKind),
+      status: signwellStatus,
+      environment: environmentLabel(signwellStatus, signwellModeKind),
       guidance:
-        dropboxStatus === "disabled"
-          ? "SIGNATURE_PROVIDER is not dropbox_sign. Lease signing uses the noop adapter."
-          : dropboxStatus === "sandbox"
-            ? "Dropbox Sign sandbox is active — suitable for Design Partner lease signing demos."
-            : "Dropbox Sign credentials present. Verify webhook + redirect URLs on this host.",
+        signwellStatus === "disabled"
+          ? "SIGNATURE_PROVIDER is not signwell. Lease signing uses the noop adapter."
+          : signwellStatus === "sandbox"
+            ? "SignWell sandbox/test mode is active — suitable for Design Partner lease signing demos."
+            : "SignWell credentials present. Verify webhook URL + SIGNWELL_WEBHOOK_ID on this host.",
       nextAction:
-        dropboxStatus === "disabled"
-          ? "Set SIGNATURE_PROVIDER=dropbox_sign with a sandbox API key to certify e-sign."
-          : !dropboxWebhook
-            ? "Add DROPBOX_SIGN_WEBHOOK_SECRET and register the webhook for this host."
-            : "Send a sandbox signature request through an existing lease package workflow.",
+        signwellStatus === "disabled"
+          ? "Set SIGNATURE_PROVIDER=signwell with a SignWell API key to certify e-sign."
+          : !signwellWebhook
+            ? "Add SIGNWELL_WEBHOOK_ID and register https://<host>/api/webhooks/signature/signwell."
+            : "Send a test_mode signature request through an existing lease package workflow.",
       lastCommunication: null,
       lastError: null,
-      webhookReady: dropboxSelected ? dropboxWebhook : null
+      webhookReady: signwellSelected ? signwellWebhook : null
     },
     {
       id: "checkr",
@@ -427,23 +427,23 @@ async function probeStripe(): Promise<{ ok: boolean; detail: string }> {
   }
 }
 
-async function probeDropboxSign(): Promise<{ ok: boolean; detail: string }> {
-  const key = env("DROPBOX_SIGN_API_KEY") ?? env("HELLOSIGN_API_KEY");
-  if (!key) return { ok: false, detail: "DROPBOX_SIGN_API_KEY missing" };
+async function probeSignWell(): Promise<{ ok: boolean; detail: string }> {
+  const key = env("SIGNWELL_API_KEY");
+  if (!key) return { ok: false, detail: "SIGNWELL_API_KEY missing" };
   try {
-    const auth = Buffer.from(`${key}:`).toString("base64");
-    const response = await fetch("https://api.hellosign.com/v3/account", {
-      headers: { Authorization: `Basic ${auth}` },
+    const base = (env("SIGNWELL_API_BASE_URL") ?? "https://www.signwell.com/api/v1").replace(/\/$/, "");
+    const response = await fetch(`${base}/me`, {
+      headers: { "X-Api-Key": key, Accept: "application/json" },
       cache: "no-store"
     });
     if (!response.ok) {
-      return { ok: false, detail: `Dropbox Sign account probe HTTP ${response.status}` };
+      return { ok: false, detail: `SignWell /me probe HTTP ${response.status}` };
     }
-    return { ok: true, detail: "Dropbox Sign API authenticated (account probe)." };
+    return { ok: true, detail: "SignWell API authenticated (/me probe)." };
   } catch (error) {
     return {
       ok: false,
-      detail: error instanceof Error ? error.message : "Dropbox Sign network error"
+      detail: error instanceof Error ? error.message : "SignWell network error"
     };
   }
 }
@@ -582,9 +582,9 @@ export async function buildProviderHealthDashboard(): Promise<ProviderStatusItem
     base.find((p) => p.id === "onesignal")?.status !== "configuration_required"
       ? probeOneSignal()
       : Promise.resolve(null),
-    base.find((p) => p.id === "dropbox_sign")?.status !== "disabled" &&
-    base.find((p) => p.id === "dropbox_sign")?.status !== "configuration_required"
-      ? probeDropboxSign()
+    base.find((p) => p.id === "signwell")?.status !== "disabled" &&
+    base.find((p) => p.id === "signwell")?.status !== "configuration_required"
+      ? probeSignWell()
       : Promise.resolve(null),
     base.find((p) => p.id === "checkr")?.status !== "disabled" &&
     base.find((p) => p.id === "checkr")?.status !== "configuration_required"
@@ -607,7 +607,7 @@ export async function buildProviderHealthDashboard(): Promise<ProviderStatusItem
   const byId: Record<string, ProbeResult | null> = {
     stripe: probes[0],
     onesignal: probes[1],
-    dropbox_sign: probes[2],
+    signwell: probes[2],
     checkr: probes[3],
     resend: probes[4],
     twilio: probes[5]

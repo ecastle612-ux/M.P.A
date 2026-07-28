@@ -1,0 +1,72 @@
+[QA-001 setup] Anonymous state ready. Auth enabled=false (role sessions via fixtures).
+
+Running 30 tests using 2 workers
+
+(node:45462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:45463) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-smoke] › tests/a11y/login.a11y.spec.ts:20:3 › Accessibility @a11y @smoke › login form is keyboard reachable @a11y @smoke (7.6s)
+  -   3 [chromium-smoke] › tests/a11y/login.a11y.spec.ts:29:3 › Accessibility @a11y @smoke › authenticated dashboard has no critical axe violations @a11y @auth
+  ✓   2 [chromium-smoke] › tests/a11y/login.a11y.spec.ts:7:3 › Accessibility @a11y @smoke › login page has no critical/serious axe violations @a11y @smoke (11.8s)
+  ✓   4 [chromium-smoke] › tests/perf/load.perf.spec.ts:6:3 › Performance probes @perf @nightly › login page load under budget @perf @smoke (4.7s)
+  ✓   5 [chromium-smoke] › tests/smoke/auth.spec.ts:7:3 › P0 Authentication @smoke › login page renders sign-in form @smoke (3.9s)
+  ✓   7 [chromium-smoke] › tests/smoke/auth.spec.ts:21:3 › P0 Authentication @smoke › protected routes redirect anonymous users to login @smoke (5.8s)
+  -   8 [chromium-smoke] › tests/smoke/auth.spec.ts:27:3 › P0 Authentication @smoke › PM can sign in with seeded credentials @smoke @auth
+  -   9 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › organizations/setup shell loads @smoke @auth
+  -  10 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › properties shell loads @smoke @auth
+  -  11 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › units shell loads @smoke @auth
+  -  12 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › tenants shell loads @smoke @auth
+  -  13 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › leases shell loads @smoke @auth
+  -  14 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › maintenance shell loads @smoke @auth
+  -  15 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › communications shell loads @smoke @auth
+  -  16 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › financials shell loads @smoke @auth
+  -  17 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › migration shell loads @smoke @auth
+  -  18 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › notifications shell loads @smoke @auth
+  -  19 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › profile shell loads @smoke @auth
+  -  20 [chromium-smoke] › tests/smoke/module-shells.spec.ts:29:5 › P0 module shells @smoke @auth › ai-operations shell loads @smoke @auth
+  -  21 [chromium-smoke] › tests/smoke/pm-workflows.spec.ts:13:3 › P0 PM workflows @smoke @auth › setup wizard is reachable for incomplete profiles @smoke @auth
+  -  22 [chromium-smoke] › tests/smoke/pm-workflows.spec.ts:25:3 › P0 PM workflows @smoke @auth › operations center loads @smoke @auth
+  -  23 [chromium-smoke] › tests/smoke/pm-workflows.spec.ts:31:3 › P0 PM workflows @smoke @auth › command center can open @smoke @auth
+  -  24 [chromium-smoke] › tests/smoke/pm-workflows.spec.ts:38:3 › P0 PM workflows @smoke @auth › properties list loads @smoke @auth
+  -  25 [chromium-smoke] › tests/smoke/pm-workflows.spec.ts:44:3 › P0 PM workflows @smoke @auth › profile page loads and can save display name @smoke @auth
+  -  26 [chromium-smoke] › tests/smoke/pm-workflows.spec.ts:54:3 › P0 PM workflows @smoke @auth › primary navigation links resolve @smoke @auth
+  -  27 [chromium-smoke] › tests/smoke/resident-workflows.spec.ts:9:3 › P0 Resident workflows @smoke @auth › resident portal shell loads @smoke @auth
+  -  28 [chromium-smoke] › tests/smoke/resident-workflows.spec.ts:15:3 › P0 Resident workflows @smoke @auth › resident can open maintenance area @smoke @auth
+  ✓  29 [chromium-smoke] › tests/smoke/trust-surfaces.spec.ts:8:3 › PT-001 trust surfaces @smoke › not-found page uses human recovery copy @smoke (3.2s)
+  -  30 [chromium-smoke] › tests/smoke/trust-surfaces.spec.ts:15:3 › PT-001 trust surfaces @smoke › unauthorized page uses human recovery copy @smoke @auth
+  ✘   6 [chromium-smoke] › tests/smoke/auth.spec.ts:14:3 › P0 Authentication @smoke › sign-up mode toggles create-account fields @smoke (17.5s)
+
+
+  1) [chromium-smoke] › tests/smoke/auth.spec.ts:14:3 › P0 Authentication @smoke › sign-up mode toggles create-account fields @smoke 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Sign up', exact: true })
+
+
+       at ../src/pages/auth.page.ts:38
+
+      36 |
+      37 |   async switchToSignUp() {
+    > 38 |     await this.page.getByRole("link", { name: "Sign up", exact: true }).click();
+         |                                                                         ^
+      39 |     await expect(this.page.getByRole("heading", { name: /create account/i })).toBeVisible();
+      40 |   }
+      41 | }
+        at AuthPage.switchToSignUp (/Users/erickcastillo/mpa/qa/e2e/src/pages/auth.page.ts:38:73)
+        at /Users/erickcastillo/mpa/qa/e2e/tests/smoke/auth.spec.ts:17:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/smoke-auth-P0-Authenticati-67d91-create-account-fields-smoke-chromium-smoke/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/smoke-auth-P0-Authenticati-67d91-create-account-fields-smoke-chromium-smoke/error-context.md
+
+  1 failed
+    [chromium-smoke] › tests/smoke/auth.spec.ts:14:3 › P0 Authentication @smoke › sign-up mode toggles create-account fields @smoke 
+  23 skipped
+  6 passed (38.7s)
+undefined
+/Users/erickcastillo/mpa/qa/e2e:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: playwright test '--project=chromium-smoke' '--reporter=list'

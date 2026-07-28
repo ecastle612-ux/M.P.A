@@ -1,78 +1,78 @@
 import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
+import {
+  getPrincipalByAuthSubject,
+  requiresFirstLoginGate
+} from "../../../../../lib/auth/identity";
+import {
+  acceptAndActivateInvitation,
+  getInvitationPublicPreview
+} from "../../../../../lib/auth/invitations/service";
+
+/**
+ * AUTH-001 Slice C — accept invitation and activate membership for provisioned invitee.
+ * Public signup remains disabled; invitee must sign in with MPA-generated username.
+ */
+export async function GET(_request: Request, context: { params: Promise<{ token: string }> }) {
+  const { token } = await context.params;
+  const preview = await getInvitationPublicPreview(token).catch(() => null);
+  if (!preview) {
+    return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
+  }
+  return NextResponse.json({ invitation: preview });
+}
 
 export async function POST(_request: Request, context: { params: Promise<{ token: string }> }) {
   const { token } = await context.params;
-  const supabase = await createAuthServerClient();
+  const trimmed = token.trim();
+  if (!trimmed) {
+    return NextResponse.json({ error: "Invitation token required" }, { status: 400 });
+  }
 
+  const supabase = await createAuthServerClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user || !user.email) {
-    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  if (!user) {
+    return NextResponse.json(
+      {
+        error:
+          "Sign in required with the username from your invitation email. Public registration is disabled."
+      },
+      { status: 401 }
+    );
   }
 
-  const { data: invitation, error: invitationError } = await supabase
-    .from("organization_invitations")
-    .select("id, organization_id, email, roles, status, expires_at")
-    .eq("token", token)
-    .eq("status", "pending")
-    .maybeSingle();
-
-  if (invitationError) {
-    return NextResponse.json({ error: invitationError.message }, { status: 400 });
-  }
-  if (!invitation) {
-    return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
-  }
-  if (invitation.email.toLowerCase() !== user.email.toLowerCase()) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-  if (new Date(invitation.expires_at).getTime() < Date.now()) {
-    return NextResponse.json({ error: "Invitation expired" }, { status: 410 });
+  const principal = await getPrincipalByAuthSubject(user.id).catch(() => null);
+  if (requiresFirstLoginGate(principal)) {
+    return NextResponse.json(
+      {
+        error:
+          "Complete first sign-in (temporary password change) before accepting invitations.",
+        requiresFirstLogin: true
+      },
+      { status: 403 }
+    );
   }
 
-  const { error: membershipError } = await supabase.from("organization_memberships").upsert(
-    {
-      organization_id: invitation.organization_id,
-      user_id: user.id,
-      roles: invitation.roles,
-      status: "active"
-    },
-    { onConflict: "organization_id,user_id" }
-  );
-
-  if (membershipError) {
-    return NextResponse.json({ error: membershipError.message }, { status: 400 });
+  try {
+    const result = await acceptAndActivateInvitation({
+      token: trimmed,
+      authUserId: user.id
+    });
+    return NextResponse.json({
+      ok: true,
+      organizationId: result.organizationId
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not accept invitation.";
+    const status =
+      message.includes("expired") || message.includes("revoked")
+        ? 410
+        : message.includes("Sign in") || message.includes("Forbidden")
+          ? 403
+          : 400;
+    return NextResponse.json({ error: message }, { status });
   }
-
-  const { error: invitationUpdateError } = await supabase
-    .from("organization_invitations")
-    .update({
-      status: "accepted",
-      accepted_by: user.id,
-      accepted_at: new Date().toISOString()
-    })
-    .eq("id", invitation.id);
-
-  if (invitationUpdateError) {
-    return NextResponse.json({ error: invitationUpdateError.message }, { status: 400 });
-  }
-
-  const roles = Array.isArray(invitation.roles) ? invitation.roles : [];
-  if (roles.includes("tenant")) {
-    await supabase
-      .from("tenants")
-      .update({ user_id: user.id, updated_by: user.id })
-      .eq("organization_id", invitation.organization_id)
-      .ilike("email", user.email)
-      .is("deleted_at", null)
-      .is("user_id", null);
-  }
-
-  return NextResponse.json({
-    ok: true,
-    organizationId: invitation.organization_id
-  });
 }

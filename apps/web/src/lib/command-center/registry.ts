@@ -41,6 +41,7 @@ import {
   unitsProvider
 } from "./providers/api-providers";
 import { aiSearchProvider } from "./providers/ai-search-provider";
+import { opsGlobalSearchProvider } from "./providers/ops-global-search-provider";
 import type {
   CommandCenterProvider,
   CommandCenterProviderRegistration,
@@ -54,6 +55,7 @@ const CORE_PROVIDERS: CommandCenterProviderRegistration[] = [
   { ...pinnedActionsProvider, source: "core" },
   { ...favoritesProvider, source: "core" },
   { ...recentProvider, source: "core" },
+  { ...opsGlobalSearchProvider, source: "core" },
   { ...propertiesProvider, source: "core" },
   { ...unitsProvider, source: "core" },
   { ...applicantsProvider, source: "core" },

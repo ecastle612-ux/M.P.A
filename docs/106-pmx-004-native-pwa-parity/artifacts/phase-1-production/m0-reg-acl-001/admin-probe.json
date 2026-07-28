@@ -1,0 +1,26 @@
+[
+  {
+    "file": "resident.json",
+    "url": "https://www.my-property-assistant.com/admin",
+    "pageMissing": true,
+    "opsNav": false,
+    "setupWizard": false,
+    "snippet": "PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fix it: Return to Operations Center or your portal home and navigate from there. Operations Center Portal home Sign in"
+  },
+  {
+    "file": "vendor.json",
+    "url": "https://www.my-property-assistant.com/admin",
+    "pageMissing": true,
+    "opsNav": false,
+    "setupWizard": false,
+    "snippet": "PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fix it: Return to Operations Center or your portal home and navigate from there. Operations Center Portal home Sign in"
+  },
+  {
+    "file": "owner.json",
+    "url": "https://www.my-property-assistant.com/admin",
+    "pageMissing": true,
+    "opsNav": false,
+    "setupWizard": false,
+    "snippet": "PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fix it: Return to Operations Center or your portal home and navigate from there. Operations Center Portal home Sign in"
+  }
+]

@@ -181,7 +181,11 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | [85 — OPS-001 Slice C Validation](./85-ops-001-slice-c-validation.md) | ❌ **FAIL** (preserved) · [OPS-001 §40](../111-ops-001-platform-operations-architecture/40-slice-c-validation.md) |
 | [86 — OPS-001 Slice C Remediation](./86-ops-001-slice-c-remediation.md) | ✅ **COMPLETE** · R-C1 · [OPS-001 §41](../111-ops-001-platform-operations-architecture/41-slice-c-remediation.md) |
 | [87 — OPS-001 Slice C Validation Re-Run](./87-ops-001-slice-c-validation-rerun.md) | ✅ **PASS** · [OPS-001 §42](../111-ops-001-platform-operations-architecture/42-slice-c-validation-rerun.md) · OC-01…OC-10 |
-| [88 — OPS-001 Slice D Authorization](./88-ops-001-slice-d-authorization.md) | ✅ **AUTHORIZED** · AI Director · Automation · Analytics · [OPS-001 §43](../111-ops-001-platform-operations-architecture/43-slice-d-authorization.md) · OD-01…OD-10 |
+| [88 — OPS-001 Slice D Authorization](./88-ops-001-slice-d-authorization.md) | ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([§90](./90-ops-001-slice-d-validation.md)) · OD-01…OD-10 |
+| [89 — OPS-001 Slice D Remediation](./89-ops-001-slice-d-remediation.md) | ✅ **COMPLETE** · R-D1 `mpa-prod` · [OPS-001 §45](../111-ops-001-platform-operations-architecture/45-slice-d-remediation.md) |
+| [90 — OPS-001 Slice D Validation](./90-ops-001-slice-d-validation.md) | ✅ **PASS** · [OPS-001 §46](../111-ops-001-platform-operations-architecture/46-slice-d-validation.md) · probe `ops001-slice-d-v1` |
+| [91 — OPS-001 Slice E Authorization](./91-ops-001-slice-e-authorization.md) | ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([§92](./92-ops-001-slice-e-validation.md)) · [OPS-001 §49](../111-ops-001-platform-operations-architecture/49-slice-e-validation.md) |
+| [92 — OPS-001 Slice E Validation](./92-ops-001-slice-e-validation.md) | ✅ **PASS** · OE-01…OE-10 · probe `ops001-slice-e-v1` · OPS-001 **COMPLETE** · [OPS-001 §49](../111-ops-001-platform-operations-architecture/49-slice-e-validation.md) |
 
 ---
 
@@ -199,7 +203,8 @@ Platform architecture is **BASELINE COMPLETE**. Program freeze: no new top-level
 | AUTH-001 / COM-001 approved slices | ✅ A–E **COMPLETE** |
 | OPS-001 Slice B | ✅ **VALIDATED PASS** ([58](./58-ops-001-slice-b-validation.md) · [OPS-001 §37](../111-ops-001-platform-operations-architecture/37-slice-b-validation.md)) |
 | OPS-001 Slice C | ✅ **VALIDATED PASS** ([87](./87-ops-001-slice-c-validation-rerun.md) · [OPS-001 §42](../111-ops-001-platform-operations-architecture/42-slice-c-validation-rerun.md)) · prior FAIL ([85](./85-ops-001-slice-c-validation.md)) preserved |
-| OPS-001 Slice D | ✅ **AUTHORIZED** ([88](./88-ops-001-slice-d-authorization.md) · [OPS-001 §43](../111-ops-001-platform-operations-architecture/43-slice-d-authorization.md)) · Implement/Validate 🔒 |
+| OPS-001 Slice D | ✅ **VALIDATED PASS** ([OPS-001 §46](../111-ops-001-platform-operations-architecture/46-slice-d-validation.md) · [90](./90-ops-001-slice-d-validation.md)) |
+| OPS-001 Slice E | ✅ **VALIDATED PASS** ([92](./92-ops-001-slice-e-validation.md) · [OPS-001 §49](../111-ops-001-platform-operations-architecture/49-slice-e-validation.md)) · OPS-001 A–E ✅ **COMPLETE** |
 | UX-012 Slice B | ✅ **VALIDATED PASS** ([60](./60-ux-012-slice-b-validation.md) · [UX-012 §35](../112-ux-012-platform-experience-design-system/35-slice-b-validation.md)) |
 | PMX-004 Phase 2 | ✅ **VALIDATED PASS** ([62](./62-pmx-004-phase-2-validation.md) · [PMX-004 §21](../106-pmx-004-native-pwa-parity/21-phase-2-validation.md)) |
 | PMX-004 Phase 3 | ✅ **VALIDATED PASS** ([65](./65-pmx-004-phase-3-validation.md) · [PMX-004 §24](../106-pmx-004-native-pwa-parity/24-phase-3-validation.md)) |

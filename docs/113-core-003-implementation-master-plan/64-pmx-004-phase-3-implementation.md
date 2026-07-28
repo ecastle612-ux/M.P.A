@@ -23,5 +23,6 @@
 
 ## Recommendation
 
-1. ✅ Begin **`VALIDATE PMX-004 PHASE 3`**.  
-2. ❌ Do not authorize Phase 4+ / other locked packages under this record.
+1. ✅ **`VALIDATE PMX-004 PHASE 3` → PASS** ([§65](./65-pmx-004-phase-3-validation.md)).  
+2. ✅ Phase 4 **eligible** for a future `AUTHORIZE PMX-004 PHASE 4` — **not** issued here.  
+3. ❌ Do not authorize Phase 4+ / other locked packages under this record.

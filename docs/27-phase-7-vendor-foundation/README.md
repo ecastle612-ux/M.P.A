@@ -16,7 +16,7 @@ Org-scoped vendor management integrated with Phase 6 maintenance:
 ## Out of scope (deferred)
 
 - Global marketplace identity (ADR-004 full marketplace — Phase 7 foundation uses org-scoped `vendors`)
-- Vendor portal job inbox (roadmap deliverable — UI placeholder via `/portal/vendor` only)
+- Vendor job participation via secure `/v/[token]` links (authenticated Vendor Portal retired 2026-07-26)
 - Leases, financials, resident communications, AI
 
 ## Product requirement IDs

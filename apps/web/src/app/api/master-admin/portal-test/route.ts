@@ -7,7 +7,7 @@ import {
 } from "../../../../lib/master-admin/contracts";
 import { startPortalTestSession } from "../../../../lib/master-admin/session";
 
-const PORTALS: MasterAdminPortal[] = ["resident", "vendor", "owner", "manager"];
+const PORTALS: MasterAdminPortal[] = ["resident", "owner", "manager"];
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     } | null;
     const portal = body?.portal;
     if (!portal || !PORTALS.includes(portal as MasterAdminPortal)) {
-      return apiError(400, "INVALID_PORTAL", "portal must be resident, vendor, owner, or manager.");
+      return apiError(400, "INVALID_PORTAL", "portal must be resident, owner, or manager.");
     }
 
     const session = await startPortalTestSession({

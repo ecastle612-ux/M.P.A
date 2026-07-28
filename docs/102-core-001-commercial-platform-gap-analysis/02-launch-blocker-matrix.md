@@ -1,7 +1,8 @@
 # 02 — Launch Blocker Matrix
 
 **Package:** CORE-001  
-**Date:** 2026-07-22
+**Date:** 2026-07-22  
+**Document class:** ⚠️ **Historical Snapshot** — live status: [CORE-002](../103-core-002-commercial-launch-blocker-execution/README.md)
 
 Effort key: **S** ≤3 days · **M** 1–2 weeks · **L** 3–6 weeks · **XL** 6+ weeks (design+build+cert)
 

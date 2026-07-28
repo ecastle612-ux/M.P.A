@@ -37,12 +37,28 @@ export async function GET(request: Request) {
       return NextResponse.json({ ops }, { headers: { "Cache-Control": "no-store" } });
     }
 
-    const filters: { applicantId?: string; leaseId?: string; status?: string } = {};
+    const filters: {
+      applicantId?: string;
+      leaseId?: string;
+      propertyId?: string;
+      tenantId?: string;
+      documentType?: string;
+      kind?: string;
+      status?: string;
+    } = {};
     const applicantId = url.searchParams.get("applicantId");
     const leaseId = url.searchParams.get("leaseId");
+    const propertyId = url.searchParams.get("propertyId");
+    const tenantId = url.searchParams.get("tenantId");
+    const documentType = url.searchParams.get("documentType");
+    const kind = url.searchParams.get("kind");
     const status = url.searchParams.get("status");
     if (applicantId) filters.applicantId = applicantId;
     if (leaseId) filters.leaseId = leaseId;
+    if (propertyId) filters.propertyId = propertyId;
+    if (tenantId) filters.tenantId = tenantId;
+    if (documentType) filters.documentType = documentType;
+    if (kind) filters.kind = kind;
     if (status) filters.status = status;
 
     const items = await listSignaturePackages(organizationId, filters, supabase);
@@ -56,12 +72,16 @@ export async function GET(request: Request) {
           applicantId: item.applicantId,
           applicant_id: item.applicantId,
           leaseId: item.leaseId,
+          propertyId: item.propertyId,
+          tenantId: item.tenantId,
           status: item.status,
           requestType: item.documentType,
           request_type: item.documentType,
+          documentType: item.documentType,
           provider: item.provider,
           vaultStatus: item.vaultStatus,
-          completedAt: item.completedAt
+          completedAt: item.completedAt,
+          metadata: item.metadata
         }))
       },
       { headers: { "Cache-Control": "no-store" } }
@@ -94,7 +114,13 @@ export async function POST(request: Request) {
     const input: CreateSignaturePackageInput = {};
     if (typeof payload["leaseId"] === "string") input.leaseId = payload["leaseId"];
     if (typeof payload["applicantId"] === "string") input.applicantId = payload["applicantId"];
+    if (typeof payload["propertyId"] === "string") input.propertyId = payload["propertyId"];
+    if (typeof payload["tenantId"] === "string") input.tenantId = payload["tenantId"];
     if (typeof payload["screeningCaseId"] === "string") input.screeningCaseId = payload["screeningCaseId"];
+    if (typeof payload["kind"] === "string") input.kind = payload["kind"];
+    if (payload["metadata"] && typeof payload["metadata"] === "object") {
+      input.metadata = payload["metadata"] as Record<string, unknown>;
+    }
     if (typeof payload["documentType"] === "string") {
       input.documentType = payload["documentType"] as SignatureDocumentType;
     } else if (typeof payload["requestType"] === "string") {
@@ -122,8 +148,8 @@ export async function POST(request: Request) {
         .filter((row) => row.fullName.trim().length > 0);
     }
 
-    if (!input.leaseId && !input.applicantId) {
-      return apiError(400, "INVALID_PAYLOAD", "leaseId or applicantId is required");
+    if (!input.leaseId && !input.applicantId && !input.propertyId) {
+      return apiError(400, "INVALID_PAYLOAD", "leaseId, applicantId, or propertyId is required");
     }
 
     const signaturePackage = await createSignaturePackage(organizationId, user.id, input, supabase);

@@ -13,6 +13,11 @@ export function OrganizationSwitcher({ compact = false }: { compact?: boolean })
   const { organizations, activeOrganizationId, setActiveOrganization } = useOrganizationContext();
   const activeOrg = organizations.find((org) => org.id === activeOrganizationId);
 
+  // Consumer chrome: nothing to switch — hide control (functionality unchanged).
+  if (organizations.length <= 1) {
+    return null;
+  }
+
   return (
     <div className={compact ? "w-full space-y-1" : "hidden min-w-0 xl:block"}>
       {!compact ? (

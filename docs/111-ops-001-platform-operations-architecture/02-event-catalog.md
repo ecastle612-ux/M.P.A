@@ -141,6 +141,15 @@ Payloads are **secret-free** (ids, stage, score, band, discovery keys, trial sta
 | `ops.workflow.step.entered` | Workflow step entered (Slice C) |
 | `ops.workflow.step.exited` | Workflow step exited (Slice C) |
 | `ops.workflow.completed` | Workflow instance completed (Slice C) |
+| `ai.recommendation.generated` | AI Operations Director created a recommendation (Slice D) |
+| `ai.recommendation.applied` | Human-approved recommendation applied (Slice D) |
+| `ai.recommendation.rejected` | Recommendation rejected (Slice D) |
+| `ops.automation.fired` | Automation rule fired or gated (Slice D) |
+| `ops.automation.failed` | Automation rule fire failed (Slice D) |
+| `ops.kpi.materialized` | Operational KPI window materialized (Slice D) |
+| `ops.quick_action.invoked` | Global Quick Action invoked (Slice E) |
+| `ops.inbox.opened` | Unified Inbox opened (Slice E) |
+| `ops.search.performed` | Global Search performed (Slice E; secret-free — no query text) |
 | `ops.webhook.failed` | Outbound/inbound webhook failed |
 
 ---

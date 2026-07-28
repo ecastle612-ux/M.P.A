@@ -32,7 +32,8 @@ const CHECKLIST_LABELS: Array<{ key: keyof MoveInChecklist; label: string }> = [
   { key: "welcomeEmail", label: "Welcome email" },
   { key: "welcomeSms", label: "Welcome SMS (if enabled)" },
   { key: "pushEnabled", label: "Push notifications enabled" },
-  { key: "documentsUploaded", label: "Required documents uploaded" }
+  { key: "documentsUploaded", label: "Required documents uploaded" },
+  { key: "acknowledgementSigned", label: "Move-in acknowledgement signed" }
 ];
 
 export function MoveInWizard({
@@ -100,6 +101,8 @@ export function MoveInWizard({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [doneTenantId, setDoneTenantId] = useState<string | null>(null);
+  const [doneLeaseId, setDoneLeaseId] = useState<string | null>(null);
+  const [pendingAcknowledgement, setPendingAcknowledgement] = useState(false);
 
   const eligibleApplicants = useMemo(
     () => applicants.filter((applicant) => !applicant.tenantId && applicant.status === "approved"),
@@ -273,9 +276,11 @@ export function MoveInWizard({
       const json = (await response.json()) as {
         result?: {
           tenant: { id: string };
+          lease?: { id: string };
           checklist: MoveInChecklist;
           invitationSent?: boolean;
           welcomeSent?: boolean;
+          pendingAcknowledgement?: boolean;
         };
       };
       if (!response.ok) throw new Error(readApiError(json, "Move-in failed"));
@@ -283,9 +288,15 @@ export function MoveInWizard({
       setInvitationSent(Boolean(json.result?.invitationSent));
       setWelcomeSent(Boolean(json.result?.welcomeSent));
       setDoneTenantId(json.result?.tenant.id ?? null);
+      setPendingAcknowledgement(Boolean(json.result?.pendingAcknowledgement));
+      setDoneLeaseId(json.result?.lease?.id ?? null);
       notify({
-        title: "Resident activated",
-        description: "Occupancy, lease, and timeline updated automatically.",
+        title: json.result?.pendingAcknowledgement
+          ? "Move-in pending acknowledgement"
+          : "Resident activated",
+        description: json.result?.pendingAcknowledgement
+          ? "Complete the Move-In Acknowledgement on the lease to finish move-in."
+          : "Occupancy, lease, and timeline updated automatically.",
         variant: "success"
       });
     } catch (err) {
@@ -299,10 +310,12 @@ export function MoveInWizard({
     return (
       <Card className="space-y-4">
         <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Resident activated
+          {pendingAcknowledgement ? "Move-in pending acknowledgement" : "Resident activated"}
         </h1>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Lease linked, occupancy updated, and lifecycle events recorded.
+          {pendingAcknowledgement
+            ? "Lease created and portal invite queued. Complete the Move-In Acknowledgement on the lease to finish move-in."
+            : "Lease linked, occupancy updated, and lifecycle events recorded."}
           {invitationSent
             ? " Portal invitation sent."
             : " Portal invite may already be pending — use Bulk residents if you need to resend."}
@@ -316,6 +329,13 @@ export function MoveInWizard({
           <Link href={`/tenants/${doneTenantId}`}>
             <Button>View resident</Button>
           </Link>
+          {doneLeaseId ? (
+            <Link href={`/leases/${doneLeaseId}`}>
+              <Button variant={pendingAcknowledgement ? "primary" : "secondary"}>
+                {pendingAcknowledgement ? "Complete acknowledgement" : "View lease"}
+              </Button>
+            </Link>
+          ) : null}
           {!invitationSent ? (
             <Link href="/residents/bulk">
               <Button variant="secondary">Send portal invite</Button>
@@ -329,6 +349,8 @@ export function MoveInWizard({
             onClick={() => {
               router.refresh();
               setDoneTenantId(null);
+              setDoneLeaseId(null);
+              setPendingAcknowledgement(false);
               setStep(0);
             }}
           >

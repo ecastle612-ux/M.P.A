@@ -153,19 +153,17 @@ Legend for **Required?**:
 | `CHECKR_REQUIRE_LIVE` | Disable sandbox fallback | Optional | off | Yes | checkr-provider | `true` only when forcing live |
 | `CHECKR_API_BASE_URL` | Override host | Optional | Checkr API | Yes | checkr-provider | Leave blank |
 
-### Signatures (Dropbox Sign / HelloSign aliases)
+### Signatures (SignWell — ADR-030)
 
 | Variable | Purpose | Required? | Default | Safe blank? | Module(s) | Production value description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `SIGNATURE_PROVIDER` | Select e-sign | Optional | noop-ish | Yes | signature registry | `noop` or `dropbox_sign` |
-| `DROPBOX_SIGN_API_KEY` | API key | **Runtime-feature** if dropbox_sign | none | Yes if noop | dropbox-sign-provider | API key secret |
-| `HELLOSIGN_API_KEY` | Legacy alias | Optional alias | none | Yes | dropbox-sign-provider | Prefer DROPBOX_* |
-| `DROPBOX_SIGN_WEBHOOK_SECRET` | Webhook verify | **Runtime-feature** if live | may skip sandbox | Yes if noop | dropbox-sign-provider | Webhook secret |
-| `HELLOSIGN_WEBHOOK_SECRET` | Legacy alias | Optional | none | Yes | dropbox-sign-provider | Prefer DROPBOX_* |
-| `DROPBOX_SIGN_MODE` | sandbox/live | Optional | sandbox if no key | Yes | dropbox-sign-provider | `sandbox` until certified |
-| `HELLOSIGN_MODE` | Legacy mode | Optional | — | Yes | dropbox-sign-provider | Prefer DROPBOX_* |
-| `DROPBOX_SIGN_ALLOW_SIMULATE` | Simulate in prod | Optional | blocked unless `true` | Prefer `false` | webhook / signature routes | `false` in prod |
-| `DROPBOX_SIGN_API_BASE_URL` | Override host | Optional | HelloSign v3 | Yes | dropbox-sign-provider | Leave blank |
+| `SIGNATURE_PROVIDER` | Select e-sign | Optional | noop | Yes | signature registry | `noop` or `signwell` |
+| `SIGNWELL_API_KEY` | API key | **Runtime-feature** if signwell | none | Yes if noop | signwell-provider | API key secret |
+| `SIGNWELL_WEBHOOK_ID` | Event hash verify | **Runtime-feature** if live | may skip sandbox | Yes if noop | signwell-provider | Webhook ID from SignWell |
+| `SIGNWELL_MODE` | sandbox/live | Optional | sandbox if no key | Yes | signwell-provider | `sandbox` until certified |
+| `SIGNWELL_ALLOW_SIMULATE` | Simulate in prod | Optional | blocked unless `true` | Prefer `false` | webhook / signature routes | `false` in prod |
+| `SIGNWELL_API_BASE_URL` | Override host | Optional | SignWell v1 | Yes | signwell-provider | Leave blank |
+| `SIGNWELL_ACCOUNT_ID` | Optional API application | Optional | none | Yes | signwell-provider | Leave blank unless required |
 
 ### Email (Resend) / SMS (Twilio) / Maps
 
@@ -318,13 +316,13 @@ Mark each box only after the name exists for the target environment (**Productio
 - [ ] `CHECKR_ALLOW_SIMULATE` *(use `false` in real prod)*
 - [ ] `CHECKR_PACKAGE` *(optional)*
 
-### Dropbox Sign *(only when enabling e-sign)*
+### SignWell *(only when enabling e-sign)*
 
 - [ ] `SIGNATURE_PROVIDER`
-- [ ] `DROPBOX_SIGN_API_KEY`
-- [ ] `DROPBOX_SIGN_WEBHOOK_SECRET`
-- [ ] `DROPBOX_SIGN_MODE`
-- [ ] `DROPBOX_SIGN_ALLOW_SIMULATE` *(use `false` in real prod)*
+- [ ] `SIGNWELL_API_KEY`
+- [ ] `SIGNWELL_WEBHOOK_ID`
+- [ ] `SIGNWELL_MODE`
+- [ ] `SIGNWELL_ALLOW_SIMULATE` *(use `false` in real prod)*
 
 ### Resend / Twilio / Maps *(optional until enabled)*
 

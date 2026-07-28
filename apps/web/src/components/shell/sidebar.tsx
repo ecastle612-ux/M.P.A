@@ -50,8 +50,11 @@ function getSidebarCollapsedSnapshot(initialCollapsed: boolean) {
  */
 export function Sidebar({ initialCollapsed = false }: { initialCollapsed?: boolean }) {
   const pathname = usePathname();
-  const { canAccess, permissions, masterAdminOnlyShell } = useSessionPermissions();
-  const navigationGroups = getShellNavigationGroups(permissions, { masterAdminOnlyShell });
+  const { canAccess, permissions, masterAdminOnlyShell, entitledModules } = useSessionPermissions();
+  const navigationGroups = getShellNavigationGroups(permissions, {
+    masterAdminOnlyShell,
+    entitledModules
+  });
   const homeHref = shellHomeHref(permissions, { masterAdminOnlyShell });
   const collapsed = useSyncExternalStore(
     subscribeSidebarCollapsed,

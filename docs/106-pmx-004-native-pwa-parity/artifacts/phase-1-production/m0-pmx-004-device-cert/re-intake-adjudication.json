@@ -1,0 +1,31 @@
+{
+  "intakeSession": "PMX-004 RE-INTAKE — Resolve GATE-DEVICE-001",
+  "ranAt": "2026-07-24T22:48:00Z",
+  "deploymentId": "dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf",
+  "physicalDevicesAccessible": false,
+  "deviceOperator": "NOT_ASSIGNED",
+  "emulatorUsed": false,
+  "desktopSimulationUsedAsSubstitute": false,
+  "searched": [
+    "m0-pmx-004-device-cert/test-1..test-7",
+    "artifacts/phase-1-production/test-1..test-7",
+    "media named galaxy/pixel/iphone",
+    "PUSH-001 device artifacts"
+  ],
+  "deviceMediaCounts": {
+    "m0-pmx-004-device-cert/test-1": 0,
+    "m0-pmx-004-device-cert/test-2": 0,
+    "m0-pmx-004-device-cert/test-3": 0,
+    "m0-pmx-004-device-cert/test-4": 0,
+    "m0-pmx-004-device-cert/test-5": 0,
+    "m0-pmx-004-device-cert/test-6": 0,
+    "m0-pmx-004-device-cert/test-7": 0
+  },
+  "notes": [
+    "artifacts/phase-1-production/test-2 contains server-side SW probe text only — not physical-device screenshots/videos",
+    "Lighthouse/desktop captures are not valid substitutes per protocol 17 §0"
+  ],
+  "overall": "FAIL_BLOCKED",
+  "blocker": "GATE-DEVICE-001",
+  "recommendFinalM0Rerun": false
+}

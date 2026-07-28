@@ -13,15 +13,6 @@ export function getPortalDemoFixture(portal: MasterAdminPortal) {
           { label: "Maintenance", value: "1 open demo request — Kitchen faucet drip" }
         ]
       };
-    case "vendor":
-      return {
-        title: "Demo vendor schedule",
-        summary: "2 assigned demo work orders for this week.",
-        cards: [
-          { label: "WO-DEMO-01", value: "HVAC filter · Due tomorrow · In progress" },
-          { label: "WO-DEMO-02", value: "Unit turn paint · Scheduled Friday" }
-        ]
-      };
     case "owner":
       return {
         title: "Demo owner portfolio",

@@ -2,15 +2,17 @@
 
 **Package:** OPS-001 — Platform Operations Architecture  
 **Slice:** **D — AI Operations Director + Automation Engine + Operational Analytics**  
-**Status:** ✅ **AUTHORIZED** · Implementation 🔒 until dedicated implement session · Validation 🔒 until `VALIDATE OPS-001 SLICE D`  
+**Status:** ✅ **AUTHORIZED** · ✅ **IMPLEMENTED** ([44](./44-slice-d-implementation.md)) · ✅ **PROD MIGRATION** ([45](./45-slice-d-remediation.md)) · ✅ **VALIDATED PASS** ([46](./46-slice-d-validation.md))  
 **Authorization date:** 2026-07-26  
+**Implementation date:** 2026-07-26  
+**Validation date:** 2026-07-26  
 **Binding phrase (issued):**
 
 ```
 AUTHORIZE OPS-001 SLICE D
 ```
 
-**Validation phrase (to be issued after implementation):**
+**Validation phrase (issued):**
 
 ```
 VALIDATE OPS-001 SLICE D
@@ -26,11 +28,11 @@ VALIDATE OPS-001 SLICE D
 **UX foundation (any UI):** UX-012 Slice A ✅ **VALIDATED** — `--mpa-*` tokens only  
 **Program order:** CORE-003 **M4.3** ([05](../113-core-003-implementation-master-plan/05-master-implementation-order.md)) — **next authorized OPS work item** after OPS-C Validated
 
-> Phrase **`AUTHORIZE OPS-001 SLICE D` issued**. Implementation may begin **only** within the scope below, in a **dedicated implementation session**.  
-> OPS-001 Slice E · UX-012 Slices C–E · PMX-004 Phases 9–11 · FIN-003 remaining phases · certified partner marketplace UI remain **locked**.  
-> Do **not** begin implementation under this authorize phrase in the same session as authorization.  
+> Phrase **`AUTHORIZE OPS-001 SLICE D` issued**. Implementation ✅ **complete** · Prod migration ✅ · Validation ✅ **PASS** ([46](./46-slice-d-validation.md)).  
+> OPS-001 Slice E is **eligible** for a separate authorize phrase — **not** issued here.  
+> UX-012 Slices C–E · PMX-004 Phases 9–11 · FIN-003 remaining phases · certified partner marketplace UI remain **locked**.  
 > Do **not** redesign FAC-002 Facility Operations product surfaces under this phrase.  
-> Do **not** ship Unified Inbox / Command Center homepage / Global Search / Quick Actions (Slice E).
+> Do **not** ship Unified Inbox / Command Center homepage / Global Search / Quick Actions until Slice E is authorized.
 
 ---
 

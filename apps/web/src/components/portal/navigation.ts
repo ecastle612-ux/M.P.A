@@ -65,9 +65,3 @@ export const TENANT_PORTAL_MORE_NAVIGATION = [
   { href: "/portal/tenant/preferences", label: "Settings" },
   { href: "/profile", label: "Profile" }
 ] as const satisfies readonly PortalNavigationItem[];
-
-export const VENDOR_PORTAL_NAVIGATION = [
-  { href: "/portal/vendor", label: "Work queue" },
-  { href: "/portal/vendor/settings", label: "Settings" },
-  { href: "/profile", label: "Profile" }
-] as const satisfies readonly PortalNavigationItem[];

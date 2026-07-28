@@ -3,7 +3,7 @@
 **Package:** PMX-004  
 **Phase:** 1 — Unified Service Worker  
 **Date:** 2026-07-23  
-**Status:** Implementation complete · **Awaiting Phase 2 authorization**  
+**Status:** Implementation complete · Phase 2 ✅ **VALIDATED** ([21](./21-phase-2-validation.md)) · Phase 1 remains Certified  
 **Verdict:** **CONDITIONAL PASS** (code) — Phase 2 remains locked until [17-phase-1-production-validation.md](./17-phase-1-production-validation.md) records **Final PASS** on real devices after deploy.
 
 ---

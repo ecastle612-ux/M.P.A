@@ -4,7 +4,7 @@ import { applyProviderWebhook } from "../../../../../lib/signature/server";
 
 type RouteContext = { params: Promise<{ provider: string }> };
 
-const ALLOWED = ["dropbox_sign", "hellosign", "noop", "docusign", "adobe_sign", "signnow", "pandadoc"];
+const ALLOWED = ["signwell", "noop", "docusign", "adobe_sign", "signnow", "pandadoc"];
 
 export async function POST(request: Request, context: RouteContext) {
   try {
@@ -18,7 +18,6 @@ export async function POST(request: Request, context: RouteContext) {
     try {
       payload = rawBody ? JSON.parse(rawBody) : {};
     } catch {
-      // Dropbox Sign may send form-encoded events in some modes
       payload = { raw: rawBody };
     }
 
@@ -28,11 +27,11 @@ export async function POST(request: Request, context: RouteContext) {
     });
     headers["x-mpa-raw-body"] = rawBody;
 
-    const result = await applyProviderWebhook(provider === "hellosign" ? "dropbox_sign" : provider, payload, headers);
+    const result = await applyProviderWebhook(provider, payload, headers);
     return NextResponse.json({ ok: true, ...result });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Webhook failed";
-    if (message.toLowerCase().includes("signature")) {
+    if (message.toLowerCase().includes("signature") || message.toLowerCase().includes("webhook")) {
       return apiError(401, "INVALID_SIGNATURE", message);
     }
     return apiError(400, "WEBHOOK_FAILED", message);
@@ -42,10 +41,10 @@ export async function POST(request: Request, context: RouteContext) {
 export async function PUT(request: Request, context: RouteContext) {
   try {
     const { provider } = await context.params;
-    if (!["dropbox_sign", "hellosign", "noop"].includes(provider)) {
-      return apiError(400, "UNSUPPORTED", "Simulate only for dropbox_sign/noop");
+    if (!["signwell", "noop"].includes(provider)) {
+      return apiError(400, "UNSUPPORTED", "Simulate only for signwell/noop");
     }
-    if (process.env["NODE_ENV"] === "production" && process.env["DROPBOX_SIGN_ALLOW_SIMULATE"] !== "true") {
+    if (process.env["NODE_ENV"] === "production" && process.env["SIGNWELL_ALLOW_SIMULATE"] !== "true") {
       return apiError(403, "FORBIDDEN", "Simulate disabled in production");
     }
 
@@ -57,13 +56,17 @@ export async function PUT(request: Request, context: RouteContext) {
     if (!externalReference) return apiError(400, "INVALID_PAYLOAD", "externalReference required");
 
     const result = await applyProviderWebhook(
-      provider === "hellosign" ? "dropbox_sign" : provider,
+      provider,
       {
         id: `sim-${Date.now()}`,
-        type: "signature_request_all_signed",
-        event_type: "signature_request_all_signed",
+        type: "document_completed",
+        event: {
+          type: "document_completed",
+          time: Math.floor(Date.now() / 1000),
+          hash: `sim-${Date.now()}`
+        },
         externalReference,
-        signature_request: { signature_request_id: externalReference, is_complete: true }
+        data: { object: { id: externalReference, status: "Completed" } }
       },
       { "x-mpa-simulate": "1", "x-mpa-raw-body": "{}" }
     );

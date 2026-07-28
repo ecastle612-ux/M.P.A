@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { isUserRole, type UserRole } from "@mpa/shared";
 import type { User } from "@supabase/supabase-js";
 import { createAuthServerComponentClient } from "../auth/server";
 import { ACTIVE_ORGANIZATION_COOKIE, type OrganizationSummary } from "./contracts";
@@ -33,7 +34,7 @@ export async function requireAuthenticatedUser(): Promise<{
 }
 
 export function isOrganizationManager(roles: readonly string[]): boolean {
-  return roles.includes("property_manager");
+  return roles.includes("organization_admin") || roles.includes("property_manager");
 }
 
 export async function getOrganizationsForUser(userId: string): Promise<OrganizationSummary[]> {
@@ -56,10 +57,7 @@ export async function getOrganizationsForUser(userId: string): Promise<Organizat
       id: row.organization_id,
       name: row.organizations?.name ?? "",
       slug: row.organizations?.slug ?? "",
-      roles: row.roles.filter(
-        (role): role is "property_manager" | "property_owner" | "tenant" | "vendor" =>
-          role === "property_manager" || role === "property_owner" || role === "tenant" || role === "vendor"
-      )
+      roles: row.roles.filter((role): role is UserRole => isUserRole(role))
     }));
 }
 

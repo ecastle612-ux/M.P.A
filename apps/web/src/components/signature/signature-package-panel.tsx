@@ -3,6 +3,17 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Badge, Button, Card } from "@mpa/ui";
+import { documentTypeLabel, toSignatureLifecycleLabel } from "../../lib/signature/lifecycle";
+import type { SignatureRecipientRole, SignatureRecipientStatus } from "../../lib/signature/contracts";
+import { SIGNATURE_RECIPIENT_ROLES } from "../../lib/signature/contracts";
+
+function normalizeSignatureRecipientRole(role: string): SignatureRecipientRole {
+  if (role === "owner") return "property_owner";
+  if ((SIGNATURE_RECIPIENT_ROLES as readonly string[]).includes(role)) {
+    return role as SignatureRecipientRole;
+  }
+  return "cc_viewer";
+}
 
 type SignatureDetail = {
   package: {
@@ -15,8 +26,10 @@ type SignatureDetail = {
     externalReference: string | null;
     leaseId: string | null;
     applicantId: string | null;
+    propertyId?: string | null;
     residentActivatedAt: string | null;
     completedAt: string | null;
+    metadata?: Record<string, unknown>;
   };
   recipients: Array<{
     id: string;
@@ -24,6 +37,7 @@ type SignatureDetail = {
     fullName: string;
     email: string | null;
     status: string;
+    isRequired?: boolean;
     progressUrl: string | null;
     signingUrl: string | null;
     reminderCount: number;
@@ -34,15 +48,34 @@ type SignatureDetail = {
   canCancel?: boolean;
 };
 
-type Props = {
+export type SignaturePackagePanelProps = {
   leaseId?: string | null;
   applicantId?: string | null;
+  propertyId?: string | null;
+  tenantId?: string | null;
+  documentType?: string;
+  kind?: string | null;
+  title?: string;
+  createLabel?: string;
   canCreate: boolean;
   canSend: boolean;
 };
 
-export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend }: Props) {
-  const [items, setItems] = useState<Array<{ id: string; packageNumber: string; status: string }>>([]);
+export function SignaturePackagePanel({
+  leaseId,
+  applicantId,
+  propertyId,
+  tenantId,
+  documentType = "lease_agreement",
+  kind = null,
+  title = "Documents",
+  createLabel = "Send for signature",
+  canCreate,
+  canSend
+}: SignaturePackagePanelProps) {
+  const [items, setItems] = useState<
+    Array<{ id: string; packageNumber: string; status: string; documentType: string }>
+  >([]);
   const [detail, setDetail] = useState<SignatureDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,17 +88,33 @@ export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend
       const params = new URLSearchParams();
       if (leaseId) params.set("leaseId", leaseId);
       if (applicantId) params.set("applicantId", applicantId);
+      if (propertyId) params.set("propertyId", propertyId);
+      if (tenantId) params.set("tenantId", tenantId);
+      if (documentType) params.set("documentType", documentType);
+      if (kind) params.set("kind", kind);
       const listRes = await fetch(`/api/signatures?${params.toString()}`, { cache: "no-store" });
       const listJson = (await listRes.json()) as {
-        items?: Array<{ id: string; requestNumber?: string; packageNumber?: string; status: string }>;
+        items?: Array<{
+          id: string;
+          requestNumber?: string;
+          packageNumber?: string;
+          status: string;
+          requestType?: string;
+          documentType?: string;
+          metadata?: Record<string, unknown>;
+        }>;
         error?: { message?: string };
       };
       if (!listRes.ok) throw new Error(listJson.error?.message ?? "Failed to load signatures");
-      const nextItems = (listJson.items ?? []).map((item) => ({
+      let nextItems = (listJson.items ?? []).map((item) => ({
         id: item.id,
         packageNumber: item.requestNumber ?? item.packageNumber ?? item.id,
-        status: item.status
+        status: item.status,
+        documentType: item.requestType ?? item.documentType ?? documentType
       }));
+      if (documentType) {
+        nextItems = nextItems.filter((item) => item.documentType === documentType);
+      }
       setItems(nextItems);
       const active = nextItems[0];
       if (active) {
@@ -81,7 +130,7 @@ export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend
     } finally {
       setLoading(false);
     }
-  }, [applicantId, leaseId]);
+  }, [applicantId, documentType, kind, leaseId, propertyId, tenantId]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -114,10 +163,16 @@ export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend
     setBusy(true);
     setError(null);
     try {
+      const body: Record<string, unknown> = { documentType };
+      if (leaseId) body["leaseId"] = leaseId;
+      if (applicantId) body["applicantId"] = applicantId;
+      if (propertyId) body["propertyId"] = propertyId;
+      if (tenantId) body["tenantId"] = tenantId;
+      if (kind) body["kind"] = kind;
       const res = await fetch("/api/signatures", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leaseId, applicantId, documentType: "lease_agreement" })
+        body: JSON.stringify(body)
       });
       const json = (await res.json()) as { error?: { message?: string } };
       if (!res.ok) throw new Error(json.error?.message ?? "Could not create package");
@@ -129,10 +184,24 @@ export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend
     }
   }
 
+  const packageKind =
+    kind ??
+    (typeof detail?.package.metadata?.["kind"] === "string" ? String(detail.package.metadata["kind"]) : null);
+  const lifecycle = detail
+    ? toSignatureLifecycleLabel(
+        detail.package.status as Parameters<typeof toSignatureLifecycleLabel>[0],
+        detail.recipients.map((r) => ({
+          isRequired: r.isRequired ?? true,
+          role: normalizeSignatureRecipientRole(r.role),
+          status: r.status as SignatureRecipientStatus
+        }))
+      )
+    : null;
+
   if (loading) {
     return (
       <Card className="space-y-2">
-        <h3 className="text-base font-semibold">Electronic signatures</h3>
+        <h3 className="text-base font-semibold">{title}</h3>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">Loading…</p>
       </Card>
     );
@@ -142,14 +211,20 @@ export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend
     <Card className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold">Electronic signatures</h3>
+          <h3 className="text-base font-semibold">{title}</h3>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            SignatureService → SignatureProvider → Dropbox Sign. Human signers only.
+            {documentTypeLabel(documentType, packageKind)} — Draft through Completed, without leaving this
+            record.
           </p>
         </div>
         {canCreate && items.length === 0 ? (
           <Button onClick={() => void createPackage()} disabled={busy}>
-            Create signing package
+            {createLabel}
+          </Button>
+        ) : null}
+        {canCreate && items.length > 0 && detail && ["Declined", "Expired", "Voided"].includes(lifecycle ?? "") ? (
+          <Button onClick={() => void createPackage()} disabled={busy}>
+            Start new request
           </Button>
         ) : null}
       </div>
@@ -157,14 +232,15 @@ export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend
       {error ? <p className="text-sm text-[var(--mpa-color-danger)]">{error}</p> : null}
 
       {!detail ? (
-        <p className="text-sm text-[var(--mpa-color-text-secondary)]">No signature packages yet.</p>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">No signature documents yet.</p>
       ) : (
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             <Badge>{detail.package.packageNumber}</Badge>
-            <Badge>{detail.package.status}</Badge>
-            <Badge>{detail.package.provider}</Badge>
-            <Badge>vault: {detail.package.vaultStatus}</Badge>
+            <Badge>{lifecycle}</Badge>
+            <Badge>{documentTypeLabel(detail.package.documentType, packageKind)}</Badge>
+            {detail.package.vaultStatus === "synced" ? <Badge>Stored</Badge> : null}
+            {detail.package.vaultStatus === "awaiting_vault_sync" ? <Badge>Saving document…</Badge> : null}
           </div>
 
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
@@ -194,7 +270,7 @@ export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend
                   className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border)] p-2"
                 >
                   <span>
-                    {recipient.fullName} · {recipient.role} · {recipient.status}
+                    {recipient.fullName} · {recipient.role.replaceAll("_", " ")} · {recipient.status}
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {recipient.progressUrl ? (
@@ -230,12 +306,12 @@ export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend
             ) : null}
             {canSend && ["sent", "in_progress", "partially_signed"].includes(detail.package.status) ? (
               <Button variant="secondary" onClick={() => void runAction("simulate_complete")} disabled={busy}>
-                Simulate sandbox complete
+                Simulate complete
               </Button>
             ) : null}
             {canSend && detail.package.status === "awaiting_vault_sync" ? (
               <Button onClick={() => void runAction("retry_vault")} disabled={busy}>
-                Retry vault sync
+                Retry document storage
               </Button>
             ) : null}
             {canSend && !["completed", "cancelled", "voided"].includes(detail.package.status) ? (
@@ -250,10 +326,6 @@ export function SignaturePackagePanel({ leaseId, applicantId, canCreate, canSend
               Resident activated at {new Date(detail.package.residentActivatedAt).toLocaleString()}.
             </p>
           ) : null}
-
-          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-            AI never signs. Resident activation runs only after required signatures + vault + certificate.
-          </p>
         </div>
       )}
     </Card>

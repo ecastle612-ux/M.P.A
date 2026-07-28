@@ -5,7 +5,7 @@
 **Also tracked as:** BUG-002 (acceptance defect: profile photo URL field)  
 **Gate:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
 **PRR / integration:** [INT-901](../31-product-requirements/integration-roadmap.md) (Supabase Storage primary) · [INT-902](../31-product-requirements/integration-roadmap.md) (virus scan — future)  
-**Related:** [Phase 12 document vault](../41-phase-12-resident-experience-digital-operations/02-architecture-and-integration.md) · [PX-006 onboarding](../38-px-006-workflow-experience-enterprise-ux/03-onboarding-and-invitations.md) · [Security — Documents](../14-security-standards/index.md) · [Component Standards — FileUpload](../12-component-standards/index.md)  
+**Related:** [Phase 12 document vault](../41-phase-12-resident-experience-digital-operations/02-architecture-and-integration.md) · [PX-006 onboarding](../38-px-006-workflow-experience-enterprise-ux/03-onboarding-and-invitations.md) · [Security — Documents](../14-security-standards/index.md) · [Component Standards — FileUpload](../12-component-standards/index.md) · [UX-010 Unified Image Acquisition](../105-ux-010-unified-image-acquisition/README.md) (**Draft** — dual Capture / Upload From Device picker on top of MediaUpload)  
 **Gate owner:** Product + Lead Architect + Security  
 **Architectural decisions (Approve):** Q1 `media_asset_id` only · Q2 signed upload URLs · Q3 async variants · Q4 JPEG/PNG/WEBP/HEIC (+ convert) · Q5 private only · Q6 offline deferred to slice 5
 

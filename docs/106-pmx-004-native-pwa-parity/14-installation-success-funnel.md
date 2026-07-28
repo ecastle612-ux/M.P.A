@@ -2,7 +2,7 @@
 
 **Package:** PMX-004  
 **Amendment:** 02  
-**Status:** Binding for COMPLETE · Instrumentation **PENDING** until Phase 2  
+**Status:** Binding for COMPLETE · Instrumentation ✅ **VALIDATED** under Phase 2 ([21](./21-phase-2-validation.md)) · Full KPI report still required before package COMPLETE  
 **Goal:** Maximize successful PWA installation and notification enrollment while remaining frictionless (no blocking walls on core PM work).
 
 ---

@@ -61,6 +61,11 @@ What other options were evaluated and why were they rejected?
 | [ADR-023](./adr-023-stripe-connect-express-owner-payouts.md) | Stripe Connect Express for Owner Payouts | Accepted | 2026-07-22 |
 | [ADR-024](./adr-024-saas-stripe-billing-separation.md) | SaaS Stripe Billing Separated from Property Money Rails | Accepted | 2026-07-22 |
 | [ADR-025](./adr-025-tokenized-vendor-work-order-access.md) | Tokenized Vendor Work-Order Access (No Login) | Accepted | 2026-07-22 |
+| [ADR-026](./adr-026-organization-provisioning-username-identity.md) | Organization Provisioning & Username-First Identity | Accepted | 2026-07-23 |
+| [ADR-027](./adr-027-customer-lifecycle-commercial-operations.md) | Customer Lifecycle & Commercial Operations (COM-001) | Accepted | 2026-07-23 |
+| [ADR-028](./adr-028-platform-operations-backbone.md) | Platform Operations Backbone (OPS-001) | Accepted | 2026-07-23 |
+| [ADR-029](./adr-029-platform-experience-design-system.md) | Platform Experience & Design System (UX-012) | Accepted | 2026-07-23 |
+| [ADR-030](./adr-030-signwell-as-primary-esign-provider.md) | SignWell as Primary Electronic Signature Provider (V1.0) | Accepted | 2026-07-27 |
 
 ---
 

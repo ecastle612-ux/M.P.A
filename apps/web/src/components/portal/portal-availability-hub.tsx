@@ -29,7 +29,6 @@ export function PortalAvailabilityHub({
   const [error, setError] = useState<string | null>(null);
 
   const hasTenant = availableRoles.includes("tenant");
-  const hasVendor = availableRoles.includes("vendor");
   const hasOwner = availableRoles.includes("property_owner");
   const hasManager = availableRoles.includes("property_manager");
 
@@ -47,27 +46,15 @@ export function PortalAvailabilityHub({
       ...(hasTenant ? { href: "/portal/tenant" } : {})
     },
     {
-      id: "vendor",
-      title: "Vendor Portal",
-      description: hasVendor
-        ? "Open assigned work and completion updates."
-        : isMasterAdmin
-          ? "Master Admin Test Mode — enter without vendor assignments."
-          : "Available to vendors with active assignments.",
-      available: hasVendor || Boolean(isMasterAdmin),
-      roleHint: "Vendor role",
-      ...(hasVendor ? { href: "/portal/vendor" } : {})
-    },
-    {
       id: "owner",
       title: "Owner Portal",
       description: isMasterAdmin
         ? "Master Admin Test Mode — preview owner portal with demo portfolio data."
         : hasOwner
-          ? "Open owner portfolio views."
-          : "This feature will become available during a future release.",
+          ? "Open your owner portfolio, financials, documents, and messages."
+          : "Available when you have the Property Owner role.",
       available: hasOwner || Boolean(isMasterAdmin),
-      roleHint: hasOwner ? "Owner role" : "Future release",
+      roleHint: "Owner role",
       ...(hasOwner ? { href: "/portal/owner" } : {})
     },
     {
@@ -116,9 +103,10 @@ export function PortalAvailabilityHub({
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
           {isMasterAdmin
-            ? "Master Admin can open every portal in Test Mode without linked tenancy or assignments."
+            ? "Master Admin can open finished portals in Test Mode without linked tenancy."
             : "Only finished portal experiences are available. Unfinished portals are gated so Design Partners never hit a dead end."}{" "}
-          Active role: {defaultRole.replaceAll("_", " ")}.
+          Vendors use secure action links — there is no Vendor Portal. Active role:{" "}
+          {defaultRole.replaceAll("_", " ")}.
         </p>
       </div>
 
@@ -129,11 +117,9 @@ export function PortalAvailabilityHub({
           const label =
             card.id === "resident"
               ? "Open Resident Portal"
-              : card.id === "vendor"
-                ? "Open Vendor Portal"
-                : card.id === "owner"
-                  ? "Open Owner Portal"
-                  : "Open Manager Portal";
+              : card.id === "owner"
+                ? "Open Owner Portal"
+                : "Open Manager Portal";
 
           return (
             <Card key={card.id} className="space-y-3">

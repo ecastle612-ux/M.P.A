@@ -218,7 +218,7 @@ If `VALIDATE PMX-004 PHASE 3` results in **FAIL**:
 | **Begin validation now?** | ❌ **NO** — after implementation |
 | **Authorize Phases 4–11 / UX-C / OPS-C / FIN-C / marketplace UI?** | ❌ **NO** |
 
-**Next session:** Implement PMX-004 Phase 3 per this authorize → then `VALIDATE PMX-004 PHASE 3`.
+**Follow-on:** Implementation ✅ · Validation ✅ **PASS** ([24](./24-phase-3-validation.md)).
 
 ---
 
@@ -228,4 +228,4 @@ If `VALIDATE PMX-004 PHASE 3` results in **FAIL**:
 |------|----------|------|
 | Governance / Product Owner authority | ✅ **AUTHORIZE PMX-004 PHASE 3** | 2026-07-26 |
 | Implementation | ✅ **IMPLEMENTED** ([23](./23-phase-3-implementation.md)) | 2026-07-26 |
-| Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 3` | — |
+| Validation | ✅ **PASS** · `VALIDATE PMX-004 PHASE 3` ([24](./24-phase-3-validation.md)) | 2026-07-26 |

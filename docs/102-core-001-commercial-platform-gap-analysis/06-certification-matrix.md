@@ -1,6 +1,7 @@
 # 06 — Certification Matrix
 
 **Package:** CORE-001  
+**Document class:** ⚠️ **Historical Snapshot** — live status: [CORE-002](../103-core-002-commercial-launch-blocker-execution/README.md)  
 **Rule:** No launch claim without the matching cert row = PASS (or explicit waiver in Known Limitations).
 
 | ID | Capability | Cert package / artifact | Current | Required before launch |

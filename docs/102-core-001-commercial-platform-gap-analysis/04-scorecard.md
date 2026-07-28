@@ -2,7 +2,8 @@
 
 **Package:** CORE-001  
 **Date:** 2026-07-22  
-**Scoring:** PASS · PARTIAL · FAIL · N/A
+**Scoring:** PASS · PARTIAL · FAIL · N/A  
+**Document class:** ⚠️ **Historical Snapshot** — do not treat as live status ([CORE-002](../103-core-002-commercial-launch-blocker-execution/README.md))
 
 | Domain | Score | Evidence / gap |
 |--------|-------|----------------|

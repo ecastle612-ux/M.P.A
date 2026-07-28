@@ -186,9 +186,9 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketpla
 ## 10. Recommendation
 
 1. ✅ Phase 3 implementation complete within authorized scope.  
-2. ✅ Proceed to **`VALIDATE PMX-004 PHASE 3`** in a dedicated validation session (P3-01…P3-10).  
-3. ❌ Do **not** begin validation in this implementation session.  
-4. ❌ Do **not** authorize or implement Phase 4+ / UX-C / OPS-C / FIN-C / marketplace under this work.
+2. ✅ **`VALIDATE PMX-004 PHASE 3` → PASS** ([24](./24-phase-3-validation.md)).  
+3. ✅ Phase 4 is **eligible** for a future authorize phrase — **not** issued under implementation.  
+4. ❌ Do **not** authorize or implement Phase 4+ / UX-C / OPS-C / FIN-C / marketplace under the implement phrase.
 
 ---
 
@@ -197,4 +197,4 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketpla
 | Role | Decision | Date |
 |------|----------|------|
 | Implementation | ✅ **IMPLEMENTED** | 2026-07-26 |
-| Validation | 🔒 Pending `VALIDATE PMX-004 PHASE 3` | — |
+| Validation | ✅ **PASS** · `VALIDATE PMX-004 PHASE 3` ([24](./24-phase-3-validation.md)) | 2026-07-26 |

@@ -46,3 +46,9 @@ Do **not** prioritize analytics over communication.
 ## Out of scope
 
 New portal modules. Reorder and polish existing tenant portal surfaces only.
+
+## Home screen extension
+
+Detailed greeting / merged attention feed / quick actions / Today layout: **[13 — Tenant Home Screen](./13-tenant-home-screen.md)**.
+
+**Commercial Freeze Exception (2026-07-23):** UI composition under DPX-003 is **authorized** — existing services only; no FIN-003 / schema / API / Stripe / RBAC work.

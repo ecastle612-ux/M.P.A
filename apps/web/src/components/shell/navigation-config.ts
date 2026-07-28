@@ -4,6 +4,11 @@ export type NavigationItem = {
   href: string;
   label: string;
   requiredCapability?: PermissionCapability;
+  /**
+   * BILL-001 Phase C — plan module key (e.g. property_operations, facility_operations, leasing).
+   * When entitledModules is provided to nav helpers, items without the module are hidden.
+   */
+  requiredModule?: string;
   /** When true, only exact pathname matches are active (no prefix match). */
   exact?: boolean;
   /** Mobile accordion section (UX-008). */
@@ -57,57 +62,73 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
     items: [
       {
         href: "/dashboard",
-        label: "Operations Center",
+        label: "Command Center",
         pinned: true,
-        synonyms: ["dashboard", "ops", "today", "home", "operations"]
+        mobileSection: "workspace",
+        synonyms: ["dashboard", "ops", "today", "home", "operations", "operations center", "command center"]
+      },
+      {
+        href: "/inbox",
+        label: "Ops Inbox",
+        pinned: true,
+        mobileSection: "workspace",
+        synonyms: ["unified inbox", "ops inbox", "operational inbox", "notifications inbox"]
       },
       {
         href: "/properties",
         label: "Properties",
         pinned: true,
         mobileSection: "portfolio",
+        requiredModule: "property_operations",
         synonyms: ["property", "buildings", "portfolio"]
       },
       {
         href: "/units",
         label: "Units",
         mobileSection: "portfolio",
+        requiredModule: "property_operations",
         synonyms: ["unit", "apartment", "apt"]
       },
       {
         href: "/applicants",
         label: "Applicants",
         mobileSection: "portfolio",
+        requiredModule: "screening",
         synonyms: ["applicant", "application", "screening"]
       },
       {
         href: "/tenants",
         label: "Tenants",
         mobileSection: "portfolio",
+        requiredModule: "property_operations",
         synonyms: ["resident", "residents", "tenant", "renter"]
       },
       {
         href: "/residents/move-in",
         label: "Move in",
         mobileSection: "leasing",
+        requiredModule: "leasing",
         synonyms: ["move-in", "move in"]
       },
       {
         href: "/residents/move-out",
         label: "Move out",
         mobileSection: "leasing",
+        requiredModule: "leasing",
         synonyms: ["move-out", "move out"]
       },
       {
         href: "/residents/transfer",
         label: "Transfer unit",
         mobileSection: "leasing",
+        requiredModule: "leasing",
         synonyms: ["transfer"]
       },
       {
         href: "/residents/bulk",
         label: "Bulk residents",
         mobileSection: "leasing",
+        requiredModule: "leasing",
         synonyms: ["bulk"]
       },
       {
@@ -115,6 +136,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Leases",
         mobileSection: "leasing",
         badgeKey: "leases",
+        requiredModule: "leasing",
         synonyms: ["lease", "leasing", "renewal", "contract"]
       },
       {
@@ -123,6 +145,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         pinned: true,
         mobileSection: "maintenance",
         badgeKey: "maintenance",
+        requiredModule: "maintenance",
         synonyms: ["work order", "work orders", "repair", "ticket", "inspection"]
       },
       {
@@ -132,6 +155,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         pinned: true,
         mobileSection: "maintenance",
         requiredCapability: "facility:dashboard",
+        requiredModule: "facility_operations",
         synonyms: ["facility", "technician", "facility hub", "ops floor"]
       },
       {
@@ -139,6 +163,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Inventory",
         mobileSection: "maintenance",
         requiredCapability: "facility:inventory:read",
+        requiredModule: "facility_operations",
         synonyms: ["inventory", "parts", "tools", "equipment stock"]
       },
       {
@@ -146,6 +171,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Preventive",
         mobileSection: "maintenance",
         requiredCapability: "facility:pm:read",
+        requiredModule: "facility_operations",
         synonyms: ["pm", "preventive", "preventive maintenance", "schedule"]
       },
       {
@@ -153,6 +179,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Calendar",
         mobileSection: "maintenance",
         requiredCapability: "facility:calendar:read",
+        requiredModule: "facility_operations",
         synonyms: ["calendar", "due", "schedule board"]
       },
       {
@@ -160,6 +187,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Inspections",
         mobileSection: "maintenance",
         requiredCapability: "facility:inspection:read",
+        requiredModule: "facility_operations",
         synonyms: ["inspection", "inspections", "checklist", "walkthrough"]
       },
       {
@@ -167,6 +195,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Facility reports",
         mobileSection: "maintenance",
         requiredCapability: "facility:report:read",
+        requiredModule: "facility_operations",
         synonyms: ["facility reports", "technician report", "inventory report", "asset register"]
       },
       {
@@ -179,12 +208,14 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         href: "/vendors",
         label: "Vendors",
         mobileSection: "maintenance",
+        requiredModule: "maintenance",
         synonyms: ["vendor", "vendor jobs", "contractor"]
       },
       {
         href: "/communications",
         label: "Communications",
         mobileSection: "communications",
+        requiredModule: "messaging",
         synonyms: ["announce", "announcement", "broadcast"]
       },
       {
@@ -193,12 +224,14 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         pinned: true,
         mobileSection: "communications",
         badgeKey: "messages",
+        requiredModule: "messaging",
         synonyms: ["messages", "message", "inbox", "chat"]
       },
       {
         href: "/financials",
         label: "Accounting",
         mobileSection: "accounting",
+        requiredModule: "financials",
         synonyms: ["payment", "payments", "rent", "financials", "accounting", "books"]
       },
       {
@@ -206,12 +239,14 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Reports",
         mobileSection: "accounting",
         requiredCapability: "financial:read",
+        requiredModule: "financials",
         synonyms: ["report", "reports", "analytics"]
       },
       {
         href: "/ai-operations",
         label: "AI Operations",
         mobileSection: "intelligence",
+        requiredModule: "ai_copilot",
         synonyms: ["ai", "assistant", "intelligence"]
       }
     ]
@@ -420,7 +455,7 @@ export function isMasterAdminOnlyPermissions(permissions: readonly string[]): bo
 
 export function getShellNavigationGroups(
   permissions: readonly string[],
-  options?: { masterAdminOnlyShell?: boolean }
+  options?: { masterAdminOnlyShell?: boolean; entitledModules?: readonly string[] | null }
 ): NavigationGroup[] {
   if (options?.masterAdminOnlyShell || isMasterAdminOnlyPermissions(permissions)) {
     return MASTER_ADMIN_ONLY_NAVIGATION_GROUPS;
@@ -429,12 +464,20 @@ export function getShellNavigationGroups(
   if (permissions.length === 0) {
     return [];
   }
-  return SHELL_NAVIGATION_GROUPS;
+  const modules = options?.entitledModules;
+  if (modules == null || modules.length === 0) {
+    return SHELL_NAVIGATION_GROUPS;
+  }
+  const moduleSet = new Set(modules);
+  return SHELL_NAVIGATION_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.requiredModule || moduleSet.has(item.requiredModule))
+  })).filter((group) => group.items.length > 0);
 }
 
 export function flattenShellNavigationItems(
   permissions: readonly string[] = [],
-  options?: { masterAdminOnlyShell?: boolean }
+  options?: { masterAdminOnlyShell?: boolean; entitledModules?: readonly string[] | null }
 ): NavigationItem[] {
   return getShellNavigationGroups(permissions, options).flatMap((group) => group.items);
 }

@@ -17,10 +17,10 @@ User Impersonation of a real user should show **that user’s** data (including 
 - Demo balance / charges summary  
 - Demo maintenance request  
 
-### Vendor Portal
+### Vendor (Directory / secure links — no portal)
 
-- Demo work order assignment(s)  
-- Demo schedule / due window  
+- Demo vendor company records in Vendor Directory when needed for Ops/Facility demos  
+- Tokenized `/v/[token]` job cards use live token issue from maintenance — no Vendor Portal Test Mode fixtures  
 
 ### Owner Portal
 

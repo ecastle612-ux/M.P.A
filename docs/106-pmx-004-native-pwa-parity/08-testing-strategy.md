@@ -92,7 +92,19 @@ Failures that only appear in standalone are Phase 4 blockers.
 | `pwa-onboarding.spec.ts` | Completion persistence |
 | `pwa-outbox.spec.ts` | IndexedDB queue + flush mock |
 
-Do not claim device push from Playwright alone — physical evidence still required.
+Do not claim device push from Playwright alone — physical-device execution still required.
+
+### Phase 1 production evidence form (amended 2026-07-24)
+
+Per [18 — PMX-004-AMD-DEVICE-CERT-OWNER-CHECKLIST](./18-pmx-004-amd-device-cert-owner-checklist.md) and binding protocol [17](./17-phase-1-production-validation.md) §0.1:
+
+| Evidence | Role from 2026-07-24 forward |
+| --- | --- |
+| Signed Owner Device Certification Checklist | **Mandatory** for Tests 1–7 PASS |
+| Screenshots / videos under `test-*` | **Optional** supporting |
+| Emulator / desktop simulation | **Forbidden** as device substitute |
+
+Historical pre-amendment intakes that required mandatory screenshots remain on file as FAIL where media was absent — not rewritten.
 
 ---
 
@@ -110,9 +122,11 @@ Do not claim device push from Playwright alone — physical evidence still requi
 
 Store under `docs/106-pmx-004-native-pwa-parity/artifacts/`:
 
+- `phase-1-production/m0-pmx-004-device-cert/owner-device-certification-checklist.md` (**Phase 1 device PASS artifact**)  
 - `phase-1-sw/`  
 - `phase-6-push/`  
 - `phase-10-regression/`  
 - `lighthouse/`  
+- optional `phase-1-production/m0-pmx-004-device-cert/test-*` screenshots  
 
 Redact subscription ids / PII in screenshots when possible; never commit API keys.

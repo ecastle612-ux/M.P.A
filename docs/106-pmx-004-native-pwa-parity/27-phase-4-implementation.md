@@ -3,7 +3,7 @@
 **Package:** PMX-004  
 **Phase:** 4 — Standalone Compliance  
 **Authorization:** [25](./25-phase-4-authorization.md) · [CORE-003 §66](../113-core-003-implementation-master-plan/66-pmx-004-phase-4-authorization.md)  
-**Status:** ✅ **IMPLEMENTED** · ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md) · [CORE-003 §68](../113-core-003-implementation-master-plan/68-pmx-004-phase-4-validation.md))  
+**Status:** ✅ **IMPLEMENTED** · Shipped Production (`521fa1f`, `dpl_9zkFEhVyiEYUYA5Gc1UW6CEChCfo`) · ✅ **VALIDATED PASS** ([28](./28-phase-4-validation.md) · [CORE-003 §68](../113-core-003-implementation-master-plan/68-pmx-004-phase-4-validation.md))  
 **Date:** 2026-07-26  
 
 > Phases 5–11 **not** implemented. UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI **not** touched.

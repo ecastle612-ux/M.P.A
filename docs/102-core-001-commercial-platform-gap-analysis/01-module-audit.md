@@ -2,6 +2,7 @@
 
 **Package:** CORE-001  
 **Date:** 2026-07-22  
+**Document class:** ⚠️ **Historical Snapshot** — live status: [CORE-002](../103-core-002-commercial-launch-blocker-execution/README.md)  
 **Method:** Evidence from package READMEs, certification records, and `apps/web` routes/libs. No new features invented.
 
 Legend: **Works** · **Partial** · **Placeholder** · **Blocks commercial** · **Post-launch**

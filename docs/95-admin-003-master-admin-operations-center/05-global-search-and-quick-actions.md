@@ -21,7 +21,7 @@ Keyboard: design for a dedicated shortcut (align with shell Command Center patte
 | Properties | Open property · Switch org context · Create work order |
 | Residents | Open profile · Impersonate · Message · Portal |
 | Owners | Open profile · Impersonate · Owner portal |
-| Vendors | Open profile · Impersonate · Vendor portal |
+| Vendors | Open Vendor Directory profile (no Vendor Portal) |
 | Work Orders | Open WO · Jump to maintenance |
 | Messages / threads | Open thread / inbox |
 | Leases | Open lease · Related resident / unit |

@@ -28,7 +28,7 @@
 
 - Token proves capability for that WO only.  
 - Soft recognition: verified email/phone → attach `vendor_payment_profiles` for return “Welcome back”.  
-- Escalation: authenticated `/portal/vendor` remains available; never required for Start/Finish.
+- Escalation: authenticated Vendor Portal is **retired**; Start/Finish remain token-only. Support issues go through the property manager.
 
 ## Explicitly out of scope for Phase A
 

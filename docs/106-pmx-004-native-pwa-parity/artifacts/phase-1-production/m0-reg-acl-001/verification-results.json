@@ -1,0 +1,342 @@
+{
+  "ranAt": "2026-07-24T21:19:18.426Z",
+  "baseURL": "https://www.my-property-assistant.com",
+  "deploymentId": "dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf",
+  "counts": {
+    "pass": 58,
+    "fail": 1,
+    "skip": 0,
+    "total": 59
+  },
+  "overall": "FAIL",
+  "consoleErrors": [
+    {
+      "role": "anonymous",
+      "errors": []
+    },
+    {
+      "role": "masterAdmin",
+      "errors": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warning",
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warning"
+      ]
+    },
+    {
+      "role": "property_manager",
+      "errors": []
+    },
+    {
+      "role": "property_owner",
+      "errors": []
+    },
+    {
+      "role": "vendor",
+      "errors": []
+    },
+    {
+      "role": "tenant",
+      "errors": []
+    },
+    {
+      "role": "property_manager.ops",
+      "errors": []
+    }
+  ],
+  "checks": [
+    {
+      "id": "auth.login_storage_states",
+      "result": "PASS",
+      "detail": "auth-setup saved master-admin/pm/owner/vendor/resident states"
+    },
+    {
+      "id": "anon.route/dashboard",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "anon.route/properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "anon.route/portal/tenant",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "anon.route/master-admin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "anon.route/setup",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "api.anon.properties",
+      "result": "PASS",
+      "detail": "status=401"
+    },
+    {
+      "id": "api.anon.session",
+      "result": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "landing.masterAdmin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/master-admin :: Skip to content MISSION CONTROL Mission Control PLATFORM Platform Health Integrations Feature Flags Notifications CUSTOMERS Organizations & "
+    },
+    {
+      "id": "auth.session_refresh.masterAdmin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/master-admin"
+    },
+    {
+      "id": "landing.property_manager",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Lease"
+    },
+    {
+      "id": "auth.session_refresh.property_manager",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard"
+    },
+    {
+      "id": "landing.property_owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials Documents Messages "
+    },
+    {
+      "id": "auth.session_refresh.property_owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner"
+    },
+    {
+      "id": "landing.vendor",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor M NAVIGATION Work queue Profile Vendor home QA Ce"
+    },
+    {
+      "id": "auth.session_refresh.vendor",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor"
+    },
+    {
+      "id": "landing.tenant",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home QT NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Property Unit 101 Friday,"
+    },
+    {
+      "id": "auth.session_refresh.tenant",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant"
+    },
+    {
+      "id": "acl.tenant/dashboard",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home QT NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Property Unit 101 Friday,"
+    },
+    {
+      "id": "acl.tenant/properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home QT NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Property Unit 101 Friday,"
+    },
+    {
+      "id": "acl.tenant/maintenance",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home QT NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Property Unit 101 Friday,"
+    },
+    {
+      "id": "acl.tenant/admin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/admin :: PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fix it: Return to Oper"
+    },
+    {
+      "id": "acl.tenant/setup",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home QT NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Property Unit 101 Friday,"
+    },
+    {
+      "id": "acl.tenant/profile",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Home QT NAVIGATION Home Messages Rent Maintenance Documents More Good Afternoon, QA Welcome home. QA Certification Property Unit 101 Friday,"
+    },
+    {
+      "id": "acl.tenant.history_nav",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/tenant :: Loading your portal…"
+    },
+    {
+      "id": "api.tenant.properties",
+      "result": "PASS",
+      "detail": "status=200 (200 only if empty org / no escalation shell)"
+    },
+    {
+      "id": "api.tenant.properties_no_crash",
+      "result": "PASS",
+      "detail": "items=1"
+    },
+    {
+      "id": "acl.vendor/dashboard",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Profile Vendor home QA C"
+    },
+    {
+      "id": "acl.vendor/properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Profile Vendor home QA C"
+    },
+    {
+      "id": "acl.vendor/maintenance",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Profile Vendor home QA C"
+    },
+    {
+      "id": "acl.vendor/admin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/admin :: PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fix it: Return to Oper"
+    },
+    {
+      "id": "acl.vendor/setup",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Profile Vendor home QA C"
+    },
+    {
+      "id": "acl.vendor/profile",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Profile Vendor home QA C"
+    },
+    {
+      "id": "acl.vendor.history_nav",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/vendor :: Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Prof"
+    },
+    {
+      "id": "api.vendor.properties",
+      "result": "PASS",
+      "detail": "status=200 (200 only if empty org / no escalation shell)"
+    },
+    {
+      "id": "api.vendor.properties_no_crash",
+      "result": "PASS",
+      "detail": "items=1"
+    },
+    {
+      "id": "acl.property_owner/dashboard",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials Documents Messages "
+    },
+    {
+      "id": "acl.property_owner/properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials Documents Messages "
+    },
+    {
+      "id": "acl.property_owner/maintenance",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials Documents Messages "
+    },
+    {
+      "id": "acl.property_owner/admin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/admin :: PAGE MISSING We can’t find that page What happened: The link may be outdated, mistyped, or the item was moved. How to fix it: Return to Oper"
+    },
+    {
+      "id": "acl.property_owner/setup",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials Documents Messages "
+    },
+    {
+      "id": "acl.property_owner/profile",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials Documents Messages "
+    },
+    {
+      "id": "acl.property_owner.history_nav",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/portal/owner :: Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials"
+    },
+    {
+      "id": "api.property_owner.properties",
+      "result": "PASS",
+      "detail": "status=200 (200 only if empty org / no escalation shell)"
+    },
+    {
+      "id": "api.property_owner.properties_no_crash",
+      "result": "PASS",
+      "detail": "items=1"
+    },
+    {
+      "id": "acl.pm.allow/dashboard",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Lease"
+    },
+    {
+      "id": "acl.pm.allow/properties",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/properties :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Lease"
+    },
+    {
+      "id": "acl.pm.allow/maintenance",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/maintenance :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Lease"
+    },
+    {
+      "id": "acl.pm.deny_master_admin",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard :: Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Lease"
+    },
+    {
+      "id": "api.pm.properties",
+      "result": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "acl.master.mission",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/master-admin :: Skip to content MISSION CONTROL Mission Control PLATFORM Platform Health Integrations Feature Flags Notifications CUSTOMERS Organizations & "
+    },
+    {
+      "id": "iso.tenant_to_owner",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/unauthorized :: ACCESS CHECK You don’t have access to this page What happened: Your current role in this organization doesn’t include permission for that ar"
+    },
+    {
+      "id": "iso.pm_to_tenant_portal",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/unauthorized :: ACCESS CHECK You don’t have access to this page What happened: Your current role in this organization doesn’t include permission for that ar"
+    },
+    {
+      "id": "auth.logout.api",
+      "result": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "auth.logout.redirect",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "auth.logout.api_properties",
+      "result": "PASS",
+      "detail": "status=401"
+    },
+    {
+      "id": "auth.session_expired",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/login"
+    },
+    {
+      "id": "auth.relogin.pm",
+      "result": "PASS",
+      "detail": "https://www.my-property-assistant.com/dashboard"
+    },
+    {
+      "id": "integrity.console_errors",
+      "result": "FAIL",
+      "detail": "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warning | pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warning"
+    }
+  ]
+}

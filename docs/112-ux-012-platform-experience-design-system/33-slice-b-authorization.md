@@ -2,7 +2,7 @@
 
 **Package:** UX-012 — Platform Experience & Design System  
 **Slice:** **B — Core components**  
-**Status:** ✅ **AUTHORIZED** · Implementation ✅ **IMPLEMENTED** ([34](./34-slice-b-implementation.md)) · Validation 🔒 until `VALIDATE UX-012 SLICE B`  
+**Status:** ✅ **AUTHORIZED** · Implementation ✅ **IMPLEMENTED** ([34](./34-slice-b-implementation.md)) · Validation ✅ **PASS** ([35](./35-slice-b-validation.md))  
 **Authorization date:** 2026-07-25  
 **Binding phrase (issued):**
 
@@ -202,11 +202,11 @@ If `VALIDATE UX-012 SLICE B` results in **FAIL**:
 | Field | Result |
 |-------|--------|
 | **Authorize Slice B?** | ✅ **YES — AUTHORIZED** |
-| **Begin implementation?** | ✅ **YES** — in a dedicated implementation session, Slice B scope only |
-| **Begin validation now?** | ❌ **NO** — after implementation |
+| **Begin implementation?** | ✅ **YES** — completed ([34](./34-slice-b-implementation.md)) |
+| **Begin validation now?** | ✅ Completed — **PASS** ([35](./35-slice-b-validation.md)) |
 | **Authorize C–E / OPS-C / PMX-2 / FIN-C / marketplace UI?** | ❌ **NO** |
 
-**Next session:** Implement UX-012 Slice B per this authorize → then `VALIDATE UX-012 SLICE B`.
+**Follow-on:** `VALIDATE UX-012 SLICE B` → ✅ **PASS** ([35](./35-slice-b-validation.md)).
 
 ---
 
@@ -216,4 +216,4 @@ If `VALIDATE UX-012 SLICE B` results in **FAIL**:
 |------|----------|------|
 | Governance / Product Owner authority | ✅ **AUTHORIZE UX-012 SLICE B** | 2026-07-25 |
 | Implementation | ✅ **IMPLEMENTED** ([34](./34-slice-b-implementation.md)) | 2026-07-25 |
-| Validation | 🔒 Pending `VALIDATE UX-012 SLICE B` | — |
+| Validation | ✅ **PASS** · `VALIDATE UX-012 SLICE B` ([35](./35-slice-b-validation.md)) | 2026-07-26 |

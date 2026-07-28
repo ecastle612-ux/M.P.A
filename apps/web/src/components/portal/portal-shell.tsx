@@ -29,7 +29,6 @@ function isNavItemActive(pathname: string, href: string, exact = false): boolean
     exact ||
     href === "/portal/owner" ||
     href === "/portal/tenant" ||
-    href === "/portal/vendor" ||
     href === "/portal/manager"
   ) {
     return pathname === href;

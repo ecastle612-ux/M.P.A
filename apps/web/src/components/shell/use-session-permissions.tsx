@@ -19,6 +19,8 @@ type SessionPermissionsValue = {
   loaded: boolean;
   /** Server-resolved: Master Admin with no PM portfolio roles — HQ chrome only. */
   masterAdminOnlyShell: boolean;
+  /** BILL-001 Phase C — null means do not filter nav by module. */
+  entitledModules: string[] | null;
   canAccess: (requiredCapability?: PermissionCapability) => boolean;
 };
 
@@ -30,13 +32,16 @@ const SessionPermissionsContext = createContext<SessionPermissionsValue | null>(
 export function SessionPermissionsProvider({
   children,
   initialPermissions = [],
+  initialEntitledModules = null,
   masterAdminOnlyShell = false
 }: {
   children: ReactNode;
   initialPermissions?: string[];
+  initialEntitledModules?: string[] | null;
   masterAdminOnlyShell?: boolean;
 }) {
   const [permissions, setPermissions] = useState<string[]>(initialPermissions);
+  const [entitledModules] = useState<string[] | null>(initialEntitledModules);
   const [loaded, setLoaded] = useState(initialPermissions.length > 0 || masterAdminOnlyShell);
 
   useEffect(() => {
@@ -81,7 +86,7 @@ export function SessionPermissionsProvider({
 
   return (
     <SessionPermissionsContext.Provider
-      value={{ permissions, loaded, masterAdminOnlyShell, canAccess }}
+      value={{ permissions, loaded, masterAdminOnlyShell, entitledModules, canAccess }}
     >
       {children}
     </SessionPermissionsContext.Provider>

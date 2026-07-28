@@ -37,7 +37,7 @@ Inventory status:
 | Property Managers | Extend | Directory filtered by role / membership |
 | Owners | Extend | Directory + deep-link owner portal / impersonate |
 | Residents | Extend | Directory + deep-link resident portal / impersonate |
-| Vendors | Extend | Directory + deep-link vendor portal / impersonate |
+| Vendors | Extend | Vendor Directory only (Vendor Portal retired — no portal deep-link) |
 | Search Everyone | New / Extend | HQ Global Search + Impersonation people search |
 | Client Health | New / Future | Scoring / signals per org; advanced scoring deferred (Slice C+) |
 | Active Sessions | New | Master Admin effective sessions + (later) notable user sessions |

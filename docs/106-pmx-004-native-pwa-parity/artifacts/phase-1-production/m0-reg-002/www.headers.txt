@@ -1,0 +1,20 @@
+HTTP/2 200 
+age: 0
+cache-control: private, no-cache, no-store, max-age=0, must-revalidate
+content-security-policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://onesignal.com https://cdn.onesignal.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://api.onesignal.com; connect-src 'self' https: wss:; worker-src 'self' blob: https://cdn.onesignal.com; manifest-src 'self'; media-src 'self' blob:
+content-type: text/html; charset=utf-8
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-site
+date: Fri, 24 Jul 2026 03:03:58 GMT
+link: </_next/static/media/03fc1b4a8d284b5e-s.p.0wiir8udbzjvx.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/media/99e609270109b47d-s.p.40sczeszzbjw1.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2"
+permissions-policy: camera=(self), microphone=(), geolocation=(self), usb=(), payment=()
+referrer-policy: strict-origin-when-cross-origin
+server: Vercel
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-matched-path: /login
+x-vercel-cache: MISS
+x-vercel-id: cle1::iad1::6nrlr-1784862237757-d5a695d70c10
+

@@ -13,6 +13,10 @@ import {
   resolveEffectiveRolesForSession
 } from "../../lib/master-admin/session";
 import { MasterAdminModeBanner } from "../../components/master-admin/master-admin-mode-banner";
+import {
+  assignedSurfaceHome,
+  canAccessOperationsShell
+} from "../../lib/auth/ops-shell-access";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const supabase = await createAuthServerComponentClient();
@@ -46,6 +50,12 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       ? (effectiveRoles[0] ?? shellContext.defaultRole)
       : shellContext.defaultRole;
 
+  // REG-ACL-001 belt-and-suspenders: never render Ops shell for portal-only roles.
+  const rolesForGate = effectiveRoles.length ? effectiveRoles : shellContext.availableRoles;
+  if (!canAccessOperationsShell(rolesForGate, isMasterAdmin)) {
+    redirect(assignedSurfaceHome(rolesForGate, isMasterAdmin));
+  }
+
   // Master Admin with no portfolio roles — HQ sidebar only (no Properties/Units/Tenants).
   const masterAdminOnlyShell =
     isMasterAdmin &&
@@ -54,27 +64,28 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <ShellProviders>
-    <ApplicationShell
-      availableRoles={effectiveRoles.length ? effectiveRoles : shellContext.availableRoles}
-      defaultRole={defaultRole}
-      organizations={shellContext.organizations}
-      defaultOrganizationId={shellContext.defaultOrganizationId}
-      isSetupComplete={setupStatus.isComplete || isMasterAdmin}
-      deploymentMeta={deploymentMeta}
-      initialSidebarCollapsed={initialSidebarCollapsed}
-      initialPermissions={shellContext.permissions}
-      masterAdminOnlyShell={masterAdminOnlyShell}
-      masterAdminBanner={
-        banner ? (
-          <MasterAdminModeBanner
-            session={banner.session}
-            authenticatedName={banner.authenticatedName}
-          />
-        ) : null
-      }
-    >
-      {children}
-    </ApplicationShell>
+      <ApplicationShell
+        availableRoles={effectiveRoles.length ? effectiveRoles : shellContext.availableRoles}
+        defaultRole={defaultRole}
+        organizations={shellContext.organizations}
+        defaultOrganizationId={shellContext.defaultOrganizationId}
+        isSetupComplete={setupStatus.isComplete || isMasterAdmin}
+        deploymentMeta={deploymentMeta}
+        initialSidebarCollapsed={initialSidebarCollapsed}
+        initialPermissions={shellContext.permissions}
+        initialEntitledModules={shellContext.entitledModules}
+        masterAdminOnlyShell={masterAdminOnlyShell}
+        masterAdminBanner={
+          banner ? (
+            <MasterAdminModeBanner
+              session={banner.session}
+              authenticatedName={banner.authenticatedName}
+            />
+          ) : null
+        }
+      >
+        {children}
+      </ApplicationShell>
     </ShellProviders>
   );
 }

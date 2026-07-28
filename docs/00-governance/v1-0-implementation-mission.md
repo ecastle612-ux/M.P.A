@@ -193,11 +193,14 @@ Property, Owner, Financial, Maintenance, Technician, Inventory, Asset, Monthly B
 
 | Offering | Contents |
 |----------|----------|
-| Core Platform | §5 |
-| + Property Operations | §6 |
-| and/or Facility Operations | §7 |
-| Professional Bundle | All of the above |
+| Core Platform | §5 — **not sold alone** |
+| Core + Property Operations | §5 + §6 |
+| Core + Facility Operations | §5 + §7 (Property not required) |
+| Core + Property + Facility | §5 + §6 + §7 |
+| Professional Bundle | All modules |
 | Enterprise | Extends all |
+
+Authoritative SKU / nav / independence rules: [v1-0-subscription-architecture.md](./v1-0-subscription-architecture.md).
 
 ---
 

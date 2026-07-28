@@ -26,6 +26,12 @@ function cookieOptions(maxAgeSeconds: number) {
   };
 }
 
+function normalizePortal(portal: string | null): MasterAdminPortal | null {
+  if (portal === "resident" || portal === "owner" || portal === "manager") return portal;
+  // Product correction: Vendor Portal retired — ignore legacy portal_test rows.
+  return null;
+}
+
 function mapSessionRow(row: {
   id: string;
   mode: string;
@@ -40,7 +46,7 @@ function mapSessionRow(row: {
     id: row.id,
     mode: row.mode as MasterAdminSessionMode,
     organizationId: row.organization_id,
-    portal: (row.portal as MasterAdminPortal | null) ?? null,
+    portal: normalizePortal(row.portal),
     targetUserId: row.target_user_id,
     targetDisplayName: row.target_display_name,
     targetRoleLabel: row.target_role_label,

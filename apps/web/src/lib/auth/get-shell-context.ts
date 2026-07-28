@@ -4,8 +4,10 @@ import type { User } from "@supabase/supabase-js";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../organization/contracts";
 import { getOrganizationsForUser } from "../organization/server";
 import { userHasMasterAdminCapability } from "../master-admin/access";
+import { getEntitlementSnapshot } from "./entitlements";
 import { resolveAuthorizationContext } from "./authorization";
 import { buildAuthorizationContext } from "./session";
+import { entitledModuleKeys } from "../saas/entitlement-gate";
 
 export type AuthenticatedShellContext = {
   user: User;
@@ -15,6 +17,8 @@ export type AuthenticatedShellContext = {
   organizations: Awaited<ReturnType<typeof getOrganizationsForUser>>;
   /** DPX-002: seed sidebar permissions so SSR nav matches first client paint. */
   permissions: string[];
+  /** BILL-001 Phase C — plan modules/features for nav entitlement filtering. Null = unknown (do not hide). */
+  entitledModules: string[] | null;
 };
 
 export async function resolveAuthenticatedShellContext(user: User): Promise<AuthenticatedShellContext> {
@@ -46,14 +50,21 @@ export async function resolveAuthenticatedShellContext(user: User): Promise<Auth
     permissions.push("master_admin");
   }
 
-  const fallbackRole = USER_ROLES[0] ?? "property_manager";
-  // Master Admin–only accounts have no portal/PM roles — do not invent property_manager.
-  const availableRoles = roleContext.roles.length
-    ? roleContext.roles
-    : isMasterAdmin
-      ? []
-      : [fallbackRole];
-  const defaultRole = roleContext.activeRole ?? availableRoles[0] ?? fallbackRole;
+  // Never invent property_manager for empty memberships (REG-ACL-001).
+  // Master Admin–only accounts have no portal/PM roles.
+  const availableRoles = roleContext.roles.length ? roleContext.roles : [];
+  const defaultRole =
+    roleContext.activeRole ?? availableRoles[0] ?? (USER_ROLES[0] ?? "property_manager");
+
+  let entitledModules: string[] | null = null;
+  if (defaultOrganizationId) {
+    try {
+      const snapshot = await getEntitlementSnapshot(defaultOrganizationId);
+      entitledModules = snapshot ? entitledModuleKeys(snapshot) : null;
+    } catch {
+      entitledModules = null;
+    }
+  }
 
   return {
     user,
@@ -61,6 +72,7 @@ export async function resolveAuthenticatedShellContext(user: User): Promise<Auth
     defaultRole,
     organizations,
     defaultOrganizationId,
-    permissions
+    permissions,
+    entitledModules
   };
 }

@@ -3,13 +3,14 @@
 **Package:** PMX-004  
 **Phase:** 6 — Push Notification Certification  
 **Authorization:** [32](./32-phase-6-authorization.md) · [CORE-003 §72](../113-core-003-implementation-master-plan/72-pmx-004-phase-6-authorization.md)  
-**Status:** ⚠️ **IMPLEMENTED (working tree) · Production ship incomplete** · Validation ❌ **FAIL** ([34](./34-phase-6-validation.md))  
+**Status:** ✅ **IMPLEMENTED** · Shipped Production (`5a6129c`, `dpl_9RNtpiWqc5pDXEa9dzrV26hnKcKp`) · ✅ **VALIDATED PASS** ([37](./37-phase-6-validation-rerun-3.md) · [CORE-003 §77](../113-core-003-implementation-master-plan/77-pmx-004-phase-6-validation-rerun-3.md)) · prior FAIL [34](./34-phase-6-validation.md)–[36](./36-phase-6-validation-rerun-2.md) preserved  
 **Date:** 2026-07-26  
 
 > Phases 7–11 **not** implemented. UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketplace UI **not** touched.  
 > Phases 1–5 preserved. OneSignal primary preserved (no provider swap). No schema · no IA redesign.  
 > Evidence pack: [artifacts/phase-6-push-cert/](./artifacts/phase-6-push-cert/README.md)  
-> **Validation note:** `VALIDATE PMX-004 PHASE 6` → **FAIL** — scoped repair not on Production (still Phase 5 `fd1e31a`). See [34](./34-phase-6-validation.md) R1.
+> **Production ship (R1):** `5a6129c0e7371b18b004f2f49e326c6157d597ac` · `dpl_9RNtpiWqc5pDXEa9dzrV26hnKcKp` READY · `ownerReportsHref` → `/portal/owner/reports`.  
+> **Validation note:** `VALIDATE PMX-004 PHASE 6` → ✅ **PASS** ([37](./37-phase-6-validation-rerun-3.md)).
 
 ---
 
@@ -88,9 +89,9 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketpla
 
 ## 7. Recommendation
 
-1. ⚠️ Certification pack prepared; **Production ship of scoped repair required** before Validation PASS.  
-2. ❌ **`VALIDATE PMX-004 PHASE 6` → FAIL** ([34](./34-phase-6-validation.md)) — remediate R1 then re-validate.  
-3. ❌ Do **not** authorize or implement Phase 7+ / UX-C / OPS-C / FIN-C / marketplace under this work.
+1. ✅ Certification pack + Production ship complete (`5a6129c` · `dpl_9RNtpiWqc5pDXEa9dzrV26hnKcKp`).  
+2. ✅ **`VALIDATE PMX-004 PHASE 6` → PASS** ([37](./37-phase-6-validation-rerun-3.md)).  
+3. ❌ Do **not** authorize or implement Phase 7+ / UX-C / OPS-C / FIN-C / marketplace until each explicit authorize phrase.
 
 ---
 
@@ -98,5 +99,5 @@ Also locked: UX-012 C–E · OPS-001 C–E · FIN-003 C–E · partner marketpla
 
 | Role | Decision | Date |
 |------|----------|------|
-| Implementation / Certification | ⚠️ Pack complete · **ship incomplete** | 2026-07-26 |
-| Validation | ❌ **FAIL** ([34](./34-phase-6-validation.md)) | 2026-07-26 |
+| Implementation / Certification | ✅ Pack + Production ship complete | 2026-07-26 |
+| Validation | ✅ **PASS** ([37](./37-phase-6-validation-rerun-3.md)) | 2026-07-26 |

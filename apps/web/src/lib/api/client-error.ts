@@ -58,7 +58,12 @@ export function humanizeErrorMessage(message: string): string {
   if (lower.includes("checkr") || lower.includes("screening")) {
     return "The screening request couldn’t be completed. Retry or review applicant details.";
   }
-  if (lower.includes("dropbox") || lower.includes("hellosign") || lower.includes("signature")) {
+  if (
+    lower.includes("signwell") ||
+    lower.includes("dropbox") ||
+    lower.includes("hellosign") ||
+    lower.includes("signature")
+  ) {
     return "The signature request couldn’t be completed. Retry or check signer email addresses.";
   }
   if (lower.includes("storage") || lower.includes("bucket") || lower.includes("signed url")) {

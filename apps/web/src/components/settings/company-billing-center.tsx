@@ -542,13 +542,13 @@ export function CompanyBillingCenter({
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">{usage.planLimitsNote}</p>
         <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Fact label="Organizations" value={String(usage.organizations)} />
-          <Fact label="Properties" value={String(usage.properties)} />
+          <Fact label="Properties" value={usage.propertiesDisplay} />
+          <Fact label="Team seats" value={usage.seatsDisplay} />
           <Fact label="Units" value={String(usage.units)} />
           <Fact label="Residents" value={String(usage.residents)} />
           <Fact label="Storage" value={usage.storage} />
           <Fact label="AI usage" value={usage.aiUsage} />
-          <Fact label="API usage" value={usage.apiUsage} />
-          <Fact label="Plan limits" value="Not enforced yet" />
+          <Fact label="Plan limits" value={usage.enforcementLabel} />
         </dl>
       </Card>
 

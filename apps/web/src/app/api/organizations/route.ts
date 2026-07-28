@@ -6,6 +6,7 @@ import {
   parseCreateOrganizationInput
 } from "../../../lib/organization/contracts";
 import { createAuthServerClient, createServiceRoleServerClient } from "../../../lib/auth/server";
+import { bindEntitlementSnapshot } from "../../../lib/auth/entitlements";
 
 type OrganizationMembershipRow = {
   id: string;
@@ -151,6 +152,17 @@ export async function POST(request: Request) {
 
   if (membershipError) {
     return NextResponse.json({ error: membershipError.message }, { status: 400 });
+  }
+
+  // BILL-001 Phase C — bind trial entitlements so create-property / invite gates have a snapshot.
+  try {
+    await bindEntitlementSnapshot({
+      organizationId: organization.id,
+      planCode: "trial",
+      client: serviceRoleClient ?? writeClient
+    });
+  } catch {
+    // Non-fatal: checkout / provision will rebind; creates fail closed without snapshot.
   }
 
   const response = NextResponse.json({

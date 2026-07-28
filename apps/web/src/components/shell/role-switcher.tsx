@@ -11,6 +11,11 @@ export function RoleSwitcher({ compact = false }: { compact?: boolean }) {
     return null;
   }
 
+  // Consumer chrome: single role — hide selector (role still active in context).
+  if (availableRoles.length <= 1) {
+    return null;
+  }
+
   return (
     <div className={compact ? "w-full space-y-1" : "hidden min-w-0 xl:block"}>
       {!compact ? (

@@ -45,7 +45,7 @@ export async function userHasMasterAdminCapability(user: User): Promise<boolean>
       .select("effect")
       .eq("organization_id", membership.organization_id)
       .eq("capability_key", "master_admin")
-      .in("role", roles);
+      .in("role", roles as never);
 
     if (overrideError) {
       throw new Error(overrideError.message);

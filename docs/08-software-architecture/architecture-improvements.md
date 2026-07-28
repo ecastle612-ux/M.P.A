@@ -21,7 +21,7 @@ PM org members, owners (property-scoped), tenants (lease-scoped), and vendors (m
 ### 3. Elevate Vendor Marketplace to First-Class Domain
 **Impact:** Critical  
 Vendor identity, compliance, reputation, bidding, and payouts are cross-org — not nested records inside a PM organization.  
-**Action:** Dedicated marketplace data model; vendor portal route group; Stripe Connect payout flow designed before maintenance workflow ships.
+**Action:** Dedicated marketplace data model; org Vendor Directory + tokenized vendor job links (no authenticated Vendor Portal); Stripe Connect payout flow designed before maintenance workflow ships.
 
 ### 4. Introduce Domain Event System
 **Impact:** Critical  

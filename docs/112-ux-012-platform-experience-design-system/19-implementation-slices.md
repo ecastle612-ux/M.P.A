@@ -3,7 +3,7 @@
 **Package:** UX-012  
 **Amendment:** A08 (finalized slice board)  
 **Status:** Binding (Approved with Amendments)  
-**Implementation:** Slice A ✅ **VALIDATED** ([32](./32-slice-a-validation.md)) · Slice B ✅ **IMPLEMENTED** ([34](./34-slice-b-implementation.md)) · Validation 🔒 until `VALIDATE UX-012 SLICE B` · C–E 🔒 until each slice is explicitly authorized  
+**Implementation:** Slice A ✅ **VALIDATED** ([32](./32-slice-a-validation.md)) · Slice B ✅ **VALIDATED** ([35](./35-slice-b-validation.md)) · C–E 🔒 until each slice is explicitly authorized  
 **Methodology:** Same gated pattern as OPS-001 / AUTH-001 / COM-001
 
 ---

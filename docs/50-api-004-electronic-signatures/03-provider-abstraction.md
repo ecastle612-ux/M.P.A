@@ -1,7 +1,7 @@
 # 03 — Provider Abstraction
 
 **Package:** API-004  
-**Status:** Draft — Ready for Approval
+**Status:** Approved · Amended (ADR-030 SignWell)
 
 ---
 
@@ -11,12 +11,12 @@
 Business modules
   → SignatureService
     → SignatureProvider
-      → DropboxSignProvider | DocuSignProvider | AdobeSignProvider | SignNowProvider | PandaDocProvider | NoopProvider
+      → SignWellProvider | DocuSignProvider | AdobeSignProvider | SignNowProvider | PandaDocProvider | NoopProvider
 ```
 
-No lease, applicant, Ops, or Command Center module imports Dropbox Sign / DocuSign / Adobe SDKs.
+No lease, applicant, Ops, or Command Center module imports SignWell / DocuSign / Adobe SDKs.
 
-This package **supersedes** the Phase 12 `SignatureProvider` sketch and the thin RX-001 stub as the authoritative design after Approve.
+Dropbox Sign / HelloSign adapters are **retired** (ADR-030).
 
 ---
 
@@ -41,11 +41,9 @@ Sole public write path. Responsibilities:
 
 ## SignatureProvider (interface)
 
-Conceptual contract (TypeScript-shaped; not implementation):
-
 ```typescript
 interface SignatureProvider {
-  readonly id: string; // "dropbox_sign" | "docusign" | "adobe_sign" | "signnow" | "pandadoc" | "noop"
+  readonly id: string; // "signwell" | "docusign" | "adobe_sign" | "signnow" | "pandadoc" | "noop"
 
   createEnvelope(input: CreateEnvelopeInput): Promise<EnvelopeRef>;
   getEnvelopeStatus(ref: EnvelopeRef): Promise<EnvelopeStatus>;
@@ -58,15 +56,6 @@ interface SignatureProvider {
   parseWebhook(payload: unknown, headers: Record<string, string>): Promise<NormalizedSignatureEvent[]>;
 }
 ```
-
-### CreateEnvelopeInput (normalized)
-
-- Organization + package IDs
-- Documents (bytes or vault/media refs + filenames)
-- Recipients (name, email, role, order/group, auth method)
-- Subject / message
-- Expiration
-- Callback / metadata (M.P.A. package ID)
 
 ### NormalizedSignatureEvent
 
@@ -85,30 +74,34 @@ interface SignatureProvider {
 ## Registry
 
 ```
-SIGNATURE_PROVIDER=noop|dropbox_sign|docusign|adobe_sign|signnow|pandadoc
-DROPBOX_SIGN_API_KEY=
-DROPBOX_SIGN_CLIENT_ID=
-DROPBOX_SIGN_CLIENT_SECRET=
-DROPBOX_SIGN_WEBHOOK_SECRET=
-DROPBOX_SIGN_MODE=sandbox|production
+SIGNATURE_PROVIDER=noop|signwell|docusign|adobe_sign|signnow|pandadoc
+SIGNWELL_API_KEY=
+SIGNWELL_WEBHOOK_ID=
+SIGNWELL_MODE=sandbox|production
+SIGNWELL_ALLOW_SIMULATE=true|false
+SIGNWELL_ACCOUNT_ID=          # optional
+SIGNWELL_API_BASE_URL=        # optional
 ```
 
 Org settings may override env default (same pattern as screening).
 
+Retired env (do not set): `DROPBOX_SIGN_*`, `HELLOSIGN_*`.
+
 ---
 
-## Dropbox Sign (Phase 1 adapter)
+## SignWell (V1.0 adapter)
 
 | Concern | Design |
 |---------|--------|
-| Product | Dropbox Sign (HelloSign) embedded or email request |
-| Sandbox | Required for CI/dev without live keys |
-| Webhooks | Signed callbacks → Edge Function → `SignatureService` |
-| Artifacts | Download signed PDF + certificate of completion after `completed` |
-| Retries | Provider + M.P.A. outbound retry with backoff |
-| Mapping | HelloSign/Dropbox Sign statuses → normalized events |
+| Product | SignWell email or embedded signing |
+| Auth | `X-Api-Key` (server-only) |
+| Sandbox | `test_mode` + no-key local stub when `SIGNWELL_MODE=sandbox` |
+| Webhooks | Event hash HMAC (`type@time` with webhook ID) → `/api/webhooks/signature/signwell` → `SignatureService` |
+| Artifacts | Download completed PDF; audit trail embedded (certificate companion from same PDF) |
+| Retries | 429 / 5xx exponential backoff in adapter |
+| Mapping | SignWell statuses/events → normalized events |
 
-**Commercial / legal terms:** Approve may lock vendor; this doc does not negotiate pricing.
+See [12 — SignWell migration](./12-signwell-migration.md).
 
 ---
 
@@ -116,8 +109,8 @@ Org settings may override env default (same pattern as screening).
 
 | Provider | Notes |
 |----------|-------|
-| DocuSign | INT-202 primary historical candidate; envelope + Connect webhooks |
-| Adobe Acrobat Sign | Enterprise agreements; agreement + webhook model |
+| DocuSign | INT-202 historical candidate; envelope + Connect webhooks |
+| Adobe Acrobat Sign | Enterprise agreements |
 | SignNow | Cost-sensitive alternative |
 | PandaDoc | Strong templates; may overlap document generation |
 
@@ -127,33 +120,4 @@ Each adapter implements the same `SignatureProvider` interface. Template merge r
 
 ## Noop provider
 
-Local/CI: creates fake envelope IDs, can simulate webhook via authenticated sandbox endpoint (`PUT`/`POST` simulate — same pattern as API-003 Checkr sandbox). Never contacts external network.
-
----
-
-## Webhook ingress
-
-```
-Provider → Edge Function /api/webhooks/signature/[provider]
-  → verify HMAC / signature header
-  → persist raw event (redacted) to integrations_webhook_events
-  → SignatureService.applyProviderEvent (idempotent)
-  → update package/recipients
-  → if completed: vault store + lease/resident side effects
-  → notifications + timeline
-```
-
-Aligns with architecture rule: Stripe / screening / e-sign ingress through idempotent webhook store.
-
----
-
-## Error & retry
-
-| Class | Behavior |
-|-------|----------|
-| Transient (429/5xx) | Exponential backoff; Ops “Provider Failures” |
-| Permanent (4xx auth) | Mark package `failed`; alert admin |
-| Webhook verify fail | 401; do not apply |
-| Duplicate event | No-op success |
-
-**Provider failover** (auto switch Dropbox Sign → DocuSign) is **out of scope** for Phase 1.
+Local/CI: creates fake envelope IDs, can simulate webhook via authenticated sandbox endpoint (`PUT` simulate). Never contacts external network.

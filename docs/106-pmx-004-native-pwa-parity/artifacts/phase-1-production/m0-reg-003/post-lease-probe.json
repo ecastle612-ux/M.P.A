@@ -1,0 +1,102 @@
+[
+  {
+    "file": "pm.json",
+    "route": "/properties",
+    "url": "https://www.my-property-assistant.com/properties",
+    "hasQa": true,
+    "hasSetup": false,
+    "hasAccessCheck": false,
+    "hasOpsNav": true,
+    "snippet": "Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendors Communications • Inbox Accounting • Reports AI Operations WORKSPACE Migration Center Settings Profile Portals Start wo"
+  },
+  {
+    "file": "pm.json",
+    "route": "/dashboard",
+    "url": "https://www.my-property-assistant.com/dashboard",
+    "hasQa": false,
+    "hasSetup": false,
+    "hasAccessCheck": false,
+    "hasOpsNav": true,
+    "snippet": "Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendors Communications • Inbox Accounting • Reports AI Operations WORKSPACE Migration Center Settings Profile Portals Start wo"
+  },
+  {
+    "file": "pm.json",
+    "route": "/setup",
+    "url": "https://www.my-property-assistant.com/dashboard",
+    "hasQa": false,
+    "hasSetup": false,
+    "hasAccessCheck": false,
+    "hasOpsNav": false,
+    "snippet": "Loading your workspace…"
+  },
+  {
+    "file": "owner.json",
+    "route": "/properties",
+    "url": "https://www.my-property-assistant.com/properties",
+    "hasQa": true,
+    "hasSetup": false,
+    "hasAccessCheck": false,
+    "hasOpsNav": true,
+    "snippet": "Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendors Communications • Inbox Accounting • Reports AI Operations WORKSPACE Migration Center Settings Profile Portals Start wo"
+  },
+  {
+    "file": "owner.json",
+    "route": "/portal/owner",
+    "url": "https://www.my-property-assistant.com/portal/owner",
+    "hasQa": true,
+    "hasSetup": false,
+    "hasAccessCheck": false,
+    "hasOpsNav": false,
+    "snippet": "Property Owner Portal Portfolio performance, documents, and updates. Owner QP NAVIGATION Dashboard Properties Financials Documents Messages Reports Settings Portals Owner Welcome, QA Property Owner Portfolio performance, recent activity, and what needs attention — scoped to your "
+  },
+  {
+    "file": "resident.json",
+    "route": "/properties",
+    "url": "https://www.my-property-assistant.com/setup",
+    "hasQa": false,
+    "hasSetup": true,
+    "hasAccessCheck": false,
+    "hasOpsNav": true,
+    "snippet": "Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendors Communications • Inbox Accounting • Reports AI Operations WORKSPACE Settings Profile Portals Start work, continue jobs"
+  },
+  {
+    "file": "resident.json",
+    "route": "/portal/tenant",
+    "url": "https://www.my-property-assistant.com/portal/tenant",
+    "hasQa": true,
+    "hasSetup": false,
+    "hasAccessCheck": false,
+    "hasOpsNav": false,
+    "snippet": "Home QT NAVIGATION Home Messages Rent Maintenance Documents More Good Evening, QA Welcome home. QA Certification Property Unit 101 Thursday, July 23 For you View all MESSAGE New QA Certification Thread QA certification baseline message — do not notify customers. Quick actions Pay"
+  },
+  {
+    "file": "resident.json",
+    "route": "/tenants",
+    "url": "https://www.my-property-assistant.com/unauthorized",
+    "hasQa": false,
+    "hasSetup": false,
+    "hasAccessCheck": true,
+    "hasOpsNav": false,
+    "snippet": "ACCESS CHECK You don’t have access to this page What happened: Your current role in this organization doesn’t include permission for that area. How to fix it: Switch organizations if you belong to more than one, or ask an administrator to grant access. Go to Mission Control Opera"
+  },
+  {
+    "file": "vendor.json",
+    "route": "/properties",
+    "url": "https://www.my-property-assistant.com/setup",
+    "hasQa": false,
+    "hasSetup": true,
+    "hasAccessCheck": false,
+    "hasOpsNav": true,
+    "snippet": "Skip to content OPERATIONS Operations Center Properties Units Applicants Tenants • Move in • Move out • Transfer unit • Bulk residents Leases Maintenance Vendors Communications • Inbox Accounting AI Operations WORKSPACE Settings Profile Portals Start work, continue jobs, search r"
+  },
+  {
+    "file": "vendor.json",
+    "route": "/portal/vendor",
+    "url": "https://www.my-property-assistant.com/portal/vendor",
+    "hasQa": true,
+    "hasSetup": false,
+    "hasAccessCheck": false,
+    "hasOpsNav": false,
+    "snippet": "Vendor Portal Vendor-facing shell foundation for assignment and completion updates. Vendor QV NAVIGATION Work queue Profile Vendor home QA Certification Vendor work queue Review assigned work orders and post status updates for the property manager and resident. QA Certification M"
+  }
+]

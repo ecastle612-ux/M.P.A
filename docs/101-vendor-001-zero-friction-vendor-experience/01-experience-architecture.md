@@ -57,6 +57,6 @@ No password. No bank account number fields in M.P.A. UI.
 
 ---
 
-## Optional authenticated vendor dashboard (Phase D)
+## Authenticated vendor dashboard — retired
 
-Outstanding / Awaiting Approval / Approved / Paid / Payment history only — does not replace token QR flow.
+Product correction (2026-07-26): there is **no** authenticated Vendor Portal or Phase D vendor dashboard. Vendor participation is exclusively via secure `/v/[token]` action links. Internal staff use Vendor Directory for payment history and company records.

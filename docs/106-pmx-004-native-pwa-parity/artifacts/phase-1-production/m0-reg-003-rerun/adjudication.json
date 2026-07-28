@@ -1,0 +1,27 @@
+{
+  "ranAt": "2026-07-24T21:42:00.000Z",
+  "deploymentId": "dpl_HFdpfdy5jS8kdQKSUKa6iKcU4hBf",
+  "gate": "implemented-role-regression-rerun",
+  "automatedOverall": "FAIL",
+  "automatedCounts": { "pass": 57, "fail": 2, "skip": 3, "total": 62 },
+  "adjudicatedOverall": "PASS",
+  "falsePositives": [
+    {
+      "ids": ["C.pm.qa_property_visible", "E.org_isolation.pm_properties"],
+      "reason": "Harness sampled /properties before client property list finished rendering (20s wait raced). Focused requalification (pm-properties-probe.json + pm-properties-requal.json): GET /api/properties 200 with item 'QA Certification Property'; UI shows property within 45s; Isolation Control property not present.",
+      "disposition": "PASS — data and UI present; org isolation preserved; not a REG-ACL-001 regression"
+    }
+  ],
+  "criteria": {
+    "authentication": "PASS",
+    "navigation_landings": "PASS",
+    "route_protection_acl": "PASS",
+    "history_nav": "PASS",
+    "permissions_escalation": "PASS",
+    "pm_core_workflows": "PASS (incl. requalified QA property)",
+    "portal_workflows": "PASS",
+    "api_behavior": "PASS",
+    "org_isolation": "PASS (requalified)",
+    "ui_stability_material": "PASS"
+  }
+}

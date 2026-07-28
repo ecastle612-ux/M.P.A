@@ -1,0 +1,9 @@
+# Deployment metadata
+date_utc: 2026-07-23T07:12:09Z
+git_sha: ab965eb69409493eaa6fc9e3486dce5467c9e327
+deployment_id: dpl_HbK8UzL1MZZR7ys85Dv1B61VVYXJ
+deployment_url: https://m-p-a-jt27al8nl-ecastle612-uxs-projects.vercel.app
+inspector: https://vercel.com/ecastle612-uxs-projects/m-p-a-web/HbK8UzL1MZZR7ys85Dv1B61VVYXJ
+aliases: www.my-property-assistant.com, my-property-assistant.com, m-p-a-web.vercel.app
+target: production
+status: Ready

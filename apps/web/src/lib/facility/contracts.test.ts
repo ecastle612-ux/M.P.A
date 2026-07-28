@@ -25,7 +25,8 @@ describe("facility contracts", () => {
     expect(eventMatchesFilter("resident.moved_in", "residents")).toBe(true);
     expect(eventMatchesFilter("lease.renewed", "leases")).toBe(true);
     expect(eventMatchesFilter("financial.major_expense", "financial")).toBe(true);
-    expect(eventMatchesFilter("facility.asset_installed", "future")).toBe(true);
+    expect(eventMatchesFilter("facility.asset_installed", "assets")).toBe(true);
+    expect(eventMatchesFilter("facility.compliance_due", "future")).toBe(true);
     expect(eventMatchesFilter("facility.repair_completed", "residents")).toBe(false);
   });
 });

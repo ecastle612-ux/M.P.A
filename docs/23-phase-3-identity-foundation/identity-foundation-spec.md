@@ -49,7 +49,8 @@ Separate layout/navigation shells:
 - Property Manager Portal
 - Owner Portal
 - Tenant Portal
-- Vendor Portal
+
+(Vendor Portal retired 2026-07-26 — secure action links only.)
 
 Shared standards:
 
