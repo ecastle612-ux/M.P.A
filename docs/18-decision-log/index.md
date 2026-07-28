@@ -66,6 +66,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-028](./adr-028-platform-operations-backbone.md) | Platform Operations Backbone (OPS-001) | Accepted | 2026-07-23 |
 | [ADR-029](./adr-029-platform-experience-design-system.md) | Platform Experience & Design System (UX-012) | Accepted | 2026-07-23 |
 | [ADR-030](./adr-030-signwell-as-primary-esign-provider.md) | SignWell as Primary Electronic Signature Provider (V1.0) | Accepted | 2026-07-27 |
+| [ADR-031](./adr-031-ux-013-modules-first-contextual-navigation.md) | Modules-First Acquisition & Contextual Navigation (UX-013) | Accepted | 2026-07-28 |
 
 ---
 

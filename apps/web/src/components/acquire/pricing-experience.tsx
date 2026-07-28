@@ -14,23 +14,63 @@ import {
   formatListPrice
 } from "../../lib/acquire/catalog";
 import { ACQ_FUNNEL_EVENTS, emitAcqFunnelEvent } from "../../lib/acquire/funnel";
+import {
+  moduleSelectionLabel,
+  type AcqModuleSelection
+} from "../../lib/acquire/modules";
 
 export function PricingExperience({
-  initialInterval = ACQ_DEFAULT_BILLING_INTERVAL
+  initialInterval = ACQ_DEFAULT_BILLING_INTERVAL,
+  initialModules = null
 }: {
   initialInterval?: SaasBillingInterval;
+  initialModules?: AcqModuleSelection | null;
 }) {
   const [interval, setInterval] = useState<SaasBillingInterval>(initialInterval);
-  const cards = useMemo(() => buildPublicPlanCards(interval), [interval]);
-  const rows = useMemo(() => buildPlanComparisonRows(), []);
+  const modules = initialModules;
+  const cards = useMemo(() => buildPublicPlanCards(interval, modules), [interval, modules]);
+  const rows = useMemo(() => buildPlanComparisonRows(modules), [modules]);
+
+  if (!modules) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Pricing</h1>
+        <p className="mt-3 text-[var(--mpa-color-text-secondary)]">
+          Choose Property Operations, Facility Operations, or both first. Plan cards and comparison then match
+          your operating surface.
+        </p>
+        <Link
+          href="/modules"
+          className="mt-8 inline-flex h-11 min-h-11 items-center justify-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-5 text-sm font-semibold text-[var(--mpa-color-text-inverse)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
+        >
+          Choose modules
+        </Link>
+        <p className="mt-6 text-sm text-[var(--mpa-color-text-secondary)]">
+          Optional:{" "}
+          <Link href="/tour" className="underline underline-offset-4">
+            take the product tour
+          </Link>{" "}
+          anytime — it is not required before Checkout.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
       <header className="max-w-2xl">
-        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Pricing</h1>
+        <p className="text-sm font-medium text-[var(--mpa-color-brand-primary)]">Step 2 of 2</p>
+        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Pricing</h1>
         <p className="mt-3 text-[var(--mpa-color-text-secondary)]">
-          Start with Trial, Professional, or Business. Enterprise is sales-assisted. You only see modules you
-          purchase.
+          Showing Professional and Business for{" "}
+          <span className="font-medium text-[var(--mpa-color-text-primary)]">
+            {moduleSelectionLabel(modules)}
+          </span>
+          . Enterprise is sales-assisted.{" "}
+          <Link href="/modules" className="underline underline-offset-4">
+            Change modules
+          </Link>
+          .
         </p>
       </header>
 
@@ -58,12 +98,12 @@ export function PricingExperience({
         </div>
       </div>
 
-      <ul className="mt-10 grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
+      <ul className="mt-10 grid gap-6 lg:grid-cols-3">
         {cards.map((card) => {
           const amount = interval === "year" ? card.listPriceAnnual : card.listPriceMonthly;
           const href =
             card.selfServe && card.planCode !== "enterprise"
-              ? checkoutStartHref(card.planCode as AcqSelfServePlan, interval)
+              ? checkoutStartHref(card.planCode as AcqSelfServePlan, interval, modules)
               : card.ctaHref;
           return (
             <li
@@ -90,7 +130,8 @@ export function PricingExperience({
                   if (card.selfServe && card.planCode !== "enterprise") {
                     emitAcqFunnelEvent(ACQ_FUNNEL_EVENTS.planSelected, {
                       plan_code: card.planCode,
-                      interval
+                      interval,
+                      module_selection: modules
                     });
                   }
                 }}
@@ -107,6 +148,14 @@ export function PricingExperience({
         })}
       </ul>
 
+      <p className="mt-8 text-sm text-[var(--mpa-color-text-secondary)]">
+        Optional before Checkout:{" "}
+        <Link href="/tour" className="underline underline-offset-4">
+          product tour
+        </Link>
+        .
+      </p>
+
       <section className="mt-16" aria-labelledby="compare-heading">
         <h2 id="compare-heading" className="font-display text-2xl font-semibold">
           Plan comparison
@@ -117,15 +166,12 @@ export function PricingExperience({
         <div className="mt-6 overflow-x-auto rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)]">
           <table className="min-w-full border-collapse text-left text-sm">
             <caption className="sr-only">
-              Feature comparison across Trial, Professional, Business, and Enterprise plans
+              Feature comparison across Professional, Business, and Enterprise plans
             </caption>
             <thead className="bg-[var(--mpa-color-bg-surface)]">
               <tr>
                 <th scope="col" className="px-4 py-3 font-medium">
                   Capability
-                </th>
-                <th scope="col" className="px-4 py-3 font-medium">
-                  Trial
                 </th>
                 <th scope="col" className="px-4 py-3 font-medium">
                   Professional
@@ -144,7 +190,6 @@ export function PricingExperience({
                   <th scope="row" className="px-4 py-3 text-left font-medium">
                     {row.label}
                   </th>
-                  <td className="px-4 py-3 text-[var(--mpa-color-text-secondary)]">{row.trial}</td>
                   <td className="px-4 py-3 text-[var(--mpa-color-text-secondary)]">{row.professional}</td>
                   <td className="px-4 py-3 text-[var(--mpa-color-text-secondary)]">{row.business}</td>
                   <td className="px-4 py-3 text-[var(--mpa-color-text-secondary)]">{row.enterprise}</td>
@@ -161,10 +206,10 @@ export function PricingExperience({
         </h2>
         <dl className="mt-6 space-y-6">
           <div>
-            <dt className="font-medium">How does Trial work?</dt>
+            <dt className="font-medium">How do modules work?</dt>
             <dd className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              A 14-day Stripe Trial with payment method on file. Your workspace provisions after Trial Checkout
-              succeeds, with trial entitlement limits.
+              You choose Property Operations, Facility Operations, or both before selecting Professional or
+              Business. That choice shapes the plan summary you see here.
             </dd>
           </div>
           <div>

@@ -17,14 +17,14 @@ export default async function AcquireErrorPage({
   const reason = typeof params["reason"] === "string" ? params["reason"] : "unknown";
   const copy =
     reason === "expired"
-      ? "This Checkout session expired. Start a new session from pricing — nothing was charged."
+      ? "This Checkout session expired. Start a new session from modules — nothing was charged."
       : reason === "subscription_exists"
         ? "An open subscription already exists for this email. Sign in to manage billing, or use a different work email for a new organization."
         : reason === "payment_failed"
           ? "Payment did not go through. No organization was created. Update your payment method and try Checkout again."
           : reason === "duplicate_org"
             ? "An organization for this company may already exist. Sign in with your admin email, or contact sales if you need help."
-            : "We could not complete Checkout. No organization was created. You can try again from pricing.";
+            : "We could not complete Checkout. No organization was created. You can try again from module selection.";
 
   return (
     <MarketingShell>
@@ -34,10 +34,10 @@ export default async function AcquireErrorPage({
           <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">{copy}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/pricing"
+              href="/modules"
               className="inline-flex h-11 items-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-[var(--mpa-color-text-inverse)]"
             >
-              Back to pricing
+              Choose modules
             </Link>
             <Link
               href="/login"

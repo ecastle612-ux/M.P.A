@@ -15,6 +15,8 @@
 **Gate owners:** Product + UX + Lead Architect  
 **Last Updated:** 2026-07-28 (Amendment A09 Settings IA — **Approved**)
 
+**Related (draft):** [UX-013 — Customer Acquisition & Contextual Navigation](../117-ux-013-customer-acquisition-contextual-navigation/README.md) proposes per-surface nav matrices and modules-first acquisition; inherits UX-012 / Canopy. **Implement locked** until UX-013 Approve.
+
 > **Slice A is VALIDATED** ([32](./32-slice-a-validation.md)).  
 > **Slice B is VALIDATED PASS** ([35](./35-slice-b-validation.md) · [CORE-003 §60](../113-core-003-implementation-master-plan/60-ux-012-slice-b-validation.md)).  
 > Do **not** begin Slices C–E · OPS-001 C–E · PMX-004 Phase 2 without their authorize phrases.  
@@ -105,6 +107,8 @@ UX-012 is the final foundational architecture package for how M.P.A. **looks, fe
 | [34 — Slice B Implementation](./34-slice-b-implementation.md) | ✅ **IMPLEMENTED** · primitives · FormField · nav · table density · maturity |
 | [35 — Slice B Validation](./35-slice-b-validation.md) | ✅ **PASS** · `VALIDATE UX-012 SLICE B` · UB-01…UB-10 |
 | [36 — Amendment A09: Settings IA consolidation](./36-amendment-a09-settings-ia-consolidation.md) | ✅ **Approved** 2026-07-28 · V1.0 Settings IA · theme + notification SoT · capability nav |
+
+**Related (not an UX-012 amendment):** [UX-013](../117-ux-013-customer-acquisition-contextual-navigation/README.md) — modules-first acquisition + contextual nav matrices (**Draft**; specializes [05 Navigation](./05-navigation-architecture.md) when Approved).
 
 ---
 

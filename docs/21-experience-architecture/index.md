@@ -103,12 +103,21 @@ Before approving this phase, answer for a first-time user:
 
 Per [Implementation Gate](../00-governance/implementation-gate.md), this phase has been approved and can now inform implementation.
 
+### Related experience packages
+
+| Package | Status | Notes |
+|---------|--------|-------|
+| [UX-012](../112-ux-012-platform-experience-design-system/README.md) | Approved | Experience / design system SoT |
+| [UX-013](../117-ux-013-customer-acquisition-contextual-navigation/README.md) | Draft — Ready for Approval | Modules-first acquisition + contextual nav matrices; **Implement locked** |
+
+Material changes to acquisition journey or shell/portal navigation matrices require UX-013 (or successor) Approve before UI code.
+
 ---
 
 ## Version
 
 | Field | Value |
 |-------|-------|
-| Document version | 1.0.0 |
-| Last updated | 2026-07-13 |
+| Document version | 1.0.1 |
+| Last updated | 2026-07-28 |
 | Phase | 1.6 — Approved |

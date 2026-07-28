@@ -3,6 +3,7 @@ import {
   ACQ_DEFAULT_BILLING_INTERVAL,
   ACQ_FOUNDER_PUBLIC,
   ACQ_POST_SUCCESS_AUTO_LOGIN,
+  ACQ_PUBLIC_SELF_SERVE_PLANS,
   ACQ_TRIAL_ENABLED,
   isPublicSelfServePlan,
   isSalesAssistedPlan
@@ -14,40 +15,60 @@ import {
   formatListPrice,
   TOUR_STEPS
 } from "./catalog";
+import {
+  isAcqModuleSelection,
+  modulesPricingHref,
+  parseAcqModuleSelection
+} from "./modules";
 
-describe("ACQ-001 Slice A decisions", () => {
-  it("locks self-serve and sales-assisted plans", () => {
-    expect(ACQ_TRIAL_ENABLED).toBe(true);
+describe("UX-013 Slice A decisions", () => {
+  it("locks self-serve without public Trial", () => {
+    expect(ACQ_TRIAL_ENABLED).toBe(false);
     expect(ACQ_FOUNDER_PUBLIC).toBe(false);
     expect(ACQ_POST_SUCCESS_AUTO_LOGIN).toBe(false);
     expect(ACQ_DEFAULT_BILLING_INTERVAL).toBe("month");
+    expect(ACQ_PUBLIC_SELF_SERVE_PLANS).toEqual(["professional", "business"]);
     expect(isPublicSelfServePlan("professional")).toBe(true);
+    expect(isPublicSelfServePlan("trial")).toBe(false);
     expect(isPublicSelfServePlan("enterprise")).toBe(false);
     expect(isSalesAssistedPlan("enterprise")).toBe(true);
   });
 });
 
-describe("ACQ-001 public catalog", () => {
-  it("builds public cards without Founder and with Enterprise sales CTA", () => {
-    const cards = buildPublicPlanCards("month");
+describe("UX-013 module selection", () => {
+  it("parses module selection ids", () => {
+    expect(isAcqModuleSelection("property_ops")).toBe(true);
+    expect(parseAcqModuleSelection("facility_ops")).toBe("facility_ops");
+    expect(parseAcqModuleSelection("trial")).toBeNull();
+    expect(modulesPricingHref("both")).toBe("/pricing?modules=both");
+  });
+});
+
+describe("UX-013 public catalog", () => {
+  it("builds public cards without Trial or Founder", () => {
+    const cards = buildPublicPlanCards("month", "property_ops");
     expect(cards.some((card) => card.planCode === ("founder" as string))).toBe(false);
-    expect(cards.find((card) => card.planCode === "trial")?.selfServe).toBe(true);
+    expect(cards.some((card) => card.planCode === ("trial" as string))).toBe(false);
     expect(cards.find((card) => card.planCode === "enterprise")?.ctaHref).toBe("/contact-sales");
     expect(cards.find((card) => card.planCode === "professional")?.ctaHref).toContain(
-      "/acquire/start?plan=professional"
+      "modules=property_ops"
+    );
+    expect(cards.find((card) => card.planCode === "professional")?.features.join(" ")).toMatch(
+      /Property Operations/i
     );
   });
 
-  it("builds comparison rows from capability matrix", () => {
-    const rows = buildPlanComparisonRows();
-    expect(rows.some((row) => row.label === "Max properties")).toBe(true);
-    expect(rows.some((row) => row.label === "Marketplace")).toBe(true);
+  it("adapts facility-only comparison rows", () => {
+    const rows = buildPlanComparisonRows("facility_ops");
+    expect(rows.some((row) => row.label === "Facility operations")).toBe(true);
+    expect(rows.some((row) => row.label === "Property operations")).toBe(false);
   });
 
-  it("formats prices and checkout hrefs", () => {
-    expect(formatListPrice(0, "month")).toBe("Free during trial");
+  it("formats prices and checkout hrefs with modules", () => {
     expect(formatListPrice(99, "month")).toBe("$99/month");
-    expect(checkoutStartHref("business", "year")).toBe("/acquire/start?plan=business&interval=year");
+    expect(checkoutStartHref("business", "year", "both")).toBe(
+      "/acquire/start?plan=business&interval=year&modules=both"
+    );
   });
 
   it("keeps tour within six steps", () => {

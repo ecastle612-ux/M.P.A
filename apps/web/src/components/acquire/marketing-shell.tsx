@@ -8,6 +8,7 @@ export { marketingRobots, acquireNoindexRobots } from "../../lib/acquire/seo";
 
 const NAV = [
   { href: "/overview", label: "Product" },
+  { href: "/modules", label: "Modules" },
   { href: "/tour", label: "Tour" },
   { href: "/pricing", label: "Pricing" },
   { href: "/contact-sales", label: "Contact sales" }
@@ -61,10 +62,10 @@ export function MarketingShell({
                 Sign in
               </Link>
               <Link
-                href="/pricing"
+                href="/modules"
                 className="inline-flex h-11 min-h-11 items-center justify-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-[var(--mpa-color-text-inverse)] shadow-[var(--mpa-shadow-xs)] hover:bg-[var(--mpa-color-brand-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
               >
-                See pricing
+                Choose modules
               </Link>
             </div>
           </div>
@@ -95,12 +96,15 @@ export function MarketingShell({
             <div>
               <p className="font-display text-lg font-semibold">{MPA_BRAND_NAME}</p>
               <p className="mt-1 max-w-sm text-sm text-[var(--mpa-color-text-secondary)]">
-                Property operations OS for professional managers — subscribe, set up, and run the portfolio.
+                Modular property and facility operations OS — choose modules, subscribe, set up, and run.
               </p>
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
               <Link href="/overview" className="hover:text-[var(--mpa-color-text-primary)]">
                 Product
+              </Link>
+              <Link href="/modules" className="hover:text-[var(--mpa-color-text-primary)]">
+                Modules
               </Link>
               <Link href="/tour" className="hover:text-[var(--mpa-color-text-primary)]">
                 Tour

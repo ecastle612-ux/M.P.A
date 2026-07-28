@@ -5,21 +5,46 @@ import { useMemo, useState, type FormEvent } from "react";
 import type { SaasBillingInterval } from "../../lib/integrations/saas-billing/contracts";
 import { isPublicSelfServePlan, type AcqSelfServePlan } from "../../lib/acquire/decisions";
 import { buildPublicPlanCards, formatListPrice } from "../../lib/acquire/catalog";
+import {
+  moduleSelectionLabel,
+  parseAcqModuleSelection,
+  type AcqModuleSelection
+} from "../../lib/acquire/modules";
 
 export function CheckoutIntentForm({
   plan,
-  interval
+  interval,
+  modules: modulesProp
 }: {
   plan: string;
   interval: SaasBillingInterval;
+  modules?: string | null;
 }) {
+  const modules = parseAcqModuleSelection(modulesProp ?? undefined);
   const selfServe = isPublicSelfServePlan(plan);
-  const cards = useMemo(() => buildPublicPlanCards(interval), [interval]);
+  const cards = useMemo(() => buildPublicPlanCards(interval, modules), [interval, modules]);
   const card = cards.find((item) => item.planCode === plan);
   const [companyName, setCompanyName] = useState("");
   const [workEmail, setWorkEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  if (!modules) {
+    return (
+      <div className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-6">
+        <h1 className="font-display text-2xl font-semibold">Choose modules first</h1>
+        <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+          Select Property Operations, Facility Operations, or both before starting Checkout.
+        </p>
+        <Link
+          href="/modules"
+          className="mt-6 inline-flex h-11 items-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-[var(--mpa-color-text-inverse)]"
+        >
+          Choose modules
+        </Link>
+      </div>
+    );
+  }
 
   if (!selfServe || !card) {
     return (
@@ -46,15 +71,18 @@ export function CheckoutIntentForm({
       return;
     }
 
+    const selection = modules as AcqModuleSelection;
     const intent = {
       plan: plan as AcqSelfServePlan,
       interval,
+      modules: selection,
       companyName: companyName.trim(),
       workEmail: workEmail.trim().toLowerCase(),
       capturedAt: new Date().toISOString()
     };
     try {
       window.sessionStorage.setItem("mpa.acq.checkoutIntent", JSON.stringify(intent));
+      window.sessionStorage.setItem("mpa.acq.moduleSelection", selection);
     } catch {
       // Non-fatal
     }
@@ -106,7 +134,8 @@ export function CheckoutIntentForm({
     <div className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-6">
       <h1 className="font-display text-2xl font-semibold">Continue to Checkout</h1>
       <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-        {card.name} · {formatListPrice(amount, interval)} · {interval === "year" ? "Annual" : "Monthly"}
+        {card.name} · {moduleSelectionLabel(modules)} · {formatListPrice(amount, interval)} ·{" "}
+        {interval === "year" ? "Annual" : "Monthly"}
       </p>
       <form className="mt-8 space-y-4" onSubmit={(event) => void onSubmit(event)} noValidate>
         <div>
@@ -150,8 +179,12 @@ export function CheckoutIntentForm({
         </button>
       </form>
       <p className="mt-4 text-xs text-[var(--mpa-color-text-muted)]">
-        Organization provisioning happens only after successful payment or Trial activation. You will not be
-        signed in automatically.
+        Organization provisioning happens only after successful payment. You will not be signed in automatically.
+      </p>
+      <p className="mt-2 text-xs text-[var(--mpa-color-text-muted)]">
+        <Link href={`/pricing?modules=${modules}`} className="underline underline-offset-4">
+          Back to pricing
+        </Link>
       </p>
     </div>
   );

@@ -2,6 +2,22 @@ import { describe, expect, it } from "vitest";
 import { createPublicSaasCheckoutSession, PublicCheckoutError } from "./public-checkout";
 
 describe("ACQ-001 Slice B public Checkout validation", () => {
+  it("rejects Trial from public Checkout", async () => {
+    await expect(
+      createPublicSaasCheckoutSession({
+        planCode: "trial",
+        billingInterval: "month",
+        companyName: "Acme",
+        workEmail: "buyer@acme.test",
+        successUrl: "http://localhost/ok",
+        cancelUrl: "http://localhost/cancel"
+      })
+    ).rejects.toMatchObject({
+      code: "INVALID_PLAN",
+      httpStatus: 403
+    });
+  });
+
   it("rejects Enterprise from public Checkout", async () => {
     await expect(
       createPublicSaasCheckoutSession({

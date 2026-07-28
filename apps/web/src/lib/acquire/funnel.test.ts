@@ -42,7 +42,7 @@ describe("ACQ-001 Slice C funnel analytics", () => {
 
   it("emits approved checkout_started event without PII", () => {
     emitAcqFunnelEvent(ACQ_FUNNEL_EVENTS.checkoutStarted, {
-      plan_code: "trial",
+      plan_code: "professional",
       interval: "month",
       session_id: "cs_test_1",
       workEmail: "should-not-appear@x.test"
@@ -50,7 +50,7 @@ describe("ACQ-001 Slice C funnel analytics", () => {
     expect(trackEvent).toHaveBeenCalledWith({
       eventName: "acq.checkout_started",
       properties: {
-        plan_code: "trial",
+        plan_code: "professional",
         interval: "month",
         session_id: "cs_test_1"
       }
@@ -98,6 +98,7 @@ describe("ACQ-001 Slice C rate limit", () => {
 describe("ACQ-001 Slice C SEO helpers", () => {
   it("separates indexable marketing from acquire noindex paths", () => {
     expect(ACQ_INDEXABLE_PATHS).toContain("/pricing");
+    expect(ACQ_INDEXABLE_PATHS).toContain("/modules");
     expect(ACQ_NOINDEX_PATHS).toContain("/acquire/success");
     expect(ACQ_INDEXABLE_PATHS.some((path) => path.startsWith("/acquire"))).toBe(false);
   });

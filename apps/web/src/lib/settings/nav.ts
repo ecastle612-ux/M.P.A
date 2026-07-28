@@ -4,9 +4,10 @@
  *
  * Implemented: capability-filtered Settings pills, Preferences composition,
  * Subscription/Providers/Document vault labels, chrome theme toggle removed.
+ *
+ * Client-safe: do not import auth/server or next/headers from this module.
  */
-import type { PermissionCapability } from "@mpa/shared";
-import { evaluatePermission } from "../auth/authorization";
+import { evaluateCapability, type PermissionCapability } from "@mpa/shared";
 
 export type SettingsNavItemId =
   | "organization"
@@ -34,11 +35,12 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
   { id: "documents", href: "/settings/documents", label: "Document vault" }
 ] as const;
 
-type AuthzLike = Parameters<typeof evaluatePermission>[0];
+type AuthzLike = { permissions: readonly string[] };
 
 function can(authz: AuthzLike | null, capability: PermissionCapability): boolean {
   if (!authz) return false;
-  return evaluatePermission(authz, capability);
+  if (authz.permissions.includes("master_admin")) return true;
+  return evaluateCapability(authz.permissions, capability);
 }
 
 /**

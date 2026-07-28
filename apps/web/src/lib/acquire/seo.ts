@@ -9,6 +9,7 @@ import { serverEnv } from "../env/server-env";
 export const ACQ_INDEXABLE_PATHS = [
   "/",
   "/overview",
+  "/modules",
   "/tour",
   "/pricing",
   "/contact-sales"
@@ -69,10 +70,10 @@ export function landingSoftwareApplicationJsonLd(): Record<string, unknown> {
     url: base,
     offers: {
       "@type": "AggregateOffer",
-      url: `${base}/pricing`,
+      url: `${base}/modules`,
       priceCurrency: "USD",
-      lowPrice: "0",
-      offerCount: 3
+      lowPrice: "99",
+      offerCount: 2
     }
   };
 }

@@ -1,6 +1,5 @@
 /**
- * ACQ-001 Slice A — public plan catalog for pricing / comparison.
- * Limits/modules from capability matrix; list prices from SaaS plan display (marketing).
+ * UX-013 Slice A — public plan catalog (modules-first; no Trial card).
  */
 import { resolveEntitlementsForPlan } from "../auth/capability-matrix";
 import type { SaasBillingInterval } from "../integrations/saas-billing/contracts";
@@ -12,6 +11,10 @@ import {
   isPublicSelfServePlan,
   type AcqSelfServePlan
 } from "./decisions";
+import {
+  moduleSelectionLabel,
+  type AcqModuleSelection
+} from "./modules";
 
 export type PublicPlanCard = {
   planCode: AcqSelfServePlan | "enterprise";
@@ -28,8 +31,6 @@ export type PublicPlanCard = {
   highlight?: boolean;
 };
 
-const TRIAL_DAYS = 14;
-
 function priceFor(planCode: "professional" | "business" | "enterprise") {
   const row = PLAN_DISPLAY.find((p) => p.planCode === planCode);
   return {
@@ -38,46 +39,61 @@ function priceFor(planCode: "professional" | "business" | "enterprise") {
   };
 }
 
-export function buildPublicPlanCards(interval: SaasBillingInterval = ACQ_DEFAULT_BILLING_INTERVAL): PublicPlanCard[] {
+function moduleFeatures(selection: AcqModuleSelection | null): string[] {
+  if (selection === "property_ops") {
+    return [
+      "Property Operations platform",
+      "Leasing, residents, and maintenance",
+      "Team seats within plan limits"
+    ];
+  }
+  if (selection === "facility_ops") {
+    return [
+      "Facility Operations platform",
+      "Preventive maintenance, inventory, inspections",
+      "Team seats within plan limits"
+    ];
+  }
+  if (selection === "both") {
+    return [
+      "Property and Facility Operations",
+      "Modular subscription — both operating surfaces",
+      "Team seats within plan limits"
+    ];
+  }
+  return [
+    "Choose modules first for a tailored plan summary",
+    "Property Operations and/or Facility Operations",
+    "Team seats within plan limits"
+  ];
+}
+
+export function buildPublicPlanCards(
+  interval: SaasBillingInterval = ACQ_DEFAULT_BILLING_INTERVAL,
+  modules: AcqModuleSelection | null = null
+): PublicPlanCard[] {
   void interval;
   void ACQ_FOUNDER_PUBLIC;
+  void ACQ_TRIAL_ENABLED;
   const cards: PublicPlanCard[] = [];
-
-  if (ACQ_TRIAL_ENABLED) {
-    const trial = resolveEntitlementsForPlan("trial");
-    cards.push({
-      planCode: "trial",
-      name: "Trial",
-      description: `${TRIAL_DAYS}-day evaluation with payment method on file. Full core modules at trial limits.`,
-      selfServe: true,
-      ctaLabel: "Start free trial",
-      ctaHref: `/acquire/start?plan=trial&interval=${ACQ_DEFAULT_BILLING_INTERVAL}`,
-      features: [
-        `Up to ${trial.limits.maxProperties} properties`,
-        `Up to ${trial.limits.maxUsers} seats`,
-        "Property & facility operations",
-        "Guided Setup included"
-      ],
-      maxProperties: trial.limits.maxProperties,
-      maxUsers: trial.limits.maxUsers,
-      listPriceMonthly: 0,
-      listPriceAnnual: 0
-    });
-  }
+  const moduleQuery = modules ? `&modules=${modules}` : "";
+  const moduleLine = modules
+    ? `${moduleSelectionLabel(modules)} · `
+    : "";
 
   const professional = resolveEntitlementsForPlan("professional");
   const proPrices = priceFor("professional");
   cards.push({
     planCode: "professional",
     name: "Professional",
-    description: "For growing property management teams that need a complete operations OS.",
+    description: `${moduleLine}Complete operations OS for growing property and facility teams.`,
     selfServe: true,
     ctaLabel: "Choose Professional",
-    ctaHref: `/acquire/start?plan=professional&interval=${ACQ_DEFAULT_BILLING_INTERVAL}`,
+    ctaHref: `/acquire/start?plan=professional&interval=${ACQ_DEFAULT_BILLING_INTERVAL}${moduleQuery}`,
     features: [
       `Up to ${professional.limits.maxProperties} properties`,
       `Up to ${professional.limits.maxUsers} seats`,
-      "Maintenance, leasing, financials",
+      ...moduleFeatures(modules),
       "AI copilot · marketplace"
     ],
     maxProperties: professional.limits.maxProperties,
@@ -91,14 +107,15 @@ export function buildPublicPlanCards(interval: SaasBillingInterval = ACQ_DEFAULT
   cards.push({
     planCode: "business",
     name: "Business",
-    description: "Higher capacity and priority support for multi-property portfolios.",
+    description: `${moduleLine}Higher capacity and priority support for multi-property portfolios.`,
     selfServe: true,
     ctaLabel: "Choose Business",
-    ctaHref: `/acquire/start?plan=business&interval=${ACQ_DEFAULT_BILLING_INTERVAL}`,
+    ctaHref: `/acquire/start?plan=business&interval=${ACQ_DEFAULT_BILLING_INTERVAL}${moduleQuery}`,
     features: [
       `Up to ${business.limits.maxProperties} properties`,
       `Up to ${business.limits.maxUsers} seats`,
       "Everything in Professional",
+      ...moduleFeatures(modules).slice(0, 2),
       "Priority support"
     ],
     maxProperties: business.limits.maxProperties,
@@ -118,7 +135,7 @@ export function buildPublicPlanCards(interval: SaasBillingInterval = ACQ_DEFAULT
       "Custom property & seat limits",
       "Dedicated success",
       "Sales-assisted implementation",
-      "Everything in Business"
+      "Property and Facility Operations as scoped with sales"
     ],
     maxProperties: "Custom",
     maxUsers: "Custom",
@@ -130,111 +147,119 @@ export function buildPublicPlanCards(interval: SaasBillingInterval = ACQ_DEFAULT
 
 export type ComparisonRow = {
   label: string;
-  trial: string;
   professional: string;
   business: string;
   enterprise: string;
 };
 
-export function buildPlanComparisonRows(): ComparisonRow[] {
-  const trial = resolveEntitlementsForPlan("trial");
+export function buildPlanComparisonRows(
+  modules: AcqModuleSelection | null = null
+): ComparisonRow[] {
   const professional = resolveEntitlementsForPlan("professional");
   const business = resolveEntitlementsForPlan("business");
   const enterprise = resolveEntitlementsForPlan("enterprise");
 
   const yn = (v: boolean) => (v ? "Included" : "—");
+  const propertyShown = modules !== "facility_ops";
+  const facilityShown = modules !== "property_ops";
 
-  return [
+  const rows: ComparisonRow[] = [
     {
       label: "Max properties",
-      trial: String(trial.limits.maxProperties),
       professional: String(professional.limits.maxProperties),
       business: String(business.limits.maxProperties),
       enterprise: "Custom"
     },
     {
       label: "Max seats",
-      trial: String(trial.limits.maxUsers),
       professional: String(professional.limits.maxUsers),
       business: String(business.limits.maxUsers),
       enterprise: "Custom"
-    },
-    {
+    }
+  ];
+
+  if (propertyShown) {
+    rows.push({
       label: "Property operations",
-      trial: yn(Boolean(trial.features["property_operations"])),
       professional: yn(Boolean(professional.features["property_operations"])),
       business: yn(Boolean(business.features["property_operations"])),
       enterprise: yn(Boolean(enterprise.features["property_operations"]))
-    },
-    {
+    });
+  }
+  if (facilityShown) {
+    rows.push({
       label: "Facility operations",
-      trial: yn(Boolean(trial.features["facility_operations"])),
       professional: yn(Boolean(professional.features["facility_operations"])),
       business: yn(Boolean(business.features["facility_operations"])),
       enterprise: yn(Boolean(enterprise.features["facility_operations"]))
-    },
+    });
+  }
+
+  rows.push(
     {
       label: "Maintenance",
-      trial: yn(Boolean(trial.features["maintenance"])),
       professional: yn(Boolean(professional.features["maintenance"])),
       business: yn(Boolean(business.features["maintenance"])),
       enterprise: yn(Boolean(enterprise.features["maintenance"]))
     },
     {
       label: "Leasing",
-      trial: yn(Boolean(trial.features["leasing"])),
-      professional: yn(Boolean(professional.features["leasing"])),
-      business: yn(Boolean(business.features["leasing"])),
-      enterprise: yn(Boolean(enterprise.features["leasing"]))
+      professional: propertyShown
+        ? yn(Boolean(professional.features["leasing"]))
+        : "—",
+      business: propertyShown ? yn(Boolean(business.features["leasing"])) : "—",
+      enterprise: propertyShown ? yn(Boolean(enterprise.features["leasing"])) : "—"
     },
     {
       label: "Financials",
-      trial: yn(Boolean(trial.features["financials"])),
       professional: yn(Boolean(professional.features["financials"])),
       business: yn(Boolean(business.features["financials"])),
       enterprise: yn(Boolean(enterprise.features["financials"]))
     },
     {
       label: "Messaging",
-      trial: yn(Boolean(trial.features["messaging"])),
       professional: yn(Boolean(professional.features["messaging"])),
       business: yn(Boolean(business.features["messaging"])),
       enterprise: yn(Boolean(enterprise.features["messaging"]))
     },
     {
       label: "AI copilot",
-      trial: yn(Boolean(trial.features["ai_copilot"])),
       professional: yn(Boolean(professional.features["ai_copilot"])),
       business: yn(Boolean(business.features["ai_copilot"])),
       enterprise: yn(Boolean(enterprise.features["ai_copilot"]))
     },
     {
       label: "Marketplace",
-      trial: yn(Boolean(trial.features["marketplace"])),
       professional: yn(Boolean(professional.features["marketplace"])),
       business: yn(Boolean(business.features["marketplace"])),
       enterprise: yn(Boolean(enterprise.features["marketplace"]))
     },
     {
       label: "Priority support",
-      trial: yn(trial.limits.prioritySupport),
       professional: yn(professional.limits.prioritySupport),
       business: yn(business.limits.prioritySupport),
       enterprise: yn(enterprise.limits.prioritySupport)
     }
-  ];
+  );
+
+  return rows;
 }
 
-export function checkoutStartHref(plan: AcqSelfServePlan, interval: SaasBillingInterval): string {
+export function checkoutStartHref(
+  plan: AcqSelfServePlan,
+  interval: SaasBillingInterval,
+  modules?: AcqModuleSelection | null
+): string {
   if (!isPublicSelfServePlan(plan)) {
     return "/contact-sales";
   }
-  return `/acquire/start?plan=${plan}&interval=${interval}`;
+  const moduleQuery = modules ? `&modules=${modules}` : "";
+  return `/acquire/start?plan=${plan}&interval=${interval}${moduleQuery}`;
 }
 
 export function formatListPrice(amount: number | null, interval: SaasBillingInterval): string {
   if (amount === null) return "Talk to sales";
-  if (amount === 0) return "Free during trial";
+  if (amount === 0) return "Included";
   const suffix = interval === "year" ? "/year" : "/month";
   return `$${amount}${suffix}`;
 }
@@ -247,7 +272,7 @@ export const TOUR_STEPS = [
   },
   {
     id: "portfolio",
-    title: "Run the portfolio",
+    title: "Run Property Operations",
     body: "Properties, units, and residents stay connected so handoffs do not live in spreadsheets."
   },
   {
@@ -257,8 +282,8 @@ export const TOUR_STEPS = [
   },
   {
     id: "facility",
-    title: "Facility operations included",
-    body: "Inventory, preventive maintenance, and inspections sit beside property ops when your plan includes them."
+    title: "Run Facility Operations",
+    body: "Inventory, preventive maintenance, and inspections sit beside property ops in a modular subscription."
   },
   {
     id: "team",

@@ -21,11 +21,12 @@ export default async function AcquireStartPage({
   const plan = typeof params["plan"] === "string" ? params["plan"] : "professional";
   const intervalRaw = typeof params["interval"] === "string" ? params["interval"] : ACQ_DEFAULT_BILLING_INTERVAL;
   const interval: SaasBillingInterval = intervalRaw === "year" ? "year" : "month";
+  const modules = typeof params["modules"] === "string" ? params["modules"] : null;
 
   return (
     <MarketingShell>
       <div className="mx-auto max-w-lg px-4 py-12 sm:px-6 sm:py-16">
-        <CheckoutIntentForm plan={plan} interval={interval} />
+        <CheckoutIntentForm plan={plan} interval={interval} modules={modules} />
       </div>
     </MarketingShell>
   );

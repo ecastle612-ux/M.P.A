@@ -37,7 +37,7 @@ export function ProductTour() {
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Product tour</h1>
         <p className="mt-3 text-[var(--mpa-color-text-secondary)]">
-          Six short stops. Skip anytime and go straight to pricing.
+          Six short stops. Skip anytime — the tour is optional and never required before Checkout.
         </p>
       </header>
 
@@ -74,20 +74,20 @@ export function ProductTour() {
           </button>
         ) : (
           <Link
-            href="/pricing"
+            href="/modules"
             className="inline-flex h-11 min-h-11 items-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-[var(--mpa-color-text-inverse)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
           >
-            See pricing
+            Choose modules
           </Link>
         )}
         <Link
-          href="/pricing"
+          href="/modules"
           className="inline-flex h-11 min-h-11 items-center px-2 text-sm font-medium text-[var(--mpa-color-text-secondary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
           onClick={() =>
             emitAcqFunnelEvent(ACQ_FUNNEL_EVENTS.tourSkipped, { from_step: index + 1 })
           }
         >
-          Skip to pricing
+          Skip to modules
         </Link>
       </div>
 

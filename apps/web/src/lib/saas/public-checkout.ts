@@ -123,7 +123,7 @@ async function ensureSelfServeOpportunity(input: {
     await updateOpportunity(existing.id, {
       companyName: input.companyName,
       contactEmail: input.workEmail,
-      planCode: input.planCode === "trial" ? "professional" : input.planCode,
+      planCode: input.planCode,
       source: "public_self_serve",
       notes: existing.notes
         ? `${existing.notes}\n[ACQ] Resume self-serve ${input.planCode}`
@@ -135,7 +135,7 @@ async function ensureSelfServeOpportunity(input: {
     companyName: input.companyName,
     contactEmail: input.workEmail,
     source: "public_self_serve",
-    planCode: input.planCode === "trial" ? "professional" : input.planCode,
+    planCode: input.planCode,
     organizationType: "property_manager",
     implementationPreference: "ai_guided",
     stage: "proposal",
@@ -148,6 +148,13 @@ export async function createPublicSaasCheckoutSession(
   input: PublicCheckoutInput
 ): Promise<PublicCheckoutResult> {
   const planRaw = input.planCode.trim().toLowerCase();
+  if (planRaw === "trial") {
+    throw new PublicCheckoutError(
+      "INVALID_PLAN",
+      "Public Trial Checkout is not available. Choose Professional or Business after selecting modules.",
+      403
+    );
+  }
   if (isSalesAssistedPlan(planRaw) || planRaw === "founder") {
     throw new PublicCheckoutError(
       "INVALID_PLAN",
@@ -183,8 +190,7 @@ export async function createPublicSaasCheckoutSession(
     );
   }
 
-  const withTrial = planCode === "trial";
-  const pricedPlan: SaasPlanCode = withTrial ? "trial" : planCode;
+  const pricedPlan: SaasPlanCode = planCode;
   const priceRef = resolvePriceId(pricedPlan, input.billingInterval);
   if (!priceRef) {
     throw new PublicCheckoutError(
@@ -201,7 +207,7 @@ export async function createPublicSaasCheckoutSession(
   });
 
   const provider = getSaasBillingProvider();
-  const checkoutPlan: SaasPlanCode = withTrial ? "professional" : planCode;
+  const checkoutPlan: SaasPlanCode = planCode;
 
   try {
     const session = await provider.createCheckoutSession({
@@ -211,17 +217,17 @@ export async function createPublicSaasCheckoutSession(
       billingInterval: input.billingInterval,
       successUrl: input.successUrl,
       cancelUrl: input.cancelUrl,
-      trialPeriodDays: withTrial ? priceRef.trialPeriodDays ?? 14 : null,
+      trialPeriodDays: null,
       metadata: {
         buyer_company_name: companyName,
         buyer_contact_email: workEmail,
-        plan_code: withTrial ? "trial" : checkoutPlan,
+        plan_code: checkoutPlan,
         billing_interval: input.billingInterval,
         opportunity_id: opportunity.id,
         organization_type: "property_manager",
         implementation_preference: "ai_guided",
         mpa_acq: "public",
-        with_trial: withTrial ? "true" : "false"
+        with_trial: "false"
       }
     });
 
@@ -321,8 +327,7 @@ export async function simulatePublicCheckoutProvision(input: {
     );
   }
 
-  const planCode: SaasPlanCode =
-    input.planCode === "trial" ? "trial" : (input.planCode as SaasPlanCode);
+  const planCode: SaasPlanCode = input.planCode;
   const activated = await activateOpportunityFromPayment({
     idempotencyKey: `saas:sandbox:checkout:${input.sessionId}`,
     planCode,

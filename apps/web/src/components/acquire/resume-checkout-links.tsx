@@ -3,27 +3,36 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ACQ_FUNNEL_EVENTS, emitAcqFunnelEvent } from "../../lib/acquire/funnel";
+import { isAcqModuleSelection } from "../../lib/acquire/modules";
 
 /**
  * Resume Checkout after cancel — prefers last intent in sessionStorage.
  */
 export function ResumeCheckoutLinks() {
-  const [resumeHref, setResumeHref] = useState("/pricing");
+  const [resumeHref, setResumeHref] = useState("/modules");
 
   useEffect(() => {
     let plan: string | null = null;
     try {
       const raw = window.sessionStorage.getItem("mpa.acq.checkoutIntent");
       if (raw) {
-        const intent = JSON.parse(raw) as { plan?: string; interval?: string };
+        const intent = JSON.parse(raw) as { plan?: string; interval?: string; modules?: string };
         if (intent.plan) {
           plan = intent.plan;
           const interval = intent.interval === "year" ? "year" : "month";
-          setResumeHref(`/acquire/start?plan=${intent.plan}&interval=${interval}`);
+          const modules =
+            typeof intent.modules === "string" && isAcqModuleSelection(intent.modules)
+              ? intent.modules
+              : null;
+          setResumeHref(
+            modules
+              ? `/acquire/start?plan=${intent.plan}&interval=${interval}&modules=${modules}`
+              : "/modules"
+          );
         }
       }
     } catch {
-      // keep pricing
+      // keep modules
     }
     emitAcqFunnelEvent(
       ACQ_FUNNEL_EVENTS.checkoutCanceled,
@@ -41,10 +50,10 @@ export function ResumeCheckoutLinks() {
         Resume Checkout
       </Link>
       <Link
-        href="/pricing"
+        href="/modules"
         className="inline-flex h-11 items-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] px-4 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
       >
-        Return to pricing
+        Choose modules
       </Link>
       <Link
         href="/tour"

@@ -9,11 +9,13 @@ import { trackEvent } from "../observability/analytics";
 export const ACQ_FUNNEL_EVENTS = {
   landingViewed: "acq.landing_viewed",
   overviewViewed: "acq.overview_viewed",
+  modulesViewed: "acq.modules_viewed",
   tourStarted: "acq.tour_started",
   tourStep: "acq.tour_step",
   tourCompleted: "acq.tour_completed",
   tourSkipped: "acq.tour_skipped",
   pricingViewed: "acq.pricing_viewed",
+  moduleSelected: "acq.module_selected",
   planSelected: "acq.plan_selected",
   checkoutStarted: "acq.checkout_started",
   checkoutCanceled: "acq.checkout_canceled",

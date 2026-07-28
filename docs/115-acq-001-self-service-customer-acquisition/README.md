@@ -15,8 +15,10 @@
 **Slice A:** [22](./22-slice-a-authorization.md) · [23](./23-slice-a-implementation.md)  
 **Slice B:** [24](./24-slice-b-authorization.md) · [25](./25-slice-b-implementation.md)  
 **Slice C:** [26](./26-slice-c-authorization.md) · [27](./27-slice-c-implementation.md)  
+**Pending amendment:** [28 — A11 Modules-first + trial messaging](./28-amendment-a11-modules-first-trial-messaging.md) (**Draft**) · companion [UX-013](../117-ux-013-customer-acquisition-contextual-navigation/README.md)
 
-> **Slice C COMPLETE.** Production certification (engineering evidence) + analytics/SEO/a11y/ops readiness. Await `AUTHORIZE ACQ-001 SLICE D` only if residual continuous work is needed.
+> **Slice C COMPLETE.** Production certification (engineering evidence) + analytics/SEO/a11y/ops readiness. Await `AUTHORIZE ACQ-001 SLICE D` only if residual continuous work is needed.  
+> **UX-013 / A11** (modules-first + trial CTA removal) is **Draft — Ready for Approval** — do not implement acquire UX changes until `APPROVE UX-013` / `ACCEPT ACQ-001 AMENDMENT A11`.
 
 ---
 
@@ -105,6 +107,7 @@ Enterprise: Landing / Pricing → **Contact Sales** / **Schedule Demo** → COM-
 | [25 — Slice B Implementation](./25-slice-b-implementation.md) | ✅ **IMPLEMENTED** |
 | [26 — Slice C Authorization](./26-slice-c-authorization.md) | ✅ **AUTHORIZED** |
 | [27 — Slice C Implementation & validation](./27-slice-c-implementation.md) | ✅ **IMPLEMENTED** |
+| [28 — Amendment A11: Modules-first + trial messaging](./28-amendment-a11-modules-first-trial-messaging.md) | 📝 **Draft** — companion UX-013 |
 
 ---
 
@@ -135,3 +138,14 @@ Enterprise: Landing / Pricing → **Contact Sales** / **Schedule Demo** → COM-
 - COM-001 **Amendment A10** (required companion)
 - AUTH-001 invitation-only remains for subaccounts; marketing CTA → purchase already allowed ([27](../109-auth-001-organization-provisioning-authentication/27-invitation-only-platform.md))
 - BILL-001 deferred “public marketing pricing page” is **in scope here** (ACQ owns UX; BILL owns Checkout session APIs)
+
+---
+
+## Related packages
+
+| Package | Relationship |
+|---------|--------------|
+| [UX-013](../117-ux-013-customer-acquisition-contextual-navigation/README.md) | 📝 Draft — modules-first journey + contextual nav; **Implement locked** |
+| [Amendment A11](./28-amendment-a11-modules-first-trial-messaging.md) | 📝 Draft companion — Trial messaging removal + modules-first (supersedes parts of §02 / public CTAs when Accepted) |
+| [BILL-001 modules-first amendment](../100-bill-001-saas-subscription-billing/22-amendment-modules-first-public-catalog.md) | 📝 Draft — public catalog / Trial entry |
+| [ADR-031](../18-decision-log/adr-031-ux-013-modules-first-contextual-navigation.md) | Proposed |

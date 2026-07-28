@@ -11,8 +11,8 @@ import {
   marketingTwitter
 } from "../../lib/acquire/seo";
 
-const title = "Property operations OS";
-const description = `${MPA_BRAND_NAME} helps professional property managers run maintenance, leasing, facilities, and team operations from one subscription.`;
+const title = "Property & facility operations platform";
+const description = `${MPA_BRAND_NAME} is a modular SaaS platform for professional property and facility operations — subscribe, set up, and run the portfolio.`;
 
 export const metadata: Metadata = {
   title,
@@ -47,48 +47,49 @@ export default function LandingPage() {
             {MPA_BRAND_NAME}
           </p>
           <h1 className="mt-4 max-w-2xl font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)] sm:text-3xl">
-            The operations OS for professional property managers.
+            Professional property and facility operations in one modular subscription.
           </h1>
           <p className="mt-4 max-w-xl text-base text-[var(--mpa-color-text-secondary)] sm:text-lg">
-            Subscribe, set up your workspace, and run maintenance, leasing, and facilities without spreadsheet
-            chaos.
+            Built for operating teams who need clarity, accountability, and software that does the work — not
+            another marketing brochure.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              href="/pricing"
+              href="/modules"
               className="inline-flex h-11 min-h-11 items-center justify-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-5 text-sm font-semibold text-[var(--mpa-color-text-inverse)] shadow-[var(--mpa-shadow-xs)] hover:bg-[var(--mpa-color-brand-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
             >
-              See pricing
+              Choose modules
             </Link>
             <Link
               href="/tour"
               className="inline-flex h-11 min-h-11 items-center justify-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-5 text-sm font-semibold text-[var(--mpa-color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
             >
-              Take the tour
+              Optional tour
             </Link>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Built for operating teams</h2>
+        <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">What M.P.A. solves</h2>
         <p className="mt-3 max-w-2xl text-[var(--mpa-color-text-secondary)]">
-          One private organization per subscription. Invite your team within seat limits. Modules follow your
-          plan — not a crowded all-access menu.
+          Property managers and facility operators lose time to fragmented tools, unclear ownership, and
+          spreadsheet handoffs. {MPA_BRAND_NAME} gives one private organization, entitled modules, and a Guided
+          Setup path from purchase to production dashboard.
         </p>
-        <ul className="mt-10 grid gap-6 sm:grid-cols-3">
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
+        <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Who it serves</h2>
+        <ul className="mt-8 grid gap-6 sm:grid-cols-2">
           {[
             {
-              title: "Self-serve start",
-              body: "Trial, Professional, or Business from public pricing. Enterprise works with sales."
+              title: "Property Operations teams",
+              body: "Portfolio, leasing, residents, maintenance, and vendor coordination under one Professional Property Operations platform."
             },
             {
-              title: "Automatic provision",
-              body: "After Checkout, we create your organization and admin credentials — then Guided Setup."
-            },
-            {
-              title: "Invitation-only team",
-              body: "Coworkers join by invite. There is no open registration for staff accounts."
+              title: "Facility Operations teams",
+              body: "Floor work, preventive maintenance, inventory, and inspections under a Professional Facility Operations platform."
             }
           ].map((item) => (
             <li
@@ -100,6 +101,58 @@ export default function LandingPage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
+        <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Modular subscription</h2>
+        <p className="mt-3 max-w-2xl text-[var(--mpa-color-text-secondary)]">
+          Start with Property Operations, Facility Operations, or both. Then choose Professional or Business.
+          Enterprise works with sales. Team accounts stay invitation-only.
+        </p>
+        <ul className="mt-10 grid gap-6 sm:grid-cols-3">
+          {[
+            {
+              title: "Modules first",
+              body: "Decide your operating surface before you compare plan capacity and price."
+            },
+            {
+              title: "Automatic provision",
+              body: "After Checkout, we create your organization and admin credentials — then Guided Setup."
+            },
+            {
+              title: "Customer outcomes",
+              body: "Reach an Administrator dashboard with the modules you purchased — not a crowded all-access menu."
+            }
+          ].map((item) => (
+            <li
+              key={item.title}
+              className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5"
+            >
+              <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+              <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{item.body}</p>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link
+            href="/modules"
+            className="inline-flex h-11 items-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-[var(--mpa-color-text-inverse)]"
+          >
+            Choose modules
+          </Link>
+          <Link
+            href="/pricing"
+            className="inline-flex h-11 items-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] px-4 text-sm font-semibold"
+          >
+            Pricing
+          </Link>
+          <Link
+            href="/contact-sales"
+            className="inline-flex h-11 items-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] px-4 text-sm font-semibold"
+          >
+            Enterprise / Contact sales
+          </Link>
+        </div>
       </section>
     </MarketingShell>
   );
