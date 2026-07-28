@@ -14,7 +14,7 @@
 
 | ID | Blocker | Status | Evidence |
 |----|---------|--------|----------|
-| **C1** | Ship-tree drift | 🟡 **Engineering closed on `release/rc1`** — deploy to Vercel still required | Branch `release/rc1` lands AUTH/COM/OPS/ACQ/BILL/FAC WIP |
+| **C1** | Ship-tree drift | 🟡 **Landed on `release/rc1` @ `a1e21b4`** — push + Vercel Production deploy still required | Branch `release/rc1` lands AUTH/COM/OPS/ACQ/BILL/FAC WIP |
 | **C2** | Migrations on Production | ✅ **CLOSED** (attested) | AUTH/COM/OPS/FAC already on `mpa-prod`; applied `auth001_invitation_property_scopes` 2026-07-28 |
 | **C3** | Live Stripe SaaS operator checklist | 🔴 **OPS PENDING** | Checklist: [ACQ §27](../115-acq-001-self-service-customer-acquisition/27-slice-c-implementation.md) + [RC1 Stripe runbook](./rc1-stripe-saas-operator-runbook.md) |
 | **C4** | Production env matrix | 🟡 **Doc ready / Vercel values OPS PENDING** | [Env matrix](../68-pr-002-production-deployment/02-environment-matrix.md) + `apps/web/.env.example` |
