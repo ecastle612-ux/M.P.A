@@ -125,7 +125,13 @@ async function resolveOffboardingMutationBlock(
 }
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next({ request });
+  const pathname = request.nextUrl.pathname;
+  // Expose pathname to Server Components for SetupGate (avoid client-only redirect flash).
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-mpa-pathname", pathname);
+  const response = NextResponse.next({
+    request: { headers: requestHeaders }
+  });
 
   const supabase = createServerClient(clientEnv.NEXT_PUBLIC_SUPABASE_URL, clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
     cookies: {
@@ -140,8 +146,6 @@ export async function middleware(request: NextRequest) {
       }
     }
   });
-
-  const pathname = request.nextUrl.pathname;
   const isResetPasswordRoute = pathname.startsWith("/reset-password");
   const recoveryCode = request.nextUrl.searchParams.get("code");
   const isDevPortalCertificationRoute =

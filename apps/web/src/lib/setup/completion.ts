@@ -62,3 +62,18 @@ export function isPathAllowedDuringSetup(pathname: string): boolean {
   if (pathname === "/login") return true;
   return SETUP_GATE_ALLOWED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
+
+/**
+ * Server-side SetupGate: incomplete orgs must never render blocked Ops routes
+ * (client useEffect redirects cause a dashboard flash).
+ */
+export function shouldServerRedirectToSetup(input: {
+  isSetupComplete: boolean;
+  pathname: string | null | undefined;
+}): boolean {
+  if (input.isSetupComplete) return false;
+  const pathname = input.pathname?.trim() || "";
+  if (!pathname) return false;
+  if (pathname.startsWith("/master-admin") || pathname.startsWith("/portal")) return false;
+  return !isPathAllowedDuringSetup(pathname);
+}

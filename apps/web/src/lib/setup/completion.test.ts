@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildSetupStepCompletion, isPathAllowedDuringSetup } from "./completion";
+import {
+  buildSetupStepCompletion,
+  isPathAllowedDuringSetup,
+  shouldServerRedirectToSetup
+} from "./completion";
 
 describe("setup Finish Setup continuity", () => {
   it("does not mark setup complete without recovery + commercial active", () => {
@@ -54,5 +58,26 @@ describe("setup Finish Setup continuity", () => {
     expect(isPathAllowedDuringSetup("/settings/billing")).toBe(true);
     expect(isPathAllowedDuringSetup("/dashboard")).toBe(false);
     expect(isPathAllowedDuringSetup("/maintenance")).toBe(false);
+  });
+
+  it("server-redirects incomplete setup away from dashboard before paint", () => {
+    expect(
+      shouldServerRedirectToSetup({ isSetupComplete: false, pathname: "/dashboard" })
+    ).toBe(true);
+    expect(
+      shouldServerRedirectToSetup({ isSetupComplete: false, pathname: "/maintenance" })
+    ).toBe(true);
+    expect(shouldServerRedirectToSetup({ isSetupComplete: false, pathname: "/setup" })).toBe(
+      false
+    );
+    expect(
+      shouldServerRedirectToSetup({ isSetupComplete: false, pathname: "/properties/new" })
+    ).toBe(false);
+    expect(
+      shouldServerRedirectToSetup({ isSetupComplete: true, pathname: "/dashboard" })
+    ).toBe(false);
+    expect(
+      shouldServerRedirectToSetup({ isSetupComplete: false, pathname: "/master-admin" })
+    ).toBe(false);
   });
 });

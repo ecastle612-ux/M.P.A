@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAuthServerComponentClient } from "../../lib/auth/server";
 import { ApplicationShell } from "../../components/shell/application-shell";
 import { ShellProviders } from "../../components/shell/shell-providers";
 import { resolveAuthenticatedShellContext } from "../../lib/auth/get-shell-context";
 import { getSetupStatus } from "../../lib/setup/server";
+import { shouldServerRedirectToSetup } from "../../lib/setup/completion";
 import { getDeploymentMeta } from "../../lib/launch/deployment-meta";
 import { userHasMasterAdminCapability } from "../../lib/master-admin/access";
 import {
@@ -56,6 +57,13 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     redirect(assignedSurfaceHome(rolesForGate, isMasterAdmin));
   }
 
+  const isSetupComplete = setupStatus.isComplete || isMasterAdmin;
+  const pathname = (await headers()).get("x-mpa-pathname");
+  // Server redirect before shell/dashboard paint — client SetupGate alone flashes /dashboard.
+  if (shouldServerRedirectToSetup({ isSetupComplete, pathname })) {
+    redirect("/setup");
+  }
+
   // Master Admin with no portfolio roles — HQ sidebar only (no Properties/Units/Tenants).
   const masterAdminOnlyShell =
     isMasterAdmin &&
@@ -69,7 +77,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         defaultRole={defaultRole}
         organizations={shellContext.organizations}
         defaultOrganizationId={shellContext.defaultOrganizationId}
-        isSetupComplete={setupStatus.isComplete || isMasterAdmin}
+        isSetupComplete={isSetupComplete}
         deploymentMeta={deploymentMeta}
         initialSidebarCollapsed={initialSidebarCollapsed}
         initialPermissions={shellContext.permissions}
