@@ -39,10 +39,10 @@ export function ProviderStatusCenter({ providers }: { providers: ProviderStatusI
     <div className="space-y-4">
       <div>
         <h1 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Integrations
+          Providers
         </h1>
         <p className="mt-1 max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Provider Health Dashboard. Status reflects environment configuration and read-only API probes —
+          Provider health dashboard. Status reflects environment configuration and read-only API probes —
           never assume a Disabled, Sandbox, or Configuration Required provider is live for residents.
           Secrets are never displayed.
         </p>

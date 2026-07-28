@@ -71,6 +71,7 @@ Commercial launch requires PM companies to pay M.P.A. automatically. Without a d
 | [18 — Phase B blocked](./18-phase-b-blocked-pending-phase-a.md) | Prerequisite gate |
 | [19 — Phase A commercial certification](./19-phase-a-commercial-certification.md) | Ops evidence / verdict |
 | [20 — Phase C entitlement enforcement](./20-phase-c-entitlement-enforcement.md) | Hard create-property / invite gates |
+| [21 — Amendment: in-app cancel at period end](./21-amendment-in-app-cancel-at-period-end.md) | **Approved** 2026-07-28 |
 
 ---
 
@@ -80,8 +81,8 @@ Commercial launch requires PM companies to pay M.P.A. automatically. Without a d
 |-------|--------|
 | Design | ✔ |
 | Document | ✔ |
-| Approve | ✔ **APPROVE BILL-001** (2026-07-22) |
-| Implement | ✔ Phase A+B+C · D–E remain for metrics/cert |
+| Approve | ✔ **APPROVE BILL-001** (2026-07-22) · ✔ **APPROVE amendment 21** (in-app cancel, 2026-07-28) |
+| Implement | ✔ Phase A+B+C · ✔ amendment 21 (in-app cancel) · D–E remain for metrics/cert |
 
 ---
 

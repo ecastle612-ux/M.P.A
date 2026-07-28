@@ -13,7 +13,7 @@
 **Date:** 2026-07-23  
 **Author:** Chief Product Designer / UX Architect  
 **Gate owners:** Product + UX + Lead Architect  
-**Last Updated:** 2026-07-23 (Amendments A01–A08 incorporated)
+**Last Updated:** 2026-07-28 (Amendment A09 Settings IA — **Approved**)
 
 > **Slice A is VALIDATED** ([32](./32-slice-a-validation.md)).  
 > **Slice B is VALIDATED PASS** ([35](./35-slice-b-validation.md) · [CORE-003 §60](../113-core-003-implementation-master-plan/60-ux-012-slice-b-validation.md)).  
@@ -40,6 +40,7 @@ UX-012 is the final foundational architecture package for how M.P.A. **looks, fe
 | A06 | Experience metrics | [27](./27-experience-metrics.md) |
 | A07 | Design review process | [28](./28-design-review-process.md) |
 | A08 | Implementation slices | [19](./19-implementation-slices.md) |
+| **A09** | Settings IA consolidation (V1.0) | [36](./36-amendment-a09-settings-ia-consolidation.md) — ✅ **Approved** 2026-07-28 |
 
 ---
 
@@ -103,6 +104,7 @@ UX-012 is the final foundational architecture package for how M.P.A. **looks, fe
 | [33 — Slice B Authorization](./33-slice-b-authorization.md) | ✅ **AUTHORIZED** · core components · forms · nav · tables · cards · UB-01…UB-10 |
 | [34 — Slice B Implementation](./34-slice-b-implementation.md) | ✅ **IMPLEMENTED** · primitives · FormField · nav · table density · maturity |
 | [35 — Slice B Validation](./35-slice-b-validation.md) | ✅ **PASS** · `VALIDATE UX-012 SLICE B` · UB-01…UB-10 |
+| [36 — Amendment A09: Settings IA consolidation](./36-amendment-a09-settings-ia-consolidation.md) | ✅ **Approved** 2026-07-28 · V1.0 Settings IA · theme + notification SoT · capability nav |
 
 ---
 
@@ -111,8 +113,8 @@ UX-012 is the final foundational architecture package for how M.P.A. **looks, fe
 | Stage | Status |
 |-------|--------|
 | Design | ✔ |
-| Document | ✔ (incl. A01–A08) |
-| **Approve** | ✔ **APPROVED WITH AMENDMENTS** (2026-07-23) |
+| Document | ✔ (incl. A01–A09) |
+| **Approve** | ✔ **APPROVED WITH AMENDMENTS** (2026-07-23) · ✔ **A09** (2026-07-28) |
 | **Authorize Slice A** | ✔ **AUTHORIZED** (2026-07-24) · [30](./30-slice-a-authorization.md) |
 | Implement Slice A | ✔ **IMPLEMENTED** · [31](./31-slice-a-implementation.md) |
 | Validate Slice A | ✔ **VALIDATED** · [32](./32-slice-a-validation.md) |

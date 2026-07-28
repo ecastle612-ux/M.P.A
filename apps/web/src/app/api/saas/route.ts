@@ -8,7 +8,8 @@ import {
   createSaasCheckoutSession,
   createSaasPortalSession,
   getOrgSaasSnapshot,
-  mirrorSandboxSubscription
+  mirrorSandboxSubscription,
+  requestSaasCancelAtPeriodEnd
 } from "../../../lib/saas/server";
 
 const PLAN_CODES: SaasPlanCode[] = ["trial", "founder", "professional", "business", "enterprise"];
@@ -105,6 +106,14 @@ export async function POST(request: Request) {
           : `${appUrl}/settings/billing`;
       const portal = await createSaasPortalSession(organizationId, user.id, returnUrl, supabase);
       return NextResponse.json({ portal });
+    }
+
+    if (action === "cancel") {
+      const result = await requestSaasCancelAtPeriodEnd(organizationId, user.id, supabase);
+      return NextResponse.json({
+        mode: result.mode,
+        subscription: result.subscription
+      });
     }
 
     if (action === "mirror_sandbox") {

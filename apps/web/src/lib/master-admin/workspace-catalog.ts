@@ -37,8 +37,8 @@ export const MASTER_ADMIN_WORKSPACES: WorkspaceDefinition[] = [
         description: "Org-scoped table and data health checks"
       },
       {
-        href: "/master-admin/providers",
-        label: "Integrations",
+        href: "/settings/integrations",
+        label: "Providers",
         description: "Provider connection and delivery posture"
       },
       {
@@ -47,19 +47,14 @@ export const MASTER_ADMIN_WORKSPACES: WorkspaceDefinition[] = [
         description: "Device registrations, health, and test sends"
       },
       {
-        href: "/settings/notifications",
-        label: "Notifications",
-        description: "Notification and push settings"
-      },
-      {
-        href: "/settings/appearance",
-        label: "Settings · Appearance",
-        description: "Light / dark mode and display preferences"
+        href: "/settings/preferences",
+        label: "Preferences",
+        description: "Appearance, notifications, and install options"
       },
       {
         href: "/settings",
         label: "Settings",
-        description: "Organization, team, appearance, and integrations"
+        description: "Organization, team, subscription, and preferences"
       },
       {
         href: "/master-admin/flags",
@@ -185,13 +180,13 @@ export const MASTER_ADMIN_WORKSPACES: WorkspaceDefinition[] = [
       },
       {
         href: "/settings/integrations",
-        label: "Integrations Settings",
-        description: "Org integration configuration"
+        label: "Providers Settings",
+        description: "Org provider status"
       },
       {
-        href: "/settings/notifications",
+        href: "/settings/preferences",
         label: "Email & Push",
-        description: "Transactional and push configuration"
+        description: "Notification preferences"
       }
     ]
   },
@@ -230,10 +225,10 @@ export const QUICK_ACTIONS = [
   { href: "/master-admin/impersonation", label: "Impersonate User" },
   { href: "/portal", label: "Open Any Portal" },
   { href: "/settings/team", label: "Invite Team" },
-  { href: "/settings/appearance", label: "Appearance" },
+  { href: "/settings/preferences", label: "Preferences" },
   { href: "/master-admin/testing", label: "Launch Demo" },
   { href: "/communications/new", label: "Send Announcement" },
-  { href: "/master-admin/providers", label: "View Integrations" },
+  { href: "/settings/integrations", label: "View Providers" },
   { href: "/master-admin/notifications", label: "Push Diagnostics" },
   { href: "/master-admin/health", label: "Platform Health" }
 ] as const;

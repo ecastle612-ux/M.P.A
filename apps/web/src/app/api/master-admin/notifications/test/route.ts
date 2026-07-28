@@ -44,7 +44,7 @@ export async function POST(request: Request) {
         priority: "normal",
         title: "Test notification",
         body: "Master Admin sent a test push. Delivery is working for this device.",
-        href: "/settings/notifications",
+        href: "/settings/preferences",
         eventKey: `push_test:ma:${targetUserId}:${Date.now()}`,
         recipientUserIds: [targetUserId],
         actorUserId: access.user.id,

@@ -1,9 +1,7 @@
-import { AppearanceSettingsPanel } from "../../../../components/settings/appearance-settings-panel";
+import { redirect } from "next/navigation";
+import { SETTINGS_PREFERENCES_HREF } from "../../../../lib/settings/nav";
 
-export default function AppearanceSettingsPage() {
-  return (
-    <div className="mx-auto w-full max-w-3xl space-y-5">
-      <AppearanceSettingsPanel />
-    </div>
-  );
+/** UX-012 A09 — Appearance merged into Preferences. */
+export default function AppearanceSettingsRedirectPage() {
+  redirect(SETTINGS_PREFERENCES_HREF);
 }

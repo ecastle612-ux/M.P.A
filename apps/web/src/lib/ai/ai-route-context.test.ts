@@ -5,7 +5,7 @@ describe("AI-001 route context", () => {
   it("maps dashboard and financials", () => {
     expect(buildAiPageContextFromPathname("/dashboard").entityType).toBe("dashboard");
     expect(buildAiPageContextFromPathname("/financials").entityType).toBe("financial");
-    expect(buildAiPageContextFromPathname("/settings/appearance").entityType).toBe("settings");
+    expect(buildAiPageContextFromPathname("/settings/preferences").entityType).toBe("settings");
   });
 
   it("marks entity detail paths as bridge-owned", () => {

@@ -300,8 +300,8 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         synonyms: ["impersonate", "act as", "support mode"]
       },
       {
-        href: "/master-admin/providers",
-        label: "Integrations",
+        href: "/settings/integrations",
+        label: "Providers",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       },
@@ -362,8 +362,8 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
         mobileSection: "master-admin"
       },
       {
-        href: "/master-admin/providers",
-        label: "Integrations",
+        href: "/settings/integrations",
+        label: "Providers",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       },
@@ -374,8 +374,8 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
         mobileSection: "master-admin"
       },
       {
-        href: "/settings/notifications",
-        label: "Notifications",
+        href: "/settings/preferences",
+        label: "Preferences",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       },

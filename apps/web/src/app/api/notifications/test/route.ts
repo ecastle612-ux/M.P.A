@@ -37,7 +37,7 @@ export async function POST() {
         priority: "normal",
         title: "Test notification",
         body: "Push delivery is working. You can manage notifications in Settings.",
-        href: "/settings/notifications",
+        href: "/settings/preferences",
         eventKey: `push_test:${user.id}:${Date.now()}`,
         recipientUserIds: [user.id],
         actorUserId: user.id,

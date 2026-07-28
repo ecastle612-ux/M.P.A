@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { Avatar, Button } from "@mpa/ui";
 import { MPA_BRAND_NAME } from "../../lib/branding";
 
-export function ProfileMenu({ fetchProfile = true }: { fetchProfile?: boolean }) {
+export function ProfileMenu({
+  fetchProfile = true,
+  preferencesHref = "/settings/preferences"
+}: {
+  fetchProfile?: boolean;
+  /** UX-012 A09 — role-appropriate Preferences (ops or portal). */
+  preferencesHref?: string;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [displayName, setDisplayName] = useState(MPA_BRAND_NAME);
@@ -105,11 +112,11 @@ export function ProfileMenu({ fetchProfile = true }: { fetchProfile?: boolean })
             variant="secondary"
             size="sm"
             onClick={() => {
-              router.push("/settings/appearance");
+              router.push(preferencesHref);
               setOpen(false);
             }}
           >
-            Appearance
+            Preferences
           </Button>
           <Button
             className="mb-2 w-full"

@@ -85,9 +85,8 @@ export default async function SettingsPayoutsPage({
           Owner payouts
         </h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Organization settlement Connect, owner eligibility, and payout run visibility (FIN-003 Phase
-          D). Separate from SaaS subscription billing. Transfers require{" "}
-          <code className="text-xs">FIN003_TRANSFERS_ENABLED</code> and existing Phase C controls.
+          Send owner distributions via Connect settlement (FIN-003). Separate from your M.P.A. Subscription plan.
+          Transfers require <code className="text-xs">FIN003_TRANSFERS_ENABLED</code> and existing Phase C controls.
         </p>
       </div>
       <ConnectOnboardingCard

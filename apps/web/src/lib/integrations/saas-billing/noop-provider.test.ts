@@ -57,6 +57,18 @@ describe("noop SaaS billing provider", () => {
     expect(portal.url).toContain("portal=noop");
   });
 
+  it("cancels subscription at period end without network", async () => {
+    const current = await noopSaasBillingProvider.getSubscription("noop_sub_cancel_test");
+    expect(current.cancelAtPeriodEnd).toBe(false);
+
+    const canceled = await noopSaasBillingProvider.cancelSubscriptionAtPeriodEnd({
+      externalSubscriptionId: "noop_sub_cancel_test"
+    });
+    expect(canceled.cancelAtPeriodEnd).toBe(true);
+    expect(canceled.canceledAt).toBeTruthy();
+    expect(canceled.externalSubscriptionId).toBe(current.externalSubscriptionId);
+  });
+
   it("parses subscription upsert webhook", async () => {
     const events = await noopSaasBillingProvider.parseWebhook(
       {

@@ -104,7 +104,7 @@ export function NotificationOperationsWidget() {
           </p>
         </div>
         <Link
-          href="/settings/notifications"
+          href="/settings/preferences"
           className="text-xs font-semibold text-[var(--mpa-color-brand-primary)] hover:underline"
         >
           Notification Settings

@@ -35,6 +35,7 @@ Implementation remains **LOCKED** until amendments are incorporated (✔), ADR-0
 | A06 | Experience metrics | [27](./27-experience-metrics.md) |
 | A07 | Design review process | [28](./28-design-review-process.md) |
 | A08 | Implementation slices finalized | [19](./19-implementation-slices.md) |
+| **A09** | Settings IA consolidation (V1.0) | [36](./36-amendment-a09-settings-ia-consolidation.md) — ✅ **Approved** 2026-07-28 |
 
 ---
 
@@ -60,6 +61,7 @@ Implementation remains **LOCKED** until amendments are incorporated (✔), ADR-0
 | Slice A | ✅ `AUTHORIZE UX-012 SLICE A` recorded 2026-07-24 · Validated |
 | Slice B | ✅ `AUTHORIZE UX-012 SLICE B` recorded 2026-07-25 · [33](./33-slice-b-authorization.md) |
 | Slices C–E | 🔒 until `AUTHORIZE UX-012 SLICE …` |
+| Amendment A09 (Settings IA) | ✔ **Approved** 2026-07-28 · implement via scoped PRs citing A09 |
 
 ---
 

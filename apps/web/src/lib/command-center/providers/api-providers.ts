@@ -1235,7 +1235,7 @@ async function searchPushDevices(
       status: item.isActive ? "active" : "inactive",
       statusVariant: unhealthy ? ("warning" as const) : ("success" as const),
       icon: "📱",
-      href: "/settings/notifications",
+      href: "/settings/preferences",
       shortcut: null,
       score: score + (unhealthy ? 2 : 0),
       favoriteKey: `push-device:${item.id}`
@@ -1271,7 +1271,7 @@ async function searchFailedPush(query: string, signal: AbortSignal): Promise<Com
     status: "failed",
     statusVariant: "danger" as const,
     icon: "⚠",
-    href: item.href ?? "/settings/notifications",
+    href: item.href ?? "/settings/preferences",
     shortcut: null,
     score: 3 - index * 0.1,
     favoriteKey: `failed-push:${item.id}`
@@ -1301,7 +1301,7 @@ async function searchTestNotifications(query: string, signal: AbortSignal): Prom
     status: item.pushDeliveryStatus ?? "unknown",
     statusVariant: item.pushDeliveryStatus === "sent" ? ("success" as const) : ("neutral" as const),
     icon: "🧪",
-    href: item.href ?? "/settings/notifications",
+    href: item.href ?? "/settings/preferences",
     shortcut: null,
     score: 2 - index * 0.1,
     favoriteKey: `test-notification:${item.id}`

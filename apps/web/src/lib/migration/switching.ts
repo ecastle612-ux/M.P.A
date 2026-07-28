@@ -505,7 +505,7 @@ function buildSwitchingChecklist(flags: {
       id: "notifications",
       label: "Notifications configured",
       complete: flags.notificationsConfigured,
-      href: "/settings/notifications",
+      href: "/settings/preferences",
       help: "Make sure staff and residents get the alerts that matter."
     },
     {

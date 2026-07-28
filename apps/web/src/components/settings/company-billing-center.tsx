@@ -106,10 +106,42 @@ export function CompanyBillingCenter({
     const json = (await res.json()) as {
       session?: { url?: string };
       portal?: { url?: string };
+      mode?: "cancel_at_period_end" | "already_canceling" | "already_canceled" | "no_subscription";
+      subscription?: SaasOrgSubscriptionSnapshot["subscription"];
       error?: { message?: string };
     };
     if (!res.ok) throw new Error(json.error?.message ?? "Billing request failed");
     return json;
+  }
+
+  function cancelInApp() {
+    if (!canManage) return;
+    startTransition(async () => {
+      try {
+        const json = await postAction({ action: "cancel" });
+        if (json.subscription) {
+          setSnapshot((prev) => ({ ...prev, subscription: json.subscription ?? null }));
+        } else {
+          await refreshSnapshot();
+        }
+        const periodEnd = formatDate(json.subscription?.currentPeriodEnd ?? subscription?.currentPeriodEnd);
+        if (json.mode === "already_canceling") {
+          setBanner(`Cancellation is already scheduled. Access continues until ${periodEnd}.`);
+        } else if (json.mode === "already_canceled") {
+          setBanner("This subscription is already canceled.");
+        } else if (json.mode === "no_subscription") {
+          setBanner("No open subscription to cancel.");
+        } else {
+          setBanner(
+            `Subscription will cancel at the end of the billing period (${periodEnd}). You’ll keep access until then.`
+          );
+        }
+        setConfirmKind(null);
+        setFounderConfirmText("");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unable to cancel subscription");
+      }
+    });
   }
 
   function openPortal() {
@@ -166,22 +198,31 @@ export function CompanyBillingCenter({
   }
 
   function confirmPendingAction() {
-    if (confirmKind === "leave_founder" && founderConfirmText.trim().toUpperCase() !== "LEAVE FOUNDER") {
-      setError('Type LEAVE FOUNDER to confirm permanently leaving founder pricing.');
+    if (
+      (confirmKind === "leave_founder" || (confirmKind === "cancel" && isFounder)) &&
+      founderConfirmText.trim().toUpperCase() !== "LEAVE FOUNDER"
+    ) {
+      setError("Type LEAVE FOUNDER to confirm permanently leaving founder pricing.");
       return;
     }
+
+    if (confirmKind === "cancel") {
+      cancelInApp();
+      return;
+    }
+
     const plan = pendingPlan;
     setConfirmKind(null);
     setFounderConfirmText("");
 
-    if (confirmKind === "cancel" || confirmKind === "reactivate") {
+    if (confirmKind === "reactivate") {
       openPortal();
       return;
     }
 
     if (!plan) return;
     if (hasOpenSub) {
-      // Existing subscriptions: plan changes / cancel flow through Stripe Customer Portal.
+      // Existing subscriptions: plan changes flow through Stripe Customer Portal.
       openPortal();
       return;
     }
@@ -197,11 +238,11 @@ export function CompanyBillingCenter({
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
-            Billing
+            Subscription
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-            Manage the M.P.A. subscription for {organizationName}. Payment details stay in Stripe — never stored in
-            M.P.A.
+            Your M.P.A. plan for {organizationName}. Separate from rent collections and owner payouts. Payment details
+            stay in Stripe — never stored in M.P.A.
           </p>
         </div>
         {canManage ? (
@@ -303,26 +344,30 @@ export function CompanyBillingCenter({
             <Button variant="secondary" disabled={pending} onClick={() => openPortal()}>
               Update payment method
             </Button>
-            <Button
-              variant="secondary"
-              disabled={pending}
-              onClick={() => {
-                setConfirmKind("reactivate");
-                setPendingPlan(null);
-              }}
-            >
-              Reactivate / resume
-            </Button>
-            <Button
-              variant="secondary"
-              disabled={pending}
-              onClick={() => {
-                setConfirmKind("cancel");
-                setPendingPlan(null);
-              }}
-            >
-              Cancel subscription
-            </Button>
+            {subscription?.cancelAtPeriodEnd ? (
+              <Button
+                variant="secondary"
+                disabled={pending}
+                onClick={() => {
+                  setConfirmKind("reactivate");
+                  setPendingPlan(null);
+                }}
+              >
+                Reactivate / resume
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                disabled={pending}
+                onClick={() => {
+                  setFounderConfirmText("");
+                  setConfirmKind("cancel");
+                  setPendingPlan(null);
+                }}
+              >
+                Cancel subscription
+              </Button>
+            )}
           </div>
         ) : null}
       </Card>
@@ -565,7 +610,9 @@ export function CompanyBillingCenter({
         onConfirm={confirmPendingAction}
         pending={pending}
         isFounderLeaving={confirmKind === "leave_founder"}
+        isFounderCancel={confirmKind === "cancel" && isFounder}
         hasOpenSub={hasOpenSub}
+        periodEndLabel={formatDate(subscription?.currentPeriodEnd)}
       />
 
       <Suspense fallback={null}>
@@ -600,7 +647,9 @@ function ConfirmModals({
   onConfirm,
   pending,
   isFounderLeaving,
-  hasOpenSub
+  isFounderCancel,
+  hasOpenSub,
+  periodEndLabel
 }: {
   kind: ConfirmKind;
   pendingPlan: { planCode: SaasPlanCode; billingInterval: SaasBillingInterval } | null;
@@ -610,31 +659,56 @@ function ConfirmModals({
   onConfirm: () => void;
   pending: boolean;
   isFounderLeaving: boolean;
+  isFounderCancel: boolean;
   hasOpenSub: boolean;
+  periodEndLabel: string;
 }) {
   if (!kind) return null;
 
   if (kind === "cancel") {
+    const founderOk = !isFounderCancel || founderConfirmText.trim().toUpperCase() === "LEAVE FOUNDER";
     return (
       <Modal
         open
         onClose={onClose}
         title="Cancel subscription"
+        {...(isFounderCancel ? { className: "max-w-xl" } : {})}
         footer={
           <div className="flex flex-wrap justify-end gap-2">
             <Button variant="secondary" onClick={onClose}>
               Keep subscription
             </Button>
-            <Button onClick={onConfirm} disabled={pending}>
-              Continue to Stripe
+            <Button onClick={onConfirm} disabled={pending || !founderOk}>
+              {pending ? "Canceling…" : "Cancel at period end"}
             </Button>
           </div>
         }
       >
-        <p>
-          Cancellation is completed in the Stripe Customer Portal. Access typically continues until the end of the
-          current billing period.
-        </p>
+        <div className="space-y-3">
+          <p>
+            Your subscription will cancel at the end of the current billing period ({periodEndLabel}). You’ll keep
+            access until then. No further charges after that date.
+          </p>
+          {isFounderCancel ? (
+            <div className="space-y-3 rounded-lg border border-[var(--mpa-color-status-danger)]/40 bg-[var(--mpa-color-status-danger-subtle)] p-3">
+              <p className="font-semibold text-[var(--mpa-color-status-danger)]">High-visibility warning</p>
+              <p>
+                Canceling Founder may permanently remove lifetime Founder pricing. This cannot be undone from
+                self-serve billing.
+              </p>
+              <label className="block text-sm">
+                Type <span className="font-mono font-semibold">LEAVE FOUNDER</span> to confirm
+                <Input
+                  className="mt-1"
+                  value={founderConfirmText}
+                  onChange={(e) => setFounderConfirmText(e.target.value)}
+                  placeholder="LEAVE FOUNDER"
+                  autoComplete="off"
+                />
+              </label>
+            </div>
+          ) : null}
+        </div>
       </Modal>
     );
   }

@@ -1,7 +1,6 @@
-import { ProviderStatusCenter } from "../../../../components/settings/provider-status-center";
-import { buildProviderHealthDashboard } from "../../../../lib/integrations/provider-status";
+import { redirect } from "next/navigation";
 
-export default async function MasterAdminProvidersPage() {
-  const providers = await buildProviderHealthDashboard();
-  return <ProviderStatusCenter providers={providers} />;
+/** UX-012 A09 — Providers SoT is Settings → Providers (`/settings/integrations`). */
+export default function MasterAdminProvidersRedirectPage() {
+  redirect("/settings/integrations");
 }

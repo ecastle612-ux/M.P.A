@@ -2,17 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const ITEMS = [
-  { href: "/settings/organization", label: "Organization", exact: false },
-  { href: "/settings/team", label: "Team", exact: false },
-  { href: "/settings/billing", label: "Billing", exact: false },
-  { href: "/settings/payouts", label: "Owner payouts", exact: false },
-  { href: "/settings/appearance", label: "Appearance", exact: false },
-  { href: "/settings/integrations", label: "Integrations", exact: false },
-  { href: "/settings/documents", label: "Documents", exact: false },
-  { href: "/settings/notifications", label: "Notifications", exact: false }
-] as const;
+import type { SettingsNavItem } from "../../lib/settings/nav";
 
 function pillClass(active: boolean): string {
   return [
@@ -23,8 +13,13 @@ function pillClass(active: boolean): string {
   ].join(" ");
 }
 
-export function SettingsSubnav() {
+/**
+ * UX-012 A09 — capability-filtered Settings pills only.
+ */
+export function SettingsSubnav({ items }: { items: readonly SettingsNavItem[] }) {
   const pathname = usePathname();
+
+  if (items.length === 0) return null;
 
   return (
     <nav
@@ -34,10 +29,8 @@ export function SettingsSubnav() {
       <span className="mr-3 self-center font-display text-xs font-semibold uppercase tracking-[0.14em] text-[var(--mpa-color-text-muted)]">
         Settings
       </span>
-      {ITEMS.map((item) => {
-        const active = item.exact
-          ? pathname === item.href
-          : pathname === item.href || pathname.startsWith(`${item.href}/`);
+      {items.map((item) => {
+        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
           <Link key={item.href} href={item.href} className={pillClass(active)}>
             {item.label}

@@ -15,7 +15,7 @@
 | S02 | Free trial | Trialing; trial end date; converts or cancels cleanly |
 | S03 | Upgrade | Plan/price updated; proration per policy; access expands |
 | S04 | Downgrade | Scheduled or applied; limits update at correct time |
-| S05 | Cancellation | Cancel at period end; access until end; then revoked |
+| S05 | Cancellation | **In-app** cancel at period end (Settings → Billing → Cancel → API); `cancelAtPeriodEnd` mirrored; access until end; then revoked via webhook; Portal not required for cancel ([21](./21-amendment-in-app-cancel-at-period-end.md)) |
 | S06 | Failed payment | `past_due`; notify; grace; no rent/Connect side effects |
 | S07 | Card update | Via Customer Portal; next invoice succeeds |
 | S08 | Invoice generation | Invoice listed in Billing history; PDF/URL works |

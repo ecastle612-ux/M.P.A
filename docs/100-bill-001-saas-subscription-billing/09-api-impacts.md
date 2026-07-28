@@ -17,18 +17,26 @@ SubscriptionService
 
 ---
 
-## Routes (illustrative)
+## Routes (shipped shape)
 
-| Route | Role |
-|-------|------|
-| `GET /api/saas/subscription` | Current plan, usage, renewal |
-| `POST /api/saas/checkout` | Create Checkout Session |
-| `POST /api/saas/portal` | Customer Portal session |
-| `GET /api/saas/invoices` | Billing history |
-| `POST /api/saas/change-plan` | Upgrade/downgrade (or portal-only v1) |
-| `POST /api/saas/cancel` | Cancel at period end |
-| `GET /api/master-admin/saas/metrics` | MRR etc. (Master Admin only) |
+Monolithic `GET|POST /api/saas` (Phase B). Illustrative split routes below remain conceptual.
+
+| Route / action | Role |
+|----------------|------|
+| `GET /api/saas` | Org SaaS snapshot (plan, usage, invoices, catalog) |
+| `POST /api/saas` `action: "checkout"` | Create Checkout Session |
+| `POST /api/saas` `action: "portal"` | Customer Portal session |
+| `POST /api/saas` `action: "cancel"` | **In-app** cancel at period end → `requestSaasCancelAtPeriodEnd` ([21](./21-amendment-in-app-cancel-at-period-end.md)) |
+| `POST /api/saas` `action: "mirror_sandbox"` | Dev/sandbox mirror only |
+| `GET /api/master-admin/saas/metrics` | MRR etc. (Master Admin only; Phase D) |
 | `POST /api/webhooks/saas/[provider]` | Webhooks |
+
+### Cancel action contract
+
+- **Auth:** `saas:manage` on active org  
+- **Effect:** Stripe `cancel_at_period_end=true`; local mirror + audit  
+- **Response modes:** `cancel_at_period_end` \| `already_canceling` \| `already_canceled` \| `no_subscription`  
+- **Non-goals:** immediate cancel, refunds, in-app reactivate
 
 ---
 

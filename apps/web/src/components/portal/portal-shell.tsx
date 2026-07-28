@@ -8,7 +8,6 @@ import { Badge, Card } from "@mpa/ui";
 import { OrganizationSwitcher } from "../shell/organization-switcher";
 import { RoleSwitcher } from "../shell/role-switcher";
 import { ProfileMenu } from "../shell/profile-menu";
-import { ThemeModeToggle } from "../shell/theme-mode-toggle";
 import { BrandLogo } from "../branding/brand-logo";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
 import { PwaNativeOnboarding } from "../pwa/pwa-native-onboarding";
@@ -86,11 +85,10 @@ export function PortalShell({
           </div>
           {showRoleBadge ? <Badge variant="neutral">{roleBadgeLabel}</Badge> : null}
           <div className="ml-auto flex flex-wrap items-center gap-2">
-            <ThemeModeToggle />
             <OrganizationSwitcher />
             <RoleSwitcher />
             <SyncStatusChip />
-            <ProfileMenu fetchProfile={fetchProfile} />
+            <ProfileMenu fetchProfile={fetchProfile} preferencesHref={notificationSettingsHref} />
           </div>
         </div>
       </header>

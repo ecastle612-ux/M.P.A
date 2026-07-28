@@ -17,6 +17,7 @@
 | Founder leave confirmation | ✔ type `LEAVE FOUNDER` |
 | Usage tracking (no enforcement) | ✔ |
 | Permissions `saas:read` / `saas:manage` | ✔ |
+| In-app cancel at period end ([21](./21-amendment-in-app-cancel-at-period-end.md)) | ✔ `POST /api/saas` `action: "cancel"` — no Portal handoff for cancel |
 
 ---
 

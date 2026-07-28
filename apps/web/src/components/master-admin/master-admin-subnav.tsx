@@ -6,7 +6,7 @@ import { NavList, navItemClassName } from "@mpa/ui";
 
 const ITEMS = [
   { href: "/master-admin", label: "Mission Control", exact: true },
-  { href: "/settings/appearance", label: "Appearance", exact: false },
+  { href: "/settings/preferences", label: "Preferences", exact: false },
   { href: "/settings", label: "Settings", exact: false },
   { href: "/master-admin/health", label: "Platform", exact: false },
   { href: "/master-admin/notifications", label: "Push", exact: false },
@@ -16,7 +16,7 @@ const ITEMS = [
   { href: "/migration", label: "Migration", exact: false },
   { href: "/portal", label: "Support", exact: false },
   { href: "/master-admin/testing", label: "Demo", exact: false },
-  { href: "/master-admin/providers", label: "Integrations", exact: false },
+  { href: "/settings/integrations", label: "Providers", exact: false },
   { href: "/master-admin/flags", label: "Flags", exact: false }
 ] as const;
 

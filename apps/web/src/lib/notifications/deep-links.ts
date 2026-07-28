@@ -35,7 +35,7 @@ export function staffOwnerStatementHref(statementId: string): string {
 }
 
 export function settingsNotificationsHref(): string {
-  return "/settings/notifications";
+  return "/settings/preferences";
 }
 
 export function settingsPayoutsHref(): string {
@@ -43,7 +43,7 @@ export function settingsPayoutsHref(): string {
 }
 
 export function masterAdminProvidersHref(): string {
-  return "/master-admin/providers";
+  return "/settings/integrations";
 }
 
 export function masterAdminNotificationsHref(): string {

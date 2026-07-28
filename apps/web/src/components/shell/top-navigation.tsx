@@ -5,7 +5,6 @@ import { OrganizationSwitcher } from "./organization-switcher";
 import { RoleSwitcher } from "./role-switcher";
 import { SyncStatusChip } from "../pwa/sync-status-chip";
 import { ProfileMenu } from "./profile-menu";
-import { ThemeModeToggle } from "./theme-mode-toggle";
 
 const CommandCenter = dynamic(
   async () => {
@@ -43,7 +42,6 @@ export function TopNavigation({ deploymentMeta }: { deploymentMeta: DeploymentMe
             <CommandCenter />
           </div>
           <DeploymentBadge meta={deploymentMeta} className="hidden md:flex" />
-          <ThemeModeToggle />
           <OrganizationSwitcher />
           <RoleSwitcher />
           <SyncStatusChip />

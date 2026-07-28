@@ -65,7 +65,7 @@ export const DISCOVERY_CATALOG: Record<DiscoveryKey, DiscoveryDefinition> = {
     title: "Enable notifications",
     body: "Notification channels are off — enable them so your team stays informed.",
     ctaLabel: "Notification settings",
-    ctaHref: "/settings/notifications",
+    ctaHref: "/settings/preferences",
     requiredFeature: null,
     billingSafe: false
   },

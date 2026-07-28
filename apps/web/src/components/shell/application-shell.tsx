@@ -82,8 +82,8 @@ export function ApplicationShell({
             </div>
           </header>
           <TopNavigation deploymentMeta={deploymentMeta} />
-          <PwaNativeOnboarding settingsHref="/settings/notifications" />
-          <PushEnrollmentBanner settingsHref="/settings/notifications" />
+          <PwaNativeOnboarding settingsHref="/settings/preferences" />
+          <PushEnrollmentBanner settingsHref="/settings/preferences" />
           <div id="app-content" className="mpa-app-main mpa-native-shell-scroll flex min-h-0 min-w-0 flex-col pb-[var(--mpa-safe-bottom)]">
             {children}
           </div>

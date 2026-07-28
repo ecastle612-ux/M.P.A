@@ -180,13 +180,14 @@ export const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/portal": NavIconPortals,
   "/master-admin": NavIconMasterAdmin,
   "/master-admin/dashboards": NavIconDashboard,
-  "/master-admin/providers": NavIconSettings,
   "/master-admin/testing": NavIconUnits,
   "/master-admin/health": NavIconMaintenance,
   "/master-admin/flags": NavIconAi,
   "/master-admin/impersonation": NavIconProfile,
-  "/settings/notifications": NavIconCommunications,
+  "/settings/integrations": NavIconSettings,
+  "/settings/preferences": NavIconCommunications,
   "/settings/team": NavIconApplicants,
-  "/settings/appearance": NavIconSettings,
+  "/settings/billing": NavIconFinancials,
+  "/settings/documents": NavIconSettings,
   "/portal/tenant/preferences": NavIconSettings
 };

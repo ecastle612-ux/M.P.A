@@ -57,6 +57,7 @@ export default async function ManagerPortalLayout({ children }: { children: Reac
       subtitle="Day-to-day management runs in the main Operations workspace."
       roleBadgeLabel="Manager"
       navigation={MANAGER_PORTAL_NAVIGATION}
+      notificationSettingsHref="/settings/preferences"
       masterAdminBanner={
         banner ? (
           <MasterAdminModeBanner

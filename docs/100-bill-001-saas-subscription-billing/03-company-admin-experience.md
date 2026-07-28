@@ -18,17 +18,20 @@
 | Usage | Properties / seats vs plan limits (**enforced** Phase C) |
 | Upgrade | Checkout (new) or Portal plan change (existing) |
 | Downgrade | Via Portal with confirmation of price / effective date / proration |
-| Cancel | Cancel at period end via Portal; access until then |
-| Founder protection | High-visibility confirm before leaving Founder pricing |
-| Stripe Customer Portal | Primary self-serve for PM, invoices, cancel |
+| Cancel | **In-app** cancel at period end (confirm → API); access until period end — see [21](./21-amendment-in-app-cancel-at-period-end.md) |
+| Founder protection | High-visibility confirm before leaving Founder pricing (including cancel; type `LEAVE FOUNDER`) |
+| Stripe Customer Portal | Primary self-serve for PM, invoices, plan change, reactivate — **not** required for cancel |
 
 ---
 
 ## Flows
 
 1. **No subscription** → CTA “Start trial / Subscribe” → Stripe Checkout (subscription mode)  
-2. **Has subscription** → Plan card + usage + invoice table + “Manage billing” (Portal)  
-3. **Past due** → Banner + Portal deep link; non-billing features may enter grace/restrict per [10](./10-failure-handling.md)
+2. **Has subscription** → Plan card + usage + invoice table + Portal for PM / plan change  
+3. **Cancel** → In-app confirm → `POST /api/saas` `action: "cancel"` → `cancel_at_period_end`; badge until period ends  
+4. **Past due** → Banner + Portal deep link; non-billing features may enter grace/restrict per [10](./10-failure-handling.md)
+
+**Amendment status:** In-app cancel is **Approved** ([21](./21-amendment-in-app-cancel-at-period-end.md)).
 
 ---
 

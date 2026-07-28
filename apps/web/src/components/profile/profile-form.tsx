@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Avatar, Button, Card, Checkbox, Input } from "@mpa/ui";
+import { Avatar, Button, Card, Input } from "@mpa/ui";
+import Link from "next/link";
 import { MediaUpload, profilePhotoUploadIntent } from "../media/media-upload";
 import { DEFAULT_NOTIFICATION_PREFERENCES, type NotificationPreferences } from "../../lib/profile/contracts";
+import { SETTINGS_PREFERENCES_HREF } from "../../lib/settings/nav";
 
 type ProfileState = {
   email: string;
@@ -111,7 +113,7 @@ export function ProfileForm() {
       <Card>
         <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">User profile</h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Manage avatar, contact details, timezone, notifications, and organization memberships.
+          Manage avatar, contact details, timezone, and organization memberships.
         </p>
       </Card>
 
@@ -161,56 +163,18 @@ export function ProfileForm() {
             />
           </div>
 
-          <fieldset className="space-y-2">
-            <legend className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-              Notification preferences
-            </legend>
-            <label className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              <Checkbox
-                checked={profile.notificationPreferences.email}
-                onChange={(event) =>
-                  setProfile((current) => ({
-                    ...current,
-                    notificationPreferences: {
-                      ...current.notificationPreferences,
-                      email: event.target.checked
-                    }
-                  }))
-                }
-              />
-              Email
-            </label>
-            <label className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              <Checkbox
-                checked={profile.notificationPreferences.in_app}
-                onChange={(event) =>
-                  setProfile((current) => ({
-                    ...current,
-                    notificationPreferences: {
-                      ...current.notificationPreferences,
-                      in_app: event.target.checked
-                    }
-                  }))
-                }
-              />
-              In-app
-            </label>
-            <label className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              <Checkbox
-                checked={profile.notificationPreferences.sms}
-                onChange={(event) =>
-                  setProfile((current) => ({
-                    ...current,
-                    notificationPreferences: {
-                      ...current.notificationPreferences,
-                      sms: event.target.checked
-                    }
-                  }))
-                }
-              />
-              SMS
-            </label>
-          </fieldset>
+          <div className="rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-muted)] px-4 py-3 text-sm">
+            <p className="font-semibold text-[var(--mpa-color-text-primary)]">Notification preferences</p>
+            <p className="mt-1 text-[var(--mpa-color-text-secondary)]">
+              Channels, categories, quiet hours, and push live under Settings → Preferences.
+            </p>
+            <Link
+              href={SETTINGS_PREFERENCES_HREF}
+              className="mt-2 inline-block font-medium text-[var(--mpa-color-brand-primary)] underline"
+            >
+              Manage preferences
+            </Link>
+          </div>
 
           {error ? <p className="text-sm text-[var(--mpa-color-feedback-error)]">{error}</p> : null}
           {notice ? <p className="text-sm text-[var(--mpa-color-brand-primary)]">{notice}</p> : null}

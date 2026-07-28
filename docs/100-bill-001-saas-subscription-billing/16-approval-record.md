@@ -22,6 +22,8 @@ All D1–D12 accepted as documented in [15-approval-checklist.md](./15-approval-
 
 Amendments: none at approval time.
 
+**Pending amendment (2026-07-28):** ~~In-app cancel at period end~~ — **APPROVED** 2026-07-28 — [21](./21-amendment-in-app-cancel-at-period-end.md).
+
 ---
 
 ## Implementation note

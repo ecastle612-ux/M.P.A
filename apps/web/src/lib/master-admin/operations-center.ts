@@ -98,7 +98,7 @@ export async function getOperationsCenterSnapshot(
         category: "integration",
         title: `${provider.name} requires configuration`,
         context: provider.lastError ?? provider.nextAction,
-        href: "/master-admin/providers"
+        href: "/settings/integrations"
       });
     } else if (provider.lastError) {
       attention.push({
@@ -107,7 +107,7 @@ export async function getOperationsCenterSnapshot(
         category: "integration",
         title: `${provider.name} reported an error`,
         context: provider.lastError,
-        href: "/master-admin/providers"
+        href: "/settings/integrations"
       });
     } else if (provider.status === "disabled" && provider.category.toLowerCase().includes("email")) {
       // Skip noisy disabled providers unless they are clearly required later.
@@ -122,7 +122,7 @@ export async function getOperationsCenterSnapshot(
         category: "notifications",
         title: "Push notification provider is unhealthy",
         context: notificationOps.providerDetail ?? notificationOps.providerKey,
-        href: "/settings/notifications"
+        href: "/settings/preferences"
       });
     }
     if (notificationOps.pushFailed24h > 0 || notificationOps.failedDeliveries24h > 0) {
@@ -133,7 +133,7 @@ export async function getOperationsCenterSnapshot(
         category: "notifications",
         title: `${failed} push notification${failed === 1 ? "" : "s"} failed in the last 24h`,
         context: activeOrganizationName,
-        href: "/settings/notifications"
+        href: "/settings/preferences"
       });
     }
   }

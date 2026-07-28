@@ -22,7 +22,7 @@ export default async function SettingsBillingPage({
   if (!organizationId) {
     return (
       <Card className="p-5">
-        <h1 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">Billing</h1>
+        <h1 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">Subscription</h1>
         <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
           Select an organization before managing your M.P.A. subscription.
         </p>
