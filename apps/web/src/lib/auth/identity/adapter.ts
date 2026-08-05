@@ -163,7 +163,7 @@ export async function authenticate(username: string, password: string): Promise<
     userId: data.user.id,
     principal,
     requiresFirstLoginGate: requiresFirstLoginGate(principal),
-    isMasterAdmin: data.user.app_metadata?.["dev_master_admin"] === true
+    isMasterAdmin: data.user.app_metadata?.["dev_master_admin"] === true // MAC-002: app_metadata only
   };
 }
 

@@ -104,7 +104,12 @@ export function evaluatePermission(
   context: ResolvedAuthorizationContext,
   capability: PermissionCapability
 ): boolean {
-  // Platform Master Admin may operate HQ active-org tools (Migration, setup, invites).
+  /**
+   * MAC-002 Hybrid C — Platform Operator Mode (breakglass).
+   * `master_admin` is app_metadata-only (never org-granted). Short-circuit applies to
+   * HQ / active-org operator tools. Customer portal surfaces still require an explicit
+   * View As or Test Mode session (`canAccessPortalAsMasterAdmin`).
+   */
   if (context.permissions.includes("master_admin")) {
     return true;
   }

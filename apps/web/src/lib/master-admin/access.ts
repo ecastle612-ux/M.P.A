@@ -1,64 +1,29 @@
 import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
-import { DEV_MASTER_ADMIN_APP_METADATA_FLAG, isUserRole, type UserRole } from "@mpa/shared";
+import { DEV_MASTER_ADMIN_APP_METADATA_FLAG } from "@mpa/shared";
 import { createAuthServerClient, createAuthServerComponentClient } from "../auth/server";
 import { resolveActiveOrganizationIdForUser } from "../organization/server";
 import { apiError } from "../api/http";
 
-function hasMasterAdminAppGrant(user: User): boolean {
-  const metadata = user.app_metadata as Record<string, unknown> | undefined;
+/**
+ * MAC-002 — single source of truth for platform Master Admin.
+ *
+ * Platform Master Admin is granted ONLY via Auth `app_metadata.dev_master_admin`.
+ * It is NOT an organization role and MUST NOT be granted via
+ * `organization_permission_overrides` (org managers cannot escalate).
+ *
+ * Middleware, API gates, page guards, and helpers all use this check.
+ */
+export function hasPlatformMasterAdminGrant(
+  user: { app_metadata?: Record<string, unknown> } | null | undefined
+): boolean {
+  const metadata = user?.app_metadata as Record<string, unknown> | undefined;
   return metadata?.[DEV_MASTER_ADMIN_APP_METADATA_FLAG] === true;
 }
 
-/**
- * True when the authenticated user is a platform Master Admin.
- *
- * Sources (any one is enough):
- * 1. Auth app_metadata flag set by bootstrap (`dev_master_admin`) — user-level grant
- * 2. organization_permission_overrides allow for any active membership role
- *
- * Must not depend solely on the shell active organization — customer orgs often
- * lack the override even when the operator is Master Admin on mpa-development.
- */
+/** @deprecated Use hasPlatformMasterAdminGrant — kept as the async-capable name used across the codebase. */
 export async function userHasMasterAdminCapability(user: User): Promise<boolean> {
-  if (hasMasterAdminAppGrant(user)) {
-    return true;
-  }
-
-  const supabase = await createAuthServerComponentClient();
-  const { data: memberships, error: membershipError } = await supabase
-    .from("organization_memberships")
-    .select("organization_id, roles")
-    .eq("user_id", user.id)
-    .eq("status", "active");
-
-  if (membershipError) {
-    throw new Error(membershipError.message);
-  }
-
-  for (const membership of memberships ?? []) {
-    const roles = ((membership.roles ?? []) as unknown[]).filter(isUserRole) as UserRole[];
-    if (roles.length === 0) continue;
-
-    const { data: overrides, error: overrideError } = await supabase
-      .from("organization_permission_overrides")
-      .select("effect")
-      .eq("organization_id", membership.organization_id)
-      .eq("capability_key", "master_admin")
-      .in("role", roles as never);
-
-    if (overrideError) {
-      throw new Error(overrideError.message);
-    }
-
-    const denied = (overrides ?? []).some((row) => row.effect === "deny");
-    if (denied) continue;
-    if ((overrides ?? []).some((row) => row.effect === "allow")) {
-      return true;
-    }
-  }
-
-  return false;
+  return hasPlatformMasterAdminGrant(user);
 }
 
 export async function requireMasterAdminPageAccess(): Promise<{
@@ -74,7 +39,7 @@ export async function requireMasterAdminPageAccess(): Promise<{
   const organizationId = await resolveActiveOrganizationIdForUser(user.id);
   if (!organizationId) redirect("/setup");
 
-  if (!(await userHasMasterAdminCapability(user))) {
+  if (!hasPlatformMasterAdminGrant(user)) {
     redirect("/unauthorized");
   }
 
@@ -90,22 +55,16 @@ export async function requireMasterAdminApiAccess(): Promise<
     data: { user }
   } = await supabase.auth.getUser();
   if (!user) {
-    return { ok: false, response: apiError(401, "UNAUTHENTICATED", "Please sign in to continue.") };
+    return { ok: false, response: apiError(401, "UNAUTHORIZED", "Authentication required.") };
   }
 
   const organizationId = await resolveActiveOrganizationIdForUser(user.id);
   if (!organizationId) {
-    return {
-      ok: false,
-      response: apiError(400, "NO_ORGANIZATION", "Select or create an organization first.")
-    };
+    return { ok: false, response: apiError(400, "NO_ORGANIZATION", "Active organization required.") };
   }
 
-  if (!(await userHasMasterAdminCapability(user))) {
-    return {
-      ok: false,
-      response: apiError(403, "FORBIDDEN", "Master Admin capability required.")
-    };
+  if (!hasPlatformMasterAdminGrant(user)) {
+    return { ok: false, response: apiError(403, "FORBIDDEN", "Master Admin capability required.") };
   }
 
   return { ok: true, user, organizationId };

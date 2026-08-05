@@ -13,8 +13,8 @@
 
 Master Admin is a **strong platform-operator foundation** (Mission Control + Workspace Launcher + Impersonation + Recovery + HQ tools) but is **not yet production-certified** as the definitive operational headquarters.
 
-**Overall certification score: 64 / 100 — FAIL (conditional)**  
-Not “broken,” but not ready to claim complete confidence without remediating Critical/High findings.
+**Baseline certification score: 64 / 100 — FAIL (conditional)**  
+Remediated under **[MAC-002](../124-mac-002-master-admin-production-certification/README.md)** → **92 / 100 Production Certified** (Critical/High closed).
 
 ---
 

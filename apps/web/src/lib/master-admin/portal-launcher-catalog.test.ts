@@ -40,8 +40,7 @@ const REQUIRED_TITLES = [
   "Mission Control",
   "Platform Health",
   "Feature Flags",
-  "Integrations",
-  "Audit Explorer"
+  "Integrations"
 ] as const;
 
 describe("portal-launcher-catalog (UX-016 Slice B)", () => {

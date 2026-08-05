@@ -56,6 +56,17 @@ export default async function TenantPortalPage() {
   const session = await getActiveMasterAdminSession(user.id);
   const inPortalTest = session?.mode === "portal_test" && session.portal === "resident";
 
+  // MAC-002 — Test Mode is simulation only: do not load live resident/org data.
+  if (inPortalTest) {
+    return (
+      <AppPage>
+        <div className="space-y-4">
+          <MasterAdminPortalDemoPanel portal="resident" />
+        </div>
+      </AppPage>
+    );
+  }
+
   const authorization = await resolveAuthorizationContext(user, organizationId);
   const tenant = await resolveLinkedTenantForUser(organizationId, user.id, user.email, supabase);
 
@@ -219,7 +230,6 @@ export default async function TenantPortalPage() {
 
   return (
     <AppPage>
-      {inPortalTest && !tenant ? <MasterAdminPortalDemoPanel portal="resident" /> : null}
       <TenantPortalHome
         firstName={firstName}
         propertyName={tenantDetail?.propertyName ?? null}

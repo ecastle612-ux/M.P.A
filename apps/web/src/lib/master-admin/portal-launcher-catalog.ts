@@ -131,7 +131,7 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
         id: "applicant",
         title: "Applicant",
         description: "Applicant and screening surfaces in leasing.",
-        openHref: "/leases",
+        openHref: "/applicants",
         viewAsHref: VIEW_AS,
         testModePortal: null,
         testModeFallbackLabel: "Use View As when an applicant-linked user exists"
@@ -297,16 +297,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
         viewAsHref: VIEW_AS,
         testModePortal: null,
         testModeFallbackLabel: "Integrations are an HQ surface"
-      },
-      {
-        id: "audit-explorer",
-        title: "Audit Explorer",
-        description: "Impersonation and support audit entry (browse via Impersonation Center).",
-        openHref: "/master-admin/impersonation",
-        viewAsHref: VIEW_AS,
-        testModePortal: null,
-        testModeFallbackLabel: "Audit browse via Impersonation Center"
       }
+      // MAC-002 — Audit Explorer removed until a real explorer ships (no unfinished capability).
     ]
   }
 ];

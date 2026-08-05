@@ -60,7 +60,8 @@ export function MasterAdminModeBanner({
                 Viewing <span className="font-medium">{portalLabel} Portal</span>
               </p>
               <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                Actions are simulated unless explicitly committed.
+                Simulated demo surface — isolated from live tenant/owner production data. Exit before
+                production work.
               </p>
             </>
           ) : (

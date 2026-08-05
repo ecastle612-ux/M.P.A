@@ -11,9 +11,8 @@ import type {
 } from "../../lib/master-admin/portal-launcher-catalog";
 
 /**
- * ARCH-001 / NAV-001 — reusable Workspace Launcher framework.
- * Same Open · View As · Test Mode behavior as the certified Portal Launcher.
- * Visibility is controlled by the `groups` passed by the host surface.
+ * ARCH-001 / NAV-001 / MAC-002 — reusable Workspace Launcher.
+ * Test Mode is shown only when a portal-test API mapping exists (no fake actions).
  */
 export function WorkspaceLauncher({
   groups,
@@ -26,7 +25,6 @@ export function WorkspaceLauncher({
   groups: readonly PortalLauncherGroup[];
   title?: string;
   description?: string;
-  /** When true, render as an in-hub section (h2) rather than a page hero (h1). */
   embedded?: boolean;
   sectionId?: string;
   testModeEndpoint?: string;
@@ -36,10 +34,7 @@ export function WorkspaceLauncher({
   const [error, setError] = useState<string | null>(null);
 
   async function launchTestMode(card: PortalLauncherCard) {
-    if (!card.testModePortal) {
-      router.push(card.openHref);
-      return;
-    }
+    if (!card.testModePortal) return;
     setError(null);
     setPendingId(card.id);
     try {
@@ -70,7 +65,7 @@ export function WorkspaceLauncher({
       id={sectionId}
       className="space-y-8 scroll-mt-24"
       data-arch001="workspace-launcher"
-      data-nav001="workspace-launcher"
+      data-mac002="workspace-launcher"
     >
       <header className="space-y-2">
         {!embedded ? (
@@ -137,20 +132,18 @@ export function WorkspaceLauncher({
                         View As
                       </Button>
                     </Link>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      disabled={pendingId === card.id}
-                      onClick={() => void launchTestMode(card)}
-                      title={
-                        card.testModePortal
-                          ? "Launch in portal Test Mode"
-                          : card.testModeFallbackLabel
-                      }
-                    >
-                      {pendingId === card.id ? "Launching…" : "Test Mode"}
-                    </Button>
+                    {card.testModePortal ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        disabled={pendingId === card.id}
+                        onClick={() => void launchTestMode(card)}
+                        title="Launch simulated portal Test Mode"
+                      >
+                        {pendingId === card.id ? "Launching…" : "Test Mode"}
+                      </Button>
+                    ) : null}
                   </div>
                 </article>
               ))}

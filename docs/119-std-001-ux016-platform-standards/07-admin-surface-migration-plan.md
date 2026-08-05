@@ -46,10 +46,12 @@
 
 **Acceptance**
 
-- [ ] First viewport = Greeting → Assistant → Waiting → Attention → Mission…  
-- [ ] No KPI wall above Immediate Attention  
-- [ ] Existing commercial actions reachable via Recommended / Quick Actions / deep links  
-- [ ] Shell unchanged  
+- [x] First viewport = Greeting → Assistant → Waiting → Attention → Mission…  
+- [x] No KPI wall above Immediate Attention  
+- [x] Existing commercial actions reachable via Recommended / Quick Actions / deep links  
+- [x] Shell unchanged  
+
+**Status:** ✅ **COMPLETE** (authorized remediation 2026-08-05 — see [08](./08-compliance-remediation-authorization.md) · [09](./09-compliance-remediation-implementation.md))
 
 ---
 
@@ -66,9 +68,11 @@
 
 **Acceptance**
 
-- [ ] `/financials` mounts Universal Dashboard Framework  
-- [ ] Insights below fold; work queues first  
-- [ ] Reports remain Class T at `/financials/reports`  
+- [x] `/financials` mounts Universal Dashboard Framework  
+- [x] Insights below fold; work queues first  
+- [x] Reports remain Class T at `/financials/reports`  
+
+**Status:** ✅ **COMPLETE** (authorized remediation 2026-08-05)
 
 ---
 
@@ -84,8 +88,10 @@
 
 **Acceptance**
 
-- [ ] Migration home answers five-second test via Assistant / Attention / Mission  
-- [ ] Create/import flows remain Quick Actions / deep links  
+- [x] Migration home answers five-second test via Assistant / Attention / Mission  
+- [x] Create/import flows remain Quick Actions / deep links  
+
+**Status:** ✅ **COMPLETE** (authorized remediation 2026-08-05)
 
 ---
 
@@ -106,13 +112,13 @@ These are **not** required to clear the audit FAIL list; schedule only if Produc
 
 ```
 Phase 0  Audit published (this package)     ✅
-Phase 1  Authorize + remediate M-01 Commercial home
-Phase 2  Authorize + remediate M-02 Financials home
-Phase 3  Authorize + remediate M-03 Migration home
-Phase 4  Re-audit Admin surfaces → expect 0 Class D
+Phase 1  Authorize + remediate M-01 Commercial home  ✅
+Phase 2  Authorize + remediate M-02 Financials home  ✅
+Phase 3  Authorize + remediate M-03 Migration home   ✅
+Phase 4  Re-audit Admin surfaces → 0 Class D         ✅
 ```
 
-Do **not** run Phases 1–3 without authorize phrases. Prefer stacking under CORE-004 after `APPROVE CORE-004`.
+Phases 1–3 executed under `AUTHORIZE STD-001 Compliance Remediation – Remaining Admin Dashboards` ([08](./08-compliance-remediation-authorization.md)).
 
 ---
 
@@ -134,20 +140,20 @@ For each remediated home, re-run:
 
 | Check | Pass? |
 |-------|-------|
-| Universal Dashboard Framework | ☐ |
-| Greeting | ☐ |
-| M.P.A. Assistant | ☐ |
-| Waiting on Me | ☐ |
-| Waiting on Others | ☐ |
-| Immediate Attention | ☐ |
-| Today’s Mission | ☐ |
-| Recommended Actions | ☐ |
-| Timeline | ☐ |
-| Insights | ☐ |
-| Universal Sidebar | ☐ |
-| Mobile Navigation | ☐ |
+| Universal Dashboard Framework | ✅ |
+| Greeting | ✅ |
+| M.P.A. Assistant | ✅ |
+| Waiting on Me | ✅ |
+| Waiting on Others | ✅ |
+| Immediate Attention | ✅ |
+| Today’s Mission | ✅ |
+| Recommended Actions | ✅ |
+| Timeline | ✅ |
+| Insights | ✅ |
+| Universal Sidebar | ✅ |
+| Mobile Navigation | ✅ |
 
-Update [06](./06-admin-surface-compliance-audit.md) scorecard when Class D = 0.
+[06](./06-admin-surface-compliance-audit.md) scorecard updated — Class D = 0.
 
 ---
 

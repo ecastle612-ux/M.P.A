@@ -54,6 +54,9 @@ function mapSessionRow(row: {
   };
 }
 
+/** MAC-002 — server-side session TTL (matches cookie max-age). */
+export const MASTER_ADMIN_SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+
 export async function getActiveMasterAdminSession(
   masterAdminUserId: string
 ): Promise<MasterAdminEffectiveSession | null> {
@@ -73,6 +76,19 @@ export async function getActiveMasterAdminSession(
     .maybeSingle();
 
   if (error || !data) return null;
+
+  const startedAt = new Date(String((data as { started_at: string }).started_at)).getTime();
+  if (Number.isFinite(startedAt) && Date.now() - startedAt > MASTER_ADMIN_SESSION_TTL_MS) {
+    const now = new Date().toISOString();
+    await supabase
+      .from("master_admin_impersonation_sessions")
+      .update({ ended_at: now })
+      .eq("id", sessionId)
+      .is("ended_at", null);
+    cookieStore.set(MASTER_ADMIN_SESSION_COOKIE, "", cookieOptions(0));
+    return null;
+  }
+
   return mapSessionRow(data as Parameters<typeof mapSessionRow>[0]);
 }
 
@@ -228,7 +244,7 @@ export async function recordMasterAdminEvent(input: {
   detail?: Record<string, unknown>;
 }): Promise<void> {
   const supabase = (await createAuthServerClient()) as unknown as UntypedDb;
-  await supabase.from("master_admin_impersonation_events").insert({
+  const { error } = await supabase.from("master_admin_impersonation_events").insert({
     session_id: input.sessionId,
     organization_id: input.organizationId,
     actor_user_id: input.actorUserId,
@@ -238,6 +254,10 @@ export async function recordMasterAdminEvent(input: {
     entity_id: input.entityId ?? null,
     detail: input.detail ?? {}
   });
+  // MAC-002 — fail visible; callers must not silently lose audit evidence.
+  if (error) {
+    throw new Error(`Master Admin audit event failed: ${error.message}`);
+  }
 }
 
 export async function getMasterAdminBannerModel(user: User): Promise<{
