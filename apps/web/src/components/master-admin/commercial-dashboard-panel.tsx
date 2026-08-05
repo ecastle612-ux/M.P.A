@@ -22,7 +22,15 @@ function Metric({ label, value }: { label: string; value: string | number }) {
  * COM-001 Slice E — staff commercial dashboard (Master Admin HQ composition).
  * Control-plane only; not a customer product.
  */
-export function CommercialDashboardPanel() {
+export function CommercialDashboardPanel({
+  embedded = false,
+  emitOpenedOnMount = true
+}: {
+  /** When true, demote hero copy — used under Universal Dashboard Framework (STD-001). */
+  embedded?: boolean;
+  /** When false, skip commercial.dashboard_opened emission (parent already emitted). */
+  emitOpenedOnMount?: boolean;
+} = {}) {
   const [dashboard, setDashboard] = useState<CommercialDashboardSnapshot | null>(null);
   const [engagements, setEngagements] = useState<ImplementationEngagement[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -57,8 +65,8 @@ export function CommercialDashboardPanel() {
   }, []);
 
   useEffect(() => {
-    void load(true);
-  }, [load]);
+    void load(emitOpenedOnMount);
+  }, [load, emitOpenedOnMount]);
 
   async function createInternalEngagement() {
     if (!orgId.trim()) return;
@@ -92,16 +100,29 @@ export function CommercialDashboardPanel() {
       <Card className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-[var(--mpa-color-text-muted)]">
-              COM-001 Slice E · Staff only
-            </p>
-            <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
-              Commercial dashboard
-            </h2>
-            <p className="mt-1 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-              Control-plane aggregates from COM-001 A–D and BILL-001. Customers never see this
-              surface.
-            </p>
+            {embedded ? (
+              <>
+                <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+                  Commercial aggregates & marketplace prep
+                </h2>
+                <p className="mt-1 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
+                  Detail metrics and engagement recording — after the operational briefing.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-[var(--mpa-color-text-muted)]">
+                  COM-001 Slice E · Staff only
+                </p>
+                <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
+                  Commercial dashboard
+                </h2>
+                <p className="mt-1 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
+                  Control-plane aggregates from COM-001 A–D and BILL-001. Customers never see this
+                  surface.
+                </p>
+              </>
+            )}
           </div>
           <Button type="button" variant="secondary" disabled={loading} onClick={() => void load(false)}>
             Refresh

@@ -46,13 +46,13 @@ Legend for checklists:
 
 | Metric | Result |
 |--------|--------|
-| Admin **homes** on Universal Dashboard Framework | **2 / 2** primary homes PASS (`/dashboard`, `/master-admin`) |
-| Divergent Admin **dashboards** (Class D) | **3** NON-COMPLIANT (commercial · financials home · migration) |
+| Admin **homes** on Universal Dashboard Framework | **5 / 5** PASS (`/dashboard`, `/master-admin`, `/master-admin/commercial`, `/financials`, `/migration`) |
+| Divergent Admin **dashboards** (Class D) | **0** |
 | Tool / settings Admin pages missing shell | **0** under `(app)` layout |
 | Dedicated routes missing for Roles / Audit / Organizations (as named URLs) | Concepts aliased to existing tools — not a UDF defect |
-| Overall Admin home compliance | **PASS with residual Class D debt** |
+| Overall Admin home compliance | ✅ **PASS** |
 
-**Bottom line:** UX-016 certified homes are live for Organization Admin (`/dashboard`) and Master Admin Mission Control (`/master-admin`). Remaining Admin debt is **secondary divergent dashboards** and ensuring tool pages stay shell-native without inventing parallel homes.
+**Bottom line:** UX-016 certified homes remain live for Organization Admin (`/dashboard`) and Master Admin Mission Control (`/master-admin`). The three former Class D dashboards (`/master-admin/commercial`, `/financials`, `/migration`) were remounted onto the Universal Dashboard Framework under [08 — Authorization](./08-compliance-remediation-authorization.md) / [09 — Implementation](./09-compliance-remediation-implementation.md) (2026-08-05).
 
 ---
 
@@ -266,43 +266,42 @@ Same as §3.1 `/master-admin` — ✅ **COMPLIANT**.
 | `/master-admin/testing` | `TestingUtilitiesPanel` | T | ◯ | ✅ | ✅ | ✅ Shell PASS |
 | `/master-admin/flags` | Flags Card | T | ◯ | ✅ | ✅ | ✅ Shell PASS |
 | `/master-admin/providers` | Redirect | T | ◯ | ✅ | ✅ | ✅ Shell PASS |
-| `/master-admin/commercial` | `CommercialDashboardPanel` + `CommercialOpsPanel` | **D** | ❌ | ✅ | ✅ | ❌ **NON-COMPLIANT** |
+| `/master-admin/commercial` | `CommercialUniversalDashboard` → `UniversalDashboard` (+ tools below) | **H** | ✅ | ✅ | ✅ | ✅ **PASS** |
 
 ---
 
-## 5. Legacy / divergent layouts (Class D)
+## 5. Former Class D — remediated (2026-08-05)
 
-These pages present **dashboard-like** canvases outside the Universal Dashboard Framework.
+Previously divergent dashboards remounted onto Universal Dashboard Framework. Secondary tool panels remain **below** Insights.
 
-### D-1 — Master Admin Commercial
+### R-1 — Master Admin Commercial ✅ PASS
 
 | Field | Value |
 |-------|-------|
 | Route | `/master-admin/commercial` |
-| Component | `CommercialDashboardPanel`, `CommercialOpsPanel` |
-| Reason | Competing commercial “dashboard” panels; not remounted on UDF / Assistant |
-| Missing UX-016 elements | Universal Dashboard Framework · Greeting · M.P.A. Assistant · Waiting on Me · Waiting on Others · Immediate Attention · Today’s Mission · Recommended Actions · Operational Timeline · Insights (UDF order) |
-| Shell | ✅ Sidebar + Mobile present |
+| Component | `CommercialUniversalDashboard` → `UniversalDashboard` · tools: `CommercialDashboardPanel` (embedded) · `CommercialOpsPanel` |
+| Class | **H** |
+| Notes | Commercial ops command center; Immediate Attention prioritizes billing failures / critical health |
 
-### D-2 — Financials module home
+### R-2 — Financials module home ✅ PASS
 
 | Field | Value |
 |-------|-------|
 | Route | `/financials` |
-| Component | `FinancialOverview` (+ `PmBillingPanel`) |
-| Reason | Module home uses legacy overview/KPI composition instead of Universal Dashboard Framework |
-| Missing UX-016 elements | UDF · Greeting · Assistant · Waiting · Immediate Attention · Today’s Mission · Recommended Actions · Timeline · Insights-below-fold discipline |
-| Shell | ✅ |
+| Component | `FinancialUniversalDashboard` → `UniversalDashboard` · tools: `FinancialOverview` (embedded) · `PmBillingPanel` |
+| Class | **H** |
+| Notes | Financial ops command center; Immediate Attention prioritizes financial risk |
 
-### D-3 — Migration Center
+### R-3 — Migration Center ✅ PASS
 
 | Field | Value |
 |-------|-------|
 | Route | `/migration` |
-| Component | `MigrationSwitchingExperience` / `MigrationDashboard` |
-| Reason | Migration “dashboard” experience parallel to UDF |
-| Missing UX-016 elements | UDF composition sections listed above |
-| Shell | ✅ |
+| Component | `MigrationUniversalDashboard` → `UniversalDashboard` · tools: switching checklist · `MigrationDashboard` (embedded) |
+| Class | **H** |
+| Notes | Migration ops command center; Immediate Attention prioritizes blockers first |
+
+**Evidence:** [09](./09-compliance-remediation-implementation.md) · [artifacts](./artifacts/std001-remediation/)
 
 ---
 
@@ -335,10 +334,11 @@ HQ sidebar variant is **authorized** under UX-016 Slice C (Master Admin–only s
 | Category | Score |
 |----------|-------|
 | Primary Admin homes (Org + Mission Control) | **2 / 2 PASS** |
+| Remediated module / HQ command homes | **3 / 3 PASS** (commercial · financials · migration) |
 | Approved launchers | **PASS** |
 | Admin tools shell inheritance | **PASS** |
-| Divergent Admin/module dashboards | **3 FAIL** (commercial · financials · migration) |
-| New UX invented by this audit | **None** (docs only) |
+| Divergent Admin/module dashboards (Class D) | **0** |
+| New UX invented | **None** — certified UDF reused |
 
 ---
 
@@ -350,9 +350,11 @@ HQ sidebar variant is **authorized** under UX-016 Slice C (Master Admin–only s
 | Mission Control | `apps/web/src/app/(app)/master-admin/page.tsx` · `components/master-admin/operations-center-view.tsx` |
 | Shell | `apps/web/src/app/(app)/layout.tsx` · `components/shell/application-shell.tsx` |
 | Nav | `components/shell/navigation-config.ts` |
-| Commercial debt | `apps/web/src/app/(app)/master-admin/commercial/page.tsx` |
-| Financials debt | `apps/web/src/app/(app)/financials/page.tsx` |
-| Migration debt | `apps/web/src/app/(app)/migration/page.tsx` |
+| Commercial home (remediated) | `apps/web/src/app/(app)/master-admin/commercial/page.tsx` · `commercial-universal-dashboard.tsx` |
+| Financials home (remediated) | `apps/web/src/app/(app)/financials/page.tsx` · `financial-universal-dashboard.tsx` |
+| Migration home (remediated) | `apps/web/src/app/(app)/migration/page.tsx` · `migration-universal-dashboard.tsx` |
+| Remediation implementation | [09](./09-compliance-remediation-implementation.md) |
+| Before/after screenshots | [artifacts/std001-remediation/](./artifacts/std001-remediation/) |
 
 ---
 
@@ -360,5 +362,6 @@ HQ sidebar variant is **authorized** under UX-016 Slice C (Master Admin–only s
 
 | Role | Finding |
 |------|---------|
-| Audit | Admin **homes** certified-path compliant; **3** divergent dashboards remain |
-| Next | Execute [07 — Migration plan](./07-admin-surface-migration-plan.md) under CORE-004 / authorized remediation slices — **not** a new UX initiative |
+| Audit (initial) | Admin primary homes certified-path compliant; **3** Class D dashboards identified |
+| Remediation (2026-08-05) | Class D → **0**; commercial · financials · migration **PASS** on UDF |
+| Next | Maintain STD-001 inheritance; CORE-004 capability work remains separate |
