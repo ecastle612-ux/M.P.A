@@ -33,6 +33,6 @@ Remediate every **Critical** and **High** finding from MAC-001 (plus mission hon
 
 ## CORE-004 gate
 
-**Recommend unlocking CORE-004** after MAC-002 merge + migration apply.
+**Satisfied for program Approve** — CORE-004 Approved 2026-08-05 ([120](../120-core-004-core-platform-expansion/05-approval-record.md)).
 
-Do **not** begin CORE-004 implementation until this certification is accepted on the release lineage.
+Still apply this package’s migration on the release lineage. Phase 1 Implement waits on `AUTHORIZE CORE-004 PHASE 1`.

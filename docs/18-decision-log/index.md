@@ -70,6 +70,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-032](./adr-032-ux-016-dashboard-navigation-optimization.md) | Dashboard & Navigation Optimization (UX-016) | Accepted (initiative CLOSED · Certified) | 2026-08-05 |
 | [ADR-033](./adr-033-ux016-platform-standards-mandatory.md) | UX-016 Platform Standards Mandatory for Future Modules (STD-001) | Accepted | 2026-08-05 |
 | [ADR-034](./adr-034-master-admin-single-hub.md) | Master Admin Single Operational Hub for Portal Launch | Accepted | 2026-08-05 |
+| [ADR-035](./adr-035-core-004-core-platform-expansion.md) | CORE-004 Core Platform Expansion (workflow-first phases) | Accepted | 2026-08-05 |
 
 ---
 

@@ -115,7 +115,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 117 | [UX-013 Customer Acquisition & Contextual Navigation](./117-ux-013-customer-acquisition-contextual-navigation/README.md) | Modules-first acquisition + per-surface nav matrices (**Approved** · Slice A authorized) |
 | 118 | [UX-016 Dashboard & Navigation Optimization](./118-ux-016-dashboard-navigation-optimization/README.md) | Work-first dashboards + nav + M.P.A. Assistant (**CLOSED** · Implemented · Verified · Certified) |
 | 119 | [STD-001 UX-016 Platform Standards](./119-std-001-ux016-platform-standards/README.md) | Permanent dashboard · navigation · design · inheritance law (**Accepted**) · [Admin compliance audit](./119-std-001-ux016-platform-standards/06-admin-surface-compliance-audit.md) |
-| 120 | [CORE-004 Core Platform Expansion](./120-core-004-core-platform-expansion/README.md) | Next program — operational capabilities under STD-001 (**Draft — Planning**) |
+| 120 | [CORE-004 Core Platform Expansion](./120-core-004-core-platform-expansion/README.md) | Core Platform Expansion — workflow phases 1–9 (**APPROVED** · Phase 1 Design ready · [ADR-035](./18-decision-log/adr-035-core-004-core-platform-expansion.md)) |
 | 106 | [PMX-004 Native PWA Parity](./106-pmx-004-native-pwa-parity/README.md) | Near-native PWA (**Phase 1 code ✔** · prod validation gate [17](./106-pmx-004-native-pwa-parity/17-phase-1-production-validation.md) · Phase 2 locked) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
