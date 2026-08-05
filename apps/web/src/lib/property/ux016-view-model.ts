@@ -44,6 +44,8 @@ export type PropertyCommandCenterInput = {
   }>;
   /** CORE-004 Phase 2 — open maintenance count for property integration */
   openMaintenanceCount?: number;
+  /** CORE-004 Phase 3 — active leasing pipeline count (non-terminal workflow stages) */
+  activeLeasingCount?: number;
   userName?: string | null;
   organizationName?: string | null;
 };
@@ -145,6 +147,23 @@ export function buildPropertyCommandCenterViewModel(
       label: "Property maintenance queue",
       detail: "Canonical workflow work orders for this property",
       href: `/maintenance?propertyId=${encodeURIComponent(property.id)}`
+    });
+  }
+
+  if ((input.activeLeasingCount ?? 0) > 0) {
+    attention.push({
+      id: "property-leasing",
+      title: "Active leasing pipeline",
+      reason: `${input.activeLeasingCount} lease${input.activeLeasingCount === 1 ? "" : "s"} in workflow`,
+      href: `/leases?propertyId=${encodeURIComponent(property.id)}`,
+      actionLabel: "Open leasing",
+      severity: "high"
+    });
+    waitingOnMe.push({
+      id: "wait-property-leasing",
+      label: "Property leasing queue",
+      detail: "Canonical leasing lifecycle for this property",
+      href: `/leases?propertyId=${encodeURIComponent(property.id)}`
     });
   }
 

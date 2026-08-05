@@ -33,7 +33,9 @@ Resident Request → Manager Review → Assignment → Scheduling → Technician
 
 ## Phase 3 — Leasing Operations
 
-Lead → Inquiry → Tour → Application → Screening → Approval → Lease Generation → SignWell → Move-In → Renewal → Move-Out
+Prospect → Inquiry → Lead Qualification → Tour Scheduling → Property Showing → Application → Screening → Approval → Lease Generation → SignWell Signature → Move-In Preparation → Move-In → Resident → Renewal → Move-Out → Archive
+
+**Authorize:** [16](./16-phase-3-authorization.md) · **Design:** [17](./17-phase-3-design.md) · **Certify:** [18](./18-phase-3-certification.md)
 
 ---
 

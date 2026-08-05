@@ -128,6 +128,6 @@ Apply migration before production use. Existing work orders backfill `workflow_s
 | Authorize | ✅ |
 | Implement | ✅ |
 | Verify / Certify | ✅ **PASS** |
-| Accept | Awaiting `ACCEPT CORE-004 PHASE 2` before Phase 3 Authorize |
+| Accept | ✅ Accepted — [15](./15-phase-2-acceptance.md) |
 
-**Do not request Phase 3 authorization until Phase 2 is accepted.**
+Phase 2 is complete. Phase 3 was authorized after Accept.

@@ -40,6 +40,20 @@ export async function advanceBusinessWorkflowAfterSignature(input: {
       .eq("organization_id", organizationId)
       .in("status", ["draft", "signed"]);
     advanced.push("lease.executed");
+
+    // CORE-004 Phase 3 — advance canonical leasing lifecycle (SignWell only).
+    try {
+      const { advanceLeasingAfterSignWell } = await import("../lease/workflow-server");
+      await advanceLeasingAfterSignWell({
+        organizationId,
+        leaseId: pkg.leaseId,
+        actorUserId,
+        client: client as never
+      });
+      advanced.push("leasing.signwell_completed");
+    } catch {
+      /* workflow advance optional if migration not applied */
+    }
   }
 
   // A2 — Lease Renewal: apply renewal dates using existing renew semantics.

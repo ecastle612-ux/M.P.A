@@ -89,6 +89,8 @@ export type ApplicantRecord = {
   assignedPmId: string | null;
   tenantId: string | null;
   status: ApplicantStatus;
+  /** CORE-004 Phase 3 — authoritative leasing lifecycle stage (applicant carrier). */
+  workflowStage: string;
   firstName: string;
   lastName: string;
   preferredName: string | null;
@@ -149,6 +151,7 @@ export type CreateApplicantInput = Omit<
   | "id"
   | "organizationId"
   | "applicationNumber"
+  | "workflowStage"
   | "submittedAt"
   | "approvedAt"
   | "declinedAt"

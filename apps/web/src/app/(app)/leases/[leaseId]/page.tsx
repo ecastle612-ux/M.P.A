@@ -8,7 +8,12 @@ import { EntityRelationshipChain } from "../../../../components/presentation/ent
 import { LeaseContextRail } from "../../../../components/presentation/context-rails/lease-context-rail";
 import { LeaseDocumentsPanel } from "../../../../components/lease/lease-documents-panel";
 import { LeaseLifecyclePanel } from "../../../../components/lease/lease-lifecycle-panel";
+import { LeasingWorkflowPanel } from "../../../../components/lease/leasing-workflow-panel";
 import { SignaturePackagePanel } from "../../../../components/signature/signature-package-panel";
+import {
+  isLeasingWorkflowStage,
+  legacyLeaseStatusToWorkflowStage
+} from "../../../../lib/lease/workflow";
 import { EntityActionToolbelt } from "../../../../components/presentation/entity-action-toolbelt";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
@@ -306,6 +311,20 @@ export default async function LeaseDetailPage({
           </Card>
 
           <div id="lifecycle" className="space-y-5">
+            <LeasingWorkflowPanel
+              currentStage={
+                isLeasingWorkflowStage(lease.workflowStage)
+                  ? lease.workflowStage
+                  : legacyLeaseStatusToWorkflowStage(lease.status, lease.renewalStatus)
+              }
+              canUpdate={canUpdate}
+              leaseId={lease.id}
+              applicantId={
+                typeof lease.metadata["linkedApplicantId"] === "string"
+                  ? lease.metadata["linkedApplicantId"]
+                  : null
+              }
+            />
             <LeaseLifecyclePanel
               leaseId={lease.id}
               status={lease.status}

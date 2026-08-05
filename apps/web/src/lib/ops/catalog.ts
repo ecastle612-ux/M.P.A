@@ -30,6 +30,7 @@ export const OPS_SLICE_A_EVENT_TYPES = [
   "lease.expiring",
   "lease.renewed",
   "lease.ended",
+  "leasing.workflow.transitioned",
   // AUTH-001 Slice B (secret-free provision)
   "auth.organization.provisioned",
   // AUTH-001 Slice C (secret-free invite / credential delivery / contact verify)

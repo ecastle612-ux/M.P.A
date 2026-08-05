@@ -268,6 +268,16 @@ export default async function PropertyDetailPage({
   ) {
     throw new Error("Unable to load property operational snapshot.");
   }
+
+  // CORE-004 Phase 3 — active leasing pipeline (non-terminal workflow stages)
+  const { count: activeLeasingCount } = await supabase
+    .from("leases")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId)
+    .eq("property_id", property.id)
+    .is("deleted_at", null)
+    .neq("workflow_stage", "archive");
+
   const occupancyRate = (unitsTotal ?? 0) === 0 ? 0 : Math.round(((occupiedUnits ?? 0) / (unitsTotal ?? 0)) * 100);
 
   const activity = [
@@ -442,6 +452,7 @@ export default async function PropertyDetailPage({
           canCreateMaintenance={canCreateMaintenance}
           recentLifecycle={recentLifecycle}
           openMaintenanceCount={openMaintenance.length}
+          activeLeasingCount={activeLeasingCount ?? 0}
           userName={(profile?.display_name as string | null) ?? user.email ?? null}
           organizationName={null}
         />
