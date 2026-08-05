@@ -12,6 +12,7 @@ export const OPS_SLICE_A_EVENT_TYPES = [
   "maintenance.technician.arrived",
   "maintenance.work.completed",
   "maintenance.overdue",
+  "maintenance.workflow.transitioned",
   // Tenancy / property (emit-capable; project when emitted)
   "property.created",
   "property.archived",

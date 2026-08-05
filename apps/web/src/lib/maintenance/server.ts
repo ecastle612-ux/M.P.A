@@ -11,6 +11,11 @@ import type {
   WorkOrderRecord
 } from "./contracts";
 import { toMaintenanceStatusLabel } from "./contracts";
+import {
+  isMaintenanceWorkflowStage,
+  legacyStatusToWorkflowStage,
+  type MaintenanceWorkflowStage
+} from "./workflow";
 
 type WorkOrderRow = {
   id: string;
@@ -24,6 +29,7 @@ type WorkOrderRow = {
   category: WorkOrderRecord["category"];
   priority: WorkOrderRecord["priority"];
   status: WorkOrderRecord["status"];
+  workflow_stage?: string | null;
   due_date: string | null;
   assigned_to_user_id: string | null;
   vendor_id: string | null;
@@ -76,7 +82,7 @@ type SupabaseClientType = Awaited<ReturnType<typeof createAuthServerComponentCli
 type WorkOrderUpdate = Database["public"]["Tables"]["maintenance_work_orders"]["Update"];
 
 const WORK_ORDER_SELECT =
-  "id, organization_id, property_id, unit_id, tenant_id, work_order_number, title, description, category, priority, status, due_date, assigned_to_user_id, vendor_id, current_vendor_assignment_id, internal_notes, tenant_notes, photo_placeholder, document_placeholder, recurring_maintenance_placeholder, preventive_maintenance_placeholder, completed_at, metadata, created_by, updated_by, created_at, updated_at, archived_at, deleted_at, properties(name), units(unit_number), tenants(first_name, last_name, preferred_name)";
+  "id, organization_id, property_id, unit_id, tenant_id, work_order_number, title, description, category, priority, status, workflow_stage, due_date, assigned_to_user_id, vendor_id, current_vendor_assignment_id, internal_notes, tenant_notes, photo_placeholder, document_placeholder, recurring_maintenance_placeholder, preventive_maintenance_placeholder, completed_at, metadata, created_by, updated_by, created_at, updated_at, archived_at, deleted_at, properties(name), units(unit_number), tenants(first_name, last_name, preferred_name)";
 
 const OPEN_STATUSES: MaintenanceStatus[] = [
   "submitted",
@@ -237,6 +243,12 @@ export async function createWorkOrder(
   const workOrderNumber = await generateWorkOrderNumber(organizationId, supabase);
   const status = input.assignedToUserId && input.status === "submitted" ? "assigned" : input.status;
   const completedAt = status === "completed" ? new Date().toISOString() : null;
+  const workflowStage: MaintenanceWorkflowStage =
+    status === "assigned"
+      ? "assignment"
+      : status === "completed"
+        ? "completion"
+        : "request";
 
   const { data, error } = await supabase
     .from("maintenance_work_orders")
@@ -251,6 +263,7 @@ export async function createWorkOrder(
       category: input.category,
       priority: input.priority,
       status,
+      workflow_stage: workflowStage,
       due_date: input.dueDate,
       assigned_to_user_id: input.assignedToUserId,
       internal_notes: input.internalNotes,
@@ -260,10 +273,13 @@ export async function createWorkOrder(
       recurring_maintenance_placeholder: input.recurringMaintenancePlaceholder,
       preventive_maintenance_placeholder: input.preventiveMaintenancePlaceholder,
       completed_at: completedAt,
-      metadata: input.metadata as Json,
+      metadata: {
+        ...input.metadata,
+        workflow: { entryPoint: "createWorkOrder", startedAt: new Date().toISOString() }
+      } as Json,
       created_by: userId,
       updated_by: userId
-    })
+    } as never)
     .select(WORK_ORDER_SELECT)
     .single();
 
@@ -345,6 +361,23 @@ export async function createWorkOrder(
     ).catch(() => undefined);
   }
 
+  // CORE-004 Phase 2 — emergency automation converges into canonical workflow
+  if (workOrder.priority === "emergency" && workOrder.workflowStage === "request") {
+    try {
+      const { runEmergencyIntakeAutomation } = await import("./workflow-server");
+      await runEmergencyIntakeAutomation({
+        organizationId,
+        workOrderId: workOrder.id,
+        actorUserId: userId,
+        client: supabase
+      });
+      const refreshed = await getWorkOrderForOrganization(organizationId, workOrder.id, supabase);
+      if (refreshed) return refreshed;
+    } catch {
+      /* automation best-effort */
+    }
+  }
+
   return workOrder;
 }
 
@@ -410,6 +443,7 @@ export async function updateWorkOrder(
   const nextStatus = updates.status;
   if (nextStatus !== undefined) {
     patch.status = nextStatus;
+    (patch as Record<string, unknown>)["workflow_stage"] = legacyStatusToWorkflowStage(nextStatus);
     if (nextStatus === "completed") {
       patch.completed_at = new Date().toISOString();
     } else if (existing.status === "completed") {
@@ -420,6 +454,7 @@ export async function updateWorkOrder(
   if (updates.assignedToUserId !== undefined && updates.assignedToUserId && !nextStatus) {
     if (existing.status === "submitted" || existing.status === "triaged") {
       patch.status = "assigned";
+      (patch as Record<string, unknown>)["workflow_stage"] = "assignment";
     }
   }
 
@@ -1085,6 +1120,9 @@ async function recordActivityEvent({
 }
 
 function toWorkOrderRecord(row: WorkOrderRow): WorkOrderRecord {
+  const workflowStage: MaintenanceWorkflowStage = isMaintenanceWorkflowStage(row.workflow_stage)
+    ? row.workflow_stage
+    : legacyStatusToWorkflowStage(row.status);
   return {
     id: row.id,
     organizationId: row.organization_id,
@@ -1097,6 +1135,7 @@ function toWorkOrderRecord(row: WorkOrderRow): WorkOrderRecord {
     category: row.category,
     priority: row.priority,
     status: row.status,
+    workflowStage,
     dueDate: row.due_date,
     assignedToUserId: row.assigned_to_user_id,
     vendorId: row.vendor_id,

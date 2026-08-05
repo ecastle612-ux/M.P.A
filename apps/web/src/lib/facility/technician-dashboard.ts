@@ -13,6 +13,9 @@ export type TechnicianDashboardBuckets = {
   today: WorkOrderListItem[];
   overdue: WorkOrderListItem[];
   waiting: WorkOrderListItem[];
+  emergency: WorkOrderListItem[];
+  partsRequired: WorkOrderListItem[];
+  nextRecommended: WorkOrderListItem | null;
   unassignedPool: WorkOrderListItem[];
 };
 
@@ -85,9 +88,26 @@ export async function getTechnicianDashboardBuckets(
   const today: WorkOrderListItem[] = [];
   const overdue: WorkOrderListItem[] = [];
   const waiting: WorkOrderListItem[] = [];
+  const emergency: WorkOrderListItem[] = [];
+  const partsRequired: WorkOrderListItem[] = [];
 
   for (const item of assigned) {
-    if (WAITING_STATUSES.includes(item.status)) {
+    if (item.priority === "emergency" && item.workflowStage !== "completion" && item.workflowStage !== "analytics") {
+      emergency.push(item);
+    }
+    if (
+      item.status === "on_hold" ||
+      item.workflowStage === "vendor_escalation" ||
+      (typeof item.metadata?.["partsRequired"] === "boolean" && item.metadata["partsRequired"])
+    ) {
+      partsRequired.push(item);
+    }
+    if (
+      WAITING_STATUSES.includes(item.status) ||
+      item.workflowStage === "vendor_escalation" ||
+      item.workflowStage === "resident_confirmation" ||
+      item.workflowStage === "quality_review"
+    ) {
       waiting.push(item);
       continue;
     }
@@ -96,15 +116,27 @@ export async function getTechnicianDashboardBuckets(
       overdue.push(item);
       continue;
     }
-    if (due === todayKey || !due) {
+    if (
+      due === todayKey ||
+      !due ||
+      item.workflowStage === "dispatch" ||
+      item.workflowStage === "field_execution"
+    ) {
       today.push(item);
     }
   }
 
+  const sortedToday = sortForDashboard(today);
+  const sortedEmergency = sortForDashboard(emergency);
+  const nextRecommended = sortedEmergency[0] ?? sortedToday[0] ?? sortForDashboard(overdue)[0] ?? null;
+
   return {
-    today: sortForDashboard(today),
+    today: sortedToday,
     overdue: sortForDashboard(overdue),
     waiting: sortForDashboard(waiting),
+    emergency: sortedEmergency,
+    partsRequired: sortForDashboard(partsRequired).slice(0, 12),
+    nextRecommended,
     unassignedPool: sortForDashboard(unassigned).slice(0, 12)
   };
 }

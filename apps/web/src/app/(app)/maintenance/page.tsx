@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../components/presentation/app-page";
-import { WorkOrdersTable } from "../../../components/maintenance/work-orders-table";
+import { MaintenanceCommandCenter } from "../../../components/maintenance/maintenance-command-center";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
@@ -14,6 +14,9 @@ export default async function MaintenancePage({
   searchParams: Promise<{ status?: string; priority?: string; q?: string }>;
 }) {
   const { status: statusParam, priority: priorityParam, q: queryParam } = await searchParams;
+  void statusParam;
+  void priorityParam;
+  void queryParam;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -56,15 +59,19 @@ export default async function MaintenancePage({
     canAssignVendor
   };
 
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("display_name")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Maintenance" }]}>
-      <WorkOrdersTable
-        initialItems={items}
+      <MaintenanceCommandCenter
+        items={items}
         permissions={permissions}
         vendors={vendors.map((vendor) => ({ id: vendor.id, businessName: vendor.businessName }))}
-        {...(statusParam ? { initialStatusFilter: statusParam } : {})}
-        {...(priorityParam ? { initialPriorityFilter: priorityParam } : {})}
-        {...(queryParam ? { initialQuery: queryParam } : {})}
+        userName={(profile?.display_name as string | null) ?? user.email ?? null}
       />
     </AppPage>
   );

@@ -149,6 +149,7 @@ describe("FIN-001 report engine", () => {
           category: "plumbing",
           priority: "high",
           status: "completed",
+          workflowStage: "completion",
           dueDate: null,
           assignedToUserId: null,
           vendorId: null,

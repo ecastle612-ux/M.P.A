@@ -207,6 +207,47 @@ export async function globalSearch(input: GlobalSearchInput): Promise<{
       continue;
     }
 
+    // CORE-004 Phase 2 — maintenance search by title, WO#, status, priority, category, workflow
+    if (corpus === "maintenance") {
+      const { data, error } = await db
+        .from("maintenance_work_orders")
+        .select(
+          "id, title, work_order_number, status, priority, category, workflow_stage, property_id, vendor_id, assigned_to_user_id"
+        )
+        .eq("organization_id", input.organizationId)
+        .is("deleted_at", null)
+        .or(
+          [
+            `title.ilike.${like}`,
+            `work_order_number.ilike.${like}`,
+            `status.ilike.${like}`,
+            `priority.ilike.${like}`,
+            `category.ilike.${like}`,
+            `workflow_stage.ilike.${like}`,
+            `id.eq.${q}`
+          ].join(",")
+        )
+        .limit(10);
+      if (error) {
+        deniedCorpora.push(corpus);
+        continue;
+      }
+      for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+        const id = String(row["id"]);
+        hits.push({
+          resultId: `maintenance:${id}`,
+          corpus: "maintenance",
+          title: String(row["work_order_number"] ?? row["title"] ?? id),
+          snippet: [row["title"], row["priority"], row["workflow_stage"] ?? row["status"]]
+            .filter(Boolean)
+            .join(" · "),
+          deepLink: `/maintenance/${id}`,
+          score: 0.78
+        });
+      }
+      continue;
+    }
+
     // CORE-004 Phase 1 — property search by name, address, portfolio code, org, id, status/lifecycle
     if (corpus === "properties") {
       const { data, error } = await db

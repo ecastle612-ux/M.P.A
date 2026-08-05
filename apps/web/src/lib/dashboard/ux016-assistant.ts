@@ -332,14 +332,17 @@ function buildRecommendedActions(
   const actions: AssistantActionItem[] = [];
 
   for (const item of attention.slice(0, 5)) {
-    actions.push({
+    const action: AssistantActionItem = {
       id: `rec-${item.id}`,
       label: item.title,
       reason: item.reason,
       href: item.href,
-      actionLabel: item.actionLabel,
-      relatedContext: /lease|renewal/i.test(item.title) ? related : undefined
-    });
+      actionLabel: item.actionLabel
+    };
+    if (/lease|renewal/i.test(item.title)) {
+      action.relatedContext = related;
+    }
+    actions.push(action);
   }
 
   for (const rec of home?.aiRecommendations ?? []) {

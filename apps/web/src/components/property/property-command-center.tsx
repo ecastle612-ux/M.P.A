@@ -18,6 +18,7 @@ export function PropertyCommandCenter({
   canCreateUnit,
   canCreateMaintenance,
   recentLifecycle,
+  openMaintenanceCount = 0,
   userName,
   organizationName
 }: {
@@ -36,6 +37,7 @@ export function PropertyCommandCenter({
     createdAt: string;
     reason: string | null;
   }>;
+  openMaintenanceCount?: number;
   userName: string | null;
   organizationName: string | null;
 }) {
@@ -49,6 +51,7 @@ export function PropertyCommandCenter({
     canCreateUnit,
     canCreateMaintenance,
     recentLifecycle,
+    openMaintenanceCount,
     userName,
     organizationName
   });

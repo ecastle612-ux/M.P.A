@@ -7,6 +7,7 @@ import { evaluatePermission, resolveAuthorizationContext } from "../../../../../
 import { resolveActiveOrganizationIdForUser } from "../../../../../lib/organization/server";
 import { getWorkOrdersForOrganization } from "../../../../../lib/maintenance/server";
 import { toMaintenanceStatusLabel } from "../../../../../lib/maintenance/contracts";
+import { toMaintenanceWorkflowLabel } from "../../../../../lib/maintenance/workflow";
 import { resolveLinkedTenantForUser } from "../../../../../lib/resident/resolve-tenant";
 
 export default async function TenantMaintenancePage() {
@@ -40,7 +41,7 @@ export default async function TenantMaintenancePage() {
           <div>
             <h1 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">Maintenance</h1>
             <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              Track requests for your home and submit new issues.
+              Submit a request, track progress, get updates, and confirm when work is done.
             </p>
           </div>
           {canCreate ? (
@@ -83,7 +84,8 @@ export default async function TenantMaintenancePage() {
               >
                 <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{item.title}</p>
                 <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                  {item.workOrderNumber} · {toMaintenanceStatusLabel(item.status)}
+                  {item.workOrderNumber} · {toMaintenanceWorkflowLabel(item.workflowStage)} ·{" "}
+                  {toMaintenanceStatusLabel(item.status)}
                 </p>
               </Link>
             ))}

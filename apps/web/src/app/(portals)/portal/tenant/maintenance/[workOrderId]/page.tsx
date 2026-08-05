@@ -13,6 +13,8 @@ import {
   toMaintenancePriorityLabel,
   toMaintenanceStatusLabel
 } from "../../../../../../lib/maintenance/contracts";
+import { toMaintenanceWorkflowLabel } from "../../../../../../lib/maintenance/workflow";
+import { ResidentConfirmationPanel } from "../../../../../../components/maintenance/resident-confirmation-panel";
 import { resolveLinkedTenantForUser } from "../../../../../../lib/resident/resolve-tenant";
 
 export default async function TenantMaintenanceDetailPage({
@@ -53,8 +55,11 @@ export default async function TenantMaintenanceDetailPage({
         <Card className="space-y-2">
           <h1 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">{workOrder.title}</h1>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            {workOrder.workOrderNumber} · {toMaintenanceStatusLabel(workOrder.status)} ·{" "}
+            {workOrder.workOrderNumber} · {toMaintenanceWorkflowLabel(workOrder.workflowStage)} ·{" "}
             {toMaintenancePriorityLabel(workOrder.priority)} · {toMaintenanceCategoryLabel(workOrder.category)}
+          </p>
+          <p className="text-xs text-[var(--mpa-color-text-tertiary)]">
+            Status: {toMaintenanceStatusLabel(workOrder.status)}
           </p>
           {workOrder.description ? (
             <p className="text-sm text-[var(--mpa-color-text-primary)]">{workOrder.description}</p>
@@ -63,6 +68,10 @@ export default async function TenantMaintenanceDetailPage({
             <p className="text-sm text-[var(--mpa-color-text-secondary)]">Notes: {workOrder.tenantNotes}</p>
           ) : null}
         </Card>
+
+        {workOrder.workflowStage === "resident_confirmation" ? (
+          <ResidentConfirmationPanel workOrderId={workOrder.id} />
+        ) : null}
 
         <Card className="space-y-3">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Timeline</h2>

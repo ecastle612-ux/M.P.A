@@ -42,6 +42,8 @@ export type PropertyCommandCenterInput = {
     createdAt: string;
     reason: string | null;
   }>;
+  /** CORE-004 Phase 2 — open maintenance count for property integration */
+  openMaintenanceCount?: number;
   userName?: string | null;
   organizationName?: string | null;
 };
@@ -129,6 +131,23 @@ export function buildPropertyCommandCenterViewModel(
     });
   }
 
+  if ((input.openMaintenanceCount ?? 0) > 0) {
+    attention.push({
+      id: "property-maintenance",
+      title: "Open maintenance work",
+      reason: `${input.openMaintenanceCount} open work order${input.openMaintenanceCount === 1 ? "" : "s"}`,
+      href: `/maintenance?propertyId=${encodeURIComponent(property.id)}`,
+      actionLabel: "Open maintenance",
+      severity: "high"
+    });
+    waitingOnMe.push({
+      id: "wait-property-maintenance",
+      label: "Property maintenance queue",
+      detail: "Canonical workflow work orders for this property",
+      href: `/maintenance?propertyId=${encodeURIComponent(property.id)}`
+    });
+  }
+
   const mission: UniversalMissionItem[] = [
     {
       id: "mission-lifecycle",
@@ -176,6 +195,11 @@ export function buildPropertyCommandCenterViewModel(
       href: `/maintenance/new?propertyId=${encodeURIComponent(property.id)}`
     });
   }
+  quickActions.push({
+    id: "qa-maint-queue",
+    label: "Property maintenance",
+    href: `/maintenance?propertyId=${encodeURIComponent(property.id)}`
+  });
   quickActions.push(
     {
       id: "qa-residents",
