@@ -70,6 +70,13 @@ export default async function DashboardPage() {
     canCreateMigration: evaluatePermission(authorization, "migration:create")
   };
 
+  const dateLabel = new Intl.DateTimeFormat(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }).format(new Date());
+
   return (
     <DashboardShell
       organizationName={organizationDisplayName}
@@ -78,6 +85,7 @@ export default async function DashboardPage() {
       permissions={permissions}
       userGreetingName={userGreetingName}
       timeGreeting={getTimeGreeting()}
+      dateLabel={dateLabel}
     />
   );
 }

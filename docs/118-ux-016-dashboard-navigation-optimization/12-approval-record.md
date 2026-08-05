@@ -1,27 +1,22 @@
 # 12 — Approval Record
 
 **Package:** UX-016  
-**Status:** ⏳ **Awaiting approval**  
-**Date opened:** 2026-08-05
+**Status:** ✅ **Approved**  
+**Date opened:** 2026-08-05  
+**Date approved:** 2026-08-05
 
 ---
 
 ## Decision
 
-_Not yet approved._
-
-When approved, record:
-
 | Field | Value |
 |-------|-------|
 | Phrase | `APPROVE UX-016` |
-| Date | |
-| Product | |
-| UX | |
-| Lead Architect | |
-| Notes / amendments | |
-
-ADR-032 status must move from **Proposed → Accepted** in the same approval action (or immediately after).
+| Date | 2026-08-05 |
+| Product | Approved (user authorization) |
+| UX | Approved (user authorization) |
+| Lead Architect | Approved (user authorization) |
+| Notes / amendments | Slice plan refined at Approve: **A** Universal Dashboard Framework · **B** Role-specific dashboards · **C** Sidebar workflow optimization · **D** Notification Center, Activity Timeline, and AI-powered daily briefing. ADR-032 → **Accepted**. |
 
 ---
 
@@ -29,10 +24,10 @@ ADR-032 status must move from **Proposed → Accepted** in the same approval act
 
 | Slice | Phrase | Date | Authorizer | Notes |
 |-------|--------|------|------------|-------|
-| A | `AUTHORIZE UX-016 SLICE A` | — | — | Shared dashboard shell |
-| B | `AUTHORIZE UX-016 SLICE B` | — | — | Sidebar + top bar |
-| C | `AUTHORIZE UX-016 SLICE C` | — | — | Portal homes |
-| D | `AUTHORIZE UX-016 SLICE D` | — | — | Notifications + mobile |
+| A | `AUTHORIZE UX-016 SLICE A` | 2026-08-05 | Product / UX | Universal Dashboard Framework — shared hierarchy on Ops `/dashboard` first consumer |
+| B | `AUTHORIZE UX-016 SLICE B` | — | — | Role-specific dashboards (locked) |
+| C | `AUTHORIZE UX-016 SLICE C` | — | — | Sidebar workflow optimization (locked) |
+| D | `AUTHORIZE UX-016 SLICE D` | — | — | Notification Center · Activity · AI briefing (locked) |
 
 ---
 

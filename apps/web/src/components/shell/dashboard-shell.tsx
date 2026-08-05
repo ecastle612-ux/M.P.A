@@ -1,8 +1,6 @@
 import { Breadcrumbs } from "./breadcrumbs";
 import { OrganizationFoundationPanel } from "../organization/organization-foundation-panel";
-import { OperationsCenterView } from "../operations-center/operations-center-view";
-import { CommandCenterHomePanel } from "../ops/command-center-home-panel";
-import { formatRefreshTime } from "../../lib/format/time";
+import { OpsUniversalDashboard } from "../ops/ops-universal-dashboard";
 import type { DashboardSnapshot } from "../../lib/dashboard/server";
 import type { CommandCenterHomeComposition } from "../../lib/ops/command-center-home";
 
@@ -12,6 +10,7 @@ export function DashboardShell({
   commandCenterHome = null,
   userGreetingName = null,
   timeGreeting = "Good morning",
+  dateLabel,
   permissions = {
     canCreateProperty: false,
     canCreateUnit: false,
@@ -41,6 +40,7 @@ export function DashboardShell({
   commandCenterHome?: CommandCenterHomeComposition | null;
   userGreetingName?: string | null;
   timeGreeting?: string;
+  dateLabel: string;
   permissions?: {
     canCreateProperty: boolean;
     canCreateUnit: boolean;
@@ -78,6 +78,10 @@ export function DashboardShell({
           <p className="mt-1 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
             Create your first organization to unlock portfolio visibility, operational tasks, and live activity.
           </p>
+          <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">
+            This page is your work companion. Once setup is complete, Immediate Attention and Today’s Mission will
+            surface what needs you next.
+          </p>
         </section>
         <OrganizationFoundationPanel />
       </main>
@@ -85,16 +89,19 @@ export function DashboardShell({
   }
 
   return (
-    <div className="space-y-[var(--mpa-space-6)]">
-      <CommandCenterHomePanel initialHome={commandCenterHome} />
-      <OperationsCenterView
-        initialSnapshot={snapshot}
+    <main className="mpa-page-wide flex-1 space-y-5">
+      <Breadcrumbs
+        items={[{ href: "/dashboard", label: "Operations Center" }, { label: "Overview" }]}
+      />
+      <OpsUniversalDashboard
         organizationName={organizationName}
+        snapshot={snapshot}
+        commandCenterHome={commandCenterHome}
         userGreetingName={userGreetingName}
         timeGreeting={timeGreeting}
+        dateLabel={dateLabel}
         permissions={permissions}
-        initialRefreshedAt={formatRefreshTime(new Date())}
       />
-    </div>
+    </main>
   );
 }

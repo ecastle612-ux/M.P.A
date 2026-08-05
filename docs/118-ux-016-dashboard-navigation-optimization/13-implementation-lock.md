@@ -1,7 +1,7 @@
 # 13 — Implementation Lock
 
 **Package:** UX-016  
-**Status:** 🔒 **LOCKED** until [12 — Approval record](./12-approval-record.md) is signed  
+**Status:** Slice A 🔓 **UNLOCKED** · Slices B–D 🔒 **LOCKED**  
 **Date:** 2026-08-05  
 **Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)
 
@@ -9,44 +9,38 @@
 
 ## Verdict
 
-**Do not implement application/UI code for UX-016 yet.**
+**UX-016 is Approved.** Implement **only** authorized slices.
 
-This package redesigns dashboard hierarchy, sidebar presentation, notification grouping, and mobile work-first layout across portals. That is a material UX/architecture presentation change and requires Design → Document → **Approve** before Implement.
-
----
-
-## What must not ship until Approve + slice authorize
-
-| Area | Locked work |
-|------|-------------|
-| Ops / PM home | Reordering Command Center into UX-016 sections |
-| Portal homes | Resident / Owner / Technician / Vendor / Leasing / Support hierarchy rewrite |
-| Sidebar | Workflow regrouping / collapse model |
-| Top bar | Removing non-allowed items / restructuring chrome |
-| Notifications UI | Critical / Today / Later grouping presentation |
-| Mobile bottom nav | Frequency-based slot changes driven by this package |
-| Design system abuse | New tokens/language under guise of UX-016 |
-
-Documentation and ADRs **are allowed** (current work).
+- Slice A: unlocked — [16](./16-slice-a-authorization.md)  
+- Slices B–D: remain locked until their authorize phrases  
 
 ---
 
-## What is allowed now
+## What may ship under Slice A
 
-- Refine this Blueprint and ADR-032  
-- Resolve open questions into the approval record  
-- Bug fixes that do **not** change dashboard IA / nav grouping patterns  
-- Visual craftsmanship already authorized under other packages (e.g. foundation polish) **without** adopting UX-016 IA early  
+| Area | Allowed |
+|------|---------|
+| Universal Dashboard Framework components | ✔ Presentation-only |
+| Ops `/dashboard` remount into UX-016 hierarchy | ✔ Using existing snapshot / Command Center data |
+| Empty + skeleton patterns for framework sections | ✔ |
+| View-model mapping helpers + unit tests | ✔ |
+
+## What must not ship until later authorize
+
+| Area | Locked until |
+|------|--------------|
+| Role-specific portal/home rewrites | Slice B |
+| Sidebar workflow regrouping / top-bar simplification | Slice C |
+| Notification Center Critical/Today/Later · AI briefing productization | Slice D |
+| Business logic, routing, permissions, workflows | Never in UX-016 |
 
 ---
 
-## After Approve
+## After each slice
 
-1. Accept ADR-032  
-2. Issue slice authorize phrase(s)  
-3. Implement **only** authorized slice scope  
-4. Preserve: no business logic, routing, permissions, or workflow changes  
-5. Verify five-second test + a11y smoke for touched surfaces  
-6. Commit citing `UX-016` + authorize phrase  
+1. Implement only authorized scope  
+2. Preserve: no business logic / routing / permissions / workflow changes  
+3. Verify five-second test + a11y smoke for touched surfaces  
+4. Commit citing `UX-016` + authorize phrase  
 
 Material scope changes after Approve restart Design → Document → Approve.
