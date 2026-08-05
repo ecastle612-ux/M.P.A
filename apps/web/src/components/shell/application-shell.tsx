@@ -9,6 +9,7 @@ import { CommandCenterTracker } from "./command-center-tracker";
 import { Sidebar } from "./sidebar";
 import { TopNavigation } from "./top-navigation";
 import { ResponsiveNavigation } from "./responsive-navigation";
+import { OpsMobileBottomNav } from "./ops-mobile-bottom-nav";
 import { BrandLogo } from "../branding/brand-logo";
 import { SetupGate } from "../setup/setup-gate";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
@@ -78,15 +79,24 @@ export function ApplicationShell({
             <BrandLogo purpose="header" priority className="min-w-0" />
             <div className="flex shrink-0 items-center gap-2">
               <DeploymentBadge meta={deploymentMeta} />
-              <ResponsiveNavigation />
+              <ResponsiveNavigation hideTrigger={!masterAdminOnlyShell} />
             </div>
           </header>
           <TopNavigation deploymentMeta={deploymentMeta} />
           <PwaNativeOnboarding settingsHref="/settings/preferences" />
           <PushEnrollmentBanner settingsHref="/settings/preferences" />
-          <div id="app-content" className="mpa-app-main mpa-native-shell-scroll flex min-h-0 min-w-0 flex-col pb-[var(--mpa-safe-bottom)]">
+          <div
+            id="app-content"
+            className={[
+              "mpa-app-main mpa-native-shell-scroll flex min-h-0 min-w-0 flex-col",
+              masterAdminOnlyShell
+                ? "pb-[var(--mpa-safe-bottom)]"
+                : "pb-[calc(var(--mpa-safe-bottom)+4.5rem)] lg:pb-[var(--mpa-safe-bottom)]"
+            ].join(" ")}
+          >
             {children}
           </div>
+          {masterAdminOnlyShell ? null : <OpsMobileBottomNav />}
         </div>
       </div>
       {/* AI-001 / SH-002: copilot + route context outside shell subscription tree. */}

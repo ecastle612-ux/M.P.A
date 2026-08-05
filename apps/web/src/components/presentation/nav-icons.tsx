@@ -170,9 +170,14 @@ export const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/facility/inventory": NavIconUnits,
   "/facility/pm": NavIconMaintenance,
   "/facility/calendar": NavIconDashboard,
+  "/facility/inspections": NavIconMaintenance,
+  "/facility/reports": NavIconFinancials,
   "/vendors": NavIconVendors,
   "/communications": NavIconCommunications,
+  "/communications/inbox": NavIconCommunications,
   "/financials": NavIconFinancials,
+  "/financials/reports": NavIconFinancials,
+  "/financials/charges": NavIconFinancials,
   "/ai-operations": NavIconAi,
   "/migration": NavIconMigration,
   "/settings": NavIconSettings,
@@ -188,6 +193,6 @@ export const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/settings/preferences": NavIconCommunications,
   "/settings/team": NavIconApplicants,
   "/settings/billing": NavIconFinancials,
-  "/settings/documents": NavIconSettings,
+  "/settings/documents": NavIconLeases,
   "/portal/tenant/preferences": NavIconSettings
 };

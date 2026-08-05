@@ -68,12 +68,19 @@ export function NotificationCenter() {
     function handlePointerDown(event: MouseEvent) {
       if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
     }
+    function handleOpenEvent() {
+      setOpen(true);
+      void loadNotifications();
+    }
     window.addEventListener("keydown", handleKeydown);
     window.addEventListener("mousedown", handlePointerDown);
+    window.addEventListener("mpa:open-notifications", handleOpenEvent);
     return () => {
       window.removeEventListener("keydown", handleKeydown);
       window.removeEventListener("mousedown", handlePointerDown);
+      window.removeEventListener("mpa:open-notifications", handleOpenEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function markAllRead() {

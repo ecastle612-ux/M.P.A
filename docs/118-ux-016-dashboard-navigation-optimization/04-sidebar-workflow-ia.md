@@ -19,21 +19,21 @@ UX-016 does **not** invent new routes or entitlement rules. It owns **grouping, 
 
 ## Workflow groups (ops shell default)
 
-Recommended group labels for Organization Admin / Property Manager surfaces:
+**Authorized hierarchy (Slice C):** group by real workflows — not modules, tables, or engineering folders.
 
-| Order | Group | Typical destinations (from matrices) |
-|------:|-------|--------------------------------------|
-| 1 | **Home** | Command Center (always first, not buried) |
-| 2 | **Operations** | Ops Inbox / unified work entry |
-| 3 | **Maintenance** | Work orders · facility cross-links when entitled |
-| 4 | **Leasing** | Leases · applicants · move in/out |
-| 5 | **Residents** | Tenants · resident communications entry |
-| 6 | **Vendors** | Vendor directory / jobs |
-| 7 | **Accounting** | Financials · charges · payouts (entitled) |
-| 8 | **Documents** | Vault / document tools |
-| 9 | **Communication** | Announcements · messaging hubs |
-| 10 | **Reports** | Reporting catalog |
-| 11 | **Administration** | Team · subscription · settings |
+| Order | Group | Typical destinations (from matrices / existing hrefs) |
+|------:|-------|------------------------------------------------------|
+| 1 | **Dashboard** | Home / Command Center (always first) |
+| 2 | **My Work** | Waiting on me · work orders · facility floor · inspections · schedule · activity |
+| 3 | **Operations** | Properties · units · residents · applicants · leases · vendors · inventory · preventive |
+| 4 | **Financial** | Accounting |
+| 5 | **Documents** | Document vault / templates |
+| 6 | **Communication** | Messages · announcements |
+| 7 | **Analytics** | Reports · facility reports · AI insights |
+| 8 | **Administration** | Settings · profile · migration · portals |
+| 9 | **Master Admin** | Mission Control surfaces (capability-gated) |
+
+When inside a property (`/properties/[id]` or `?propertyId=`), primary nav becomes contextual: Overview · Residents · Maintenance · Documents · Accounting · Inspections · Activity · Settings.
 
 Facility-only surfaces reorder toward Facility / Inventory / PM / Inspections per UX-013 Matrix C, still under workflow group names (not raw feature dumps).
 

@@ -1,6 +1,6 @@
 # UX-016 — Dashboard & Navigation Optimization
 
-**Status:** ✅ **Approved** (2026-08-05) · Slice A ✅ · Slice B ✅ **AUTHORIZED** · Slices C–D 🔒 **LOCKED**  
+**Status:** ✅ **Approved** (2026-08-05) · Slices A–C ✅ **AUTHORIZED** · Slice D 🔒 **LOCKED**  
 **Initiative ID:** UX-016  
 **Priority:** HIGH (daily work companion UX)  
 **Type:** Dashboard hierarchy + sidebar IA + notification presentation + mobile work-first layout  
@@ -14,6 +14,7 @@
 **Approval record:** [12](./12-approval-record.md)  
 **Slice A:** [16](./16-slice-a-authorization.md)  
 **Slice B:** [17](./17-slice-b-authorization.md)  
+**Slice C:** [18](./18-slice-c-authorization.md)  
 **Implementation lock:** [13](./13-implementation-lock.md)
 
 > Package numbering uses **118** (next free after UX-013 / SIGN-002 serials).
@@ -89,6 +90,7 @@ First viewport must answer:
 | [15 — Relationship to prior packages](./15-relationship-to-prior-packages.md) | UI-001 · UX-012 · UX-013 · OPS-001 |
 | [16 — Slice A authorization](./16-slice-a-authorization.md) | ✅ AUTHORIZE UX-016 SLICE A |
 | [17 — Slice B authorization](./17-slice-b-authorization.md) | ✅ AUTHORIZE UX-016 SLICE B |
+| [18 — Slice C authorization](./18-slice-c-authorization.md) | ✅ AUTHORIZE UX-016 SLICE C |
 
 ---
 
@@ -99,7 +101,7 @@ First viewport must answer:
 | Design | ✅ Captured in this package |
 | Document | ✅ Blueprint + ADR-032 Accepted |
 | Approve | ✅ [12](./12-approval-record.md) |
-| Implement | Slices A–B unlocked · C–D locked — see [13](./13-implementation-lock.md) |
+| Implement | Slices A–C unlocked · D locked — see [13](./13-implementation-lock.md) |
 
 ### Approved slices
 
@@ -107,7 +109,7 @@ First viewport must answer:
 |-------|-------|---------------|--------|
 | **A** | Universal Dashboard Framework (shared hierarchy; `/dashboard` first consumer) | `AUTHORIZE UX-016 SLICE A` | ✅ Authorized |
 | **B** | Role-Specific Command Centers (Admin, PM, Technician, Leasing, Resident, Vendor, Owner, Support) | `AUTHORIZE UX-016 SLICE B` | ✅ Authorized |
-| **C** | Sidebar workflow optimization and navigation polish | `AUTHORIZE UX-016 SLICE C` | 🔒 Locked |
+| **C** | Workflow Navigation System (sidebar IA · context · smart chrome · mobile) | `AUTHORIZE UX-016 SLICE C` | ✅ Authorized |
 | **D** | Notification Center, Activity Timeline, and AI-powered daily briefing | `AUTHORIZE UX-016 SLICE D` | 🔒 Locked |
 
 ---
