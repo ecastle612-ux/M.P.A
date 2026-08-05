@@ -132,9 +132,9 @@ function buildMission(snapshot: OperationsCenterSnapshot): UniversalMissionItem[
   if (items.length === 0) {
     items.push({
       id: "mission-portals",
-      label: "Portal testing ready",
+      label: "Workspace surfaces ready",
       count: 3,
-      href: "/portal"
+      href: "/master-admin#workspace-launcher"
     });
   }
 

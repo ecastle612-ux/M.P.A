@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useEffect, useId, useMemo, useState, useTransition } from "react";
 import { Input, filledPillClassName } from "@mpa/ui";
 import { UniversalDashboard } from "../dashboard-framework";
+import { WorkspaceLauncher } from "../workspace/workspace-launcher";
 import type { OperationsCenterSnapshot } from "../../lib/master-admin/operations-center";
 import { buildMasterAdminUniversalDashboardViewModel } from "../../lib/master-admin/ux016-view-model";
+import { PORTAL_LAUNCHER_GROUPS } from "../../lib/master-admin/portal-launcher-catalog";
 import {
   getMissionControlQuickActions,
   getMissionControlWorkspaces,
@@ -63,6 +65,13 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
     if (workspaces.some((item) => item.id === activeWorkspace)) return;
     setActiveWorkspace(workspaces[0]?.id ?? "platform");
   }, [activeWorkspace, workspaces]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#workspace-launcher") return;
+    const node = document.getElementById("workspace-launcher");
+    node?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   useEffect(() => {
     const q = query.trim();
@@ -158,6 +167,13 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
 
       <UniversalDashboard model={model} />
 
+      <WorkspaceLauncher
+        groups={PORTAL_LAUNCHER_GROUPS}
+        embedded
+        title="Workspace Launcher"
+        description="Open surfaces, View As real users, or launch Test Mode — without leaving Mission Control."
+      />
+
       <section aria-labelledby="workspaces-heading" className="space-y-3">
         <div>
           <h2
@@ -232,12 +248,12 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
               {action.label}
             </Link>
           ))}
-          <Link
-            href="/portal"
+          <a
+            href="#workspace-launcher"
             className="rounded-md border border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-brand-primary-subtle)] px-3 py-2 text-sm font-medium text-[var(--mpa-color-brand-primary)]"
           >
-            Open Portal Launcher
-          </Link>
+            Workspace Launcher
+          </a>
         </div>
       </section>
     </div>

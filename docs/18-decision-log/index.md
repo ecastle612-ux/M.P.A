@@ -69,7 +69,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-031](./adr-031-ux-013-modules-first-contextual-navigation.md) | Modules-First Acquisition & Contextual Navigation (UX-013) | Accepted | 2026-07-28 |
 | [ADR-032](./adr-032-ux-016-dashboard-navigation-optimization.md) | Dashboard & Navigation Optimization (UX-016) | Accepted (initiative CLOSED · Certified) | 2026-08-05 |
 | [ADR-033](./adr-033-ux016-platform-standards-mandatory.md) | UX-016 Platform Standards Mandatory for Future Modules (STD-001) | Accepted | 2026-08-05 |
-| [ADR-034](./adr-034-master-admin-single-hub.md) | Master Admin Single Operational Hub for Portal Launch | Proposed | 2026-08-05 |
+| [ADR-034](./adr-034-master-admin-single-hub.md) | Master Admin Single Operational Hub for Portal Launch | Accepted | 2026-08-05 |
 
 ---
 

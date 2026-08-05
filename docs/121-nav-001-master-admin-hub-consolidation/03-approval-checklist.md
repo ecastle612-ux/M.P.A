@@ -1,7 +1,7 @@
 # 03 — Approval Checklist
 
 **Package:** NAV-001  
-**Status:** Draft — awaiting `APPROVE NAV-001`
+**Status:** ✅ Approved — see [05](./05-approval-record.md)
 
 ---
 

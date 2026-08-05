@@ -1,40 +1,30 @@
 # NAV-001 — Master Admin Hub Consolidation
 
 **Package:** NAV-001  
-**Status:** 📝 **Draft — Design** (awaiting Approve)  
-**Date:** 2026-08-05  
-**Type:** Product Architecture / Navigation simplification  
-**Gate:** Design → Document → Approve → Implement  
-**Related:** UX-016 Slice B (CLOSED) · STD-001 · ADR-032 · ADR-033 · CORE-004 seed C4-S08  
-**Constraint:** No permissions or business logic changes. Presentation / IA only when authorized.
+**Status:** ✅ **Approved** · Implementation authorized (2026-08-05)  
+**Type:** Product Architecture / Navigation consolidation  
+**Related:** [ARCH-001](../122-arch-001-capability-consolidation/README.md) · [ADR-034](../18-decision-log/adr-034-master-admin-single-hub.md) · STD-001  
+**Constraint:** No permissions or business logic contract changes.
 
 ---
 
 ## Intent
 
-Reduce Master Admin redundant navigation by consolidating portal-launcher capabilities into **one operational hub** (`/master-admin`) instead of multiple launcher pages.
+One Master Admin operational hub. Mission Control is the permanent headquarters. Workspace Launcher (reusable) embeds Open / View As / Test Mode on the hub. Duplicate launchers deprecate via redirect.
 
 ## Documents
 
 | Doc | Purpose |
 |-----|---------|
-| [01 — Navigation simplification review](./01-navigation-simplification-review.md) | Comparison · journeys · maintenance · recommendation |
-| [02 — Design package](./02-design-package.md) | Target IA · preserve matrix · deprecate plan |
-| [03 — Approval checklist](./03-approval-checklist.md) | Gate readiness |
-| [04 — Proposed ADR](./04-adr-034-master-admin-single-hub.md) | Decision record (Proposed) |
+| [01 — Review](./01-navigation-simplification-review.md) | Comparison · journeys · recommendation |
+| [02 — Design package](./02-design-package.md) | Target IA |
+| [03 — Approval checklist](./03-approval-checklist.md) | Gate checklist |
+| [04 — ADR draft (package)](./04-adr-034-master-admin-single-hub.md) | Decision summary |
+| [05 — Approval record](./05-approval-record.md) | `APPROVE NAV-001` |
+| [06 — Implementation authorization](./06-implementation-authorization.md) | Authorized implement scope |
+| [07 — Implementation record](./07-implementation-record.md) | What shipped |
 
-## Binding phrase (not issued)
+## Platform rule (with ARCH-001)
 
-Implementation must wait for:
-
-```
-APPROVE NAV-001
-```
-
-then an authorize phrase for the implementation slice. **Do not implement from this Draft.**
-
-## Non-goals
-
-- Do not change AUTH homes, portal-test contract, or impersonation security
-- Do not remove `/portal/tenant` · `/portal/owner` · `/portal/manager` destinations
-- Do not reopen UX-016 as a new UX initiative — this is IA consolidation under STD-001 inheritance
+> One capability. One authoritative home.  
+> Extend → Reuse → Consolidate → Create

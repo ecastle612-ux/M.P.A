@@ -1,39 +1,40 @@
 # ADR-034: Master Admin Uses a Single Operational Hub for Portal Launch
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-05
 
+## Approved
+2026-08-05 — `APPROVE NAV-001 – Master Admin Hub Consolidation`
+
 ## Context
-UX-016 Slice B shipped an expanded Portal Launcher on `/portal` (Master Admin path) and mirrored it on `/master-admin/dashboards`, while remounting Mission Control on `/master-admin`. Operators now face multiple launcher entry points (Portals, Portal Testing, Surface Switcher, Support synonym, and a Mission Control Quick Action that only links out).
+UX-016 Slice B shipped an expanded Portal Launcher on `/portal` (Master Admin path) and mirrored it on `/master-admin/dashboards`, while remounting Mission Control on `/master-admin`. Operators faced multiple launcher entry points.
 
-STD-001 / ADR-033 establish Mission Control as the permanent Master Admin home. Maintaining parallel full launcher pages increases clicks and maintenance without adding capability. Open Portal, View As, and Test Mode must remain, with Impersonation Center and `portal-test` as the security boundaries.
+STD-001 / ADR-033 establish Mission Control as the permanent Master Admin home. ARCH-001 (Capability Consolidation) requires one capability, one authoritative home.
 
-## Decision (Proposed — activates on Approve)
-
-1. **Mission Control (`/master-admin`) is the single Master Admin operational hub** for portal/surface launch as well as UDF command work.  
-2. Embed the existing certified `PortalLauncher` (catalog + Open / View As / Test Mode) on Mission Control below the STD-001 fold (workspace or post-Insights section).  
+## Decision
+1. **Mission Control (`/master-admin`) is the single Master Admin operational hub** for workspace/portal launch as well as UDF command work.  
+2. Embed a reusable **Workspace Launcher** component (certified Portal Launcher behavior + catalog) on Mission Control below Insights.  
 3. **Deprecate** Master Admin use of standalone `/portal` as a launcher page (redirect to hub).  
 4. **Deprecate** `/master-admin/dashboards` as a primary nav destination (redirect to hub).  
 5. **Preserve** `/portal/tenant`, `/portal/owner`, `/portal/manager` destinations; preserve non–Master Admin `/portal` availability hub; preserve Impersonation Center and `portal-test` contracts.  
-6. Do **not** reopen UX-016; execute as NAV-001 under Design → Document → Approve → Implement.
+6. Adopt **ARCH-001** permanent preference: Extend → Reuse → Consolidate → Create.
 
 ## Consequences
-**Easier:** One hub, fewer nav synonyms, fewer clicks, one launcher mount to maintain.  
+**Easier:** One hub, fewer nav synonyms, fewer clicks, one launcher framework to maintain and reuse for future workspaces.  
 **More difficult:** Requires careful non-MA `/portal` behavior and temporary redirects for bookmarks.
 
 ## Alternatives Considered
 - **Keep Portals + Surface Switcher + Mission Control link:** Rejected — redundant.  
 - **Delete `/portal` entirely:** Rejected — breaks destinations and non-MA availability.  
-- **Claim Mission Control already has Open / View As / Test Mode:** Rejected — today it only links out; embed is required.  
+- **Claim Mission Control already had Open / View As / Test Mode:** Rejected — embed required.  
 - **Merge Impersonation into launcher without Impersonation Center:** Rejected — security boundary must remain.
 
 ## References
-- [NAV-001 review](../121-nav-001-master-admin-hub-consolidation/01-navigation-simplification-review.md)
-- [NAV-001 design package](../121-nav-001-master-admin-hub-consolidation/02-design-package.md)
-- [UX-016 Slice B Master Admin experience](../118-ux-016-dashboard-navigation-optimization/18-master-admin-experience.md)
+- [NAV-001](../121-nav-001-master-admin-hub-consolidation/README.md)
+- [ARCH-001](../122-arch-001-capability-consolidation/README.md)
 - [STD-001](../119-std-001-ux016-platform-standards/README.md)
 - [ADR-033](./adr-033-ux016-platform-standards-mandatory.md)
 - [ADR-012](./adr-012-design-document-approve-implement.md)

@@ -602,7 +602,7 @@ export function buildMpaAssistantFromUniversalSections(input: {
     caughtUp,
     caughtUpSuggestions: [
       { label: "Review platform health", href: "/master-admin/health" },
-      { label: "Open Portal Launcher", href: "/portal" },
+      { label: "Open Workspace Launcher", href: "/master-admin#workspace-launcher" },
       { label: "Check integrations", href: "/master-admin/integrations" }
     ]
   };

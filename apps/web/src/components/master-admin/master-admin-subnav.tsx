@@ -14,7 +14,6 @@ const ITEMS = [
   { href: "/master-admin/recovery", label: "Recovery", exact: false },
   { href: "/master-admin/commercial", label: "Commercial", exact: false },
   { href: "/migration", label: "Migration", exact: false },
-  { href: "/portal", label: "Support", exact: false },
   { href: "/master-admin/testing", label: "Demo", exact: false },
   { href: "/settings/integrations", label: "Providers", exact: false },
   { href: "/master-admin/flags", label: "Flags", exact: false }

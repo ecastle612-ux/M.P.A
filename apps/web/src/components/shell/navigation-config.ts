@@ -490,7 +490,16 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         requiredCapability: "master_admin",
         exact: true,
         mobileSection: "master-admin",
-        synonyms: ["master admin", "admin", "mission control", "hq"]
+        synonyms: [
+          "master admin",
+          "admin",
+          "mission control",
+          "hq",
+          "workspace launcher",
+          "portal launcher",
+          "surface switcher",
+          "portal testing"
+        ]
       },
       {
         href: "/master-admin/impersonation",
@@ -508,12 +517,6 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
       {
         href: "/master-admin/health",
         label: "Platform Health",
-        requiredCapability: "master_admin",
-        mobileSection: "master-admin"
-      },
-      {
-        href: "/master-admin/dashboards",
-        label: "Surface Switcher",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       }
@@ -627,21 +630,8 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
         synonyms: ["import", "onboarding"]
       },
       {
-        href: "/portal",
-        label: "Portal Testing",
-        requiredCapability: "master_admin",
-        mobileSection: "master-admin",
-        synonyms: ["portals", "emergency"]
-      },
-      {
         href: "/master-admin/testing",
         label: "Demo & Seed",
-        requiredCapability: "master_admin",
-        mobileSection: "master-admin"
-      },
-      {
-        href: "/master-admin/dashboards",
-        label: "Surface Switcher",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       },
@@ -671,6 +661,16 @@ export function isMasterAdminOnlyPermissions(permissions: readonly string[]): bo
   return !pmSignals.some((capability) => permissions.includes(capability));
 }
 
+function withoutDeprecatedMasterAdminLaunchers(groups: NavigationGroup[]): NavigationGroup[] {
+  const deprecated = new Set(["/portal", "/master-admin/dashboards"]);
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => !deprecated.has(item.href))
+    }))
+    .filter((group) => group.items.length > 0);
+}
+
 export function getShellNavigationGroups(
   permissions: readonly string[],
   options?: { masterAdminOnlyShell?: boolean; entitledModules?: readonly string[] | null }
@@ -683,14 +683,21 @@ export function getShellNavigationGroups(
     return [];
   }
   const modules = options?.entitledModules;
+  let groups: NavigationGroup[];
   if (modules == null || modules.length === 0) {
-    return SHELL_NAVIGATION_GROUPS;
+    groups = SHELL_NAVIGATION_GROUPS;
+  } else {
+    const moduleSet = new Set(modules);
+    groups = SHELL_NAVIGATION_GROUPS.map((group) => ({
+      ...group,
+      items: group.items.filter((item) => !item.requiredModule || moduleSet.has(item.requiredModule))
+    })).filter((group) => group.items.length > 0);
   }
-  const moduleSet = new Set(modules);
-  return SHELL_NAVIGATION_GROUPS.map((group) => ({
-    ...group,
-    items: group.items.filter((item) => !item.requiredModule || moduleSet.has(item.requiredModule))
-  })).filter((group) => group.items.length > 0);
+  // NAV-001 / ARCH-001 — Master Admin uses Mission Control Workspace Launcher, not /portal.
+  if (permissions.includes("master_admin")) {
+    return withoutDeprecatedMasterAdminLaunchers(groups);
+  }
+  return groups;
 }
 
 export function flattenShellNavigationItems(

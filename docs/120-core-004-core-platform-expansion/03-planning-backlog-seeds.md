@@ -20,7 +20,7 @@ They are **not** authorized work. Ordering must still respect dependencies and C
 | C4-S05 | Financial approvals & late-rent operator loops | Quick Wins + Critical notifications |
 | C4-S06 | Communications / inbox response loops | Waiting on Me separate from notification dump |
 | C4-S07 | Role-depth pass (tech · leasing · resident · owner) on UDF | Content specialization only |
-| C4-S08 | Master Admin operator depth on Mission Control | UDF hub; portal launch consolidation tracked in [NAV-001](../121-nav-001-master-admin-hub-consolidation/README.md) (Draft) |
+| C4-S08 | Master Admin operator depth on Mission Control | UDF hub + Workspace Launcher — [NAV-001](../121-nav-001-master-admin-hub-consolidation/README.md) Approved · [ARCH-001](../122-arch-001-capability-consolidation/README.md) |
 | C4-S09 | STD-001 Admin compliance — remount Class D homes (`/master-admin/commercial`, `/financials`, `/migration`) | Audit [STD-001 §06](../119-std-001-ux016-platform-standards/06-admin-surface-compliance-audit.md) · plan [§07](../119-std-001-ux016-platform-standards/07-admin-surface-migration-plan.md) |
 
 ---
