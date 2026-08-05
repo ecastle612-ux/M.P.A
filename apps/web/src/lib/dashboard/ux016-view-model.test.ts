@@ -228,6 +228,9 @@ describe("buildUniversalDashboardViewModel", () => {
     expect(model.quickActions.length).toBeLessThanOrEqual(6);
     expect(model.insights.length).toBeGreaterThan(0);
     expect(model.greeting.statusSummary.toLowerCase()).toContain("attention");
+    expect(model.assistant.headline).toMatch(/operational briefing/i);
+    expect(model.assistant.highestPriority?.title).toBeTruthy();
+    expect(model.assistant.today.length).toBeGreaterThan(0);
   });
 
   it("shows calm clear status when nothing needs attention", () => {

@@ -11,6 +11,7 @@ import type {
   UniversalMissionItem,
   UniversalQuickAction
 } from "../dashboard/ux016-view-model";
+import { buildMpaAssistantFromUniversalSections } from "../dashboard/ux016-assistant";
 import type { OperationsCenterSnapshot } from "./operations-center";
 import { getMissionControlQuickActions } from "./workspace-catalog";
 
@@ -200,6 +201,16 @@ export function buildMasterAdminUniversalDashboardViewModel(input: {
     severity: mapSeverity(item.severity)
   }));
 
+  const mission = buildMission(snapshot);
+  const recentActivity = buildRecentActivity(snapshot);
+  const insights = buildInsights(snapshot);
+  const assistant = buildMpaAssistantFromUniversalSections({
+    attention,
+    mission,
+    recentActivity,
+    insights
+  });
+
   return {
     greeting: {
       surfaceLabel: "Mission Control",
@@ -209,12 +220,15 @@ export function buildMasterAdminUniversalDashboardViewModel(input: {
       placeLabel: health.label,
       dateLabel,
       statusSummary: statusSummary(attention.length, health.failedCount),
-      supportingLine: "Platform command center — health first, then every role and dashboard."
+      supportingLine: "Here’s your operational briefing."
     },
+    assistant,
     attention,
-    mission: buildMission(snapshot),
+    mission,
     quickActions: buildQuickActions(masterAdminOnlyShell),
-    recentActivity: buildRecentActivity(snapshot),
-    insights: buildInsights(snapshot)
+    recentActivity: assistant.operationalTimeline.length
+      ? assistant.operationalTimeline
+      : recentActivity,
+    insights
   };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge, Input, Select } from "@mpa/ui";
 import {
   NOTIFICATION_CATEGORIES,
@@ -9,6 +9,12 @@ import {
   type NotificationCategory,
   type InAppNotificationRecord
 } from "../../lib/notifications/contracts";
+import {
+  groupNotificationsByPriority,
+  NOTIFICATION_PRIORITY_GROUP_ORDER,
+  notificationPriorityGroupLabel,
+  type NotificationPriorityGroup
+} from "../../lib/notifications/priority-grouping";
 
 type FilterMode = "inbox" | "unread" | "archived";
 
@@ -20,7 +26,10 @@ export function NotificationCenter() {
   const [filter, setFilter] = useState<FilterMode>("inbox");
   const [category, setCategory] = useState<NotificationCategory | "all">("all");
   const [query, setQuery] = useState("");
+  const [laterOpen, setLaterOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const grouped = useMemo(() => groupNotificationsByPriority(items), [items]);
 
   async function loadNotifications() {
     setLoading(true);
@@ -193,64 +202,143 @@ export function NotificationCenter() {
               No notifications in this view. Messages, maintenance, and announcements appear here.
             </p>
           ) : (
-            <ul className="max-h-80 space-y-2 overflow-y-auto">
-              {items.map((item) => (
-                <li
-                  key={item.id}
-                  className={[
-                    "rounded-[var(--mpa-radius-md)] border p-2.5 text-xs leading-relaxed",
-                    item.priority === "emergency"
-                      ? "border-[var(--mpa-color-feedback-error)]/40 bg-[var(--mpa-color-feedback-error)]/5"
-                      : item.readAt
-                        ? "border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)]/20 text-[var(--mpa-color-text-secondary)]"
-                        : "border-[var(--mpa-color-brand-primary)]/20 bg-[var(--mpa-color-brand-primary)]/5 text-[var(--mpa-color-text-primary)]"
-                  ].join(" ")}
-                >
-                  <div className="mb-1 flex items-center justify-between gap-2">
-                    <span className="font-semibold">
-                      {notificationCategoryLabel(item.category)}
-                      {item.priority === "emergency" || item.priority === "high" ? ` · ${item.priority}` : ""}
-                    </span>
-                    <div className="flex gap-2">
-                      {!item.readAt ? (
-                        <button type="button" className="text-[var(--mpa-color-brand-primary)]" onClick={() => void mutate(item.id, "mark_read")}>
-                          Read
+            <div className="max-h-80 space-y-3 overflow-y-auto" data-ux016="notification-priority-groups">
+              {NOTIFICATION_PRIORITY_GROUP_ORDER.map((group) => {
+                const groupItems = grouped[group];
+                if (groupItems.length === 0) return null;
+                const isLater = group === "later";
+                const showItems = !isLater || laterOpen;
+                return (
+                  <section key={group} aria-labelledby={`notification-group-${group}`}>
+                    <div className="mb-1.5 flex items-center justify-between gap-2">
+                      <h3
+                        id={`notification-group-${group}`}
+                        className={[
+                          "text-[11px] font-semibold uppercase tracking-wide",
+                          group === "critical"
+                            ? "text-[var(--mpa-color-status-danger,var(--mpa-color-feedback-error))]"
+                            : "text-[var(--mpa-color-text-tertiary)]"
+                        ].join(" ")}
+                      >
+                        {notificationPriorityGroupLabel(group)}
+                        <span className="sr-only"> notifications</span>
+                        <span aria-hidden="true"> · {groupItems.length}</span>
+                      </h3>
+                      {isLater ? (
+                        <button
+                          type="button"
+                          className="text-[11px] font-semibold text-[var(--mpa-color-brand-primary)]"
+                          aria-expanded={laterOpen}
+                          onClick={() => setLaterOpen((prev) => !prev)}
+                        >
+                          {laterOpen ? "Collapse" : "Show"}
                         </button>
                       ) : null}
-                      {filter === "archived" ? (
-                        <button type="button" className="text-[var(--mpa-color-text-secondary)]" onClick={() => void mutate(item.id, "unarchive")}>
-                          Restore
-                        </button>
-                      ) : (
-                        <button type="button" className="text-[var(--mpa-color-text-secondary)]" onClick={() => void mutate(item.id, "archive")}>
-                          Archive
-                        </button>
-                      )}
-                      <button type="button" className="text-[var(--mpa-color-text-secondary)]" onClick={() => void mutate(item.id, "delete")}>
-                        Delete
-                      </button>
                     </div>
-                  </div>
-                  <p className="font-medium">{item.title}</p>
-                  <p className="mt-0.5">{item.body}</p>
-                  {item.href ? (
-                    <Link
-                      href={item.href}
-                      onClick={() => {
-                        if (!item.readAt) void mutate(item.id, "mark_read");
-                        setOpen(false);
-                      }}
-                      className="mt-1 inline-block font-semibold text-[var(--mpa-color-brand-primary)] hover:underline"
-                    >
-                      View
-                    </Link>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
+                    {showItems ? (
+                      <ul className="space-y-2">
+                        {groupItems.map((item) => (
+                          <NotificationRow
+                            key={item.id}
+                            item={item}
+                            group={group}
+                            filter={filter}
+                            onMutate={mutate}
+                            onNavigate={() => setOpen(false)}
+                          />
+                        ))}
+                      </ul>
+                    ) : null}
+                  </section>
+                );
+              })}
+            </div>
           )}
         </div>
       ) : null}
     </div>
+  );
+}
+
+function NotificationRow({
+  item,
+  group,
+  filter,
+  onMutate,
+  onNavigate
+}: {
+  item: InAppNotificationRecord;
+  group: NotificationPriorityGroup;
+  filter: FilterMode;
+  onMutate: (notificationId: string, action: string) => Promise<void>;
+  onNavigate: () => void;
+}) {
+  return (
+    <li
+      className={[
+        "rounded-[var(--mpa-radius-md)] border p-2.5 text-xs leading-relaxed",
+        group === "critical" || item.priority === "emergency"
+          ? "border-[var(--mpa-color-feedback-error)]/40 bg-[var(--mpa-color-feedback-error)]/5"
+          : item.readAt
+            ? "border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)]/20 text-[var(--mpa-color-text-secondary)]"
+            : "border-[var(--mpa-color-brand-primary)]/20 bg-[var(--mpa-color-brand-primary)]/5 text-[var(--mpa-color-text-primary)]"
+      ].join(" ")}
+    >
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <span className="font-semibold">
+          {notificationCategoryLabel(item.category)}
+          {item.priority === "emergency" || item.priority === "high" ? ` · ${item.priority}` : ""}
+        </span>
+        <div className="flex gap-2">
+          {!item.readAt ? (
+            <button
+              type="button"
+              className="text-[var(--mpa-color-brand-primary)]"
+              onClick={() => void onMutate(item.id, "mark_read")}
+            >
+              Read
+            </button>
+          ) : null}
+          {filter === "archived" ? (
+            <button
+              type="button"
+              className="text-[var(--mpa-color-text-secondary)]"
+              onClick={() => void onMutate(item.id, "unarchive")}
+            >
+              Restore
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="text-[var(--mpa-color-text-secondary)]"
+              onClick={() => void onMutate(item.id, "archive")}
+            >
+              Archive
+            </button>
+          )}
+          <button
+            type="button"
+            className="text-[var(--mpa-color-text-secondary)]"
+            onClick={() => void onMutate(item.id, "delete")}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+      <p className="font-medium">{item.title}</p>
+      <p className="mt-0.5">{item.body}</p>
+      {item.href ? (
+        <Link
+          href={item.href}
+          onClick={() => {
+            if (!item.readAt) void onMutate(item.id, "mark_read");
+            onNavigate();
+          }}
+          className="mt-1 inline-block font-semibold text-[var(--mpa-color-brand-primary)] hover:underline"
+        >
+          View
+        </Link>
+      ) : null}
+    </li>
   );
 }

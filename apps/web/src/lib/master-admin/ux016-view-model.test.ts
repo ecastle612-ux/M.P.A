@@ -109,6 +109,8 @@ describe("buildMasterAdminUniversalDashboardViewModel (UX-016 Slice B)", () => {
     expect(model.greeting.organizationName).toBe("Canopy HQ");
     expect(model.greeting.placeLabel).toContain("Platform Health");
     expect(model.greeting.statusSummary.toLowerCase()).toContain("attention");
+    expect(model.assistant.headline).toMatch(/operational briefing/i);
+    expect(model.assistant.highestPriority?.title).toBeTruthy();
   });
 
   it("maps Immediate Attention (≤5) and required Insights labels", () => {

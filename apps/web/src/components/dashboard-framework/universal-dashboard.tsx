@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { EmptyState, KpiMetric, Skeleton } from "@mpa/ui";
 import type { UniversalDashboardViewModel } from "./types";
+import { MpaAssistant, RecommendedAndQuickWins, WaitingSection } from "./mpa-assistant";
 
 const PANEL =
   "rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-xs)]";
@@ -92,7 +93,24 @@ export function UniversalDashboard({
         </p>
       </header>
 
-      {/* 2. Immediate Attention */}
+      {/* 2. M.P.A. Assistant — UX-016 Slice D */}
+      <MpaAssistant assistant={model.assistant} />
+
+      {/* Waiting on Me / Waiting on Others */}
+      <WaitingSection
+        id="ux016-waiting-me-heading"
+        title="Waiting on Me"
+        description="Approvals, signatures, assignments, and responses that need you."
+        items={model.assistant.waitingOnMe}
+      />
+      <WaitingSection
+        id="ux016-waiting-others-heading"
+        title="Waiting on Others"
+        description="Items blocked on vendors, residents, owners, payments, or inspections."
+        items={model.assistant.waitingOnOthers}
+      />
+
+      {/* 3. Immediate Attention */}
       <section className={`${PANEL} p-[var(--mpa-space-4)]`} aria-labelledby="ux016-attention-heading">
         <div className="flex items-baseline justify-between gap-3">
           <h2
@@ -107,15 +125,20 @@ export function UniversalDashboard({
         {model.attention.length === 0 ? (
           <div className="mt-[var(--mpa-space-3)]">
             <EmptyState
-              title="You’re clear for now"
-              description="Immediate Attention shows only the highest-priority work. Nothing critical needs you right now."
+              title="You’re caught up."
+              description="No critical operational issues require attention today."
               whyItMatters="When emergencies, expirations, or approvals appear, they’ll surface here first."
               action={
-                model.mission[0]
-                  ? { label: "Review today’s mission", href: model.mission[0].href }
-                  : model.quickActions[0]?.href
-                    ? { label: model.quickActions[0].label, href: model.quickActions[0].href }
-                    : { label: "Open inbox", href: "/inbox" }
+                model.assistant.caughtUpSuggestions[0]
+                  ? {
+                      label: model.assistant.caughtUpSuggestions[0].label,
+                      href: model.assistant.caughtUpSuggestions[0].href
+                    }
+                  : model.mission[0]
+                    ? { label: "Review today’s mission", href: model.mission[0].href }
+                    : model.quickActions[0]?.href
+                      ? { label: model.quickActions[0].label, href: model.quickActions[0].href }
+                      : { label: "Open inbox", href: "/inbox" }
               }
               className="border-0 bg-transparent px-0 py-[var(--mpa-space-4)]"
             />
@@ -135,6 +158,27 @@ export function UniversalDashboard({
                     <p className="font-medium text-[var(--mpa-color-text-primary)]">{item.title}</p>
                   </div>
                   <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{item.reason}</p>
+                  {index === 0 && model.assistant.highestPriority?.relatedContext?.length ? (
+                    <ul className="mt-2 space-y-1 border-l-2 border-[var(--mpa-color-border-subtle)] pl-3 text-xs text-[var(--mpa-color-text-secondary)]">
+                      {model.assistant.highestPriority.relatedContext.map((ctx) => (
+                        <li key={`${ctx.label}-${ctx.value}`}>
+                          <span className="font-medium text-[var(--mpa-color-text-primary)]">
+                            {ctx.label}:{" "}
+                          </span>
+                          {ctx.href ? (
+                            <Link
+                              href={ctx.href}
+                              className="text-[var(--mpa-color-brand-primary)] hover:underline"
+                            >
+                              {ctx.value}
+                            </Link>
+                          ) : (
+                            ctx.value
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </div>
                 <Link
                   href={item.href}
@@ -148,7 +192,7 @@ export function UniversalDashboard({
         )}
       </section>
 
-      {/* 3. Today's Mission */}
+      {/* 4. Today's Mission */}
       <section className={`${PANEL} p-[var(--mpa-space-4)]`} aria-labelledby="ux016-mission-heading">
         <h2
           id="ux016-mission-heading"
@@ -182,7 +226,10 @@ export function UniversalDashboard({
         )}
       </section>
 
-      {/* 4. Quick Actions */}
+      {/* Recommended Actions + Quick Wins */}
+      <RecommendedAndQuickWins assistant={model.assistant} />
+
+      {/* 5. Quick Actions */}
       <section className={`${PANEL} p-[var(--mpa-space-4)]`} aria-labelledby="ux016-actions-heading">
         <h2
           id="ux016-actions-heading"
@@ -226,7 +273,7 @@ export function UniversalDashboard({
         )}
       </section>
 
-      {/* 5. Recent Activity */}
+      {/* 6. Operational Timeline (meaningful events) */}
       {model.recentActivity.length > 0 ? (
         <section className={`${PANEL} p-[var(--mpa-space-4)]`} aria-labelledby="ux016-activity-heading">
           <div className="flex items-baseline justify-between gap-3">
@@ -234,7 +281,7 @@ export function UniversalDashboard({
               id="ux016-activity-heading"
               className="text-sm font-semibold text-[var(--mpa-color-text-primary)]"
             >
-              Recent Activity
+              Operational Timeline
             </h2>
             <Link
               href="/activity"
@@ -243,6 +290,9 @@ export function UniversalDashboard({
               View all
             </Link>
           </div>
+          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+            Meaningful operational events — not a noisy activity dump.
+          </p>
           <ul className="mt-[var(--mpa-space-3)] space-y-2">
             {model.recentActivity.map((entry) => (
               <li key={entry.id} className="text-sm">
@@ -263,7 +313,7 @@ export function UniversalDashboard({
         </section>
       ) : null}
 
-      {/* 6. Insights — below the fold */}
+      {/* 7. Insights — below the fold */}
       <section
         id="insights"
         className={`${PANEL} p-[var(--mpa-space-4)]`}

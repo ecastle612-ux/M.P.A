@@ -6,6 +6,12 @@
 import type { DashboardSnapshot } from "./server";
 import type { CommandCenterHomeComposition } from "../ops/command-center-home";
 import type { QuickActionDefinition } from "../ops/quick-actions";
+import {
+  buildMpaAssistantViewModel,
+  type MpaAssistantViewModel
+} from "./ux016-assistant";
+
+export type { MpaAssistantViewModel } from "./ux016-assistant";
 
 export type UniversalAttentionItem = {
   id: string;
@@ -56,6 +62,8 @@ export type UniversalDashboardViewModel = {
     statusSummary: string;
     supportingLine: string;
   };
+  /** UX-016 Slice D — M.P.A. Assistant briefing + waiting + recommendations */
+  assistant: MpaAssistantViewModel;
   attention: UniversalAttentionItem[];
   mission: UniversalMissionItem[];
   quickActions: UniversalQuickAction[];
@@ -115,6 +123,15 @@ export function buildUniversalDashboardViewModel(input: {
   const recentActivity = buildRecentActivity(snapshot, commandCenterHome);
   const insights = buildInsights(snapshot, commandCenterHome);
 
+  const assistant = buildMpaAssistantViewModel({
+    snapshot,
+    commandCenterHome,
+    attention,
+    mission,
+    recentActivity,
+    insights
+  });
+
   return {
     greeting: {
       timeGreeting: input.timeGreeting,
@@ -123,12 +140,15 @@ export function buildUniversalDashboardViewModel(input: {
       placeLabel: placeLabelFromSnapshot(snapshot),
       dateLabel: input.dateLabel,
       statusSummary: statusSummary(attention.length, missionTotal),
-      supportingLine: "Ready to tackle today’s operations?"
+      supportingLine: "Here’s your operational briefing."
     },
+    assistant,
     attention,
     mission,
     quickActions,
-    recentActivity,
+    recentActivity: assistant.operationalTimeline.length
+      ? assistant.operationalTimeline
+      : recentActivity,
     insights
   };
 }

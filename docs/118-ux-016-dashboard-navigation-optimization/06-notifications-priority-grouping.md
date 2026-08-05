@@ -1,7 +1,7 @@
 # 06 — Notifications Priority Grouping
 
 **Package:** UX-016  
-**Status:** Draft — Ready for Approval  
+**Status:** ✅ **Authorized for Slice D** — Critical / Today / Later presentation ([23](./23-slice-d-authorization.md) · [24](./24-mpa-assistant.md))  
 **Date:** 2026-08-05  
 **Related:** [API-001 / OneSignal ADR-017](../18-decision-log/adr-017-onesignal-as-primary-push-provider.md) · UX-012 notification prefs (A09) · PUSH-001
 

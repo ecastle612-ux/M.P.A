@@ -4,5 +4,6 @@ export type {
   UniversalQuickAction,
   UniversalActivityItem,
   UniversalInsightItem,
-  UniversalDashboardViewModel
+  UniversalDashboardViewModel,
+  MpaAssistantViewModel
 } from "../../lib/dashboard/ux016-view-model";

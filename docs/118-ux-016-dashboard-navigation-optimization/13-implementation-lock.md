@@ -1,7 +1,7 @@
 # 13 — Implementation Lock
 
 **Package:** UX-016  
-**Status:** Slices A–C 🔓 **UNLOCKED** · Slice D 🔒 **LOCKED**  
+**Status:** Slices A–D 🔓 **UNLOCKED**  
 **Date:** 2026-08-05  
 **Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)
 
@@ -14,7 +14,7 @@
 - Slice A: unlocked — [16](./16-slice-a-authorization.md)  
 - Slice B: unlocked — [17](./17-slice-b-authorization.md) · [18](./18-master-admin-experience.md)  
 - Slice C: unlocked — [20](./20-slice-c-authorization.md) · [21](./21-intelligent-workspace-navigation.md)  
-- Slice D: remains locked until its authorize phrase  
+- Slice D: unlocked — [23](./23-slice-d-authorization.md) · [24](./24-mpa-assistant.md)  
 
 ---
 
@@ -49,13 +49,26 @@
 | Ops mobile bottom nav (≤ 5) | ✔ Dashboard · My Work · Search · Notifications · Profile |
 | Accessibility polish on touched chrome | ✔ WCAG AA |
 
-## What must not ship until later authorize
+## What may ship under Slice D
+
+| Area | Allowed |
+|------|---------|
+| M.P.A. Assistant Card (below Greeting) | ✔ Deterministic briefing from existing home data |
+| Waiting on Me · Waiting on Others | ✔ Presentation of existing queue / snapshot signals |
+| Notification Center Critical / Today / Later | ✔ Design-only mapping; no schema change |
+| Operational Timeline | ✔ Meaningful-event presentation over existing activity |
+| Recommended Actions · Quick Wins · Cross-module context | ✔ Existing deep links only |
+| Mobile Assistant collapse preference | ✔ Client localStorage |
+| Accessibility polish on touched Assistant / Notification surfaces | ✔ WCAG AA |
+| View-model mappers + unit tests | ✔ |
+
+## What must not ship under UX-016
 
 | Area | Locked until |
 |------|--------------|
-| Notification Center Critical/Today/Later · AI briefing productization | Slice D |
 | portal-test contract expansion / new security surfaces | Separate security-sensitive authorize |
 | Business logic, routing tables, permissions, workflows | Never in UX-016 |
+| External AI services / new model calls | Never in UX-016 Slice D |
 
 ---
 

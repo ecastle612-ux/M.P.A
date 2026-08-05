@@ -12,10 +12,11 @@
 Single column, in order:
 
 1. Greeting  
-2. Immediate Attention (or calm empty)  
-3. Today’s Mission (compact)  
-4. Quick Actions (primary 4)  
-5. Everything else below (Recent Activity → Insights)
+2. M.P.A. Assistant (below greeting; collapsed by default after first visit — [24](./24-mpa-assistant.md))  
+3. Immediate Attention (or calm empty)  
+4. Today’s Mission (compact)  
+5. Quick Actions (primary 4)  
+6. Everything else below (Operational Timeline → Insights)
 
 Optimize for **thumb reach**: primary CTAs in the lower-middle of the first screen when possible; avoid forcing critical actions into top-leading corners only.
 
