@@ -28,6 +28,22 @@ export type MaintenanceCategory = (typeof MAINTENANCE_CATEGORIES)[number];
 export type MaintenancePriority = (typeof MAINTENANCE_PRIORITIES)[number];
 export type MaintenanceStatus = (typeof MAINTENANCE_STATUSES)[number];
 
+export type {
+  MaintenanceWorkflowStage,
+  MaintenanceWorkflowStageDefinition
+} from "./workflow";
+export {
+  MAINTENANCE_WORKFLOW_STAGES,
+  MAINTENANCE_WORKFLOW_TRANSITIONS,
+  MAINTENANCE_WORKFLOW_DEFINITIONS,
+  canTransitionMaintenanceWorkflow,
+  toMaintenanceWorkflowLabel,
+  primaryNextMaintenanceStage,
+  isMaintenanceWorkflowStage
+} from "./workflow";
+
+import type { MaintenanceWorkflowStage } from "./workflow";
+
 export type WorkOrderRecord = {
   id: string;
   organizationId: string;
@@ -40,6 +56,8 @@ export type WorkOrderRecord = {
   category: MaintenanceCategory;
   priority: MaintenancePriority;
   status: MaintenanceStatus;
+  /** CORE-004 Phase 2 — single canonical maintenance lifecycle stage */
+  workflowStage: MaintenanceWorkflowStage;
   dueDate: string | null;
   assignedToUserId: string | null;
   vendorId: string | null;

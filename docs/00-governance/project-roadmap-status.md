@@ -38,7 +38,7 @@ UI-001 (inherits UX-012 — Future Release polish package)
 
 **UX platform baseline:** UX-016 ✅ **CLOSED · CERTIFIED** ([26](../118-ux-016-dashboard-navigation-optimization/26-certification-report.md)) · permanent inheritance [STD-001](../119-std-001-ux016-platform-standards/README.md) / [ADR-033](../18-decision-log/adr-033-ux016-platform-standards-mandatory.md). Do **not** open another UX initiative for platform homes/nav.
 
-**Active expansion program:** [CORE-004 — Core Platform Expansion](../120-core-004-core-platform-expansion/README.md) (✅ **APPROVED** · Phase 1 Design ready · Implement locked until `AUTHORIZE CORE-004 PHASE 1`).
+**Active expansion program:** [CORE-004 — Core Platform Expansion](../120-core-004-core-platform-expansion/README.md) (✅ **APPROVED** · Phase 1 ✅ Accepted · Phase 2 ✅ Certified · awaiting `ACCEPT CORE-004 PHASE 2` before Phase 3 Authorize).
 
 **Master plan:** [Commercial Launch Master Plan](./commercial-launch-master-plan.md) · **Implementation order:** [CORE-003](../113-core-003-implementation-master-plan/README.md)
 
@@ -75,7 +75,7 @@ UI-001 (inherits UX-012 — Future Release polish package)
 | **UX-016** | ✅ **CLOSED · CERTIFIED** | Slices A–D complete | Implement finished / package closed | Canopy · EA · UX-012 · ADR-032/033 | Product + UX + Architect | Inherit via STD-001; do not extend |
 | **STD-001** | ✅ **Accepted** | Permanent standards | N/A (living law) | UX-016 closed | Product + UX + Architect | Cite on every new home/nav PR |
 | **MAC-002** | ✅ **Production Certified 100/100** | HQ hardening | Complete for Critical/High + honesty | MAC-001 · NAV-001 · ARCH-001 | Architect + Security | Merge + migration; unlock CORE-004 ✅ |
-| **CORE-004** | ✅ **APPROVED** | Phase 1 ✅ Certified · Phases 2–9 queued | Phase 2 Implement **locked** until Authorize | UX-016 · STD-001 · ADR-033 · NAV-001 · ARCH-001 · MAC-002 · API-004 · Identity | Product + Architect | `AUTHORIZE CORE-004 PHASE 2 – Maintenance Operations` |
+| **CORE-004** | ✅ **APPROVED** | Phase 1 ✅ Accepted · Phase 2 ✅ Certified · Phases 3–9 queued | Phase 3 Implement **locked** until Accept + Authorize | UX-016 · STD-001 · ADR-033 · NAV-001 · ARCH-001 · MAC-002 · API-004 · Identity | Product + Architect | `ACCEPT CORE-004 PHASE 2` then `AUTHORIZE CORE-004 PHASE 3 – Leasing Operations` |
 
 ---
 

@@ -272,6 +272,20 @@ export type Database = {
           updated_by: string | null;
           vendor_id: string | null;
           work_order_number: string;
+          workflow_stage:
+            | "request"
+            | "intake"
+            | "triage"
+            | "priority_classification"
+            | "assignment"
+            | "scheduling"
+            | "dispatch"
+            | "field_execution"
+            | "vendor_escalation"
+            | "quality_review"
+            | "resident_confirmation"
+            | "completion"
+            | "analytics";
         };
         Insert: {
           archived_at?: string | null;
@@ -305,6 +319,20 @@ export type Database = {
           updated_by?: string | null;
           vendor_id?: string | null;
           work_order_number: string;
+          workflow_stage?:
+            | "request"
+            | "intake"
+            | "triage"
+            | "priority_classification"
+            | "assignment"
+            | "scheduling"
+            | "dispatch"
+            | "field_execution"
+            | "vendor_escalation"
+            | "quality_review"
+            | "resident_confirmation"
+            | "completion"
+            | "analytics";
         };
         Update: {
           archived_at?: string | null;
@@ -338,6 +366,20 @@ export type Database = {
           updated_by?: string | null;
           vendor_id?: string | null;
           work_order_number?: string;
+          workflow_stage?:
+            | "request"
+            | "intake"
+            | "triage"
+            | "priority_classification"
+            | "assignment"
+            | "scheduling"
+            | "dispatch"
+            | "field_execution"
+            | "vendor_escalation"
+            | "quality_review"
+            | "resident_confirmation"
+            | "completion"
+            | "analytics";
         };
         Relationships: [
           {

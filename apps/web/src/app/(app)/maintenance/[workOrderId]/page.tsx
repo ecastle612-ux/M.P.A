@@ -11,6 +11,7 @@ import { MaintenanceContextRail } from "../../../../components/presentation/cont
 import { isWorkOrderOverdue, PriorityBadge, StatusBadge } from "../../../../components/maintenance/maintenance-badges";
 import { MaintenanceActivityTimeline } from "../../../../components/maintenance/activity-timeline";
 import { WorkOrderWorkflowPanel } from "../../../../components/maintenance/work-order-workflow-panel";
+import { MaintenanceWorkflowPanel } from "../../../../components/maintenance/maintenance-workflow-panel";
 import { VendorAssignmentPanel } from "../../../../components/vendor/vendor-assignment-panel";
 import { VendorJobSharePanel } from "../../../../components/vendor-jobs/vendor-job-share-panel";
 import { VendorInvoiceReviewPanel } from "../../../../components/vendor-jobs/vendor-invoice-review-panel";
@@ -310,6 +311,11 @@ export default async function WorkOrderDetailPage({
               })}
             />
           ) : null}
+          <MaintenanceWorkflowPanel
+            workOrderId={workOrder.id}
+            currentStage={workOrder.workflowStage}
+            canUpdate={canUpdate || canAssign}
+          />
           {(canUpdate || canAssign || canAssignVendor) &&
           workOrder.status !== "cancelled" ? (
             <div id="workflow">

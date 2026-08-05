@@ -33,6 +33,8 @@ export const NOTIFY_ELIGIBLE_EVENT_TYPES = new Set<string>([
   "maintenance.request.created",
   "maintenance.overdue",
   "maintenance.vendor.assigned",
+  "maintenance.workflow.transitioned",
+  "maintenance.work.completed",
   "lease.expiring",
   "commercial.trial.reminder_due",
   "commercial.renewal.alert_due",

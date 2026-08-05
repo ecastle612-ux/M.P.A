@@ -441,6 +441,7 @@ export default async function PropertyDetailPage({
           canCreateUnit={canCreateUnit}
           canCreateMaintenance={canCreateMaintenance}
           recentLifecycle={recentLifecycle}
+          openMaintenanceCount={openMaintenance.length}
           userName={(profile?.display_name as string | null) ?? user.email ?? null}
           organizationName={null}
         />

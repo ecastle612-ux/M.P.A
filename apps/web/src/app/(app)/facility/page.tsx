@@ -47,6 +47,11 @@ export default async function FacilityHubPage() {
         buckets={buckets}
         canCreateWorkOrder={evaluatePermission(authorization, "maintenance:create")}
         canWriteInventory={evaluatePermission(authorization, "facility:inventory:write")}
+        userName={
+          (user.user_metadata?.["full_name"] as string | undefined) ??
+          user.email ??
+          null
+        }
       />
     </AppPage>
   );
