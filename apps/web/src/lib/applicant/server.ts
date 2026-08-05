@@ -19,6 +19,11 @@ import {
   assertApplicantLifecycleTransition,
   recordApplicantEvent
 } from "./events";
+import {
+  isLeasingWorkflowStage,
+  legacyApplicantStatusToWorkflowStage,
+  type LeasingWorkflowStage
+} from "../lease/workflow";
 
 type ApplicantRow = {
   id: string;
@@ -31,6 +36,7 @@ type ApplicantRow = {
   assigned_pm_id: string | null;
   tenant_id: string | null;
   status: ApplicantStatus;
+  workflow_stage?: string | null;
   first_name: string;
   last_name: string;
   preferred_name: string | null;
@@ -107,7 +113,7 @@ type ApplicantListOptions = {
 };
 
 const APPLICANT_SELECT =
-  "id, organization_id, application_number, application_group_id, is_primary, property_id, unit_id, assigned_pm_id, tenant_id, status, first_name, last_name, preferred_name, email, phone, date_of_birth, planned_move_in_date, profile, internal_notes, metadata, submitted_at, approved_at, declined_at, converted_at, created_at, updated_at, archived_at, deleted_at";
+  "id, organization_id, application_number, application_group_id, is_primary, property_id, unit_id, assigned_pm_id, tenant_id, status, workflow_stage, first_name, last_name, preferred_name, email, phone, date_of_birth, planned_move_in_date, profile, internal_notes, metadata, submitted_at, approved_at, declined_at, converted_at, created_at, updated_at, archived_at, deleted_at";
 
 const APPLICANT_LIST_SELECT = `${APPLICANT_SELECT}, properties(name), units(unit_number, property_id)`;
 
@@ -266,6 +272,8 @@ export async function createApplicant(
 
   const applicationNumber = input.applicationNumber?.trim() || (await generateApplicationNumber(organizationId, supabase));
 
+  const workflowStage = legacyApplicantStatusToWorkflowStage(input.status);
+
   const { data, error } = await supabase
     .from("applicants")
     .insert({
@@ -277,6 +285,7 @@ export async function createApplicant(
       unit_id: input.unitId,
       assigned_pm_id: input.assignedPmId,
       status: input.status,
+      workflow_stage: workflowStage,
       first_name: input.firstName,
       last_name: input.lastName,
       preferred_name: input.preferredName,
@@ -962,6 +971,10 @@ export async function getApplicantDashboardMetrics(
 }
 
 function toApplicantRecord(row: ApplicantRow): ApplicantRecord {
+  const workflowStage: LeasingWorkflowStage = isLeasingWorkflowStage(row.workflow_stage)
+    ? row.workflow_stage
+    : legacyApplicantStatusToWorkflowStage(row.status);
+
   return {
     id: row.id,
     organizationId: row.organization_id,
@@ -973,6 +986,7 @@ function toApplicantRecord(row: ApplicantRow): ApplicantRecord {
     assignedPmId: row.assigned_pm_id,
     tenantId: row.tenant_id,
     status: row.status,
+    workflowStage,
     firstName: row.first_name,
     lastName: row.last_name,
     preferredName: row.preferred_name,

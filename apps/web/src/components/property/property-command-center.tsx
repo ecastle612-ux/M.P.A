@@ -19,6 +19,7 @@ export function PropertyCommandCenter({
   canCreateMaintenance,
   recentLifecycle,
   openMaintenanceCount = 0,
+  activeLeasingCount = 0,
   userName,
   organizationName
 }: {
@@ -38,6 +39,7 @@ export function PropertyCommandCenter({
     reason: string | null;
   }>;
   openMaintenanceCount?: number;
+  activeLeasingCount?: number;
   userName: string | null;
   organizationName: string | null;
 }) {
@@ -52,6 +54,7 @@ export function PropertyCommandCenter({
     canCreateMaintenance,
     recentLifecycle,
     openMaintenanceCount,
+    activeLeasingCount,
     userName,
     organizationName
   });

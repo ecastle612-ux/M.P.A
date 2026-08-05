@@ -2517,6 +2517,23 @@ export type Database = {
           signed_at: string | null;
           start_date: string;
           status: string;
+          workflow_stage:
+            | "prospect"
+            | "inquiry"
+            | "lead_qualification"
+            | "tour_scheduling"
+            | "property_showing"
+            | "application"
+            | "screening"
+            | "approval"
+            | "lease_generation"
+            | "signwell_signature"
+            | "move_in_preparation"
+            | "move_in"
+            | "resident"
+            | "renewal"
+            | "move_out"
+            | "archive";
           terminated_at: string | null;
           unit_id: string;
           updated_at: string;
@@ -2552,6 +2569,23 @@ export type Database = {
           signed_at?: string | null;
           start_date: string;
           status?: string;
+          workflow_stage?:
+            | "prospect"
+            | "inquiry"
+            | "lead_qualification"
+            | "tour_scheduling"
+            | "property_showing"
+            | "application"
+            | "screening"
+            | "approval"
+            | "lease_generation"
+            | "signwell_signature"
+            | "move_in_preparation"
+            | "move_in"
+            | "resident"
+            | "renewal"
+            | "move_out"
+            | "archive";
           terminated_at?: string | null;
           unit_id: string;
           updated_at?: string;
@@ -2587,6 +2621,23 @@ export type Database = {
           signed_at?: string | null;
           start_date?: string;
           status?: string;
+          workflow_stage?:
+            | "prospect"
+            | "inquiry"
+            | "lead_qualification"
+            | "tour_scheduling"
+            | "property_showing"
+            | "application"
+            | "screening"
+            | "approval"
+            | "lease_generation"
+            | "signwell_signature"
+            | "move_in_preparation"
+            | "move_in"
+            | "resident"
+            | "renewal"
+            | "move_out"
+            | "archive";
           terminated_at?: string | null;
           unit_id?: string;
           updated_at?: string;
@@ -2719,6 +2770,80 @@ export type Database = {
           }
         ];
       };
+      leasing_workflow_events: {
+        Row: {
+          actor_user_id: string | null;
+          applicant_id: string | null;
+          automation: Json;
+          created_at: string;
+          from_stage: string | null;
+          id: string;
+          lease_id: string | null;
+          organization_id: string;
+          payload: Json;
+          property_id: string | null;
+          reason: string | null;
+          to_stage: string;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          applicant_id?: string | null;
+          automation?: Json;
+          created_at?: string;
+          from_stage?: string | null;
+          id?: string;
+          lease_id?: string | null;
+          organization_id: string;
+          payload?: Json;
+          property_id?: string | null;
+          reason?: string | null;
+          to_stage: string;
+        };
+        Update: {
+          actor_user_id?: string | null;
+          applicant_id?: string | null;
+          automation?: Json;
+          created_at?: string;
+          from_stage?: string | null;
+          id?: string;
+          lease_id?: string | null;
+          organization_id?: string;
+          payload?: Json;
+          property_id?: string | null;
+          reason?: string | null;
+          to_stage?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "leasing_workflow_events_applicant_id_fkey";
+            columns: ["applicant_id"];
+            isOneToOne: false;
+            referencedRelation: "applicants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leasing_workflow_events_lease_id_fkey";
+            columns: ["lease_id"];
+            isOneToOne: false;
+            referencedRelation: "leases";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leasing_workflow_events_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leasing_workflow_events_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       applicants: {
         Row: {
           application_group_id: string;
@@ -2748,6 +2873,23 @@ export type Database = {
           profile: Json;
           property_id: string | null;
           status: string;
+          workflow_stage:
+            | "prospect"
+            | "inquiry"
+            | "lead_qualification"
+            | "tour_scheduling"
+            | "property_showing"
+            | "application"
+            | "screening"
+            | "approval"
+            | "lease_generation"
+            | "signwell_signature"
+            | "move_in_preparation"
+            | "move_in"
+            | "resident"
+            | "renewal"
+            | "move_out"
+            | "archive";
           submitted_at: string | null;
           tenant_id: string | null;
           unit_id: string | null;
@@ -2782,6 +2924,23 @@ export type Database = {
           profile?: Json;
           property_id?: string | null;
           status?: string;
+          workflow_stage?:
+            | "prospect"
+            | "inquiry"
+            | "lead_qualification"
+            | "tour_scheduling"
+            | "property_showing"
+            | "application"
+            | "screening"
+            | "approval"
+            | "lease_generation"
+            | "signwell_signature"
+            | "move_in_preparation"
+            | "move_in"
+            | "resident"
+            | "renewal"
+            | "move_out"
+            | "archive";
           submitted_at?: string | null;
           tenant_id?: string | null;
           unit_id?: string | null;
@@ -2816,6 +2975,23 @@ export type Database = {
           profile?: Json;
           property_id?: string | null;
           status?: string;
+          workflow_stage?:
+            | "prospect"
+            | "inquiry"
+            | "lead_qualification"
+            | "tour_scheduling"
+            | "property_showing"
+            | "application"
+            | "screening"
+            | "approval"
+            | "lease_generation"
+            | "signwell_signature"
+            | "move_in_preparation"
+            | "move_in"
+            | "resident"
+            | "renewal"
+            | "move_out"
+            | "archive";
           submitted_at?: string | null;
           tenant_id?: string | null;
           unit_id?: string | null;

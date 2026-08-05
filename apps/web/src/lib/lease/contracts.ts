@@ -41,6 +41,8 @@ export type LeaseRecord = {
   coTenantPlaceholder: string | null;
   leaseType: LeaseType;
   status: LeaseStatus;
+  /** CORE-004 Phase 3 — authoritative leasing lifecycle stage (lease carrier). */
+  workflowStage: string;
   startDate: string;
   endDate: string;
   moveInDate: string | null;
@@ -93,6 +95,7 @@ export type CreateLeaseInput = Omit<
   | "id"
   | "organizationId"
   | "leaseNumber"
+  | "workflowStage"
   | "signedAt"
   | "activatedAt"
   | "expiredAt"

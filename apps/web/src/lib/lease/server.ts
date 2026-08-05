@@ -18,6 +18,11 @@ import {
   leaseLifecycleSummary,
   recordLeaseEvent
 } from "./events";
+import {
+  isLeasingWorkflowStage,
+  legacyLeaseStatusToWorkflowStage,
+  type LeasingWorkflowStage
+} from "./workflow";
 
 type LeaseRow = {
   id: string;
@@ -29,6 +34,7 @@ type LeaseRow = {
   co_tenant_placeholder: string | null;
   lease_type: LeaseRecord["leaseType"];
   status: LeaseRecord["status"];
+  workflow_stage?: string | null;
   start_date: string;
   end_date: string;
   move_in_date: string | null;
@@ -127,7 +133,7 @@ type SupabaseClientType = Awaited<ReturnType<typeof createAuthServerComponentCli
 type LeaseUpdate = Database["public"]["Tables"]["leases"]["Update"];
 
 const LEASE_SELECT =
-  "id, organization_id, lease_number, property_id, unit_id, primary_tenant_id, co_tenant_placeholder, lease_type, status, start_date, end_date, move_in_date, move_out_date, rent_amount, security_deposit, late_fee_placeholder, renewal_option, notice_period_days, renewal_status, internal_notes, signed_at, activated_at, expired_at, terminated_at, metadata, created_at, updated_at, archived_at, deleted_at";
+  "id, organization_id, lease_number, property_id, unit_id, primary_tenant_id, co_tenant_placeholder, lease_type, status, workflow_stage, start_date, end_date, move_in_date, move_out_date, rent_amount, security_deposit, late_fee_placeholder, renewal_option, notice_period_days, renewal_status, internal_notes, signed_at, activated_at, expired_at, terminated_at, metadata, created_at, updated_at, archived_at, deleted_at";
 
 const LEASE_LIST_SELECT = `${LEASE_SELECT}, properties(name), units(unit_number, property_id), tenants(first_name, last_name, preferred_name)`;
 
@@ -231,6 +237,8 @@ export async function createLease(
 
   const leaseNumber = input.leaseNumber?.trim() || (await generateLeaseNumber(organizationId, supabase));
 
+  const workflowStage = legacyLeaseStatusToWorkflowStage(input.status, input.renewalStatus);
+
   const { data, error } = await supabase
     .from("leases")
     .insert({
@@ -242,6 +250,7 @@ export async function createLease(
       co_tenant_placeholder: input.coTenantPlaceholder,
       lease_type: input.leaseType,
       status: input.status,
+      workflow_stage: workflowStage,
       start_date: input.startDate,
       end_date: input.endDate,
       move_in_date: input.moveInDate,
@@ -847,6 +856,10 @@ async function notifyLeaseLifecycleChange({
 }
 
 function toLeaseRecord(row: LeaseRow): LeaseRecord {
+  const workflowStage: LeasingWorkflowStage = isLeasingWorkflowStage(row.workflow_stage)
+    ? row.workflow_stage
+    : legacyLeaseStatusToWorkflowStage(row.status, row.renewal_status);
+
   return {
     id: row.id,
     organizationId: row.organization_id,
@@ -857,6 +870,7 @@ function toLeaseRecord(row: LeaseRow): LeaseRecord {
     coTenantPlaceholder: row.co_tenant_placeholder,
     leaseType: row.lease_type,
     status: row.status,
+    workflowStage,
     startDate: row.start_date,
     endDate: row.end_date,
     moveInDate: row.move_in_date,

@@ -17,6 +17,7 @@ export type SearchCorpus =
   | "units"
   | "tenants"
   | "leases"
+  | "applicants"
   | "maintenance"
   | "vendors";
 
@@ -67,6 +68,7 @@ export async function globalSearch(input: GlobalSearchInput): Promise<{
     "units",
     "tenants",
     "leases",
+    "applicants",
     "maintenance",
     "vendors"
   ];
@@ -182,9 +184,15 @@ export async function globalSearch(input: GlobalSearchInput): Promise<{
       },
       leases: {
         table: "leases",
-        titleCol: "status",
+        titleCol: "lease_number",
         permission: ["lease:read"],
         href: (id) => `/leases/${id}`
+      },
+      applicants: {
+        table: "applicants",
+        titleCol: "application_number",
+        permission: ["applicant:read"],
+        href: (id) => `/applicants/${id}`
       },
       maintenance: {
         table: "maintenance_work_orders",
@@ -242,6 +250,87 @@ export async function globalSearch(input: GlobalSearchInput): Promise<{
             .filter(Boolean)
             .join(" · "),
           deepLink: `/maintenance/${id}`,
+          score: 0.78
+        });
+      }
+      continue;
+    }
+
+    // CORE-004 Phase 3 — lease search by number, status, workflow, renewal, dates
+    if (corpus === "leases") {
+      const { data, error } = await db
+        .from("leases")
+        .select(
+          "id, lease_number, status, workflow_stage, renewal_status, end_date, property_id, unit_id"
+        )
+        .eq("organization_id", input.organizationId)
+        .is("deleted_at", null)
+        .or(
+          [
+            `lease_number.ilike.${like}`,
+            `status.ilike.${like}`,
+            `workflow_stage.ilike.${like}`,
+            `renewal_status.ilike.${like}`,
+            `id.eq.${q}`
+          ].join(",")
+        )
+        .limit(10);
+      if (error) {
+        deniedCorpora.push(corpus);
+        continue;
+      }
+      for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+        const id = String(row["id"]);
+        hits.push({
+          resultId: `leases:${id}`,
+          corpus: "leases",
+          title: String(row["lease_number"] ?? id),
+          snippet: [row["workflow_stage"] ?? row["status"], row["renewal_status"], row["end_date"]]
+            .filter(Boolean)
+            .join(" · "),
+          deepLink: `/leases/${id}`,
+          score: 0.78
+        });
+      }
+      continue;
+    }
+
+    // CORE-004 Phase 3 — applicant/prospect search by name, application #, status, workflow
+    if (corpus === "applicants") {
+      const { data, error } = await db
+        .from("applicants")
+        .select(
+          "id, application_number, status, workflow_stage, first_name, last_name, email, property_id, unit_id"
+        )
+        .eq("organization_id", input.organizationId)
+        .is("deleted_at", null)
+        .or(
+          [
+            `application_number.ilike.${like}`,
+            `first_name.ilike.${like}`,
+            `last_name.ilike.${like}`,
+            `email.ilike.${like}`,
+            `status.ilike.${like}`,
+            `workflow_stage.ilike.${like}`,
+            `id.eq.${q}`
+          ].join(",")
+        )
+        .limit(10);
+      if (error) {
+        deniedCorpora.push(corpus);
+        continue;
+      }
+      for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+        const id = String(row["id"]);
+        const name = `${row["first_name"] ?? ""} ${row["last_name"] ?? ""}`.trim();
+        hits.push({
+          resultId: `applicants:${id}`,
+          corpus: "applicants",
+          title: String(row["application_number"] ?? (name || id)),
+          snippet: [name || null, row["workflow_stage"] ?? row["status"], row["email"]]
+            .filter(Boolean)
+            .join(" · "),
+          deepLink: `/applicants/${id}`,
           score: 0.78
         });
       }

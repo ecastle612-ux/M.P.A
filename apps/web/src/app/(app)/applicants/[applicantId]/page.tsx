@@ -5,8 +5,13 @@ import { DetailPageLayout } from "../../../../components/presentation/detail-pag
 import { ApplicantDocumentsPanel } from "../../../../components/applicant/applicant-documents-panel";
 import { ApplicantStatusPanel } from "../../../../components/applicant/applicant-status-panel";
 import { ApplicantTimelinePanel } from "../../../../components/applicant/applicant-timeline-panel";
+import { LeasingWorkflowPanel } from "../../../../components/lease/leasing-workflow-panel";
 import { ApplicantScreeningPanel } from "../../../../components/screening/applicant-screening-panel";
 import { SignaturePackagePanel } from "../../../../components/signature/signature-package-panel";
+import {
+  isLeasingWorkflowStage,
+  legacyApplicantStatusToWorkflowStage
+} from "../../../../lib/lease/workflow";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -100,6 +105,20 @@ export default async function ApplicantDetailPage({
       }
       main={
         <div className="space-y-6">
+          <LeasingWorkflowPanel
+            currentStage={
+              isLeasingWorkflowStage(applicant.workflowStage)
+                ? applicant.workflowStage
+                : legacyApplicantStatusToWorkflowStage(applicant.status)
+            }
+            canUpdate={canUpdate}
+            applicantId={applicant.id}
+            leaseId={
+              typeof applicant.metadata["linkedLeaseId"] === "string"
+                ? applicant.metadata["linkedLeaseId"]
+                : null
+            }
+          />
           <Card className="space-y-3">
             <h3 className="text-base font-semibold">Profile summary</h3>
             <dl className="grid gap-3 sm:grid-cols-2 text-sm">
