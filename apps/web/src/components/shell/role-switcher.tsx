@@ -8,11 +8,11 @@ export function RoleSwitcher() {
   const { availableRoles, activeRole, setActiveRole } = useRoleContext();
 
   return (
-    <label className="inline-flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-      Role
+    <label className="inline-flex min-h-9 items-center gap-2 text-xs font-medium text-[var(--mpa-color-text-secondary)] sm:text-sm">
+      <span className="hidden sm:inline">Role</span>
       <Select
         aria-label="Active role"
-        className="w-44"
+        className="w-36 sm:w-44"
         value={activeRole}
         onChange={(event) => {
           const nextRole = event.target.value;

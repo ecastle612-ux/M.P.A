@@ -1,6 +1,6 @@
 # UX-015 Component Audit Checklist
 
-**Status:** Draft — Proposed  
+**Status:** Approved  
 **Parent:** [UX-015 Index](./index.md)
 
 Use this checklist during the post-approval implementation pass. Every shared

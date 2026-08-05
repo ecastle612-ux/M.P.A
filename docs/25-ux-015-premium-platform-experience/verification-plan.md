@@ -1,6 +1,6 @@
 # UX-015 Verification Plan
 
-**Status:** Draft — Proposed  
+**Status:** Approved  
 **Parent:** [UX-015 Index](./index.md)
 
 After approval and implementation, Phase 1 is complete only when the following

@@ -12,7 +12,7 @@ export function Tooltip({
       {children}
       <span
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-40 mb-2 hidden -translate-x-1/2 rounded-md bg-[var(--mpa-color-bg-sidebar)] px-2 py-1 text-xs text-white group-hover:block group-focus-within:block"
+        className="pointer-events-none absolute bottom-full left-1/2 z-[90] mb-2 hidden -translate-x-1/2 rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-sidebar)] px-2 py-1 text-xs text-[var(--mpa-color-text-inverse)] shadow-mpa-sm group-hover:block group-focus-within:block"
       >
         {label}
       </span>

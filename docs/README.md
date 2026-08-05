@@ -4,8 +4,9 @@ The permanent source of truth for M.P.A. (My Property Assistant).
 
 This blueprint defines how M.P.A. is designed, built, and evolved. Every engineer, designer, and product contributor should treat these documents as authoritative until superseded by an approved Decision Log entry.
 
-**Current status:** Phase 2.1 Foundation Hardening complete; Phase 3 Identity
-Foundation documented and awaiting approval. Implementation Gate in force.
+**Current status:** Phase 3 Identity Foundation completed (ADR-014). UX-015
+Premium Platform Experience Phase 1 Approved (ADR-017 Accepted); implementation
+authorized for visual/interaction polish only. Implementation Gate in force.
 
 ---
 
@@ -46,7 +47,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 21 | [Experience Architecture](./21-experience-architecture/index.md) | How M.P.A. should *feel* (Phase 1.6) |
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
-| 25 | [UX-015 Premium Platform Experience](./25-ux-015-premium-platform-experience/index.md) | Foundation visual craftsmanship polish (Phase 1) — Draft |
+| 25 | [UX-015 Premium Platform Experience](./25-ux-015-premium-platform-experience/index.md) | Foundation visual craftsmanship polish (Phase 1) — Approved |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -95,7 +96,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 - [Architecture Improvements Before Development](./08-software-architecture/architecture-improvements.md) — Required changes before writing production code
 - [Architecture Review (Critical)](./08-software-architecture/architecture-review.md) — Honest assessment of the initial proposal
 - [Phase 2 Hardening Review](./22-phase-2-scaffold-review/index.md) — Foundation quality hardening and readiness grading
-- [UX-015 Premium Platform Experience](./25-ux-015-premium-platform-experience/index.md) — Foundation craftsmanship polish (Draft / Proposed ADR-017)
+- [UX-015 Premium Platform Experience](./25-ux-015-premium-platform-experience/index.md) — Foundation craftsmanship polish (Approved / ADR-017 Accepted)
 
 ---
 
@@ -116,6 +117,6 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Field | Value |
 |-------|-------|
-| Blueprint version | 0.4.0 |
-| Last updated | 2026-07-13 |
-| Phase | 2.1 Foundation Hardening |
+| Blueprint version | 0.4.2 |
+| Last updated | 2026-08-05 |
+| Phase | Post–Phase 3; UX-015 Approved |

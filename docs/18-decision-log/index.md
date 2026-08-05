@@ -50,7 +50,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-012](./adr-012-design-document-approve-implement.md) | Design → Document → Approve → Implement | Accepted | 2026-07-13 |
 | [ADR-013](./adr-013-experience-architecture-before-ui.md) | Experience Architecture Before UI Implementation | Accepted | 2026-07-13 |
 | [ADR-014](./adr-014-phase-3-identity-multitenant-foundation.md) | Phase 3 Identity & Multi-Tenant Foundation | Accepted | 2026-07-13 |
-| [ADR-017](./adr-017-ux-015-premium-platform-experience.md) | UX-015 Premium Platform Experience (Phase 1) | Proposed | 2026-08-05 |
+| [ADR-017](./adr-017-ux-015-premium-platform-experience.md) | UX-015 Premium Platform Experience (Phase 1) | Accepted | 2026-08-05 |
 
 ---
 

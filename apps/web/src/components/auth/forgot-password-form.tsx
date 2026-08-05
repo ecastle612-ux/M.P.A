@@ -34,34 +34,46 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
+    <Card className="w-full max-w-md shadow-mpa-md">
+      <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
         Reset password
       </h1>
-      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+      <p className="mt-1 text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
         We will send a secure reset link to your email.
       </p>
 
-      <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-        <div className="space-y-1">
-          <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="email">
+      <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="email">
             Email
           </label>
           <Input
             id="email"
             type="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
         </div>
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? (
+          <p className="text-sm text-[var(--mpa-color-text-danger)]" role="alert">
+            {error}
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="text-sm text-[var(--mpa-color-status-success)]" role="status">
+            {notice}
+          </p>
+        ) : null}
         <Button className="w-full" disabled={loading} type="submit">
           {loading ? "Sending link..." : "Send reset link"}
         </Button>
         <p className="text-center text-sm text-[var(--mpa-color-text-secondary)]">
-          <Link className="underline" href="/login">
+          <Link
+            className="font-medium text-[var(--mpa-color-text-link)] underline-offset-4 hover:underline"
+            href="/login"
+          >
             Back to sign in
           </Link>
         </p>

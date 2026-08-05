@@ -1,6 +1,6 @@
 # UX-015 Craftsmanship Standard
 
-**Status:** Draft — Proposed  
+**Status:** Approved  
 **Parent:** [UX-015 Index](./index.md)
 
 ## Intent

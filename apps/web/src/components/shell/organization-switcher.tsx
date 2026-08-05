@@ -7,11 +7,11 @@ export function OrganizationSwitcher() {
   const { organizations, activeOrganizationId, setActiveOrganization } = useOrganizationContext();
 
   return (
-    <label className="inline-flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-      Organization
+    <label className="inline-flex min-h-9 items-center gap-2 text-xs font-medium text-[var(--mpa-color-text-secondary)] sm:text-sm">
+      <span className="hidden sm:inline">Organization</span>
       <Select
         aria-label="Active organization"
-        className="w-52"
+        className="w-40 sm:w-52"
         value={activeOrganizationId ?? ""}
         onChange={(event) => {
           void setActiveOrganization(event.target.value);

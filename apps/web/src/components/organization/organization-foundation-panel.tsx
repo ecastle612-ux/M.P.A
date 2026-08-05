@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { Button, Card, Input, Select } from "@mpa/ui";
+import { Button, Card, EmptyState, Input, Select } from "@mpa/ui";
 import { USER_ROLES, isUserRole } from "@mpa/shared";
 import { useOrganizationContext } from "../shell/organization-context";
 
@@ -122,42 +122,59 @@ export function OrganizationFoundationPanel() {
 
   return (
     <section className="grid gap-4 lg:grid-cols-2">
-      <Card>
-        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-          Organization foundation
-        </h2>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Active context: {activeOrganizationLabel}
-        </p>
-        <form className="mt-4 space-y-3" onSubmit={handleCreateOrganization}>
-          <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="organization-name">
-            Create organization
-          </label>
-          <Input
-            id="organization-name"
-            placeholder="Example Property Group"
-            required
-            value={newOrganizationName}
-            onChange={(event) => setNewOrganizationName(event.target.value)}
-          />
+      <Card className="space-y-4">
+        <div className="space-y-1">
+          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
+            Organization foundation
+          </h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Active context: {activeOrganizationLabel}
+          </p>
+        </div>
+        <form className="space-y-3" onSubmit={handleCreateOrganization}>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="organization-name">
+              Create organization
+            </label>
+            <Input
+              id="organization-name"
+              placeholder="Example Property Group"
+              required
+              value={newOrganizationName}
+              onChange={(event) => setNewOrganizationName(event.target.value)}
+            />
+          </div>
           <Button disabled={loading} type="submit">
             {loading ? "Creating..." : "Create organization"}
           </Button>
         </form>
-        {error ? <p className="mt-2 text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="mt-2 text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? (
+          <p className="text-sm text-[var(--mpa-color-text-danger)]" role="alert">
+            {error}
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="text-sm text-[var(--mpa-color-status-success)]" role="status">
+            {notice}
+          </p>
+        ) : null}
         {hasOrganizations ? (
-          <Button className="mt-4" variant="secondary" onClick={() => void refreshOrganizationDetails()}>
+          <Button variant="secondary" onClick={() => void refreshOrganizationDetails()}>
             Refresh organization details
           </Button>
         ) : null}
       </Card>
 
-      <Card>
-        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-          Invitations and memberships
-        </h2>
-        <form className="mt-4 grid gap-2" onSubmit={handleInvite}>
+      <Card className="space-y-4">
+        <div className="space-y-1">
+          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
+            Invitations and memberships
+          </h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Invite members and review active memberships for the current organization.
+          </p>
+        </div>
+        <form className="grid gap-3" onSubmit={handleInvite}>
           <Input
             type="email"
             placeholder="member@organization.com"
@@ -181,29 +198,39 @@ export function OrganizationFoundationPanel() {
             Invite member
           </Button>
         </form>
-        <div className="mt-4 space-y-4 text-sm">
-          <div>
+        <div className="space-y-4 text-sm">
+          <div className="space-y-2">
             <p className="font-semibold text-[var(--mpa-color-text-primary)]">Pending invitations</p>
             {invitations.length === 0 ? (
-              <p className="text-[var(--mpa-color-text-secondary)]">No invitations yet.</p>
+              <EmptyState
+                title="No invitations yet"
+                description="Invite a teammate to populate this list."
+                className="bg-[var(--mpa-color-bg-surface-muted)] py-5"
+              />
             ) : (
-              <ul className="mt-1 space-y-1 text-[var(--mpa-color-text-secondary)]">
+              <ul className="space-y-1 text-[var(--mpa-color-text-secondary)]">
                 {invitations.map((invitation) => (
-                  <li key={invitation.id}>
+                  <li
+                    key={invitation.id}
+                    className="rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] px-3 py-2"
+                  >
                     {invitation.email} — {invitation.roles.join(", ")}
                   </li>
                 ))}
               </ul>
             )}
           </div>
-          <div>
+          <div className="space-y-2">
             <p className="font-semibold text-[var(--mpa-color-text-primary)]">Memberships</p>
             {memberships.length === 0 ? (
               <p className="text-[var(--mpa-color-text-secondary)]">No memberships loaded.</p>
             ) : (
-              <ul className="mt-1 space-y-1 text-[var(--mpa-color-text-secondary)]">
+              <ul className="space-y-1 text-[var(--mpa-color-text-secondary)]">
                 {memberships.map((membership) => (
-                  <li key={membership.id}>
+                  <li
+                    key={membership.id}
+                    className="rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] px-3 py-2"
+                  >
                     {membership.user_id} — {membership.roles.join(", ")} ({membership.status})
                   </li>
                 ))}

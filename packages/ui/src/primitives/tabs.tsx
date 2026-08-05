@@ -60,7 +60,10 @@ export function TabsList({ className, ...props }: HTMLAttributes<HTMLDivElement>
   return (
     <div
       role="tablist"
-      className={cn("inline-flex rounded-md bg-gray-100 p-1", className)}
+      className={cn(
+        "inline-flex rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-surface-muted)] p-1",
+        className,
+      )}
       {...props}
     />
   );
@@ -111,9 +114,9 @@ export function TabsTrigger({
       onClick={() => setActiveValue(value)}
       onKeyDown={handleArrowNavigation}
       className={cn(
-        "rounded-sm px-3 py-1.5 text-sm",
+        "min-h-9 rounded-[var(--mpa-radius-sm)] px-3 py-1.5 text-sm transition-[color,background-color,box-shadow] duration-[var(--mpa-motion-fast)] ease-[var(--mpa-ease-standard)]",
         selected
-          ? "bg-white text-[var(--mpa-color-text-primary)] shadow-sm"
+          ? "bg-[var(--mpa-color-bg-surface)] text-[var(--mpa-color-text-primary)] shadow-mpa-sm"
           : "text-[var(--mpa-color-text-secondary)] hover:text-[var(--mpa-color-text-primary)]",
         className,
       )}
@@ -137,7 +140,12 @@ export function TabsContent({
   const tabId = `${baseId}-tab-${value}`;
   const panelId = `${baseId}-panel-${value}`;
   return (
-    <div role="tabpanel" id={panelId} aria-labelledby={tabId} className={className}>
+    <div
+      role="tabpanel"
+      id={panelId}
+      aria-labelledby={tabId}
+      className={cn("mpa-page-enter", className)}
+    >
       {children}
     </div>
   );

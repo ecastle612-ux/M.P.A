@@ -58,7 +58,7 @@ export function ProfileMenu() {
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="rounded-full"
+        className="mpa-touch-target inline-flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-brand-primary)]/25"
         aria-label="Open profile menu"
       >
         <Avatar src={avatarUrl || undefined} fallback={avatarFallback} />
@@ -67,9 +67,9 @@ export function ProfileMenu() {
         <div
           role="menu"
           aria-label="Profile menu"
-          className="absolute right-0 top-10 z-40 w-56 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-2 shadow-lg"
+          className="absolute right-0 top-12 z-40 w-56 rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-2 shadow-mpa-md animate-[mpa-slide-in-down_var(--mpa-motion-normal)_var(--mpa-ease-standard)]"
         >
-          <p className="px-2 py-2 text-xs text-[var(--mpa-color-text-secondary)]">{displayName}</p>
+          <p className="truncate px-2 py-2 text-xs text-[var(--mpa-color-text-secondary)]">{displayName}</p>
           <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/profile")}>
             Profile
           </Button>

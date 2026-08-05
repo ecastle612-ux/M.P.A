@@ -28,15 +28,20 @@ export function ApplicationShell({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
     >
-      <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)]">
+      <div className="mpa-safe-pad flex min-h-screen bg-[var(--mpa-color-bg-app)]">
         <Sidebar />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-          <div className="flex items-center justify-between px-4 pt-3 lg:hidden">
-            <p className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">M.P.A.</p>
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 lg:hidden">
+            <div>
+              <p className="font-display text-lg font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
+                M.P.A.
+              </p>
+              <p className="text-xs text-[var(--mpa-color-text-muted)]">Workspace</p>
+            </div>
             <ResponsiveNavigation />
           </div>
           <TopNavigation />
-          {children}
+          <div className="mpa-page-enter min-h-0 flex-1">{children}</div>
         </div>
       </div>
     </AuthenticatedContextProviders>

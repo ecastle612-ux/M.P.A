@@ -7,32 +7,91 @@
   --mpa-font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --mpa-font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
+  --mpa-color-brand-primary: #0f6b56;
+  --mpa-color-brand-primary-hover: #0c5a48;
+  --mpa-color-brand-primary-active: #094839;
+  --mpa-color-brand-primary-subtle: #e6f4ef;
+  --mpa-color-brand-secondary: #3a4150;
+
   --mpa-color-bg-app: #f3f4f6;
   --mpa-color-bg-sidebar: #12151a;
   --mpa-color-bg-sidebar-elevated: #1a1e25;
   --mpa-color-bg-surface: #ffffff;
+  --mpa-color-bg-surface-muted: #eef0f3;
+  --mpa-color-bg-sunken: #e5e7eb;
   --mpa-color-bg-overlay: #12151a99;
+  --mpa-color-bg-row-hover: #f7f8fa;
 
-  --mpa-color-border-default: #d1d5db;
   --mpa-color-border-subtle: #e5e7eb;
+  --mpa-color-border-default: #d1d5db;
+  --mpa-color-border-strong: #9ca3af;
+  --mpa-color-border-focus: #0f6b56;
   --mpa-color-border-sidebar: #2a2f38;
 
   --mpa-color-text-primary: #12151a;
   --mpa-color-text-secondary: #4b5563;
   --mpa-color-text-muted: #6b7280;
+  --mpa-color-text-inverse: #f9fafb;
   --mpa-color-text-sidebar: #c4c9d1;
   --mpa-color-text-sidebar-active: #ffffff;
+  --mpa-color-text-link: #0f6b56;
+  --mpa-color-text-danger: #b42318;
 
-  --mpa-color-brand-primary: #0f6b56;
+  --mpa-color-status-success: #0e7a57;
+  --mpa-color-status-warning: #b45309;
+  --mpa-color-status-danger: #c0392b;
+  --mpa-color-status-info: #1d6aa5;
+  --mpa-color-status-success-subtle: #e3f5ee;
+  --mpa-color-status-warning-subtle: #fef3c7;
+  --mpa-color-status-danger-subtle: #fce8e6;
+  --mpa-color-status-info-subtle: #e5f1fa;
+
+  --mpa-color-interactive-disabled-bg: #e5e7eb;
+  --mpa-color-interactive-disabled-text: #9ca3af;
+  --mpa-color-interactive-selected: #e6f4ef;
+  --mpa-color-sidebar-accent: #1fa87a;
+
+  --mpa-radius-sm: 4px;
+  --mpa-radius-md: 8px;
+  --mpa-radius-lg: 12px;
+  --mpa-radius-xl: 16px;
+
+  --mpa-space-1: 4px;
+  --mpa-space-2: 8px;
+  --mpa-space-3: 12px;
+  --mpa-space-4: 16px;
+  --mpa-space-5: 20px;
+  --mpa-space-6: 24px;
+  --mpa-space-8: 32px;
+
+  --mpa-elevation-sm: 0 1px 2px rgba(18, 21, 26, 0.06);
+  --mpa-elevation-md: 0 8px 24px rgba(18, 21, 26, 0.12);
+  --mpa-elevation-lg: 0 16px 48px rgba(18, 21, 26, 0.18);
+
+  --mpa-motion-fast: 120ms;
+  --mpa-motion-normal: 200ms;
+  --mpa-motion-moderate: 280ms;
+  --mpa-motion-slow: 400ms;
+  --mpa-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --mpa-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  --mpa-safe-top: env(safe-area-inset-top, 0px);
+  --mpa-safe-right: env(safe-area-inset-right, 0px);
+  --mpa-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --mpa-safe-left: env(safe-area-inset-left, 0px);
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
+  min-height: 100%;
   font-family: var(--mpa-font-sans);
   background: var(--mpa-color-bg-app);
   color: var(--mpa-color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 *,
@@ -43,15 +102,111 @@ body {
 
 :focus-visible {
   outline: 2px solid color-mix(in srgb, var(--mpa-color-brand-primary), white 35%);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 [data-theme="dark"] {
-  /* Dark mode token architecture exists, disabled by default in provider. */
   --mpa-color-bg-app: #0b0d10;
   --mpa-color-bg-surface: #14181e;
+  --mpa-color-bg-surface-muted: #1b2028;
   --mpa-color-text-primary: #f3f4f6;
   --mpa-color-text-secondary: #9ca3af;
+  --mpa-color-border-default: #2a313c;
+  --mpa-color-brand-primary: #1fa87a;
+}
+
+@layer utilities {
+  .mpa-page-enter {
+    animation: mpa-fade-in var(--mpa-motion-normal) var(--mpa-ease-standard) both;
+  }
+
+  .mpa-elevate-sm {
+    box-shadow: var(--mpa-elevation-sm);
+  }
+
+  .mpa-elevate-md {
+    box-shadow: var(--mpa-elevation-md);
+  }
+
+  .mpa-elevate-lg {
+    box-shadow: var(--mpa-elevation-lg);
+  }
+
+  .mpa-safe-pad {
+    padding-top: var(--mpa-safe-top);
+    padding-right: var(--mpa-safe-right);
+    padding-bottom: var(--mpa-safe-bottom);
+    padding-left: var(--mpa-safe-left);
+  }
+
+  .mpa-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .mpa-skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--mpa-color-bg-sunken) 0%,
+      var(--mpa-color-bg-surface-muted) 50%,
+      var(--mpa-color-bg-sunken) 100%
+    );
+    background-size: 200% 100%;
+    animation: mpa-shimmer 1.2s linear infinite;
+  }
+}
+
+@keyframes mpa-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mpa-fade-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes mpa-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes mpa-slide-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mpa-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -62,5 +217,10 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .mpa-skeleton-shimmer {
+    animation: none !important;
+    background: var(--mpa-color-bg-sunken);
   }
 }

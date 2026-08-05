@@ -21,37 +21,58 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
 
-  const notify = useCallback((payload: Omit<ToastItem, "id">) => {
-    const id = crypto.randomUUID();
-    const nextItem = { id, ...payload };
-    setItems((current) => [...current, nextItem]);
-    setTimeout(() => {
-      setItems((current) => current.filter((item) => item.id !== id));
-    }, 4000);
+  const dismiss = useCallback((id: string) => {
+    setItems((current) => current.filter((item) => item.id !== id));
   }, []);
+
+  const notify = useCallback(
+    (payload: Omit<ToastItem, "id">) => {
+      const id = crypto.randomUUID();
+      const nextItem = { id, ...payload };
+      setItems((current) => [...current, nextItem]);
+      setTimeout(() => {
+        dismiss(id);
+      }, 4000);
+    },
+    [dismiss],
+  );
 
   const value = useMemo<ToastContextValue>(() => ({ notify }), [notify]);
 
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="fixed right-4 top-4 z-[70] flex w-80 flex-col gap-2">
+      <div className="pointer-events-none fixed right-4 top-[calc(1rem+var(--mpa-safe-top))] z-[70] flex w-[min(20rem,calc(100vw-2rem))] flex-col gap-2">
         {items.map((item) => (
           <div
             key={item.id}
             role="status"
             className={cn(
-              "rounded-md border bg-white p-3 shadow-md",
-              item.variant === "info" && "border-[#1D6AA5]",
-              item.variant === "success" && "border-[#0E7A57]",
-              item.variant === "warning" && "border-[#B45309]",
-              item.variant === "danger" && "border-[#C0392B]",
+              "pointer-events-auto rounded-[var(--mpa-radius-md)] border bg-[var(--mpa-color-bg-surface)] p-3 shadow-mpa-md animate-[mpa-slide-in-down_var(--mpa-motion-moderate)_var(--mpa-ease-standard)]",
+              item.variant === "info" && "border-[var(--mpa-color-status-info)]",
+              item.variant === "success" && "border-[var(--mpa-color-status-success)]",
+              item.variant === "warning" && "border-[var(--mpa-color-status-warning)]",
+              item.variant === "danger" && "border-[var(--mpa-color-status-danger)]",
             )}
           >
-            <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">{item.title}</p>
-            {item.description ? (
-              <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{item.description}</p>
-            ) : null}
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">{item.title}</p>
+                {item.description ? (
+                  <p className="mt-1 text-xs leading-relaxed text-[var(--mpa-color-text-secondary)]">
+                    {item.description}
+                  </p>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => dismiss(item.id)}
+                className="rounded-[var(--mpa-radius-sm)] p-1 text-[var(--mpa-color-text-muted)] transition-colors duration-[var(--mpa-motion-fast)] hover:bg-[var(--mpa-color-bg-surface-muted)] hover:text-[var(--mpa-color-text-primary)]"
+                aria-label="Dismiss notification"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         ))}
       </div>

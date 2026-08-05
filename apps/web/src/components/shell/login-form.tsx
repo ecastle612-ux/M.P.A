@@ -64,17 +64,23 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-        {mode === "sign_in" ? "Sign In" : "Create Account"}
+    <Card className="w-full max-w-md shadow-mpa-md">
+      <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
+        {mode === "sign_in" ? "Sign in" : "Create account"}
       </h1>
-      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        Foundation authentication.
+      <p className="mt-1 text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
+        {mode === "sign_in"
+          ? "Enter your credentials to continue to your workspace."
+          : "Create a foundation account, then verify your email to continue."}
       </p>
-      <div className="mt-4 grid grid-cols-2 gap-2">
+      <div
+        className="mt-5 grid grid-cols-2 gap-1 rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-bg-surface-muted)] p-1"
+        role="tablist"
+        aria-label="Authentication mode"
+      >
         <Button
           type="button"
-          variant={mode === "sign_in" ? "primary" : "secondary"}
+          variant={mode === "sign_in" ? "primary" : "ghost"}
           onClick={() => {
             setMode("sign_in");
             setError(null);
@@ -85,7 +91,7 @@ export function LoginForm() {
         </Button>
         <Button
           type="button"
-          variant={mode === "sign_up" ? "primary" : "secondary"}
+          variant={mode === "sign_up" ? "primary" : "ghost"}
           onClick={() => {
             setMode("sign_up");
             setError(null);
@@ -95,47 +101,61 @@ export function LoginForm() {
           Sign up
         </Button>
       </div>
-      <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-        <div className="space-y-1">
-          <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="email">
+      <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="email">
             Email
           </label>
           <Input
             id="email"
             type="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
         </div>
-        <div className="space-y-1">
-          <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="password">
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-[var(--mpa-color-text-secondary)]" htmlFor="password">
             Password
           </label>
           <Input
             id="password"
             type="password"
+            autoComplete={mode === "sign_in" ? "current-password" : "new-password"}
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
         </div>
         {mode === "sign_up" ? (
-          <div className="space-y-1">
-            <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="confirm-password">
+          <div className="space-y-1.5">
+            <label
+              className="text-xs font-medium text-[var(--mpa-color-text-secondary)]"
+              htmlFor="confirm-password"
+            >
               Confirm password
             </label>
             <Input
               id="confirm-password"
               type="password"
+              autoComplete="new-password"
               required
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
             />
           </div>
         ) : null}
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? (
+          <p className="text-sm text-[var(--mpa-color-text-danger)]" role="alert">
+            {error}
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="text-sm text-[var(--mpa-color-status-success)]" role="status">
+            {notice}
+          </p>
+        ) : null}
         <Button className="w-full" disabled={loading} type="submit">
           {loading
             ? mode === "sign_in"
@@ -147,7 +167,10 @@ export function LoginForm() {
         </Button>
         {mode === "sign_in" ? (
           <p className="text-center text-sm text-[var(--mpa-color-text-secondary)]">
-            <Link className="underline" href="/forgot-password">
+            <Link
+              className="font-medium text-[var(--mpa-color-text-link)] underline-offset-4 hover:underline"
+              href="/forgot-password"
+            >
               Forgot your password?
             </Link>
           </p>

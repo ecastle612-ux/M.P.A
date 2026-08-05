@@ -1,6 +1,6 @@
 # UX-015 Motion and State Patterns
 
-**Status:** Draft — Proposed  
+**Status:** Approved  
 **Parent:** [UX-015 Index](./index.md)
 
 Motion improves perceived quality. It must not invent a new animation language.

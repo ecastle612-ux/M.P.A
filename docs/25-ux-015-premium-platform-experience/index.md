@@ -2,14 +2,10 @@
 
 ## Status
 
-**Draft — Proposed (not approved)**
+**Approved**
 
-> No application, UI, schema, routing, API, or governance code may be written for this
-> initiative until this package is **Approved** and
-> [ADR-017](../18-decision-log/adr-017-ux-015-premium-platform-experience.md) is
-> **Accepted**, per the
-> [Implementation Gate](../00-governance/implementation-gate.md) and
-> [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md).
+Implementation authorized for Phase 1 visual and interaction polish only.
+Governing decision: [ADR-017](../18-decision-log/adr-017-ux-015-premium-platform-experience.md) (Accepted).
 
 ## Purpose
 
@@ -41,20 +37,21 @@ palette.
 
 Priority polish targets:
 
-1. Auth surfaces (login, signup mode, forgot/reset password, accept invitation)
-2. Portal selection / role portal entry shells
-3. Workspace loading
-4. Global navigation, sidebar, top navigation
-5. Dashboard shell
-6. Empty, loading, error, and skeleton states
-7. Toasts, dialogs/modals
-8. Shared primitives: cards, buttons, inputs, tables, search
-9. Settings / profile layout
-10. Mobile / PWA first-class responsiveness
+1. Auth entry experience (login as branded landing entry; `/` redirect unchanged)
+2. Auth surfaces (signup mode, forgot/reset password, accept invitation)
+3. Portal selection / role portal entry shells
+4. Workspace loading
+5. Global navigation, sidebar, top navigation
+6. Dashboard shell
+7. Empty, loading, error, and skeleton states
+8. Toasts, dialogs/modals
+9. Shared primitives: cards, buttons, inputs, tables, search
+10. Settings / profile layout
+11. Mobile / PWA first-class responsiveness
 
 **Explicitly out of scope for Phase 1**
 
-- Landing/marketing site redesign (current `/` redirects; no marketing landing exists)
+- New marketing landing route (current `/` redirects; no routing changes)
 - New business modules (properties, leases, maintenance, payments, documents, messaging)
 - Token system replacement or new design language
 - Architecture, routing, API, or governance changes
@@ -83,10 +80,7 @@ Priority polish targets:
 
 | Stage | Status |
 |-------|--------|
-| Design | Complete in this package |
-| Document | Complete in this package + ADR-017 |
-| Approve | **Pending** stakeholder / gate-owner sign-off |
-| Implement | Blocked until Approve |
-
-After approval, implement **only** the Phase 1 scope below. Material expansion
-(new patterns, token changes, new screens) restarts Design → Document → Approve.
+| Design | Complete |
+| Document | Complete |
+| Approve | **Approved** (2026-08-05) |
+| Implement | Authorized for Phase 1 scope |

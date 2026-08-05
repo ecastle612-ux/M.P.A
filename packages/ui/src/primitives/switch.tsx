@@ -20,7 +20,7 @@ export function Switch({
 }: SwitchProps) {
   const id = useId();
   return (
-    <label htmlFor={id} className={cn("inline-flex items-center gap-2", className)}>
+    <label htmlFor={id} className={cn("inline-flex min-h-11 items-center gap-2", className)}>
       <button
         id={id}
         role="switch"
@@ -29,13 +29,13 @@ export function Switch({
         disabled={disabled}
         onClick={() => onCheckedChange(!checked)}
         className={cn(
-          "relative h-6 w-11 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-brand-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50",
-          checked ? "bg-[var(--mpa-color-brand-primary)]" : "bg-gray-300",
+          "relative h-6 w-11 rounded-full transition-colors duration-[var(--mpa-motion-fast)] ease-[var(--mpa-ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-brand-primary)]/25 disabled:cursor-not-allowed disabled:opacity-50",
+          checked ? "bg-[var(--mpa-color-brand-primary)]" : "bg-[var(--mpa-color-border-strong)]",
         )}
       >
         <span
           className={cn(
-            "absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform",
+            "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-mpa-sm transition-transform duration-[var(--mpa-motion-fast)] ease-[var(--mpa-ease-standard)]",
             checked ? "translate-x-5" : "translate-x-0.5",
           )}
         />

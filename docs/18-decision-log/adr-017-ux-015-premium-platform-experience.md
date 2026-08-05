@@ -2,17 +2,19 @@
 
 ## Status
 
-Proposed
+Accepted
 
-> **Not approved. No application/UI/schema/routing/API/governance code may be
-> written against this ADR until it is `Accepted` and the associated design
-> package is `Approved`, per the
-> [Implementation Gate](../00-governance/implementation-gate.md) and
-> [ADR-012](./adr-012-design-document-approve-implement.md).**
+UX-015 Phase 1 design package is **Approved**. Implementation is authorized for
+visual and interaction improvements only, within the constraints below.
+Governing package: [`docs/25-ux-015-premium-platform-experience/`](../25-ux-015-premium-platform-experience/index.md).
 
 ## Date
 
 2026-08-05
+
+## Acceptance
+
+Accepted 2026-08-05 by stakeholder approval of UX-015 Premium Platform Experience.
 
 ## Context
 

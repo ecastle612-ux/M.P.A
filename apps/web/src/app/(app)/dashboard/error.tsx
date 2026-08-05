@@ -10,15 +10,18 @@ export default function DashboardError({
   reset: () => void;
 }) {
   return (
-    <main className="p-6">
-      <Card className="max-w-xl">
-        <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
+    <main className="mpa-page-enter p-4 md:p-6">
+      <Card className="max-w-xl space-y-3 shadow-mpa-sm">
+        <h2 className="font-display text-xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
           Something went wrong
         </h2>
-        <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+        <p className="text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
           {error.message || "Unknown error in dashboard shell."}
         </p>
-        <Button className="mt-4" onClick={reset}>
+        <p className="text-sm text-[var(--mpa-color-text-muted)]">
+          Your workspace shell is intact. Retry to reload this view.
+        </p>
+        <Button className="mt-1" onClick={reset}>
           Retry
         </Button>
       </Card>

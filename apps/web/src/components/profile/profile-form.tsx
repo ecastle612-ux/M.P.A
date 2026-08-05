@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Avatar, Button, Card, Checkbox, Input } from "@mpa/ui";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { Avatar, Button, Card, Checkbox, EmptyState, Input, Skeleton } from "@mpa/ui";
 import { DEFAULT_NOTIFICATION_PREFERENCES, type NotificationPreferences } from "../../lib/profile/contracts";
 
 type ProfileState = {
@@ -93,133 +93,176 @@ export function ProfileForm() {
 
   if (loading) {
     return (
-      <Card>
-        <p className="text-sm text-[var(--mpa-color-text-secondary)]">Loading profile...</p>
-      </Card>
+      <main className="flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 md:p-6" aria-busy="true">
+        <Skeleton className="h-28" />
+        <Skeleton className="h-72" />
+        <Skeleton className="h-40" />
+      </main>
     );
   }
 
   return (
-    <main className="flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
-      <Card>
-        <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">User profile</h1>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+    <main className="mpa-page-enter flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 pb-[max(1.5rem,var(--mpa-safe-bottom))] md:p-6">
+      <Card className="space-y-1">
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
+          Settings
+        </h1>
+        <p className="text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
           Manage avatar, contact details, timezone, notifications, and organization memberships.
         </p>
       </Card>
 
       <Card>
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <div className="flex items-center gap-3">
             <Avatar src={profile.avatarUrl || undefined} fallback={avatarFallback || "MP"} />
-            <div className="text-sm text-[var(--mpa-color-text-secondary)]">{profile.email}</div>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            <Input
-              aria-label="Display name"
-              placeholder="Display name"
-              value={profile.displayName}
-              onChange={(event) => setProfile((current) => ({ ...current, displayName: event.target.value }))}
-            />
-            <Input
-              aria-label="Avatar URL"
-              placeholder="Avatar URL"
-              value={profile.avatarUrl}
-              onChange={(event) => setProfile((current) => ({ ...current, avatarUrl: event.target.value }))}
-            />
-            <Input
-              aria-label="Contact email"
-              placeholder="Contact email"
-              value={profile.contactEmail}
-              onChange={(event) => setProfile((current) => ({ ...current, contactEmail: event.target.value }))}
-            />
-            <Input
-              aria-label="Phone"
-              placeholder="Phone"
-              value={profile.phone}
-              onChange={(event) => setProfile((current) => ({ ...current, phone: event.target.value }))}
-            />
-            <Input
-              aria-label="Timezone"
-              placeholder="Timezone (e.g., America/New_York)"
-              value={profile.timezone}
-              onChange={(event) => setProfile((current) => ({ ...current, timezone: event.target.value }))}
-            />
+            <div>
+              <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">
+                {profile.displayName || "Your profile"}
+              </p>
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">{profile.email}</p>
+            </div>
           </div>
 
-          <fieldset className="space-y-2">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Display name" htmlFor="display-name">
+              <Input
+                id="display-name"
+                aria-label="Display name"
+                placeholder="Display name"
+                value={profile.displayName}
+                onChange={(event) => setProfile((current) => ({ ...current, displayName: event.target.value }))}
+              />
+            </Field>
+            <Field label="Avatar URL" htmlFor="avatar-url">
+              <Input
+                id="avatar-url"
+                aria-label="Avatar URL"
+                placeholder="https://"
+                value={profile.avatarUrl}
+                onChange={(event) => setProfile((current) => ({ ...current, avatarUrl: event.target.value }))}
+              />
+            </Field>
+            <Field label="Contact email" htmlFor="contact-email">
+              <Input
+                id="contact-email"
+                aria-label="Contact email"
+                placeholder="Contact email"
+                value={profile.contactEmail}
+                onChange={(event) => setProfile((current) => ({ ...current, contactEmail: event.target.value }))}
+              />
+            </Field>
+            <Field label="Phone" htmlFor="phone">
+              <Input
+                id="phone"
+                aria-label="Phone"
+                placeholder="Phone"
+                value={profile.phone}
+                onChange={(event) => setProfile((current) => ({ ...current, phone: event.target.value }))}
+              />
+            </Field>
+            <Field label="Timezone" htmlFor="timezone">
+              <Input
+                id="timezone"
+                aria-label="Timezone"
+                placeholder="Timezone (e.g., America/New_York)"
+                value={profile.timezone}
+                onChange={(event) => setProfile((current) => ({ ...current, timezone: event.target.value }))}
+              />
+            </Field>
+          </div>
+
+          <fieldset className="space-y-3">
             <legend className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
               Notification preferences
             </legend>
-            <label className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              <Checkbox
-                checked={profile.notificationPreferences.email}
-                onChange={(event) =>
-                  setProfile((current) => ({
-                    ...current,
-                    notificationPreferences: {
-                      ...current.notificationPreferences,
-                      email: event.target.checked
-                    }
-                  }))
-                }
-              />
-              Email
-            </label>
-            <label className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              <Checkbox
-                checked={profile.notificationPreferences.in_app}
-                onChange={(event) =>
-                  setProfile((current) => ({
-                    ...current,
-                    notificationPreferences: {
-                      ...current.notificationPreferences,
-                      in_app: event.target.checked
-                    }
-                  }))
-                }
-              />
-              In-app
-            </label>
-            <label className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              <Checkbox
-                checked={profile.notificationPreferences.sms}
-                onChange={(event) =>
-                  setProfile((current) => ({
-                    ...current,
-                    notificationPreferences: {
-                      ...current.notificationPreferences,
-                      sms: event.target.checked
-                    }
-                  }))
-                }
-              />
-              SMS
-            </label>
+            {(
+              [
+                ["email", "Email"],
+                ["in_app", "In-app"],
+                ["sms", "SMS"]
+              ] as const
+            ).map(([key, label]) => (
+              <label
+                key={key}
+                className="flex min-h-11 items-center gap-3 text-sm text-[var(--mpa-color-text-secondary)]"
+              >
+                <Checkbox
+                  checked={profile.notificationPreferences[key]}
+                  onChange={(event) =>
+                    setProfile((current) => ({
+                      ...current,
+                      notificationPreferences: {
+                        ...current.notificationPreferences,
+                        [key]: event.target.checked
+                      }
+                    }))
+                  }
+                />
+                {label}
+              </label>
+            ))}
           </fieldset>
 
-          {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-          {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+          {error ? (
+            <p className="text-sm text-[var(--mpa-color-text-danger)]" role="alert">
+              {error}
+            </p>
+          ) : null}
+          {notice ? (
+            <p className="text-sm text-[var(--mpa-color-status-success)]" role="status">
+              {notice}
+            </p>
+          ) : null}
           <Button type="submit" disabled={saving}>
             {saving ? "Saving..." : "Save profile"}
           </Button>
         </form>
       </Card>
 
-      <Card>
-        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Organization memberships</h2>
+      <Card className="space-y-3">
+        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
+          Organization memberships
+        </h2>
         {profile.memberships.length === 0 ? (
-          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">No memberships yet.</p>
+          <EmptyState
+            title="No memberships yet"
+            description="Create or accept an organization invitation to see memberships here."
+            className="bg-[var(--mpa-color-bg-surface-muted)] py-6"
+          />
         ) : (
-          <ul className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
+          <ul className="space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
             {profile.memberships.map((membership) => (
-              <li key={membership.organizationId}>
-                {membership.organizationName} ({membership.organizationSlug}) — {membership.roles.join(", ")}
+              <li
+                key={membership.organizationId}
+                className="rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface-muted)] px-3 py-2"
+              >
+                {membership.organizationName} ({membership.organizationSlug}) —{" "}
+                {membership.roles.join(", ")}
               </li>
             ))}
           </ul>
         )}
       </Card>
     </main>
+  );
+}
+
+function Field({
+  label,
+  htmlFor,
+  children
+}: {
+  label: string;
+  htmlFor: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs font-medium text-[var(--mpa-color-text-secondary)]" htmlFor={htmlFor}>
+        {label}
+      </label>
+      {children}
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 # UX-015 Phase 1 Scope Matrix
 
-**Status:** Draft — Proposed  
+**Status:** Approved  
 **Parent:** [UX-015 Index](./index.md)
 
 ## Screens / Surfaces In Scope

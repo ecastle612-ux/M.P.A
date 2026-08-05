@@ -11,12 +11,16 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-medium",
-        variant === "neutral" && "bg-gray-100 text-gray-700",
-        variant === "success" && "bg-[#E3F5EE] text-[#0E7A57]",
-        variant === "warning" && "bg-[#FEF3C7] text-[#B45309]",
-        variant === "danger" && "bg-[#FCE8E6] text-[#C0392B]",
-        variant === "info" && "bg-[#E5F1FA] text-[#1D6AA5]",
+        "inline-flex items-center rounded-[var(--mpa-radius-sm)] px-2 py-0.5 text-xs font-medium",
+        variant === "neutral" && "bg-[var(--mpa-color-bg-surface-muted)] text-[var(--mpa-color-text-secondary)]",
+        variant === "success" &&
+          "bg-[var(--mpa-color-status-success-subtle)] text-[var(--mpa-color-status-success)]",
+        variant === "warning" &&
+          "bg-[var(--mpa-color-status-warning-subtle)] text-[var(--mpa-color-status-warning)]",
+        variant === "danger" &&
+          "bg-[var(--mpa-color-status-danger-subtle)] text-[var(--mpa-color-status-danger)]",
+        variant === "info" &&
+          "bg-[var(--mpa-color-status-info-subtle)] text-[var(--mpa-color-status-info)]",
         className,
       )}
       {...props}

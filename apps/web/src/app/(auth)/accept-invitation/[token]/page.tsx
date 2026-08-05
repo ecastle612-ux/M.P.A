@@ -1,4 +1,5 @@
 import { AcceptInvitationCard } from "../../../../components/auth/accept-invitation-card";
+import { AuthShell } from "../../../../components/auth/auth-shell";
 
 export default async function AcceptInvitationPage({
   params
@@ -7,8 +8,11 @@ export default async function AcceptInvitationPage({
 }) {
   const { token } = await params;
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
+    <AuthShell
+      title="Join your organization."
+      subtitle="Accept the invitation to activate membership and enter the correct portal."
+    >
       <AcceptInvitationCard token={token} />
-    </main>
+    </AuthShell>
   );
 }
