@@ -1,7 +1,7 @@
 # 05 — Top Bar and Shell
 
 **Package:** UX-016  
-**Status:** Draft — Ready for Approval  
+**Status:** ✅ **Authorized for Slice C** — see [20](./20-slice-c-authorization.md)  
 **Date:** 2026-08-05
 
 ---

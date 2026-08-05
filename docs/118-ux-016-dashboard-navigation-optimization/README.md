@@ -1,6 +1,6 @@
 # UX-016 — Dashboard & Navigation Optimization
 
-**Status:** ✅ **Approved** (2026-08-05) · Slice A ✅ **AUTHORIZED** · Slice B ✅ **AUTHORIZED** (Master Admin Experience) · Slices C–D 🔒 **LOCKED**  
+**Status:** ✅ **Approved** (2026-08-05) · Slices A–C ✅ **AUTHORIZED** · Slice D 🔒 **LOCKED**  
 **Initiative ID:** UX-016  
 **Priority:** HIGH (daily work companion UX)  
 **Type:** Dashboard hierarchy + sidebar IA + notification presentation + mobile work-first layout  
@@ -14,6 +14,7 @@
 **Approval record:** [12](./12-approval-record.md)  
 **Slice A:** [16](./16-slice-a-authorization.md)  
 **Slice B:** [17](./17-slice-b-authorization.md) · [18](./18-master-admin-experience.md)  
+**Slice C:** [20](./20-slice-c-authorization.md) · [21](./21-intelligent-workspace-navigation.md)  
 **Implementation lock:** [13](./13-implementation-lock.md)
 
 > Package numbering uses **118** (next free after UX-013 / SIGN-002 serials).
@@ -90,7 +91,10 @@ First viewport must answer:
 | [16 — Slice A authorization](./16-slice-a-authorization.md) | ✅ AUTHORIZE UX-016 SLICE A |
 | [17 — Slice B authorization](./17-slice-b-authorization.md) | ✅ AUTHORIZE UX-016 SLICE B – Master Admin Experience |
 | [18 — Master Admin Experience](./18-master-admin-experience.md) | Slice B design SoT |
-| [19 — Slice B implementation](./19-slice-b-implementation.md) | Implementation summary |
+| [19 — Slice B implementation](./19-slice-b-implementation.md) | Slice B implementation summary |
+| [20 — Slice C authorization](./20-slice-c-authorization.md) | ✅ AUTHORIZE UX-016 SLICE C – Intelligent Workspace Navigation |
+| [21 — Intelligent Workspace Navigation](./21-intelligent-workspace-navigation.md) | Slice C design SoT |
+| [22 — Slice C implementation](./22-slice-c-implementation.md) | Slice C implementation summary |
 
 ---
 
@@ -101,7 +105,7 @@ First viewport must answer:
 | Design | ✅ Captured in this package |
 | Document | ✅ Blueprint + ADR-032 Accepted |
 | Approve | ✅ [12](./12-approval-record.md) |
-| Implement | Slices A–B unlocked · C–D locked — see [13](./13-implementation-lock.md) |
+| Implement | Slices A–C unlocked · D locked — see [13](./13-implementation-lock.md) |
 
 ### Approved slices
 
@@ -109,7 +113,7 @@ First viewport must answer:
 |-------|-------|---------------|--------|
 | **A** | Universal Dashboard Framework (shared hierarchy; `/dashboard` first consumer) | `AUTHORIZE UX-016 SLICE A` | ✅ Authorized |
 | **B** | Master Admin Experience (Portal Launcher · View As / Test Mode · Mission Control on Universal Dashboard) | `AUTHORIZE UX-016 SLICE B – Master Admin Experience` | ✅ Authorized |
-| **C** | Sidebar workflow optimization and navigation polish | `AUTHORIZE UX-016 SLICE C` | 🔒 Locked |
+| **C** | Intelligent Workspace Navigation (sidebar IA · contextual nav · favorites/recent · command search · quick create · mobile bottom nav) | `AUTHORIZE UX-016 SLICE C – Intelligent Workspace Navigation` | ✅ Authorized |
 | **D** | Notification Center, Activity Timeline, and AI-powered daily briefing | `AUTHORIZE UX-016 SLICE D` | 🔒 Locked |
 
 ---
