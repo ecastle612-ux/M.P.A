@@ -8,23 +8,37 @@ import { Card, KpiMetric } from "@mpa/ui";
 export function MigrationDashboard({
   jobs,
   metrics,
-  canCreate
+  canCreate,
+  embedded = false
 }: {
   jobs: MigrationJobRecord[];
   metrics: MigrationDashboardMetrics;
   canCreate: boolean;
+  /** When true, omit page hero — used under Universal Dashboard Framework (STD-001). */
+  embedded?: boolean;
 }) {
   return (
     <div className="space-y-6">
       <header className="mpa-page-header flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
-          <p className="mpa-section-label text-[var(--mpa-color-brand-primary)]">Migration Center</p>
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
-            Migration jobs
-          </h1>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
-            Track each import job below. Use the switching checklist above for overall go-live readiness.
-          </p>
+          {embedded ? (
+            <>
+              <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Migration jobs</h2>
+              <p className="max-w-2xl text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
+                Track each import job below. Switching checklist and briefing appear above.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mpa-section-label text-[var(--mpa-color-brand-primary)]">Migration Center</p>
+              <h1 className="font-display text-3xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
+                Migration jobs
+              </h1>
+              <p className="max-w-2xl text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
+                Track each import job below. Use the switching checklist above for overall go-live readiness.
+              </p>
+            </>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           <Link
