@@ -27,18 +27,22 @@ export function resolveContextualNavigation(pathname: string): ContextualNavigat
       kind: "property",
       entityId: propertyId,
       title: "This property",
+      // CORE-004 Phase 1 — property workspace organized around operations (reuse framework).
       items: [
         { href: `/properties/${propertyId}`, label: "Overview", exact: true },
         { href: `/tenants?propertyId=${encodeURIComponent(propertyId)}`, label: "Residents" },
+        { href: "/leases", label: "Leasing" },
         { href: `/maintenance?propertyId=${encodeURIComponent(propertyId)}`, label: "Maintenance" },
-        { href: "/leases", label: "Leases" },
-        { href: "/settings/documents", label: "Documents" },
+        { href: "/vendors", label: "Vendors" },
         {
           href: `/financials/reports?propertyId=${encodeURIComponent(propertyId)}`,
           label: "Financial"
         },
+        { href: "/settings/documents", label: "Documents" },
+        { href: "/communications/inbox", label: "Communications" },
+        { href: `/facility/calendar?propertyId=${encodeURIComponent(propertyId)}`, label: "Inspections" },
         { href: "/activity", label: "Activity" },
-        { href: `/properties/${propertyId}`, label: "Settings", exact: true }
+        { href: `/properties/${propertyId}/edit`, label: "Settings" }
       ]
     };
   }

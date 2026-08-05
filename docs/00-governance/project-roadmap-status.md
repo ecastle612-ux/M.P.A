@@ -75,7 +75,7 @@ UI-001 (inherits UX-012 — Future Release polish package)
 | **UX-016** | ✅ **CLOSED · CERTIFIED** | Slices A–D complete | Implement finished / package closed | Canopy · EA · UX-012 · ADR-032/033 | Product + UX + Architect | Inherit via STD-001; do not extend |
 | **STD-001** | ✅ **Accepted** | Permanent standards | N/A (living law) | UX-016 closed | Product + UX + Architect | Cite on every new home/nav PR |
 | **MAC-002** | ✅ **Production Certified 100/100** | HQ hardening | Complete for Critical/High + honesty | MAC-001 · NAV-001 · ARCH-001 | Architect + Security | Merge + migration; unlock CORE-004 ✅ |
-| **CORE-004** | ✅ **APPROVED** | Phase 1 Design ready · Phases 2–9 queued | Program unlocked · phase Implement **locked** until Authorize | UX-016 · STD-001 · ADR-033 · NAV-001 · ARCH-001 · MAC-002 · API-004 · Identity | Product + Architect | `AUTHORIZE CORE-004 PHASE 1 – Property Lifecycle` |
+| **CORE-004** | ✅ **APPROVED** | Phase 1 ✅ Certified · Phases 2–9 queued | Phase 2 Implement **locked** until Authorize | UX-016 · STD-001 · ADR-033 · NAV-001 · ARCH-001 · MAC-002 · API-004 · Identity | Product + Architect | `AUTHORIZE CORE-004 PHASE 2 – Maintenance Operations` |
 
 ---
 

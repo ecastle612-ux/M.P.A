@@ -18,6 +18,7 @@ function snapshot(): ReportingSnapshot {
     code: "CC",
     propertyType: "multi_family",
     status: "active",
+    lifecycleStage: "operational",
     description: null,
     addressLine1: "100 Main St",
     addressLine2: null,

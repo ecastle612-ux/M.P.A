@@ -1648,6 +1648,18 @@ export type Database = {
           description: string | null;
           id: string;
           latitude: number | null;
+          lifecycle_stage:
+            | "prospect"
+            | "acquisition"
+            | "onboarding"
+            | "organization_assignment"
+            | "configuration"
+            | "activation"
+            | "operational"
+            | "occupancy"
+            | "turnover"
+            | "disposition"
+            | "archived";
           longitude: number | null;
           metadata: Json;
           name: string;
@@ -1680,6 +1692,18 @@ export type Database = {
           description?: string | null;
           id?: string;
           latitude?: number | null;
+          lifecycle_stage?:
+            | "prospect"
+            | "acquisition"
+            | "onboarding"
+            | "organization_assignment"
+            | "configuration"
+            | "activation"
+            | "operational"
+            | "occupancy"
+            | "turnover"
+            | "disposition"
+            | "archived";
           longitude?: number | null;
           metadata?: Json;
           name: string;
@@ -1712,6 +1736,18 @@ export type Database = {
           description?: string | null;
           id?: string;
           latitude?: number | null;
+          lifecycle_stage?:
+            | "prospect"
+            | "acquisition"
+            | "onboarding"
+            | "organization_assignment"
+            | "configuration"
+            | "activation"
+            | "operational"
+            | "occupancy"
+            | "turnover"
+            | "disposition"
+            | "archived";
           longitude?: number | null;
           metadata?: Json;
           name?: string;

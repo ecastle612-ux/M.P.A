@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../components/presentation/app-page";
-import { PropertiesTable } from "../../../components/property/properties-table";
+import { PortfolioCommandCenter } from "../../../components/property/portfolio-command-center";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
@@ -43,9 +43,20 @@ export default async function PropertiesPage() {
     canDelete: evaluatePermission(authorization, "property:delete")
   };
 
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("display_name")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Properties" }]}>
-      <PropertiesTable initialItems={items} permissions={permissions} />
+      <PortfolioCommandCenter
+        items={items}
+        permissions={permissions}
+        userName={(profile?.display_name as string | null) ?? user.email ?? null}
+        organizationName={null}
+      />
     </AppPage>
   );
 }

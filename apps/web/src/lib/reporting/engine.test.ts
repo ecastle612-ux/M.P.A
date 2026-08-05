@@ -12,6 +12,7 @@ function baseSnapshot(overrides: Partial<ReportingSnapshot> = {}): ReportingSnap
     code: "CC",
     propertyType: "multi_family",
     status: "active",
+    lifecycleStage: "operational",
     description: null,
     addressLine1: "100 Main St",
     addressLine2: null,

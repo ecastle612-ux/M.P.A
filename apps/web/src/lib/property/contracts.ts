@@ -13,6 +13,22 @@ export const PROPERTY_STATUSES = ["draft", "active", "inactive", "archived"] as 
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 export type PropertyStatus = (typeof PROPERTY_STATUSES)[number];
 
+export type {
+  PropertyLifecycleStage,
+  LifecycleStageDefinition
+} from "./lifecycle";
+export {
+  PROPERTY_LIFECYCLE_STAGES,
+  PROPERTY_LIFECYCLE_TRANSITIONS,
+  PROPERTY_LIFECYCLE_DEFINITIONS,
+  canTransitionLifecycle,
+  toLifecycleStageLabel,
+  primaryNextStage,
+  isPropertyLifecycleStage
+} from "./lifecycle";
+
+import type { PropertyLifecycleStage } from "./lifecycle";
+
 export type PropertyRecord = {
   id: string;
   organizationId: string;
@@ -20,6 +36,8 @@ export type PropertyRecord = {
   code: string | null;
   propertyType: PropertyType;
   status: PropertyStatus;
+  /** CORE-004 Phase 1 — authoritative operational lifecycle stage */
+  lifecycleStage: PropertyLifecycleStage;
   description: string | null;
   addressLine1: string;
   addressLine2: string | null;
@@ -44,8 +62,23 @@ export type PropertyRecord = {
 
 export type CreatePropertyInput = Omit<
   PropertyRecord,
-  "id" | "organizationId" | "createdAt" | "updatedAt" | "archivedAt" | "deletedAt"
->;
+  | "id"
+  | "organizationId"
+  | "createdAt"
+  | "updatedAt"
+  | "archivedAt"
+  | "deletedAt"
+  | "lifecycleStage"
+> & {
+  lifecycleStage?: PropertyLifecycleStage;
+};
+
+export type PropertyListItem = PropertyRecord & {
+  unitCount: number;
+  occupiedUnits: number;
+  vacancyUnits: number;
+  tenantCount: number;
+};
 
 export type UpdatePropertyInput = Partial<CreatePropertyInput>;
 
@@ -78,6 +111,7 @@ export function parseCreatePropertyInput(payload: unknown): CreatePropertyInput 
     code: readString(value["code"], 2, 50),
     propertyType,
     status: isPropertyStatus(value["status"]) ? value["status"] : "draft",
+    lifecycleStage: "prospect",
     description: readString(value["description"], 0, 4000),
     addressLine1,
     addressLine2: readString(value["addressLine2"], 0, 200),

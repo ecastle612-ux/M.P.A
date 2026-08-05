@@ -207,6 +207,78 @@ export async function globalSearch(input: GlobalSearchInput): Promise<{
       continue;
     }
 
+    // CORE-004 Phase 1 — property search by name, address, portfolio code, org, id, status/lifecycle
+    if (corpus === "properties") {
+      const { data, error } = await db
+        .from("properties")
+        .select(
+          "id, name, code, status, lifecycle_stage, address_line_1, city, state_region, postal_code, organization_id"
+        )
+        .eq("organization_id", input.organizationId)
+        .is("deleted_at", null)
+        .or(
+          [
+            `name.ilike.${like}`,
+            `code.ilike.${like}`,
+            `address_line_1.ilike.${like}`,
+            `city.ilike.${like}`,
+            `state_region.ilike.${like}`,
+            `postal_code.ilike.${like}`,
+            `status.ilike.${like}`,
+            `lifecycle_stage.ilike.${like}`,
+            `id.eq.${q}`
+          ].join(",")
+        )
+        .limit(10);
+
+      if (error) {
+        // Fallback: name-only if lifecycle_stage column not migrated yet
+        const fallback = await db
+          .from("properties")
+          .select("id, name, code, status, address_line_1, city")
+          .eq("organization_id", input.organizationId)
+          .is("deleted_at", null)
+          .or(`name.ilike.${like},code.ilike.${like},address_line_1.ilike.${like},city.ilike.${like}`)
+          .limit(10);
+        if (fallback.error) {
+          deniedCorpora.push(corpus);
+          continue;
+        }
+        for (const row of (fallback.data ?? []) as Array<Record<string, unknown>>) {
+          const id = String(row["id"]);
+          hits.push({
+            resultId: `properties:${id}`,
+            corpus: "properties",
+            title: String(row["name"] ?? id),
+            snippet: `${row["address_line_1"] ?? ""} · ${row["status"] ?? ""}`.trim(),
+            deepLink: `/properties/${id}`,
+            score: 0.75
+          });
+        }
+        continue;
+      }
+
+      for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+        const id = String(row["id"]);
+        hits.push({
+          resultId: `properties:${id}`,
+          corpus: "properties",
+          title: String(row["name"] ?? id),
+          snippet: [
+            row["address_line_1"],
+            row["city"],
+            row["lifecycle_stage"] ?? row["status"],
+            row["code"]
+          ]
+            .filter(Boolean)
+            .join(" · "),
+          deepLink: `/properties/${id}`,
+          score: 0.8
+        });
+      }
+      continue;
+    }
+
     const { data, error } = await db
       .from(spec.table)
       .select(`id, ${spec.titleCol}`)

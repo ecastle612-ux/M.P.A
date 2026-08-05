@@ -2,9 +2,9 @@
 
 **Package:** CORE-004  
 **Phase:** 1 — Property Lifecycle  
-**Status:** 📝 **Design / Document complete · Implement locked**  
+**Status:** ✅ **Authorized · Implemented · Certified** ([09](./09-phase-1-authorization.md) · [10](./10-phase-1-certification.md))  
 **Date:** 2026-08-05  
-**Authorize phrase (not yet issued):**
+**Authorize phrase (issued):**
 
 ```
 AUTHORIZE CORE-004 PHASE 1 – Property Lifecycle
@@ -137,8 +137,8 @@ Each slice must still answer [07](./07-workflow-requirement.md) and ship Verify 
 | Design | ✅ This document |
 | Document | ✅ Package 120 |
 | Approve (program) | ✅ CORE-004 Approved |
-| Authorize (phase) | ❌ **Not issued** |
-| Implement | 🔒 Locked |
-| Verify / Certify | 🔒 Locked |
+| Authorize (phase) | ✅ Issued |
+| Implement | ✅ Complete |
+| Verify / Certify | ✅ [10](./10-phase-1-certification.md) |
 
-**Next human/agent action:** issue `AUTHORIZE CORE-004 PHASE 1 – Property Lifecycle` to unlock implementation.
+**Next action:** `AUTHORIZE CORE-004 PHASE 2 – Maintenance Operations` after Phase 1 acceptance on release lineage.

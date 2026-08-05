@@ -15,6 +15,10 @@ export const OPS_SLICE_A_EVENT_TYPES = [
   // Tenancy / property (emit-capable; project when emitted)
   "property.created",
   "property.archived",
+  "property.activated",
+  "property.lifecycle.transitioned",
+  "property.turnover.started",
+  "property.disposition.started",
   "unit.created",
   "tenant.created",
   "tenant.invited",
