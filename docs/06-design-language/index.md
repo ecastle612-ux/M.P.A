@@ -42,6 +42,7 @@ Related:
 
 - **07** UX Principles — interaction rules Canopy executes
 - **12** Component Standards — engineering rules for components
+- **119 STD-001** — [Design Standard](../119-std-001-ux016-platform-standards/04-design-standard.md) for certified home/shell composition (post UX-016)
 
 ---
 

@@ -1,7 +1,7 @@
 # 10 — Acceptance Criteria
 
 **Package:** UX-016  
-**Status:** Draft — Ready for Approval  
+**Status:** ✅ Satisfied under certification ([26](./26-certification-report.md))  
 **Date:** 2026-08-05
 
 ---

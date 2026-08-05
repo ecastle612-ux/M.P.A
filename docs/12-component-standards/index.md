@@ -197,5 +197,7 @@ AI-generated content uses consistent visual treatment:
 - **06** Design Language — Canopy ([Component Philosophy](../06-design-language/component-philosophy.md), [Token System](../06-design-language/design-token-system.md))
 - **07** UX Principles
 - **11** Coding Standards
+- **119 STD-001** — [Design Standard](../119-std-001-ux016-platform-standards/04-design-standard.md) (cards · spacing · elevation · type · motion · loading · empty · notifications · a11y for homes/shell)
 
-**Gate:** Do not implement primitives until Phase 1.5 Canopy docs are approved.
+**Gate:** Do not implement primitives until Phase 1.5 Canopy docs are approved.  
+**Home/nav gate:** New module homes must inherit [STD-001](../119-std-001-ux016-platform-standards/README.md) / ADR-033 — prefer Universal Dashboard Framework over one-off layouts.
