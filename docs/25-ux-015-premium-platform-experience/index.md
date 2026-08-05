@@ -66,6 +66,7 @@ Priority polish targets:
 | [Component Audit Checklist](./component-audit-checklist.md) | Standardization pass for shared UI |
 | [Motion and State Patterns](./motion-and-states.md) | Allowed motion and state treatments |
 | [Verification Plan](./verification-plan.md) | A11y, performance, before/after deliverables |
+| [Phase 1 Verification Report](./phase-1-verification-report.md) | Completed verification for authorized Phase 1 |
 
 ## Related Approved Foundations
 
