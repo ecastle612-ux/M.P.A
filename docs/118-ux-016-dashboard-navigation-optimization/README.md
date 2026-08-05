@@ -1,17 +1,22 @@
 # UX-016 — Dashboard & Navigation Optimization
 
-**Status:** ✅ **Approved** (2026-08-05) · Slices A–D ✅ **AUTHORIZED**  
+**Status:** ✅ **CLOSED** · ✅ **Implemented** · ✅ **Verified** · ✅ **Certified** (2026-08-05)  
 **Initiative ID:** UX-016  
-**Priority:** HIGH (daily work companion UX)  
+**Priority:** HIGH (daily work companion UX) — **complete; do not extend**  
 **Type:** Dashboard hierarchy + sidebar IA + notification presentation + mobile work-first layout + M.P.A. Assistant  
-**Gate:** Design → Document → **Approve** → Implement  
+**Gate:** Design → Document → Approve → Implement → Verify → **Certify / Close**  
+**Close phrase:** `CLOSE UX-016`  
 **Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
 **Date:** 2026-08-05  
 **Author:** Product + UX (documentation)  
 **Gate owners:** Product + UX + Lead Architect  
 **Depends on:** [Canopy](../06-design-language/index.md) (**Approved**) · [Experience Architecture](../21-experience-architecture/index.md) (**Approved**) · [UX-012](../112-ux-012-platform-experience-design-system/README.md) (**Approved**) · [UI-001](../107-ui-001-platform-experience/README.md) (framework inheritance) · [UX-013](../117-ux-013-customer-acquisition-contextual-navigation/README.md) (nav matrices) · [OPS-001](../111-ops-001-platform-operations-architecture/README.md) · [AUTH-001](../109-auth-001-organization-provisioning-authentication/README.md)  
-**ADR:** [ADR-032](../18-decision-log/adr-032-ux-016-dashboard-navigation-optimization.md) (**Accepted**)  
+**ADR:** [ADR-032](../18-decision-log/adr-032-ux-016-dashboard-navigation-optimization.md) (**Accepted**) · [ADR-033](../18-decision-log/adr-033-ux016-platform-standards-mandatory.md) (**Accepted** — permanent inheritance)  
 **Approval record:** [12](./12-approval-record.md)  
+**Certification:** [26](./26-certification-report.md)  
+**Closeout:** [27](./27-closeout-record.md)  
+**Permanent standards:** [STD-001](../119-std-001-ux016-platform-standards/README.md)  
+**Next program:** [CORE-004](../120-core-004-core-platform-expansion/README.md) (planning)  
 **Slice A:** [16](./16-slice-a-authorization.md)  
 **Slice B:** [17](./17-slice-b-authorization.md) · [18](./18-master-admin-experience.md)  
 **Slice C:** [20](./20-slice-c-authorization.md) · [21](./21-intelligent-workspace-navigation.md)  
@@ -99,6 +104,8 @@ First viewport must answer:
 | [23 — Slice D authorization](./23-slice-d-authorization.md) | ✅ AUTHORIZE UX-016 SLICE D – M.P.A. Assistant |
 | [24 — M.P.A. Assistant](./24-mpa-assistant.md) | Slice D design SoT |
 | [25 — Slice D implementation](./25-slice-d-implementation.md) | Slice D implementation summary |
+| [26 — Certification report](./26-certification-report.md) | ✅ CERTIFIED PASS |
+| [27 — Closeout record](./27-closeout-record.md) | ✅ CLOSE UX-016 |
 
 ---
 
@@ -109,16 +116,20 @@ First viewport must answer:
 | Design | ✅ Captured in this package |
 | Document | ✅ Blueprint + ADR-032 Accepted |
 | Approve | ✅ [12](./12-approval-record.md) |
-| Implement | Slices A–D unlocked — see [13](./13-implementation-lock.md) |
+| Implement | ✅ Slices A–D complete |
+| Verify | ✅ Automated suites + acceptance mapping |
+| Certify / Close | ✅ [26](./26-certification-report.md) · [27](./27-closeout-record.md) |
 
-### Approved slices
+### Slices (final)
 
 | Slice | Scope | Unlock phrase | Status |
 |-------|-------|---------------|--------|
-| **A** | Universal Dashboard Framework (shared hierarchy; `/dashboard` first consumer) | `AUTHORIZE UX-016 SLICE A` | ✅ Authorized |
-| **B** | Master Admin Experience (Portal Launcher · View As / Test Mode · Mission Control on Universal Dashboard) | `AUTHORIZE UX-016 SLICE B – Master Admin Experience` | ✅ Authorized |
-| **C** | Intelligent Workspace Navigation (sidebar IA · contextual nav · favorites/recent · command search · quick create · mobile bottom nav) | `AUTHORIZE UX-016 SLICE C – Intelligent Workspace Navigation` | ✅ Authorized |
-| **D** | M.P.A. Assistant (operational briefing · Waiting on Me/Others · Smart Notifications · Operational Timeline · Recommended Actions · Quick Wins) | `AUTHORIZE UX-016 SLICE D – M.P.A. Assistant` | ✅ Authorized |
+| **A** | Universal Dashboard Framework | `AUTHORIZE UX-016 SLICE A` | ✅ Implemented · Verified |
+| **B** | Master Admin Experience | `AUTHORIZE UX-016 SLICE B – Master Admin Experience` | ✅ Implemented · Verified |
+| **C** | Intelligent Workspace Navigation | `AUTHORIZE UX-016 SLICE C – Intelligent Workspace Navigation` | ✅ Implemented · Verified |
+| **D** | M.P.A. Assistant | `AUTHORIZE UX-016 SLICE D – M.P.A. Assistant` | ✅ Implemented · Verified |
+
+**Package result:** ✅ **Implemented · Verified · Certified · Closed** — living law continues as [STD-001](../119-std-001-ux016-platform-standards/README.md).
 
 ---
 

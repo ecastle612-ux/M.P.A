@@ -36,6 +36,10 @@ UI-001 (inherits UX-012 — Future Release polish package)
 
 **Current choke points:** (1) M0 ✅ **GO** · UX-012 A ✅ **VALIDATED** · OPS-001 Slice A ✅ **AUTHORIZED** ([39](../113-core-003-implementation-master-plan/39-ops-001-slice-a-authorization.md) · [OPS-001 §30](../111-ops-001-platform-operations-architecture/30-slice-a-authorization.md)) — **implementation pending**; (2) UX-012 Slice B eligible (not issued); (3) CORE-002 Blocker 5 (PUSH-001) — Blocker 4 ✅ CLOSED ([Blocker-4-Closeout](../103-core-002-commercial-launch-blocker-execution/Blocker-4-Closeout.md)).
 
+**UX platform baseline:** UX-016 ✅ **CLOSED · CERTIFIED** ([26](../118-ux-016-dashboard-navigation-optimization/26-certification-report.md)) · permanent inheritance [STD-001](../119-std-001-ux016-platform-standards/README.md) / [ADR-033](../18-decision-log/adr-033-ux016-platform-standards-mandatory.md). Do **not** open another UX initiative for platform homes/nav.
+
+**Recommended next program (post UX-016):** [CORE-004 — Core Platform Expansion](../120-core-004-core-platform-expansion/README.md) (**Draft — Planning** · Implement locked until Approve).
+
 **Master plan:** [Commercial Launch Master Plan](./commercial-launch-master-plan.md) · **Implementation order:** [CORE-003](../113-core-003-implementation-master-plan/README.md)
 
 ---
@@ -68,6 +72,9 @@ UI-001 (inherits UX-012 — Future Release polish package)
 | **ADMIN-003** | Approved · Slice A unlocked | Ops center | Slice A only | ADMIN-001 | Architect | Stay within Slice A |
 | **FIN-001** | Approved · Implemented (reporting foundation) | — | Complete for foundation | — | Architect | Consume-only for owners via OWNER-001 |
 | **UI-001** | Future Release | Not opened | Locked | Commercial Launch | Product | Do not open until launch blockers clear |
+| **UX-016** | ✅ **CLOSED · CERTIFIED** | Slices A–D complete | Implement finished / package closed | Canopy · EA · UX-012 · ADR-032/033 | Product + UX + Architect | Inherit via STD-001; do not extend; next = CORE-004 planning |
+| **STD-001** | ✅ **Accepted** | Permanent standards | N/A (living law) | UX-016 closed | Product + UX + Architect | Cite on every new home/nav PR |
+| **CORE-004** | 📝 Draft — Planning | None | Implement **locked** | UX-016 closed · STD-001 · CORE-003 | Product + Architect | Complete planning → `APPROVE CORE-004` |
 
 ---
 

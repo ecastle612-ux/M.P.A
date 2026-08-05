@@ -331,8 +331,14 @@ Cross-cutting UX sprints that do not add business modules. Each follows the Impl
 | [PX-005](../37-px-005-official-brand-asset-replacement/README.md) | Implemented | Official SVG brand asset |
 | **[PX-006](../38-px-006-workflow-experience-enterprise-ux/README.md)** | **Complete** | **Product experience & workflow — setup wizard, continuity, density, context, human audit** |
 | **[PX-007](../39-px-007-competitive-product-audit-beta-readiness/README.md)** | **Draft** | **Competitive product audit & beta readiness — no feature scope** |
+| **[UX-016](../118-ux-016-dashboard-navigation-optimization/README.md)** | **CLOSED · CERTIFIED** | **Work-first dashboards · nav · M.P.A. Assistant — do not extend** |
+| **[STD-001](../119-std-001-ux016-platform-standards/README.md)** | **Accepted** | **Permanent UX inheritance law for all future modules** |
 
-**Recommended sequencing:** PX-007 audit → approve beta scope → Phase 12 production hardening for commercial launch.
+**Platform UX era:** Closed with UX-016. Do **not** open another platform-wide UX initiative next.
+
+**Recommended next program:** [CORE-004 — Core Platform Expansion](../120-core-004-core-platform-expansion/README.md) (**Draft — Planning**) — operational capabilities inheriting STD-001 automatically.
+
+**Legacy sequencing note:** PX-007 audit → approve beta scope → Phase 12 production hardening remains relevant for commercial launch tracks alongside CORE-003 / CORE-004 planning.
 
 ---
 

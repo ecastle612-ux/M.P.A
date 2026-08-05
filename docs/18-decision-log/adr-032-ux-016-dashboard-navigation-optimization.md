@@ -9,6 +9,11 @@ Accepted
 ## Approved
 2026-08-05 — `APPROVE UX-016` · Slice A authorized (`AUTHORIZE UX-016 SLICE A`)
 
+## Completed
+2026-08-05 — Slices A–D Implemented · Verified · Certified · `CLOSE UX-016`  
+Permanent inheritance continues under [ADR-033](./adr-033-ux016-platform-standards-mandatory.md) / [STD-001](../119-std-001-ux016-platform-standards/README.md).  
+This ADR remains **Accepted** (not deprecated).
+
 ## Context
 M.P.A. already has approved foundations for visual identity (Canopy), experience laws (Experience Architecture), design system (UX-012), operations home contracts (OPS-001), dashboard assignment (AUTH-001), and contextual nav destinations (UX-013). UI-001 documents a universal dashboard anatomy but remains **Future** / implement-locked as a broader redesign program.
 
@@ -27,7 +32,7 @@ Adopt **UX-016** ([package](../118-ux-016-dashboard-navigation-optimization/READ
 6. **Mobile work-first order** and high-frequency-only bottom navigation.  
 7. **Empty + skeleton loading** standards so homes are never blank or spinner-only.  
 8. **WCAG 2.2 AA** keyboard, focus, SR, and reduced-motion expectations for changed surfaces.  
-9. **Implement** only after `APPROVE UX-016` and per-slice `AUTHORIZE UX-016 SLICE …` phrases; no business logic, routing, permissions, or workflow changes in scope. Approved slices: **A** Universal Dashboard Framework · **B** Role-specific dashboards · **C** Sidebar workflow optimization · **D** Notification Center / Activity / AI briefing.
+9. **Implement** only after `APPROVE UX-016` and per-slice `AUTHORIZE UX-016 SLICE …` phrases; no business logic, routing, permissions, or workflow changes in scope. Completed slices: **A** Universal Dashboard Framework · **B** Role-specific / Master Admin dashboards · **C** Intelligent Workspace Navigation · **D** M.P.A. Assistant (Notification Center Critical/Today/Later · Operational Timeline · deterministic briefing).
 
 UX-016 inherits Canopy, Experience Architecture, UX-012, OPS-001, and AUTH-001. It provides the actionable binding presentation compatible with UI-001 §07 without opening the full UI-001 Future program.
 

@@ -83,6 +83,7 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 3. Material deviation from approved design requires a new Design → Document → Approve cycle (or superseding ADR).
 4. Bug fixes that do not change product/architecture behavior may proceed without a new design doc; if a fix implies a new pattern, document it.
 5. Phase or feature closeout requires [Definition of Done](./definition-of-done.md) evidence before marking complete.
+6. **UX inheritance (permanent):** Every new module/home/nav surface must inherit [STD-001](../119-std-001-ux016-platform-standards/README.md) / [ADR-033](../18-decision-log/adr-033-ux016-platform-standards-mandatory.md). UX-016 is **CLOSED** — do not extend it; do not invent parallel dashboard or navigation patterns without governance approval.
 
 ---
 
@@ -114,6 +115,9 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | UX-010 Unified Image Acquisition | 📝 **Draft — Awaiting Approval** · Implement **locked** ([105](../105-ux-010-unified-image-acquisition/README.md) · [08](../105-ux-010-unified-image-acquisition/08-approval-checklist.md)) |
 | UX-013 Customer Acquisition & Contextual Navigation | 📝 **Draft — Ready for Approval** · Implement **locked** ([117](../117-ux-013-customer-acquisition-contextual-navigation/README.md) · [08](../117-ux-013-customer-acquisition-contextual-navigation/08-approval-record.md) unsigned) · amends ACQ-001 via [A11](../115-acq-001-self-service-customer-acquisition/28-amendment-a11-modules-first-trial-messaging.md) · BILL [§22](../100-bill-001-saas-subscription-billing/22-amendment-modules-first-public-catalog.md) |
 | PAY-001 Settlement Funding Foundation | ✅ **Verified** (2026-07-23) — A1–A21 PASS · predecessor to FIN-003 Phase C (CERTIFIED PASS) · Q3b/Q4 before production destination enable ([32](../108-pay-001-settlement-funding-foundation/32-package-certification.md)) |
+| UX-016 Dashboard & Navigation Optimization | ✅ **CLOSED** · Implemented · Verified · Certified ([26](../118-ux-016-dashboard-navigation-optimization/26-certification-report.md)) · ADR-032 Accepted · living law [STD-001](../119-std-001-ux016-platform-standards/README.md) / ADR-033 |
+| STD-001 UX-016 Platform Standards | ✅ **Accepted** — mandatory inheritance for future modules ([119](../119-std-001-ux016-platform-standards/README.md)) |
+| CORE-004 Core Platform Expansion | 📝 **Draft — Planning** · Implement **locked** · recommended next program after UX-016 close ([120](../120-core-004-core-platform-expansion/README.md)) |
 
 ---
 

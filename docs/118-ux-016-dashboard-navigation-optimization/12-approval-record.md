@@ -16,7 +16,7 @@
 | Product | Approved (user authorization) |
 | UX | Approved (user authorization) |
 | Lead Architect | Approved (user authorization) |
-| Notes / amendments | Slice plan refined at Approve: **A** Universal Dashboard Framework · **B** Role-specific dashboards · **C** Sidebar workflow optimization · **D** Notification Center, Activity Timeline, and AI-powered daily briefing. ADR-032 → **Accepted**. |
+| Notes / amendments | Slice plan refined at Approve: **A** Universal Dashboard Framework · **B** Role-specific dashboards · **C** Sidebar workflow optimization · **D** M.P.A. Assistant (Notification Center, Activity Timeline, deterministic daily briefing). ADR-032 → **Accepted**. Package later **CLOSED** via `CLOSE UX-016` ([27](./27-closeout-record.md)) · Certified ([26](./26-certification-report.md)) · Permanent standards [STD-001](../119-std-001-ux016-platform-standards/README.md) · ADR-033 Accepted. |
 
 ---
 
