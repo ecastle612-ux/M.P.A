@@ -6,7 +6,7 @@ export function Spinner({ className }: { className?: string }) {
       <span
         aria-label="Loading"
         className={cn(
-          "inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-[var(--mpa-color-brand-primary)]",
+          "inline-block h-4 w-4 animate-spin rounded-full border-2 border-[var(--mpa-color-border-default)] border-t-[var(--mpa-color-brand-primary)]",
           className,
         )}
       />

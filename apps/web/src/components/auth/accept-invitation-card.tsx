@@ -30,16 +30,26 @@ export function AcceptInvitationCard({ token }: { token: string }) {
   }
 
   return (
-    <Card className="w-full max-w-md space-y-3">
-      <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-        Accept organization invitation
-      </h1>
-      <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        Confirm to join this organization and activate your membership context.
-      </p>
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-      {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
-      <Button disabled={loading} onClick={acceptInvitation}>
+    <Card className="w-full max-w-md space-y-4 shadow-mpa-md">
+      <div className="space-y-1">
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
+          Accept organization invitation
+        </h1>
+        <p className="text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">
+          Confirm to join this organization and activate your membership context.
+        </p>
+      </div>
+      {error ? (
+        <p className="text-sm text-[var(--mpa-color-text-danger)]" role="alert">
+          {error}
+        </p>
+      ) : null}
+      {notice ? (
+        <p className="text-sm text-[var(--mpa-color-status-success)]" role="status">
+          {notice}
+        </p>
+      ) : null}
+      <Button className="w-full" disabled={loading} onClick={acceptInvitation}>
         {loading ? "Accepting..." : "Accept invitation"}
       </Button>
     </Card>

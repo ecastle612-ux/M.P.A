@@ -32,7 +32,7 @@ export function CommandPaletteShell({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-start justify-center bg-[var(--mpa-color-bg-overlay)] p-6"
+      className="fixed inset-0 z-[80] flex items-start justify-center bg-[var(--mpa-color-bg-overlay)] p-4 pt-[12vh] animate-[mpa-fade-in_var(--mpa-motion-normal)_var(--mpa-ease-standard)] sm:p-6"
       onMouseDown={onClose}
     >
       <div
@@ -41,12 +41,12 @@ export function CommandPaletteShell({
         aria-modal="true"
         aria-labelledby={titleId}
         onMouseDown={(event) => event.stopPropagation()}
-        className="w-full max-w-2xl rounded-xl bg-white shadow-2xl"
+        className="w-full max-w-2xl overflow-hidden rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] shadow-mpa-lg animate-[mpa-fade-scale-in_var(--mpa-motion-normal)_var(--mpa-ease-standard)]"
       >
         <h2 id={titleId} className="sr-only">
           Command palette
         </h2>
-        <div className="border-b border-[var(--mpa-color-border-default)] p-3">
+        <div className="border-b border-[var(--mpa-color-border-subtle)] p-3">
           <Input
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
@@ -65,11 +65,11 @@ export function CommandPaletteShell({
                   <li key={item.id}>
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm text-[var(--mpa-color-text-primary)] hover:bg-gray-100"
+                      className="flex min-h-11 w-full items-center justify-between rounded-[var(--mpa-radius-md)] px-2 py-2 text-left text-sm text-[var(--mpa-color-text-primary)] transition-colors duration-[var(--mpa-motion-fast)] hover:bg-[var(--mpa-color-bg-row-hover)]"
                     >
                       <span>{item.label}</span>
                       {item.shortcut ? (
-                        <kbd className="rounded border border-[var(--mpa-color-border-default)] px-1 py-0.5 text-xs">
+                        <kbd className="rounded-[var(--mpa-radius-sm)] border border-[var(--mpa-color-border-default)] px-1.5 py-0.5 font-mono text-xs text-[var(--mpa-color-text-muted)]">
                           {item.shortcut}
                         </kbd>
                       ) : null}
@@ -80,11 +80,11 @@ export function CommandPaletteShell({
             </div>
           ))}
         </div>
-        <div className="border-t border-[var(--mpa-color-border-default)] p-2 text-right">
+        <div className="border-t border-[var(--mpa-color-border-subtle)] p-2 text-right">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-3 py-1 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-gray-100"
+            className="rounded-[var(--mpa-radius-md)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)] transition-colors duration-[var(--mpa-motion-fast)] hover:bg-[var(--mpa-color-bg-surface-muted)]"
           >
             Close
           </button>

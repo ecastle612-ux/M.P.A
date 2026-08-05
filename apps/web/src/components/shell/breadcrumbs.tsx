@@ -7,19 +7,28 @@ export function Breadcrumbs({
 }) {
   return (
     <nav aria-label="Breadcrumb">
-      <ol className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
+      <ol className="flex flex-wrap items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
-            <li key={item.label} className="flex items-center gap-2">
+            <li key={`${item.label}-${index}`} className="flex items-center gap-2">
               {item.href && !isLast ? (
-                <Link className="hover:text-[var(--mpa-color-text-primary)]" href={item.href}>
+                <Link
+                  className="transition-colors duration-[var(--mpa-motion-fast)] hover:text-[var(--mpa-color-text-primary)]"
+                  href={item.href}
+                >
                   {item.label}
                 </Link>
               ) : (
-                <span className={isLast ? "text-[var(--mpa-color-text-primary)]" : ""}>{item.label}</span>
+                <span className={isLast ? "font-medium text-[var(--mpa-color-text-primary)]" : ""}>
+                  {item.label}
+                </span>
               )}
-              {!isLast ? <span aria-hidden>/</span> : null}
+              {!isLast ? (
+                <span aria-hidden className="text-[var(--mpa-color-text-muted)]">
+                  /
+                </span>
+              ) : null}
             </li>
           );
         })}

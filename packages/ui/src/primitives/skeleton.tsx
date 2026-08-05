@@ -2,5 +2,11 @@ import type { HTMLAttributes } from "react";
 import { cn } from "../lib/cn";
 
 export function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("animate-pulse rounded-md bg-gray-200", className)} {...props} />;
+  return (
+    <div
+      aria-hidden="true"
+      className={cn("mpa-skeleton-shimmer rounded-[var(--mpa-radius-md)]", className)}
+      {...props}
+    />
+  );
 }

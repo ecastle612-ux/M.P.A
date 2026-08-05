@@ -14,7 +14,8 @@ export const canopyTokens = {
       surface: "#FFFFFF",
       surfaceMuted: "#EEF0F3",
       sunken: "#E5E7EB",
-      overlay: "#12151A99"
+      overlay: "#12151A99",
+      rowHover: "#F7F8FA"
     },
     border: {
       subtle: "#E5E7EB",
@@ -70,6 +71,12 @@ export const canopyTokens = {
     12: "48px",
     16: "64px"
   },
+  elevation: {
+    none: "none",
+    sm: "0 1px 2px rgba(18,21,26,0.06)",
+    md: "0 8px 24px rgba(18,21,26,0.12)",
+    lg: "0 16px 48px rgba(18,21,26,0.18)"
+  },
   motion: {
     duration: {
       fast: "120ms",
@@ -81,6 +88,12 @@ export const canopyTokens = {
       standard: "cubic-bezier(0.2, 0.0, 0, 1)",
       exit: "cubic-bezier(0.4, 0.0, 1, 1)"
     }
+  },
+  icon: {
+    sm: "14px",
+    md: "16px",
+    lg: "20px",
+    xl: "24px"
   }
 } as const;
 
