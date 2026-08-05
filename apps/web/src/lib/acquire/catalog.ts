@@ -28,15 +28,74 @@ export type PublicPlanCard = {
   maxUsers: number | "Custom";
   listPriceMonthly: number | null;
   listPriceAnnual: number | null;
+  /** Single-module ×2 list price — shown only for bundles to prove savings. */
+  compareAtMonthly: number | null;
+  compareAtAnnual: number | null;
+  moduleCount: 1 | 2 | null;
   highlight?: boolean;
 };
 
-function priceFor(planCode: "professional" | "business" | "enterprise") {
+/**
+ * Public list-price hierarchy (presentation).
+ * - One module = base PLAN_DISPLAY amount
+ * - Both modules = 1.5× base (more than one module; less than 2× separate)
+ * Enterprise stays custom / sales-quoted (null amounts when no list row).
+ */
+export function modulePriceMultiplier(modules: AcqModuleSelection | null): number {
+  return modules === "both" ? 1.5 : 1;
+}
+
+export function listPriceForModules(
+  planCode: "professional" | "business" | "enterprise",
+  modules: AcqModuleSelection | null = null
+): {
+  listPriceMonthly: number | null;
+  listPriceAnnual: number | null;
+  compareAtMonthly: number | null;
+  compareAtAnnual: number | null;
+  moduleCount: 1 | 2 | null;
+} {
   const row = PLAN_DISPLAY.find((p) => p.planCode === planCode);
+  if (!row) {
+    return {
+      listPriceMonthly: null,
+      listPriceAnnual: null,
+      compareAtMonthly: null,
+      compareAtAnnual: null,
+      moduleCount: null
+    };
+  }
+
+  // Enterprise is sales-assisted; keep list figures as capacity anchors only.
+  if (planCode === "enterprise") {
+    return {
+      listPriceMonthly: row.listPriceMonthly,
+      listPriceAnnual: row.listPriceAnnual,
+      compareAtMonthly: null,
+      compareAtAnnual: null,
+      moduleCount: modules === "both" ? 2 : modules ? 1 : null
+    };
+  }
+
+  const multiplier = modulePriceMultiplier(modules);
+  const listPriceMonthly = Math.round(row.listPriceMonthly * multiplier);
+  const listPriceAnnual = Math.round(row.listPriceAnnual * multiplier);
+  const isBundle = modules === "both";
+
   return {
-    listPriceMonthly: row?.listPriceMonthly ?? null,
-    listPriceAnnual: row?.listPriceAnnual ?? null
+    listPriceMonthly,
+    listPriceAnnual,
+    compareAtMonthly: isBundle ? row.listPriceMonthly * 2 : null,
+    compareAtAnnual: isBundle ? row.listPriceAnnual * 2 : null,
+    moduleCount: isBundle ? 2 : modules ? 1 : null
   };
+}
+
+function priceFor(
+  planCode: "professional" | "business" | "enterprise",
+  modules: AcqModuleSelection | null = null
+) {
+  return listPriceForModules(planCode, modules);
 }
 
 function moduleFeatures(selection: AcqModuleSelection | null): string[] {
@@ -57,7 +116,7 @@ function moduleFeatures(selection: AcqModuleSelection | null): string[] {
   if (selection === "both") {
     return [
       "Property and Facility Operations",
-      "Modular subscription — both operating surfaces",
+      "Bundle pricing — more than one module, less than two singles",
       "Team seats within plan limits"
     ];
   }
@@ -82,7 +141,7 @@ export function buildPublicPlanCards(
     : "";
 
   const professional = resolveEntitlementsForPlan("professional");
-  const proPrices = priceFor("professional");
+  const proPrices = priceFor("professional", modules);
   cards.push({
     planCode: "professional",
     name: "Professional",
@@ -103,7 +162,7 @@ export function buildPublicPlanCards(
   });
 
   const business = resolveEntitlementsForPlan("business");
-  const bizPrices = priceFor("business");
+  const bizPrices = priceFor("business", modules);
   cards.push({
     planCode: "business",
     name: "Business",
@@ -123,7 +182,7 @@ export function buildPublicPlanCards(
     ...bizPrices
   });
 
-  const entPrices = priceFor("enterprise");
+  const entPrices = priceFor("enterprise", modules);
   cards.push({
     planCode: "enterprise",
     name: "Enterprise",

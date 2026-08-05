@@ -66,7 +66,11 @@ export function PricingExperience({
           <span className="font-medium text-[var(--mpa-color-text-primary)]">
             {moduleSelectionLabel(modules)}
           </span>
-          . Enterprise is sales-assisted.{" "}
+          .{" "}
+          {modules === "both"
+            ? "Both-module pricing is higher than one module and discounted versus two separate single-module plans. "
+            : "One-module pricing is the base rate for a single operating surface. "}
+          Enterprise is sales-assisted.{" "}
           <Link href="/modules" className="underline underline-offset-4">
             Change modules
           </Link>
@@ -101,6 +105,7 @@ export function PricingExperience({
       <ul className="mt-10 grid gap-6 lg:grid-cols-3">
         {cards.map((card) => {
           const amount = interval === "year" ? card.listPriceAnnual : card.listPriceMonthly;
+          const compareAt = interval === "year" ? card.compareAtAnnual : card.compareAtMonthly;
           const href =
             card.selfServe && card.planCode !== "enterprise"
               ? checkoutStartHref(card.planCode as AcqSelfServePlan, interval, modules)
@@ -116,9 +121,23 @@ export function PricingExperience({
             >
               <h2 className="font-display text-xl font-semibold">{card.name}</h2>
               <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{card.description}</p>
-              <p className="mt-4 font-display text-2xl font-semibold tabular-nums">
-                {formatListPrice(amount, interval)}
-              </p>
+              <div className="mt-4">
+                {compareAt != null && amount != null ? (
+                  <p className="text-sm text-[var(--mpa-color-text-muted)] line-through tabular-nums">
+                    {formatListPrice(compareAt, interval)}
+                  </p>
+                ) : null}
+                <p className="font-display text-2xl font-semibold tabular-nums">
+                  {formatListPrice(amount, interval)}
+                </p>
+                {card.moduleCount === 2 && compareAt != null ? (
+                  <p className="mt-1 text-xs text-[var(--mpa-color-brand-primary)]">
+                    Bundle vs two single-module plans
+                  </p>
+                ) : card.moduleCount === 1 ? (
+                  <p className="mt-1 text-xs text-[var(--mpa-color-text-muted)]">One-module base price</p>
+                ) : null}
+              </div>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
                 {card.features.map((feature) => (
                   <li key={feature}>{feature}</li>

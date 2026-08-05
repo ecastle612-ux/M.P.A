@@ -38,11 +38,11 @@ export const ACQ_MODULE_OPTIONS: readonly AcqModuleOption[] = [
   {
     id: "both",
     title: "Both Modules",
-    subtitle: "Modular subscription — property and facility together",
+    subtitle: "Property and facility together — bundle pricing applies",
     outcomes: [
       "Property and facility operations in one organization",
       "Shared messaging, documents, and team seats",
-      "One SaaS subscription covering both operating surfaces"
+      "Higher value than one module; less than two separate plans"
     ]
   }
 ] as const;
