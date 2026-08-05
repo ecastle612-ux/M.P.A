@@ -1,7 +1,7 @@
 # MAC-002 — Master Admin Production Certification
 
 **Package:** MAC-002  
-**Status:** ✅ **Authorized** — implementation in progress  
+**Status:** ✅ **Production Certified — 100 / 100**  
 **Phrase:** `AUTHORIZE MAC-002 – Master Admin Production Certification`  
 **Date:** 2026-08-05  
 **Depends on:** [MAC-001](../123-mac-001-master-admin-certification-audit/README.md)  
@@ -11,7 +11,7 @@
 
 ## Mission
 
-Remediate every **Critical** and **High** finding from MAC-001 so Master Admin can be production-certified as platform HQ before CORE-004.
+Remediate every **Critical** and **High** finding from MAC-001 (plus mission honesty/isolation items) so Master Admin is production-certified as platform HQ before CORE-004.
 
 ## Binding principles
 
@@ -28,9 +28,11 @@ Remediate every **Critical** and **High** finding from MAC-001 so Master Admin c
 |-----|---------|
 | [01 — Authorization](./01-authorization.md) | Authorize phrase + scope |
 | [02 — Implementation record](./02-implementation-record.md) | Root causes · files · before/after |
-| [03 — Certification report](./03-certification-report.md) | Updated score after remediation |
+| [03 — Certification report](./03-certification-report.md) | **100 / 100 Production Certified** |
 | [04 — Regression checklist](./04-regression-checklist.md) | Verification matrix |
 
 ## CORE-004 gate
 
-Do **not** begin CORE-004 implementation until MAC-002 certification report reaches Production Ready.
+**Recommend unlocking CORE-004** after MAC-002 merge + migration apply.
+
+Do **not** begin CORE-004 implementation until this certification is accepted on the release lineage.

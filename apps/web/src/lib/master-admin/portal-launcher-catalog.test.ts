@@ -36,7 +36,6 @@ const REQUIRED_TITLES = [
   "Portfolio Dashboard",
   "Support Dashboard",
   "Customer Success",
-  "Platform Operations",
   "Mission Control",
   "Platform Health",
   "Feature Flags",
@@ -72,5 +71,14 @@ describe("portal-launcher-catalog (UX-016 Slice B)", () => {
     expect(cards.find((card) => card.id === "resident")?.testModePortal).toBe("resident");
     expect(cards.find((card) => card.id === "owner")?.testModePortal).toBe("owner");
     expect(cards.find((card) => card.id === "property-manager")?.testModePortal).toBe("manager");
+  });
+
+  it("keeps launcher honest — no unfinished Audit Explorer or Mission Control alias", () => {
+    const titles = listPortalLauncherCards().map((card) => card.title);
+    expect(titles).not.toContain("Audit Explorer");
+    expect(titles).not.toContain("Platform Operations");
+    expect(listPortalLauncherCards().find((card) => card.id === "applicant")?.openHref).toBe(
+      "/applicants"
+    );
   });
 });

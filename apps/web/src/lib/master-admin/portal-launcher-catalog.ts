@@ -55,7 +55,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "property-manager",
         title: "Property Manager",
-        description: "Operations Command Center and day-to-day portfolio work.",
+        description:
+          "Open: Operations Command Center. Test Mode: simulated manager demo. Role fidelity: View As.",
         openHref: "/dashboard",
         viewAsHref: VIEW_AS,
         testModePortal: "manager",
@@ -64,7 +65,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "regional-manager",
         title: "Regional Manager",
-        description: "Multi-property operations view via the Operations workspace.",
+        description:
+          "Open: shared Operations Command Center. Role fidelity requires View As (no distinct regional canvas yet).",
         openHref: "/dashboard",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -79,7 +81,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "maintenance-manager",
         title: "Maintenance Manager",
-        description: "Work-order queues, vendor assignments, and SLA oversight.",
+        description:
+          "Open: shared Maintenance queue. Role fidelity (manager vs tech) requires View As.",
         openHref: "/maintenance",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -88,7 +91,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "maintenance-technician",
         title: "Maintenance Technician",
-        description: "Field job list and assigned work orders.",
+        description:
+          "Open: shared Maintenance queue. Role fidelity requires View As for technician membership.",
         openHref: "/maintenance",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -112,7 +116,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "leasing-manager",
         title: "Leasing Manager",
-        description: "Lease pipeline, renewals, and move-in coordination.",
+        description:
+          "Open: shared Leases surface. Role fidelity requires View As for leasing managers.",
         openHref: "/leases",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -121,7 +126,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "leasing-agent",
         title: "Leasing Agent",
-        description: "Applications, tours, and lease preparation.",
+        description:
+          "Open: shared Leases surface. Role fidelity requires View As for leasing agents.",
         openHref: "/leases",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -130,7 +136,7 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "applicant",
         title: "Applicant",
-        description: "Applicant and screening surfaces in leasing.",
+        description: "Open: Applicants / screening surface. Role fidelity: View As when linked.",
         openHref: "/applicants",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -175,7 +181,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "accounting-manager",
         title: "Accounting Manager",
-        description: "Financial operations overview.",
+        description:
+          "Open: shared Financials workspace. Role fidelity requires View As for accounting staff.",
         openHref: "/financials",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -184,7 +191,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "accounts-payable",
         title: "Accounts Payable",
-        description: "Payables and vendor payment surfaces.",
+        description:
+          "Open: shared Financials workspace. AP-specific fidelity requires View As.",
         openHref: "/financials",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -193,7 +201,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "accounts-receivable",
         title: "Accounts Receivable",
-        description: "Receivables, charges, and collections.",
+        description:
+          "Open: shared Financials workspace. AR-specific fidelity requires View As.",
         openHref: "/financials",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -208,7 +217,8 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "executive-dashboard",
         title: "Executive Dashboard",
-        description: "Portfolio-level operations summary.",
+        description:
+          "Open: shared Operations Command Center. Executive-specific canvas not separate yet — use View As.",
         openHref: "/dashboard",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -217,7 +227,7 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "portfolio-dashboard",
         title: "Portfolio Dashboard",
-        description: "Properties and portfolio browse.",
+        description: "Open: Properties portfolio browse.",
         openHref: "/properties",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -232,7 +242,7 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "support-dashboard",
         title: "Support Dashboard",
-        description: "Auth recovery and support tooling.",
+        description: "Open: Auth recovery and support tooling.",
         openHref: "/master-admin/recovery",
         viewAsHref: VIEW_AS,
         testModePortal: null,
@@ -241,21 +251,13 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "customer-success",
         title: "Customer Success",
-        description: "Commercial pipeline and activation health.",
+        description: "Open: Commercial pipeline and activation health.",
         openHref: "/master-admin/commercial",
         viewAsHref: VIEW_AS,
         testModePortal: null,
         testModeFallbackLabel: "Open Impersonation Center for CS View As"
-      },
-      {
-        id: "platform-operations",
-        title: "Platform Operations",
-        description: "Mission Control and platform operator home.",
-        openHref: "/master-admin",
-        viewAsHref: VIEW_AS,
-        testModePortal: null,
-        testModeFallbackLabel: "Master Admin operates from Mission Control"
       }
+      // MAC-002 — removed Platform Operations alias (duplicate of Mission Control).
     ]
   },
   {
@@ -265,7 +267,7 @@ export const PORTAL_LAUNCHER_GROUPS: PortalLauncherGroup[] = [
       {
         id: "mission-control",
         title: "Mission Control",
-        description: "Platform command center.",
+        description: "Platform command center — permanent HQ home.",
         openHref: "/master-admin",
         viewAsHref: VIEW_AS,
         testModePortal: null,

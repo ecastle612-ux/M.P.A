@@ -9,7 +9,6 @@ import type { OperationsCenterSnapshot } from "../../lib/master-admin/operations
 import { buildMasterAdminUniversalDashboardViewModel } from "../../lib/master-admin/ux016-view-model";
 import { PORTAL_LAUNCHER_GROUPS } from "../../lib/master-admin/portal-launcher-catalog";
 import {
-  getMissionControlQuickActions,
   getMissionControlWorkspaces,
   type MasterAdminWorkspaceId
 } from "../../lib/master-admin/workspace-catalog";
@@ -43,7 +42,6 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
   const searchId = useId();
   const { masterAdminOnlyShell } = useSessionPermissions();
   const workspaces = getMissionControlWorkspaces(masterAdminOnlyShell);
-  const quickActions = getMissionControlQuickActions(masterAdminOnlyShell);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -248,32 +246,7 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
           </ul>
         </div>
       </section>
-
-      <section aria-labelledby="more-quick-actions-heading" className="space-y-3">
-        <h2
-          id="more-quick-actions-heading"
-          className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]"
-        >
-          More Quick Actions
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {quickActions.map((action) => (
-            <Link
-              key={action.href + action.label}
-              href={action.href}
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm font-medium text-[var(--mpa-color-text-primary)] transition hover:border-[var(--mpa-color-brand-primary)] hover:text-[var(--mpa-color-brand-primary)]"
-            >
-              {action.label}
-            </Link>
-          ))}
-          <a
-            href="#workspace-launcher"
-            className="rounded-md border border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-brand-primary-subtle)] px-3 py-2 text-sm font-medium text-[var(--mpa-color-brand-primary)]"
-          >
-            Workspace Launcher
-          </a>
-        </div>
-      </section>
+      {/* MAC-002 — Quick Actions live in UDF only; removed duplicate "More Quick Actions". */}
     </div>
   );
 }

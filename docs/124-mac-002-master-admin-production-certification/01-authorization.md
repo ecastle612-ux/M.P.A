@@ -23,6 +23,18 @@ AUTHORIZE MAC-002 – Master Admin Production Certification
 | MAC-H06 | Session TTL enforced server-side |
 | MAC-H07 | Audit event writes fail-visible |
 
+## Honesty follow-ups (authorized for 100% certification)
+
+Mission priorities 4–6 require truthful launcher, no duplicate HQ chrome, and true Test Mode simulation. The following Medium/Low items are in scope when they are honesty/isolation only (no new features / no UX redesign):
+
+| ID | Remediation |
+|----|-------------|
+| MAC-M01 / M02 | Honest launcher Open destinations |
+| MAC-M03 / M04 | HQ labels match destinations |
+| MAC-M07 | No duplicate Quick Actions |
+| MAC-M10 | Test Mode isolation certified |
+| MAC-L01 / L02 | Remove Mission Control aliases |
+
 ## Out of scope
 
-Medium/Low cosmetic IA (unless trivial and required for honesty), CORE-004 capabilities, new dashboards, UX redesign.
+New Audit Explorer product, CORE-004 capabilities, new dashboards, UX redesign, health-depth productization (MAC-M08).

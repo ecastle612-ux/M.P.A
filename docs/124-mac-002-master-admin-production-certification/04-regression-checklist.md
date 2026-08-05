@@ -11,9 +11,14 @@ Automated: unit suites for access grant, launcher catalog, NAV-001 nav, STD-001 
 | Middleware / API | Same JWT flag semantics | ✅ |
 | Mission Control | Greeting before Search; Workspace Launcher present | ✅ |
 | Workspace Launcher | Test Mode only for resident/owner/manager | ✅ |
+| Workspace Launcher | No Audit Explorer / Platform Operations alias | ✅ |
+| Workspace Launcher | Applicant → `/applicants`; shared Opens disclosed | ✅ |
 | View As | Still → Impersonation Center | ✅ unchanged |
 | Test Mode Resident | Demo only | ✅ |
 | Test Mode Owner | Demo only; no all-org properties | ✅ |
+| Test Mode Manager | Demo only; no live `/dashboard` escape | ✅ |
+| MA-only My Work | Impersonation / Recovery / Commercial | ✅ |
+| Mission Control | No duplicate More Quick Actions | ✅ |
 | Commercial / Financials / Migration | UDF remount | ✅ |
 | Non-MA `/portal` | Availability hub preserved | ✅ (MA redirects) |
 | Portal destinations | `/portal/tenant\|owner\|manager` preserved | ✅ |

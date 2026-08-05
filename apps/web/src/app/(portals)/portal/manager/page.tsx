@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { AppPage } from "../../../../components/presentation/app-page";
 import { FutureReleaseNotice } from "../../../../components/experience/future-release-notice";
 import { MasterAdminPortalDemoPanel } from "../../../../components/master-admin/master-admin-portal-demo-panel";
-import { Button } from "@mpa/ui";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { getActiveMasterAdminSession } from "../../../../lib/master-admin/session";
 
@@ -14,14 +12,21 @@ export default async function ManagerPortalPage() {
   const session = user ? await getActiveMasterAdminSession(user.id) : null;
   const inPortalTest = session?.mode === "portal_test" && session.portal === "manager";
 
+  // MAC-002 — Test Mode is simulation only: no live Operations Center escape hatch.
   if (inPortalTest) {
     return (
-      <AppPage breadcrumbs={[{ href: "/portal", label: "Portals" }, { label: "Manager" }]}>
+      <AppPage
+        breadcrumbs={[
+          { href: "/master-admin", label: "Mission Control" },
+          { label: "Manager Test Mode" }
+        ]}
+      >
         <div className="space-y-4">
           <MasterAdminPortalDemoPanel portal="manager" />
-          <Link href="/dashboard">
-            <Button type="button">Open Operations Center</Button>
-          </Link>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Simulated demo surface. Exit Test Mode from the banner before opening live Operations
+            workspaces.
+          </p>
         </div>
       </AppPage>
     );

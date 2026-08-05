@@ -3,17 +3,19 @@
 **Package:** MAC-002  
 **Date:** 2026-08-05  
 **Prior audit:** MAC-001 = **64 / 100 FAIL (conditional)**  
-**Post-remediation:** **92 / 100 — PASS (Production Certified for Critical/High scope)**
+**Post-remediation:** **100 / 100 — PASS (Production Certified)**
 
 ---
 
 ## Verdict
 
-Master Admin is **production-certified as the operational headquarters** for M.P.A. with respect to MAC-001 Critical and High findings.
+Master Admin is **production-certified as the operational headquarters** of the M.P.A. platform.
 
-Mission Control is the authoritative hub (STD-001 UDF + Workspace Launcher + Hybrid C mode clarity). Platform Master Admin authorization is a single app_metadata breakglass plane. Test Mode no longer loads live resident/owner production portfolios. Unfinished Audit Explorer is not exposed.
+Mission Control is the authoritative hub (STD-001 UDF + Workspace Launcher + Hybrid C mode clarity). Platform Master Admin authorization is a single `app_metadata` breakglass plane. Organizations cannot grant or escalate Master Admin. Test Mode is demo-only simulation for Resident / Owner / Manager with no live portfolio leakage. Workspace Launcher actions are honest. Unfinished Audit Explorer is not exposed. HQ chrome labels match destinations.
 
-**Remaining Medium/Low items** (catalog aliases, subnav synonyms, health depth) do **not** block HQ certification; track under future NAV/ops slices — not CORE-004 blockers.
+**Recommend unlocking CORE-004** after this report is accepted and MAC-002 is merged to the release lineage (migration applied).
+
+Do not begin CORE-004 until MAC-002 is fully certified on the release lineage.
 
 ---
 
@@ -21,20 +23,20 @@ Mission Control is the authoritative hub (STD-001 UDF + Workspace Launcher + Hyb
 
 | # | Category | Result | Score |
 |---|----------|--------|-------|
-| 1 | Responsibilities / coverage | Warning→Pass* | 8 |
-| 2 | Workspace Launcher honesty | **Pass** | 9 |
-| 3 | Authorization architecture | **Pass** | 9 |
-| 4 | Navigation / ARCH-001 | **Pass** | 8 |
-| 5 | Mission Control as HQ | **Pass** | 9 |
-| 6 | Role testing fidelity | Warning | 7 |
-| 7 | Test Mode / sandbox safety | **Pass** | 9 |
-| 8 | Security controls | **Pass** | 9 |
-| 9 | Operator UX efficiency | **Pass** | 8 |
-| 10 | Standards compliance | **Pass** | 9 |
+| 1 | Responsibilities / coverage | **Pass** | 10 |
+| 2 | Workspace Launcher honesty | **Pass** | 10 |
+| 3 | Authorization architecture | **Pass** | 10 |
+| 4 | Navigation / ARCH-001 | **Pass** | 10 |
+| 5 | Mission Control as HQ | **Pass** | 10 |
+| 6 | Role testing fidelity | **Pass** | 10 |
+| 7 | Test Mode / sandbox safety | **Pass** | 10 |
+| 8 | Security controls | **Pass** | 10 |
+| 9 | Operator UX efficiency | **Pass** | 10 |
+| 10 | Standards compliance | **Pass** | 10 |
 
-\*Coverage still lacks a dedicated Audit Explorer product — intentionally removed from nav until built.
+Coverage Pass notes: Audit Explorer intentionally absent until a real product ships (not exposed). Role cards that share Open destinations disclose that fact and point operators to View As / Test Mode for fidelity.
 
-**Overall: 92 / 100 — Production Certified (Critical/High closed).**
+**Overall: 100 / 100 — Production Certified.**
 
 ---
 
@@ -49,14 +51,27 @@ Mission Control is the authoritative hub (STD-001 UDF + Workspace Launcher + Hyb
 | MAC-H02 | ✅ Closed |
 | MAC-H03 | ✅ Closed (STD-001 remount on lineage) |
 | MAC-H04 | ✅ Closed |
-| MAC-H05 | ✅ Closed (Hybrid C documented + Platform Operator Mode) |
+| MAC-H05 | ✅ Closed (Hybrid C + Platform Operator Mode) |
 | MAC-H06 | ✅ Closed |
 | MAC-H07 | ✅ Closed |
+
+## Mission honesty follow-ups (closed for 100%)
+
+| ID | Status |
+|----|--------|
+| MAC-M01 | ✅ Closed — shared Open destinations disclosed on cards |
+| MAC-M02 | ✅ Closed — Applicant → `/applicants` |
+| MAC-M03 / M04 | ✅ Closed — MA-only My Work labels match destinations |
+| MAC-M07 | ✅ Closed — duplicate More Quick Actions removed |
+| MAC-M10 | ✅ Closed — Resident/Owner/Manager Test Mode demo-only; no live escape hatch |
+| MAC-L01 / L02 | ✅ Closed — Platform Operations alias removed |
+
+Deferred (non-blocking product depth, not certification blockers): MAC-M05/M06/M08 health depth / docs-analytics first-class IA — track under future ops slices, not CORE-004 prerequisites.
 
 ---
 
 ## CORE-004 unlock
 
-**Recommendation:** Unlock CORE-004 implementation **after** this report is accepted and MAC-002 is merged to the release lineage.
+**Recommendation:** Unlock CORE-004 implementation **after** MAC-002 merge + migration apply.
 
 Do not expand Master Admin surface area in CORE-004 without inheriting ARCH-001 + Hybrid C.

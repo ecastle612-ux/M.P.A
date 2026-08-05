@@ -548,24 +548,24 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
     items: [
       {
         href: "/master-admin/impersonation",
-        label: "Waiting on Me",
+        label: "Impersonation",
         requiredCapability: "master_admin",
         mobileSection: "master-admin",
-        synonyms: ["customers", "directory", "impersonate", "waiting"]
+        synonyms: ["customers", "directory", "impersonate", "view as", "waiting on me"]
       },
       {
         href: "/master-admin/recovery",
-        label: "High Priority",
+        label: "Recovery",
         requiredCapability: "master_admin",
         mobileSection: "master-admin",
-        synonyms: ["recovery", "support", "escalations"]
+        synonyms: ["recovery", "support", "escalations", "high priority"]
       },
       {
         href: "/master-admin/commercial",
-        label: "Assigned Today",
+        label: "Commercial",
         requiredCapability: "master_admin",
         mobileSection: "master-admin",
-        synonyms: ["commercial", "pipeline", "customer success"]
+        synonyms: ["commercial", "pipeline", "customer success", "assigned today"]
       }
     ]
   },

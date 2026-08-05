@@ -88,7 +88,7 @@ export async function resolveAuthorizationContext(
   });
   const permissions = await resolvePermissionsForRoles(organizationId, roles);
 
-  // Master Admin is platform-scoped (app_metadata / override), not a PM role grant.
+  // Master Admin is platform-scoped (app_metadata only — MAC-002), not a PM role grant.
   // Include the capability so HQ workspaces (e.g. Migration) authorize correctly.
   if (!permissions.includes("master_admin") && (await userHasMasterAdminCapability(user))) {
     permissions.push("master_admin");
