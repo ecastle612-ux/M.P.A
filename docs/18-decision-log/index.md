@@ -50,6 +50,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-012](./adr-012-design-document-approve-implement.md) | Design → Document → Approve → Implement | Accepted | 2026-07-13 |
 | [ADR-013](./adr-013-experience-architecture-before-ui.md) | Experience Architecture Before UI Implementation | Accepted | 2026-07-13 |
 | [ADR-014](./adr-014-phase-3-identity-multitenant-foundation.md) | Phase 3 Identity & Multi-Tenant Foundation | Accepted | 2026-07-13 |
+| [ADR-015](./adr-015-extend-before-create.md) | Extend Before Create (Product Architecture Review) | Accepted | 2026-08-05 |
 
 ---
 
@@ -68,6 +69,7 @@ What other options were evaluated and why were they rejected?
 - Authorization model changes
 - API contract changes
 - Infrastructure changes
+- New top-level product surface after Extend Before Create review (ADR-015)
 - Anything that would surprise a new senior engineer
 
 ### When NOT to Write an ADR
@@ -81,6 +83,8 @@ What other options were evaluated and why were they rejected?
 
 ## Related Documents
 
+- **00** Implementation Gate
+- **00** Extend Before Create
 - **08** Software Architecture
 - **08** Architecture Improvements
 - **08** Architecture Review

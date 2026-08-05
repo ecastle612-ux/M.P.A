@@ -19,6 +19,10 @@ Design → Document → Approve → Implement
 
 Full policy: [00 Governance — Implementation Gate](./00-governance/implementation-gate.md) · [ADR-012](./18-decision-log/adr-012-design-document-approve-implement.md)
 
+**Extend before create:** New pages, dashboards, tabs, top-level nav, modules, routes, and settings sections require a Product Architecture Review. Prefer Extend > Consolidate > Reuse > Create.
+
+Policy: [00 Governance — Extend Before Create](./00-governance/extend-before-create.md) · [ADR-015](./18-decision-log/adr-015-extend-before-create.md)
+
 ---
 
 ## How to Use This Blueprint
@@ -77,6 +81,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | Document | Purpose |
 |----------|---------|
 | [Implementation Gate](./00-governance/implementation-gate.md) | Design → Document → Approve → Implement (permanent) |
+| [Extend Before Create](./00-governance/extend-before-create.md) | Product Architecture Review before new surfaces (permanent) |
 
 ### 06 Design Language — Canopy (Phase 1.5)
 
@@ -102,6 +107,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | Action | Requirement |
 |--------|-------------|
 | **Any implementation** | Designed → Documented → Approved ([Implementation Gate](./00-governance/implementation-gate.md)) |
+| New product surface | Product Architecture Review — Extend > Consolidate > Reuse > Create ([Extend Before Create](./00-governance/extend-before-create.md), ADR-015) |
 | New feature | Must map to a workflow in **05** and a goal in **02** |
 | Schema change | Migration + RLS tests + Decision Log if structural |
 | New dependency | ADR if it affects architecture or bundle size materially |
@@ -114,6 +120,6 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Field | Value |
 |-------|-------|
-| Blueprint version | 0.4.0 |
-| Last updated | 2026-07-13 |
+| Blueprint version | 0.4.1 |
+| Last updated | 2026-08-05 |
 | Phase | 2.1 Foundation Hardening |

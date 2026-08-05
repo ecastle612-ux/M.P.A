@@ -30,6 +30,18 @@ Design  →  Document  →  Approve  →  Implement
 
 ---
 
+## Product Architecture Review (Surfaces)
+
+Before designing a **new** page, dashboard, tab, top-level navigation item, module, route, or settings section, complete an **Extend Before Create** Product Architecture Review.
+
+Default preference: **Extend > Consolidate > Reuse > Create**.
+
+Binding policy: [Extend Before Create](./extend-before-create.md) · [ADR-015](../18-decision-log/adr-015-extend-before-create.md)
+
+When a request could be implemented multiple ways, recommend the architecture that minimizes long-term complexity — do not automatically fulfill a literal “new page/tab/route” ask.
+
+---
+
 ## What Counts as “Designed”
 
 Depending on the work:
@@ -38,6 +50,7 @@ Depending on the work:
 |-----------|-------------------------|
 | Visual / UI | Canopy tokens + component/pattern philosophy (06) |
 | Product feature | Six-goal filter + workflow mapping (05) + UX approach |
+| New product surface | Product Architecture Review (Extend Before Create) + home-surface decision |
 | Architecture | ADR + relevant 08–16 standards updates |
 | Schema | Database design note + RLS plan (09/14) |
 | API / Edge Function | Contract + auth plane (10/14) |
@@ -102,6 +115,8 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 ## Related
 
 - [Product Principles](../product-principles/index.md)
+- [Extend Before Create](./extend-before-create.md)
 - [06 Design Language](../06-design-language/index.md)
 - [18 Decision Log](../18-decision-log/index.md)
 - ADR-012 — Design → Document → Approve → Implement
+- ADR-015 — Extend Before Create

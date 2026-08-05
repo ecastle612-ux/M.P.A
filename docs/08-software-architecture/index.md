@@ -49,12 +49,13 @@ M.P.A. is a multi-sided, workflow-connected SaaS platform built on:
 ## Architectural Principles
 
 1. **Workflow-first** — capabilities serve business workflows, not module menus
-2. **API-first** — all clients call the same backend contracts
-3. **RLS-enforced security** — authorization in PostgreSQL, not application hope
-4. **Events connect workflows** — domain events drive automation and AI triggers
-5. **Edge Functions own business rules** — mutations with logic live server-side
-6. **Thin clients** — UI renders and orchestrates; does not decide business outcomes
-7. **Extract later** — start simple repo; monorepo when mobile justifies it
+2. **Extend before create** — absorb capabilities into existing surfaces before adding pages, tabs, routes, nav items, or settings sections (ADR-015)
+3. **API-first** — all clients call the same backend contracts
+4. **RLS-enforced security** — authorization in PostgreSQL, not application hope
+5. **Events connect workflows** — domain events drive automation and AI triggers
+6. **Edge Functions own business rules** — mutations with logic live server-side
+7. **Thin clients** — UI renders and orchestrates; does not decide business outcomes
+8. **Extract later** — start simple repo; monorepo when mobile justifies it
 
 ---
 
@@ -278,6 +279,7 @@ Release tag
 
 ## Related Blueprint Docs
 
+- **00** Extend Before Create (Product Architecture Review)
 - **09** Database Architecture
 - **10** API Standards
 - **13** AI Strategy

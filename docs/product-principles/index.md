@@ -85,6 +85,13 @@ Mandatory sequence: Design → Document → Approve → Implement.
 
 See [Implementation Gate Policy](../00-governance/implementation-gate.md) and ADR-012. Code-first shipping is forbidden.
 
+### Extend Before Create (Permanent)
+Before adding a new page, dashboard, tab, top-level nav item, module, route, or settings section, complete a Product Architecture Review. Prefer **Extend > Consolidate > Reuse > Create**. New top-level destinations are last resort.
+
+When a request admits multiple implementations, recommend the architecture that minimizes long-term complexity and maintenance — do not automatically fulfill the literal ask.
+
+See [Extend Before Create Policy](../00-governance/extend-before-create.md) and ADR-015.
+
 ### Build the Workflow Graph; Integrate at Boundaries
 M.P.A. owns operational workflows. Third parties own specialized capabilities (payment rails, eSignature, screening). See ADR-010 for accounting: deferred, not abandoned.
 
@@ -98,6 +105,7 @@ M.P.A. owns operational workflows. Third parties own specialized capabilities (p
 | Dashboards without actionable queues | Illusion of productivity |
 | Orphan CRUD screens | Every screen serves a workflow |
 | Module silos users can feel | Violates operating system vision |
+| New surface when an existing one can absorb the job | Violates Extend Before Create (ADR-015) |
 | Features that score zero on the six-goal filter | Waste |
 
 ---
@@ -118,7 +126,8 @@ When product and engineering disagree:
 
 | Action | Requirement |
 |--------|-------------|
-| **Any implementation** | **Designed → Documented → Approved** first ([Implementation Gate](./00-governance/implementation-gate.md), ADR-012) |
+| **Any implementation** | **Designed → Documented → Approved** first ([Implementation Gate](../00-governance/implementation-gate.md), ADR-012) |
+| New page / tab / route / nav / settings surface | Product Architecture Review first ([Extend Before Create](../00-governance/extend-before-create.md), ADR-015) |
 | New feature proposal | Feature evaluation template completed |
 | Roadmap addition | At least one goal scored |
 | AI capability | Must score on Save Time, Automate, or Reduce Risk |

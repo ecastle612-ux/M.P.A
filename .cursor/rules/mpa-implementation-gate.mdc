@@ -21,10 +21,30 @@ Design → Document → Approve → Implement
 4. Bug fixes that do not change product or architecture patterns may proceed; new patterns require the full gate.
 5. After approval, implement only the approved scope; material changes restart Design → Document → Approve.
 
+## Extend Before Create (permanent)
+
+Before implementing any new page, dashboard, tab, top-level navigation item, module, route, or settings section, perform a **Product Architecture Review**:
+
+1. Does an existing surface already provide a logical home?
+2. Would extending that surface produce a better UX?
+3. Would a new page create duplicate navigation?
+4. Would it increase maintenance burden?
+5. Would it require duplicate documentation, testing, or governance?
+
+Default preference: **Extend > Consolidate > Reuse > Create**.
+
+Creating a new top-level destination is last resort. When a request could be implemented multiple ways, **do not automatically implement the literal request** — first recommend the architecture that minimizes long-term complexity while preserving usability.
+
+Applies to CORE, UX, AUTH, OPS, BILL, API, and all platform initiatives.
+
+Authoritative policy: `docs/00-governance/extend-before-create.md` · ADR-015
+
 ## Authoritative docs
 
 - `docs/00-governance/implementation-gate.md`
+- `docs/00-governance/extend-before-create.md`
 - `docs/18-decision-log/adr-012-design-document-approve-implement.md`
+- `docs/18-decision-log/adr-015-extend-before-create.md`
 - Design language: `docs/06-design-language/` (Canopy must be approved before UI)
 
 ## Current reminder

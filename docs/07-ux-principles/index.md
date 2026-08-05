@@ -141,6 +141,8 @@ Messages send **from** the entity they relate to:
 
 ## Navigation Structure
 
+**Extend before create:** Do not add top-level destinations, tabs, or settings sections by default. Absorb new capability into the structures below unless a Product Architecture Review proves Extend / Consolidate / Reuse are insufficient ([ADR-015](../18-decision-log/adr-015-extend-before-create.md)).
+
 ### PM Organization Portal
 
 ```
@@ -207,3 +209,4 @@ Every empty state answers: **"What workflow step creates the first record here?"
 - **21 Experience Architecture** — emotional experience, role journeys, micro-interaction feelings
 - **12 Component Standards** — component-level patterns
 - **05 Business Workflows** — workflow definitions these principles serve
+- **00 Extend Before Create** — Product Architecture Review before new surfaces
