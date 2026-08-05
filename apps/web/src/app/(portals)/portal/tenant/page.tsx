@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 import { AppPage } from "../../../../components/presentation/app-page";
 import {
-  TenantPortalHome,
   type TenantAttentionItem,
   type TenantTodayCard
 } from "../../../../components/portal/tenant-portal-home";
+import { RoleUniversalDashboard } from "../../../../components/dashboard-framework/role-universal-dashboard";
+import { buildResidentDashboardViewModel } from "../../../../lib/dashboard/ux016-role-builders";
+import { getTimeGreeting } from "../../../../lib/format/display-labels";
 import { MasterAdminPortalDemoPanel } from "../../../../components/master-admin/master-admin-portal-demo-panel";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -217,17 +219,26 @@ export default async function TenantPortalPage() {
     }
   }
 
+  const model = buildResidentDashboardViewModel({
+    timeGreeting: getTimeGreeting(),
+    firstName,
+    propertyName: tenantDetail?.propertyName ?? null,
+    unitNumber: tenantDetail?.unitNumber ?? null,
+    dateLabel: new Intl.DateTimeFormat(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric"
+    }).format(new Date()),
+    hasLinkedTenant: Boolean(tenant),
+    attentionItems,
+    todayCards
+  });
+
   return (
     <AppPage>
       {inPortalTest && !tenant ? <MasterAdminPortalDemoPanel portal="resident" /> : null}
-      <TenantPortalHome
-        firstName={firstName}
-        propertyName={tenantDetail?.propertyName ?? null}
-        unitNumber={tenantDetail?.unitNumber ?? null}
-        hasLinkedTenant={Boolean(tenant)}
-        attentionItems={attentionItems}
-        todayCards={todayCards}
-      />
+      <RoleUniversalDashboard model={model} />
     </AppPage>
   );
 }

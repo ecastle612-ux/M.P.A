@@ -1,17 +1,27 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, Button } from "@mpa/ui";
 import { MPA_BRAND_NAME } from "../../lib/branding";
+import { RoleSwitcher } from "./role-switcher";
+
+const SyncStatusChip = dynamic(
+  () => import("../pwa/sync-status-chip").then((m) => ({ default: m.SyncStatusChip })),
+  { ssr: false }
+);
 
 export function ProfileMenu({
   fetchProfile = true,
-  preferencesHref = "/settings/preferences"
+  preferencesHref = "/settings/preferences",
+  showRoleSwitcher = true
 }: {
   fetchProfile?: boolean;
   /** UX-012 A09 — role-appropriate Preferences (ops or portal). */
   preferencesHref?: string;
+  /** UX-016 Slice C — role switch moved out of the top bar. */
+  showRoleSwitcher?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -104,6 +114,14 @@ export function ProfileMenu({
           className="absolute right-0 top-11 z-40 w-56 rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-2 shadow-[var(--mpa-shadow-lg)]"
         >
           <p className="truncate px-2 py-2 text-xs font-medium text-[var(--mpa-color-text-primary)]">{displayName}</p>
+          {showRoleSwitcher ? (
+            <div className="mb-2 px-1">
+              <RoleSwitcher compact />
+            </div>
+          ) : null}
+          <div className="mb-2 flex justify-start px-1">
+            <SyncStatusChip />
+          </div>
           <Button className="mb-2 w-full" variant="secondary" size="sm" onClick={() => router.push("/profile")}>
             Profile
           </Button>

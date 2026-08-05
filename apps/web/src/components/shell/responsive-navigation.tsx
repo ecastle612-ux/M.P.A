@@ -36,78 +36,16 @@ import { useSessionPermissions } from "./use-session-permissions";
 import { useOrganizationContext } from "./organization-context";
 import { searchCommandCenter } from "../../lib/command-center/registry";
 import type { CommandCenterResult } from "../../lib/command-center/types";
-import {
-  getFavoriteItems,
-  getRecentItems,
-  isFavoriteItem,
-  recordRecentItem,
-  toggleFavoriteItem,
-  type CommandCenterStoredItem
-} from "../../lib/command-center/storage";
+import { isFavoriteItem, recordRecentItem, toggleFavoriteItem } from "../../lib/command-center/storage";
 import { shellTrace } from "../../lib/debug/shell-runtime-trace";
-
-const NAV_HISTORY_EVENT = "mpa:nav-history";
-
-/**
- * useSyncExternalStore requires getSnapshot to return a cached reference when
- * data is unchanged (Object.is). Returning `.slice()` / `[]` every call causes
- * an infinite re-render loop in React 19 → app error boundary ("couldn't load").
- */
-const EMPTY_NAV_HISTORY: CommandCenterStoredItem[] = [];
-let favoritesSnapshotCache: CommandCenterStoredItem[] = EMPTY_NAV_HISTORY;
-let favoritesSnapshotKey = "";
-let recentsSnapshotCache: CommandCenterStoredItem[] = EMPTY_NAV_HISTORY;
-let recentsSnapshotKey = "";
-
-function cacheNavHistorySnapshot(
-  items: CommandCenterStoredItem[],
-  previousKey: string,
-  previousValue: CommandCenterStoredItem[]
-): { key: string; value: CommandCenterStoredItem[] } {
-  const key = JSON.stringify(items);
-  if (key === previousKey) return { key: previousKey, value: previousValue };
-  return { key, value: items.length === 0 ? EMPTY_NAV_HISTORY : items };
-}
-
-function subscribeNavHistory(onStoreChange: () => void) {
-  const onLocal = () => onStoreChange();
-  window.addEventListener("storage", onStoreChange);
-  window.addEventListener(NAV_HISTORY_EVENT, onLocal);
-  return () => {
-    window.removeEventListener("storage", onStoreChange);
-    window.removeEventListener(NAV_HISTORY_EVENT, onLocal);
-  };
-}
-
-function getFavoritesSnapshot() {
-  const next = cacheNavHistorySnapshot(
-    getFavoriteItems().slice(0, 8),
-    favoritesSnapshotKey,
-    favoritesSnapshotCache
-  );
-  favoritesSnapshotKey = next.key;
-  favoritesSnapshotCache = next.value;
-  return favoritesSnapshotCache;
-}
-
-function getRecentsSnapshot() {
-  const next = cacheNavHistorySnapshot(
-    getRecentItems().slice(0, 6),
-    recentsSnapshotKey,
-    recentsSnapshotCache
-  );
-  recentsSnapshotKey = next.key;
-  recentsSnapshotCache = next.value;
-  return recentsSnapshotCache;
-}
-
-function getEmptyHistorySnapshot(): CommandCenterStoredItem[] {
-  return EMPTY_NAV_HISTORY;
-}
-
-function notifyNavHistory() {
-  window.dispatchEvent(new Event(NAV_HISTORY_EVENT));
-}
+import {
+  OPEN_MOBILE_NAV_EVENT,
+  getEmptyHistorySnapshot,
+  getFavoritesSnapshot,
+  getRecentsSnapshot,
+  notifyNavHistory,
+  subscribeNavHistory
+} from "./nav-history";
 
 function readExpandedSection(): MobileNavSectionId | null {
   if (typeof window === "undefined") return null;
@@ -139,7 +77,7 @@ function formatBadge(count: number): string {
   return count > 99 ? "99+" : String(count);
 }
 
-export function ResponsiveNavigation() {
+export function ResponsiveNavigation({ hideTrigger = false }: { hideTrigger?: boolean }) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSection, setExpandedSection] = useState<MobileNavSectionId | null>(() => readExpandedSection());
@@ -159,8 +97,12 @@ export function ResponsiveNavigation() {
   const { organizations } = useOrganizationContext();
   // Prefetch signals while closed so first open paint already has health/badges.
   const { badges, health } = useMobileNavSignals(true);
-  const favorites = useSyncExternalStore(subscribeNavHistory, getFavoritesSnapshot, getEmptyHistorySnapshot);
-  const recents = useSyncExternalStore(subscribeNavHistory, getRecentsSnapshot, getEmptyHistorySnapshot);
+  const favorites = useSyncExternalStore(
+    subscribeNavHistory,
+    () => getFavoritesSnapshot(8),
+    getEmptyHistorySnapshot
+  );
+  const recents = useSyncExternalStore(subscribeNavHistory, () => getRecentsSnapshot(6), getEmptyHistorySnapshot);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const navOptions = useMemo(
     () => ({ masterAdminOnlyShell, entitledModules }),
@@ -279,6 +221,14 @@ export function ResponsiveNavigation() {
     setOpen(true);
   }, [pathname, firstSectionId, permissions, navOptions]);
 
+  useEffect(() => {
+    function handleOpenEvent() {
+      openDrawer();
+    }
+    window.addEventListener(OPEN_MOBILE_NAV_EVENT, handleOpenEvent);
+    return () => window.removeEventListener(OPEN_MOBILE_NAV_EVENT, handleOpenEvent);
+  }, [openDrawer]);
+
   const onSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
     shellTrace("search-change", { length: value.length });
@@ -347,17 +297,19 @@ export function ResponsiveNavigation() {
 
   return (
     <div className="lg:hidden">
-      <Button
-        variant="secondary"
-        size="sm"
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-controls="mobile-nav-drawer"
-        className="mpa-chrome-control"
-        onClick={() => (open ? closeDrawer() : openDrawer())}
-      >
-        Menu
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          variant="secondary"
+          size="sm"
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls="mobile-nav-drawer"
+          className="mpa-chrome-control"
+          onClick={() => (open ? closeDrawer() : openDrawer())}
+        >
+          Menu
+        </Button>
+      )}
       <Drawer
         open={open}
         onClose={closeDrawer}
@@ -668,7 +620,8 @@ function NavRow({
   onToggleFavorite: () => void;
 }) {
   const active = isRouteActive(pathname, item.href, item.exact);
-  const Icon = NAV_ICON_MAP[item.href];
+  const pathOnly = item.href.split("?")[0] ?? item.href;
+  const Icon = NAV_ICON_MAP[pathOnly] ?? NAV_ICON_MAP[item.href];
 
   return (
     <div

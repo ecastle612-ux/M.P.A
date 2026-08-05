@@ -2,8 +2,6 @@ import dynamic from "next/dynamic";
 import { DeploymentBadge } from "../launch/deployment-badge";
 import type { DeploymentMeta } from "../../lib/launch/deployment-meta";
 import { OrganizationSwitcher } from "./organization-switcher";
-import { RoleSwitcher } from "./role-switcher";
-import { SyncStatusChip } from "../pwa/sync-status-chip";
 import { ProfileMenu } from "./profile-menu";
 
 const CommandCenter = dynamic(
@@ -27,6 +25,11 @@ const NotificationCenter = dynamic(
   { ssr: false }
 );
 
+/**
+ * UX-016 Slice C — top bar contains only:
+ * Search · Notifications · Organization · Profile
+ * (Deployment badge remains as operational environment chrome.)
+ */
 export function TopNavigation({ deploymentMeta }: { deploymentMeta: DeploymentMeta }) {
   return (
     <header
@@ -42,10 +45,8 @@ export function TopNavigation({ deploymentMeta }: { deploymentMeta: DeploymentMe
             <CommandCenter />
           </div>
           <DeploymentBadge meta={deploymentMeta} className="hidden md:flex" />
-          <OrganizationSwitcher />
-          <RoleSwitcher />
-          <SyncStatusChip />
           <NotificationCenter />
+          <OrganizationSwitcher />
           <ProfileMenu />
         </div>
       </div>
