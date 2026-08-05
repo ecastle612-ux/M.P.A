@@ -11,7 +11,8 @@ import {
   buildPlanComparisonRows,
   buildPublicPlanCards,
   checkoutStartHref,
-  formatListPrice
+  formatListPrice,
+  professionalDisplayName
 } from "../../lib/acquire/catalog";
 import { ACQ_FUNNEL_EVENTS, emitAcqFunnelEvent } from "../../lib/acquire/funnel";
 import {
@@ -62,11 +63,15 @@ export function PricingExperience({
         <p className="text-sm font-medium text-[var(--mpa-color-brand-primary)]">Step 2 of 2</p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Pricing</h1>
         <p className="mt-3 text-[var(--mpa-color-text-secondary)]">
-          Showing Professional and Business for{" "}
+          Plans for{" "}
           <span className="font-medium text-[var(--mpa-color-text-primary)]">
             {moduleSelectionLabel(modules)}
           </span>
-          . Enterprise is sales-assisted.{" "}
+          .{" "}
+          {modules === "both"
+            ? "Professional includes both modules with bundle savings versus buying separately. "
+            : "Essentials covers one module at the base rate. "}
+          Business adds capacity. Enterprise is sales-assisted.{" "}
           <Link href="/modules" className="underline underline-offset-4">
             Change modules
           </Link>
@@ -101,6 +106,7 @@ export function PricingExperience({
       <ul className="mt-10 grid gap-6 lg:grid-cols-3">
         {cards.map((card) => {
           const amount = interval === "year" ? card.listPriceAnnual : card.listPriceMonthly;
+          const compareAt = interval === "year" ? card.compareAtAnnual : card.compareAtMonthly;
           const href =
             card.selfServe && card.planCode !== "enterprise"
               ? checkoutStartHref(card.planCode as AcqSelfServePlan, interval, modules)
@@ -116,9 +122,28 @@ export function PricingExperience({
             >
               <h2 className="font-display text-xl font-semibold">{card.name}</h2>
               <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{card.description}</p>
-              <p className="mt-4 font-display text-2xl font-semibold tabular-nums">
-                {formatListPrice(amount, interval)}
-              </p>
+              <div className="mt-4">
+                {compareAt != null && amount != null ? (
+                  <p className="text-sm text-[var(--mpa-color-text-muted)] line-through tabular-nums">
+                    {formatListPrice(compareAt, interval)}
+                  </p>
+                ) : null}
+                <p className="font-display text-2xl font-semibold tabular-nums">
+                  {formatListPrice(amount, interval)}
+                </p>
+                {card.moduleCount === 2 &&
+                (interval === "year" ? card.bundleSavingsAnnual : card.bundleSavingsMonthly) != null ? (
+                  <p className="mt-1 text-sm font-medium text-[var(--mpa-color-brand-primary)]">
+                    Save $
+                    {interval === "year" ? card.bundleSavingsAnnual : card.bundleSavingsMonthly}
+                    {interval === "year" ? "/year" : "/month"} compared to purchasing separately.
+                  </p>
+                ) : card.moduleCount === 1 ? (
+                  <p className="mt-1 text-xs text-[var(--mpa-color-text-muted)]">
+                    Essentials · one module
+                  </p>
+                ) : null}
+              </div>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
                 {card.features.map((feature) => (
                   <li key={feature}>{feature}</li>
@@ -166,7 +191,7 @@ export function PricingExperience({
         <div className="mt-6 overflow-x-auto rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)]">
           <table className="min-w-full border-collapse text-left text-sm">
             <caption className="sr-only">
-              Feature comparison across Professional, Business, and Enterprise plans
+              Feature comparison across {professionalDisplayName(modules)}, Business, and Enterprise plans
             </caption>
             <thead className="bg-[var(--mpa-color-bg-surface)]">
               <tr>
@@ -174,7 +199,7 @@ export function PricingExperience({
                   Capability
                 </th>
                 <th scope="col" className="px-4 py-3 font-medium">
-                  Professional
+                  {professionalDisplayName(modules)}
                 </th>
                 <th scope="col" className="px-4 py-3 font-medium">
                   Business

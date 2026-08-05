@@ -18,6 +18,7 @@ import {
 
 export type PublicPlanCard = {
   planCode: AcqSelfServePlan | "enterprise";
+  /** Commercial display name (Essentials / Professional / Business / Enterprise). */
   name: string;
   description: string;
   selfServe: boolean;
@@ -28,15 +29,97 @@ export type PublicPlanCard = {
   maxUsers: number | "Custom";
   listPriceMonthly: number | null;
   listPriceAnnual: number | null;
+  /** Single-module ×2 list price — shown only for bundles to prove savings. */
+  compareAtMonthly: number | null;
+  compareAtAnnual: number | null;
+  moduleCount: 1 | 2 | null;
+  /** Positive dollars saved vs buying two singles (bundle only). */
+  bundleSavingsMonthly: number | null;
+  bundleSavingsAnnual: number | null;
   highlight?: boolean;
 };
 
-function priceFor(planCode: "professional" | "business" | "enterprise") {
+/** Presentation label for the self-serve professional SKU by module selection. */
+export function professionalDisplayName(modules: AcqModuleSelection | null): string {
+  if (modules === "both") return "Professional";
+  if (modules === "property_ops" || modules === "facility_ops") return "Essentials";
+  return "Professional";
+}
+
+/**
+ * Public list-price hierarchy (presentation).
+ * - One module = base PLAN_DISPLAY amount
+ * - Both modules = 1.5× base (more than one module; less than 2× separate)
+ * Enterprise stays custom / sales-quoted (null amounts when no list row).
+ */
+export function modulePriceMultiplier(modules: AcqModuleSelection | null): number {
+  return modules === "both" ? 1.5 : 1;
+}
+
+export function listPriceForModules(
+  planCode: "professional" | "business" | "enterprise",
+  modules: AcqModuleSelection | null = null
+): {
+  listPriceMonthly: number | null;
+  listPriceAnnual: number | null;
+  compareAtMonthly: number | null;
+  compareAtAnnual: number | null;
+  moduleCount: 1 | 2 | null;
+  bundleSavingsMonthly: number | null;
+  bundleSavingsAnnual: number | null;
+} {
   const row = PLAN_DISPLAY.find((p) => p.planCode === planCode);
+  if (!row) {
+    return {
+      listPriceMonthly: null,
+      listPriceAnnual: null,
+      compareAtMonthly: null,
+      compareAtAnnual: null,
+      moduleCount: null,
+      bundleSavingsMonthly: null,
+      bundleSavingsAnnual: null
+    };
+  }
+
+  // Enterprise is sales-assisted; keep list figures as capacity anchors only.
+  if (planCode === "enterprise") {
+    return {
+      listPriceMonthly: row.listPriceMonthly,
+      listPriceAnnual: row.listPriceAnnual,
+      compareAtMonthly: null,
+      compareAtAnnual: null,
+      moduleCount: modules === "both" ? 2 : modules ? 1 : null,
+      bundleSavingsMonthly: null,
+      bundleSavingsAnnual: null
+    };
+  }
+
+  const multiplier = modulePriceMultiplier(modules);
+  const listPriceMonthly = Math.round(row.listPriceMonthly * multiplier);
+  const listPriceAnnual = Math.round(row.listPriceAnnual * multiplier);
+  const isBundle = modules === "both";
+
+  const compareAtMonthly = isBundle ? row.listPriceMonthly * 2 : null;
+  const compareAtAnnual = isBundle ? row.listPriceAnnual * 2 : null;
+
   return {
-    listPriceMonthly: row?.listPriceMonthly ?? null,
-    listPriceAnnual: row?.listPriceAnnual ?? null
+    listPriceMonthly,
+    listPriceAnnual,
+    compareAtMonthly,
+    compareAtAnnual,
+    moduleCount: isBundle ? 2 : modules ? 1 : null,
+    bundleSavingsMonthly:
+      isBundle && compareAtMonthly != null ? compareAtMonthly - listPriceMonthly : null,
+    bundleSavingsAnnual:
+      isBundle && compareAtAnnual != null ? compareAtAnnual - listPriceAnnual : null
   };
+}
+
+function priceFor(
+  planCode: "professional" | "business" | "enterprise",
+  modules: AcqModuleSelection | null = null
+) {
+  return listPriceForModules(planCode, modules);
 }
 
 function moduleFeatures(selection: AcqModuleSelection | null): string[] {
@@ -57,7 +140,7 @@ function moduleFeatures(selection: AcqModuleSelection | null): string[] {
   if (selection === "both") {
     return [
       "Property and Facility Operations",
-      "Modular subscription — both operating surfaces",
+      "Bundle pricing — more than one module, less than two singles",
       "Team seats within plan limits"
     ];
   }
@@ -82,15 +165,23 @@ export function buildPublicPlanCards(
     : "";
 
   const professional = resolveEntitlementsForPlan("professional");
-  const proPrices = priceFor("professional");
+  const proPrices = priceFor("professional", modules);
+  const proName = professionalDisplayName(modules);
+  const proDescription =
+    modules === "both"
+      ? `${moduleLine}Both operating modules in one subscription — bundle savings vs buying separately.`
+      : modules
+        ? `${moduleLine}One operating module for teams starting with a single surface.`
+        : "Complete operations OS for growing property and facility teams.";
   cards.push({
     planCode: "professional",
-    name: "Professional",
-    description: `${moduleLine}Complete operations OS for growing property and facility teams.`,
+    name: proName,
+    description: proDescription,
     selfServe: true,
-    ctaLabel: "Choose Professional",
+    ctaLabel: `Choose ${proName}`,
     ctaHref: `/acquire/start?plan=professional&interval=${ACQ_DEFAULT_BILLING_INTERVAL}${moduleQuery}`,
     features: [
+      modules === "both" ? "Choose both modules" : modules ? "Choose one module" : "Modules selected at checkout",
       `Up to ${professional.limits.maxProperties} properties`,
       `Up to ${professional.limits.maxUsers} seats`,
       ...moduleFeatures(modules),
@@ -103,7 +194,7 @@ export function buildPublicPlanCards(
   });
 
   const business = resolveEntitlementsForPlan("business");
-  const bizPrices = priceFor("business");
+  const bizPrices = priceFor("business", modules);
   cards.push({
     planCode: "business",
     name: "Business",
@@ -114,7 +205,7 @@ export function buildPublicPlanCards(
     features: [
       `Up to ${business.limits.maxProperties} properties`,
       `Up to ${business.limits.maxUsers} seats`,
-      "Everything in Professional",
+      "Everything in Essentials / Professional",
       ...moduleFeatures(modules).slice(0, 2),
       "Priority support"
     ],
@@ -123,7 +214,7 @@ export function buildPublicPlanCards(
     ...bizPrices
   });
 
-  const entPrices = priceFor("enterprise");
+  const entPrices = priceFor("enterprise", modules);
   cards.push({
     planCode: "enterprise",
     name: "Enterprise",

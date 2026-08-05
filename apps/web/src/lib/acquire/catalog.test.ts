@@ -71,6 +71,23 @@ describe("UX-013 public catalog", () => {
     );
   });
 
+  it("prices both modules higher than one module and below 2×", () => {
+    const one = buildPublicPlanCards("month", "property_ops").find(
+      (card) => card.planCode === "professional"
+    );
+    const both = buildPublicPlanCards("month", "both").find(
+      (card) => card.planCode === "professional"
+    );
+    expect(one?.name).toBe("Essentials");
+    expect(one?.listPriceMonthly).toBe(99);
+    expect(both?.name).toBe("Professional");
+    expect(both?.listPriceMonthly).toBe(149);
+    expect(both?.listPriceMonthly).toBeGreaterThan(one?.listPriceMonthly ?? 0);
+    expect(both?.compareAtMonthly).toBe(198);
+    expect(both?.bundleSavingsMonthly).toBe(49);
+    expect(both?.listPriceMonthly).toBeLessThan(both?.compareAtMonthly ?? 0);
+  });
+
   it("keeps tour within six steps", () => {
     expect(TOUR_STEPS.length).toBeLessThanOrEqual(6);
     expect(TOUR_STEPS.length).toBeGreaterThan(0);
