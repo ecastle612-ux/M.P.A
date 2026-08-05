@@ -1,7 +1,7 @@
 # 04 — Sidebar Workflow IA
 
 **Package:** UX-016  
-**Status:** Draft — Ready for Approval  
+**Status:** ✅ **Authorized for Slice C** — see [20](./20-slice-c-authorization.md) · [21](./21-intelligent-workspace-navigation.md)  
 **Date:** 2026-08-05  
 **Related:** [UX-013 §04 Contextual navigation matrices](../117-ux-013-customer-acquisition-contextual-navigation/04-contextual-navigation-matrices.md) · [UX-012 §05 Navigation](../112-ux-012-platform-experience-design-system/05-navigation-architecture.md)
 

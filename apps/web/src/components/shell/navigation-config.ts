@@ -11,24 +11,24 @@ export type NavigationItem = {
   requiredModule?: string;
   /** When true, only exact pathname matches are active (no prefix match). */
   exact?: boolean;
-  /** Mobile accordion section (UX-008). */
+  /** Mobile accordion section (UX-008 / UX-016 Slice C). */
   mobileSection?: MobileNavSectionId;
   /** Always show near top of mobile drawer when permitted. */
   pinned?: boolean;
-  /** Search synonyms for Search M.P.A. / future module index. */
+  /** Search synonyms for Search M.P.A. / Command Center. */
   synonyms?: string[];
   /** Optional badge source key for mobile nav counts. */
   badgeKey?: MobileNavBadgeKey;
 };
 
 export type MobileNavSectionId =
-  | "portfolio"
-  | "maintenance"
-  | "leasing"
-  | "accounting"
-  | "communications"
-  | "intelligence"
-  | "workspace"
+  | "my-work"
+  | "operations"
+  | "financial"
+  | "documents"
+  | "communication"
+  | "analytics"
+  | "administration"
   | "master-admin";
 
 export type MobileNavBadgeKey = "messages" | "maintenance" | "approvals" | "leases" | "notifications";
@@ -43,117 +43,183 @@ export type NavigationGroup = {
   items: NavigationItem[];
 };
 
+/** UX-016 Slice C — mobile drawer accordion order mirrors universal sidebar groups. */
 export const MOBILE_NAV_SECTION_ORDER: Array<{ id: MobileNavSectionId; title: string }> = [
-  { id: "portfolio", title: "Portfolio" },
-  { id: "maintenance", title: "Maintenance" },
-  { id: "leasing", title: "Leasing" },
-  { id: "accounting", title: "Accounting" },
-  { id: "communications", title: "Communications" },
-  { id: "intelligence", title: "Intelligence" },
-  { id: "workspace", title: "Workspace" },
+  { id: "my-work", title: "My Work" },
+  { id: "operations", title: "Operations" },
+  { id: "financial", title: "Financial" },
+  { id: "documents", title: "Documents" },
+  { id: "communication", title: "Communication" },
+  { id: "analytics", title: "Analytics" },
+  { id: "administration", title: "Administration" },
   { id: "master-admin", title: "Operations Center" }
 ];
 
 export const MOBILE_NAV_EXPANDED_SECTION_KEY = "mpa.mobileNav.expandedSection";
 
+/**
+ * UX-016 Slice C — Intelligent Workspace Navigation.
+ * Same destinations / entitlement fields; regrouped for work-first IA.
+ */
 export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
+  {
+    title: "Dashboard",
+    items: [
+      {
+        href: "/dashboard",
+        label: "Dashboard",
+        pinned: true,
+        mobileSection: "my-work",
+        synonyms: ["dashboard", "ops", "today", "home", "operations", "operations center", "command center"]
+      }
+    ]
+  },
+  {
+    title: "My Work",
+    items: [
+      {
+        href: "/inbox",
+        label: "Assigned Today",
+        pinned: true,
+        mobileSection: "my-work",
+        synonyms: ["assigned today", "my work", "unified inbox", "ops inbox", "work"]
+      },
+      {
+        href: "/inbox",
+        label: "Waiting on Me",
+        exact: true,
+        mobileSection: "my-work",
+        synonyms: ["waiting on me", "approvals", "blocked", "needs me"]
+      },
+      {
+        href: "/maintenance",
+        label: "High Priority",
+        mobileSection: "my-work",
+        badgeKey: "maintenance",
+        requiredModule: "maintenance",
+        synonyms: ["high priority", "urgent", "emergency work orders"]
+      },
+      {
+        href: "/facility/calendar",
+        label: "Scheduled Today",
+        mobileSection: "my-work",
+        requiredCapability: "facility:calendar:read",
+        requiredModule: "facility_operations",
+        synonyms: ["scheduled today", "calendar", "today schedule"]
+      },
+      {
+        href: "/activity",
+        label: "Completed Today",
+        mobileSection: "my-work",
+        synonyms: ["completed today", "done", "finished", "timeline"]
+      }
+    ]
+  },
   {
     title: "Operations",
     items: [
       {
-        href: "/dashboard",
-        label: "Command Center",
-        pinned: true,
-        mobileSection: "workspace",
-        synonyms: ["dashboard", "ops", "today", "home", "operations", "operations center", "command center"]
-      },
-      {
-        href: "/inbox",
-        label: "Ops Inbox",
-        pinned: true,
-        mobileSection: "workspace",
-        synonyms: ["unified inbox", "ops inbox", "operational inbox", "notifications inbox"]
-      },
-      {
         href: "/properties",
-        label: "Properties",
+        label: "Property Operations",
         pinned: true,
-        mobileSection: "portfolio",
+        mobileSection: "operations",
         requiredModule: "property_operations",
-        synonyms: ["property", "buildings", "portfolio"]
+        synonyms: ["property", "properties", "buildings", "portfolio", "property operations"]
       },
       {
         href: "/units",
         label: "Units",
-        mobileSection: "portfolio",
+        mobileSection: "operations",
         requiredModule: "property_operations",
         synonyms: ["unit", "apartment", "apt"]
       },
       {
+        href: "/maintenance",
+        label: "Maintenance",
+        pinned: true,
+        mobileSection: "operations",
+        badgeKey: "maintenance",
+        requiredModule: "maintenance",
+        synonyms: ["work order", "work orders", "repair", "ticket"]
+      },
+      {
+        href: "/maintenance",
+        label: "Work Orders",
+        exact: true,
+        mobileSection: "operations",
+        requiredModule: "maintenance",
+        synonyms: ["work orders", "tickets"]
+      },
+      {
+        href: "/leases",
+        label: "Leasing",
+        mobileSection: "operations",
+        badgeKey: "leases",
+        requiredModule: "leasing",
+        synonyms: ["lease", "leasing", "renewal", "contract"]
+      },
+      {
         href: "/applicants",
         label: "Applicants",
-        mobileSection: "portfolio",
+        mobileSection: "operations",
         requiredModule: "screening",
         synonyms: ["applicant", "application", "screening"]
       },
       {
         href: "/tenants",
-        label: "Tenants",
-        mobileSection: "portfolio",
+        label: "Residents",
+        mobileSection: "operations",
         requiredModule: "property_operations",
         synonyms: ["resident", "residents", "tenant", "renter"]
       },
       {
         href: "/residents/move-in",
         label: "Move in",
-        mobileSection: "leasing",
+        mobileSection: "operations",
         requiredModule: "leasing",
         synonyms: ["move-in", "move in"]
       },
       {
         href: "/residents/move-out",
         label: "Move out",
-        mobileSection: "leasing",
+        mobileSection: "operations",
         requiredModule: "leasing",
         synonyms: ["move-out", "move out"]
       },
       {
         href: "/residents/transfer",
         label: "Transfer unit",
-        mobileSection: "leasing",
+        mobileSection: "operations",
         requiredModule: "leasing",
         synonyms: ["transfer"]
       },
       {
         href: "/residents/bulk",
         label: "Bulk residents",
-        mobileSection: "leasing",
+        mobileSection: "operations",
         requiredModule: "leasing",
         synonyms: ["bulk"]
       },
       {
-        href: "/leases",
-        label: "Leases",
-        mobileSection: "leasing",
-        badgeKey: "leases",
-        requiredModule: "leasing",
-        synonyms: ["lease", "leasing", "renewal", "contract"]
+        href: "/vendors",
+        label: "Vendors",
+        mobileSection: "operations",
+        requiredModule: "maintenance",
+        synonyms: ["vendor", "vendor jobs", "contractor"]
       },
       {
-        href: "/maintenance",
-        label: "Maintenance",
-        pinned: true,
-        mobileSection: "maintenance",
-        badgeKey: "maintenance",
-        requiredModule: "maintenance",
-        synonyms: ["work order", "work orders", "repair", "ticket", "inspection"]
+        href: "/facility/inspections",
+        label: "Inspections",
+        mobileSection: "operations",
+        requiredCapability: "facility:inspection:read",
+        requiredModule: "facility_operations",
+        synonyms: ["inspection", "inspections", "checklist", "walkthrough"]
       },
       {
         href: "/facility",
         label: "Facility",
         exact: true,
-        pinned: true,
-        mobileSection: "maintenance",
+        mobileSection: "operations",
         requiredCapability: "facility:dashboard",
         requiredModule: "facility_operations",
         synonyms: ["facility", "technician", "facility hub", "ops floor"]
@@ -161,7 +227,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
       {
         href: "/facility/inventory",
         label: "Inventory",
-        mobileSection: "maintenance",
+        mobileSection: "operations",
         requiredCapability: "facility:inventory:read",
         requiredModule: "facility_operations",
         synonyms: ["inventory", "parts", "tools", "equipment stock"]
@@ -169,7 +235,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
       {
         href: "/facility/pm",
         label: "Preventive",
-        mobileSection: "maintenance",
+        mobileSection: "operations",
         requiredCapability: "facility:pm:read",
         requiredModule: "facility_operations",
         synonyms: ["pm", "preventive", "preventive maintenance", "schedule"]
@@ -177,116 +243,250 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
       {
         href: "/facility/calendar",
         label: "Calendar",
-        mobileSection: "maintenance",
+        mobileSection: "operations",
         requiredCapability: "facility:calendar:read",
         requiredModule: "facility_operations",
         synonyms: ["calendar", "due", "schedule board"]
       },
       {
-        href: "/facility/inspections",
-        label: "Inspections",
-        mobileSection: "maintenance",
-        requiredCapability: "facility:inspection:read",
-        requiredModule: "facility_operations",
-        synonyms: ["inspection", "inspections", "checklist", "walkthrough"]
-      },
-      {
         href: "/facility/reports",
         label: "Facility reports",
-        mobileSection: "maintenance",
+        mobileSection: "operations",
         requiredCapability: "facility:report:read",
         requiredModule: "facility_operations",
         synonyms: ["facility reports", "technician report", "inventory report", "asset register"]
+      }
+    ]
+  },
+  {
+    title: "Financial",
+    items: [
+      {
+        href: "/financials",
+        label: "Accounting",
+        mobileSection: "financial",
+        requiredModule: "financials",
+        synonyms: ["payment", "payments", "rent", "financials", "accounting", "books"]
       },
       {
-        href: "/activity",
-        label: "Activity",
-        mobileSection: "maintenance",
-        synonyms: ["timeline", "activity timeline", "ops activity"]
+        href: "/financials/charges",
+        label: "Invoices",
+        mobileSection: "financial",
+        requiredModule: "financials",
+        synonyms: ["invoices", "charges", "bill"]
       },
       {
-        href: "/vendors",
-        label: "Vendors",
-        mobileSection: "maintenance",
-        requiredModule: "maintenance",
-        synonyms: ["vendor", "vendor jobs", "contractor"]
+        href: "/financials/payments",
+        label: "Payments",
+        mobileSection: "financial",
+        requiredModule: "financials",
+        synonyms: ["payments", "receive payment", "collect rent"]
       },
       {
-        href: "/communications",
-        label: "Communications",
-        mobileSection: "communications",
-        requiredModule: "messaging",
-        synonyms: ["announce", "announcement", "broadcast"]
+        href: "/financials/expenses",
+        label: "Expenses",
+        mobileSection: "financial",
+        requiredModule: "financials",
+        synonyms: ["expenses", "spend", "payables"]
       },
+      {
+        href: "/financials/owner-statements",
+        label: "Budgets",
+        mobileSection: "financial",
+        requiredModule: "financials",
+        synonyms: ["budgets", "owner statements", "statements"]
+      },
+      {
+        href: "/financials/reports",
+        label: "Reports",
+        mobileSection: "financial",
+        requiredCapability: "financial:read",
+        requiredModule: "financials",
+        synonyms: ["report", "reports", "analytics", "financial reports"]
+      }
+    ]
+  },
+  {
+    title: "Documents",
+    items: [
+      {
+        href: "/settings/documents",
+        label: "Document Vault",
+        mobileSection: "documents",
+        synonyms: ["documents", "vault", "files", "uploads"]
+      },
+      {
+        href: "/leases",
+        label: "Leases",
+        mobileSection: "documents",
+        badgeKey: "leases",
+        requiredModule: "leasing",
+        synonyms: ["lease documents", "lease files"]
+      },
+      {
+        href: "/applicants",
+        label: "Templates",
+        mobileSection: "documents",
+        requiredModule: "screening",
+        synonyms: ["templates", "application templates"]
+      },
+      {
+        href: "/leases",
+        label: "Signatures",
+        exact: true,
+        mobileSection: "documents",
+        requiredModule: "leasing",
+        synonyms: ["signatures", "esign", "sign"]
+      },
+      {
+        href: "/settings/documents",
+        label: "Uploads",
+        exact: true,
+        mobileSection: "documents",
+        synonyms: ["upload", "uploads", "add document"]
+      }
+    ]
+  },
+  {
+    title: "Communication",
+    items: [
       {
         href: "/communications/inbox",
-        label: "Inbox",
+        label: "Messages",
         pinned: true,
-        mobileSection: "communications",
+        mobileSection: "communication",
         badgeKey: "messages",
         requiredModule: "messaging",
         synonyms: ["messages", "message", "inbox", "chat"]
       },
       {
-        href: "/financials",
-        label: "Accounting",
-        mobileSection: "accounting",
-        requiredModule: "financials",
-        synonyms: ["payment", "payments", "rent", "financials", "accounting", "books"]
+        href: "/communications",
+        label: "Announcements",
+        mobileSection: "communication",
+        requiredModule: "messaging",
+        synonyms: ["announce", "announcement", "broadcast"]
       },
       {
-        href: "/financials/reports",
-        label: "Reports",
-        mobileSection: "accounting",
-        requiredCapability: "financial:read",
-        requiredModule: "financials",
-        synonyms: ["report", "reports", "analytics"]
+        href: "/activity",
+        label: "Activity",
+        mobileSection: "communication",
+        synonyms: ["timeline", "activity timeline", "ops activity"]
       },
       {
-        href: "/ai-operations",
-        label: "AI Operations",
-        mobileSection: "intelligence",
-        requiredModule: "ai_copilot",
-        synonyms: ["ai", "assistant", "intelligence"]
+        href: "/settings/notifications",
+        label: "Notifications",
+        mobileSection: "communication",
+        badgeKey: "notifications",
+        synonyms: ["notification settings", "alerts", "push"]
       }
     ]
   },
   {
-    title: "Workspace",
+    title: "Analytics",
     items: [
       {
-        href: "/migration",
-        label: "Migration Center",
-        requiredCapability: "migration:read",
-        mobileSection: "workspace",
-        synonyms: ["migration", "import"]
+        href: "/dashboard",
+        label: "KPIs",
+        exact: true,
+        mobileSection: "analytics",
+        synonyms: ["kpi", "kpis", "metrics", "pulse"]
+      },
+      {
+        href: "/financials/reports",
+        label: "Reports",
+        mobileSection: "analytics",
+        requiredCapability: "financial:read",
+        requiredModule: "financials",
+        synonyms: ["performance reports", "analytics reports"]
+      },
+      {
+        href: "/financials/reports",
+        label: "Forecasts",
+        exact: true,
+        mobileSection: "analytics",
+        requiredCapability: "financial:read",
+        requiredModule: "financials",
+        synonyms: ["forecasts", "projection"]
+      },
+      {
+        href: "/properties",
+        label: "Occupancy",
+        exact: true,
+        mobileSection: "analytics",
+        requiredModule: "property_operations",
+        synonyms: ["occupancy", "vacancy"]
+      },
+      {
+        href: "/ai-operations",
+        label: "Performance",
+        mobileSection: "analytics",
+        requiredModule: "ai_copilot",
+        synonyms: ["performance", "ai", "assistant", "intelligence"]
+      }
+    ]
+  },
+  {
+    title: "Administration",
+    items: [
+      {
+        href: "/settings/team",
+        label: "Users",
+        mobileSection: "administration",
+        synonyms: ["users", "team", "invite user", "members"]
+      },
+      {
+        href: "/settings/organization",
+        label: "Organizations",
+        mobileSection: "administration",
+        synonyms: ["organization", "org settings"]
+      },
+      {
+        href: "/settings/billing",
+        label: "Billing",
+        mobileSection: "administration",
+        synonyms: ["billing", "subscription", "plan"]
       },
       {
         href: "/settings",
         label: "Settings",
-        mobileSection: "workspace",
+        mobileSection: "administration",
         synonyms: ["settings", "preferences"]
+      },
+      {
+        href: "/settings/integrations",
+        label: "Integrations",
+        mobileSection: "administration",
+        synonyms: ["integrations", "providers", "connections"]
+      },
+      {
+        href: "/master-admin/flags",
+        label: "Feature Flags",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["feature flags", "flags"]
+      },
+      {
+        href: "/migration",
+        label: "Migration Center",
+        requiredCapability: "migration:read",
+        mobileSection: "administration",
+        synonyms: ["migration", "import"]
       },
       {
         href: "/profile",
         label: "Profile",
-        mobileSection: "workspace",
+        mobileSection: "administration",
         synonyms: ["profile", "account"]
       },
       {
         href: "/portal",
         label: "Portals",
-        mobileSection: "workspace",
+        mobileSection: "administration",
         synonyms: ["portal", "portals"]
-      }
-    ]
-  },
-  {
-    title: "Master Admin",
-    items: [
+      },
       {
         href: "/master-admin",
-        label: "Operations Center",
+        label: "Mission Control",
         requiredCapability: "master_admin",
         exact: true,
         mobileSection: "master-admin",
@@ -297,13 +497,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Impersonation Center",
         requiredCapability: "master_admin",
         mobileSection: "master-admin",
-        synonyms: ["impersonate", "act as", "support mode"]
-      },
-      {
-        href: "/settings/integrations",
-        label: "Providers",
-        requiredCapability: "master_admin",
-        mobileSection: "master-admin"
+        synonyms: ["impersonate", "act as", "support mode", "view as"]
       },
       {
         href: "/master-admin/testing",
@@ -314,12 +508,6 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
       {
         href: "/master-admin/health",
         label: "Platform Health",
-        requiredCapability: "master_admin",
-        mobileSection: "master-admin"
-      },
-      {
-        href: "/master-admin/flags",
-        label: "Feature Flags",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       },
@@ -339,7 +527,7 @@ export const SHELL_NAVIGATION_GROUPS: NavigationGroup[] = [
  */
 export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
   {
-    title: "Mission Control",
+    title: "Dashboard",
     items: [
       {
         href: "/master-admin",
@@ -348,12 +536,38 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
         exact: true,
         pinned: true,
         mobileSection: "master-admin",
-        synonyms: ["master admin", "admin", "operations center", "hq", "home"]
+        synonyms: ["master admin", "admin", "operations center", "hq", "home", "dashboard"]
       }
     ]
   },
   {
-    title: "Platform",
+    title: "My Work",
+    items: [
+      {
+        href: "/master-admin/impersonation",
+        label: "Waiting on Me",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["customers", "directory", "impersonate", "waiting"]
+      },
+      {
+        href: "/master-admin/recovery",
+        label: "High Priority",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["recovery", "support", "escalations"]
+      },
+      {
+        href: "/master-admin/commercial",
+        label: "Assigned Today",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["commercial", "pipeline", "customer success"]
+      }
+    ]
+  },
+  {
+    title: "Administration",
     items: [
       {
         href: "/master-admin/health",
@@ -363,7 +577,7 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
       },
       {
         href: "/settings/integrations",
-        label: "Providers",
+        label: "Integrations",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       },
@@ -374,8 +588,21 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
         mobileSection: "master-admin"
       },
       {
-        href: "/settings/preferences",
-        label: "Preferences",
+        href: "/settings/team",
+        label: "Users",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
+      },
+      {
+        href: "/master-admin/impersonation",
+        label: "Organizations",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin",
+        synonyms: ["organizations", "people"]
+      },
+      {
+        href: "/settings/billing",
+        label: "Billing",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
       },
@@ -385,18 +612,12 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
         requiredCapability: "master_admin",
         mobileSection: "master-admin",
         synonyms: ["settings", "preferences", "appearance", "theme", "dark mode", "light mode"]
-      }
-    ]
-  },
-  {
-    title: "Customers",
-    items: [
+      },
       {
-        href: "/master-admin/impersonation",
-        label: "Organizations & People",
+        href: "/settings/preferences",
+        label: "Preferences",
         requiredCapability: "master_admin",
-        mobileSection: "master-admin",
-        synonyms: ["impersonate", "customers", "directory"]
+        mobileSection: "master-admin"
       },
       {
         href: "/migration",
@@ -405,17 +626,6 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
         mobileSection: "master-admin",
         synonyms: ["import", "onboarding"]
       },
-      {
-        href: "/settings/team",
-        label: "Invite Team",
-        requiredCapability: "master_admin",
-        mobileSection: "master-admin"
-      }
-    ]
-  },
-  {
-    title: "Support",
-    items: [
       {
         href: "/portal",
         label: "Portal Testing",
@@ -434,16 +644,24 @@ export const MASTER_ADMIN_ONLY_NAVIGATION_GROUPS: NavigationGroup[] = [
         label: "Surface Switcher",
         requiredCapability: "master_admin",
         mobileSection: "master-admin"
+      },
+      {
+        href: "/profile",
+        label: "Profile",
+        requiredCapability: "master_admin",
+        mobileSection: "master-admin"
       }
     ]
   }
 ];
 
 export const MOBILE_QUICK_CREATE_ACTIONS = [
-  { label: "Property", href: "/properties/new", synonyms: ["add property", "new property"] },
-  { label: "Resident", href: "/tenants/new", synonyms: ["add tenant", "add resident", "new resident"] },
   { label: "Work Order", href: "/maintenance/new", synonyms: ["new work order", "create work order"] },
-  { label: "Announcement", href: "/communications/new", synonyms: ["new announcement", "announce"] }
+  { label: "Lease", href: "/leases", synonyms: ["new lease", "create lease"] },
+  { label: "Resident", href: "/tenants/new", synonyms: ["add tenant", "add resident", "new resident"] },
+  { label: "Document", href: "/settings/documents", synonyms: ["upload document", "document vault"] },
+  { label: "Invite User", href: "/settings/team", synonyms: ["invite user", "invite teammate"] },
+  { label: "Property", href: "/properties/new", synonyms: ["add property", "new property"] }
 ] as const;
 
 /** Master Admin without PM portfolio permissions — hide property-manager chrome. */
@@ -519,3 +737,15 @@ export function findMobileSectionForPath(
   const match = items.find((item) => item.mobileSection && isRouteActive(pathname, item.href, item.exact));
   return match?.mobileSection ?? null;
 }
+
+/** Universal group titles for Slice C structure tests / docs alignment. */
+export const UNIVERSAL_SIDEBAR_GROUP_ORDER = [
+  "Dashboard",
+  "My Work",
+  "Operations",
+  "Financial",
+  "Documents",
+  "Communication",
+  "Analytics",
+  "Administration"
+] as const;

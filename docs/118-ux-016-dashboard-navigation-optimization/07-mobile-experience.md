@@ -1,7 +1,7 @@
 # 07 — Mobile Experience
 
 **Package:** UX-016  
-**Status:** Draft — Ready for Approval  
+**Status:** ✅ **Authorized for Slice C** — Ops bottom nav: Dashboard · My Work · Search · Notifications · Profile ([20](./20-slice-c-authorization.md) · [21](./21-intelligent-workspace-navigation.md))  
 **Date:** 2026-08-05  
 **Related:** [UX-008 Premium Mobile Navigation](../84-ux-008-premium-mobile-navigation/README.md) · [ADR-020](../18-decision-log/adr-020-premium-mobile-navigation-architecture.md) · [UX-012 §06 Mobile](../112-ux-012-platform-experience-design-system/06-mobile-ux.md)
 

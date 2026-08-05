@@ -9,6 +9,8 @@ import { CommandCenterTracker } from "./command-center-tracker";
 import { Sidebar } from "./sidebar";
 import { TopNavigation } from "./top-navigation";
 import { ResponsiveNavigation } from "./responsive-navigation";
+import { OpsMobileBottomNav } from "./ops-mobile-bottom-nav";
+import { QuickCreateFab } from "./quick-create-fab";
 import { BrandLogo } from "../branding/brand-logo";
 import { SetupGate } from "../setup/setup-gate";
 import { PushEnrollmentBanner } from "../communication/push-enrollment-banner";
@@ -84,11 +86,13 @@ export function ApplicationShell({
           <TopNavigation deploymentMeta={deploymentMeta} />
           <PwaNativeOnboarding settingsHref="/settings/preferences" />
           <PushEnrollmentBanner settingsHref="/settings/preferences" />
-          <div id="app-content" className="mpa-app-main mpa-native-shell-scroll flex min-h-0 min-w-0 flex-col pb-[var(--mpa-safe-bottom)]">
+          <div id="app-content" className="mpa-app-main mpa-native-shell-scroll flex min-h-0 min-w-0 flex-col pb-[calc(4.5rem+var(--mpa-safe-bottom))] lg:pb-[var(--mpa-safe-bottom)]">
             {children}
           </div>
         </div>
       </div>
+      <OpsMobileBottomNav />
+      <QuickCreateFab />
       {/* AI-001 / SH-002: copilot + route context outside shell subscription tree. */}
       <AiRouteContextSync />
       <FloatingAiCopilot />
