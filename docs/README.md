@@ -46,6 +46,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 21 | [Experience Architecture](./21-experience-architecture/index.md) | How M.P.A. should *feel* (Phase 1.6) |
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
+| 25 | [UX-015 Premium Platform Experience](./25-ux-015-premium-platform-experience/index.md) | Foundation visual craftsmanship polish (Phase 1) — Draft |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -94,6 +95,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 - [Architecture Improvements Before Development](./08-software-architecture/architecture-improvements.md) — Required changes before writing production code
 - [Architecture Review (Critical)](./08-software-architecture/architecture-review.md) — Honest assessment of the initial proposal
 - [Phase 2 Hardening Review](./22-phase-2-scaffold-review/index.md) — Foundation quality hardening and readiness grading
+- [UX-015 Premium Platform Experience](./25-ux-015-premium-platform-experience/index.md) — Foundation craftsmanship polish (Draft / Proposed ADR-017)
 
 ---
 
