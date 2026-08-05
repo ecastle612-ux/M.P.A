@@ -21,6 +21,7 @@ They are **not** authorized work. Ordering must still respect dependencies and C
 | C4-S06 | Communications / inbox response loops | Waiting on Me separate from notification dump |
 | C4-S07 | Role-depth pass (tech · leasing · resident · owner) on UDF | Content specialization only |
 | C4-S08 | Master Admin operator depth on Mission Control | Keep Portal Launcher + UDF |
+| C4-S09 | STD-001 Admin compliance — remount Class D homes (`/master-admin/commercial`, `/financials`, `/migration`) | Audit [STD-001 §06](../119-std-001-ux016-platform-standards/06-admin-surface-compliance-audit.md) · plan [§07](../119-std-001-ux016-platform-standards/07-admin-surface-migration-plan.md) |
 
 ---
 
