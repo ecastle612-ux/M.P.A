@@ -18,6 +18,7 @@ import {
 
 export type PublicPlanCard = {
   planCode: AcqSelfServePlan | "enterprise";
+  /** Commercial display name (Essentials / Professional / Business / Enterprise). */
   name: string;
   description: string;
   selfServe: boolean;
@@ -32,8 +33,18 @@ export type PublicPlanCard = {
   compareAtMonthly: number | null;
   compareAtAnnual: number | null;
   moduleCount: 1 | 2 | null;
+  /** Positive dollars saved vs buying two singles (bundle only). */
+  bundleSavingsMonthly: number | null;
+  bundleSavingsAnnual: number | null;
   highlight?: boolean;
 };
+
+/** Presentation label for the self-serve professional SKU by module selection. */
+export function professionalDisplayName(modules: AcqModuleSelection | null): string {
+  if (modules === "both") return "Professional";
+  if (modules === "property_ops" || modules === "facility_ops") return "Essentials";
+  return "Professional";
+}
 
 /**
  * Public list-price hierarchy (presentation).
@@ -54,6 +65,8 @@ export function listPriceForModules(
   compareAtMonthly: number | null;
   compareAtAnnual: number | null;
   moduleCount: 1 | 2 | null;
+  bundleSavingsMonthly: number | null;
+  bundleSavingsAnnual: number | null;
 } {
   const row = PLAN_DISPLAY.find((p) => p.planCode === planCode);
   if (!row) {
@@ -62,7 +75,9 @@ export function listPriceForModules(
       listPriceAnnual: null,
       compareAtMonthly: null,
       compareAtAnnual: null,
-      moduleCount: null
+      moduleCount: null,
+      bundleSavingsMonthly: null,
+      bundleSavingsAnnual: null
     };
   }
 
@@ -73,7 +88,9 @@ export function listPriceForModules(
       listPriceAnnual: row.listPriceAnnual,
       compareAtMonthly: null,
       compareAtAnnual: null,
-      moduleCount: modules === "both" ? 2 : modules ? 1 : null
+      moduleCount: modules === "both" ? 2 : modules ? 1 : null,
+      bundleSavingsMonthly: null,
+      bundleSavingsAnnual: null
     };
   }
 
@@ -82,12 +99,19 @@ export function listPriceForModules(
   const listPriceAnnual = Math.round(row.listPriceAnnual * multiplier);
   const isBundle = modules === "both";
 
+  const compareAtMonthly = isBundle ? row.listPriceMonthly * 2 : null;
+  const compareAtAnnual = isBundle ? row.listPriceAnnual * 2 : null;
+
   return {
     listPriceMonthly,
     listPriceAnnual,
-    compareAtMonthly: isBundle ? row.listPriceMonthly * 2 : null,
-    compareAtAnnual: isBundle ? row.listPriceAnnual * 2 : null,
-    moduleCount: isBundle ? 2 : modules ? 1 : null
+    compareAtMonthly,
+    compareAtAnnual,
+    moduleCount: isBundle ? 2 : modules ? 1 : null,
+    bundleSavingsMonthly:
+      isBundle && compareAtMonthly != null ? compareAtMonthly - listPriceMonthly : null,
+    bundleSavingsAnnual:
+      isBundle && compareAtAnnual != null ? compareAtAnnual - listPriceAnnual : null
   };
 }
 
@@ -142,14 +166,22 @@ export function buildPublicPlanCards(
 
   const professional = resolveEntitlementsForPlan("professional");
   const proPrices = priceFor("professional", modules);
+  const proName = professionalDisplayName(modules);
+  const proDescription =
+    modules === "both"
+      ? `${moduleLine}Both operating modules in one subscription — bundle savings vs buying separately.`
+      : modules
+        ? `${moduleLine}One operating module for teams starting with a single surface.`
+        : "Complete operations OS for growing property and facility teams.";
   cards.push({
     planCode: "professional",
-    name: "Professional",
-    description: `${moduleLine}Complete operations OS for growing property and facility teams.`,
+    name: proName,
+    description: proDescription,
     selfServe: true,
-    ctaLabel: "Choose Professional",
+    ctaLabel: `Choose ${proName}`,
     ctaHref: `/acquire/start?plan=professional&interval=${ACQ_DEFAULT_BILLING_INTERVAL}${moduleQuery}`,
     features: [
+      modules === "both" ? "Choose both modules" : modules ? "Choose one module" : "Modules selected at checkout",
       `Up to ${professional.limits.maxProperties} properties`,
       `Up to ${professional.limits.maxUsers} seats`,
       ...moduleFeatures(modules),
@@ -173,7 +205,7 @@ export function buildPublicPlanCards(
     features: [
       `Up to ${business.limits.maxProperties} properties`,
       `Up to ${business.limits.maxUsers} seats`,
-      "Everything in Professional",
+      "Everything in Essentials / Professional",
       ...moduleFeatures(modules).slice(0, 2),
       "Priority support"
     ],

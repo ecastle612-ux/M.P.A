@@ -10,11 +10,10 @@ import {
   marketingRobots,
   marketingTwitter
 } from "../../lib/acquire/seo";
-import { PLAN_DISPLAY } from "../../lib/saas/plan-display";
 import { listPriceForModules } from "../../lib/acquire/catalog";
 
 const title = "Property & facility operations platform";
-const description = `${MPA_BRAND_NAME} runs property and facility operations in one modular subscription — from purchase to daily work.`;
+const description = `${MPA_BRAND_NAME} replaces fragmented property and facility tools with one operating system — clear ownership, faster follow-through, and a path from purchase to production.`;
 
 export const metadata: Metadata = {
   title,
@@ -25,65 +24,61 @@ export const metadata: Metadata = {
   twitter: marketingTwitter({ title, description })
 };
 
-const CAPABILITIES = [
+const WHO_FOR = [
   {
-    title: "Property Operations",
-    body: "Portfolio, leasing, residents, maintenance, and vendor handoffs in one workspace."
+    title: "Property operations teams",
+    body: "Portfolio, leasing, residents, and maintenance without spreadsheet handoffs."
   },
   {
-    title: "Facility Operations",
-    body: "Preventive maintenance, inspections, inventory, and floor work without a second system."
+    title: "Facility operations teams",
+    body: "Preventive work, inspections, and inventory beside the same organization."
   },
   {
-    title: "Team & accountability",
-    body: "Private organization, invitation-only seats, and clear ownership on every work item."
+    title: "Operators who outgrew point tools",
+    body: "Need one private workspace, invitation-only seats, and accountable next actions."
+  }
+] as const;
+
+const TRANSFORM = [
+  {
+    title: "Before",
+    body: "Work lives in inboxes, shared drives, and disconnected apps. Ownership is unclear."
   },
   {
-    title: "Guided go-live",
-    body: "Checkout provisions your org and admin access, then Guided Setup opens Command Center."
+    title: "After",
+    body: "One Command Center. Entitled modules only. Every item has an owner and a next step."
   }
 ] as const;
 
 const STEPS = [
   {
-    title: "Choose modules",
-    body: "Property Operations, Facility Operations, or both."
+    title: "Choose what you run",
+    body: "Start with one module (Essentials) or both (Professional)."
   },
   {
-    title: "Pick a plan",
-    body: "Professional or Business for self-serve. Enterprise with sales."
+    title: "Subscribe",
+    body: "Self-serve Essentials, Professional, or Business. Enterprise with sales."
   },
   {
-    title: "Subscribe & set up",
-    body: "We create your organization; you finish Guided Setup."
+    title: "Go live",
+    body: "We provision your organization; Guided Setup opens your dashboard."
   },
   {
-    title: "Run the work",
-    body: "Operate only the modules you purchased — day to day."
-  }
-] as const;
-
-const OUTCOMES = [
-  {
-    title: "One place for the work",
-    body: "Fewer tab switches between portfolio, maintenance, and facility tasks."
-  },
-  {
-    title: "Pay for what you run",
-    body: "Add modules as operations expand. Bundles cost more than one module, less than buying twice."
-  },
-  {
-    title: "Faster path to production",
-    body: "From Checkout to an entitled dashboard without a custom implementation project."
+    title: "Operate daily",
+    body: "Run maintenance, leasing, and facility work with clear accountability."
   }
 ] as const;
 
 export default function LandingPage() {
   const jsonLd = landingSoftwareApplicationJsonLd();
-  const professional = PLAN_DISPLAY.find((plan) => plan.planCode === "professional");
-  const singleModulePrice = listPriceForModules("professional", "property_ops").listPriceMonthly;
-  const bothModulesPrice = listPriceForModules("professional", "both").listPriceMonthly;
-  const businessPrice = listPriceForModules("business", "property_ops").listPriceMonthly;
+  const essentials = listPriceForModules("professional", "property_ops");
+  const professional = listPriceForModules("professional", "both");
+  const business = listPriceForModules("business", "property_ops");
+  const essentialsPrice = essentials.listPriceMonthly ?? 99;
+  const professionalPrice = professional.listPriceMonthly ?? 149;
+  const compareAt = professional.compareAtMonthly ?? essentialsPrice * 2;
+  const bundleSavings = professional.bundleSavingsMonthly ?? compareAt - professionalPrice;
+  const businessPrice = business.listPriceMonthly ?? 249;
 
   return (
     <MarketingShell currentPath="/">
@@ -93,7 +88,7 @@ export default function LandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* 1. Hero */}
+      {/* 1. Hero — outcomes first */}
       <section className="relative isolate overflow-hidden">
         <div
           className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,color-mix(in_srgb,var(--mpa-color-brand-primary)_22%,transparent),transparent_55%),linear-gradient(165deg,var(--mpa-color-bg-app)_0%,color-mix(in_srgb,#0b1220_6%,var(--mpa-color-bg-app))_50%,var(--mpa-color-bg-app)_100%)]"
@@ -105,26 +100,29 @@ export default function LandingPage() {
               {MPA_BRAND_NAME}
             </p>
             <h1 className="mt-4 max-w-xl font-display text-3xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)] sm:text-4xl">
-              Run property and facility work in one operating system.
+              From scattered tools to one accountable operations system.
             </h1>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-[var(--mpa-color-text-secondary)] sm:text-lg">
-              Subscribe to the modules you need, set up your organization, and run daily operations with clear
-              ownership.
+              {MPA_BRAND_NAME} is for property and facility teams who need clear ownership, faster follow-through,
+              and software that runs the work — not another dashboard of widgets.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/modules"
                 className="inline-flex h-11 min-h-11 items-center justify-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-5 text-sm font-semibold text-[var(--mpa-color-text-inverse)] shadow-[var(--mpa-shadow-xs)] hover:bg-[var(--mpa-color-brand-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
               >
-                Choose modules
+                Start free setup path
               </Link>
               <Link
                 href="/pricing"
                 className="inline-flex h-11 min-h-11 items-center justify-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-5 text-sm font-semibold text-[var(--mpa-color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
               >
-                View pricing
+                See plans
               </Link>
             </div>
+            <p className="mt-4 text-sm text-[var(--mpa-color-text-muted)]">
+              Built for operating teams — not marketing demos.
+            </p>
           </div>
 
           <div
@@ -179,23 +177,22 @@ export default function LandingPage() {
               </div>
             </div>
             <p className="mt-3 text-center text-xs text-[var(--mpa-color-text-muted)]">
-              Product preview — entitled modules only
+              What operators see after go-live
             </p>
           </div>
         </div>
       </section>
 
-      {/* 2. Platform overview */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="overview-heading">
-        <h2 id="overview-heading" className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-          Platform overview
+      {/* 2. Who it's for + transformation */}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="for-heading">
+        <h2 id="for-heading" className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+          Who {MPA_BRAND_NAME} is for
         </h2>
         <p className="mt-3 max-w-2xl text-[var(--mpa-color-text-secondary)]">
-          Core capabilities of {MPA_BRAND_NAME}. Each one is a distinct operating surface — not a restatement of
-          the same pitch.
+          Professional operators who need the work to move — not another feature catalog.
         </p>
-        <ul className="mt-10 grid gap-4 sm:grid-cols-2">
-          {CAPABILITIES.map((item) => (
+        <ul className="mt-10 grid gap-4 md:grid-cols-3">
+          {WHO_FOR.map((item) => (
             <li
               key={item.title}
               className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5"
@@ -205,6 +202,19 @@ export default function LandingPage() {
             </li>
           ))}
         </ul>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          {TRANSFORM.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] p-5"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--mpa-color-brand-primary)]">
+                {item.title}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">{item.body}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* 3. How it works */}
@@ -214,11 +224,11 @@ export default function LandingPage() {
       >
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
           <h2 id="how-heading" className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            How {MPA_BRAND_NAME} works
+            How it works
           </h2>
           <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((step, index) => (
-              <li key={step.title} className="relative">
+              <li key={step.title}>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--mpa-color-brand-primary)]">
                   Step {index + 1}
                 </p>
@@ -230,82 +240,119 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4. Why teams choose */}
+      {/* 4. Why different */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="why-heading">
         <h2 id="why-heading" className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-          Why teams choose {MPA_BRAND_NAME}
+          Why teams switch to {MPA_BRAND_NAME}
         </h2>
-        <p className="mt-3 max-w-2xl text-[var(--mpa-color-text-secondary)]">
-          Outcomes operators feel after go-live — not another feature inventory.
-        </p>
-        <ul className="mt-10 grid gap-6 md:grid-cols-3">
-          {OUTCOMES.map((item) => (
-            <li key={item.title}>
-              <h3 className="font-display text-lg font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--mpa-color-text-secondary)]">{item.body}</p>
-            </li>
-          ))}
+        <ul className="mt-8 max-w-3xl space-y-4 text-[var(--mpa-color-text-secondary)]">
+          <li>
+            <span className="font-medium text-[var(--mpa-color-text-primary)]">Outcomes first.</span> You see the
+            operating result — accountability and follow-through — before choosing modules.
+          </li>
+          <li>
+            <span className="font-medium text-[var(--mpa-color-text-primary)]">Pay for what you run.</span> Essentials
+            covers one module. Professional covers both with bundle savings.
+          </li>
+          <li>
+            <span className="font-medium text-[var(--mpa-color-text-primary)]">Production path built in.</span> Checkout
+            provisions your org; Guided Setup gets you to Command Center.
+          </li>
         </ul>
       </section>
 
-      {/* 5. Pricing */}
+      {/* 5. Pricing — premium package names */}
       <section
         className="border-y border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]"
         aria-labelledby="pricing-heading"
       >
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
           <h2 id="pricing-heading" className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            Pricing
+            Plans
           </h2>
           <p className="mt-3 max-w-2xl text-[var(--mpa-color-text-secondary)]">
-            Module count changes plan value. One module is the base. Both modules cost more — and still less than
-            paying for two separate single-module subscriptions.
+            Start with one operating module or both. Professional includes both modules and saves versus buying
+            them separately.
           </p>
-          <ul className="mt-10 grid gap-4 lg:grid-cols-3">
-            <li className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] p-5">
-              <p className="text-sm font-medium text-[var(--mpa-color-brand-primary)]">One module</p>
-              <h3 className="mt-2 font-display text-xl font-semibold">Professional</h3>
-              <p className="mt-3 font-display text-3xl font-semibold tabular-nums">
-                ${singleModulePrice}
-                <span className="text-base font-medium text-[var(--mpa-color-text-secondary)]">/mo</span>
+          <ul className="mt-10 grid gap-4 lg:grid-cols-4">
+            <li className="flex flex-col rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] p-5">
+              <h3 className="font-display text-xl font-semibold">Essentials</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">Choose one module</p>
+              <p className="mt-4 font-display text-3xl font-semibold tabular-nums">
+                ${essentialsPrice}
+                <span className="text-base font-medium text-[var(--mpa-color-text-secondary)]">/month</span>
               </p>
-              <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+              <p className="mt-2 flex-1 text-sm text-[var(--mpa-color-text-secondary)]">
                 Property Operations or Facility Operations.
               </p>
+              <Link
+                href="/modules"
+                className="mt-6 inline-flex h-11 items-center justify-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] px-4 text-sm font-semibold"
+              >
+                Choose Essentials
+              </Link>
             </li>
-            <li className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-brand-primary)] p-5 ring-1 ring-[var(--mpa-color-brand-primary)]">
-              <p className="text-sm font-medium text-[var(--mpa-color-brand-primary)]">Both modules</p>
-              <h3 className="mt-2 font-display text-xl font-semibold">Professional bundle</h3>
-              <p className="mt-3 font-display text-3xl font-semibold tabular-nums">
-                ${bothModulesPrice}
-                <span className="text-base font-medium text-[var(--mpa-color-text-secondary)]">/mo</span>
+
+            <li className="flex flex-col rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-brand-primary)] p-5 ring-1 ring-[var(--mpa-color-brand-primary)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--mpa-color-brand-primary)]">
+                Most teams
               </p>
-              <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-                Higher than one module
-                {professional ? ` (not $${(professional.listPriceMonthly * 2).toFixed(0)} at 2×)` : ""}.
-                Built to encourage full-platform adoption.
+              <h3 className="mt-2 font-display text-xl font-semibold">Professional</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">Choose both modules</p>
+              <p className="mt-4 text-sm text-[var(--mpa-color-text-muted)] line-through tabular-nums">
+                ${compareAt}/month
               </p>
+              <p className="font-display text-3xl font-semibold tabular-nums">
+                ${professionalPrice}
+                <span className="text-base font-medium text-[var(--mpa-color-text-secondary)]">/month</span>
+              </p>
+              <p className="mt-2 text-sm font-medium text-[var(--mpa-color-brand-primary)]">
+                Save ${bundleSavings}/month compared to purchasing separately.
+              </p>
+              <p className="mt-2 flex-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                Property and Facility Operations together.
+              </p>
+              <Link
+                href="/pricing?modules=both"
+                className="mt-6 inline-flex h-11 items-center justify-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-[var(--mpa-color-text-inverse)] hover:bg-[var(--mpa-color-brand-primary-hover)]"
+              >
+                Choose Professional
+              </Link>
             </li>
-            <li className="rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] p-5">
-              <p className="text-sm font-medium text-[var(--mpa-color-text-muted)]">Higher capacity</p>
-              <h3 className="mt-2 font-display text-xl font-semibold">Business & Enterprise</h3>
-              <p className="mt-3 font-display text-3xl font-semibold tabular-nums">
+
+            <li className="flex flex-col rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] p-5">
+              <h3 className="font-display text-xl font-semibold">Business</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">Higher capacity</p>
+              <p className="mt-4 font-display text-3xl font-semibold tabular-nums">
                 From ${businessPrice}
-                <span className="text-base font-medium text-[var(--mpa-color-text-secondary)]">/mo</span>
+                <span className="text-base font-medium text-[var(--mpa-color-text-secondary)]">/month</span>
               </p>
-              <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-                Larger portfolios and custom Enterprise with sales.
+              <p className="mt-2 flex-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                Larger portfolios, more seats, priority support. Module selection still applies.
               </p>
+              <Link
+                href="/modules"
+                className="mt-6 inline-flex h-11 items-center justify-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] px-4 text-sm font-semibold"
+              >
+                Choose Business path
+              </Link>
+            </li>
+
+            <li className="flex flex-col rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)] p-5">
+              <h3 className="font-display text-xl font-semibold">Enterprise</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">Custom scale</p>
+              <p className="mt-4 font-display text-3xl font-semibold">Contact sales</p>
+              <p className="mt-2 flex-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                Custom limits, security review, and assisted onboarding.
+              </p>
+              <Link
+                href="/contact-sales"
+                className="mt-6 inline-flex h-11 items-center justify-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] px-4 text-sm font-semibold"
+              >
+                Contact sales
+              </Link>
             </li>
           </ul>
-          <div className="mt-8">
-            <Link
-              href="/modules"
-              className="inline-flex h-11 items-center rounded-[var(--mpa-radius-md)] bg-[var(--mpa-color-brand-primary)] px-5 text-sm font-semibold text-[var(--mpa-color-text-inverse)] hover:bg-[var(--mpa-color-brand-primary-hover)]"
-            >
-              Start with modules
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -313,11 +360,10 @@ export default function LandingPage() {
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="final-cta-heading">
         <div className="rounded-[var(--mpa-radius-xl)] border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-6 py-10 sm:px-10">
           <h2 id="final-cta-heading" className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            Ready to choose your operating surface?
+            Ready for accountable operations?
           </h2>
           <p className="mt-3 max-w-xl text-[var(--mpa-color-text-secondary)]">
-            Pick modules, see plan pricing for that selection, and subscribe. No repeated pitch — just the next
-            step.
+            Pick your modules, confirm your plan, and go live. Next step is clear.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -327,10 +373,10 @@ export default function LandingPage() {
               Choose modules
             </Link>
             <Link
-              href="/contact-sales"
+              href="/pricing?modules=both"
               className="inline-flex h-11 items-center rounded-[var(--mpa-radius-md)] border border-[var(--mpa-color-border-default)] px-5 text-sm font-semibold"
             >
-              Contact sales
+              View Professional pricing
             </Link>
           </div>
         </div>

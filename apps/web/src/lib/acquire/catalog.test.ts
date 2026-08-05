@@ -78,10 +78,13 @@ describe("UX-013 public catalog", () => {
     const both = buildPublicPlanCards("month", "both").find(
       (card) => card.planCode === "professional"
     );
+    expect(one?.name).toBe("Essentials");
     expect(one?.listPriceMonthly).toBe(99);
+    expect(both?.name).toBe("Professional");
     expect(both?.listPriceMonthly).toBe(149);
     expect(both?.listPriceMonthly).toBeGreaterThan(one?.listPriceMonthly ?? 0);
     expect(both?.compareAtMonthly).toBe(198);
+    expect(both?.bundleSavingsMonthly).toBe(49);
     expect(both?.listPriceMonthly).toBeLessThan(both?.compareAtMonthly ?? 0);
   });
 

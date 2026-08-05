@@ -11,7 +11,8 @@ import {
   buildPlanComparisonRows,
   buildPublicPlanCards,
   checkoutStartHref,
-  formatListPrice
+  formatListPrice,
+  professionalDisplayName
 } from "../../lib/acquire/catalog";
 import { ACQ_FUNNEL_EVENTS, emitAcqFunnelEvent } from "../../lib/acquire/funnel";
 import {
@@ -62,15 +63,15 @@ export function PricingExperience({
         <p className="text-sm font-medium text-[var(--mpa-color-brand-primary)]">Step 2 of 2</p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Pricing</h1>
         <p className="mt-3 text-[var(--mpa-color-text-secondary)]">
-          Showing Professional and Business for{" "}
+          Plans for{" "}
           <span className="font-medium text-[var(--mpa-color-text-primary)]">
             {moduleSelectionLabel(modules)}
           </span>
           .{" "}
           {modules === "both"
-            ? "Both-module pricing is higher than one module and discounted versus two separate single-module plans. "
-            : "One-module pricing is the base rate for a single operating surface. "}
-          Enterprise is sales-assisted.{" "}
+            ? "Professional includes both modules with bundle savings versus buying separately. "
+            : "Essentials covers one module at the base rate. "}
+          Business adds capacity. Enterprise is sales-assisted.{" "}
           <Link href="/modules" className="underline underline-offset-4">
             Change modules
           </Link>
@@ -130,12 +131,17 @@ export function PricingExperience({
                 <p className="font-display text-2xl font-semibold tabular-nums">
                   {formatListPrice(amount, interval)}
                 </p>
-                {card.moduleCount === 2 && compareAt != null ? (
-                  <p className="mt-1 text-xs text-[var(--mpa-color-brand-primary)]">
-                    Bundle vs two single-module plans
+                {card.moduleCount === 2 &&
+                (interval === "year" ? card.bundleSavingsAnnual : card.bundleSavingsMonthly) != null ? (
+                  <p className="mt-1 text-sm font-medium text-[var(--mpa-color-brand-primary)]">
+                    Save $
+                    {interval === "year" ? card.bundleSavingsAnnual : card.bundleSavingsMonthly}
+                    {interval === "year" ? "/year" : "/month"} compared to purchasing separately.
                   </p>
                 ) : card.moduleCount === 1 ? (
-                  <p className="mt-1 text-xs text-[var(--mpa-color-text-muted)]">One-module base price</p>
+                  <p className="mt-1 text-xs text-[var(--mpa-color-text-muted)]">
+                    Essentials · one module
+                  </p>
                 ) : null}
               </div>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
@@ -185,7 +191,7 @@ export function PricingExperience({
         <div className="mt-6 overflow-x-auto rounded-[var(--mpa-radius-lg)] border border-[var(--mpa-color-border-subtle)]">
           <table className="min-w-full border-collapse text-left text-sm">
             <caption className="sr-only">
-              Feature comparison across Professional, Business, and Enterprise plans
+              Feature comparison across {professionalDisplayName(modules)}, Business, and Enterprise plans
             </caption>
             <thead className="bg-[var(--mpa-color-bg-surface)]">
               <tr>
@@ -193,7 +199,7 @@ export function PricingExperience({
                   Capability
                 </th>
                 <th scope="col" className="px-4 py-3 font-medium">
-                  Professional
+                  {professionalDisplayName(modules)}
                 </th>
                 <th scope="col" className="px-4 py-3 font-medium">
                   Business
