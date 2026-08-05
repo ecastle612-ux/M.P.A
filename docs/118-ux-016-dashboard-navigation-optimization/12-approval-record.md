@@ -25,7 +25,7 @@
 | Slice | Phrase | Date | Authorizer | Notes |
 |-------|--------|------|------------|-------|
 | A | `AUTHORIZE UX-016 SLICE A` | 2026-08-05 | Product / UX | Universal Dashboard Framework — shared hierarchy on Ops `/dashboard` first consumer |
-| B | `AUTHORIZE UX-016 SLICE B` | — | — | Role-specific dashboards (locked) |
+| B | `AUTHORIZE UX-016 SLICE B` | 2026-08-05 | Product / UX | Role-Specific Command Centers — content specialization on AUTH homes |
 | C | `AUTHORIZE UX-016 SLICE C` | — | — | Sidebar workflow optimization (locked) |
 | D | `AUTHORIZE UX-016 SLICE D` | — | — | Notification Center · Activity · AI briefing (locked) |
 

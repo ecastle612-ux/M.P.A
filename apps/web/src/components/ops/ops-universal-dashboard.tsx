@@ -6,6 +6,7 @@ import {
   buildUniversalDashboardViewModel,
   permissionQuickActionsFromFlags
 } from "../../lib/dashboard/ux016-view-model";
+import type { Ux016Surface } from "../../lib/dashboard/ux016-surfaces";
 import type { DashboardSnapshot } from "../../lib/dashboard/server";
 import type { CommandCenterHomeComposition } from "../../lib/ops/command-center-home";
 
@@ -40,7 +41,8 @@ export function OpsUniversalDashboard({
   userGreetingName,
   timeGreeting,
   dateLabel,
-  permissions
+  permissions,
+  surface = "property_manager"
 }: {
   organizationName: string | null;
   snapshot: DashboardSnapshot;
@@ -49,6 +51,7 @@ export function OpsUniversalDashboard({
   timeGreeting: string;
   dateLabel: string;
   permissions: OpsPermissions;
+  surface?: Extract<Ux016Surface, "organization_admin" | "property_manager">;
 }) {
   const [home, setHome] = useState(commandCenterHome);
   const [liveSnapshot, setLiveSnapshot] = useState(snapshot);
@@ -101,9 +104,10 @@ export function OpsUniversalDashboard({
         dateLabel,
         snapshot: liveSnapshot,
         commandCenterHome: home,
-        permissionQuickActions: permissionActions
+        permissionQuickActions: permissionActions,
+        surface
       }),
-    [timeGreeting, userGreetingName, organizationName, dateLabel, liveSnapshot, home, permissionActions]
+    [timeGreeting, userGreetingName, organizationName, dateLabel, liveSnapshot, home, permissionActions, surface]
   );
 
   async function onQuickAction(actionId: string, href?: string) {

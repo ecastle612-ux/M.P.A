@@ -1,6 +1,6 @@
 # UX-016 — Dashboard & Navigation Optimization
 
-**Status:** ✅ **Approved** (2026-08-05) · Slice A ✅ **AUTHORIZED** · Slices B–D 🔒 **LOCKED**  
+**Status:** ✅ **Approved** (2026-08-05) · Slice A ✅ · Slice B ✅ **AUTHORIZED** · Slices C–D 🔒 **LOCKED**  
 **Initiative ID:** UX-016  
 **Priority:** HIGH (daily work companion UX)  
 **Type:** Dashboard hierarchy + sidebar IA + notification presentation + mobile work-first layout  
@@ -13,6 +13,7 @@
 **ADR:** [ADR-032](../18-decision-log/adr-032-ux-016-dashboard-navigation-optimization.md) (**Accepted**)  
 **Approval record:** [12](./12-approval-record.md)  
 **Slice A:** [16](./16-slice-a-authorization.md)  
+**Slice B:** [17](./17-slice-b-authorization.md)  
 **Implementation lock:** [13](./13-implementation-lock.md)
 
 > Package numbering uses **118** (next free after UX-013 / SIGN-002 serials).
@@ -87,6 +88,7 @@ First viewport must answer:
 | [14 — Open questions](./14-open-questions.md) | Decisions for Approve |
 | [15 — Relationship to prior packages](./15-relationship-to-prior-packages.md) | UI-001 · UX-012 · UX-013 · OPS-001 |
 | [16 — Slice A authorization](./16-slice-a-authorization.md) | ✅ AUTHORIZE UX-016 SLICE A |
+| [17 — Slice B authorization](./17-slice-b-authorization.md) | ✅ AUTHORIZE UX-016 SLICE B |
 
 ---
 
@@ -97,14 +99,14 @@ First viewport must answer:
 | Design | ✅ Captured in this package |
 | Document | ✅ Blueprint + ADR-032 Accepted |
 | Approve | ✅ [12](./12-approval-record.md) |
-| Implement | Slice A unlocked · B–D locked — see [13](./13-implementation-lock.md) |
+| Implement | Slices A–B unlocked · C–D locked — see [13](./13-implementation-lock.md) |
 
 ### Approved slices
 
 | Slice | Scope | Unlock phrase | Status |
 |-------|-------|---------------|--------|
 | **A** | Universal Dashboard Framework (shared hierarchy; `/dashboard` first consumer) | `AUTHORIZE UX-016 SLICE A` | ✅ Authorized |
-| **B** | Role-specific dashboards (Admin, PM, Technician, Leasing, Resident, Vendor, Owner, Support) | `AUTHORIZE UX-016 SLICE B` | 🔒 Locked |
+| **B** | Role-Specific Command Centers (Admin, PM, Technician, Leasing, Resident, Vendor, Owner, Support) | `AUTHORIZE UX-016 SLICE B` | ✅ Authorized |
 | **C** | Sidebar workflow optimization and navigation polish | `AUTHORIZE UX-016 SLICE C` | 🔒 Locked |
 | **D** | Notification Center, Activity Timeline, and AI-powered daily briefing | `AUTHORIZE UX-016 SLICE D` | 🔒 Locked |
 

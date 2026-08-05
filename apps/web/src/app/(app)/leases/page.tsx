@@ -2,10 +2,19 @@ import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../components/presentation/app-page";
 import { LeasesTable } from "../../../components/lease/leases-table";
+import { RoleUniversalDashboard } from "../../../components/dashboard-framework/role-universal-dashboard";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
-import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
+import { resolveActiveOrganizationIdForUser, getOrganizationsForUser } from "../../../lib/organization/server";
 import { getLeasesForOrganization } from "../../../lib/lease/server";
+import { getUserDisplayNameForGreeting } from "../../../lib/profile/server-fetch";
+import {
+  formatHumanGreetingName,
+  formatHumanOrganizationName,
+  getTimeGreeting
+} from "../../../lib/format/display-labels";
+import { primaryRoleByPriority } from "@mpa/shared";
+import { buildLeasingDashboardViewModel } from "../../../lib/dashboard/ux016-role-builders";
 
 export default async function LeasesPage({
   searchParams
@@ -48,13 +57,42 @@ export default async function LeasesPage({
     canDelete: evaluatePermission(authorization, "lease:delete")
   };
 
+  const primaryRole = primaryRoleByPriority(authorization.roles);
+  const showLeasingCommandCenter = primaryRole === "leasing_agent";
+
+  let leasingModel = null;
+  if (showLeasingCommandCenter) {
+    const [organizations, profileDisplayName] = await Promise.all([
+      getOrganizationsForUser(user.id),
+      getUserDisplayNameForGreeting(user.id, user.email ?? null)
+    ]);
+    const organizationName = organizations.find((organization) => organization.id === organizationId)?.name ?? null;
+    leasingModel = buildLeasingDashboardViewModel({
+      timeGreeting: getTimeGreeting(),
+      userGreetingName: formatHumanGreetingName(profileDisplayName, user.email ?? null),
+      organizationName: organizationName ? formatHumanOrganizationName(organizationName) : null,
+      dateLabel: new Intl.DateTimeFormat(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      }).format(new Date()),
+      leases: items,
+      canCreateLease: permissions.canCreate,
+      canCreateApplicant: evaluatePermission(authorization, "applicant:create")
+    });
+  }
+
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Leases" }]}>
-      <LeasesTable
-        initialItems={items}
-        permissions={permissions}
-        {...(statusParam ? { initialStatusFilter: statusParam } : {})}
-      />
+      <div className="space-y-6">
+        {leasingModel ? <RoleUniversalDashboard model={leasingModel} /> : null}
+        <LeasesTable
+          initialItems={items}
+          permissions={permissions}
+          {...(statusParam ? { initialStatusFilter: statusParam } : {})}
+        />
+      </div>
     </AppPage>
   );
 }

@@ -65,7 +65,7 @@ export function UniversalDashboard({
       {/* 1. Greeting */}
       <header className="space-y-[var(--mpa-space-2)]">
         <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--mpa-color-text-tertiary)]">
-          Operations
+          {model.copy.eyebrow}
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
           {greetingTitle}
@@ -107,16 +107,14 @@ export function UniversalDashboard({
         {model.attention.length === 0 ? (
           <div className="mt-[var(--mpa-space-3)]">
             <EmptyState
-              title="You’re clear for now"
-              description="Immediate Attention shows only the highest-priority work. Nothing critical needs you right now."
-              whyItMatters="When emergencies, expirations, or approvals appear, they’ll surface here first."
-              action={
-                model.mission[0]
-                  ? { label: "Review today’s mission", href: model.mission[0].href }
-                  : model.quickActions[0]?.href
-                    ? { label: model.quickActions[0].label, href: model.quickActions[0].href }
-                    : { label: "Open inbox", href: "/inbox" }
-              }
+              title={model.copy.attentionEmptyTitle}
+              description={model.copy.attentionEmptyDescription}
+              whyItMatters={model.copy.attentionEmptyWhy}
+              {...(model.mission[0]
+                ? { action: { label: "Review today’s mission", href: model.mission[0].href } }
+                : model.quickActions[0]?.href
+                  ? { action: { label: model.quickActions[0].label, href: model.quickActions[0].href } }
+                  : {})}
               className="border-0 bg-transparent px-0 py-[var(--mpa-space-4)]"
             />
           </div>
@@ -161,7 +159,7 @@ export function UniversalDashboard({
         </p>
         {model.mission.length === 0 ? (
           <p className="mt-[var(--mpa-space-3)] text-sm text-[var(--mpa-color-text-tertiary)]">
-            No open work in your queues right now. Create work or invite teammates when you’re ready.
+            {model.copy.missionEmpty}
           </p>
         ) : (
           <ul className="mt-[var(--mpa-space-3)] grid gap-2 sm:grid-cols-2">
@@ -275,9 +273,7 @@ export function UniversalDashboard({
         >
           Insights
         </h2>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Analytics stay below the fold — work comes first.
-        </p>
+        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{model.copy.insightsHint}</p>
         {model.insights.length === 0 ? (
           <p className="mt-[var(--mpa-space-3)] text-sm text-[var(--mpa-color-text-tertiary)]">
             Portfolio metrics will appear here as your organization grows.

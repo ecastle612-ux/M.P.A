@@ -8,6 +8,8 @@ import { userHasMasterAdminCapability } from "../../../lib/master-admin/access";
 import { getOrganizationsForUser, resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
 import { getUserDisplayNameForGreeting } from "../../../lib/profile/server-fetch";
 import { composeCommandCenterHome } from "../../../lib/ops/command-center-home";
+import { primaryRoleByPriority } from "@mpa/shared";
+import { resolveUx016SurfaceFromRole } from "../../../lib/dashboard/ux016-surfaces";
 
 export default async function DashboardPage() {
   const supabase = await createAuthServerComponentClient();
@@ -77,6 +79,11 @@ export default async function DashboardPage() {
     year: "numeric"
   }).format(new Date());
 
+  const primaryRole = primaryRoleByPriority(authorization.roles);
+  const resolvedSurface = resolveUx016SurfaceFromRole(primaryRole);
+  const surface =
+    resolvedSurface === "organization_admin" ? "organization_admin" : "property_manager";
+
   return (
     <DashboardShell
       organizationName={organizationDisplayName}
@@ -86,6 +93,7 @@ export default async function DashboardPage() {
       userGreetingName={userGreetingName}
       timeGreeting={getTimeGreeting()}
       dateLabel={dateLabel}
+      surface={surface}
     />
   );
 }

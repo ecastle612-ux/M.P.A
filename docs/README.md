@@ -113,7 +113,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 115 | [ACQ-001 Self-Service Customer Acquisition](./115-acq-001-self-service-customer-acquisition/README.md) | Public landing → tour → pricing → Checkout intent (**Approved** · Slice A **AUTHORIZED**) |
 | 116 | [SIGN-002 Electronic Signature Workflow Integrations](./116-sign-002-electronic-signature-workflow-integrations/README.md) | Extends API-004 across Property / Facility / Core workflows (**Draft — Ready for Approval**) |
 | 117 | [UX-013 Customer Acquisition & Contextual Navigation](./117-ux-013-customer-acquisition-contextual-navigation/README.md) | Modules-first acquisition + per-surface nav matrices (**Approved** · Slice A authorized) |
-| 118 | [UX-016 Dashboard & Navigation Optimization](./118-ux-016-dashboard-navigation-optimization/README.md) | Work-first dashboards + workflow sidebar (**Approved** · Slice A authorized · B–D locked) |
+| 118 | [UX-016 Dashboard & Navigation Optimization](./118-ux-016-dashboard-navigation-optimization/README.md) | Work-first dashboards + workflow sidebar (**Approved** · Slices A–B authorized · C–D locked) |
 | 106 | [PMX-004 Native PWA Parity](./106-pmx-004-native-pwa-parity/README.md) | Near-native PWA (**Phase 1 code ✔** · prod validation gate [17](./106-pmx-004-native-pwa-parity/17-phase-1-production-validation.md) · Phase 2 locked) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../../components/presentation/app-page";
-import { OwnerPortalDashboard } from "../../../../components/portal/owner-portal-dashboard";
+import { OwnerUniversalDashboard } from "../../../../components/portal/owner-universal-dashboard";
 import { MasterAdminPortalDemoPanel } from "../../../../components/master-admin/master-admin-portal-demo-panel";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
@@ -10,6 +10,8 @@ import {
   loadOwnerPortalDashboard,
   type OwnerPortalDashboardModel
 } from "../../../../lib/owner-portal/dashboard";
+import { buildOwnerDashboardViewModel } from "../../../../lib/dashboard/ux016-role-builders";
+import { getTimeGreeting } from "../../../../lib/format/display-labels";
 
 export default async function OwnerPortalPage() {
   const supabase = await createAuthServerComponentClient();
@@ -52,10 +54,21 @@ export default async function OwnerPortalPage() {
     );
   }
 
+  const viewModel = buildOwnerDashboardViewModel({
+    timeGreeting: getTimeGreeting(),
+    dateLabel: new Intl.DateTimeFormat(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric"
+    }).format(new Date()),
+    model
+  });
+
   return (
     <AppPage breadcrumbs={[{ href: "/portal", label: "Portals" }, { label: "Owner" }]}>
-      <OwnerPortalDashboard
-        model={model}
+      <OwnerUniversalDashboard
+        model={viewModel}
         demoPanel={inPortalTest ? <MasterAdminPortalDemoPanel portal="owner" /> : null}
       />
     </AppPage>

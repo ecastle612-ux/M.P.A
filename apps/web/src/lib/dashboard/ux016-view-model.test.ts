@@ -219,6 +219,8 @@ describe("buildUniversalDashboardViewModel", () => {
       })
     });
 
+    expect(model.surface).toBe("property_manager");
+    expect(model.copy.eyebrow).toBe("Property Manager");
     expect(model.greeting.userName).toBe("Erick");
     expect(model.greeting.placeLabel).toContain("3 properties");
     expect(model.attention.length).toBeLessThanOrEqual(5);
@@ -227,7 +229,24 @@ describe("buildUniversalDashboardViewModel", () => {
     expect(model.quickActions.length).toBeGreaterThan(0);
     expect(model.quickActions.length).toBeLessThanOrEqual(6);
     expect(model.insights.length).toBeGreaterThan(0);
-    expect(model.greeting.statusSummary.toLowerCase()).toContain("attention");
+    expect(model.greeting.statusSummary.toLowerCase()).toMatch(/work order|attention|resident/);
+  });
+
+  it("specializes organization admin content", () => {
+    const model = buildUniversalDashboardViewModel({
+      timeGreeting: "Good morning",
+      userGreetingName: "Erick",
+      organizationName: "Acme Properties",
+      dateLabel: "Wednesday, August 5, 2026",
+      snapshot: baseSnapshot({ propertiesTotal: 0 }),
+      commandCenterHome: null,
+      surface: "organization_admin"
+    });
+
+    expect(model.surface).toBe("organization_admin");
+    expect(model.copy.eyebrow).toBe("Organization Admin");
+    expect(model.attention.some((item) => item.id === "admin-setup-org")).toBe(true);
+    expect(model.quickActions.some((action) => action.label === "Billing")).toBe(true);
   });
 
   it("shows calm clear status when nothing needs attention", () => {

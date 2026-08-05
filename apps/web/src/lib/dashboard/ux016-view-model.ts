@@ -1,11 +1,12 @@
 /**
- * UX-016 Slice A — map existing dashboard / Command Center signals into the
+ * UX-016 Slice A/B — map existing dashboard / Command Center signals into the
  * Universal Dashboard Framework view model. Presentation only; no new APIs.
  */
 
 import type { DashboardSnapshot } from "./server";
 import type { CommandCenterHomeComposition } from "../ops/command-center-home";
 import type { QuickActionDefinition } from "../ops/quick-actions";
+import { UX016_SURFACE_COPY, type Ux016Surface, type Ux016SurfaceCopy } from "./ux016-surfaces";
 
 export type UniversalAttentionItem = {
   id: string;
@@ -45,6 +46,8 @@ export type UniversalInsightItem = {
 };
 
 export type UniversalDashboardViewModel = {
+  surface: Ux016Surface;
+  copy: Ux016SurfaceCopy;
   greeting: {
     timeGreeting: string;
     userName: string | null;
@@ -84,16 +87,33 @@ function placeLabelFromSnapshot(snapshot: DashboardSnapshot): string {
   return `Portfolio · ${total} properties`;
 }
 
-function statusSummary(attentionCount: number, missionTotal: number): string {
+function statusSummary(
+  surface: Ux016Surface,
+  attentionCount: number,
+  mission: UniversalMissionItem[],
+  userName: string | null
+): string {
+  const name = userName?.trim();
+  if (surface === "property_manager" || surface === "organization_admin") {
+    const workOrders = mission.find((row) => row.id === "mission-maintenance");
+    if (workOrders && workOrders.count > 0) {
+      return `You have ${workOrders.count} work order${workOrders.count === 1 ? "" : "s"} today.`;
+    }
+    const inbox = mission.find((row) => row.id === "mission-inbox");
+    if (inbox && inbox.count > 0) {
+      return `${inbox.count} resident${inbox.count === 1 ? " is" : "s are"} waiting for a response.`;
+    }
+  }
   if (attentionCount > 0) {
     return attentionCount === 1
-      ? "1 item needs attention"
-      : `${attentionCount} items need attention`;
+      ? "1 item needs your attention."
+      : `${attentionCount} items need your attention.`;
   }
+  const missionTotal = mission.reduce((sum, row) => sum + row.count, 0);
   if (missionTotal > 0) {
-    return `${missionTotal} items in today’s mission`;
+    return `${missionTotal} items are in today’s mission.`;
   }
-  return "You’re clear for now";
+  return name ? `You’re clear for now, ${name}.` : "You’re clear for now.";
 }
 
 export function buildUniversalDashboardViewModel(input: {
@@ -104,24 +124,38 @@ export function buildUniversalDashboardViewModel(input: {
   snapshot: DashboardSnapshot;
   commandCenterHome: CommandCenterHomeComposition | null;
   permissionQuickActions?: Array<{ id: string; label: string; href: string }>;
+  /** UX-016 Slice B — defaults to property_manager */
+  surface?: Ux016Surface;
 }): UniversalDashboardViewModel {
+  const surface = input.surface ?? "property_manager";
+  const copy = UX016_SURFACE_COPY[surface];
   const { snapshot, commandCenterHome } = input;
-  const attention = buildAttention(snapshot, commandCenterHome);
-  const mission = buildMission(snapshot, commandCenterHome);
-  const missionTotal = mission.reduce((sum, row) => sum + row.count, 0);
-  const quickActions = buildQuickActions(commandCenterHome?.quickActions ?? [], input.permissionQuickActions ?? []);
+  const attention =
+    surface === "organization_admin"
+      ? buildAdminAttention(snapshot, commandCenterHome)
+      : buildAttention(snapshot, commandCenterHome);
+  const mission =
+    surface === "organization_admin"
+      ? buildAdminMission(snapshot, commandCenterHome)
+      : buildMission(snapshot, commandCenterHome);
+  const quickActions =
+    surface === "organization_admin"
+      ? buildAdminQuickActions(commandCenterHome?.quickActions ?? [], input.permissionQuickActions ?? [])
+      : buildQuickActions(commandCenterHome?.quickActions ?? [], input.permissionQuickActions ?? []);
   const recentActivity = buildRecentActivity(snapshot, commandCenterHome);
   const insights = buildInsights(snapshot, commandCenterHome);
 
   return {
+    surface,
+    copy,
     greeting: {
       timeGreeting: input.timeGreeting,
       userName: input.userGreetingName,
       organizationName: input.organizationName,
       placeLabel: placeLabelFromSnapshot(snapshot),
       dateLabel: input.dateLabel,
-      statusSummary: statusSummary(attention.length, missionTotal),
-      supportingLine: "Ready to tackle today’s operations?"
+      statusSummary: statusSummary(surface, attention.length, mission, input.userGreetingName),
+      supportingLine: copy.supportingLine
     },
     attention,
     mission,
@@ -463,6 +497,181 @@ function buildInsights(
   }
 
   return insights.slice(0, 8);
+}
+
+/** Org Admin: bias toward workspace health, billing, setup, approvals. */
+function buildAdminAttention(
+  snapshot: DashboardSnapshot,
+  home: CommandCenterHomeComposition | null
+): UniversalAttentionItem[] {
+  const items: UniversalAttentionItem[] = [];
+
+  if (snapshot.propertiesTotal === 0) {
+    items.push({
+      id: "admin-setup-org",
+      title: "Organization needs setup",
+      reason: "Add the first property to activate daily operations.",
+      href: "/properties/new",
+      actionLabel: "Add property",
+      severity: "critical"
+    });
+  } else if (snapshot.propertiesWithoutUnits > 0) {
+    items.push({
+      id: "admin-setup-units",
+      title: "Properties missing units",
+      reason: `${snapshot.propertiesWithoutUnits} propert${snapshot.propertiesWithoutUnits === 1 ? "y needs" : "ies need"} unit setup.`,
+      href: "/properties",
+      actionLabel: "Review",
+      severity: "high"
+    });
+  }
+
+  if (home?.monitoring?.executionStatus === "critical" || home?.monitoring?.executionStatus === "degraded") {
+    items.push({
+      id: "admin-platform-incident",
+      title: `Platform incident · ${home.monitoring.executionStatus}`,
+      reason: "Ops execution needs investigation.",
+      href: "/dashboard#insights",
+      actionLabel: "Inspect",
+      severity: "critical"
+    });
+  }
+
+  for (const alert of home?.alerts ?? []) {
+    items.push({
+      id: `admin-alert-${alert.title}`,
+      title: alert.title,
+      reason: "Compliance or platform alert",
+      href: alert.href,
+      actionLabel: "Review",
+      severity: severityFromPriority(alert.priority)
+    });
+  }
+
+  for (const task of snapshot.operationalTasks.slice(0, 4)) {
+    items.push({
+      id: `admin-task-${task.id}`,
+      title: task.title,
+      reason: task.description,
+      href: task.href,
+      actionLabel: task.actionLabel,
+      severity: task.priority === "high" ? "high" : "normal"
+    });
+  }
+
+  for (const item of home?.inboxPreview?.slice(0, 2) ?? []) {
+    items.push({
+      id: `admin-inbox-${item.itemId}`,
+      title: item.title,
+      reason: "Pending approval or escalation",
+      href: item.deepLink ?? "/inbox",
+      actionLabel: "Open",
+      severity: "high"
+    });
+  }
+
+  return capAttention(items);
+}
+
+function buildAdminMission(
+  snapshot: DashboardSnapshot,
+  home: CommandCenterHomeComposition | null
+): UniversalMissionItem[] {
+  const rows: UniversalMissionItem[] = [];
+  if (snapshot.propertiesTotal === 0 || snapshot.propertiesWithoutUnits > 0) {
+    rows.push({
+      id: "admin-mission-activation",
+      label: snapshot.propertiesTotal === 0 ? "org awaiting activation" : "properties needing setup",
+      count: snapshot.propertiesTotal === 0 ? 1 : snapshot.propertiesWithoutUnits,
+      href: "/properties"
+    });
+  }
+  const inbox = home?.inboxUnreadCount ?? 0;
+  if (inbox > 0) {
+    rows.push({
+      id: "mission-inbox",
+      label: inbox === 1 ? "support escalation" : "support escalations",
+      count: inbox,
+      href: "/inbox"
+    });
+  }
+  if (snapshot.migration && (snapshot.migration.activeJobs ?? 0) > 0) {
+    rows.push({
+      id: "admin-mission-migration",
+      label: "migration jobs",
+      count: snapshot.migration.activeJobs,
+      href: "/migration"
+    });
+  }
+  rows.push({
+    id: "admin-mission-team",
+    label: "team & invitations",
+    count: 1,
+    href: "/settings/team"
+  });
+  rows.push({
+    id: "admin-mission-billing",
+    label: "subscription actions",
+    count: 1,
+    href: "/settings/billing"
+  });
+  return rows.slice(0, 8);
+}
+
+function buildAdminQuickActions(
+  opsActions: QuickActionDefinition[],
+  permissionActions: Array<{ id: string; label: string; href: string }>
+): UniversalQuickAction[] {
+  const preferred: UniversalQuickAction[] = [
+    { id: "admin-create-org-property", label: "Add Property", href: "/properties/new" },
+    { id: "admin-invite", label: "Invite Admin", href: "/settings/team" },
+    { id: "admin-billing", label: "Billing", href: "/settings/billing" },
+    { id: "admin-roles", label: "Roles & Permissions", href: "/settings/team" },
+    { id: "admin-settings", label: "Settings", href: "/settings" },
+    { id: "admin-support", label: "Support", href: "/inbox" }
+  ];
+  // Prefer admin catalog; fill remaining slots from entitled ops/permission actions.
+  const merged = [...preferred];
+  for (const action of buildQuickActions(opsActions, permissionActions)) {
+    if (merged.length >= 6) break;
+    if (merged.some((m) => m.id === action.id || m.href === action.href)) continue;
+    merged.push(action);
+  }
+  return merged.slice(0, 6);
+}
+
+function capAttention(items: UniversalAttentionItem[]): UniversalAttentionItem[] {
+  items.sort((a, b) => {
+    const rank = { critical: 0, high: 1, normal: 2 } as const;
+    return rank[a.severity] - rank[b.severity];
+  });
+  const seen = new Set<string>();
+  const deduped: UniversalAttentionItem[] = [];
+  for (const item of items) {
+    const key = `${item.title}|${item.href}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(item);
+    if (deduped.length >= 5) break;
+  }
+  return deduped;
+}
+
+/** Shared helper for Slice B role builders. */
+export function withSurfaceCopy(
+  surface: Ux016Surface,
+  partial: Omit<UniversalDashboardViewModel, "surface" | "copy">
+): UniversalDashboardViewModel {
+  const copy = UX016_SURFACE_COPY[surface];
+  return {
+    surface,
+    copy,
+    ...partial,
+    greeting: {
+      ...partial.greeting,
+      supportingLine: partial.greeting.supportingLine || copy.supportingLine
+    }
+  };
 }
 
 function formatWhen(value: string): string {

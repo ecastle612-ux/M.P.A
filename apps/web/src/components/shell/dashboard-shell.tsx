@@ -3,6 +3,7 @@ import { OrganizationFoundationPanel } from "../organization/organization-founda
 import { OpsUniversalDashboard } from "../ops/ops-universal-dashboard";
 import type { DashboardSnapshot } from "../../lib/dashboard/server";
 import type { CommandCenterHomeComposition } from "../../lib/ops/command-center-home";
+import type { Ux016Surface } from "../../lib/dashboard/ux016-surfaces";
 
 export function DashboardShell({
   organizationName,
@@ -11,6 +12,7 @@ export function DashboardShell({
   userGreetingName = null,
   timeGreeting = "Good morning",
   dateLabel,
+  surface = "property_manager",
   permissions = {
     canCreateProperty: false,
     canCreateUnit: false,
@@ -41,6 +43,7 @@ export function DashboardShell({
   userGreetingName?: string | null;
   timeGreeting?: string;
   dateLabel: string;
+  surface?: Extract<Ux016Surface, "organization_admin" | "property_manager">;
   permissions?: {
     canCreateProperty: boolean;
     canCreateUnit: boolean;
@@ -100,6 +103,7 @@ export function DashboardShell({
         userGreetingName={userGreetingName}
         timeGreeting={timeGreeting}
         dateLabel={dateLabel}
+        surface={surface}
         permissions={permissions}
       />
     </main>
