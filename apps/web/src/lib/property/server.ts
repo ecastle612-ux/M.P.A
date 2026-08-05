@@ -1,7 +1,22 @@
 import { createAuthServerComponentClient } from "../auth/server";
 import type { Database, Json } from "@mpa/supabase";
 import { assertCanCreateProperty, throwIfDenied } from "../saas/entitlement-gate";
-import type { CreatePropertyInput, PropertyRecord, UpdatePropertyInput } from "./contracts";
+import type {
+  CreatePropertyInput,
+  PropertyListItem,
+  PropertyRecord,
+  UpdatePropertyInput
+} from "./contracts";
+import {
+  isPropertyLifecycleStage,
+  legacyStatusToLifecycleStage,
+  type PropertyLifecycleStage
+} from "./lifecycle";
+
+export type { PropertyListItem };
+
+const PROPERTY_SELECT =
+  "id, organization_id, name, code, property_type, status, lifecycle_stage, description, address_line_1, address_line_2, city, state_region, postal_code, country_code, timezone, latitude, longitude, ownership_entity_name, owner_contact_name, owner_contact_email, owner_contact_phone, cover_image_url, metadata, created_at, updated_at, archived_at, deleted_at";
 
 type PropertyRow = {
   id: string;
@@ -10,6 +25,7 @@ type PropertyRow = {
   code: string | null;
   property_type: PropertyRecord["propertyType"];
   status: PropertyRecord["status"];
+  lifecycle_stage?: string | null;
   description: string | null;
   address_line_1: string;
   address_line_2: string | null;
@@ -32,13 +48,6 @@ type PropertyRow = {
   deleted_at: string | null;
 };
 
-export type PropertyListItem = PropertyRecord & {
-  unitCount: number;
-  occupiedUnits: number;
-  vacancyUnits: number;
-  tenantCount: number;
-};
-
 type SupabaseClientType = Awaited<ReturnType<typeof createAuthServerComponentClient>>;
 type PropertyUpdate = Database["public"]["Tables"]["properties"]["Update"];
 type PaginationOptions = {
@@ -54,9 +63,7 @@ export async function getPropertiesForOrganization(
   const supabase = await resolveClient(client);
   let query = supabase
     .from("properties")
-    .select(
-      "id, organization_id, name, code, property_type, status, description, address_line_1, address_line_2, city, state_region, postal_code, country_code, timezone, latitude, longitude, ownership_entity_name, owner_contact_name, owner_contact_email, owner_contact_phone, cover_image_url, metadata, created_at, updated_at, archived_at, deleted_at"
-    )
+    .select(PROPERTY_SELECT)
     .eq("organization_id", organizationId)
     .is("deleted_at", null)
     .order("updated_at", { ascending: false });
@@ -95,9 +102,7 @@ export async function getPropertyForOrganization(
   const supabase = await resolveClient(client);
   const { data, error } = await supabase
     .from("properties")
-    .select(
-      "id, organization_id, name, code, property_type, status, description, address_line_1, address_line_2, city, state_region, postal_code, country_code, timezone, latitude, longitude, ownership_entity_name, owner_contact_name, owner_contact_email, owner_contact_phone, cover_image_url, metadata, created_at, updated_at, archived_at, deleted_at"
-    )
+    .select(PROPERTY_SELECT)
     .eq("organization_id", organizationId)
     .eq("id", propertyId)
     .is("deleted_at", null)
@@ -120,6 +125,7 @@ export async function createProperty(
 ): Promise<PropertyRecord> {
   throwIfDenied(await assertCanCreateProperty(organizationId));
   const supabase = await resolveClient(client);
+  const lifecycleStage: PropertyLifecycleStage = input.lifecycleStage ?? "prospect";
   const { data, error } = await supabase
     .from("properties")
     .insert({
@@ -127,7 +133,8 @@ export async function createProperty(
       name: input.name,
       code: input.code,
       property_type: input.propertyType,
-      status: input.status,
+      status: "draft",
+      lifecycle_stage: lifecycleStage,
       description: input.description,
       address_line_1: input.addressLine1,
       address_line_2: input.addressLine2,
@@ -143,20 +150,62 @@ export async function createProperty(
       owner_contact_email: input.ownerContactEmail,
       owner_contact_phone: input.ownerContactPhone,
       cover_image_url: input.coverImageUrl,
-      metadata: input.metadata as Json,
+      metadata: {
+        ...input.metadata,
+        lifecycle: {
+          startedAt: new Date().toISOString(),
+          onboardingChecklist: []
+        }
+      } as Json,
       created_by: userId,
       updated_by: userId
-    })
-    .select(
-      "id, organization_id, name, code, property_type, status, description, address_line_1, address_line_2, city, state_region, postal_code, country_code, timezone, latitude, longitude, ownership_entity_name, owner_contact_name, owner_contact_email, owner_contact_phone, cover_image_url, metadata, created_at, updated_at, archived_at, deleted_at"
-    )
+    } as never)
+    .select(PROPERTY_SELECT)
     .single();
 
   if (error || !data) {
     throw new Error(error?.message ?? "Property creation failed");
   }
 
-  return toPropertyRecord(data as PropertyRow);
+  const record = toPropertyRecord(data as PropertyRow);
+
+  try {
+    const { emitOpsDomainEvent } = await import("../ops/emit");
+    await emitOpsDomainEvent(supabase as never, {
+      eventType: "property.created",
+      organizationId,
+      actor: { actor_type: "user", principal_id: userId },
+      subject: { type: "property", id: record.id },
+      propertyId: record.id,
+      href: `/properties/${record.id}`,
+      summary: `${record.name} prospect created`,
+      payload: {
+        propertyName: record.name,
+        lifecycleStage: record.lifecycleStage
+      },
+      visibility: "ops",
+      sensitivity: "normal"
+    });
+  } catch {
+    /* bus optional in constrained envs */
+  }
+
+  try {
+    await supabase.from("property_lifecycle_events").insert({
+      organization_id: organizationId,
+      property_id: record.id,
+      from_stage: null,
+      to_stage: record.lifecycleStage,
+      actor_user_id: userId,
+      reason: "property.created",
+      automation: {},
+      payload: { event: "property.created" }
+    } as never);
+  } catch {
+    /* audit table may not exist until migration */
+  }
+
+  return record;
 }
 
 export async function updateProperty(
@@ -171,7 +220,11 @@ export async function updateProperty(
   if (updates.name !== undefined) patch.name = updates.name;
   if (updates.code !== undefined) patch.code = updates.code;
   if (updates.propertyType !== undefined) patch.property_type = updates.propertyType;
-  if (updates.status !== undefined) patch.status = updates.status;
+  if (updates.status !== undefined) {
+    patch.status = updates.status;
+    // Keep lifecycle aligned when legacy status is patched (prefer lifecycle API).
+    (patch as Record<string, unknown>)["lifecycle_stage"] = legacyStatusToLifecycleStage(updates.status);
+  }
   if (updates.description !== undefined) patch.description = updates.description;
   if (updates.addressLine1 !== undefined) patch.address_line_1 = updates.addressLine1;
   if (updates.addressLine2 !== undefined) patch.address_line_2 = updates.addressLine2;
@@ -196,7 +249,7 @@ export async function updateProperty(
     .eq("id", propertyId)
     .is("deleted_at", null)
     .select(
-      "id, organization_id, name, code, property_type, status, description, address_line_1, address_line_2, city, state_region, postal_code, country_code, timezone, latitude, longitude, ownership_entity_name, owner_contact_name, owner_contact_email, owner_contact_phone, cover_image_url, metadata, created_at, updated_at, archived_at, deleted_at"
+      PROPERTY_SELECT
     )
     .maybeSingle();
 
@@ -213,27 +266,83 @@ export async function archiveProperty(
   client?: SupabaseClientType
 ): Promise<PropertyRecord | null> {
   const supabase = await resolveClient(client);
-  return updateProperty(organizationId, propertyId, userId, { status: "archived" }, supabase).then(async (updated) => {
-    if (!updated) return null;
-    const { data, error } = await supabase
-      .from("properties")
-      .update({
-        archived_at: new Date().toISOString(),
-        archived_by: userId,
-        updated_by: userId
-      })
-      .eq("organization_id", organizationId)
-      .eq("id", propertyId)
-      .is("deleted_at", null)
-      .select(
-        "id, organization_id, name, code, property_type, status, description, address_line_1, address_line_2, city, state_region, postal_code, country_code, timezone, latitude, longitude, ownership_entity_name, owner_contact_name, owner_contact_email, owner_contact_phone, cover_image_url, metadata, created_at, updated_at, archived_at, deleted_at"
-      )
-      .maybeSingle();
-    if (error) {
-      throw new Error(error.message);
-    }
-    return data ? toPropertyRecord(data as PropertyRow) : null;
-  });
+  const { transitionPropertyLifecycle } = await import("./lifecycle-server");
+  const current = await getPropertyForOrganization(organizationId, propertyId, supabase);
+  if (!current) return null;
+  if (current.lifecycleStage === "archived") return current;
+
+  if (
+    current.lifecycleStage === "operational" ||
+    current.lifecycleStage === "occupancy" ||
+    current.lifecycleStage === "turnover"
+  ) {
+    await transitionPropertyLifecycle(
+      {
+        organizationId,
+        propertyId,
+        actorUserId: userId,
+        toStage: "disposition",
+        reason: "archive_requested"
+      },
+      supabase
+    );
+    const archived = await transitionPropertyLifecycle(
+      {
+        organizationId,
+        propertyId,
+        actorUserId: userId,
+        toStage: "archived",
+        reason: "archive_requested"
+      },
+      supabase
+    );
+    return archived.property;
+  }
+
+  if (current.lifecycleStage === "disposition") {
+    const archived = await transitionPropertyLifecycle(
+      {
+        organizationId,
+        propertyId,
+        actorUserId: userId,
+        toStage: "archived",
+        reason: "archive_requested"
+      },
+      supabase
+    );
+    return archived.property;
+  }
+
+  // Pre-operational archive (force terminal)
+  const nowIso = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("properties")
+    .update({
+      lifecycle_stage: "archived",
+      status: "archived",
+      archived_at: nowIso,
+      archived_by: userId,
+      updated_by: userId
+    } as never)
+    .eq("organization_id", organizationId)
+    .eq("id", propertyId)
+    .is("deleted_at", null)
+    .select(PROPERTY_SELECT)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (data) {
+    await supabase.from("property_lifecycle_events").insert({
+      organization_id: organizationId,
+      property_id: propertyId,
+      from_stage: current.lifecycleStage,
+      to_stage: "archived",
+      actor_user_id: userId,
+      reason: "archive_pre_operational",
+      automation: {},
+      payload: {}
+    } as never);
+  }
+  return data ? toPropertyRecord(data as PropertyRow) : null;
 }
 
 export async function restoreProperty(
@@ -243,25 +352,37 @@ export async function restoreProperty(
   client?: SupabaseClientType
 ): Promise<PropertyRecord | null> {
   const supabase = await resolveClient(client);
+  const { transitionPropertyLifecycle } = await import("./lifecycle-server");
+  const current = await getPropertyForOrganization(organizationId, propertyId, supabase);
+  if (!current) return null;
+
+  if (current.lifecycleStage === "archived") {
+    const restored = await transitionPropertyLifecycle(
+      {
+        organizationId,
+        propertyId,
+        actorUserId: userId,
+        toStage: "operational",
+        reason: "restore_requested",
+        force: true
+      },
+      supabase
+    );
+    return restored.property;
+  }
+
   const { data, error } = await supabase
     .from("properties")
     .update({
-      status: "active",
-      archived_at: null,
-      archived_by: null,
       deleted_at: null,
       deleted_by: null,
       updated_by: userId
-    })
+    } as never)
     .eq("organization_id", organizationId)
     .eq("id", propertyId)
-    .select(
-      "id, organization_id, name, code, property_type, status, description, address_line_1, address_line_2, city, state_region, postal_code, country_code, timezone, latitude, longitude, ownership_entity_name, owner_contact_name, owner_contact_email, owner_contact_phone, cover_image_url, metadata, created_at, updated_at, archived_at, deleted_at"
-    )
+    .select(PROPERTY_SELECT)
     .maybeSingle();
-  if (error) {
-    throw new Error(error.message);
-  }
+  if (error) throw new Error(error.message);
   return data ? toPropertyRecord(data as PropertyRow) : null;
 }
 
@@ -278,13 +399,14 @@ export async function softDeleteProperty(
       deleted_at: new Date().toISOString(),
       deleted_by: userId,
       updated_by: userId,
-      status: "archived"
-    })
+      status: "archived",
+      lifecycle_stage: "archived"
+    } as never)
     .eq("organization_id", organizationId)
     .eq("id", propertyId)
     .is("deleted_at", null)
     .select(
-      "id, organization_id, name, code, property_type, status, description, address_line_1, address_line_2, city, state_region, postal_code, country_code, timezone, latitude, longitude, ownership_entity_name, owner_contact_name, owner_contact_email, owner_contact_phone, cover_image_url, metadata, created_at, updated_at, archived_at, deleted_at"
+      PROPERTY_SELECT
     )
     .maybeSingle();
 
@@ -379,6 +501,9 @@ async function getOperationalCountsByPropertyId(
 }
 
 function toPropertyRecord(row: PropertyRow): PropertyRecord {
+  const lifecycleStage: PropertyLifecycleStage = isPropertyLifecycleStage(row.lifecycle_stage)
+    ? row.lifecycle_stage
+    : legacyStatusToLifecycleStage(row.status);
   return {
     id: row.id,
     organizationId: row.organization_id,
@@ -386,6 +511,7 @@ function toPropertyRecord(row: PropertyRow): PropertyRecord {
     code: row.code,
     propertyType: row.property_type,
     status: row.status,
+    lifecycleStage,
     description: row.description,
     addressLine1: row.address_line_1,
     addressLine2: row.address_line_2,

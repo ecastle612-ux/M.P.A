@@ -24,8 +24,8 @@
 
 **UX / platform inheritance:** Automatic — every CORE-004 surface inherits STD-001, ADR-033, UX-016, NAV-001, ARCH-001, MAC-002 Hybrid C, Canopy, UDF, Assistant, Universal Sidebar / Search / Quick Actions / Waiting / Timeline / Insights.
 
-> **Program Approved.** Do **not** implement a phase until `AUTHORIZE CORE-004 PHASE …` (or equivalent slice authorize) is issued.  
-> First design package: [Phase 1 — Property Lifecycle](./08-phase-1-property-lifecycle-design.md) (Design/Document complete · awaiting Authorize).
+> **Program Approved.** Do **not** implement a phase until `AUTHORIZE CORE-004 PHASE …` is issued.  
+> Phase 1: [Design](./08-phase-1-property-lifecycle-design.md) · [Authorize](./09-phase-1-authorization.md) · [Certification](./10-phase-1-certification.md).
 
 ---
 
@@ -43,7 +43,7 @@ Build the remaining M.P.A. platform through **complete operational workflows**.
 
 | Phase | Domain | Status |
 |-------|--------|--------|
-| **1** | Property Lifecycle | 📝 Design documented · Implement 🔒 until Authorize |
+| **1** | Property Lifecycle | ✅ Authorized · Implemented · Certified ([10](./10-phase-1-certification.md)) |
 | **2** | Maintenance Operations | 🔒 Queued |
 | **3** | Leasing Operations | 🔒 Queued |
 | **4** | Resident Operations | 🔒 Queued |
@@ -69,7 +69,9 @@ Detail: [06 — Implementation order](./06-implementation-order.md)
 | [05 — Approval record](./05-approval-record.md) | `APPROVE CORE-004` record |
 | [06 — Implementation order](./06-implementation-order.md) | Phases 1–9 binding sequence |
 | [07 — Workflow requirement](./07-workflow-requirement.md) | End-to-end workflow checklist |
-| [08 — Phase 1 Property Lifecycle design](./08-phase-1-property-lifecycle-design.md) | First phase Design/Document |
+| [08 — Phase 1 Property Lifecycle design](./08-phase-1-property-lifecycle-design.md) | Phase 1 Design/Document |
+| [09 — Phase 1 Authorization](./09-phase-1-authorization.md) | Authorize phrase + scope |
+| [10 — Phase 1 Certification](./10-phase-1-certification.md) | Workflow certify · diagram · verify |
 
 ---
 

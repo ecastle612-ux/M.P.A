@@ -12,6 +12,8 @@ import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { getPropertyForOrganization } from "../../../../lib/property/server";
+import { listPropertyLifecycleEvents } from "../../../../lib/property/lifecycle-server";
+import { PropertyCommandCenter } from "../../../../components/property/property-command-center";
 import { getBuildingQrForProperty } from "../../../../lib/communication/server";
 import { PropertyQrPanel } from "../../../../components/communication/property-qr-panel";
 import { PropertyFinancialPanel } from "../../../../components/financial/property-financial-panel";
@@ -343,6 +345,16 @@ export default async function PropertyDetailPage({
 
   const canCreateAnnouncement = evaluatePermission(authorization, "communication:create");
 
+  const recentLifecycle = await listPropertyLifecycleEvents(organizationId, property.id, supabase).catch(
+    () => []
+  );
+
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("display_name")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   const toolbeltPrimary = [
     {
       id: "residents",
@@ -415,17 +427,31 @@ export default async function PropertyDetailPage({
           entityLabel: property.name
         })}
       />
+      <div className="mx-auto w-full max-w-7xl space-y-8 px-4 py-6 md:px-6">
+        {propertySuccess ? (
+          <WorkflowSuccessBanner dismissPath={`/properties/${propertyId}`} {...propertySuccess} />
+        ) : null}
+        <PropertyCommandCenter
+          property={property}
+          unitCount={unitsTotal ?? 0}
+          occupiedUnits={occupiedUnits ?? 0}
+          vacancyUnits={vacancyUnits ?? 0}
+          tenantCount={tenantCount ?? 0}
+          canUpdate={canUpdateProperty}
+          canCreateUnit={canCreateUnit}
+          canCreateMaintenance={canCreateMaintenance}
+          recentLifecycle={recentLifecycle}
+          userName={(profile?.display_name as string | null) ?? user.email ?? null}
+          organizationName={null}
+        />
+      </div>
       <DetailPageLayout
       breadcrumbs={[
         { href: "/dashboard", label: "Dashboard" },
         { href: "/properties", label: "Properties" },
         { label: property.name }
       ]}
-      banner={
-        propertySuccess ? (
-          <WorkflowSuccessBanner dismissPath={`/properties/${propertyId}`} {...propertySuccess} />
-        ) : null
-      }
+      banner={null}
       relationshipChain={
         <EntityRelationshipChain
           links={[

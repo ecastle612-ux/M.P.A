@@ -35,7 +35,11 @@ export const NOTIFY_ELIGIBLE_EVENT_TYPES = new Set<string>([
   "maintenance.vendor.assigned",
   "lease.expiring",
   "commercial.trial.reminder_due",
-  "commercial.renewal.alert_due"
+  "commercial.renewal.alert_due",
+  // CORE-004 Phase 1 — property lifecycle material transitions
+  "property.activated",
+  "property.lifecycle.transitioned",
+  "property.archived"
   // ops.reminder.fired is not auto-fan-out — Reminder Engine notifies explicitly (avoid loops)
 ]);
 
