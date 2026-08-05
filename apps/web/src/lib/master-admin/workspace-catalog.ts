@@ -120,9 +120,9 @@ export const MASTER_ADMIN_WORKSPACES: WorkspaceDefinition[] = [
         description: "Org Admin recovery, ownership restore, escalations"
       },
       {
-        href: "/portal",
-        label: "Portal Testing",
-        description: "Enter Resident, Vendor, Owner, Manager portals"
+        href: "/master-admin#workspace-launcher",
+        label: "Workspace Launcher",
+        description: "Open · View As · Test Mode from Mission Control"
       },
       {
         href: "/master-admin/testing",
@@ -152,9 +152,9 @@ export const MASTER_ADMIN_WORKSPACES: WorkspaceDefinition[] = [
         description: "Seed data and prepare demo walks"
       },
       {
-        href: "/portal",
-        label: "Launch Demo Portals",
-        description: "Walk any portal role for demos"
+        href: "/master-admin#workspace-launcher",
+        label: "Launch Demo Surfaces",
+        description: "Walk any role surface from Mission Control"
       },
       {
         href: "/migration",
@@ -223,7 +223,7 @@ export const QUICK_ACTIONS = [
   { href: "/setup", label: "New Organization" },
   { href: "/migration/new", label: "Launch Migration" },
   { href: "/master-admin/impersonation", label: "Impersonate User" },
-  { href: "/portal", label: "Open Any Portal" },
+  { href: "/master-admin#workspace-launcher", label: "Workspace Launcher" },
   { href: "/settings/team", label: "Invite Team" },
   { href: "/settings/preferences", label: "Preferences" },
   { href: "/master-admin/testing", label: "Launch Demo" },

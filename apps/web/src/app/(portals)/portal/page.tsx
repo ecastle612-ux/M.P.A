@@ -40,6 +40,11 @@ export default async function PortalIndexPage() {
   const masterAdminOnlyShell =
     isMasterAdmin && shellContext.availableRoles.length === 0 && !banner?.session;
 
+  // NAV-001 — Master Admin launcher lives on Mission Control (one capability, one home).
+  if (isMasterAdmin) {
+    redirect("/master-admin#workspace-launcher");
+  }
+
   // Portal hub is an Ops shell surface — portal-only roles go to their assigned home.
   if (!canAccessOperationsShell(shellContext.availableRoles, isMasterAdmin)) {
     redirect(assignedSurfaceHome(shellContext.availableRoles, isMasterAdmin));
