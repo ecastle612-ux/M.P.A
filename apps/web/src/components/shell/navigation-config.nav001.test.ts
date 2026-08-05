@@ -25,4 +25,14 @@ describe("NAV-001 / ARCH-001 navigation consolidation", () => {
     expect(hrefs).not.toContain("/master-admin/dashboards");
     expect(hrefs).toContain("/master-admin");
   });
+
+  it("Master Admin–only My Work labels match destinations (no STD-001 metaphor collision)", () => {
+    const myWork =
+      getShellNavigationGroups(["master_admin"], { masterAdminOnlyShell: true }).find(
+        (group) => group.title === "My Work"
+      )?.items ?? [];
+    const labels = myWork.map((item) => item.label);
+    expect(labels).toEqual(["Impersonation", "Recovery", "Commercial"]);
+    expect(labels).not.toContain("Waiting on Me");
+  });
 });

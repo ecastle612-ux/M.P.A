@@ -108,21 +108,13 @@ async function resolveCurrentInterimOwnerPropertyScope(input: {
     });
   }
 
-  if (properties.length === 0) {
-    return buildScope({
-      organizationId: input.organizationId,
-      userId: input.userId,
-      properties: [],
-      scopeMode: "empty",
-      ownerPropertyAccessTableMissing: true
-    });
-  }
-
+  // MAC-002 — never fall back to all organization properties (cross-tenant leakage).
+  // Until owner_property_access ships, unmatched owners get an empty scope.
   return buildScope({
     organizationId: input.organizationId,
     userId: input.userId,
-    properties,
-    scopeMode: "organization_role_interim",
+    properties: [],
+    scopeMode: "empty",
     ownerPropertyAccessTableMissing: true
   });
 }

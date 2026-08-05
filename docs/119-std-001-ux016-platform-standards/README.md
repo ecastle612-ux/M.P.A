@@ -28,8 +28,10 @@ Future modules should feel like they have **always belonged** in M.P.A. — with
 | [03 — Navigation Standard](./03-navigation-standard.md) | Permanent sidebar / shell navigation model |
 | [04 — Design Standard](./04-design-standard.md) | Cards · spacing · elevation · type · motion · loading · empty · notifications · a11y |
 | [05 — Future Development Rule](./05-future-development-rule.md) | Inheritance rule + exception path |
-| [06 — Admin surface compliance audit](./06-admin-surface-compliance-audit.md) | UX-016 / STD-001 audit of authenticated Admin surfaces |
-| [07 — Admin surface migration plan](./07-admin-surface-migration-plan.md) | Remount Class D Admin/module dashboards onto UDF (no new UX) |
+| [06 — Admin surface compliance audit](./06-admin-surface-compliance-audit.md) | UX-016 / STD-001 audit of authenticated Admin surfaces (**Class D = 0**) |
+| [07 — Admin surface migration plan](./07-admin-surface-migration-plan.md) | Remount Class D Admin/module dashboards onto UDF — **complete** |
+| [08 — Compliance remediation authorization](./08-compliance-remediation-authorization.md) | Authorize phrase for remaining Admin dashboard remounts |
+| [09 — Compliance remediation implementation](./09-compliance-remediation-implementation.md) | Commercial · Financials · Migration on UDF + screenshot evidence |
 
 ---
 

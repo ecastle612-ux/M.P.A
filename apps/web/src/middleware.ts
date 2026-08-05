@@ -47,6 +47,7 @@ async function principalRequiresContactVerification(
   return Boolean(data["must_verify_contact"]);
 }
 
+/** MAC-002 — must match `hasPlatformMasterAdminGrant` (app_metadata only). */
 function isMasterAdminUser(user: { app_metadata?: Record<string, unknown> } | null): boolean {
   return user?.app_metadata?.["dev_master_admin"] === true;
 }

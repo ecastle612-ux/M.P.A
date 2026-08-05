@@ -62,11 +62,14 @@ function statementCountLabel(status: StatementStatus, count: number): string {
 export function FinancialOverview({
   metrics,
   activity,
-  permissions
+  permissions,
+  embedded = false
 }: {
   metrics: FinancialDashboardMetrics;
   activity: FinancialActivityRecord[];
   permissions: { canCreate: boolean };
+  /** When true, omit page hero — used under Universal Dashboard Framework (STD-001). */
+  embedded?: boolean;
 }) {
   const statementTotal = Object.values(metrics.ownerStatementStatusCounts).reduce((sum, count) => sum + count, 0);
   const hasFinancialActivity =
@@ -78,12 +81,17 @@ export function FinancialOverview({
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        overline="Operations"
-        title="Financials"
-        description="Rent collection, expenses, and owner reporting for your portfolio."
-        actions={
-          permissions.canCreate ? (
+      {embedded ? (
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+              Financial detail tools
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
+              Charges, expenses, statements, and recent activity — after the operational briefing.
+            </p>
+          </div>
+          {permissions.canCreate ? (
             <div className="flex flex-wrap gap-2">
               <Link href="/financials/charges/new">
                 <Button>Create Charge</Button>
@@ -92,9 +100,27 @@ export function FinancialOverview({
                 <Button variant="secondary">Record Expense</Button>
               </Link>
             </div>
-          ) : null
-        }
-      />
+          ) : null}
+        </div>
+      ) : (
+        <PageHeader
+          overline="Operations"
+          title="Financials"
+          description="Rent collection, expenses, and owner reporting for your portfolio."
+          actions={
+            permissions.canCreate ? (
+              <div className="flex flex-wrap gap-2">
+                <Link href="/financials/charges/new">
+                  <Button>Create Charge</Button>
+                </Link>
+                <Link href="/financials/expenses/new">
+                  <Button variant="secondary">Record Expense</Button>
+                </Link>
+              </div>
+            ) : null
+          }
+        />
+      )}
 
       <ProviderStatusBanner providerIds={["stripe", "resend"]} />
 

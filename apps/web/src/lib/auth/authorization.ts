@@ -88,7 +88,7 @@ export async function resolveAuthorizationContext(
   });
   const permissions = await resolvePermissionsForRoles(organizationId, roles);
 
-  // Master Admin is platform-scoped (app_metadata / override), not a PM role grant.
+  // Master Admin is platform-scoped (app_metadata only — MAC-002), not a PM role grant.
   // Include the capability so HQ workspaces (e.g. Migration) authorize correctly.
   if (!permissions.includes("master_admin") && (await userHasMasterAdminCapability(user))) {
     permissions.push("master_admin");
@@ -104,7 +104,12 @@ export function evaluatePermission(
   context: ResolvedAuthorizationContext,
   capability: PermissionCapability
 ): boolean {
-  // Platform Master Admin may operate HQ active-org tools (Migration, setup, invites).
+  /**
+   * MAC-002 Hybrid C — Platform Operator Mode (breakglass).
+   * `master_admin` is app_metadata-only (never org-granted). Short-circuit applies to
+   * HQ / active-org operator tools. Customer portal surfaces still require an explicit
+   * View As or Test Mode session (`canAccessPortalAsMasterAdmin`).
+   */
   if (context.permissions.includes("master_admin")) {
     return true;
   }

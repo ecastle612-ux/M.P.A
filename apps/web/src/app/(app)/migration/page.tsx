@@ -1,13 +1,22 @@
 import { redirect } from "next/navigation";
 import { AppPage } from "../../../components/presentation/app-page";
-import { MigrationDashboard } from "../../../components/migration/migration-dashboard";
-import { MigrationSwitchingExperience } from "../../../components/migration/migration-switching-experience";
+import { MigrationUniversalDashboard } from "../../../components/migration/migration-universal-dashboard";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
-import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
+import {
+  getOrganizationsForUser,
+  resolveActiveOrganizationIdForUser
+} from "../../../lib/organization/server";
 import { getMigrationJobsForOrganization } from "../../../lib/migration/server";
 import { getCustomerSwitchingSnapshot } from "../../../lib/migration/switching";
+import { buildMigrationUniversalDashboardViewModel } from "../../../lib/migration/ux016-view-model";
+import {
+  formatHumanGreetingName,
+  formatHumanOrganizationName
+} from "../../../lib/format/display-labels";
+import { getUserDisplayNameForGreeting } from "../../../lib/profile/server-fetch";
 
+/** STD-001 compliance remediation — Migration ops on Universal Dashboard Framework. */
 export default async function MigrationPage() {
   const supabase = await createAuthServerComponentClient();
   const {
@@ -21,25 +30,35 @@ export default async function MigrationPage() {
   const authorization = await resolveAuthorizationContext(user, organizationId);
   if (!evaluatePermission(authorization, "migration:read")) redirect("/unauthorized");
 
-  const [jobs, switching] = await Promise.all([
+  const [jobs, switching, organizations, profileDisplayName] = await Promise.all([
     getMigrationJobsForOrganization(organizationId, supabase),
-    getCustomerSwitchingSnapshot(organizationId, supabase)
+    getCustomerSwitchingSnapshot(organizationId, supabase),
+    getOrganizationsForUser(user.id),
+    getUserDisplayNameForGreeting(user.id, user.email ?? null)
   ]);
+
+  const organizationName = organizations.find((organization) => organization.id === organizationId)?.name ?? null;
+  const canCreate = evaluatePermission(authorization, "migration:create");
+  const canUpdate = evaluatePermission(authorization, "migration:update");
+
+  const model = buildMigrationUniversalDashboardViewModel({
+    jobs,
+    metrics: switching.metrics,
+    canCreate,
+    userName: formatHumanGreetingName(profileDisplayName, user.email ?? null),
+    organizationName: organizationName ? formatHumanOrganizationName(organizationName) : null
+  });
 
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Migration Center" }]}>
-      <div className="space-y-8">
-        <MigrationSwitchingExperience
-          initial={switching}
-          canCreate={evaluatePermission(authorization, "migration:create")}
-          canUpdate={evaluatePermission(authorization, "migration:update")}
-        />
-        <MigrationDashboard
-          jobs={jobs}
-          metrics={switching.metrics}
-          canCreate={evaluatePermission(authorization, "migration:create")}
-        />
-      </div>
+      <MigrationUniversalDashboard
+        model={model}
+        switching={switching}
+        jobs={jobs}
+        metrics={switching.metrics}
+        canCreate={canCreate}
+        canUpdate={canUpdate}
+      />
     </AppPage>
   );
 }

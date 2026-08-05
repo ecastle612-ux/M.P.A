@@ -24,6 +24,26 @@ export default async function OwnerPortalPage() {
   const session = await getActiveMasterAdminSession(user.id);
   const inPortalTest = session?.mode === "portal_test" && session.portal === "owner";
 
+  // MAC-002 — Test Mode is simulation only: never load live owner/org property data.
+  if (inPortalTest) {
+    return (
+      <AppPage breadcrumbs={[{ href: "/master-admin", label: "Mission Control" }, { label: "Owner Test Mode" }]}>
+        <div className="space-y-4">
+          <Card variant="elevated" className="space-y-2 p-5">
+            <h1 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
+              Owner Portal — Test Mode
+            </h1>
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+              Simulated demo surface. Live owner portfolios and organization properties are not loaded in
+              Test Mode.
+            </p>
+          </Card>
+          <MasterAdminPortalDemoPanel portal="owner" />
+        </div>
+      </AppPage>
+    );
+  }
+
   let model: OwnerPortalDashboardModel | null = null;
   let loadError: string | null = null;
 
@@ -54,10 +74,7 @@ export default async function OwnerPortalPage() {
 
   return (
     <AppPage breadcrumbs={[{ href: "/portal", label: "Portals" }, { label: "Owner" }]}>
-      <OwnerPortalDashboard
-        model={model}
-        demoPanel={inPortalTest ? <MasterAdminPortalDemoPanel portal="owner" /> : null}
-      />
+      <OwnerPortalDashboard model={model} demoPanel={null} />
     </AppPage>
   );
 }

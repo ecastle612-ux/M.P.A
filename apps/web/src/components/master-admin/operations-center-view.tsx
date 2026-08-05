@@ -9,7 +9,6 @@ import type { OperationsCenterSnapshot } from "../../lib/master-admin/operations
 import { buildMasterAdminUniversalDashboardViewModel } from "../../lib/master-admin/ux016-view-model";
 import { PORTAL_LAUNCHER_GROUPS } from "../../lib/master-admin/portal-launcher-catalog";
 import {
-  getMissionControlQuickActions,
   getMissionControlWorkspaces,
   type MasterAdminWorkspaceId
 } from "../../lib/master-admin/workspace-catalog";
@@ -43,7 +42,6 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
   const searchId = useId();
   const { masterAdminOnlyShell } = useSessionPermissions();
   const workspaces = getMissionControlWorkspaces(masterAdminOnlyShell);
-  const quickActions = getMissionControlQuickActions(masterAdminOnlyShell);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -114,58 +112,18 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
   const workspace = workspaces.find((item) => item.id === activeWorkspace) ?? workspaces[0]!;
 
   return (
-    <div className="space-y-8" data-ux016="mission-control">
-      <div className="relative max-w-3xl">
-        <label htmlFor={searchId} className="sr-only">
-          Universal search
-        </label>
-        <Input
-          id={searchId}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search organizations, managers, residents, owners, vendors, properties…"
-          autoComplete="off"
-        />
-        {(results.length > 0 || searchError || (isPending && query.trim().length >= 2)) && (
-          <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-sm)]">
-            {searchError ? (
-              <p className="px-3 py-2 text-sm text-[var(--mpa-color-status-danger)]">{searchError}</p>
-            ) : results.length === 0 ? (
-              <p className="px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-                {isPending ? "Searching…" : "No matches."}
-              </p>
-            ) : (
-              <ul className="max-h-80 overflow-y-auto py-1">
-                {results.map((result) => (
-                  <li key={result.id}>
-                    <Link
-                      href={result.href}
-                      className="flex items-start justify-between gap-3 px-3 py-2 text-sm hover:bg-[var(--mpa-color-interactive-row-hover)]"
-                      onClick={() => setQuery("")}
-                    >
-                      <span>
-                        <span className="font-medium text-[var(--mpa-color-text-primary)]">
-                          {result.title}
-                        </span>
-                        {result.subtitle ? (
-                          <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-tertiary)]">
-                            {result.subtitle}
-                          </span>
-                        ) : null}
-                      </span>
-                      <span className="shrink-0 text-xs uppercase tracking-wide text-[var(--mpa-color-text-tertiary)]">
-                        {result.entity}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-      </div>
-
+    <div className="space-y-8" data-ux016="mission-control" data-mac002="mission-control">
+      {/* STD-001 / MAC-002 — Greeting first via UDF; Search stays below Insights */}
       <UniversalDashboard model={model} />
+
+      <p
+        className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-muted)] px-3 py-2 text-xs text-[var(--mpa-color-text-secondary)]"
+        data-mac002="platform-operator-mode"
+      >
+        <span className="font-semibold text-[var(--mpa-color-text-primary)]">Platform Operator Mode.</span>{" "}
+        Customer portals require explicit View As or Test Mode from Workspace Launcher — never a silent
+        context switch.
+      </p>
 
       <WorkspaceLauncher
         groups={PORTAL_LAUNCHER_GROUPS}
@@ -173,6 +131,64 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
         title="Workspace Launcher"
         description="Open surfaces, View As real users, or launch Test Mode — without leaving Mission Control."
       />
+
+      <section aria-labelledby="platform-search-heading" className="space-y-2">
+        <h2
+          id="platform-search-heading"
+          className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]"
+        >
+          Platform Search
+        </h2>
+        <div className="relative max-w-3xl">
+          <label htmlFor={searchId} className="sr-only">
+            Universal search
+          </label>
+          <Input
+            id={searchId}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search organizations, managers, residents, owners, vendors, properties…"
+            autoComplete="off"
+          />
+          {(results.length > 0 || searchError || (isPending && query.trim().length >= 2)) && (
+            <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] shadow-[var(--mpa-shadow-sm)]">
+              {searchError ? (
+                <p className="px-3 py-2 text-sm text-[var(--mpa-color-status-danger)]">{searchError}</p>
+              ) : results.length === 0 ? (
+                <p className="px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                  {isPending ? "Searching…" : "No matches."}
+                </p>
+              ) : (
+                <ul className="max-h-80 overflow-y-auto py-1">
+                  {results.map((result) => (
+                    <li key={result.id}>
+                      <Link
+                        href={result.href}
+                        className="flex items-start justify-between gap-3 px-3 py-2 text-sm hover:bg-[var(--mpa-color-interactive-row-hover)]"
+                        onClick={() => setQuery("")}
+                      >
+                        <span>
+                          <span className="font-medium text-[var(--mpa-color-text-primary)]">
+                            {result.title}
+                          </span>
+                          {result.subtitle ? (
+                            <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-tertiary)]">
+                              {result.subtitle}
+                            </span>
+                          ) : null}
+                        </span>
+                        <span className="shrink-0 text-xs uppercase tracking-wide text-[var(--mpa-color-text-tertiary)]">
+                          {result.entity}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
 
       <section aria-labelledby="workspaces-heading" className="space-y-3">
         <div>
@@ -230,32 +246,7 @@ export function OperationsCenterView({ snapshot }: { snapshot: OperationsCenterS
           </ul>
         </div>
       </section>
-
-      <section aria-labelledby="more-quick-actions-heading" className="space-y-3">
-        <h2
-          id="more-quick-actions-heading"
-          className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]"
-        >
-          More Quick Actions
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {quickActions.map((action) => (
-            <Link
-              key={action.href + action.label}
-              href={action.href}
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm font-medium text-[var(--mpa-color-text-primary)] transition hover:border-[var(--mpa-color-brand-primary)] hover:text-[var(--mpa-color-brand-primary)]"
-            >
-              {action.label}
-            </Link>
-          ))}
-          <a
-            href="#workspace-launcher"
-            className="rounded-md border border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-brand-primary-subtle)] px-3 py-2 text-sm font-medium text-[var(--mpa-color-brand-primary)]"
-          >
-            Workspace Launcher
-          </a>
-        </div>
-      </section>
+      {/* MAC-002 — Quick Actions live in UDF only; removed duplicate "More Quick Actions". */}
     </div>
   );
 }
