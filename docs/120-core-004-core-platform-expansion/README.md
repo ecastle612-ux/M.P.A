@@ -1,41 +1,59 @@
 # CORE-004 — Core Platform Expansion
 
-**Status:** 📝 **Draft — Planning** (not Approved · Implement locked)  
+**Status:** ✅ **APPROVED** — program unlocked · per-slice Implement still gated  
 **Initiative ID:** CORE-004  
-**Priority:** HIGH (recommended next program after UX-016 close)  
-**Type:** Core Platform Expansion — operational capability delivery under permanent UX standards  
-**Gate:** Design → Document → Approve → Implement  
-**Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)  
+**Priority:** CRITICAL (primary operational expansion program)  
+**Type:** Core Platform Expansion — end-to-end operational workflows under permanent standards  
+**Gate:** Design → Document → Approve → Implement → Verify → Certify (per slice)  
+**Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md) · [ADR-035](../18-decision-log/adr-035-core-004-core-platform-expansion.md)  
+**Approved:** 2026-08-05 — `APPROVE CORE-004 – Core Platform Expansion`  
 **Date:** 2026-08-05  
-**Depends on:** [UX-016 CLOSED](../118-ux-016-dashboard-navigation-optimization/27-closeout-record.md) · [STD-001](../119-std-001-ux016-platform-standards/README.md) · [ADR-033](../18-decision-log/adr-033-ux016-platform-standards-mandatory.md) · [CORE-003](../113-core-003-implementation-master-plan/README.md) (order governance)  
-**UX inheritance:** Automatic — every CORE-004 surface inherits STD-001 (no parallel UX initiative)
 
-> **Do not implement under this package until `APPROVE CORE-004` (and subsequent slice authorize phrases).**  
-> This document set opens **planning** only.
+**Prerequisites (verified):**
+
+| Prerequisite | Status |
+|--------------|--------|
+| UX-016 Certified | ✅ |
+| STD-001 Adopted | ✅ |
+| ADR-033 Accepted | ✅ |
+| NAV-001 Implemented | ✅ |
+| ARCH-001 Adopted | ✅ |
+| MAC-002 Production Certified (100/100) | ✅ |
+| SignWell production platform (API-004 · ADR-030) | ✅ |
+| Identity Foundation Complete (Phase 3 · ADR-014) | ✅ |
+
+**UX / platform inheritance:** Automatic — every CORE-004 surface inherits STD-001, ADR-033, UX-016, NAV-001, ARCH-001, MAC-002 Hybrid C, Canopy, UDF, Assistant, Universal Sidebar / Search / Quick Actions / Waiting / Timeline / Insights.
+
+> **Program Approved.** Do **not** implement a phase until `AUTHORIZE CORE-004 PHASE …` (or equivalent slice authorize) is issued.  
+> First design package: [Phase 1 — Property Lifecycle](./08-phase-1-property-lifecycle-design.md) (Design/Document complete · awaiting Authorize).
 
 ---
 
-## Why CORE-004 (not another UX initiative)
+## Mission
 
-UX-016 certified the permanent work-companion experience. Further platform-wide UX redesign is **not** the next move.
+Build the remaining M.P.A. platform through **complete operational workflows**.
 
-The product now expands **operational capabilities**. New modules must feel like they have always belonged in M.P.A. because they inherit:
-
-- Universal Dashboard Framework  
-- Permanent sidebar navigation model  
-- M.P.A. Assistant · Waiting on Me/Others · Recommended Actions · Timeline  
-- Smart Notifications · mobile · accessibility · design expectations  
+- Do not build isolated features.  
+- Every implementation slice must deliver an end-to-end operational capability.  
+- The platform remains **workflow-first**.
 
 ---
 
-## Purpose
+## Implementation order (binding)
 
-Implement remaining operational capabilities while:
+| Phase | Domain | Status |
+|-------|--------|--------|
+| **1** | Property Lifecycle | 📝 Design documented · Implement 🔒 until Authorize |
+| **2** | Maintenance Operations | 🔒 Queued |
+| **3** | Leasing Operations | 🔒 Queued |
+| **4** | Resident Operations | 🔒 Queued |
+| **5** | Vendor Operations | 🔒 Queued |
+| **6** | Financial Operations | 🔒 Queued |
+| **7** | Document Operations | 🔒 Queued |
+| **8** | Communications | 🔒 Queued |
+| **9** | Executive Operations | 🔒 Queued |
 
-1. Inheriting STD-001 / UX-016 automatically  
-2. Respecting CORE-003 cross-package order where still binding  
-3. Avoiding parallel dashboards, nav models, or “mini redesigns”  
-4. Shipping workflow value that property operators can use immediately  
+Detail: [06 — Implementation order](./06-implementation-order.md)
 
 ---
 
@@ -44,10 +62,14 @@ Implement remaining operational capabilities while:
 | Doc | Purpose |
 |-----|---------|
 | [00 — Executive summary](./00-executive-summary.md) | Verdict, goals, non-goals |
-| [01 — Scope and principles](./01-scope-and-principles.md) | Expansion themes + constraints |
-| [02 — UX inheritance contract](./02-ux-inheritance-contract.md) | How every slice mounts STD-001 |
-| [03 — Planning backlog seeds](./03-planning-backlog-seeds.md) | Candidate capability areas (planning only) |
-| [04 — Approval checklist](./04-approval-checklist.md) | Gate checklist before Approve |
+| [01 — Scope and principles](./01-scope-and-principles.md) | Expansion principles + constraints |
+| [02 — Inheritance contract](./02-ux-inheritance-contract.md) | Mandatory standards every slice inherits |
+| [03 — Planning backlog seeds](./03-planning-backlog-seeds.md) | Historical seeds (superseded by phase order) |
+| [04 — Approval checklist](./04-approval-checklist.md) | Prerequisites before Approve |
+| [05 — Approval record](./05-approval-record.md) | `APPROVE CORE-004` record |
+| [06 — Implementation order](./06-implementation-order.md) | Phases 1–9 binding sequence |
+| [07 — Workflow requirement](./07-workflow-requirement.md) | End-to-end workflow checklist |
+| [08 — Phase 1 Property Lifecycle design](./08-phase-1-property-lifecycle-design.md) | First phase Design/Document |
 
 ---
 
@@ -55,17 +77,18 @@ Implement remaining operational capabilities while:
 
 | Stage | Status |
 |-------|--------|
-| Design | 📝 In progress (planning) |
-| Document | 📝 This package (Draft) |
-| Approve | ❌ Not issued |
-| Implement | 🔒 Locked |
+| Design | ✅ Program design complete |
+| Document | ✅ This package |
+| Approve | ✅ **Issued** 2026-08-05 |
+| Implement | 🔓 Program unlocked · **per-phase Authorize required** |
+| Verify / Certify | Per phase after implementation |
 
-### Recommended unlock path (after planning completes)
+### Unlock path (active)
 
-1. Finish Design/Document for CORE-004 scope  
-2. `APPROVE CORE-004`  
-3. Per-slice `AUTHORIZE CORE-004 SLICE …`  
-4. Implement only authorized slices, each citing STD-001  
+1. ~~`APPROVE CORE-004`~~ ✅  
+2. `AUTHORIZE CORE-004 PHASE 1 – Property Lifecycle` (or named slice)  
+3. Implement only authorized phase/slice scope  
+4. Verify → Certify → next phase Authorize  
 
 ---
 
@@ -73,5 +96,7 @@ Implement remaining operational capabilities while:
 
 - Opening UX-017 / extending UX-016  
 - Replacing Canopy, AUTH dashboard assignment, or OPS priority engines  
-- Parallel module home kits  
-- Implementation before Approve  
+- Parallel module home kits / custom dashboards  
+- Isolated CRUD without workflow completion  
+- Implementing Phase N before Authorize  
+- Expanding Master Admin surface without ARCH-001 + Hybrid C  

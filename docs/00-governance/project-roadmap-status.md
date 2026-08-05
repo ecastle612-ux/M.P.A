@@ -38,7 +38,7 @@ UI-001 (inherits UX-012 — Future Release polish package)
 
 **UX platform baseline:** UX-016 ✅ **CLOSED · CERTIFIED** ([26](../118-ux-016-dashboard-navigation-optimization/26-certification-report.md)) · permanent inheritance [STD-001](../119-std-001-ux016-platform-standards/README.md) / [ADR-033](../18-decision-log/adr-033-ux016-platform-standards-mandatory.md). Do **not** open another UX initiative for platform homes/nav.
 
-**Recommended next program (post UX-016):** [CORE-004 — Core Platform Expansion](../120-core-004-core-platform-expansion/README.md) (**Draft — Planning** · Implement locked until Approve).
+**Active expansion program:** [CORE-004 — Core Platform Expansion](../120-core-004-core-platform-expansion/README.md) (✅ **APPROVED** · Phase 1 Design ready · Implement locked until `AUTHORIZE CORE-004 PHASE 1`).
 
 **Master plan:** [Commercial Launch Master Plan](./commercial-launch-master-plan.md) · **Implementation order:** [CORE-003](../113-core-003-implementation-master-plan/README.md)
 
@@ -72,9 +72,10 @@ UI-001 (inherits UX-012 — Future Release polish package)
 | **ADMIN-003** | Approved · Slice A unlocked | Ops center | Slice A only | ADMIN-001 | Architect | Stay within Slice A |
 | **FIN-001** | Approved · Implemented (reporting foundation) | — | Complete for foundation | — | Architect | Consume-only for owners via OWNER-001 |
 | **UI-001** | Future Release | Not opened | Locked | Commercial Launch | Product | Do not open until launch blockers clear |
-| **UX-016** | ✅ **CLOSED · CERTIFIED** | Slices A–D complete | Implement finished / package closed | Canopy · EA · UX-012 · ADR-032/033 | Product + UX + Architect | Inherit via STD-001; do not extend; next = CORE-004 planning |
+| **UX-016** | ✅ **CLOSED · CERTIFIED** | Slices A–D complete | Implement finished / package closed | Canopy · EA · UX-012 · ADR-032/033 | Product + UX + Architect | Inherit via STD-001; do not extend |
 | **STD-001** | ✅ **Accepted** | Permanent standards | N/A (living law) | UX-016 closed | Product + UX + Architect | Cite on every new home/nav PR |
-| **CORE-004** | 📝 Draft — Planning | None | Implement **locked** | UX-016 closed · STD-001 · CORE-003 | Product + Architect | Complete planning → `APPROVE CORE-004` |
+| **MAC-002** | ✅ **Production Certified 100/100** | HQ hardening | Complete for Critical/High + honesty | MAC-001 · NAV-001 · ARCH-001 | Architect + Security | Merge + migration; unlock CORE-004 ✅ |
+| **CORE-004** | ✅ **APPROVED** | Phase 1 Design ready · Phases 2–9 queued | Program unlocked · phase Implement **locked** until Authorize | UX-016 · STD-001 · ADR-033 · NAV-001 · ARCH-001 · MAC-002 · API-004 · Identity | Product + Architect | `AUTHORIZE CORE-004 PHASE 1 – Property Lifecycle` |
 
 ---
 

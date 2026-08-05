@@ -117,7 +117,7 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | PAY-001 Settlement Funding Foundation | ✅ **Verified** (2026-07-23) — A1–A21 PASS · predecessor to FIN-003 Phase C (CERTIFIED PASS) · Q3b/Q4 before production destination enable ([32](../108-pay-001-settlement-funding-foundation/32-package-certification.md)) |
 | UX-016 Dashboard & Navigation Optimization | ✅ **CLOSED** · Implemented · Verified · Certified ([26](../118-ux-016-dashboard-navigation-optimization/26-certification-report.md)) · ADR-032 Accepted · living law [STD-001](../119-std-001-ux016-platform-standards/README.md) / ADR-033 |
 | STD-001 UX-016 Platform Standards | ✅ **Accepted** — mandatory inheritance for future modules ([119](../119-std-001-ux016-platform-standards/README.md)) |
-| CORE-004 Core Platform Expansion | 📝 **Draft — Planning** · Implement **locked** · recommended next program after UX-016 close ([120](../120-core-004-core-platform-expansion/README.md)) |
+| CORE-004 Core Platform Expansion | ✅ **APPROVED** · Program unlocked · per-phase Implement locked until Authorize · Phase 1 Design ready ([120](../120-core-004-core-platform-expansion/README.md) · [ADR-035](../18-decision-log/adr-035-core-004-core-platform-expansion.md)) |
 
 ---
 

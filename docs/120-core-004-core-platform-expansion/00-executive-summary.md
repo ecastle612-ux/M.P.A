@@ -1,37 +1,38 @@
 # 00 — Executive Summary
 
 **Package:** CORE-004  
-**Status:** Draft — Planning  
-**Date:** 2026-08-05
+**Status:** ✅ Approved  
+**Date:** 2026-08-05  
+**Approval:** [05 — Approval record](./05-approval-record.md)
 
 ---
 
 ## Verdict
 
-After UX-016 certification, M.P.A. should transition from platform-wide UX redesign to **Core Platform Expansion**.
+M.P.A. transitions from platform-wide UX certification to **Core Platform Expansion**.
 
-**CORE-004** is the recommended next initiative: deliver remaining operational capabilities on top of the permanent UX standards (STD-001), so every new module feels native without another redesign program.
+**CORE-004** delivers remaining operational capabilities as **end-to-end workflows** on top of certified standards (STD-001 / UX-016 / NAV-001 / ARCH-001 / MAC-002), so every new module feels native without another redesign program.
 
 ---
 
 ## Problem
 
-Operational capability gaps remain. If each capability ships with its own dashboard or nav pattern, the platform fragments again.
+Operational capability gaps remain. Shipping isolated CRUD or module-private chrome would fragment the certified work-companion experience.
 
 ## Goal
 
-Expand the core platform while **inheriting** UX-016 automatically:
-
 | Goal | Measure |
 |------|---------|
-| Capability growth | Ship entitled operational workflows operators can finish |
-| UX continuity | Five-second test still passes on every new home |
-| Governance clarity | No shadow UX initiatives; STD-001 cited on every PR |
-| Speed | Teams spend effort on domain value, not re-litigating IA |
+| Workflow completion | Every slice finishes a business outcome (start → participants → automate → notify → audit → dashboard → Assistant → done) |
+| Capability growth | Phases 1–9 deliver the Property Operations Platform |
+| UX continuity | Five-second test still passes; STD-001 cited on every PR |
+| Security continuity | MAC-002 Hybrid C + RBAC + tenant isolation preserved |
+| Governance clarity | No shadow UX initiatives; Design → Document → Approve → Implement → Verify → Certify per slice |
 
 ## Non-goals
 
 - Another UX initiative  
 - Extending closed UX-016 slices  
+- Partial implementations / orphan CRUD  
 - Changing AUTH homes / permission matrices as a UX shortcut  
-- Implementation under Draft status  
+- Implementation without per-phase Authorize  

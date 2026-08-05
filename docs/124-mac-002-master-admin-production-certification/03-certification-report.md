@@ -72,6 +72,8 @@ Deferred (non-blocking product depth, not certification blockers): MAC-M05/M06/M
 
 ## CORE-004 unlock
 
-**Recommendation:** Unlock CORE-004 implementation **after** MAC-002 merge + migration apply.
+**Status:** CORE-004 program **Approved** 2026-08-05 (`APPROVE CORE-004` · [ADR-035](../18-decision-log/adr-035-core-004-core-platform-expansion.md) · [120](../120-core-004-core-platform-expansion/README.md)).
+
+Still apply MAC-002 migration on the release lineage before production ops. Phase Implement remains locked until `AUTHORIZE CORE-004 PHASE 1`.
 
 Do not expand Master Admin surface area in CORE-004 without inheriting ARCH-001 + Hybrid C.

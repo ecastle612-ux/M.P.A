@@ -1,32 +1,25 @@
-# 03 — Planning Backlog Seeds
+# 03 — Planning Backlog Seeds (historical)
 
 **Package:** CORE-004  
-**Status:** Draft — Planning (not a commitment or authorize list)  
+**Status:** 🗄 Superseded by approved phase order  
 **Date:** 2026-08-05
 
----
-
-## How to use this list
-
-These seeds help Product + Architecture prioritize CORE-004 slices after Approve.  
-They are **not** authorized work. Ordering must still respect dependencies and CORE-003 where applicable.
-
-| Seed ID | Capability area | UX inheritance note |
-|---------|-----------------|---------------------|
-| C4-S01 | Maintenance finish-path depth (assign · schedule · close loops surfaced by Assistant) | Mission / Waiting / Recommended only — no new home anatomy |
-| C4-S02 | Leasing & renewals operational completion | Timeline + cross-module context on renewals |
-| C4-S03 | Inspections & facility calendar continuity | My Work scheduled items remain existing routes |
-| C4-S04 | Documents / signatures waiting states accuracy | Waiting on Me / Others honesty |
-| C4-S05 | Financial approvals & late-rent operator loops | Quick Wins + Critical notifications |
-| C4-S06 | Communications / inbox response loops | Waiting on Me separate from notification dump |
-| C4-S07 | Role-depth pass (tech · leasing · resident · owner) on UDF | Content specialization only |
-| C4-S08 | Master Admin operator depth on Mission Control | Unlocked after [MAC-002](../124-mac-002-master-admin-production-certification/03-certification-report.md) · [NAV-001](../121-nav-001-master-admin-hub-consolidation/README.md) · [ARCH-001](../122-arch-001-capability-consolidation/README.md) |
-| C4-S09 | STD-001 Admin compliance — remount Class D homes (`/master-admin/commercial`, `/financials`, `/migration`) | Audit [STD-001 §06](../119-std-001-ux016-platform-standards/06-admin-surface-compliance-audit.md) · plan [§07](../119-std-001-ux016-platform-standards/07-admin-surface-migration-plan.md) |
+The early seed list below informed planning. **Binding delivery order is now** [06 — Implementation order](./06-implementation-order.md).
 
 ---
 
-## Next planning actions
+## Historical seeds (reference only)
 
-1. Rank seeds by operator pain × dependency readiness.  
-2. Collapse into authorize-sized slices with acceptance criteria.  
-3. Produce `APPROVE CORE-004` package readiness via [04](./04-approval-checklist.md).  
+| Seed ID | Capability area | Maps to phase |
+|---------|-----------------|---------------|
+| C4-S01 | Maintenance finish-path depth | Phase 2 |
+| C4-S02 | Leasing & renewals | Phase 3 |
+| C4-S03 | Inspections & facility calendar | Phase 2 / FAC continuity |
+| C4-S04 | Documents / signatures waiting | Phase 7 (+ Phase 3 SignWell) |
+| C4-S05 | Financial approvals & late-rent | Phase 6 |
+| C4-S06 | Communications / inbox loops | Phase 8 |
+| C4-S07 | Role-depth on UDF | Cross-cutting inheritance |
+| C4-S08 | Master Admin operator depth | MAC-002 certified — expand only via Hybrid C |
+| C4-S09 | STD-001 Admin Class D remount | Closed under STD-001 / MAC-002 lineage |
+
+Do not authorize work from seed IDs alone — use phase Authorize phrases.

@@ -210,7 +210,7 @@ UX-016 is **CLOSED · CERTIFIED**. Living inheritance for every future home/nav 
 - [STD-001 — UX-016 Platform Standards](../119-std-001-ux016-platform-standards/README.md)
 - [ADR-033](../18-decision-log/adr-033-ux016-platform-standards-mandatory.md)
 
-No future module may invent its own dashboard or navigation pattern without governance approval. Recommended next program: [CORE-004](../120-core-004-core-platform-expansion/README.md) (Core Platform Expansion — planning).
+No future module may invent its own dashboard or navigation pattern without governance approval. Active program: [CORE-004](../120-core-004-core-platform-expansion/README.md) (Core Platform Expansion — **Approved** · per-phase Authorize).
 
 ---
 

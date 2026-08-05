@@ -336,7 +336,7 @@ Cross-cutting UX sprints that do not add business modules. Each follows the Impl
 
 **Platform UX era:** Closed with UX-016. Do **not** open another platform-wide UX initiative next.
 
-**Recommended next program:** [CORE-004 — Core Platform Expansion](../120-core-004-core-platform-expansion/README.md) (**Draft — Planning**) — operational capabilities inheriting STD-001 automatically.
+**Active expansion program:** [CORE-004 — Core Platform Expansion](../120-core-004-core-platform-expansion/README.md) (✅ **APPROVED** · ADR-035) — next: `AUTHORIZE CORE-004 PHASE 1 – Property Lifecycle`.
 
 **Legacy sequencing note:** PX-007 audit → approve beta scope → Phase 12 production hardening remains relevant for commercial launch tracks alongside CORE-003 / CORE-004 planning.
 
