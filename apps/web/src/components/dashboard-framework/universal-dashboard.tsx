@@ -65,7 +65,7 @@ export function UniversalDashboard({
       {/* 1. Greeting */}
       <header className="space-y-[var(--mpa-space-2)]">
         <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--mpa-color-text-tertiary)]">
-          Operations
+          {model.greeting.surfaceLabel ?? "Operations"}
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
           {greetingTitle}

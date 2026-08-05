@@ -25,7 +25,7 @@
 | Slice | Phrase | Date | Authorizer | Notes |
 |-------|--------|------|------------|-------|
 | A | `AUTHORIZE UX-016 SLICE A` | 2026-08-05 | Product / UX | Universal Dashboard Framework — shared hierarchy on Ops `/dashboard` first consumer |
-| B | `AUTHORIZE UX-016 SLICE B` | — | — | Role-specific dashboards (locked) |
+| B | `AUTHORIZE UX-016 SLICE B – Master Admin Experience` | 2026-08-05 | Product / UX | Master Admin Portal Launcher · View As / Test Mode · Mission Control on Universal Dashboard ([17](./17-slice-b-authorization.md)) |
 | C | `AUTHORIZE UX-016 SLICE C` | — | — | Sidebar workflow optimization (locked) |
 | D | `AUTHORIZE UX-016 SLICE D` | — | — | Notification Center · Activity · AI briefing (locked) |
 

@@ -255,6 +255,18 @@ export async function getOperationsCenterSnapshot(
   const organizationCount = orgCountResult.count ?? (platformOrgRows.data?.length ?? 0);
   const managerCount = managerCountResult.count;
   const vendorHealth = healthChecks.find((check) => check.table === "vendors");
+  const usersTotal =
+    (managerCount ?? 0) + (dashboard?.tenantsTotal ?? 0) + (vendorHealth?.count ?? 0);
+  const usersAvailable =
+    (managerCountResult.error == null && managerCount != null) || Boolean(dashboard);
+  const supportPending = dashboard?.communications
+    ? dashboard.communications.pendingConversations ||
+      dashboard.communications.unreadMessages ||
+      dashboard.communications.awaitingResidentReply
+    : null;
+  const healthyProviders = providers.filter((provider) => provider.status === "connected").length;
+  const providerTotal = providers.length;
+  const healthFailed = healthChecks.filter((check) => !check.ok).length;
 
   const kpis: BusinessKpi[] = [
     {
@@ -264,6 +276,14 @@ export async function getOperationsCenterSnapshot(
       href: "/master-admin/impersonation",
       scope: "platform",
       available: orgCountResult.error == null
+    },
+    {
+      id: "users",
+      label: "Users",
+      value: usersAvailable ? String(usersTotal) : "—",
+      href: "/master-admin/impersonation",
+      scope: "platform",
+      available: usersAvailable
     },
     {
       id: "property-managers",
@@ -306,12 +326,46 @@ export async function getOperationsCenterSnapshot(
       available: Boolean(dashboard)
     },
     {
+      id: "open-work-orders",
+      label: "Open Work Orders",
+      value: dashboard?.maintenance ? String(dashboard.maintenance.openWorkOrders) : "—",
+      href: "/maintenance",
+      scope: "active_org",
+      available: Boolean(dashboard?.maintenance)
+    },
+    {
       id: "open-maintenance",
       label: "Open Maintenance",
       value: dashboard?.maintenance ? String(dashboard.maintenance.openWorkOrders) : "—",
       href: "/maintenance",
       scope: "active_org",
       available: Boolean(dashboard?.maintenance)
+    },
+    {
+      id: "leases",
+      label: "Leases",
+      value: dashboard?.leases ? String(dashboard.leases.activeLeases) : "—",
+      href: "/leases",
+      scope: "active_org",
+      available: Boolean(dashboard?.leases)
+    },
+    {
+      id: "support",
+      label: "Support",
+      value: supportPending == null ? "—" : String(supportPending),
+      href: "/communications/inbox",
+      scope: "active_org",
+      available: supportPending != null
+    },
+    {
+      id: "billing",
+      label: "Billing",
+      value: dashboard?.financial
+        ? formatCurrency(dashboard.financial.outstandingBalancesTotal)
+        : "—",
+      href: "/financials",
+      scope: "active_org",
+      available: Boolean(dashboard?.financial)
     },
     {
       id: "revenue",
@@ -322,6 +376,22 @@ export async function getOperationsCenterSnapshot(
       href: "/financials",
       scope: "active_org",
       available: Boolean(dashboard?.financial)
+    },
+    {
+      id: "integrations",
+      label: "Integrations",
+      value: providerTotal > 0 ? `${healthyProviders}/${providerTotal}` : "—",
+      href: "/settings/integrations",
+      scope: "platform",
+      available: providerTotal > 0
+    },
+    {
+      id: "platform-health",
+      label: "Platform Health",
+      value: healthFailed === 0 ? "Healthy" : String(healthFailed),
+      href: "/master-admin/health",
+      scope: "platform",
+      available: healthChecks.length > 0
     },
     {
       id: "monthly-growth",

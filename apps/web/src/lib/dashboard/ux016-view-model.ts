@@ -46,6 +46,8 @@ export type UniversalInsightItem = {
 
 export type UniversalDashboardViewModel = {
   greeting: {
+    /** Optional surface eyebrow (defaults to Operations in the framework shell) */
+    surfaceLabel?: string;
     timeGreeting: string;
     userName: string | null;
     organizationName: string | null;

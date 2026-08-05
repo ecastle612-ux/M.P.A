@@ -118,14 +118,16 @@ No PM portfolio chrome. Tokenized `/v/[token]` flows keep the same attention →
 
 | Section | Specialization |
 |---------|----------------|
-| Greeting | Operator identity · support context (not customer vanity) |
-| Immediate Attention | Sev incidents · failed provision · stuck impersonation / recovery · payout/billing fires |
-| Today’s Mission | Open recovery queues · commercial health exceptions · notification diagnostics |
-| Quick Actions | Search org · Start guided recovery · Open commercial dashboard · Notification test (entitled) |
-| Recent Activity | Audit / recovery events |
-| Insights | Platform health (below fold) |
+| Greeting | Operator identity · active org · **Platform Health** place signal · operator status line |
+| Immediate Attention | Sev incidents · failed integrations · stuck recovery / notifications · migration fires (≤ 5) |
+| Today’s Mission | Support · onboarding · maintenance pressure · platform/integrations · org directory |
+| Quick Actions | Open Any Portal · Impersonate User · Platform Health · Seed Demo · Integrations (≤ 6) |
+| Recent Activity | Attention / health / support events already on Mission Control snapshot |
+| Insights | Organizations · Users · Properties · Open Work Orders · Leases · Support · Billing · Integrations · Platform Health (below fold) |
 
-Impersonation remains ADMIN-001 tooling — not an end-user portal picker.
+**Slice B:** Mission Control remounts onto Universal Dashboard Framework; Portal Launcher expands role cards with Open Portal · View As · Launch in Test Mode ([18](./18-master-admin-experience.md)).
+
+Impersonation remains ADMIN-001 tooling — View As routes there; not an end-user portal picker.
 
 ---
 
