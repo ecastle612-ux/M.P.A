@@ -45,7 +45,8 @@ export function WorkOrdersTable({
   vendors = [],
   initialStatusFilter = "open",
   initialPriorityFilter = "all",
-  initialQuery = ""
+  initialQuery = "",
+  embedded = false
 }: {
   initialItems: WorkOrderListItem[];
   permissions: {
@@ -60,6 +61,8 @@ export function WorkOrdersTable({
   initialStatusFilter?: string;
   initialPriorityFilter?: string;
   initialQuery?: string;
+  /** STD-001 — when true, page hero softens under Universal Dashboard. */
+  embedded?: boolean;
 }) {
   const { notify } = useToast();
   const [items, setItems] = useState(initialItems);
@@ -288,9 +291,13 @@ export function WorkOrdersTable({
         recommendationsPlaceholder="Use Resolve / Inspect on a row to assign, change status, or complete without Edit."
       />
       <DataTableLayout
-        overline="Operations"
-        title="Maintenance"
-        description="Guided work — assign, progress, and close without hunting Edit screens."
+        overline={embedded ? "Queue" : "Operations"}
+        title={embedded ? "Work orders" : "Maintenance"}
+        description={
+          embedded
+            ? "Assign, progress, and close work — after the operational briefing above."
+            : "Guided work — assign, progress, and close without hunting Edit screens."
+        }
         actions={
           permissions.canCreate ? (
             <Link href="/maintenance/new">

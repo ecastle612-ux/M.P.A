@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { AppPage } from "../../../../components/presentation/app-page";
 import {
-  TenantPortalHome,
   type TenantAttentionItem,
   type TenantTodayCard
 } from "../../../../components/portal/tenant-portal-home";
+import { ResidentUniversalDashboard } from "../../../../components/portal/resident-universal-dashboard";
 import { MasterAdminPortalDemoPanel } from "../../../../components/master-admin/master-admin-portal-demo-panel";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -18,6 +18,7 @@ import { getResidentPaymentDashboard } from "../../../../lib/billing/server";
 import { getWorkOrdersForOrganization } from "../../../../lib/maintenance/server";
 import { toMaintenanceStatusLabel } from "../../../../lib/maintenance/contracts";
 import { getTenantForOrganization } from "../../../../lib/tenant/server";
+import { buildResidentUniversalDashboardViewModel } from "../../../../lib/resident/ux016-view-model";
 
 function firstNameFrom(displayName: string, fallbackFirst: string): string {
   const fromDisplay = displayName.trim().split(/\s+/)[0];
@@ -43,6 +44,7 @@ function sortAttention(items: TenantAttentionItem[]): TenantAttentionItem[] {
   });
 }
 
+/** STD-001 operational remediation — Resident home on Universal Dashboard Framework. */
 export default async function TenantPortalPage() {
   const supabase = await createAuthServerComponentClient();
   const {
@@ -217,10 +219,20 @@ export default async function TenantPortalPage() {
     }
   }
 
+  const model = buildResidentUniversalDashboardViewModel({
+    firstName,
+    propertyName: tenantDetail?.propertyName ?? null,
+    unitNumber: tenantDetail?.unitNumber ?? null,
+    hasLinkedTenant: Boolean(tenant),
+    attentionItems,
+    todayCards
+  });
+
   return (
     <AppPage>
       {inPortalTest && !tenant ? <MasterAdminPortalDemoPanel portal="resident" /> : null}
-      <TenantPortalHome
+      <ResidentUniversalDashboard
+        model={model}
         firstName={firstName}
         propertyName={tenantDetail?.propertyName ?? null}
         unitNumber={tenantDetail?.unitNumber ?? null}

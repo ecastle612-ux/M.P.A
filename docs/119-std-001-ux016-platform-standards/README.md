@@ -32,7 +32,9 @@ Future modules should feel like they have **always belonged** in M.P.A. — with
 | [07 — Admin surface migration plan](./07-admin-surface-migration-plan.md) | Remount Class D Admin/module dashboards onto UDF — **complete** |
 | [08 — Compliance remediation authorization](./08-compliance-remediation-authorization.md) | Authorize phrase for remaining Admin dashboard remounts |
 | [09 — Compliance remediation implementation](./09-compliance-remediation-implementation.md) | Commercial · Financials · Migration on UDF + screenshot evidence |
-| [10 — Operational workspace compliance audit](./10-operational-workspace-compliance-audit.md) | Every primary operational home vs STD-001 — **5 gaps** (Resident · Owner · Leasing · Technician AUTH · Facility) |
+| [10 — Operational workspace compliance audit](./10-operational-workspace-compliance-audit.md) | Every primary operational home vs STD-001 — ✅ **100% compliant** |
+| [11 — Operational workspace remediation authorization](./11-operational-workspace-remediation-authorization.md) | `AUTHORIZE STD-001 Operational Workspace Remediation` |
+| [12 — Operational workspace remediation implementation](./12-operational-workspace-remediation-implementation.md) | Resident · Owner · Leasing · Maintenance · Facility on UDF + screenshot evidence |
 
 ---
 

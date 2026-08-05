@@ -37,7 +37,8 @@ function formatCurrency(value: number): string {
 export function LeasesTable({
   initialItems,
   permissions,
-  initialStatusFilter = "all"
+  initialStatusFilter = "all",
+  embedded = false
 }: {
   initialItems: LeaseListItem[];
   permissions: {
@@ -47,6 +48,8 @@ export function LeasesTable({
     canDelete: boolean;
   };
   initialStatusFilter?: string;
+  /** STD-001 — when true, page hero softens under Universal Dashboard. */
+  embedded?: boolean;
 }) {
   const [items, setItems] = useState(initialItems);
   const [query, setQuery] = useState("");
@@ -170,9 +173,13 @@ export function LeasesTable({
         }
       />
     <DataTableLayout
-      overline="Portfolio"
-      title="Leases"
-      description="Track lease terms, renewals, and lifecycle events across your portfolio."
+      overline={embedded ? "Pipeline" : "Portfolio"}
+      title={embedded ? "Lease records" : "Leases"}
+      description={
+        embedded
+          ? "Filter and advance leases without leaving this workspace."
+          : "Track lease terms, renewals, and lifecycle events across your portfolio."
+      }
       actions={
         permissions.canCreate ? (
           <div className="flex flex-wrap items-center gap-3">

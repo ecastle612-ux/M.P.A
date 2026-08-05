@@ -1,12 +1,22 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../components/presentation/app-page";
-import { LeasesTable } from "../../../components/lease/leases-table";
+import { LeasingUniversalDashboard } from "../../../components/lease/leasing-universal-dashboard";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
-import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
+import {
+  resolveActiveOrganizationIdForUser,
+  getOrganizationsForUser
+} from "../../../lib/organization/server";
 import { getLeasesForOrganization } from "../../../lib/lease/server";
+import { buildLeasingUniversalDashboardViewModel } from "../../../lib/lease/ux016-view-model";
+import {
+  formatHumanGreetingName,
+  formatHumanOrganizationName
+} from "../../../lib/format/display-labels";
+import { getUserDisplayNameForGreeting } from "../../../lib/profile/server-fetch";
 
+/** STD-001 operational remediation — Leasing home on Universal Dashboard Framework. */
 export default async function LeasesPage({
   searchParams
 }: {
@@ -40,7 +50,12 @@ export default async function LeasesPage({
     redirect("/unauthorized");
   }
 
-  const items = await getLeasesForOrganization(organizationId, { status: "all" }, supabase);
+  const [items, organizations, profileDisplayName] = await Promise.all([
+    getLeasesForOrganization(organizationId, { status: "all" }, supabase),
+    getOrganizationsForUser(user.id),
+    getUserDisplayNameForGreeting(user.id, user.email ?? null)
+  ]);
+
   const permissions = {
     canCreate: evaluatePermission(authorization, "lease:create"),
     canUpdate: evaluatePermission(authorization, "lease:update"),
@@ -48,9 +63,19 @@ export default async function LeasesPage({
     canDelete: evaluatePermission(authorization, "lease:delete")
   };
 
+  const organizationName = organizations.find((organization) => organization.id === organizationId)?.name ?? null;
+
+  const model = buildLeasingUniversalDashboardViewModel({
+    items,
+    canCreate: permissions.canCreate,
+    userName: formatHumanGreetingName(profileDisplayName, user.email ?? null),
+    organizationName: organizationName ? formatHumanOrganizationName(organizationName) : null
+  });
+
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Leases" }]}>
-      <LeasesTable
+      <LeasingUniversalDashboard
+        model={model}
         initialItems={items}
         permissions={permissions}
         {...(statusParam ? { initialStatusFilter: statusParam } : {})}

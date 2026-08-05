@@ -1,16 +1,19 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../../components/presentation/app-page";
-import { OwnerPortalDashboard } from "../../../../components/portal/owner-portal-dashboard";
+import { OwnerUniversalDashboard } from "../../../../components/portal/owner-universal-dashboard";
 import { MasterAdminPortalDemoPanel } from "../../../../components/master-admin/master-admin-portal-demo-panel";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
-import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
+import { resolveActiveOrganizationIdForUser, getOrganizationsForUser } from "../../../../lib/organization/server";
 import { getActiveMasterAdminSession } from "../../../../lib/master-admin/session";
 import {
   loadOwnerPortalDashboard,
   type OwnerPortalDashboardModel
 } from "../../../../lib/owner-portal/dashboard";
+import { buildOwnerUniversalDashboardViewModel } from "../../../../lib/owner-portal/ux016-view-model";
+import { formatHumanOrganizationName } from "../../../../lib/format/display-labels";
 
+/** STD-001 operational remediation — Owner home on Universal Dashboard Framework. */
 export default async function OwnerPortalPage() {
   const supabase = await createAuthServerComponentClient();
   const {
@@ -52,10 +55,19 @@ export default async function OwnerPortalPage() {
     );
   }
 
+  const organizations = await getOrganizationsForUser(user.id);
+  const organizationName = organizations.find((organization) => organization.id === organizationId)?.name ?? null;
+
+  const udfModel = buildOwnerUniversalDashboardViewModel({
+    model,
+    organizationName: organizationName ? formatHumanOrganizationName(organizationName) : null
+  });
+
   return (
     <AppPage breadcrumbs={[{ href: "/portal", label: "Portals" }, { label: "Owner" }]}>
-      <OwnerPortalDashboard
-        model={model}
+      <OwnerUniversalDashboard
+        model={udfModel}
+        ownerModel={model}
         demoPanel={inPortalTest ? <MasterAdminPortalDemoPanel portal="owner" /> : null}
       />
     </AppPage>

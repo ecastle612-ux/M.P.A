@@ -1,13 +1,23 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../components/presentation/app-page";
-import { WorkOrdersTable } from "../../../components/maintenance/work-orders-table";
+import { MaintenanceUniversalDashboard } from "../../../components/maintenance/maintenance-universal-dashboard";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
-import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
+import {
+  resolveActiveOrganizationIdForUser,
+  getOrganizationsForUser
+} from "../../../lib/organization/server";
 import { getWorkOrdersForOrganization } from "../../../lib/maintenance/server";
 import { getVendorsForOrganization } from "../../../lib/vendor/server";
+import { buildMaintenanceUniversalDashboardViewModel } from "../../../lib/maintenance/ux016-view-model";
+import {
+  formatHumanGreetingName,
+  formatHumanOrganizationName
+} from "../../../lib/format/display-labels";
+import { getUserDisplayNameForGreeting } from "../../../lib/profile/server-fetch";
 
+/** STD-001 operational remediation — Maintenance home on Universal Dashboard Framework. */
 export default async function MaintenancePage({
   searchParams
 }: {
@@ -42,9 +52,11 @@ export default async function MaintenancePage({
   }
 
   const canAssignVendor = evaluatePermission(authorization, "vendor:assign");
-  const [items, vendors] = await Promise.all([
+  const [items, vendors, organizations, profileDisplayName] = await Promise.all([
     getWorkOrdersForOrganization(organizationId, { status: "all" }, supabase),
-    canAssignVendor ? getVendorsForOrganization(organizationId, { status: "active" }, supabase) : Promise.resolve([])
+    canAssignVendor ? getVendorsForOrganization(organizationId, { status: "active" }, supabase) : Promise.resolve([]),
+    getOrganizationsForUser(user.id),
+    getUserDisplayNameForGreeting(user.id, user.email ?? null)
   ]);
 
   const permissions = {
@@ -56,9 +68,19 @@ export default async function MaintenancePage({
     canAssignVendor
   };
 
+  const organizationName = organizations.find((organization) => organization.id === organizationId)?.name ?? null;
+
+  const model = buildMaintenanceUniversalDashboardViewModel({
+    items,
+    canCreate: permissions.canCreate,
+    userName: formatHumanGreetingName(profileDisplayName, user.email ?? null),
+    organizationName: organizationName ? formatHumanOrganizationName(organizationName) : null
+  });
+
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Maintenance" }]}>
-      <WorkOrdersTable
+      <MaintenanceUniversalDashboard
+        model={model}
         initialItems={items}
         permissions={permissions}
         vendors={vendors.map((vendor) => ({ id: vendor.id, businessName: vendor.businessName }))}

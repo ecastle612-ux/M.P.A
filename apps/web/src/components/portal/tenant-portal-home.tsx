@@ -51,7 +51,8 @@ export function TenantPortalHome({
   unitNumber,
   hasLinkedTenant,
   attentionItems,
-  todayCards
+  todayCards,
+  embedded = false
 }: {
   firstName: string;
   propertyName: string | null;
@@ -59,6 +60,8 @@ export function TenantPortalHome({
   hasLinkedTenant: boolean;
   attentionItems: TenantAttentionItem[];
   todayCards: TenantTodayCard[];
+  /** STD-001 — when true, greeting / For you sit in Universal Dashboard above. */
+  embedded?: boolean;
 }) {
   const forYouEmpty = attentionItems.length === 0;
   /** Avoid repeating the same calm message — Today only when there is content, or when For you has items but Today does not. */
@@ -67,15 +70,18 @@ export function TenantPortalHome({
 
   return (
     <div className="mx-auto max-w-lg space-y-5 pb-10 sm:max-w-2xl sm:space-y-6">
-      <div className="mpa-rise-in">
-        <TenantGreetingLine
-          firstName={firstName}
-          propertyName={propertyName}
-          unitNumber={unitNumber}
-          hasLinkedTenant={hasLinkedTenant}
-        />
-      </div>
+      {embedded ? null : (
+        <div className="mpa-rise-in">
+          <TenantGreetingLine
+            firstName={firstName}
+            propertyName={propertyName}
+            unitNumber={unitNumber}
+            hasLinkedTenant={hasLinkedTenant}
+          />
+        </div>
+      )}
 
+      {embedded ? null : (
       <section
         aria-labelledby="tenant-attention-heading"
         className="mpa-rise-in mpa-rise-in-delay-1 space-y-2.5"
@@ -141,6 +147,7 @@ export function TenantPortalHome({
           </Card>
         )}
       </section>
+      )}
 
       <section
         aria-labelledby="tenant-actions-heading"

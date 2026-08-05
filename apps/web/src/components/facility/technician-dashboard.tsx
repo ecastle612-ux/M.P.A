@@ -64,21 +64,33 @@ function Bucket({
 export function TechnicianDashboard({
   buckets,
   canCreateWorkOrder,
-  canWriteInventory
+  canWriteInventory,
+  embedded = false
 }: {
   buckets: TechnicianDashboardBuckets;
   canCreateWorkOrder: boolean;
   canWriteInventory: boolean;
+  /** STD-001 — when true, parallel Facility dashboard hero is omitted (UDF above). */
+  embedded?: boolean;
 }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-std001={embedded ? "facility-tools-embedded" : undefined}>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-[var(--mpa-color-text-primary)]">Facility</h1>
-          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-            What needs attention today — assigned to you first.
-          </p>
-        </div>
+        {embedded ? (
+          <div>
+            <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">Assigned boards</p>
+            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+              Work assigned to you first — inventory and calendar shortcuts stay here.
+            </p>
+          </div>
+        ) : (
+          <div>
+            <h1 className="text-2xl font-semibold text-[var(--mpa-color-text-primary)]">Facility</h1>
+            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+              What needs attention today — assigned to you first.
+            </p>
+          </div>
+        )}
         <div className="flex flex-wrap gap-2">
           {canCreateWorkOrder ? (
             <Link href="/maintenance/new" className={primaryLinkClass}>

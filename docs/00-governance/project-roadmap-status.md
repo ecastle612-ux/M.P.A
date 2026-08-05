@@ -73,7 +73,7 @@ UI-001 (inherits UX-012 — Future Release polish package)
 | **FIN-001** | Approved · Implemented (reporting foundation) | — | Complete for foundation | — | Architect | Consume-only for owners via OWNER-001 |
 | **UI-001** | Future Release | Not opened | Locked | Commercial Launch | Product | Do not open until launch blockers clear |
 | **UX-016** | ✅ **CLOSED · CERTIFIED** | Slices A–D complete | Implement finished / package closed | Canopy · EA · UX-012 · ADR-032/033 | Product + UX + Architect | Inherit via STD-001; do not extend; next = CORE-004 planning |
-| **STD-001** | ✅ **Accepted** | Permanent standards | N/A (living law) | UX-016 closed | Product + UX + Architect | Cite on every new home/nav PR · Admin homes PASS · [operational workspace audit](../119-std-001-ux016-platform-standards/10-operational-workspace-compliance-audit.md): **5** non-admin primary-home gaps |
+| **STD-001** | ✅ **Accepted** | Permanent standards | N/A (living law) | UX-016 closed | Product + UX + Architect | Cite on every new home/nav PR · [operational workspace audit](../119-std-001-ux016-platform-standards/10-operational-workspace-compliance-audit.md) **100% compliant** · proceed CORE-004 Phase 1 |
 | **CORE-004** | 📝 Draft — Planning | None | Implement **locked** | UX-016 closed · STD-001 · CORE-003 | Product + Architect | Complete planning → `APPROVE CORE-004` |
 
 ---

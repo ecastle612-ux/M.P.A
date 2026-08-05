@@ -123,26 +123,31 @@ function ListItemRow({ item }: { item: OwnerDashboardListItem }) {
 
 export function OwnerPortalDashboard({
   model,
-  demoPanel
+  demoPanel,
+  embedded = false
 }: {
   model: OwnerPortalDashboardModel;
   demoPanel?: ReactNode;
+  /** STD-001 — when true, welcome / attention sit in Universal Dashboard above. */
+  embedded?: boolean;
 }) {
   return (
     <div className="space-y-6">
-      <div className="mpa-rise-in space-y-1">
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
-          {model.welcomeName ? `Welcome, ${model.welcomeName}` : "Owner dashboard"}
-        </h1>
-        <p className="max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Portfolio performance, recent activity, and what needs attention — scoped to your owner access.
-          {model.propertyCount > 0 ? ` Tracking ${model.propertyCount} properties.` : null}
-        </p>
-      </div>
+      {embedded ? null : (
+        <div className="mpa-rise-in space-y-1">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
+            {model.welcomeName ? `Welcome, ${model.welcomeName}` : "Owner dashboard"}
+          </h1>
+          <p className="max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
+            Portfolio performance, recent activity, and what needs attention — scoped to your owner access.
+            {model.propertyCount > 0 ? ` Tracking ${model.propertyCount} properties.` : null}
+          </p>
+        </div>
+      )}
 
-      {demoPanel}
+      {embedded ? null : demoPanel}
 
-      {model.attentionItems.length > 0 ? (
+      {embedded || model.attentionItems.length === 0 ? null : (
         <section aria-labelledby="owner-attention-heading" className="mpa-rise-in mpa-rise-in-delay-1 space-y-3">
           <h2
             id="owner-attention-heading"
@@ -156,7 +161,7 @@ export function OwnerPortalDashboard({
             ))}
           </ul>
         </section>
-      ) : null}
+      )}
 
       <section aria-labelledby="owner-metrics-heading" className="mpa-rise-in mpa-rise-in-delay-2 space-y-3">
         <h2 id="owner-metrics-heading" className="sr-only">
