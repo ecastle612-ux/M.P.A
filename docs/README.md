@@ -119,16 +119,16 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [S3 Certification](./25-fin-ops-001/s3/index.md) | Command Center & owner reporting |
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
 
-### 26 LAUNCH-001 (Customer Onboarding)
+### 26 LAUNCH-001 (Customer Promise Roadmap)
 
 | Document | Purpose |
 |----------|---------|
-| [Package Index](./26-launch-001-onboarding/index.md) | Draft audit — Approve before code |
-| [Customer Onboarding Blueprint](./26-launch-001-onboarding/customer-onboarding-blueprint.md) | Canonical journey |
-| [Onboarding Blockers](./26-launch-001-onboarding/onboarding-blockers.md) | Hard/soft blockers today |
-| [Recommended Improvements](./26-launch-001-onboarding/recommended-improvements.md) | P0–P2 recommendations |
-| [Implementation Slices](./26-launch-001-onboarding/implementation-slices.md) | L0–L6 after Approve |
-| [Customer #1 Readiness](./26-launch-001-onboarding/customer-1-readiness-assessment.md) | Unaided launch NO-GO |
+| [Package Index](./26-launch-001-onboarding/index.md) | Customer Promise roadmap — Approve before code |
+| [Promise Evaluation Framework](./26-launch-001-onboarding/promise-evaluation-framework.md) | Six questions every ad must pass |
+| [Capability Promises](./26-launch-001-onboarding/capability-promises.md) | All PM promises scored |
+| [Customer Journeys](./26-launch-001-onboarding/customer-journeys.md) | Outcome order (replaces eng slices) |
+| [Master Admin Certification Console](./26-launch-001-onboarding/master-admin-certification-console.md) | How operators certify each promise |
+| [Launch Readiness Gate](./26-launch-001-onboarding/launch-readiness-gate.md) | GO only when journeys work unaided |
 
 ### Governance & gates
 

@@ -1,9 +1,19 @@
-# 26 — LAUNCH-001 Customer Onboarding
+# 26 — LAUNCH-001 Customer Promise Roadmap
 
-**Status:** Draft (audit & planning only)  
+**Status:** Draft (planning only — **no implementation**)  
 **Gate:** Design → Document → **Approve** → Implement  
 **Date:** 2026-08-06  
-**Authorization:** Documentation only — **do not implement** until `APPROVE LAUNCH-001` (or equivalent)
+**Supersedes:** Engineering-slice framing in v0.1 (L0–L6 module order)
+
+---
+
+## Mission
+
+Every advertised capability in the **Property Manager** subscription must be executable by a brand-new customer **without guidance**.
+
+Implementation order follows **customer outcomes** — not technical modules.
+
+**Success:** Launch ready only when every advertised workflow can be demonstrated start-to-finish **without workarounds**.
 
 ---
 
@@ -11,46 +21,55 @@
 
 | Workstream | Status |
 |------------|--------|
-| FIN-OPS-001 | **Paused after S3** — S0–S3 certified; S4+ not authorized |
-| Commercial Experience Hardening | **Pass** (entitlements, Guided Setup chrome, fail-closed nav) |
-| Facility Operations features | **Stopped / deferred** |
-| LAUNCH-001 | **Audit & planning** — this package |
-
-Financial Operations is sufficiently complete for launch **planning**. The next launch-critical initiative is whether a brand-new customer can become operational **without assistance**.
+| FIN-OPS-001 | **Paused after S3** — money loop exists; not the whole product promise |
+| Commercial hardening | **Pass** — what you bought is clearer; execution is not |
+| Facility Operations | **Out of this package** — not a Property Manager promise |
+| LAUNCH-001 | **Customer Promise roadmap** — docs only until Approve |
 
 ---
 
-## Mission
+## Promise evaluation (mandatory)
 
-Determine whether a brand-new customer can successfully become operational without assistance.
+For every advertised capability, answer:
 
-**This package does not authorize code.**
+1. Can a first-time customer **discover** it?  
+2. Can they complete it **without documentation**?  
+3. Can they complete it **without contacting support**?  
+4. Does the workflow have a clear **beginning and end**?  
+5. Does it **match what we advertise**?  
+6. Can **Master Admin validate** the workflow?
 
----
-
-## Deliverables
-
-| # | Document | Purpose |
-|---|----------|---------|
-| 1 | [Customer Onboarding Blueprint](./customer-onboarding-blueprint.md) | Canonical journey + target experience |
-| 2 | [Onboarding Blockers](./onboarding-blockers.md) | Confusion and hard stops today |
-| 3 | [Recommended Onboarding Improvements](./recommended-improvements.md) | Prioritized fixes (design intent) |
-| 4 | [Implementation Slices](./implementation-slices.md) | Certifiable slices after approval |
-| 5 | [Customer #1 Readiness Assessment](./customer-1-readiness-assessment.md) | GO / NO-GO for unaided launch |
+Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 
 ---
 
-## Related packages
+## Package contents
 
-| Package | Relationship |
-|---------|--------------|
-| [24 Product Architecture](../24-product-architecture/index.md) | Commercial model, nav, entitlements |
-| [24 Launch Readiness](../24-product-architecture/launch-readiness.md) | Commercial clarity bar (Approved; historically Not ready) |
-| [24 Onboarding certification](../24-product-architecture/certification/customer-onboarding-certification.md) | Baseline commercial walkthrough |
-| [25 FIN-OPS-001](../25-fin-ops-001/index.md) | Money path S0–S3 (delivered); not full ops onboarding |
-| [21 First Five Minutes](../21-experience-architecture/first-five-minutes.md) | Experience intent (Draft) |
-| [ADR-015](../18-decision-log/adr-015-three-commercial-products.md) | Stopped LAUNCH until commercial model clear |
-| [Implementation Gate](../00-governance/implementation-gate.md) | Permanent Design → Document → Approve → Implement |
+| Document | Purpose |
+|----------|---------|
+| [Promise Evaluation Framework](./promise-evaluation-framework.md) | Six questions + scoring |
+| [Capability Promises](./capability-promises.md) | All PM promises: journey, status, friction, blockers, fix, verify |
+| [Customer Journeys](./customer-journeys.md) | Outcome-ordered journeys (replaces engineering slices) |
+| [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
+| [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
+| [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
+
+---
+
+## Advertised Property Manager capabilities
+
+| Capability | Nav / catalog promise | Launch verdict today |
+|------------|----------------------|----------------------|
+| Property Management | Properties + Mission Control | **Fail** |
+| Leasing | Vacancy → lease | **Fail** |
+| Residents | Resident operational records | **Fail** |
+| Maintenance | Unit / resident work orders | **Fail** |
+| Vendor Management | Assign & manage vendors | **Fail** |
+| Financial Operations | Rent, charges, collections | **Conditional** (works if discovered) |
+| Documents | Leases, agreements, evidence | **Fail** |
+| Communications | Threads, notices, notifications | **Fail** |
+
+Detail: [Capability Promises](./capability-promises.md)
 
 ---
 
@@ -58,10 +77,22 @@ Determine whether a brand-new customer can successfully become operational witho
 
 | Instruction |
 |-------------|
-| **Do not implement** onboarding code until this package is Approved |
-| **Do not authorize FIN-OPS-001 S4** from this workstream |
+| **Do not implement** until `APPROVE LAUNCH-001` |
+| **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
+| **Do not authorize FIN-OPS-001 S4** from this package |
 | **Do not begin Facility Operations features** |
-| **Do not modify CORE-004** |
+| **Do not advertise** a capability that cannot be completed unaided |
+
+---
+
+## Related
+
+| Package | Role |
+|---------|------|
+| [24 Property Manager Module Map](../24-product-architecture/property-manager-module-map.md) | What we advertise |
+| [24 Subscription Matrix](../24-product-architecture/subscription-matrix.md) | SKU inclusion |
+| [25 FIN-OPS-001](../25-fin-ops-001/index.md) | Money capability (partial promise met) |
+| [Implementation Gate](../00-governance/implementation-gate.md) | Design → Document → Approve → Implement |
 
 ---
 
@@ -69,7 +100,6 @@ Determine whether a brand-new customer can successfully become operational witho
 
 | Field | Value |
 |-------|-------|
-| Package | LAUNCH-001 Customer Onboarding |
-| Version | 0.1.0-draft |
-| Authoritative for planning | Yes (until Approved) |
+| Package | LAUNCH-001 Customer Promise Roadmap |
+| Version | 0.2.0-draft |
 | Implementation | **Blocked** |

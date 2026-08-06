@@ -91,7 +91,7 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | ADR-015 (three commercial products) | **Accepted** |
 | Commercial Experience Hardening P0 | **Complete / Pass** — entitlements, integrity, search, setup, Admin visibility |
 | Financial Operations (FIN-OPS-001) | **Approved** · ADR-016 **Accepted** · **S0–S3 delivered** · **Paused** (S4+ **NO-GO**) |
-| LAUNCH-001 Customer Onboarding | **Draft audit/planning** under `docs/26-launch-001-onboarding/` · **NO-GO implement** until Approve |
+| LAUNCH-001 Customer Promise Roadmap | **Draft** under `docs/26-launch-001-onboarding/` · promises/journeys · **NO-GO implement** until Approve |
 | Facility Operations features | **Stopped / deferred** |
 | CORE-004 / UX-016 | **Stopped** unless separately re-authorized |
 

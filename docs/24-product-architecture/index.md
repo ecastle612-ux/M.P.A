@@ -12,7 +12,7 @@
 | Workstream | Instruction |
 |------------|-------------|
 | CORE-004 | **Do not continue** |
-| LAUNCH-001 | **Do not implement** — [Draft onboarding package](../26-launch-001-onboarding/index.md) (audit/planning only) |
+| LAUNCH-001 | **Do not implement** — [Customer Promise roadmap](../26-launch-001-onboarding/index.md) (docs only) |
 | Financial Operations implementation | **Do not implement** |
 | Any feature / UI / schema for unapproved modules | **Blocked** by Implementation Gate |
 
