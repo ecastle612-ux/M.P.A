@@ -46,6 +46,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 21 | [Experience Architecture](./21-experience-architecture/index.md) | How M.P.A. should *feel* (Phase 1.6) |
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
+| 24 | [Facility Operations Architecture](./24-facility-operations-architecture/index.md) | Product Architecture review — Facility vs Maintenance (Draft) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -71,6 +72,14 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Zero Learning Goal](./21-experience-architecture/zero-learning-goal.md) | Understandable without training |
 | [Micro Interaction Philosophy](./21-experience-architecture/micro-interaction-philosophy.md) | Emotional outcomes of key actions |
 | [Recommendations Before Implementation](./21-experience-architecture/recommendations-before-implementation.md) | Experience gate |
+
+### 24 Facility Operations Architecture (Draft)
+
+| Document | Purpose |
+|----------|---------|
+| [Product Architecture Review](./24-facility-operations-architecture/product-architecture-review.md) | Facility vs Maintenance boundaries and recommendations |
+| [Capability Ownership Matrix](./24-facility-operations-architecture/capability-ownership-matrix.md) | Inventory → Facility Analytics ownership audit |
+| [ADR-015](./18-decision-log/adr-015-facility-operations-first-class-workspace.md) | Proposed decision — Facility as first-class workspace |
 
 ### Governance & gates
 
@@ -114,6 +123,6 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Field | Value |
 |-------|-------|
-| Blueprint version | 0.4.0 |
-| Last updated | 2026-07-13 |
-| Phase | 2.1 Foundation Hardening |
+| Blueprint version | 0.4.1 |
+| Last updated | 2026-08-06 |
+| Phase | 2.1 Foundation Hardening · Facility Ops architecture Draft |

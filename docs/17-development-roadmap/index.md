@@ -164,6 +164,8 @@ AI features, accounting, and workflow modules.
 
 **Duration estimate:** 4–5 weeks
 
+**Facility boundary (Proposed — ADR-015):** Phase 3 does **not** absorb Inventory, Assets, PM programs, or Capital Projects. Those belong to Facility Operations (Phase 4.5 / CORE-004b) after architecture approval. STD-001 presentation remount of `/facility` is not Facility product approval.
+
 ---
 
 ## Phase 4: Vendor Marketplace Operations
@@ -184,6 +186,32 @@ AI features, accounting, and workflow modules.
 **Exit criteria:** PM posts job → vendors bid → PM selects → vendor completes → invoices → gets paid through platform.
 
 **Duration estimate:** 4–5 weeks
+
+---
+
+## Phase 4.5: Facility Operations Foundation (Proposed)
+
+**Status:** Proposed — blocked on approval of [24 Facility Operations Architecture](../24-facility-operations-architecture/index.md) and [ADR-015](../18-decision-log/adr-015-facility-operations-first-class-workspace.md).  
+**CORE mapping:** CORE-004a (architecture — docs only) → CORE-004b (this phase, implementation after approval).  
+**Goal:** First-class Facility Operations workspace for plant stewardship — not a Maintenance sub-screen.
+
+| Deliverable | Workflow Served |
+|-------------|-----------------|
+| Asset / equipment registry (property → unit → asset) | Facility Operations |
+| Inventory + parts catalog and stock minimum | Facility Operations |
+| Preventive maintenance programs → work order generation | Facility → Maintenance |
+| Operational inspection program spine | Facility Operations |
+| Safety incident → P0 work order handoff | Facility → Maintenance |
+| Facility home (stewardship, not WO triage clone) | Facility Operations |
+| Domain events: PM due, inspection finding, safety open, WO closed → asset/PM updates | Facility, Maintenance |
+
+**Out of scope for 4.5:** Full CapEx workspace (see optional Phase 8.5), predictive maintenance AI (Phase 9), procurement ERP.
+
+**Exit criteria:** PM can register assets, define a PM program that creates Maintenance work orders, track parts stock, and close the loop when Maintenance completes the job.
+
+**Dependency:** Phase 3 Maintenance work-order lifecycle must exist (Facility emits/consumes work orders; it does not re-implement triage).
+
+**Duration estimate:** sized after ADR-015 acceptance (technical scope: new domains + handoff events + Facility IA).
 
 ---
 
@@ -268,6 +296,22 @@ AI features, accounting, and workflow modules.
 
 ---
 
+## Phase 8.5: Capital Projects Workspace (Proposed)
+
+**Status:** Proposed — depends on Phase 4.5 Facility Foundation + ADR-015.  
+**Goal:** CapEx programs as Facility-owned planning objects, not tags on expensive work orders.
+
+| Deliverable | Workflow Served |
+|-------------|-----------------|
+| Capital project / phase / budget objects | Facility Operations |
+| Work package → Maintenance work orders | Facility → Maintenance |
+| Actuals rollup from closed/paid jobs | Facility, Financial |
+| Owner-visible CapEx narrative hooks | Owner Reporting |
+
+**Exit criteria:** PM can plan a capital project, spawn work packages, execute via Maintenance, and see budget vs actuals.
+
+---
+
 ## Phase 9: AI Platform Maturity
 
 **Goal:** Embedded AI across all workflows.
@@ -277,11 +321,13 @@ AI features, accounting, and workflow modules.
 | Natural language search (⌘K) | All |
 | Knowledge base + embeddings | All |
 | Automation rules engine | All |
-| Predictive maintenance | Maintenance |
+| Predictive maintenance | Facility + Maintenance (requires Phase 4.5 asset/PM data) |
 | Advanced recommendations | All |
 | AI feedback analytics | All |
 
 **Duration estimate:** 4–6 weeks (ongoing)
+
+**Dependency note (Proposed):** Predictive maintenance must not ship against work-order history alone. It requires Facility-owned asset lifecycle + PM program data from Phase 4.5.
 
 ---
 
@@ -305,20 +351,22 @@ AI features, accounting, and workflow modules.
 ## Timeline Summary
 
 ```
-Phase 0: Blueprint          ████ (current)
+Phase 0: Blueprint          ████
 Phase 1: Foundation         ████████
 Phase 2: Property Core      ██████
 Phase 3: Maintenance        ██████████
 Phase 4: Marketplace Ops    ██████████
+Phase 4.5: Facility Ops     ████████████  (Proposed — ADR-015)
 Phase 5: Leasing            ████████████
 Phase 6: Rent Collection    ██████████
 Phase 7: Owner Reporting    ████████
 Phase 8: Move Out           ██████
-Phase 9: AI Maturity        ████████████
+Phase 8.5: Capital Projects ██████        (Proposed)
+Phase 9: AI Maturity        ████████████  (predictive maint. needs 4.5)
 Phase 10: Production        ████████
-                            ──────────────────
-                            ~35-45 weeks to commercial launch
 ```
+
+Phase 4.5 / 8.5 are **Proposed** roadmap inserts from the Facility Operations architecture review. They are not approved delivery commitments until ADR-015 is Accepted.
 
 ---
 
@@ -340,3 +388,5 @@ Phase 10: Production        ████████
 - **05** Business Workflows — workflow definitions
 - **08** Architecture Improvements — pre-development blockers
 - **19** Future Native Mobile Strategy
+- **24** Facility Operations Architecture — Proposed Phase 4.5 / CORE-004 framing
+- **ADR-015** Facility Operations as first-class workspace (Proposed)
