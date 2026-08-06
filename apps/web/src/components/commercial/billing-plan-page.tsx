@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  COMMERCIAL_MODULES,
-  SKU_SUMMARIES,
-  PRODUCT_SKUS,
-  modulesForSku,
-  upgradeCuesForSku
-} from "@mpa/shared";
+import { SKU_SUMMARIES, PRODUCT_SKUS, modulesForSku, upgradeCuesForSku } from "@mpa/shared";
 import { useCommercialContext } from "../shell/commercial-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 
@@ -24,8 +18,8 @@ export function BillingPlanPage() {
           Billing & Plan
         </h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          M.P.A. is sold as three commercial offerings. Your organization currently has:{" "}
-          <strong>{productLabel ?? "No product selected"}</strong>.
+          Your organization currently has: <strong>{productLabel ?? "No product selected"}</strong>. Plan changes are
+          performed only by platform commercial operations.
         </p>
       </section>
 
@@ -39,11 +33,11 @@ export function BillingPlanPage() {
               className={`rounded-md border p-4 ${
                 active
                   ? "border-[var(--mpa-color-brand-primary)] bg-white"
-                  : "border-[var(--mpa-color-border-default)] bg-white"
+                  : "border-[var(--mpa-color-border-default)] bg-white opacity-80"
               }`}
             >
               <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-                {active ? "Current plan" : "Commercial product"}
+                {active ? "Your purchased plan" : "Other commercial product"}
               </p>
               <h2 className="mt-1 font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
                 {summary.label}
@@ -55,7 +49,7 @@ export function BillingPlanPage() {
       </section>
 
       <section>
-        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">What you have</h2>
+        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Included in your plan</h2>
         <ul className="mt-3 grid gap-2 md:grid-cols-2">
           {included.map((module) => (
             <li
@@ -75,7 +69,7 @@ export function BillingPlanPage() {
 
       <section>
         <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-          What requires Complete Platform / the other product
+          Not included — requires another subscription
         </h2>
         <ul className="mt-3 space-y-2">
           {cues.map((cue) => (
@@ -83,35 +77,17 @@ export function BillingPlanPage() {
               key={`${cue.moduleLabel}-${cue.requires}`}
               className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 text-sm"
             >
-              <p className="font-medium text-[var(--mpa-color-text-primary)]">
-                Requires {cue.requires}
-              </p>
+              <p className="font-medium text-[var(--mpa-color-text-primary)]">Requires {cue.requires}</p>
               <p className="mt-1 text-[var(--mpa-color-text-secondary)]">{cue.moduleLabel}</p>
               <p className="mt-1 text-[var(--mpa-color-text-secondary)]">{cue.reason}</p>
             </li>
           ))}
         </ul>
-      </section>
-
-      <section>
-        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Full commercial catalog</h2>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Master Admin and Complete Platform customers can see every module; single-product plans hide the other product from navigation.
-        </p>
-        <ul className="mt-3 grid gap-2 md:grid-cols-2">
-          {COMMERCIAL_MODULES.map((module) => (
-            <li key={module.id} className="text-sm text-[var(--mpa-color-text-secondary)]">
-              <span className="font-medium text-[var(--mpa-color-text-primary)]">{module.label}</span> —{" "}
-              {module.owner.split("_").join(" ")}
-            </li>
-          ))}
-        </ul>
         <p className="mt-4 text-sm">
-          Need to change products?{" "}
+          Continue setup:{" "}
           <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/setup">
-            Open Guided Setup
+            Guided Setup
           </Link>
-          .
         </p>
       </section>
     </main>

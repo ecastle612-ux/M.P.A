@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   entitlementsForSku,
+  evaluatePathEntitlement,
   hasEntitlement,
   modulesForSku,
   navigationGroupsForSku,
+  searchCatalogForSku,
   upgradeCuesForSku,
   workspaceLauncherItemsForSku,
   MASTER_ADMIN_NAV,
@@ -76,6 +78,44 @@ describe("module ownership boundaries", () => {
     const modules = modulesForSku("mpa_property_manager");
     const financial = modules.find((module) => module.id === "financial_operations");
     expect(financial?.readiness).toBe("planned");
+  });
+});
+
+describe("route entitlement enforcement", () => {
+  it("denies Facility routes for Property Manager SKU", () => {
+    const decision = evaluatePathEntitlement({
+      pathname: "/facility/assets",
+      sku: "mpa_property_manager"
+    });
+    expect(decision.allowed).toBe(false);
+  });
+
+  it("denies Property Manager routes for Facility SKU", () => {
+    const decision = evaluatePathEntitlement({
+      pathname: "/pm/leasing",
+      sku: "mpa_facility_operations"
+    });
+    expect(decision.allowed).toBe(false);
+  });
+
+  it("allows Complete Platform both product homes", () => {
+    expect(evaluatePathEntitlement({ pathname: "/pm/mission-control", sku: "mpa_complete_platform" }).allowed).toBe(
+      true
+    );
+    expect(
+      evaluatePathEntitlement({ pathname: "/facility/mission-control", sku: "mpa_complete_platform" }).allowed
+    ).toBe(true);
+  });
+
+  it("keeps search catalog inside entitlements", () => {
+    const results = searchCatalogForSku("mpa_property_manager", "facility");
+    expect(results.every((item) => !item.href.startsWith("/facility"))).toBe(true);
+  });
+
+  it("includes launcher in no-SKU navigation", () => {
+    const groups = navigationGroupsForSku(null);
+    const home = groups.find((group) => group.id === "home");
+    expect(home?.items.some((item) => item.href === "/launcher")).toBe(true);
   });
 });
 

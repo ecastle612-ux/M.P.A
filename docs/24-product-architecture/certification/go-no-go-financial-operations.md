@@ -1,63 +1,64 @@
 # GO / NO-GO — Begin Financial Operations?
 
-**Parent:** [Commercial Experience Certification](./index.md)  
-**Question:** May implementation begin Financial Operations after Phase 1 commercial alignment?
+**Parent:** [Commercial Experience Certification](./index.md) · [Hardening Report](./commercial-hardening-report.md)  
+**Updated:** 2026-08-06 (after P0 Commercial Experience Hardening)
 
 ---
 
 ## Recommendation
 
-# NO-GO
+# GO (conditional)
 
-Do **not** begin Financial Operations.
+Commercial Experience Hardening P0 is **Pass**.
 
-Do **not** begin Facility Operations feature work.
+Financial Operations may now enter the normal gate:
 
----
+**Design → Document → Approve → Implement**
 
-## Why NO-GO
+under Property Manager ownership only.
 
-Financial Operations is a Property Manager commercial module. Starting it now would add business capability on top of an experience that is **not yet certified** for:
-
-1. **Fail-closed entitlements** — deep links bypass SKU boundaries (P0-1)  
-2. **Purchase integrity** — customers can change their own SKU (P0-2)  
-3. **Basic chrome trust** — dead Search control (P0-3)  
-4. **Onboarding comprehension** — Guided Setup does not force “what’s included” (P0-4)  
-5. **Operator supportability** — Master Admin cannot manage Customer #1 subscriptions operationally (P1-7+)
-
-Shipping Financial Operations into this state would teach Customer #1 money workflows inside a product still learning how to explain and enforce what they bought.
+Facility Operations feature work remains **deferred / NO-GO**.
 
 ---
 
-## What would change this to GO
+## Why GO now
 
-Minimum certification flips from Fail → Pass:
+| Prior NO-GO reason | Status after hardening |
+|--------------------|------------------------|
+| Deep links bypass entitlements | **Fixed** — middleware fail-closed |
+| Customers could change SKU | **Fixed** — operator-only writes + RLS |
+| Dead header Search | **Fixed** — entitlement-aware Global Search |
+| Guided Setup auto-complete | **Fixed** — billing + home required; exits to product home |
+| Master Admin visible to all | **Fixed** — operator-only visibility + route gate |
 
-| Gate | Required outcome |
-|------|------------------|
-| P0-1 | Unentitled `/pm/*` and `/facility/*` routes redirect or 403 |
-| P0-2 | Customer Billing/Setup show **read-only** plan; only Master Admin assigns SKU |
-| P0-3 | Header Search removed **or** entitlement-aware |
-| P0-4 | Guided Setup requires Billing acknowledgment + deep-links to correct Mission Control |
-| P0-5 | Master Admin entry only for operators |
+Success criteria from hardening authorization:
 
-Strongly recommended before FO (not optional for Customer #1 support):
-
-| Gate | Required outcome |
-|------|------------------|
-| P1-7 / P1-8 | Admin can list orgs and assign/inspect subscriptions |
-| P1-1 | Single manager entry path (portal vs launcher reconciled) |
-
-Then: Financial Operations may re-enter **Design → Document → Approve → Implement** as its own gated package under Property Manager ownership.
+| Criterion | Met? |
+|-----------|------|
+| PM customer cannot accidentally experience Facility | Yes |
+| Facility customer cannot accidentally experience PM | Yes |
+| Complete customer sees one cohesive commercial OS | Yes |
+| Master Admin only for platform operators | Yes |
 
 ---
 
-## Explicitly out of scope for the GO decision
+## Conditions on the GO
 
-- Facility feature depth  
-- Capital Projects  
-- Full Impersonation  
-- Real rent/ledger workflows (those **are** Financial Operations — forbidden until GO)
+1. **No Facility implementation** in the FO package.  
+2. **FO scope** must be designed/documented/approved as its own package (Implementation Gate).  
+3. FO surfaces must continue to require `pm.financial_operations` entitlement.  
+4. Do not reopen CORE-004 / UX-016 inside FO without separate approval.  
+5. Apply migrations `20260806010000_*` and `20260806020000_*` before production use.
+
+---
+
+## Still NO-GO
+
+| Workstream | Decision |
+|------------|----------|
+| Facility Operations features | NO-GO / deferred |
+| Capital Projects | Future |
+| CORE-004 / UX-016 | Stopped unless re-authorized |
 
 ---
 
@@ -65,7 +66,6 @@ Then: Financial Operations may re-enter **Design → Document → Approve → Im
 
 | Role | Decision |
 |------|----------|
-| Commercial Experience Certification | **NO-GO** |
-| Next authorized theme | Commercial experience hardening (P0 list) |
-| Financial Operations | **Blocked** |
-| Facility Operations features | **Blocked** |
+| Commercial Experience Hardening P0 | **Pass** |
+| Begin Financial Operations (design gate) | **GO** |
+| Begin Facility Operations features | **NO-GO** |

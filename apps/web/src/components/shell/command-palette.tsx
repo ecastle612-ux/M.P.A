@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { searchCatalogForSku } from "@mpa/shared";
 import { CommandPaletteShell } from "@mpa/ui";
 import { useCommercialContext } from "./commercial-context";
 
 export function CommandPalette() {
   const router = useRouter();
-  const { navigationGroups, productLabel } = useCommercialContext();
+  const { productSku, productLabel } = useCommercialContext();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -29,36 +30,26 @@ export function CommandPalette() {
   }, []);
 
   const sections = useMemo(() => {
-    const navSection = {
-      title: `Navigation · ${productLabel ?? "No product"}`,
-      items: navigationGroups.flatMap((group) =>
-        group.items.map((item) => ({
-          id: item.href,
-          label: `${group.title}: ${item.label}${item.readiness === "planned" ? " (Planned)" : ""}`
-        }))
-      )
-    };
+    const results = searchCatalogForSku(productSku, query);
+    const byGroup = new Map<string, Array<{ id: string; label: string; shortcut?: string }>>();
+    for (const item of results) {
+      const group = byGroup.get(item.group) ?? [];
+      group.push({ id: item.href, label: item.label });
+      byGroup.set(item.group, group);
+    }
 
-    const actionSection = {
-      title: "Quick Actions",
+    const navSections = [...byGroup.entries()].map(([title, items]) => ({ title, items }));
+    const actions = {
+      title: `Quick Actions · ${productLabel ?? "No product"}`,
       items: [
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
         { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
         { id: "/launcher", label: "Open Workspace Launcher", shortcut: "G L" }
-      ]
+      ].filter((item) => searchCatalogForSku(productSku, "").some((result) => result.href === item.id) || !productSku)
     };
 
-    const all = [navSection, actionSection];
-    if (!query.trim()) {
-      return all;
-    }
-    return all
-      .map((section) => ({
-        ...section,
-        items: section.items.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()))
-      }))
-      .filter((section) => section.items.length > 0);
-  }, [navigationGroups, productLabel, query]);
+    return [...navSections, actions].filter((section) => section.items.length > 0);
+  }, [productLabel, productSku, query]);
 
   return (
     <>
@@ -69,7 +60,7 @@ export function CommandPalette() {
         aria-expanded={open}
         className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-gray-50"
       >
-        Search / Actions <kbd className="ml-2 text-xs">⌘K</kbd>
+        Quick Actions <kbd className="ml-2 text-xs">⌘K</kbd>
       </button>
       <CommandPaletteShell
         open={open}

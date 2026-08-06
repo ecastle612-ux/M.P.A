@@ -1,11 +1,5 @@
-import { AdminSimplePage } from "../../../../../components/admin/master-admin-pages";
+import { SubscriptionConsole } from "../../../../../components/admin/subscription-console";
 
 export default function Page() {
-  return (
-    <AdminSimplePage
-      title="Subscriptions"
-      description="Commercial SKU catalog and organization subscription operations."
-      status="aligned"
-    />
-  );
+  return <SubscriptionConsole />;
 }

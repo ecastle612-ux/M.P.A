@@ -254,7 +254,11 @@ export function modulesForSku(sku: ProductSku | null): CommercialModule[] {
 }
 
 export function navigationGroupsForSku(sku: ProductSku | null): NavGroup[] {
-  const entitlements = new Set(sku ? entitlementsForSku(sku) : ["platform.guided_setup", "platform.billing_self", "platform.org"]);
+  const entitlements = new Set(
+    sku
+      ? entitlementsForSku(sku)
+      : ["platform.guided_setup", "platform.billing_self", "platform.org", "platform.launcher"]
+  );
 
   const groups: NavGroup[] = [
     {
@@ -274,7 +278,7 @@ export function navigationGroupsForSku(sku: ProductSku | null): NavGroup[] {
       title: "Property Manager",
       product: "property_manager",
       items: [
-        { href: "/pm/mission-control", label: "Mission Control", readiness: "aligned", entitlement: "pm.mission_control" },
+        { href: "/pm/mission-control", label: "PM Mission Control", readiness: "aligned", entitlement: "pm.mission_control" },
         { href: "/pm/properties", label: "Properties", readiness: "aligned", entitlement: "pm.properties" },
         { href: "/pm/residents", label: "Residents", readiness: "aligned", entitlement: "pm.residents" },
         { href: "/pm/leasing", label: "Leasing", readiness: "aligned", entitlement: "pm.leasing" },
@@ -298,7 +302,7 @@ export function navigationGroupsForSku(sku: ProductSku | null): NavGroup[] {
       items: [
         {
           href: "/facility/mission-control",
-          label: "Mission Control",
+          label: "Facility Mission Control",
           readiness: "aligned",
           entitlement: "facility.mission_control"
         },
@@ -320,13 +324,8 @@ export function navigationGroupsForSku(sku: ProductSku | null): NavGroup[] {
           label: "Building Systems",
           readiness: "planned",
           entitlement: "facility.building_systems"
-        },
-        {
-          href: "/facility/capital-projects",
-          label: "Capital Projects",
-          readiness: "planned",
-          entitlement: "facility.capital_projects"
         }
+        // Capital Projects: future entitlement — Master Admin + Billing only until enabled
       ]
     });
   }
@@ -353,10 +352,6 @@ export function navigationGroupsForSku(sku: ProductSku | null): NavGroup[] {
       ...group,
       items: group.items.filter((item) => {
         if (!item.entitlement) {
-          return true;
-        }
-        // Capital projects: show as Planned in Facility/Complete nav for awareness, even if not entitled yet
-        if (item.entitlement === "facility.capital_projects" && sku && skuIncludesFacilityOperations(sku)) {
           return true;
         }
         return entitlements.has(item.entitlement);

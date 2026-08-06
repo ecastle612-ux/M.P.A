@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, Button } from "@mpa/ui";
+import { useOperatorContext } from "./operator-context";
 
 export function ProfileMenu() {
   const router = useRouter();
+  const { isPlatformOperator } = useOperatorContext();
   const [open, setOpen] = useState(false);
   const [displayName, setDisplayName] = useState("M.P.A.");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -79,9 +81,11 @@ export function ProfileMenu() {
           <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/setup")}>
             Guided Setup
           </Button>
-          <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/admin")}>
-            Master Admin
-          </Button>
+          {isPlatformOperator ? (
+            <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/admin")}>
+              Master Admin
+            </Button>
+          ) : null}
           <Button className="w-full" variant="secondary" onClick={handleLogout}>
             Logout
           </Button>

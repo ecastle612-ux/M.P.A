@@ -13,13 +13,15 @@ export function ApplicationShell({
   availableRoles,
   defaultRole,
   organizations,
-  defaultOrganizationId
+  defaultOrganizationId,
+  isPlatformOperator = false
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
   defaultRole: UserRole;
   organizations: OrganizationSummary[];
   defaultOrganizationId: string | null;
+  isPlatformOperator?: boolean;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -27,6 +29,7 @@ export function ApplicationShell({
       defaultRole={defaultRole}
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
+      isPlatformOperator={isPlatformOperator}
     >
       <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)]">
         <Sidebar />
