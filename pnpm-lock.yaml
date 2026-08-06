@@ -29,6 +29,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@mpa/email':
+        specifier: workspace:1.0.0
+        version: link:../../packages/email
       '@mpa/shared':
         specifier: workspace:1.0.0
         version: link:../../packages/shared

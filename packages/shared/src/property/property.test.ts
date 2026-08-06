@@ -4,6 +4,7 @@ import {
   PROPERTY_EVENT_CATALOG,
   buildMissionControlNextAction,
   buildPropertyReadyAssistantCopy,
+  buildTeamReadyAssistantCopy,
   createPortfolioPropertyInputSchema,
   unitLabelsForCount
 } from "./index";
@@ -26,18 +27,28 @@ describe("LAUNCH-001 J1 property domain", () => {
     expect(PROPERTY_AUDIT_CATALOG.some((item) => item.action === "property.created")).toBe(true);
   });
 
-  it("progresses Mission Control from first property to invite team", () => {
+  it("progresses Mission Control from first property to invite team to resident", () => {
     const before = buildMissionControlNextAction({ setupComplete: true, propertyCount: 0 });
     expect(before.id).toBe("add_first_property");
-    expect(before.href).toContain("/pm/properties");
 
-    const after = buildMissionControlNextAction({
+    const invite = buildMissionControlNextAction({
       setupComplete: true,
       propertyCount: 1,
-      firstPropertyId: "00000000-0000-4000-8000-000000000001"
+      firstPropertyId: "00000000-0000-4000-8000-000000000001",
+      teamReady: false
     });
-    expect(after.id).toBe("invite_team");
-    expect(after.assistantRecommendation).toBe("Invite your team.");
+    expect(invite.id).toBe("invite_team");
+    expect(invite.href).toBe("/settings/team");
+    expect(invite.assistantRecommendation).toBe("Invite your team.");
+
+    const afterTeam = buildMissionControlNextAction({
+      setupComplete: true,
+      propertyCount: 1,
+      teamReady: true
+    });
+    expect(afterTeam.id).toBe("add_first_resident");
+    expect(afterTeam.assistantRecommendation).toBe("Add your first resident.");
     expect(buildPropertyReadyAssistantCopy("Oak Street")).toContain("Invite your team");
+    expect(buildTeamReadyAssistantCopy()).toContain("Add your first resident");
   });
 });

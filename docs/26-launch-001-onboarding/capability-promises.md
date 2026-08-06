@@ -433,7 +433,7 @@ Not a nav module, but required for all promises:
 | Purchase Property Manager | Self-serve assigns PM SKU (no customer picker); Admin assign / white-glove OK |
 | Org created | Works |
 | Guided Setup → Mission Control | **J0 delivered** |
-| Staff invited | Broken (no email / link UX) — J2 |
+| Staff invited | **J2 delivered** — Team invite + email/accept |
 | Email verification | Partial (Supabase) |
 
 See [Customer Journeys](./customer-journeys.md) Journey J0–J2 · [J0 certification](./j0/certification.md).

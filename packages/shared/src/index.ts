@@ -5,4 +5,5 @@ export * from "./auth/permissions";
 export * from "./commercial";
 export * from "./finance";
 export * from "./property";
+export * from "./team";
 export * from "./env/base-env";

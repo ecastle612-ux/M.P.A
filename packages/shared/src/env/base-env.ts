@@ -13,7 +13,10 @@ export const serverEnvSchema = clientEnvSchema.extend({
   /** Optional until Stripe keys are provisioned; online pay degrades to manual-only. */
   STRIPE_SECRET_KEY: z.string().min(1).optional(),
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
-  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).optional()
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).optional(),
+  /** Optional until Resend is provisioned; invites still create + expose accept link. */
+  RESEND_API_KEY: z.string().min(1).optional(),
+  RESEND_FROM_EMAIL: z.string().email().optional()
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;

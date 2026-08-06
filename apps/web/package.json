@@ -13,6 +13,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,md,css}\""
   },
   "dependencies": {
+    "@mpa/email": "workspace:1.0.0",
     "@mpa/shared": "workspace:1.0.0",
     "@mpa/supabase": "workspace:1.0.0",
     "@mpa/ui": "workspace:1.0.0",

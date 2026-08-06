@@ -2,14 +2,23 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Card, Input } from "@mpa/ui";
 import { createAuthClient } from "../../lib/auth/client";
 
 type AuthMode = "sign_in" | "sign_up";
 
+function safeNextPath(value: string | null): string | null {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return null;
+  }
+  return value;
+}
+
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = safeNextPath(searchParams.get("next"));
   const supabase = createAuthClient();
   const [mode, setMode] = useState<AuthMode>("sign_in");
   const [email, setEmail] = useState("");
@@ -44,7 +53,11 @@ export function LoginForm() {
         return;
       }
 
-      setNotice("Account created. Check your inbox for verification, then sign in.");
+      setNotice(
+        nextPath
+          ? "Account created. Verify your email if required, then sign in to accept your invitation."
+          : "Account created. Check your inbox for verification, then sign in."
+      );
       setMode("sign_in");
       setPassword("");
       setConfirmPassword("");
@@ -60,7 +73,7 @@ export function LoginForm() {
       return;
     }
 
-    router.replace("/dashboard");
+    router.replace(nextPath ?? "/dashboard");
   }
 
   return (
@@ -69,9 +82,11 @@ export function LoginForm() {
         {mode === "sign_in" ? "Sign in to Property Manager" : "Create your account"}
       </h1>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        {mode === "sign_in"
-          ? "After sign-in you continue Guided Setup or land in Mission Control."
-          : "Verify your email, then sign in to create your organization."}
+        {nextPath
+          ? "Sign in with the invited email, then continue to accept your invitation."
+          : mode === "sign_in"
+            ? "After sign-in you continue Guided Setup or land in Mission Control."
+            : "Verify your email, then sign in to create your organization."}
       </p>
       <div className="mt-4 grid grid-cols-2 gap-2">
         <Button

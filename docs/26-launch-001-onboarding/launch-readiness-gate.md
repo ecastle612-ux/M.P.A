@@ -53,8 +53,8 @@ Assisted demos that rely on the above **do not** count as launch ready.
 
 ### North-star journey
 - [x] J0 Purchase → trusted home (**delivered + certified**)  
-- [x] J1 Property added (**delivered** — [cert script](./j1/certification.md); MA Pass still required)  
-- [ ] J2 Staff invited  
+- [x] J1 Property added (**delivered + certified**)  
+- [x] J2 Staff invited (**delivered** — [cert script](./j2/certification.md); MA Pass still required)  
 - [ ] J3 Resident + lease  
 - [ ] J4 Lease signed (or approved offline honesty shipped)  
 - [ ] J5 Rent collected  
@@ -69,7 +69,7 @@ Assisted demos that rely on the above **do not** count as launch ready.
 
 ### Governance
 - [x] `APPROVE LAUNCH-001` ([ADR-017](../18-decision-log/adr-017-launch-001-customer-promise-journeys.md))  
-- [ ] Journeys authorized and certified individually (J0–J1 authorized/delivered; J2–J8 not authorized)  
+- [ ] Journeys authorized and certified individually (J0–J2 authorized/delivered; J3–J8 not authorized)  
 - [x] FIN-OPS remains single money system; S4 not required for this GO unless journey needs it  
 
 ---

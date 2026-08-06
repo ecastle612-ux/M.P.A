@@ -195,10 +195,13 @@ export async function getMissionControlState(
 ) {
   const properties = await listPortfolioProperties(supabase, organizationId);
   const first = properties[0] ?? null;
+  const { getTeamReadiness } = await import("../team/invitation-service");
+  const team = await getTeamReadiness(supabase, organizationId);
   const nextAction = buildMissionControlNextAction({
     setupComplete,
     propertyCount: properties.length,
-    firstPropertyId: first?.id ?? null
+    firstPropertyId: first?.id ?? null,
+    teamReady: team.teamReady
   });
 
   return {
@@ -209,6 +212,9 @@ export async function getMissionControlState(
       status: property.status,
       unitCount: property.property_units?.length ?? 0
     })),
+    teamReady: team.teamReady,
+    activeMemberCount: team.activeMemberCount,
+    acceptedInviteCount: team.acceptedInviteCount,
     nextAction,
     assistantRecommendation: nextAction.assistantRecommendation
   };
@@ -259,8 +265,8 @@ export async function getPropertyCommandCenter(
     readyMessage: "My property is ready.",
     nextJourney: {
       title: "Invite your team",
-      href: "/settings/organization",
-      detail: "J2 — bring teammates into this organization."
+      href: "/settings/team",
+      detail: "Bring teammates into this organization."
     }
   };
 }

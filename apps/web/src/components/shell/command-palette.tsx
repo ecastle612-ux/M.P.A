@@ -90,7 +90,7 @@ export function CommandPalette() {
         { id: "/pm/mission-control", label: "Open Mission Control", shortcut: "G M" },
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
         { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
-        { id: "/settings/organization", label: "Invite your team", shortcut: "I T" }
+        { id: "/settings/team", label: "Invite your team", shortcut: "I T" }
       ].filter(
         (item) =>
           item.id.startsWith("/pm/properties") ||

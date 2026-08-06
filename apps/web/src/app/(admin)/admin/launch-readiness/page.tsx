@@ -1,4 +1,5 @@
 import { J1CertificationPanel } from "../../../../components/admin/j1-certification-panel";
+import { J2CertificationPanel } from "../../../../components/admin/j2-certification-panel";
 
 export default function Page() {
   return (
@@ -8,14 +9,15 @@ export default function Page() {
           Launch Readiness
         </h1>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Customer Promise launch evidence. J0 certified; verify J1 below. Overall GO still requires
-          J2–J8.
+          Customer Promise launch evidence. J0–J1 certified; verify J2 below. Overall GO still
+          requires J3–J8.
         </p>
         <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Status: aligned
         </p>
       </section>
       <J1CertificationPanel />
+      <J2CertificationPanel />
     </main>
   );
 }

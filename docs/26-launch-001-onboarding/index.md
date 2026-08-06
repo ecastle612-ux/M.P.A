@@ -61,6 +61,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [Customer Journeys](./customer-journeys.md) | Outcome-ordered journeys (replaces engineering slices) |
 | [J0 Certification](./j0/certification.md) | Purchase → trusted home Pass script |
 | [J1 Certification](./j1/certification.md) | First property Pass script |
+| [J2 Certification](./j2/certification.md) | Build your team Pass script |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
@@ -73,8 +74,9 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 |---------------|-------|--------|
 | `APPROVE LAUNCH-001` | Customer Promise framework + journey model | **Approved** |
 | `AUTHORIZE LAUNCH-001 JOURNEY J0` | Purchase → First Login / trusted home | **Authorized + delivered** — certified |
-| `AUTHORIZE LAUNCH-001 JOURNEY J1` | First property | **Authorized + delivered** — MA cert script ready |
-| J2–J8 | — | **Not authorized** — do not implement |
+| `AUTHORIZE LAUNCH-001 JOURNEY J1` | First property | **Authorized + delivered** — certified |
+| `AUTHORIZE LAUNCH-001 JOURNEY J2` | Build your team | **Authorized + delivered** — MA cert script ready |
+| J3–J8 | — | **Not authorized** — do not implement |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
@@ -101,7 +103,7 @@ Detail: [Capability Promises](./capability-promises.md)
 
 | Instruction |
 |-------------|
-| **Do not** implement J2–J8 until explicitly authorized |
+| **Do not** implement J3–J8 until explicitly authorized |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |
 | **Do not begin Facility Operations features** |
@@ -128,4 +130,4 @@ Detail: [Capability Promises](./capability-promises.md)
 |-------|-------|
 | Package | LAUNCH-001 Customer Promise Roadmap |
 | Version | 1.0.0-approved |
-| Implementation | **Journey-gated** (J0–J1 delivered; J2+ blocked) |
+| Implementation | **Journey-gated** (J0–J2 delivered; J3+ blocked) |

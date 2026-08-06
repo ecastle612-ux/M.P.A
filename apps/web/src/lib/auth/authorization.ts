@@ -10,9 +10,16 @@ type ResolvedAuthorizationContext = ReturnType<typeof buildAuthorizationContext>
 };
 
 function toUserRoles(roles: readonly string[]): UserRole[] {
-  return roles.filter(
-    (role): role is UserRole =>
-      role === "property_manager" || role === "property_owner" || role === "tenant" || role === "vendor"
+  return roles.filter((role): role is UserRole =>
+    [
+      "organization_admin",
+      "property_manager",
+      "leasing_agent",
+      "maintenance_technician",
+      "property_owner",
+      "tenant",
+      "vendor"
+    ].includes(role)
   );
 }
 

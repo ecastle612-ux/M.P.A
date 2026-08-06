@@ -33,7 +33,7 @@ Master Admin
     └── Evidence pack (export for launch review)
 ```
 
-Until built: operators use the **verification scripts** below manually. J0: [j0/certification.md](./j0/certification.md). J1: [j1/certification.md](./j1/certification.md) + Admin Launch Readiness evidence panel. Console UI may ship progressively; scripts are authoritative for Pass.
+Until built: operators use the **verification scripts** below manually. J0–J2 scripts under `j0/`, `j1/`, `j2/` + Admin Launch Readiness evidence panels. Console UI may ship progressively; scripts are authoritative for Pass.
 
 ---
 

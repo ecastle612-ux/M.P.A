@@ -15,7 +15,14 @@ export type Database = {
           effect: "allow" | "deny";
           id: string;
           organization_id: string;
-          role: "property_manager" | "property_owner" | "tenant" | "vendor";
+          role:
+            | "organization_admin"
+            | "property_manager"
+            | "leasing_agent"
+            | "maintenance_technician"
+            | "property_owner"
+            | "tenant"
+            | "vendor";
         };
         Insert: {
           capability_key: string;
@@ -24,7 +31,14 @@ export type Database = {
           effect: "allow" | "deny";
           id?: string;
           organization_id: string;
-          role: "property_manager" | "property_owner" | "tenant" | "vendor";
+          role:
+            | "organization_admin"
+            | "property_manager"
+            | "leasing_agent"
+            | "maintenance_technician"
+            | "property_owner"
+            | "tenant"
+            | "vendor";
         };
         Update: {
           capability_key?: string;
@@ -33,7 +47,14 @@ export type Database = {
           effect?: "allow" | "deny";
           id?: string;
           organization_id?: string;
-          role?: "property_manager" | "property_owner" | "tenant" | "vendor";
+          role?:
+            | "organization_admin"
+            | "property_manager"
+            | "leasing_agent"
+            | "maintenance_technician"
+            | "property_owner"
+            | "tenant"
+            | "vendor";
         };
         Relationships: [
           {
@@ -51,6 +72,10 @@ export type Database = {
           accepted_by: string | null;
           created_at: string;
           email: string;
+          email_error: string | null;
+          email_provider_id: string | null;
+          email_sent_at: string | null;
+          email_status: "pending" | "sent" | "failed" | "skipped";
           expires_at: string;
           id: string;
           invited_by: string;
@@ -65,6 +90,10 @@ export type Database = {
           accepted_by?: string | null;
           created_at?: string;
           email: string;
+          email_error?: string | null;
+          email_provider_id?: string | null;
+          email_sent_at?: string | null;
+          email_status?: "pending" | "sent" | "failed" | "skipped";
           expires_at?: string;
           id?: string;
           invited_by: string;
@@ -79,6 +108,10 @@ export type Database = {
           accepted_by?: string | null;
           created_at?: string;
           email?: string;
+          email_error?: string | null;
+          email_provider_id?: string | null;
+          email_sent_at?: string | null;
+          email_status?: "pending" | "sent" | "failed" | "skipped";
           expires_at?: string;
           id?: string;
           invited_by?: string;
@@ -192,19 +225,40 @@ export type Database = {
           capability_key: string;
           created_at: string;
           id: string;
-          role: "property_manager" | "property_owner" | "tenant" | "vendor";
+          role:
+            | "organization_admin"
+            | "property_manager"
+            | "leasing_agent"
+            | "maintenance_technician"
+            | "property_owner"
+            | "tenant"
+            | "vendor";
         };
         Insert: {
           capability_key: string;
           created_at?: string;
           id?: string;
-          role: "property_manager" | "property_owner" | "tenant" | "vendor";
+          role:
+            | "organization_admin"
+            | "property_manager"
+            | "leasing_agent"
+            | "maintenance_technician"
+            | "property_owner"
+            | "tenant"
+            | "vendor";
         };
         Update: {
           capability_key?: string;
           created_at?: string;
           id?: string;
-          role?: "property_manager" | "property_owner" | "tenant" | "vendor";
+          role?:
+            | "organization_admin"
+            | "property_manager"
+            | "leasing_agent"
+            | "maintenance_technician"
+            | "property_owner"
+            | "tenant"
+            | "vendor";
         };
         Relationships: [
           {

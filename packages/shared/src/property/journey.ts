@@ -1,9 +1,14 @@
 /**
- * LAUNCH-001 J1 Mission Control / Assistant progression.
+ * LAUNCH-001 Mission Control / Assistant progression (J0–J2).
  */
 
 export type MissionControlNextAction = {
-  id: "complete_setup" | "add_first_property" | "invite_team" | "open_property";
+  id:
+    | "complete_setup"
+    | "add_first_property"
+    | "invite_team"
+    | "add_first_resident"
+    | "open_property";
   title: string;
   detail: string;
   href: string;
@@ -14,6 +19,8 @@ export function buildMissionControlNextAction(input: {
   setupComplete: boolean;
   propertyCount: number;
   firstPropertyId?: string | null;
+  /** True when at least one teammate has accepted / active membership beyond the creator alone. */
+  teamReady?: boolean;
 }): MissionControlNextAction {
   if (!input.setupComplete) {
     return {
@@ -35,25 +42,29 @@ export function buildMissionControlNextAction(input: {
     };
   }
 
-  if (input.firstPropertyId) {
+  if (!input.teamReady) {
     return {
       id: "invite_team",
       title: "Invite your team",
       detail: "Your property is ready. Bring teammates in so they can help run day-to-day operations.",
-      href: "/settings/organization",
+      href: "/settings/team",
       assistantRecommendation: "Invite your team."
     };
   }
 
   return {
-    id: "invite_team",
-    title: "Invite your team",
-    detail: "Your property is ready. Invite teammates next.",
-    href: "/settings/organization",
-    assistantRecommendation: "Invite your team."
+    id: "add_first_resident",
+    title: "Add your first resident",
+    detail: "My team is ready. Add a resident to continue onboarding.",
+    href: "/pm/residents",
+    assistantRecommendation: "Add your first resident."
   };
 }
 
 export function buildPropertyReadyAssistantCopy(propertyName: string): string {
   return `${propertyName} is ready. Invite your team.`;
+}
+
+export function buildTeamReadyAssistantCopy(): string {
+  return "My team is ready. Add your first resident.";
 }

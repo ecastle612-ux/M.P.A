@@ -46,8 +46,8 @@ Every step must complete successfully without workarounds.
 | ID | Journey (customer outcome) | Promises exercised | Status today | Launch |
 |----|----------------------------|--------------------|--------------|--------|
 | **J0** | Buy Property Manager and reach a trusted home | Purchase, Setup, Mission Control | **Delivered** — certified | Pass |
-| **J1** | Add first property | Property Management | **Delivered** — MA cert pending | Certifying |
-| **J2** | Invite staff who can log in and help | Organizations / team | Fail | Blocked |
+| **J1** | Add first property | Property Management | **Delivered** — certified | Pass |
+| **J2** | Invite staff who can log in and help | Organizations / team | **Delivered** — MA cert pending | Certifying |
 | **J3** | Add resident and create lease | Residents, Leasing | Fail | Blocked |
 | **J4** | Sign (or honestly record) the lease | Leasing, Documents | Fail | Blocked |
 | **J5** | Collect first rent | Financial Operations, Residents | Conditional | Blocked* |
@@ -107,21 +107,23 @@ Mission Control
 ## J2 — Staff invited
 
 ```
-Settings → Invite teammate
-  → Email delivered with accept link
-  → Teammate accepts
-  → Lands with correct role
-  → Appears in memberships
+Mission Control → Invite your team
+  → /settings/team
+  → Assign launch role
+  → Email + accept link
+  → Accept → role home
+  → MC / Assistant → Add your first resident
 ```
 
 | Field | Content |
 |-------|---------|
-| Current | DB invite; no email; no link in UI |
-| Blockers | Unaided invite impossible |
-| Fix | Email + copy-link; role defaults; role manage |
-| MA verify | Invitation sent event; accept; membership role |
+| Status | **Authorized + delivered** |
+| Current | Six launch roles; Resend email; accept sets org + role home; single Team invite UI |
+| Remaining | Master Admin runs [J2 certification](./j2/certification.md) |
+| Out of scope | Residents product (J3) |
+| MA verify | [J2 certification](./j2/certification.md) |
 
-**Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J2`
+**Authorized:** `AUTHORIZE LAUNCH-001 JOURNEY J2`
 
 ---
 
