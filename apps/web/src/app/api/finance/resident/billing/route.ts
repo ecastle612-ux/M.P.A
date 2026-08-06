@@ -47,6 +47,7 @@ export async function GET() {
     const openCharges = (ledger.charges ?? []).filter((charge) =>
       ["open", "partially_paid"].includes(charge.status)
     );
+    const paidCharges = (ledger.charges ?? []).filter((charge) => charge.status === "paid");
     const lateFees = openCharges.filter((charge) => charge.charge_type === "late_fee");
     const receipts = (ledger.payments ?? [])
       .flatMap((payment) => {
@@ -70,6 +71,7 @@ export async function GET() {
       resident,
       balance,
       openCharges,
+      paidCharges,
       upcomingCharges: upcoming,
       lateFees,
       paymentArrangements: arrangements ?? [],

@@ -1,5 +1,5 @@
 /**
- * LAUNCH-001 Mission Control / Assistant progression (J0–J4).
+ * LAUNCH-001 Mission Control / Assistant progression (J0–J5).
  */
 
 export type MissionControlNextAction = {
@@ -10,6 +10,7 @@ export type MissionControlNextAction = {
     | "add_first_resident"
     | "create_first_lease"
     | "collect_first_rent"
+    | "submit_first_maintenance"
     | "open_property";
   title: string;
   detail: string;
@@ -27,6 +28,8 @@ export function buildMissionControlNextAction(input: {
   residentReady?: boolean;
   /** True when at least one lease has been signed/activated. */
   leaseReady?: boolean;
+  /** True when at least one successful rent/payment collection exists. */
+  rentReady?: boolean;
 }): MissionControlNextAction {
   if (!input.setupComplete) {
     return {
@@ -78,12 +81,22 @@ export function buildMissionControlNextAction(input: {
     };
   }
 
+  if (!input.rentReady) {
+    return {
+      id: "collect_first_rent",
+      title: "Collect your first rent",
+      detail: "My resident is fully onboarded. Collect the first rent to continue operations.",
+      href: "/pm/financial-operations#collect",
+      assistantRecommendation: "Collect your first rent."
+    };
+  }
+
   return {
-    id: "collect_first_rent",
-    title: "Collect your first rent",
-    detail: "My resident is fully onboarded. Collect the first rent to continue operations.",
-    href: "/pm/financial-operations",
-    assistantRecommendation: "Collect your first rent."
+    id: "submit_first_maintenance",
+    title: "Submit your first maintenance request",
+    detail: "My first rent has been collected. Handle your first maintenance request next.",
+    href: "/pm/maintenance",
+    assistantRecommendation: "Submit your first maintenance request."
   };
 }
 
@@ -101,4 +114,8 @@ export function buildResidentReadyAssistantCopy(residentName: string): string {
 
 export function buildLeaseReadyAssistantCopy(residentName: string): string {
   return `${residentName} is fully onboarded. Collect your first rent.`;
+}
+
+export function buildRentReadyAssistantCopy(): string {
+  return "My first rent has been collected. Submit your first maintenance request.";
 }

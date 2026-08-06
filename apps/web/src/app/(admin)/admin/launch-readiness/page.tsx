@@ -2,6 +2,7 @@ import { J1CertificationPanel } from "../../../../components/admin/j1-certificat
 import { J2CertificationPanel } from "../../../../components/admin/j2-certification-panel";
 import { J3CertificationPanel } from "../../../../components/admin/j3-certification-panel";
 import { J4CertificationPanel } from "../../../../components/admin/j4-certification-panel";
+import { J5CertificationPanel } from "../../../../components/admin/j5-certification-panel";
 
 export default function Page() {
   return (
@@ -11,8 +12,8 @@ export default function Page() {
           Launch Readiness
         </h1>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Customer Promise launch evidence. J0–J3 delivered; verify J4 below. Overall GO still
-          requires J5–J8.
+          Customer Promise launch evidence. J0–J5 delivered; verify J5 below. Overall GO still
+          requires J6–J8.
         </p>
         <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Status: aligned
@@ -22,6 +23,7 @@ export default function Page() {
       <J2CertificationPanel />
       <J3CertificationPanel />
       <J4CertificationPanel />
+      <J5CertificationPanel />
     </main>
   );
 }

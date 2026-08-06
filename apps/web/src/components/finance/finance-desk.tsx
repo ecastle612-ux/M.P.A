@@ -75,6 +75,7 @@ export function FinanceDesk() {
   const [ledger, setLedger] = useState<LedgerResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const [oneTimeLabel, setOneTimeLabel] = useState("Pet fee");
   const [oneTimeAmount, setOneTimeAmount] = useState("50");
   const [manualAmount, setManualAmount] = useState("");
@@ -84,6 +85,8 @@ export function FinanceDesk() {
     () => leases.find((lease) => lease.id === selectedLeaseId) ?? null,
     [leases, selectedLeaseId]
   );
+  const hasCollected = (snapshot?.recentPayments.length ?? 0) > 0 || (snapshot?.collectedThisMonth ?? 0) > 0;
+  const firstCollectMode = !hasCollected;
 
   const refresh = useCallback(async () => {
     setError(null);
@@ -133,6 +136,20 @@ export function FinanceDesk() {
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const hash = window.location.hash.replace("#", "");
+    if (!hash) {
+      return;
+    }
+    const target = document.getElementById(hash);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [leases, snapshot]);
+
+  useEffect(() => {
     if (!selectedLeaseId) {
       return;
     }
@@ -177,6 +194,76 @@ export function FinanceDesk() {
           {error}
         </p>
       ) : null}
+      {notice ? (
+        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+          {notice}
+        </p>
+      ) : null}
+
+      <section
+        id="collect"
+        aria-labelledby="collect-first-rent-title"
+        className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+      >
+        <h2
+          id="collect-first-rent-title"
+          className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]"
+        >
+          {firstCollectMode ? "Collect your first rent" : "Collect rent"}
+        </h2>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          One payment workflow: review upcoming charges, send a payment reminder, then collect online
+          (resident Stripe checkout) or record a manual payment. Receipts, ledger, property money, and
+          owner summary update automatically.
+        </p>
+        {firstCollectMode ? (
+          <ol className="list-decimal space-y-1 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
+            <li>Confirm the lease has an open rent charge below.</li>
+            <li>Send a payment reminder so the resident opens Billing.</li>
+            <li>Resident pays online, or you record a manual payment + receipt.</li>
+          </ol>
+        ) : (
+          <p className="text-sm font-medium text-emerald-800">My first rent has been collected.</p>
+        )}
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            disabled={busy || !selectedLeaseId}
+            onClick={() => {
+              void run(async () => {
+                if (!selectedLeaseId) {
+                  throw new Error("Select a lease");
+                }
+                const result = await fetchJson<{ notice?: string }>("/api/finance/reminders", {
+                  method: "POST",
+                  body: JSON.stringify({ leaseId: selectedLeaseId })
+                });
+                setNotice(result.notice ?? "Payment reminder sent.");
+              });
+            }}
+          >
+            Send payment reminder
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              document.getElementById("charges")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            Review charges
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              document.getElementById("payments")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            Record manual payment
+          </Button>
+        </div>
+      </section>
 
       <section id="command-metrics" className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         <Metric
@@ -213,13 +300,15 @@ export function FinanceDesk() {
           Assistant recommendation
         </p>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-primary)]">
-          {(snapshot?.vendorInvoicesAwaitingApproval?.length ?? 0) > 0
-            ? `Review ${snapshot?.vendorInvoicesAwaitingApproval?.length} vendor invoice(s) awaiting approval, then schedule payment.`
-            : (snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length ?? 0) > 0
-              ? `Focus collections on ${snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length} overdue resident(s). Assess late fees after grace, send a reminder, or record a payment arrangement.`
-              : (snapshot?.outstandingBalance ?? 0) > 0
-                ? "Balances are open but not delinquent yet. Generate this month’s rent early and confirm residents can reach Billing → Pay now."
-                : "No open balances. Create recurring rent schedules for active leases so the next period posts automatically."}
+          {firstCollectMode
+            ? "Collect your first rent. Review open charges, send a reminder, then take online payment or record a manual payment."
+            : (snapshot?.vendorInvoicesAwaitingApproval?.length ?? 0) > 0
+              ? `Review ${snapshot?.vendorInvoicesAwaitingApproval?.length} vendor invoice(s) awaiting approval, then schedule payment.`
+              : (snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length ?? 0) > 0
+                ? `Focus collections on ${snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length} overdue resident(s). Assess late fees after grace, send a reminder, or record a payment arrangement.`
+                : (snapshot?.outstandingBalance ?? 0) > 0
+                  ? "Balances are open but not delinquent yet. Confirm residents can reach Billing → Pay now, or record a manual payment."
+                  : "My first rent has been collected. Submit your first maintenance request next."}
         </p>
       </section>
 
@@ -455,6 +544,10 @@ export function FinanceDesk() {
 
       <section id="payments" className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
         <h3 className="text-sm font-semibold">Record manual payment</h3>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          Same canonical payment path as Stripe checkout — balance, receipt, property snapshot, owner
+          summary, timeline, and audit update automatically.
+        </p>
         <form
           className="flex flex-wrap items-end gap-3"
           onSubmit={(event) => {
@@ -472,6 +565,7 @@ export function FinanceDesk() {
                 })
               });
               setManualAmount("");
+              setNotice("My first rent has been collected.");
             });
           }}
         >

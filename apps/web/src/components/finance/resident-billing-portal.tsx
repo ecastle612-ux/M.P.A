@@ -22,6 +22,14 @@ type ResidentAccount = {
     charge_type?: string;
     memo?: string | null;
   }>;
+  paidCharges: Array<{
+    id: string;
+    label: string;
+    amount: number;
+    amount_paid: number;
+    due_at: string;
+    status: string;
+  }>;
   upcomingCharges: Array<{ id: string; label: string; amount: number; due_at: string }>;
   lateFees: Array<{
     id: string;
@@ -60,6 +68,19 @@ export function ResidentBillingPortal() {
   const [onlinePaymentsEnabled, setOnlinePaymentsEnabled] = useState(false);
   const [accounts, setAccounts] = useState<ResidentAccount[]>([]);
   const [payingLeaseId, setPayingLeaseId] = useState<string | null>(null);
+  const [paymentNotice] = useState<string | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+    const payment = new URLSearchParams(window.location.search).get("payment");
+    if (payment === "success") {
+      return "Payment received. Your balance and receipt update automatically.";
+    }
+    if (payment === "cancelled") {
+      return "Checkout cancelled. No payment was taken.";
+    }
+    return null;
+  });
 
   useEffect(() => {
     void (async () => {
@@ -127,6 +148,14 @@ export function ResidentBillingPortal() {
     <div className="space-y-6">
       {error ? (
         <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">{error}</p>
+      ) : null}
+      {paymentNotice ? (
+        <p
+          role="status"
+          className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900"
+        >
+          {paymentNotice}
+        </p>
       ) : null}
 
       {accounts.map((account) => {
@@ -254,6 +283,27 @@ export function ResidentBillingPortal() {
                   </ul>
                 )}
               </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold">Paid charges</h3>
+              {(account.paidCharges?.length ?? 0) === 0 ? (
+                <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No paid charges yet.</p>
+              ) : (
+                <ul className="mt-2 space-y-2 text-sm">
+                  {account.paidCharges.map((charge) => (
+                    <li key={charge.id} className="flex justify-between gap-2 border-b py-1">
+                      <span>
+                        {charge.label}
+                        <span className="block text-xs text-[var(--mpa-color-text-secondary)]">
+                          Due {charge.due_at}
+                        </span>
+                      </span>
+                      <span>{formatMoney(Number(charge.amount_paid || charge.amount))}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             <div>

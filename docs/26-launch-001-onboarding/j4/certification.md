@@ -104,10 +104,6 @@ API: `GET /api/admin/launch/j4?organizationId=<uuid>`
 
 ---
 
-## STOP
+## Follow-on
 
-Do not implement J5 until:
-
-```
-AUTHORIZE LAUNCH-001 JOURNEY J5
-```
+J5 authorized and delivered — see [J5 certification](../j5/certification.md).

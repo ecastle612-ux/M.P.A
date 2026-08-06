@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   LEASE_STATUS_LABELS,
   buildLeaseReadyAssistantCopy,
+  buildRentReadyAssistantCopy,
   type CreateLeaseInput,
   type LeaseStatus
 } from "@mpa/shared";
@@ -523,18 +524,34 @@ export async function activateSignedLease(
     .eq("lease_id", leaseId)
     .maybeSingle();
 
+  const { data: pmResidentRow } = lease.resident_id
+    ? await supabase
+        .from("pm_residents")
+        .select("user_id, email")
+        .eq("id", lease.resident_id)
+        .maybeSingle()
+    : { data: null };
+  const linkedUserId = (pmResidentRow?.user_id as string | null | undefined) ?? null;
+
   if (!existingBilling) {
     const { error: billingError } = await supabase.from("lease_residents").insert({
       organization_id: organizationId,
       lease_id: leaseId,
+      user_id: linkedUserId,
       display_name: residentName,
-      email: residentEmail,
+      email: residentEmail ?? (pmResidentRow?.email as string | null | undefined) ?? null,
       is_primary: true,
       financial_status: "current"
     });
     if (billingError) {
       throw new Error(billingError.message);
     }
+  } else if (linkedUserId) {
+    await supabase
+      .from("lease_residents")
+      .update({ user_id: linkedUserId })
+      .eq("id", existingBilling.id)
+      .is("user_id", null);
   }
 
   await createRecurringScheduleAndCharge(supabase, organizationId, actorId, {
@@ -716,6 +733,14 @@ export async function getLeaseCommandCenter(
     .limit(1)
     .maybeSingle();
 
+  const { count: leasePaymentCount } = await supabase
+    .from("financial_payments")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId)
+    .eq("lease_id", leaseId)
+    .eq("status", "succeeded");
+  const rentCollected = (leasePaymentCount ?? 0) > 0;
+
   return {
     lease: {
       id: lease.id,
@@ -765,22 +790,34 @@ export async function getLeaseCommandCenter(
       occurredAt: event.created_at as string,
       kind: event.event_type as string
     })),
-    assistantRecommendation: active
-      ? buildLeaseReadyAssistantCopy(residentName)
-      : lease.status === "pending_signature"
-        ? "Waiting for signatures. Sync SignWell or record offline if needed."
-        : "Review the lease, then send it for signature.",
-    readyMessage: active ? "My resident is fully onboarded." : null,
-    nextJourney: active
+    assistantRecommendation: rentCollected
+      ? buildRentReadyAssistantCopy()
+      : active
+        ? buildLeaseReadyAssistantCopy(residentName)
+        : lease.status === "pending_signature"
+          ? "Waiting for signatures. Sync SignWell or record offline if needed."
+          : "Review the lease, then send it for signature.",
+    readyMessage: rentCollected
+      ? "My first rent has been collected."
+      : active
+        ? "My resident is fully onboarded."
+        : null,
+    nextJourney: rentCollected
       ? {
-          title: "Collect your first rent",
-          href: "/pm/financial-operations",
-          detail: "Financial Operations is ready for the first collection."
+          title: "Submit your first maintenance request",
+          href: "/pm/maintenance",
+          detail: "Continue operations with your first maintenance request."
         }
-      : {
-          title: "Send for signature",
-          href: `#send`,
-          detail: "Use SignWell when configured, or the offline signed honesty path."
-        }
+      : active
+        ? {
+            title: "Collect your first rent",
+            href: "/pm/financial-operations#collect",
+            detail: "Financial Operations is ready for the first collection."
+          }
+        : {
+            title: "Send for signature",
+            href: `#send`,
+            detail: "Use SignWell when configured, or the offline signed honesty path."
+          }
   };
 }

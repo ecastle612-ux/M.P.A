@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   buildMissionControlNextAction,
   buildPropertyReadyAssistantCopy,
+  buildRentReadyAssistantCopy,
   unitLabelsForCount,
   type CreatePortfolioPropertyInput
 } from "@mpa/shared";
@@ -198,16 +199,19 @@ export async function getMissionControlState(
   const { getTeamReadiness } = await import("../team/invitation-service");
   const { getResidentReadiness } = await import("../resident/resident-service");
   const { getLeaseReadiness } = await import("../leasing/lease-service");
+  const { getRentReadiness } = await import("../finance/billing-service");
   const team = await getTeamReadiness(supabase, organizationId);
   const residents = await getResidentReadiness(supabase, organizationId);
   const leases = await getLeaseReadiness(supabase, organizationId);
+  const rent = await getRentReadiness(supabase, organizationId);
   const nextAction = buildMissionControlNextAction({
     setupComplete,
     propertyCount: properties.length,
     firstPropertyId: first?.id ?? null,
     teamReady: team.teamReady,
     residentReady: residents.residentReady,
-    leaseReady: leases.leaseReady
+    leaseReady: leases.leaseReady,
+    rentReady: rent.rentReady
   });
 
   return {
@@ -225,6 +229,8 @@ export async function getMissionControlState(
     residentCount: residents.residentCount,
     leaseReady: leases.leaseReady,
     leaseCount: leases.leaseCount,
+    rentReady: rent.rentReady,
+    paymentCount: rent.paymentCount,
     nextAction,
     assistantRecommendation: nextAction.assistantRecommendation
   };
@@ -271,6 +277,13 @@ export async function getPropertyCommandCenter(
 
   const hasResidents = residents.length > 0;
   const hasActiveLease = leaseRows.length > 0;
+  const { count: propertyPaymentCount } = await supabase
+    .from("financial_payments")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId)
+    .eq("property_id", propertyId)
+    .eq("status", "succeeded");
+  const hasCollectedRent = (propertyPaymentCount ?? 0) > 0;
 
   return {
     property: {
@@ -334,46 +347,61 @@ export async function getPropertyCommandCenter(
               ? "Resident assigned"
               : event.event_type === "lease.activated"
                 ? "Lease activated"
-                : String(event.event_type),
+                : event.event_type === "finance.payment.succeeded"
+                  ? "Rent collected"
+                  : String(event.event_type),
       detail:
-        event.event_type === "resident.property_assigned" &&
-        typeof (event.payload as { displayName?: string } | null)?.displayName === "string"
-          ? `${(event.payload as { displayName: string }).displayName} appears on this property.`
-          : event.event_type === "lease.activated" &&
+        event.event_type === "finance.payment.succeeded" &&
+        typeof (event.payload as { amount?: number } | null)?.amount === "number"
+          ? `Payment of ${Number((event.payload as { amount: number }).amount).toFixed(2)} recorded.`
+          : event.event_type === "resident.property_assigned" &&
               typeof (event.payload as { displayName?: string } | null)?.displayName === "string"
-            ? `${(event.payload as { displayName: string }).displayName} is fully onboarded.`
-            : typeof (event.payload as { name?: string } | null)?.name === "string"
-              ? `${(event.payload as { name: string }).name} is ready for operations.`
-              : "Property lifecycle event",
+            ? `${(event.payload as { displayName: string }).displayName} appears on this property.`
+            : event.event_type === "lease.activated" &&
+                typeof (event.payload as { displayName?: string } | null)?.displayName === "string"
+              ? `${(event.payload as { displayName: string }).displayName} is fully onboarded.`
+              : typeof (event.payload as { name?: string } | null)?.name === "string"
+                ? `${(event.payload as { name: string }).name} is ready for operations.`
+                : "Property lifecycle event",
       occurredAt: event.created_at as string,
       kind: event.event_type as string
     })),
-    assistantRecommendation: hasActiveLease
-      ? "Collect your first rent."
-      : hasResidents
-        ? "Create your first lease."
-        : buildPropertyReadyAssistantCopy(property.name),
-    readyMessage: hasActiveLease
-      ? "My resident is fully onboarded."
-      : hasResidents
-        ? "My first resident has been added."
-        : "My property is ready.",
-    nextJourney: hasActiveLease
+    assistantRecommendation: hasCollectedRent
+      ? buildRentReadyAssistantCopy()
+      : hasActiveLease
+        ? "Collect your first rent."
+        : hasResidents
+          ? "Create your first lease."
+          : buildPropertyReadyAssistantCopy(property.name),
+    readyMessage: hasCollectedRent
+      ? "My first rent has been collected."
+      : hasActiveLease
+        ? "My resident is fully onboarded."
+        : hasResidents
+          ? "My first resident has been added."
+          : "My property is ready.",
+    nextJourney: hasCollectedRent
       ? {
-          title: "Collect your first rent",
-          href: "/pm/financial-operations",
-          detail: "Financial Operations is ready for the first collection."
+          title: "Submit your first maintenance request",
+          href: "/pm/maintenance",
+          detail: "Continue operations with your first maintenance request."
         }
-      : hasResidents
+      : hasActiveLease
         ? {
-            title: "Create your first lease",
-            href: "/pm/leasing?new=1",
-            detail: "Continue the resident lifecycle with a lease."
+            title: "Collect your first rent",
+            href: "/pm/financial-operations#collect",
+            detail: "Financial Operations is ready for the first collection."
           }
-        : {
-            title: "Add your first resident",
-            href: "/pm/residents?new=1",
-            detail: "Assign a resident to a unit on this property."
-          }
+        : hasResidents
+          ? {
+              title: "Create your first lease",
+              href: "/pm/leasing?new=1",
+              detail: "Continue the resident lifecycle with a lease."
+            }
+          : {
+              title: "Add your first resident",
+              href: "/pm/residents?new=1",
+              detail: "Assign a resident to a unit on this property."
+            }
   };
 }

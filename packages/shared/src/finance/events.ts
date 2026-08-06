@@ -8,6 +8,7 @@ export const FINANCE_EVENT_TYPES = [
   "finance.charge.voided",
   "finance.payment.pending",
   "finance.payment.succeeded",
+  "finance.payment.reminder_sent",
   "finance.payment.failed",
   "finance.late_fee.applied",
   "finance.vendor_invoice.submitted",
@@ -76,6 +77,14 @@ export const FINANCE_EVENT_CATALOG: readonly FinanceEventDefinition[] = [
     slice: "S2",
     notificationKey: "finance.payment.succeeded",
     auditAction: "finance.payment.succeeded"
+  },
+  {
+    type: "finance.payment.reminder_sent",
+    aggregateType: "lease_agreements",
+    description: "Staff sent a rent payment reminder to the resident",
+    slice: "S1",
+    notificationKey: "finance.payment.reminder",
+    auditAction: "finance.payment.reminder_sent"
   },
   {
     type: "finance.payment.failed",

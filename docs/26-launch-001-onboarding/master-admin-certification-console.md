@@ -33,7 +33,7 @@ Master Admin
     └── Evidence pack (export for launch review)
 ```
 
-Until built: operators use the **verification scripts** below manually. J0–J4 scripts under `j0/`–`j4/` + Admin Launch Readiness evidence panels. Console UI may ship progressively; scripts are authoritative for Pass.
+Until built: operators use the **verification scripts** below manually. J0–J5 scripts under `j0/`–`j5/` + Admin Launch Readiness evidence panels. Console UI may ship progressively; scripts are authoritative for Pass.
 
 ---
 
@@ -80,10 +80,11 @@ Until built: operators use the **verification scripts** below manually. J0–J4 
 | Check | Method |
 |-------|--------|
 | Snapshot | Command Center metrics non-empty after J5 |
-| Collect | Manual pay + (if configured) Checkout/webhook |
+| Collect | Manual pay + (if configured) Checkout/webhook via FIN-OPS only |
 | Events | `finance.payment.succeeded` / ledger / receipt |
+| Journey | Mission Control → Collect your first rent → maintenance next |
 | Slice board | S0–S3 complete; S4+ still paused unless authorized |
-| Evidence | Payment id, receipt number, audit |
+| Evidence | [J5 certification](./j5/certification.md) + `/admin/launch-readiness` J5 panel |
 
 ### Documents
 | Check | Method |

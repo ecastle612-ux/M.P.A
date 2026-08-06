@@ -46,14 +46,23 @@ export function FinancialOperationsCommandCenter() {
           Financial Operations
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Property financial Command Center — see what should have been collected, what was collected, who is
-          past due, and what vendors are owed. Operational visibility, not ERP.
+          Collect rent, track payment status, and know your property&apos;s financial position —
+          charges due, paid, outstanding balances, recent payments, delinquency, and alerts.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Badge variant="success">S3 Command Center live</Badge>
+          <Badge variant="info">LAUNCH-001 J5 collect</Badge>
           <Badge variant="neutral">PM + Complete only</Badge>
           {FINANCE_FEATURE_FLAGS["finance.reports"] ? <Badge variant="info">Reports on</Badge> : null}
         </div>
+        <p className="mt-3 text-sm">
+          <a
+            href="#collect"
+            className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Collect your first rent
+          </a>
+        </p>
       </header>
 
       <nav

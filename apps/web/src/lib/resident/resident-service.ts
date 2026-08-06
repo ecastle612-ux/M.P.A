@@ -3,6 +3,7 @@ import {
   RESIDENT_PORTAL_STATUS_LABELS,
   RESIDENT_STATUS_LABELS,
   buildLeaseReadyAssistantCopy,
+  buildRentReadyAssistantCopy,
   buildResidentReadyAssistantCopy,
   residentDisplayName,
   type CreateResidentInput,
@@ -351,6 +352,16 @@ export async function getResidentCommandCenter(
   const propertyName = resident.property_properties?.name ?? "Property";
   const unitLabel = resident.property_units?.unit_label ?? "—";
   const active = resident.status === "active" && resident.portal_status === "active";
+  let rentCollected = false;
+  if (resident.lease_id) {
+    const { count } = await supabase
+      .from("financial_payments")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", organizationId)
+      .eq("lease_id", resident.lease_id)
+      .eq("status", "succeeded");
+    rentCollected = (count ?? 0) > 0;
+  }
 
   return {
     resident: {
@@ -380,23 +391,33 @@ export async function getResidentCommandCenter(
       occurredAt: event.created_at as string,
       kind: event.event_type as string
     })),
-    assistantRecommendation: active
-      ? buildLeaseReadyAssistantCopy(resident.display_name)
-      : buildResidentReadyAssistantCopy(resident.display_name),
-    readyMessage: active
-      ? "My resident is fully onboarded."
-      : "My first resident has been added.",
-    nextJourney: active
+    assistantRecommendation: rentCollected
+      ? buildRentReadyAssistantCopy()
+      : active
+        ? buildLeaseReadyAssistantCopy(resident.display_name)
+        : buildResidentReadyAssistantCopy(resident.display_name),
+    readyMessage: rentCollected
+      ? "My first rent has been collected."
+      : active
+        ? "My resident is fully onboarded."
+        : "My first resident has been added.",
+    nextJourney: rentCollected
       ? {
-          title: "Collect your first rent",
-          href: "/pm/financial-operations",
-          detail: "Financial Operations is ready for the first collection."
+          title: "Submit your first maintenance request",
+          href: "/pm/maintenance",
+          detail: "Continue operations with your first maintenance request."
         }
-      : {
-          title: "Create your first lease",
-          href: resident.lease_id ? `/pm/leasing/${resident.lease_id}` : "/pm/leasing?new=1",
-          detail: "Continue the resident lifecycle with a lease."
-        },
+      : active
+        ? {
+            title: "Collect your first rent",
+            href: "/pm/financial-operations#collect",
+            detail: "Financial Operations is ready for the first collection."
+          }
+        : {
+            title: "Create your first lease",
+            href: resident.lease_id ? `/pm/leasing/${resident.lease_id}` : "/pm/leasing?new=1",
+            detail: "Continue the resident lifecycle with a lease."
+          },
     integrations: {
       propertyCommandCenter: `/pm/properties/${resident.property_id}`,
       residentDirectory: "/pm/residents",

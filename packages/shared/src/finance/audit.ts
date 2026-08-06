@@ -10,6 +10,7 @@ export const FINANCE_AUDIT_ACTIONS = [
   "finance.charge.created",
   "finance.charge.voided",
   "finance.payment.succeeded",
+  "finance.payment.reminder_sent",
   "finance.payment.failed",
   "finance.payment.refunded",
   "finance.late_fee.applied",
@@ -66,6 +67,12 @@ export const FINANCE_AUDIT_CATALOG: readonly FinanceAuditDefinition[] = [
     entityType: "financial_payment",
     description: "Payment succeeded",
     slice: "S2"
+  },
+  {
+    action: "finance.payment.reminder_sent",
+    entityType: "lease_agreements",
+    description: "Rent payment reminder sent to resident",
+    slice: "S1"
   },
   {
     action: "finance.payment.failed",

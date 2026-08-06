@@ -48,14 +48,14 @@ Every step must complete successfully without workarounds.
 | **J0** | Buy Property Manager and reach a trusted home | Purchase, Setup, Mission Control | **Delivered** — certified | Pass |
 | **J1** | Add first property | Property Management | **Delivered** — certified | Pass |
 | **J2** | Invite staff who can log in and help | Organizations / team | **Delivered** — MA cert pending | Certifying |
-| **J3** | Add resident and create lease | Residents, Leasing | Fail | Blocked |
-| **J4** | Sign (or honestly record) the lease | Leasing, Documents | Fail | Blocked |
-| **J5** | Collect first rent | Financial Operations, Residents | Conditional | Blocked* |
+| **J3** | Add resident and create lease | Residents, Leasing | **Delivered** — MA cert pending | Certifying |
+| **J4** | Sign (or honestly record) the lease | Leasing, Documents | **Delivered** — MA cert pending | Certifying |
+| **J5** | Collect first rent | Financial Operations, Residents | **Delivered** — MA cert pending | Certifying |
 | **J6** | Run a maintenance job with a vendor | Maintenance, Vendors | Fail | Blocked |
 | **J7** | Owner reviews property money | FO, Property Management, Owner portal | Conditional | Blocked* |
 | **J8** | Communicate a notice | Communications | Fail | Blocked |
 
-\*FO pieces exist; journey still blocked by discovery, Connect, and upstream J0–J4.
+\*J7 still depends on owner portal depth after J5 data exists; J6+ remain unauthorized.
 
 ---
 
@@ -176,21 +176,23 @@ Mission Control → Create your first lease
 ## J5 — Rent collected
 
 ```
-Financial Operations
-  → Post rent due
-  → Resident pays online OR staff records payment
-  → Receipt / balance updates
-  → Command Center reflects collection
+Mission Control → Collect your first rent
+  → /pm/financial-operations#collect
+  → Review charges → payment reminder
+  → Resident Billing → Stripe pay OR manual payment
+  → Receipt · balances · property/owner money
+  → Timeline · Audit
+  → Mission Control → Submit your first maintenance request
 ```
 
 | Field | Content |
 |-------|---------|
-| Current | FO S0–S3 works; Connect UI gap; not in Setup |
-| Blockers | Discovery; Connect self-serve; Stripe env |
-| Fix | Setup/MC route to FO; Connect onboarding; keep FO single money system |
-| MA verify | Charge + payment + receipt + snapshot; webhook if online |
+| Current | **Delivered** — reuses FIN-OPS single payment workflow |
+| Remaining | Master Admin runs [J5 certification](./j5/certification.md) |
+| Out of scope | Maintenance work orders (J6); deeper owner portal (J7) |
+| MA verify | [J5 certification](./j5/certification.md) |
 
-**Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J5`
+**Authorized:** `AUTHORIZE LAUNCH-001 JOURNEY J5`
 
 ---
 

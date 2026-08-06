@@ -46,6 +46,45 @@ async function loadLeaseContext(supabase: Db, organizationId: string, leaseId: s
   return { lease, residents: residents ?? [] };
 }
 
+async function resolveResidentNotifyUserId(
+  supabase: Db,
+  organizationId: string,
+  resident: { user_id?: string | null; email?: string | null } | null
+): Promise<string | null> {
+  if (resident?.user_id) {
+    return resident.user_id;
+  }
+  const email = resident?.email?.trim().toLowerCase();
+  if (!email) {
+    return null;
+  }
+  const { data } = await supabase
+    .from("pm_residents")
+    .select("user_id")
+    .eq("organization_id", organizationId)
+    .eq("email", email)
+    .not("user_id", "is", null)
+    .limit(1)
+    .maybeSingle();
+  return (data?.user_id as string | null | undefined) ?? null;
+}
+
+export async function getRentReadiness(supabase: Db, organizationId: string) {
+  const { count, error } = await supabase
+    .from("financial_payments")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId)
+    .eq("status", "succeeded");
+  if (error) {
+    throw new Error(error.message);
+  }
+  const paymentCount = count ?? 0;
+  return {
+    paymentCount,
+    rentReady: paymentCount > 0
+  };
+}
+
 async function insertLedgerEntry(
   supabase: Db,
   row: {
@@ -149,6 +188,7 @@ export async function createRecurringScheduleAndCharge(
   const { lease, residents } = await loadLeaseContext(supabase, organizationId, input.leaseId);
   const bounds = periodBoundsForDate(new Date(), input.dayOfMonth);
   const primary = residents.find((row) => row.is_primary) ?? residents[0] ?? null;
+  const notifyUserId = await resolveResidentNotifyUserId(supabase, organizationId, primary);
 
   const { data: schedule, error } = await supabase
     .from("financial_charge_schedules")
@@ -187,7 +227,7 @@ export async function createRecurringScheduleAndCharge(
       dueAt: bounds.dueAt,
       periodStart: bounds.periodStart,
       periodEnd: bounds.periodEnd,
-      notifyUserId: primary?.user_id
+      notifyUserId
     });
   }
 
@@ -204,6 +244,7 @@ export async function createOneTimeCharge(
   const primary = residents.find((row) => row.is_primary) ?? residents[0] ?? null;
   const amount = input.chargeType === "credit" ? input.amount : input.amount;
 
+  const notifyUserId = await resolveResidentNotifyUserId(supabase, organizationId, primary);
   return createChargeRecord(supabase, {
     organizationId,
     actorId,
@@ -218,7 +259,7 @@ export async function createOneTimeCharge(
     currency: input.currency,
     dueAt: input.dueAt,
     ...(input.memo ? { memo: input.memo } : {}),
-    notifyUserId: primary?.user_id ?? null
+    notifyUserId
   });
 }
 
@@ -563,6 +604,15 @@ export async function applySucceededPayment(
     throw new Error(receiptError.message);
   }
 
+  const notifyUserId = await resolveResidentNotifyUserId(supabase, args.organizationId, primary);
+  const paymentPayload = {
+    amount: args.amount,
+    leaseId: args.leaseId,
+    method: args.method,
+    receiptNumber,
+    propertyId: lease.property_id
+  };
+
   await emitFinanceEvent({
     supabase,
     organizationId: args.organizationId,
@@ -570,7 +620,26 @@ export async function applySucceededPayment(
     eventType: "finance.payment.succeeded",
     aggregateType: "financial_payment",
     aggregateId: paymentId!,
-    payload: { amount: args.amount, leaseId: args.leaseId }
+    payload: paymentPayload
+  });
+  // Property + lease timelines also record collection for Command Centers.
+  await emitFinanceEvent({
+    supabase,
+    organizationId: args.organizationId,
+    actorId: args.actorId,
+    eventType: "finance.payment.succeeded",
+    aggregateType: "property_properties",
+    aggregateId: lease.property_id,
+    payload: paymentPayload
+  });
+  await emitFinanceEvent({
+    supabase,
+    organizationId: args.organizationId,
+    actorId: args.actorId,
+    eventType: "finance.payment.succeeded",
+    aggregateType: "lease_agreements",
+    aggregateId: args.leaseId,
+    payload: paymentPayload
   });
   await writeFinanceAudit({
     supabase,
@@ -579,13 +648,13 @@ export async function applySucceededPayment(
     action: "finance.payment.succeeded",
     entityType: "financial_payment",
     entityId: paymentId ?? null,
-    payload: { amount: args.amount, method: args.method },
+    payload: paymentPayload,
     correlationId: args.correlationId ?? null
   });
   await writeFinanceNotification({
     supabase,
     organizationId: args.organizationId,
-    userId: primary?.user_id,
+    userId: notifyUserId,
     leaseId: args.leaseId,
     notificationKey: "finance.payment.succeeded",
     title: "Payment received",
@@ -595,6 +664,95 @@ export async function applySucceededPayment(
 
   await refreshResidentFinancialStatus(supabase, args.organizationId, args.leaseId);
   return { paymentId, receipt, allocations, unapplied };
+}
+
+/** Staff-triggered rent payment reminder for open charges on a lease (J5). */
+export async function sendPaymentReminderForLease(
+  supabase: Db,
+  organizationId: string,
+  actorId: string,
+  leaseId: string
+) {
+  const { lease, residents } = await loadLeaseContext(supabase, organizationId, leaseId);
+  const primary = residents.find((row) => row.is_primary) ?? residents[0] ?? null;
+  if (!primary) {
+    throw new Error("No resident on this lease.");
+  }
+
+  const { data: openCharges, error } = await supabase
+    .from("financial_charges")
+    .select("id, label, amount, amount_paid, due_at, status")
+    .eq("organization_id", organizationId)
+    .eq("lease_id", leaseId)
+    .in("status", ["open", "partially_paid"])
+    .order("due_at", { ascending: true });
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!openCharges || openCharges.length === 0) {
+    throw new Error("No open charges to remind about.");
+  }
+
+  const openBalance = openCharges.reduce(
+    (sum, charge) => sum + (Number(charge.amount) - Number(charge.amount_paid ?? 0)),
+    0
+  );
+  const nextDue = openCharges[0]?.due_at as string;
+  const notifyUserId = await resolveResidentNotifyUserId(supabase, organizationId, primary);
+
+  await writeFinanceNotification({
+    supabase,
+    organizationId,
+    userId: notifyUserId,
+    leaseId,
+    notificationKey: "finance.charge.due_soon",
+    title: "Rent payment reminder",
+    body: `Friendly reminder: ${formatMoney(openBalance, lease.currency)} is due${
+      nextDue ? ` by ${nextDue}` : ""
+    }. Pay online in Billing.`,
+    href: "/portal/tenant/billing"
+  });
+
+  await emitFinanceEvent({
+    supabase,
+    organizationId,
+    actorId,
+    eventType: "finance.payment.reminder_sent",
+    aggregateType: "lease_agreements",
+    aggregateId: leaseId,
+    payload: {
+      openBalance,
+      nextDue,
+      chargeCount: openCharges.length,
+      residentId: primary.id,
+      notifiedUserId: notifyUserId,
+      delivery: notifyUserId ? "in_app" : "staff_visible_only"
+    }
+  });
+  await writeFinanceAudit({
+    supabase,
+    organizationId,
+    actorId,
+    action: "finance.payment.reminder_sent",
+    entityType: "lease_agreements",
+    entityId: leaseId,
+    payload: {
+      openBalance,
+      nextDue,
+      notified: Boolean(notifyUserId)
+    }
+  });
+
+  return {
+    leaseId,
+    openBalance,
+    nextDue,
+    chargeCount: openCharges.length,
+    notified: Boolean(notifyUserId),
+    notice: notifyUserId
+      ? "Payment reminder delivered to the resident portal inbox."
+      : "Reminder recorded. Resident portal inbox needs a linked user — share Billing link or link resident account."
+  };
 }
 
 export async function recordManualPayment(
