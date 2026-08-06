@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../components/presentation/app-page";
-import { VendorsTable } from "../../../components/vendor/vendors-table";
+import { VendorCommandCenter } from "../../../components/vendor/vendor-command-center";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
@@ -40,12 +40,23 @@ export default async function VendorsPage() {
     canCreate: evaluatePermission(authorization, "vendor:create"),
     canUpdate: evaluatePermission(authorization, "vendor:update"),
     canArchive: evaluatePermission(authorization, "vendor:archive"),
-    canDelete: evaluatePermission(authorization, "vendor:delete")
+    canDelete: evaluatePermission(authorization, "vendor:delete"),
+    canAssign: evaluatePermission(authorization, "vendor:assign")
   };
+
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("display_name")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
   return (
     <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Vendors" }]}>
-      <VendorsTable initialItems={items} permissions={permissions} />
+      <VendorCommandCenter
+        vendors={items}
+        permissions={permissions}
+        userName={(profile?.display_name as string | null) ?? user.email ?? null}
+      />
     </AppPage>
   );
 }

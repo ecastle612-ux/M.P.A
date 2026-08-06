@@ -15,6 +15,11 @@ import type {
   VendorStatus,
   WorkOrderVendorMutationInput
 } from "./contracts";
+import {
+  isVendorWorkflowStage,
+  legacyVendorStatusToWorkflowStage,
+  type VendorWorkflowStage
+} from "./workflow";
 
 type VendorRow = {
   id: string;
@@ -39,6 +44,7 @@ type VendorRow = {
   rating: number | null;
   internal_notes: string | null;
   status: VendorRecord["status"];
+  workflow_stage?: string | null;
   services: string[];
   metadata: Json | null;
   created_at: string;
@@ -167,7 +173,7 @@ type SupabaseClientType = Awaited<ReturnType<typeof createAuthServerComponentCli
 type VendorUpdate = Database["public"]["Tables"]["vendors"]["Update"];
 
 const VENDOR_SELECT =
-  "id, organization_id, business_name, primary_contact_name, phone, email, address_line_1, address_line_2, city, state_region, postal_code, country_code, website, license_number, insurance_expiration, tax_id_placeholder, emergency_availability, after_hours_availability, preferred_vendor, rating, internal_notes, status, services, metadata, created_at, updated_at, archived_at, deleted_at";
+  "id, organization_id, business_name, primary_contact_name, phone, email, address_line_1, address_line_2, city, state_region, postal_code, country_code, website, license_number, insurance_expiration, tax_id_placeholder, emergency_availability, after_hours_availability, preferred_vendor, rating, internal_notes, status, workflow_stage, services, metadata, created_at, updated_at, archived_at, deleted_at";
 
 const VENDOR_DETAIL_SELECT = `${VENDOR_SELECT}, vendor_contacts(id, organization_id, vendor_id, name, role_title, phone, email, is_primary, notes, created_at, updated_at, deleted_at), vendor_service_areas(id, organization_id, vendor_id, label, city, state_region, postal_code, notes, created_at, updated_at, deleted_at)`;
 
@@ -267,6 +273,8 @@ export async function createVendor(
   client?: SupabaseClientType
 ): Promise<VendorRecord> {
   const supabase = await resolveClient(client);
+  const workflowStage = legacyVendorStatusToWorkflowStage(input.status, input.preferredVendor);
+
   const { data, error } = await supabase
     .from("vendors")
     .insert({
@@ -291,6 +299,7 @@ export async function createVendor(
       rating: input.rating,
       internal_notes: input.internalNotes,
       status: input.status,
+      workflow_stage: workflowStage,
       services: input.services,
       metadata: input.metadata as Json,
       created_by: userId,
@@ -366,6 +375,7 @@ export async function archiveVendor(
     .from("vendors")
     .update({
       status: "archived",
+      workflow_stage: "archived",
       archived_at: new Date().toISOString(),
       archived_by: userId,
       updated_by: userId
@@ -394,6 +404,7 @@ export async function restoreVendor(
     .from("vendors")
     .update({
       status: "active",
+      workflow_stage: "available",
       archived_at: null,
       archived_by: null,
       deleted_at: null,
@@ -423,6 +434,7 @@ export async function softDeleteVendor(
     .from("vendors")
     .update({
       status: "archived",
+      workflow_stage: "archived",
       deleted_at: new Date().toISOString(),
       deleted_by: userId,
       updated_by: userId
@@ -697,6 +709,10 @@ export async function mutateWorkOrderVendor(
 }
 
 function toVendorRecord(row: VendorRow): VendorRecord {
+  const workflowStage: VendorWorkflowStage = isVendorWorkflowStage(row.workflow_stage)
+    ? row.workflow_stage
+    : legacyVendorStatusToWorkflowStage(row.status, row.preferred_vendor);
+
   return {
     id: row.id,
     organizationId: row.organization_id,
@@ -720,6 +736,7 @@ function toVendorRecord(row: VendorRow): VendorRecord {
     rating: row.rating,
     internalNotes: row.internal_notes,
     status: row.status,
+    workflowStage,
     services: row.services ?? [],
     metadata:
       row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata)

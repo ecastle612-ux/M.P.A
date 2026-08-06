@@ -287,6 +287,28 @@ export default async function PropertyDetailPage({
     .is("deleted_at", null)
     .not("workflow_stage", "in", '("former_resident","archive")');
 
+  // CORE-004 Phase 5 — open vendor work on this property (assigned WO with vendor)
+  const { count: openVendorWorkCount } = await supabase
+    .from("maintenance_work_orders")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId)
+    .eq("property_id", property.id)
+    .is("deleted_at", null)
+    .not("vendor_id", "is", null)
+    .not("status", "in", '("completed","cancelled")');
+
+  // Org-level compliance signal (vendors are not property-scoped; surface on property CC)
+  const { count: vendorComplianceCount } = await supabase
+    .from("vendors")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId)
+    .is("deleted_at", null)
+    .in("workflow_stage", [
+      "compliance_review",
+      "insurance_verification",
+      "application_submitted"
+    ]);
+
   const occupancyRate = (unitsTotal ?? 0) === 0 ? 0 : Math.round(((occupiedUnits ?? 0) / (unitsTotal ?? 0)) * 100);
 
   const activity = [
@@ -463,6 +485,8 @@ export default async function PropertyDetailPage({
           openMaintenanceCount={openMaintenance.length}
           activeLeasingCount={activeLeasingCount ?? 0}
           activeResidentCount={activeResidentCount ?? 0}
+          openVendorWorkCount={openVendorWorkCount ?? 0}
+          vendorComplianceCount={vendorComplianceCount ?? 0}
           userName={(profile?.display_name as string | null) ?? user.email ?? null}
           organizationName={null}
         />

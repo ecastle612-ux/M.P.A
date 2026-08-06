@@ -4,6 +4,7 @@ import { Badge, Button, Card, DetailHero, DetailMetric } from "@mpa/ui";
 import { DetailPageLayout } from "../../../../components/presentation/detail-page-layout";
 import { EntityRelationshipChain } from "../../../../components/presentation/entity-relationship-chain";
 import { VendorContextRail } from "../../../../components/presentation/context-rails/vendor-context-rail";
+import { VendorWorkflowPanel } from "../../../../components/vendor/vendor-workflow-panel";
 import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-success-banner";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
@@ -14,6 +15,11 @@ import {
   getVendorForOrganization,
   getVendorPerformanceSummary
 } from "../../../../lib/vendor/server";
+import {
+  isVendorWorkflowStage,
+  legacyVendorStatusToWorkflowStage,
+  toVendorWorkflowLabel
+} from "../../../../lib/vendor/workflow";
 import { getServiceProviderIntelligence } from "../../../../lib/facility/provider-intelligence";
 import { ServiceProviderIntelligencePanel } from "../../../../components/facility/service-provider-intelligence-panel";
 import { VendorPaymentHistoryPanel } from "../../../../components/vendor-jobs/vendor-payment-history-panel";
@@ -58,6 +64,9 @@ export default async function VendorDetailPage({
   }
 
   const canUpdate = evaluatePermission(authorization, "vendor:update");
+  const currentStage = isVendorWorkflowStage(vendor.workflowStage)
+    ? vendor.workflowStage
+    : legacyVendorStatusToWorkflowStage(vendor.status, vendor.preferredVendor);
 
   const workOrderIds = assignments.map((entry) => entry.workOrderId);
   const { data: workOrderRows } =
@@ -132,11 +141,24 @@ export default async function VendorDetailPage({
           badges={
             <>
               <Badge
+                variant={
+                  currentStage === "available" || currentStage === "preferred_vendor"
+                    ? "success"
+                    : currentStage === "archived" || currentStage === "suspended"
+                      ? "warning"
+                      : "info"
+                }
+              >
+                {toVendorWorkflowLabel(currentStage)}
+              </Badge>
+              <Badge
                 variant={vendor.status === "active" ? "success" : vendor.status === "archived" ? "warning" : "info"}
               >
                 {toVendorStatusLabel(vendor.status)}
               </Badge>
-              {vendor.preferredVendor ? <Badge variant="success">Preferred</Badge> : null}
+              {vendor.preferredVendor || currentStage === "preferred_vendor" ? (
+                <Badge variant="success">Preferred</Badge>
+              ) : null}
             </>
           }
           metrics={
@@ -167,6 +189,11 @@ export default async function VendorDetailPage({
       }
       main={
         <>
+          <VendorWorkflowPanel
+            vendorId={vendor.id}
+            canUpdate={canUpdate}
+            currentStage={currentStage}
+          />
           <Card variant="elevated" className="space-y-4">
             <h2 className="mpa-section-title">Vendor profile</h2>
             <div className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2 lg:grid-cols-3">

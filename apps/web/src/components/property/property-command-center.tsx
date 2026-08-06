@@ -21,6 +21,8 @@ export function PropertyCommandCenter({
   openMaintenanceCount = 0,
   activeLeasingCount = 0,
   activeResidentCount = 0,
+  openVendorWorkCount = 0,
+  vendorComplianceCount = 0,
   userName,
   organizationName
 }: {
@@ -42,6 +44,8 @@ export function PropertyCommandCenter({
   openMaintenanceCount?: number;
   activeLeasingCount?: number;
   activeResidentCount?: number;
+  openVendorWorkCount?: number;
+  vendorComplianceCount?: number;
   userName: string | null;
   organizationName: string | null;
 }) {
@@ -58,6 +62,8 @@ export function PropertyCommandCenter({
     openMaintenanceCount,
     activeLeasingCount,
     activeResidentCount,
+    openVendorWorkCount,
+    vendorComplianceCount,
     userName,
     organizationName
   });

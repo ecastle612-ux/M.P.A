@@ -55,4 +55,28 @@ describe("Property Command Center UDF view model", () => {
     expect(model.quickActions.some((item) => item.id === "qa-unit")).toBe(true);
     expect(model.insights.some((item) => item.label === "Lifecycle")).toBe(true);
   });
+
+  it("surfaces CORE-004 Phase 5 vendor work and compliance signals", () => {
+    const model = buildPropertyCommandCenterViewModel({
+      property: { ...baseProperty, lifecycleStage: "occupancy", status: "active" },
+      unitCount: 4,
+      occupiedUnits: 3,
+      vacancyUnits: 1,
+      tenantCount: 3,
+      canUpdate: true,
+      canCreateUnit: true,
+      canCreateMaintenance: true,
+      recentLifecycle: [],
+      openVendorWorkCount: 2,
+      vendorComplianceCount: 1,
+      userName: "Alex",
+      organizationName: "Demo Org"
+    });
+
+    expect(model.attention.some((item) => item.id === "property-vendors")).toBe(true);
+    expect(model.attention.some((item) => item.id === "property-vendor-compliance")).toBe(true);
+    expect(model.assistant.waitingOnMe.some((item) => item.id === "wait-property-vendors")).toBe(
+      true
+    );
+  });
 });
