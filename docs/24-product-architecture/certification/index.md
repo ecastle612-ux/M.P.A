@@ -2,7 +2,8 @@
 
 **Status:** P0 Hardening complete — **Pass**  
 **Date:** 2026-08-06  
-**Financial Operations:** Package **Approved** · ADR-016 **Accepted** · **S0–S3 delivered** · S4+ **NO-GO**  
+**Financial Operations:** Package **Approved** · ADR-016 **Accepted** · **S0–S3 delivered** · **Paused** (S4+ NO-GO)  
+**LAUNCH-001 Onboarding:** Draft audit at `docs/26-launch-001-onboarding/` · **NO-GO implement** until Approve  
 **Facility Operations features:** NO-GO / deferred
 
 ---

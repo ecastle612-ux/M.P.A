@@ -17,7 +17,9 @@ This package is the **authoritative source** for Financial Operations.
 | **S1 — Resident Billing & Rent Collection** | **Delivered / certified** |
 | **S2 — Delinquency, Late Fees & Vendor AP** | **Delivered / certified** |
 | **S3 — Property Financial Command Center & Owner Reporting** | **Delivered / certified** |
-| S4+ | **Blocked** until `AUTHORIZE FIN-OPS-001 SLICE S4` (etc.) |
+| S4+ | **Paused / blocked** — do not authorize until launch onboarding sequencing says so |
+
+**Pause notice (2026-08-06):** Financial Operations is sufficiently complete for launch planning. Next launch-critical workstream is [LAUNCH-001 Customer Onboarding](../26-launch-001-onboarding/index.md) (docs/audit only until Approve).
 
 ### Hard stops
 

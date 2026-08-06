@@ -5,9 +5,11 @@ The permanent source of truth for M.P.A. (My Property Assistant).
 This blueprint defines how M.P.A. is designed, built, and evolved. Every engineer, designer, and product contributor should treat these documents as authoritative until superseded by an approved Decision Log entry.
 
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
-Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted). Slices **S0–
-S3 delivered**; S4+ **NO-GO** until slice authorization. CORE-004, LAUNCH-001,
-and Facility feature work remain stopped. Implementation Gate in force.
+Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0–
+S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Onboarding is in
+**audit/planning** (`docs/26-launch-001-onboarding/`) — docs only, no implement
+until Approve. CORE-004 and Facility feature work remain stopped. Implementation
+Gate in force.
 
 ---
 
@@ -29,10 +31,11 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 2. Read **06 Design Language (Canopy)** through **07 UX Principles** to understand *how it should feel*.
 3. Read **08 Software Architecture** through **16 Testing Standards** to understand *how it is built*.
 4. Read **24 Product Architecture** for commercial packaging (three offerings + Master Admin).
-5. Read **25 FIN-OPS-001** for Financial Operations design (awaiting approval before code).
-6. Consult **17 Development Roadmap** for sequencing (reconcile to 24 after approval).
-7. Check **18 Decision Log** before proposing architectural changes.
-8. Reference **19** and **20** for long-term platform direction.
+5. Read **25 FIN-OPS-001** for Financial Operations (S0–S3 delivered; paused).
+6. Read **26 LAUNCH-001** for Customer Onboarding audit/planning (Approve before code).
+7. Consult **17 Development Roadmap** for sequencing (reconcile to 24 after approval).
+8. Check **18 Decision Log** before proposing architectural changes.
+9. Reference **19** and **20** for long-term platform direction.
 
 ---
 
@@ -51,7 +54,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
 | 24 | [Product Architecture (Commercial Reset)](./24-product-architecture/index.md) | Three offerings, ownership, nav, subscriptions, entitlements |
-| 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0–S3 delivered) |
+| 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0–S3 delivered; paused) |
+| 26 | [LAUNCH-001 Customer Onboarding](./26-launch-001-onboarding/index.md) | Unaided Customer #1 journey (Draft audit; no implement) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -114,6 +118,17 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [S2 Certification](./25-fin-ops-001/s2/index.md) | Delinquency, late fees & vendor AP |
 | [S3 Certification](./25-fin-ops-001/s3/index.md) | Command Center & owner reporting |
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
+
+### 26 LAUNCH-001 (Customer Onboarding)
+
+| Document | Purpose |
+|----------|---------|
+| [Package Index](./26-launch-001-onboarding/index.md) | Draft audit — Approve before code |
+| [Customer Onboarding Blueprint](./26-launch-001-onboarding/customer-onboarding-blueprint.md) | Canonical journey |
+| [Onboarding Blockers](./26-launch-001-onboarding/onboarding-blockers.md) | Hard/soft blockers today |
+| [Recommended Improvements](./26-launch-001-onboarding/recommended-improvements.md) | P0–P2 recommendations |
+| [Implementation Slices](./26-launch-001-onboarding/implementation-slices.md) | L0–L6 after Approve |
+| [Customer #1 Readiness](./26-launch-001-onboarding/customer-1-readiness-assessment.md) | Unaided launch NO-GO |
 
 ### Governance & gates
 

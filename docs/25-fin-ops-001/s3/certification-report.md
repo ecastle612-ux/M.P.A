@@ -27,7 +27,7 @@
 ## Verify commands
 
 ```bash
-pnpm --filter @mpa/shared test
+pnpm --filter @mpa/shared test      # 44 passed
 pnpm --filter @mpa/shared typecheck
 pnpm --filter @mpa/web typecheck
 pnpm --filter @mpa/shared lint
