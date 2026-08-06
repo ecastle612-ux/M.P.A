@@ -82,7 +82,7 @@ export function PropertiesMoneyList() {
       {!loading && !error && properties.length === 0 ? (
         <EmptyState
           title="No properties yet"
-          description="Create a property from Financial Operations to start tracking money by property."
+          description="Mission Control sent you here to add your first property. Portfolio create on this surface ships with journey J1 — until then, Financial Operations can create a property for money tracking."
         />
       ) : null}
 

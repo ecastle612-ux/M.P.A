@@ -15,5 +15,13 @@ export default async function DashboardPage() {
 
   const shell = await resolveAuthenticatedShellContext(user);
   const active = shell.organizations.find((organization) => organization.id === shell.defaultOrganizationId);
-  redirect(defaultHomeForSku(active?.productSku ?? null));
+
+  if (!active?.productSku) {
+    redirect("/setup");
+  }
+  // J0: unfinished Guided Setup always wins over Mission Control / Launcher.
+  if (!active.setupComplete) {
+    redirect("/setup");
+  }
+  redirect(defaultHomeForSku(active.productSku));
 }

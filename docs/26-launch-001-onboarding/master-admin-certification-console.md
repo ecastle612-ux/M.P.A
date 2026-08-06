@@ -1,7 +1,7 @@
 # Master Admin Certification Console
 
 **Parent:** [LAUNCH-001](./index.md)  
-**Status:** Draft  
+**Status:** Approved package · console ships progressively with journeys  
 **Rule:** For every Customer Promise, Master Admin must be able to **validate** the workflow.
 
 Master Admin becomes the **certification console** for advertised Property Manager capabilities — not an accounting admin, not a second customer product.
@@ -33,7 +33,7 @@ Master Admin
     └── Evidence pack (export for launch review)
 ```
 
-Until built: operators use the **verification scripts** below manually. Building this console is part of journey delivery (especially J0 + package Approve), not a side quest.
+Until built: operators use the **verification scripts** below manually. J0 script: [j0/certification.md](./j0/certification.md). Console UI may ship progressively; scripts are authoritative for Pass.
 
 ---
 
@@ -166,12 +166,12 @@ Launch GO requires **all advertised promises Green** (or formally de-advertised 
 
 ## Delivery note
 
-Implementing the full Launch Certification console is itself gated:
-
 ```
-APPROVE LAUNCH-001
-→ deliver journeys
-→ MA console hardens certification (can ship progressively with J0+)
+APPROVE LAUNCH-001 ✓
+→ AUTHORIZE JOURNEY Jn
+→ deliver journey
+→ MA cert script Pass
+→ next journey
 ```
 
-Do not implement from this draft alone.
+Full Launch Certification console UI may harden progressively with J0+; do not block journey delivery on a finished console chrome.

@@ -1,8 +1,9 @@
 # Customer Journeys (replaces engineering slices)
 
 **Parent:** [LAUNCH-001](./index.md)  
-**Status:** Draft  
-**Rule:** Authorize and deliver by **journey**, not by internal module.
+**Status:** Approved (package) · authorize per journey  
+**Rule:** Authorize and deliver by **journey**, not by internal module.  
+**Hard rule:** No feature work may bypass an incomplete customer journey.
 
 Engineering slices L0–L6 are **retired** as the primary plan. Work may still touch modules, but **done** means the journey completes unaided.
 
@@ -44,7 +45,7 @@ Every step must complete successfully without workarounds.
 
 | ID | Journey (customer outcome) | Promises exercised | Status today | Launch |
 |----|----------------------------|--------------------|--------------|--------|
-| **J0** | Buy Property Manager and reach a trusted home | Purchase, Setup, Mission Control | Partial | Blocked |
+| **J0** | Buy Property Manager and reach a trusted home | Purchase, Setup, Mission Control | **Delivered** — MA cert pending | Certifying |
 | **J1** | Add first property | Property Management | Fail | Blocked |
 | **J2** | Invite staff who can log in and help | Organizations / team | Fail | Blocked |
 | **J3** | Add resident and create lease | Residents, Leasing | Fail | Blocked |
@@ -70,12 +71,13 @@ Purchase Property Manager
 
 | Field | Content |
 |-------|---------|
-| Current | SKU simulate; Setup commercial-only; Mission Control stub |
-| Blockers | No real purchase (or white-glove policy); empty home |
-| Fix | Purchase path **or** Admin assign + remove SKU picker; Mission Control CTA |
-| MA verify | Org has PM SKU; Setup state; Mission Control cert script |
+| Status | **Authorized + delivered** |
+| Current | Self-serve org → PM SKU assigned (no customer SKU picker); Setup → Mission Control with “Add your first property” CTA; login/dashboard route through Setup when incomplete |
+| Remaining | Master Admin runs [J0 certification](./j0/certification.md); SaaS checkout still white-glove / Admin assign acceptable for launch |
+| Out of scope | Property create (J1) |
+| MA verify | [J0 certification](./j0/certification.md) |
 
-**Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J0`
+**Authorized:** `AUTHORIZE LAUNCH-001 JOURNEY J0`
 
 ---
 

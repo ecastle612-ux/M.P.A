@@ -11,6 +11,7 @@ type AdminOrganization = {
   productSku: ProductSku | null;
   productLabel: string | null;
   subscriptionStatus: string | null;
+  setupComplete: boolean;
 };
 
 export function SubscriptionConsole() {
@@ -66,7 +67,8 @@ export function SubscriptionConsole() {
     <main className="space-y-4 p-4 md:p-6">
       <h1 className="font-display text-2xl font-semibold">Subscriptions</h1>
       <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        Platform operators assign and inspect organization SKUs. Customers cannot change subscriptions.
+        Platform operators assign and inspect organization SKUs and Guided Setup state (J0). Customers
+        cannot change subscriptions.
       </p>
       {organizations === null ? (
         <Button type="button" onClick={() => void load()}>
@@ -88,7 +90,8 @@ export function SubscriptionConsole() {
                   <p className="font-medium text-[var(--mpa-color-text-primary)]">{organization.name}</p>
                   <p className="text-xs text-[var(--mpa-color-text-secondary)]">
                     {organization.slug} · Current: {organization.productLabel ?? "None"}{" "}
-                    {organization.subscriptionStatus ? `(${organization.subscriptionStatus})` : ""}
+                    {organization.subscriptionStatus ? `(${organization.subscriptionStatus})` : ""} ·
+                    Setup: {organization.setupComplete ? "complete" : "incomplete"}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">

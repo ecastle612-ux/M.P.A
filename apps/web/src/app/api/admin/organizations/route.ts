@@ -26,9 +26,18 @@ export async function GET() {
   const { data: subscriptions } = ids.length
     ? await supabase.from("organization_subscriptions").select("organization_id, sku_code, status").in("organization_id", ids)
     : { data: [] };
+  const { data: setups } = ids.length
+    ? await supabase
+        .from("organization_setup_state")
+        .select("organization_id, completed_at")
+        .in("organization_id", ids)
+    : { data: [] };
 
   const subscriptionByOrg = new Map(
     (subscriptions ?? []).map((subscription) => [subscription.organization_id, subscription] as const)
+  );
+  const setupCompleteByOrg = new Map(
+    (setups ?? []).map((setup) => [setup.organization_id, Boolean(setup.completed_at)] as const)
   );
 
   return NextResponse.json({
@@ -41,7 +50,8 @@ export async function GET() {
         slug: organization.slug,
         productSku: sku,
         productLabel: sku ? toSkuLabel(sku) : null,
-        subscriptionStatus: subscription?.status ?? null
+        subscriptionStatus: subscription?.status ?? null,
+        setupComplete: setupCompleteByOrg.get(organization.id) ?? false
       };
     })
   });

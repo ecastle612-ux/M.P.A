@@ -7,7 +7,10 @@ import {
   parseCreateOrganizationInput
 } from "../../../lib/organization/contracts";
 import { createAuthServerClient } from "../../../lib/auth/server";
-import { assignOrganizationSubscription } from "../../../lib/commercial/server";
+import {
+  assignOrganizationSubscription,
+  isPlatformOperatorUser
+} from "../../../lib/commercial/server";
 import { getOrganizationsForUser } from "../../../lib/organization/server";
 
 export async function GET() {
@@ -73,11 +76,14 @@ export async function POST(request: Request) {
   const payload = await request.json().catch(() => null);
   const parsed = parseCreateOrganizationInput(payload);
   if (!parsed) {
-    return NextResponse.json(
-      { error: "Invalid payload. name and productSku (commercial product) are required." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid payload. Organization name is required." }, { status: 400 });
   }
+
+  // J0: Customer self-serve always receives Property Manager — not a SKU shopping cart.
+  // Platform operators may still provision Facility / Complete at create time.
+  const operator = await isPlatformOperatorUser(user);
+  const productSku =
+    operator && parsed.productSku ? parsed.productSku : "mpa_property_manager";
 
   const slugCandidate = parsed.slug ?? createOrganizationSlugFromName(parsed.name);
   const slug = `${slugCandidate}-${crypto.randomUUID().slice(0, 8)}`;
@@ -109,7 +115,7 @@ export async function POST(request: Request) {
 
   const subscriptionResult = await assignOrganizationSubscription({
     organizationId: organization.id,
-    sku: parsed.productSku,
+    sku: productSku,
     assignedBy: user.id
   });
 
@@ -124,8 +130,8 @@ export async function POST(request: Request) {
       roles: ["property_manager"]
     },
     subscription: {
-      productSku: parsed.productSku,
-      productLabel: toSkuLabel(parsed.productSku)
+      productSku,
+      productLabel: toSkuLabel(productSku)
     }
   });
 

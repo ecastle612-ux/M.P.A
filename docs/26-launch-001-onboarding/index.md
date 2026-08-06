@@ -1,8 +1,9 @@
 # 26 — LAUNCH-001 Customer Promise Roadmap
 
-**Status:** Draft (planning only — **no implementation**)  
+**Status:** Approved  
 **Gate:** Design → Document → **Approve** → Implement  
 **Date:** 2026-08-06  
+**ADR:** [ADR-017](../18-decision-log/adr-017-launch-001-customer-promise-journeys.md)  
 **Supersedes:** Engineering-slice framing in v0.1 (L0–L6 module order)
 
 ---
@@ -15,6 +16,14 @@ Implementation order follows **customer outcomes** — not technical modules.
 
 **Success:** Launch ready only when every advertised workflow can be demonstrated start-to-finish **without workarounds**.
 
+**Governing launch program** until Customer #1 successfully completes onboarding and daily operations without assistance.
+
+---
+
+## Governing launch rule
+
+> If we advertise it, a customer must be able to discover it, complete it, and understand it without friction.
+
 ---
 
 ## Context
@@ -22,9 +31,9 @@ Implementation order follows **customer outcomes** — not technical modules.
 | Workstream | Status |
 |------------|--------|
 | FIN-OPS-001 | **Paused after S3** — money loop exists; not the whole product promise |
-| Commercial hardening | **Pass** — what you bought is clearer; execution is not |
+| Commercial hardening | **Pass** — what you bought is clearer; execution is the launch work |
 | Facility Operations | **Out of this package** — not a Property Manager promise |
-| LAUNCH-001 | **Customer Promise roadmap** — docs only until Approve |
+| LAUNCH-001 | **Approved** — journey-driven implementation; authorize per journey |
 
 ---
 
@@ -50,9 +59,22 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [Promise Evaluation Framework](./promise-evaluation-framework.md) | Six questions + scoring |
 | [Capability Promises](./capability-promises.md) | All PM promises: journey, status, friction, blockers, fix, verify |
 | [Customer Journeys](./customer-journeys.md) | Outcome-ordered journeys (replaces engineering slices) |
+| [J0 Certification](./j0/certification.md) | Purchase → trusted home Pass script |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
+
+---
+
+## Authorization log
+
+| Authorization | Scope | Status |
+|---------------|-------|--------|
+| `APPROVE LAUNCH-001` | Customer Promise framework + journey model | **Approved** |
+| `AUTHORIZE LAUNCH-001 JOURNEY J0` | Purchase → First Login / trusted home | **Authorized + delivered** — MA cert script ready |
+| J1–J8 | — | **Not authorized** — do not implement |
+
+**Hard rule:** No feature work may bypass an incomplete customer journey.
 
 ---
 
@@ -60,7 +82,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 
 | Capability | Nav / catalog promise | Launch verdict today |
 |------------|----------------------|----------------------|
-| Property Management | Properties + Mission Control | **Fail** |
+| Property Management | Properties + Mission Control | **Fail** (MC home shipped; portfolio create = J1) |
 | Leasing | Vacancy → lease | **Fail** |
 | Residents | Resident operational records | **Fail** |
 | Maintenance | Unit / resident work orders | **Fail** |
@@ -77,11 +99,12 @@ Detail: [Capability Promises](./capability-promises.md)
 
 | Instruction |
 |-------------|
-| **Do not implement** until `APPROVE LAUNCH-001` |
+| **Do not** implement J1–J8 until explicitly authorized |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |
 | **Do not begin Facility Operations features** |
 | **Do not advertise** a capability that cannot be completed unaided |
+| **Do not** bypass an incomplete journey with unrelated feature work |
 
 ---
 
@@ -93,6 +116,7 @@ Detail: [Capability Promises](./capability-promises.md)
 | [24 Subscription Matrix](../24-product-architecture/subscription-matrix.md) | SKU inclusion |
 | [25 FIN-OPS-001](../25-fin-ops-001/index.md) | Money capability (partial promise met) |
 | [Implementation Gate](../00-governance/implementation-gate.md) | Design → Document → Approve → Implement |
+| [ADR-017](../18-decision-log/adr-017-launch-001-customer-promise-journeys.md) | Accepted launch governance |
 
 ---
 
@@ -101,5 +125,5 @@ Detail: [Capability Promises](./capability-promises.md)
 | Field | Value |
 |-------|-------|
 | Package | LAUNCH-001 Customer Promise Roadmap |
-| Version | 0.2.0-draft |
-| Implementation | **Blocked** |
+| Version | 1.0.0-approved |
+| Implementation | **Journey-gated** (J0 delivered; J1+ blocked) |

@@ -66,10 +66,12 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-        {mode === "sign_in" ? "Sign In" : "Create Account"}
+        {mode === "sign_in" ? "Sign in to Property Manager" : "Create your account"}
       </h1>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        Foundation authentication.
+        {mode === "sign_in"
+          ? "After sign-in you continue Guided Setup or land in Mission Control."
+          : "Verify your email, then sign in to create your organization."}
       </p>
       <div className="mt-4 grid grid-cols-2 gap-2">
         <Button

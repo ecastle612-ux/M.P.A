@@ -5,7 +5,8 @@ export const ACTIVE_ORGANIZATION_COOKIE = "mpa_active_organization_id";
 export type CreateOrganizationInput = {
   name: string;
   slug?: string;
-  productSku: ProductSku;
+  /** Optional; customer self-serve always receives Property Manager (J0). */
+  productSku?: ProductSku;
 };
 
 export type SwitchOrganizationInput = {
@@ -46,14 +47,15 @@ export function parseCreateOrganizationInput(payload: unknown): CreateOrganizati
       ? slugRaw
       : undefined;
 
-  if (name.length < 2 || name.length > 120 || !isProductSku(productSkuRaw)) {
+  if (name.length < 2 || name.length > 120) {
     return null;
   }
 
+  const productSku = isProductSku(productSkuRaw) ? productSkuRaw : undefined;
   if (slug) {
-    return { name, slug, productSku: productSkuRaw };
+    return productSku ? { name, slug, productSku } : { name, slug };
   }
-  return { name, productSku: productSkuRaw };
+  return productSku ? { name, productSku } : { name };
 }
 
 export function parseSwitchOrganizationInput(payload: unknown): SwitchOrganizationInput | null {

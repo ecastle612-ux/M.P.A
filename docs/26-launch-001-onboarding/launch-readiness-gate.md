@@ -1,7 +1,7 @@
 # Launch Readiness Gate — Customer Promises
 
 **Parent:** [LAUNCH-001](./index.md)  
-**Status:** Draft  
+**Status:** Approved package · overall launch still **NO-GO**  
 **Date:** 2026-08-06
 
 ---
@@ -52,7 +52,7 @@ Assisted demos that rely on the above **do not** count as launch ready.
 - [ ] Or: capability formally **removed** from Billing/nav/Module advertise until kept  
 
 ### North-star journey
-- [ ] J0 Purchase → trusted home  
+- [x] J0 Purchase → trusted home (**delivered** — [cert script](./j0/certification.md); MA Pass still required)  
 - [ ] J1 Property added  
 - [ ] J2 Staff invited  
 - [ ] J3 Resident + lease  
@@ -68,9 +68,9 @@ Assisted demos that rely on the above **do not** count as launch ready.
 - [ ] Integration health visible  
 
 ### Governance
-- [ ] `APPROVE LAUNCH-001`  
-- [ ] Journeys authorized and certified individually  
-- [ ] FIN-OPS remains single money system; S4 not required for this GO unless journey needs it  
+- [x] `APPROVE LAUNCH-001` ([ADR-017](../18-decision-log/adr-017-launch-001-customer-promise-journeys.md))  
+- [ ] Journeys authorized and certified individually (J0 authorized/delivered; J1–J8 not authorized)  
+- [x] FIN-OPS remains single money system; S4 not required for this GO unless journey needs it  
 
 ---
 

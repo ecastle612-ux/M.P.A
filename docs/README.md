@@ -6,10 +6,9 @@ This blueprint defines how M.P.A. is designed, built, and evolved. Every enginee
 
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
 Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0–
-S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Onboarding is in
-**audit/planning** (`docs/26-launch-001-onboarding/`) — docs only, no implement
-until Approve. CORE-004 and Facility feature work remain stopped. Implementation
-Gate in force.
+S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Promise Roadmap
+**Approved** (ADR-017); journey-gated — **J0 delivered**, J1–J8 not authorized.
+CORE-004 and Facility feature work remain stopped. Implementation Gate in force.
 
 ---
 
@@ -32,7 +31,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 3. Read **08 Software Architecture** through **16 Testing Standards** to understand *how it is built*.
 4. Read **24 Product Architecture** for commercial packaging (three offerings + Master Admin).
 5. Read **25 FIN-OPS-001** for Financial Operations (S0–S3 delivered; paused).
-6. Read **26 LAUNCH-001** for Customer Onboarding audit/planning (Approve before code).
+6. Read **26 LAUNCH-001** for Customer Promise roadmap (Approved; authorize each journey before code).
 7. Consult **17 Development Roadmap** for sequencing (reconcile to 24 after approval).
 8. Check **18 Decision Log** before proposing architectural changes.
 9. Reference **19** and **20** for long-term platform direction.
@@ -55,7 +54,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
 | 24 | [Product Architecture (Commercial Reset)](./24-product-architecture/index.md) | Three offerings, ownership, nav, subscriptions, entitlements |
 | 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0–S3 delivered; paused) |
-| 26 | [LAUNCH-001 Customer Onboarding](./26-launch-001-onboarding/index.md) | Unaided Customer #1 journey (Draft audit; no implement) |
+| 26 | [LAUNCH-001 Customer Promise Roadmap](./26-launch-001-onboarding/index.md) | Approved; journey-gated launch (J0 delivered; J1+ blocked) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

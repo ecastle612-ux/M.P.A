@@ -52,6 +52,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-014](./adr-014-phase-3-identity-multitenant-foundation.md) | Phase 3 Identity & Multi-Tenant Foundation | Accepted | 2026-07-13 |
 | [ADR-015](./adr-015-three-commercial-products-master-admin.md) | Three Commercial Products + Master Admin OS | Accepted | 2026-08-06 |
 | [ADR-016](./adr-016-financial-operations-operational-finance.md) | Financial Operations as Operational Finance (PM) | Accepted | 2026-08-06 |
+| [ADR-017](./adr-017-launch-001-customer-promise-journeys.md) | LAUNCH-001 Customer Promise Journeys | Accepted | 2026-08-06 |
 
 ---
 

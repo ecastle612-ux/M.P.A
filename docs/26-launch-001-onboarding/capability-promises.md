@@ -40,42 +40,38 @@ Open Property Manager home
 ```
 
 ### Current Status
-- `/pm/mission-control` = alignment stub (no attention queue, no first CTA).
-- `/pm/properties` = FO money health list (S3); **cannot create** property here.
-- Property create exists only on Financial Operations Finance Desk (`#setup`).
-- Guided Setup does not include “add property.”
+- `/pm/mission-control` = trusted home with org/plan + **Add your first property** CTA (J0).
+- `/pm/properties` = FO money health list (S3); **cannot create** property here yet (J1).
+- Property create still exists on Financial Operations Finance Desk.
+- Guided Setup completes commercial onboarding and points to Mission Control (J0); first-property create is J1.
 
 ### Six questions
 | # | Answer |
 |---|--------|
-| 1 Discover | **Partial** — Properties nav exists; create path not there |
-| 2 No docs | **No** |
-| 3 No support | **No** — needs FO lore |
-| 4 Begin→End | **No** — no clear done on Mission Control |
-| 5 Matches ad | **No** — advertised portfolio ops; ships money cards + stub home |
-| 6 MA validate | **No** — no certification script/surface |
+| 1 Discover | **Partial** — Mission Control CTA + Properties nav; create still not on Properties |
+| 2 No docs | **No** — create still requires FO path until J1 |
+| 3 No support | **No** |
+| 4 Begin→End | **Partial** — J0 home has clear next action; property create end-state is J1 |
+| 5 Matches ad | **No** — portfolio ops not complete until J1 |
+| 6 MA validate | **Partial** — [J0 cert](./j0/certification.md); Property Management full cert after J1 |
 
 ### Friction Points
-- “Aligned” label overstates readiness.
-- Properties page looks financial, not administrative.
-- First login does not land on a win.
+- Properties page still looks financial, not administrative.
+- CTA honesty: create is the next journey, not finished on Properties yet.
 
 ### Launch Blockers
-- Mission Control not operational.
-- Property create not on the advertised Properties surface.
-- No unaided first-property journey from Setup.
+- Property create not on the advertised Properties surface (J1).
+- No unaided first-property completion from Properties (J1).
 
 ### Recommended Fix
-- Mission Control: attention + **Add first property** CTA.
-- Properties: create/edit property & units; money panel secondary.
-- Guided Setup step: first property.
-- Honesty: until live, do not present as complete.
+- J1: Properties create/edit property & units; money panel secondary.
+- Guided Setup / Mission Control already point at first property (J0 done).
 
 ### Verification Steps
-1. New PM org → Mission Control shows single next action.  
-2. Create property without opening FO.  
-3. Property appears in list and detail.  
-4. Master Admin runs “Property Management” cert checklist (see MA console).
+1. New PM org → Mission Control shows single next action (**J0**).  
+2. Create property without opening FO (**J1**).  
+3. Property appears in list and detail (**J1**).  
+4. Master Admin runs J0 then Property Management cert after J1.
 
 ---
 
@@ -433,9 +429,10 @@ Not a nav module, but required for all promises:
 
 | Step | Status |
 |------|--------|
-| Purchase Property Manager | Simulated (SKU picker / Admin assign) |
+| Purchase Property Manager | Self-serve assigns PM SKU (no customer picker); Admin assign / white-glove OK |
 | Org created | Works |
-| Staff invited | Broken (no email / link UX) |
+| Guided Setup → Mission Control | **J0 delivered** |
+| Staff invited | Broken (no email / link UX) — J2 |
 | Email verification | Partial (Supabase) |
 
-See [Customer Journeys](./customer-journeys.md) Journey J0–J2.
+See [Customer Journeys](./customer-journeys.md) Journey J0–J2 · [J0 certification](./j0/certification.md).

@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { Button, Card, Input, Select } from "@mpa/ui";
-import { PRODUCT_SKUS, SKU_SUMMARIES, USER_ROLES, isUserRole, type ProductSku } from "@mpa/shared";
+import { USER_ROLES, isUserRole } from "@mpa/shared";
 import { useOrganizationContext } from "../shell/organization-context";
 
 type PendingInvitation = {
@@ -25,7 +25,6 @@ type Membership = {
 export function OrganizationFoundationPanel() {
   const { activeOrganization, organizations, refreshOrganizations } = useOrganizationContext();
   const [newOrganizationName, setNewOrganizationName] = useState("");
-  const [productSku, setProductSku] = useState<ProductSku>("mpa_property_manager");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("tenant");
   const [invitations, setInvitations] = useState<PendingInvitation[]>([]);
@@ -75,7 +74,8 @@ export function OrganizationFoundationPanel() {
     const response = await fetch("/api/organizations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newOrganizationName, productSku })
+      // J0: customers do not shop SKUs — API assigns Property Manager.
+      body: JSON.stringify({ name: newOrganizationName })
     });
     const payload = (await response.json()) as { error?: string };
     setLoading(false);
@@ -88,7 +88,7 @@ export function OrganizationFoundationPanel() {
     setNewOrganizationName("");
     await refreshOrganizations();
     await refreshOrganizationDetails();
-    setNotice("Organization created.");
+    setNotice("Organization created with Property Manager.");
   }
 
   async function handleInvite(event: FormEvent<HTMLFormElement>) {
@@ -141,21 +141,9 @@ export function OrganizationFoundationPanel() {
             value={newOrganizationName}
             onChange={(event) => setNewOrganizationName(event.target.value)}
           />
-          <label className="block text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="organization-product">
-            Commercial product
-            <Select
-              id="organization-product"
-              className="mt-1"
-              value={productSku}
-              onChange={(event) => setProductSku(event.target.value as ProductSku)}
-            >
-              {PRODUCT_SKUS.map((sku) => (
-                <option key={sku} value={sku}>
-                  {SKU_SUMMARIES[sku].label}
-                </option>
-              ))}
-            </Select>
-          </label>
+          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+            Product: Property Manager — assigned at create. Plan changes are operator-only.
+          </p>
           <Button disabled={loading} type="submit">
             {loading ? "Creating..." : "Create organization"}
           </Button>

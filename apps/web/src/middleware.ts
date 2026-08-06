@@ -55,8 +55,9 @@ export async function middleware(request: NextRequest) {
   }
 
   if ((isLoginRoute || isForgotPasswordRoute) && user) {
+    // J0: first login goes through /dashboard → Setup or product home (not launcher theater).
     const url = request.nextUrl.clone();
-    url.pathname = "/launcher";
+    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
