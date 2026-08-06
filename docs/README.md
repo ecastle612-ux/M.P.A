@@ -5,10 +5,9 @@ The permanent source of truth for M.P.A. (My Property Assistant).
 This blueprint defines how M.P.A. is designed, built, and evolved. Every engineer, designer, and product contributor should treat these documents as authoritative until superseded by an approved Decision Log entry.
 
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
-Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted). Slice **S0
-Foundation delivered**; S1+ operational finance **NO-GO** until slice authorization.
-CORE-004, LAUNCH-001, and Facility feature work remain stopped. Implementation Gate
-in force.
+Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted). Slices **S0
+and S1 delivered**; S2+ **NO-GO** until slice authorization. CORE-004, LAUNCH-001,
+and Facility feature work remain stopped. Implementation Gate in force.
 
 ---
 
@@ -111,6 +110,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Surfaces & Cross-cutting UX](./25-fin-ops-001/surfaces-dashboard-notifications-search-mobile.md) | Dashboard, notifications, audit, search, mobile |
 | [Delivery & Certification](./25-fin-ops-001/delivery-acceptance-risks-slices-certification.md) | Acceptance, risks, slices, cert plan |
 | [S0 Certification](./25-fin-ops-001/s0/index.md) | Foundation slice reports |
+| [S1 Certification](./25-fin-ops-001/s1/index.md) | Resident billing & rent collection |
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
 
 ### Governance & gates

@@ -202,7 +202,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations#payments",
-        "FO · Payments (S2+)",
+        "FO · Payments",
         "Property Manager",
         "pm.financial_operations"
       )

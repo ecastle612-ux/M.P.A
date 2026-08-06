@@ -26,9 +26,10 @@ describe("FIN-OPS-001 S0 financial domain", () => {
     expect(FINANCIAL_DOMAIN_REGISTRATION.excludedSkus).toContain("mpa_facility_operations");
   });
 
-  it("marks S0 complete and later slices blocked", () => {
+  it("marks S0 and S1 complete and later slices blocked", () => {
     expect(FIN_OPS_SLICES[0]).toMatchObject({ id: "S0", status: "complete" });
-    expect(FIN_OPS_SLICES.slice(1).every((slice) => slice.status === "blocked")).toBe(true);
+    expect(FIN_OPS_SLICES[1]).toMatchObject({ id: "S1", status: "complete" });
+    expect(FIN_OPS_SLICES.slice(2).every((slice) => slice.status === "blocked")).toBe(true);
   });
 
   it("registers pm.finance permission model", () => {
@@ -45,13 +46,13 @@ describe("FIN-OPS-001 S0 financial domain", () => {
     expect(FINANCE_NOTIFICATION_CATALOG.some((item) => item.key === "finance.foundation.ready")).toBe(true);
   });
 
-  it("gates operational finance behind feature flags", () => {
+  it("enables S1 billing flags and keeps later slices off", () => {
     expect(isFinanceFeatureEnabled("finance.foundation")).toBe(true);
-    expect(isFinanceFeatureEnabled("finance.charges")).toBe(false);
-    expect(isFinanceFeatureEnabled("finance.stripe_payment_execution")).toBe(false);
+    expect(isFinanceFeatureEnabled("finance.charges")).toBe(true);
+    expect(isFinanceFeatureEnabled("finance.stripe_payment_execution")).toBe(true);
     expect(isFinanceFeatureEnabled("finance.erp_accounting")).toBe(false);
-    expect(FINANCE_FEATURE_FLAGS["finance.payments"]).toBe(false);
-    expect(() => assertFinanceFeatureEnabled("finance.charges")).toThrow(/not authorized/);
+    expect(FINANCE_FEATURE_FLAGS["finance.payments"]).toBe(true);
+    expect(() => assertFinanceFeatureEnabled("finance.late_fees")).toThrow(/not authorized/);
   });
 
   it("registers property, resident, and vendor integration points", () => {

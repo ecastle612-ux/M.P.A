@@ -11,7 +11,8 @@ export const OWNER_PORTAL_NAVIGATION = [
 ] as const;
 
 export const TENANT_PORTAL_NAVIGATION = [
-  { href: "/portal/tenant", label: "Tenant home" },
+  { href: "/portal/tenant", label: "Home" },
+  { href: "/portal/tenant/billing", label: "Billing" },
   { href: "/profile", label: "Profile" }
 ] as const;
 

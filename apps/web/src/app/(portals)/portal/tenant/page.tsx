@@ -1,12 +1,19 @@
+import Link from "next/link";
 import { Card } from "@mpa/ui";
 
 export default function TenantPortalPage() {
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">Tenant portal foundation</h2>
-      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-        No business workflows are implemented in this phase. This shell is ready for future tenant modules.
+    <Card className="space-y-3">
+      <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">Resident home</h2>
+      <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+        Check your balance, upcoming charges, and payment history in Billing.
       </p>
+      <Link
+        href="/portal/tenant/billing"
+        className="inline-flex h-9 items-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white"
+      >
+        Go to Billing
+      </Link>
     </Card>
   );
 }

@@ -13,14 +13,15 @@ This package is the **authoritative source** for Financial Operations.
 
 | Slice | Status |
 |-------|--------|
-| **S0 — Financial Foundation** | **Authorized / in delivery** |
-| S1+ operational finance | **Blocked** until `AUTHORIZE FIN-OPS-001 SLICE S1` (etc.) |
+| **S0 — Financial Foundation** | **Delivered / certified** |
+| **S1 — Resident Billing & Rent Collection** | **Delivered / certified** |
+| S2+ | **Blocked** until `AUTHORIZE FIN-OPS-001 SLICE S2` (etc.) |
 
 ### Hard stops
 
 | Workstream | Instruction |
 |------------|-------------|
-| S1–S8 without slice auth | **Do not implement** |
+| S2–S8 without slice auth | **Do not implement** |
 | CORE-004 | **Do not modify** |
 | Facility Operations features | **Do not begin** |
 | Full ERP / GL accounting | **Out of scope** (ADR-010 / ADR-016) |
@@ -51,7 +52,8 @@ Financial Operations is **operational finance for property management**, not ent
 | [Stripe & Ledger Architecture](./stripe-and-ledger-architecture.md) | Stripe Connect, ledger, SaaS billing boundary, audit |
 | [Surfaces: Dashboard, Notifications, Search, Mobile](./surfaces-dashboard-notifications-search-mobile.md) | UX surfaces and Mission Control strategy |
 | [Delivery: Acceptance, Risks, Slices, Certification](./delivery-acceptance-risks-slices-certification.md) | Implementation slices after approval |
-| [S0 Certification](./s0/index.md) | Foundation slice reports (when delivered) |
+| [S0 Certification](./s0/index.md) | Foundation slice reports |
+| [S1 Certification](./s1/index.md) | Resident billing & rent collection reports |
 
 ---
 

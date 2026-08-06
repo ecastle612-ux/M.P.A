@@ -2,7 +2,7 @@
 
 **Status:** P0 Hardening complete — **Pass**  
 **Date:** 2026-08-06  
-**Financial Operations:** Package **Approved** · ADR-016 **Accepted** · **S0 delivered** · S1+ **NO-GO**  
+**Financial Operations:** Package **Approved** · ADR-016 **Accepted** · **S0+S1 delivered** · S2+ **NO-GO**  
 **Facility Operations features:** NO-GO / deferred
 
 ---
@@ -22,7 +22,8 @@ FIN-OPS-001 design package is Draft under `docs/25-fin-ops-001/`.
 | Master Admin visibility | Fail | **Pass** |
 | Financial Operations design | — | **Approved** |
 | Financial Operations S0 | — | **Delivered** |
-| Financial Operations S1+ | NO-GO | **NO-GO** (await slice auth) |
+| Financial Operations S1 | — | **Delivered** |
+| Financial Operations S2+ | NO-GO | **NO-GO** (await slice auth) |
 | Facility feature start | NO-GO | **NO-GO** |
 
 ---
@@ -48,6 +49,7 @@ FIN-OPS-001 design package is Draft under `docs/25-fin-ops-001/`.
 | [Commercial verification](./hardening-commercial-verification.md) | Pass |
 | [Navigation verification](./hardening-navigation-verification.md) | Pass |
 | [Onboarding verification](./hardening-onboarding-verification.md) | Pass |
-| [GO / NO-GO Financial Operations](./go-no-go-financial-operations.md) | S0 delivered; S1+ NO-GO |
+| [GO / NO-GO Financial Operations](./go-no-go-financial-operations.md) | S0+S1 delivered; S2+ NO-GO |
 | [FIN-OPS-001 package](../../25-fin-ops-001/index.md) | Approved · ADR-016 Accepted |
 | [S0 Certification](../../25-fin-ops-001/s0/index.md) | Foundation implementation + verification |
+| [S1 Certification](../../25-fin-ops-001/s1/index.md) | Resident billing & rent collection |

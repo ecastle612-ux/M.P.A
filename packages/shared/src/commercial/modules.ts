@@ -109,8 +109,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     entitlement: "pm.financial_operations",
     href: "/pm/financial-operations",
     readiness: "aligned",
-    description: "Operational finance Command Center (S0 foundation). Collections unlock in later slices.",
-    plannedLabel: "S0 Foundation complete — operational finance pending AUTHORIZE SLICE S1+"
+    description: "Resident billing & rent collection Command Center (S1).",
+    plannedLabel: "S1 Resident Billing complete — vendor AP / late fees pending later slices"
   },
   {
     id: "facility_mission_control",
@@ -431,7 +431,7 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
       {
         id: "pm_financial_operations",
         title: "Financial Operations",
-        description: "Property Manager money Command Center — foundation (S0).",
+        description: "Resident billing & rent collection Command Center (S1).",
         href: "/pm/financial-operations",
         product: "property_manager",
         readiness: "aligned"

@@ -6,11 +6,11 @@ import {
   FINANCE_INTEGRATION_POINTS,
   FIN_OPS_SLICES,
   buildFinanceFoundationTimeline,
-  financeEventsForSlice,
   type FinanceTimelineItem
 } from "@mpa/shared";
 import { Badge, EmptyState, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { FinanceDesk } from "./finance-desk";
 
 function formatTime(iso: string): string {
   try {
@@ -23,45 +23,8 @@ function formatTime(iso: string): string {
   }
 }
 
-function QueueItem({
-  title,
-  detail,
-  badge,
-  href
-}: {
-  title: string;
-  detail: string;
-  badge: string;
-  href?: string;
-}) {
-  const body = (
-    <>
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{title}</p>
-        <Badge variant="info">{badge}</Badge>
-      </div>
-      <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{detail}</p>
-    </>
-  );
-
-  if (href) {
-    return (
-      <Link
-        href={href}
-        className="block border-b border-[var(--mpa-color-border-subtle)] px-4 py-3 last:border-b-0 hover:bg-[var(--mpa-color-bg-subtle,#fafafa)]"
-      >
-        {body}
-      </Link>
-    );
-  }
-
-  return <div className="border-b border-[var(--mpa-color-border-subtle)] px-4 py-3 last:border-b-0">{body}</div>;
-}
-
 export function FinancialOperationsCommandCenter() {
   const timeline = buildFinanceFoundationTimeline();
-  const s0Events = financeEventsForSlice("S0");
-  const operationalDisabled = !FINANCE_FEATURE_FLAGS["finance.charges"];
 
   return (
     <main className="flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
@@ -81,19 +44,24 @@ export function FinancialOperationsCommandCenter() {
           Financial Operations
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Command Center for operational finance. Foundation (S0) is live — rent collection, payments, and
-          ledgers unlock in authorized later slices.
+          Resident billing and rent collection Command Center. Create charges, collect payments, and keep
+          ledgers current — without ERP complexity.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Badge variant="success">S0 Foundation</Badge>
+          <Badge variant="success">S1 Billing live</Badge>
           <Badge variant="neutral">PM + Complete only</Badge>
-          <Badge variant="warning">No payment execution</Badge>
+          {FINANCE_FEATURE_FLAGS["finance.stripe_payment_execution"] ? (
+            <Badge variant="info">Online pay enabled</Badge>
+          ) : null}
         </div>
       </header>
 
-      <nav aria-label="Financial Operations sections" className="flex flex-wrap gap-2 border-b border-[var(--mpa-color-border-default)] pb-3">
+      <nav
+        aria-label="Financial Operations sections"
+        className="flex flex-wrap gap-2 border-b border-[var(--mpa-color-border-default)] pb-3"
+      >
         {FINANCIAL_WORKSPACE_SECTIONS.map((section) => {
-          const enabled = section.slice === "S0";
+          const enabled = section.slice === "S0" || section.slice === "S1";
           return (
             <a
               key={section.id}
@@ -118,145 +86,100 @@ export function FinancialOperationsCommandCenter() {
             <div className="border-b border-[var(--mpa-color-border-default)] px-4 py-3">
               <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Attention queue</h2>
               <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
-                What needs money action — operational items arrive in S1+.
+                Money actions for today — metrics refresh from live charges and payments.
               </p>
             </div>
-            <QueueItem
-              title="Connect payments before collections"
-              detail="Stripe Connect linkage is registered. Payment execution stays off until S2."
-              badge="Setup"
-              href="/billing"
-            />
-            <QueueItem
-              title="No open charges yet"
-              detail="Charge creation is gated until AUTHORIZE FIN-OPS-001 SLICE S1."
-              badge="S1"
-            />
-            <QueueItem
-              title="No vendor invoices awaiting approval"
-              detail="Payables workflow unlocks in S4."
-              badge="S4"
-            />
-            {operationalDisabled ? (
-              <div className="px-4 py-4">
-                <EmptyState
-                  title="Operational finance not authorized yet"
-                  description="Foundation surfaces are ready. Rent collection, ledgers, late fees, and vendor payments remain blocked."
-                />
-              </div>
-            ) : null}
+            <div className="space-y-0 px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
+              <p>Use the desk below to post rent, record payments, and review delinquency.</p>
+              <p className="mt-2">
+                Residents pay online from{" "}
+                <Link href="/portal/tenant/billing" className="text-[var(--mpa-color-brand-primary)] underline">
+                  Tenant Billing
+                </Link>
+                .
+              </p>
+            </div>
           </div>
         }
         workPlane={
-          <div className="space-y-6 p-4">
+          <div className="space-y-4 p-4">
             <div>
-              <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Work plane</h2>
+              <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Billing desk</h2>
               <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
-                Integration points, timeline, and foundation status — not a KPI dashboard.
+                One canonical path: lease → charges → payment → receipt → ledger.
               </p>
             </div>
-
-            <section id="integrations" aria-labelledby="integrations-heading" className="space-y-3">
-              <h3 id="integrations-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-                Domain integration points
-              </h3>
-              <ul className="grid gap-3 md:grid-cols-3">
-                {FINANCE_INTEGRATION_POINTS.map((point) => (
-                  <li
-                    key={point.id}
-                    id={point.panelId}
-                    className="rounded-md border border-[var(--mpa-color-border-default)] p-3"
-                  >
-                    <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{point.label}</p>
-                    <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{point.description}</p>
-                    <p className="mt-2 font-mono text-[10px] text-[var(--mpa-color-text-secondary)]">
-                      {point.requiredForeignKeys.join(" · ")}
-                    </p>
-                    <Link
-                      href={point.relatedModuleHref}
-                      className="mt-3 inline-block text-xs font-medium text-[var(--mpa-color-brand-primary)] underline"
-                    >
-                      Open {point.id} module
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section id="timeline" aria-labelledby="timeline-heading" className="space-y-3">
-              <h3 id="timeline-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-                Timeline
-              </h3>
-              <TimelineView
-                items={timeline.map((item: FinanceTimelineItem) => ({
-                  id: item.id,
-                  title: item.title,
-                  detail: item.detail,
-                  occurredAtLabel: formatTime(item.occurredAt),
-                  meta: item.href ? (
-                    <Link href={item.href} className="text-xs text-[var(--mpa-color-brand-primary)] underline">
-                      View
-                    </Link>
-                  ) : undefined
-                }))}
-              />
-            </section>
-
-            <section id="events" aria-labelledby="events-heading" className="space-y-2">
-              <h3 id="events-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-                Registered S0 events
-              </h3>
-              <ul className="space-y-1 text-xs font-mono text-[var(--mpa-color-text-secondary)]">
-                {s0Events.map((event) => (
-                  <li key={event.type}>{event.type}</li>
-                ))}
-              </ul>
-            </section>
-
-            <section id="charges" className="scroll-mt-24">
-              <EmptyState
-                title="Charges & ledger — S1"
-                description="Resident charges and ledger balances are not implemented in S0."
-              />
-            </section>
-            <section id="payments" className="scroll-mt-24">
-              <EmptyState
-                title="Payments — S2"
-                description="Stripe Checkout and webhook payment posting are not implemented in S0."
-              />
-            </section>
-            <section id="late-fees" className="scroll-mt-24">
-              <EmptyState title="Late fees — S3" description="Late fee policies and posting unlock after S1." />
-            </section>
-            <section id="vendor-invoices" className="scroll-mt-24">
-              <EmptyState
-                title="Vendor invoices — S4"
-                description="Invoice submit / approve / reject is not implemented in S0."
-              />
-            </section>
-            <section id="vendor-payments" className="scroll-mt-24">
-              <EmptyState
-                title="Vendor payments — S5"
-                description="Vendor payout execution stays disabled until later authorization."
-              />
-            </section>
-            <section id="reports" className="scroll-mt-24">
-              <EmptyState
-                title="Reports — S6"
-                description="Property and owner financial summaries unlock after collections and AP slices."
-              />
-            </section>
+            <FinanceDesk />
           </div>
         }
       />
 
+      <section id="integrations" className="space-y-3">
+        <h2 className="text-sm font-semibold">Domain integration points</h2>
+        <ul className="grid gap-3 md:grid-cols-3">
+          {FINANCE_INTEGRATION_POINTS.map((point) => (
+            <li key={point.id} className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3">
+              <p className="text-sm font-medium">{point.label}</p>
+              <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{point.description}</p>
+              <Link
+                href={point.relatedModuleHref}
+                className="mt-3 inline-block text-xs text-[var(--mpa-color-brand-primary)] underline"
+              >
+                Open {point.id} module
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="timeline" className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <h2 className="text-sm font-semibold">Timeline</h2>
+        <div className="mt-3">
+          <TimelineView
+            items={[
+              {
+                id: "s1-live",
+                title: "Resident billing & rent collection live",
+                detail: "Charges, manual payments, online Checkout, receipts, ledger, and portal billing.",
+                occurredAtLabel: formatTime(new Date().toISOString())
+              },
+              ...timeline.map((item: FinanceTimelineItem) => ({
+                id: item.id,
+                title: item.title,
+                detail: item.detail,
+                occurredAtLabel: formatTime(item.occurredAt)
+              }))
+            ]}
+          />
+        </div>
+      </section>
+
+      <section id="late-fees" className="scroll-mt-24">
+        <EmptyState title="Late fees — S3" description="Automated late fee posting remains blocked until S3 authorization." />
+      </section>
+      <section id="vendor-invoices" className="scroll-mt-24">
+        <EmptyState title="Vendor invoices — S4" description="Vendor AP is out of S1 scope." />
+      </section>
+      <section id="vendor-payments" className="scroll-mt-24">
+        <EmptyState title="Vendor payments — S5" description="Vendor payouts remain disabled." />
+      </section>
+      <section id="reports" className="scroll-mt-24">
+        <EmptyState
+          title="Advanced reports — S6"
+          description="S1 includes Command Center snapshots. Full owner/property reporting comes later."
+        />
+      </section>
+
       <section aria-labelledby="slice-progress-heading" className="max-w-3xl">
-        <h2 id="slice-progress-heading" className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+        <h2 id="slice-progress-heading" className="text-sm font-semibold">
           Implementation progress
         </h2>
         <ol className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
           {FIN_OPS_SLICES.map((slice) => (
-            <li key={slice.id} className="flex items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] py-1.5">
+            <li
+              key={slice.id}
+              className="flex items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] py-1.5"
+            >
               <span>
                 {slice.id} · {slice.name}
               </span>

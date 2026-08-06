@@ -6,3 +6,4 @@ export * from "./audit";
 export * from "./search";
 export * from "./feature-flags";
 export * from "./integrations";
+export * from "./billing";

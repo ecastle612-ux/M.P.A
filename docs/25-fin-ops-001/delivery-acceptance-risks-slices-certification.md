@@ -77,8 +77,8 @@ Ordered for Customer #1 value; each slice is certifiable.
 | Slice | Name | Delivers | Depends |
 |-------|------|----------|---------|
 | **S0** | Financial Foundation | Domain, permissions, Command Center shell, events/audit/notify/search, Connect linkage, flags — **delivered** | Approved package |
-| **S1** | Charges & resident ledger | Create/list charges; ledger view; balance | S0 |
-| **S2** | Checkout & payment webhooks | Resident pay; payment history; idempotent post | S1 |
+| **S1** | Resident Billing & Rent Collection | Charges, ledger, manual + online pay, receipts, portal — **delivered** | S0 |
+| **S2** | Payment Enhancements | Autopay / plans / polish — **blocked** | S1 |
 | **S3** | Late fees | Policy + post job/action | S1 |
 | **S4** | Vendor invoices | Submit/approve/reject | S0 |
 | **S5** | Vendor payments | Pay / mark paid; link to invoice | S4, Connect |

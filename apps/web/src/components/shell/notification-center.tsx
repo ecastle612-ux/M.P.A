@@ -27,11 +27,13 @@ export function NotificationCenter() {
     ];
 
     if (canAccess("pm.financial_operations")) {
-      const foundation = FINANCE_NOTIFICATION_CATALOG.find((item) => item.key === "finance.foundation.ready");
+      const charge = FINANCE_NOTIFICATION_CATALOG.find((item) => item.key === "finance.charge.created");
       base.unshift({
-        id: "finance-foundation",
-        title: foundation?.label ?? "Financial Operations foundation ready",
-        detail: "FO Command Center, audit, events, and search are registered (S0). No payment alerts yet.",
+        id: "finance-billing",
+        title: "Resident billing is live",
+        detail: charge
+          ? "Charges, payments, receipts, and portal Pay Now are active (S1)."
+          : "Financial Operations billing notifications are registered.",
         badge: "Finance"
       });
     }

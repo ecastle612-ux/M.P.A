@@ -1,0 +1,837 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  deriveResidentFinancialStatus,
+  formatMoney,
+  nextChargeStatus,
+  periodBoundsForDate,
+  planPaymentAllocations,
+  remainingBalance,
+  roundMoney,
+  type AllocatableCharge,
+  type CreateLeaseResidentInput,
+  type CreateOneTimeChargeInput,
+  type CreatePropertyInput,
+  type CreateRecurringScheduleInput,
+  type RecordManualPaymentInput
+} from "@mpa/shared";
+import { emitFinanceEvent, writeFinanceAudit, writeFinanceNotification } from "./events-audit";
+
+// Finance tables are ahead of generated Database typings; use a permissive client.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Db = SupabaseClient<any>;
+
+async function loadLeaseContext(supabase: Db, organizationId: string, leaseId: string) {
+  const { data: lease, error } = await supabase
+    .from("lease_agreements")
+    .select("id, organization_id, property_id, unit_id, status, rent_amount, currency")
+    .eq("organization_id", organizationId)
+    .eq("id", leaseId)
+    .maybeSingle();
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!lease) {
+    throw new Error("Lease not found");
+  }
+
+  const { data: residents, error: residentsError } = await supabase
+    .from("lease_residents")
+    .select("id, user_id, display_name, email, is_primary, financial_status")
+    .eq("lease_id", leaseId)
+    .order("is_primary", { ascending: false });
+  if (residentsError) {
+    throw new Error(residentsError.message);
+  }
+
+  return { lease, residents: residents ?? [] };
+}
+
+async function insertLedgerEntry(
+  supabase: Db,
+  row: {
+    organization_id: string;
+    property_id: string | null;
+    lease_id: string | null;
+    resident_id?: string | null;
+    entry_type: string;
+    direction: "debit" | "credit";
+    amount: number;
+    currency: string;
+    source_type: string;
+    source_id: string;
+    description: string;
+    idempotency_key: string;
+    created_by?: string | null;
+    stripe_object_id?: string | null;
+  }
+) {
+  const { error } = await supabase.from("financial_ledger_entries").insert(row);
+  if (error && !error.message.toLowerCase().includes("duplicate")) {
+    throw new Error(error.message);
+  }
+}
+
+export async function createBillingProperty(
+  supabase: Db,
+  organizationId: string,
+  actorId: string,
+  input: CreatePropertyInput
+) {
+  const { data: property, error } = await supabase
+    .from("property_properties")
+    .insert({
+      organization_id: organizationId,
+      name: input.name,
+      address_line1: input.addressLine1 ?? null,
+      city: input.city ?? null
+    })
+    .select("*")
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data: unit, error: unitError } = await supabase
+    .from("property_units")
+    .insert({
+      organization_id: organizationId,
+      property_id: property.id,
+      unit_label: input.unitLabel,
+      status: "available"
+    })
+    .select("*")
+    .single();
+  if (unitError) {
+    throw new Error(unitError.message);
+  }
+
+  await writeFinanceAudit({
+    supabase,
+    organizationId,
+    actorId,
+    action: "finance.settings.updated",
+    entityType: "property_properties",
+    entityId: property.id,
+    payload: { name: property.name }
+  });
+
+  return { property, unit };
+}
+
+export async function createLeaseWithResident(
+  supabase: Db,
+  organizationId: string,
+  _actorId: string,
+  input: CreateLeaseResidentInput
+) {
+  const { data: lease, error } = await supabase
+    .from("lease_agreements")
+    .insert({
+      organization_id: organizationId,
+      property_id: input.propertyId,
+      unit_id: input.unitId ?? null,
+      status: "active",
+      start_date: input.startDate ?? new Date().toISOString().slice(0, 10),
+      rent_amount: input.rentAmount,
+      currency: input.currency
+    })
+    .select("*")
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (input.unitId) {
+    await supabase.from("property_units").update({ status: "occupied" }).eq("id", input.unitId);
+  }
+
+  const { data: resident, error: residentError } = await supabase
+    .from("lease_residents")
+    .insert({
+      organization_id: organizationId,
+      lease_id: lease.id,
+      user_id: input.userId ?? null,
+      display_name: input.displayName,
+      email: input.email ?? null,
+      is_primary: true,
+      financial_status: "current"
+    })
+    .select("*")
+    .single();
+  if (residentError) {
+    throw new Error(residentError.message);
+  }
+
+  return { lease, resident };
+}
+
+export async function createRecurringScheduleAndCharge(
+  supabase: Db,
+  organizationId: string,
+  actorId: string,
+  input: CreateRecurringScheduleInput
+) {
+  const { lease, residents } = await loadLeaseContext(supabase, organizationId, input.leaseId);
+  const bounds = periodBoundsForDate(new Date(), input.dayOfMonth);
+  const primary = residents.find((row) => row.is_primary) ?? residents[0] ?? null;
+
+  const { data: schedule, error } = await supabase
+    .from("financial_charge_schedules")
+    .insert({
+      organization_id: organizationId,
+      property_id: lease.property_id,
+      lease_id: lease.id,
+      charge_type: input.chargeType,
+      label: input.label,
+      amount: input.amount,
+      currency: input.currency,
+      day_of_month: input.dayOfMonth,
+      next_run_on: bounds.nextRunOn,
+      created_by: actorId
+    })
+    .select("*")
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  let charge = null;
+  if (input.generateCurrentPeriod) {
+    charge = await createChargeRecord(supabase, {
+      organizationId,
+      actorId,
+      propertyId: lease.property_id,
+      unitId: lease.unit_id,
+      leaseId: lease.id,
+      residentId: primary?.id ?? null,
+      scheduleId: schedule.id,
+      chargeType: input.chargeType,
+      label: input.label,
+      amount: input.amount,
+      currency: input.currency,
+      dueAt: bounds.dueAt,
+      periodStart: bounds.periodStart,
+      periodEnd: bounds.periodEnd,
+      notifyUserId: primary?.user_id
+    });
+  }
+
+  return { schedule, charge };
+}
+
+export async function createOneTimeCharge(
+  supabase: Db,
+  organizationId: string,
+  actorId: string,
+  input: CreateOneTimeChargeInput
+) {
+  const { lease, residents } = await loadLeaseContext(supabase, organizationId, input.leaseId);
+  const primary = residents.find((row) => row.is_primary) ?? residents[0] ?? null;
+  const amount = input.chargeType === "credit" ? input.amount : input.amount;
+
+  return createChargeRecord(supabase, {
+    organizationId,
+    actorId,
+    propertyId: lease.property_id,
+    unitId: lease.unit_id,
+    leaseId: lease.id,
+    residentId: primary?.id ?? null,
+    scheduleId: null,
+    chargeType: input.chargeType,
+    label: input.label,
+    amount,
+    currency: input.currency,
+    dueAt: input.dueAt,
+    ...(input.memo ? { memo: input.memo } : {}),
+    notifyUserId: primary?.user_id ?? null
+  });
+}
+
+async function createChargeRecord(
+  supabase: Db,
+  args: {
+    organizationId: string;
+    actorId: string;
+    propertyId: string;
+    unitId: string | null;
+    leaseId: string;
+    residentId: string | null;
+    scheduleId: string | null;
+    chargeType: string;
+    label: string;
+    amount: number;
+    currency: string;
+    dueAt: string;
+    periodStart?: string;
+    periodEnd?: string;
+    memo?: string;
+    notifyUserId?: string | null;
+  }
+) {
+  const { data: charge, error } = await supabase
+    .from("financial_charges")
+    .insert({
+      organization_id: args.organizationId,
+      property_id: args.propertyId,
+      unit_id: args.unitId,
+      lease_id: args.leaseId,
+      resident_id: args.residentId,
+      schedule_id: args.scheduleId,
+      charge_type: args.chargeType,
+      label: args.label,
+      memo: args.memo ?? null,
+      amount: args.amount,
+      currency: args.currency,
+      status: "open",
+      due_at: args.dueAt,
+      period_start: args.periodStart ?? null,
+      period_end: args.periodEnd ?? null,
+      created_by: args.actorId
+    })
+    .select("*")
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  await insertLedgerEntry(supabase, {
+    organization_id: args.organizationId,
+    property_id: args.propertyId,
+    lease_id: args.leaseId,
+    resident_id: args.residentId,
+    entry_type: args.chargeType === "credit" ? "credit" : "charge",
+    direction: args.chargeType === "credit" ? "credit" : "debit",
+    amount: args.amount,
+    currency: args.currency,
+    source_type: "financial_charges",
+    source_id: charge.id,
+    description: args.label,
+    idempotency_key: `charge:${charge.id}`,
+    created_by: args.actorId
+  });
+
+  await emitFinanceEvent({
+    supabase,
+    organizationId: args.organizationId,
+    actorId: args.actorId,
+    eventType: "finance.charge.created",
+    aggregateType: "financial_charge",
+    aggregateId: charge.id,
+    payload: { leaseId: args.leaseId, amount: args.amount, label: args.label }
+  });
+
+  await writeFinanceAudit({
+    supabase,
+    organizationId: args.organizationId,
+    actorId: args.actorId,
+    action: "finance.charge.created",
+    entityType: "financial_charge",
+    entityId: charge.id,
+    payload: { amount: args.amount, label: args.label }
+  });
+
+  await writeFinanceNotification({
+    supabase,
+    organizationId: args.organizationId,
+    userId: args.notifyUserId,
+    leaseId: args.leaseId,
+    notificationKey: "finance.charge.created",
+    title: "New charge on your account",
+    body: `${args.label} for ${formatMoney(args.amount, args.currency)} is due ${args.dueAt}.`,
+    href: "/portal/tenant/billing"
+  });
+
+  await refreshResidentFinancialStatus(supabase, args.organizationId, args.leaseId);
+  return charge;
+}
+
+export async function voidCharge(
+  supabase: Db,
+  organizationId: string,
+  actorId: string,
+  chargeId: string,
+  reason: string
+) {
+  const { data: charge, error } = await supabase
+    .from("financial_charges")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .eq("id", chargeId)
+    .maybeSingle();
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!charge) {
+    throw new Error("Charge not found");
+  }
+  if (charge.status === "void") {
+    return charge;
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from("financial_charges")
+    .update({
+      status: "void",
+      voided_at: new Date().toISOString(),
+      void_reason: reason,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", chargeId)
+    .select("*")
+    .single();
+  if (updateError) {
+    throw new Error(updateError.message);
+  }
+
+  await insertLedgerEntry(supabase, {
+    organization_id: organizationId,
+    property_id: charge.property_id,
+    lease_id: charge.lease_id,
+    resident_id: charge.resident_id,
+    entry_type: "void",
+    direction: "credit",
+    amount: remainingBalance({ amount: Number(charge.amount), amount_paid: Number(charge.amount_paid) }),
+    currency: charge.currency,
+    source_type: "financial_charges",
+    source_id: charge.id,
+    description: `Void: ${charge.label} — ${reason}`,
+    idempotency_key: `void:${charge.id}`,
+    created_by: actorId
+  });
+
+  await emitFinanceEvent({
+    supabase,
+    organizationId,
+    actorId,
+    eventType: "finance.charge.voided",
+    aggregateType: "financial_charge",
+    aggregateId: charge.id,
+    payload: { reason }
+  });
+  await writeFinanceAudit({
+    supabase,
+    organizationId,
+    actorId,
+    action: "finance.charge.voided",
+    entityType: "financial_charge",
+    entityId: charge.id,
+    payload: { reason }
+  });
+  await refreshResidentFinancialStatus(supabase, organizationId, charge.lease_id);
+  return updated;
+}
+
+export async function applySucceededPayment(
+  supabase: Db,
+  args: {
+    organizationId: string;
+    actorId: string | null;
+    leaseId: string;
+    amount: number;
+    currency: string;
+    method: string;
+    paymentId?: string;
+    stripeCheckoutSessionId?: string | null;
+    stripePaymentIntentId?: string | null;
+    paidAt?: string | null;
+    correlationId?: string | null;
+  }
+) {
+  const { lease, residents } = await loadLeaseContext(supabase, args.organizationId, args.leaseId);
+  const primary = residents.find((row) => row.is_primary) ?? residents[0] ?? null;
+
+  const { data: openCharges, error: chargesError } = await supabase
+    .from("financial_charges")
+    .select("id, due_at, charge_type, amount, amount_paid, status")
+    .eq("organization_id", args.organizationId)
+    .eq("lease_id", args.leaseId)
+    .in("status", ["open", "partially_paid"]);
+  if (chargesError) {
+    throw new Error(chargesError.message);
+  }
+
+  const allocatable = (openCharges ?? []).map(
+    (charge): AllocatableCharge => ({
+      id: charge.id,
+      due_at: charge.due_at,
+      charge_type: charge.charge_type,
+      amount: Number(charge.amount),
+      amount_paid: Number(charge.amount_paid),
+      status: charge.status
+    })
+  );
+  const { allocations, unapplied } = planPaymentAllocations(allocatable, args.amount);
+
+  let paymentId = args.paymentId;
+  if (!paymentId) {
+    const { data: payment, error } = await supabase
+      .from("financial_payments")
+      .insert({
+        organization_id: args.organizationId,
+        property_id: lease.property_id,
+        lease_id: args.leaseId,
+        resident_id: primary?.id ?? null,
+        amount: args.amount,
+        currency: args.currency,
+        status: "succeeded",
+        method: args.method,
+        stripe_checkout_session_id: args.stripeCheckoutSessionId ?? null,
+        stripe_payment_intent_id: args.stripePaymentIntentId ?? null,
+        recorded_by: args.actorId,
+        paid_at: args.paidAt ?? new Date().toISOString()
+      })
+      .select("*")
+      .single();
+    if (error) {
+      throw new Error(error.message);
+    }
+    paymentId = payment.id;
+  } else {
+    const { error } = await supabase
+      .from("financial_payments")
+      .update({
+        status: "succeeded",
+        stripe_payment_intent_id: args.stripePaymentIntentId ?? null,
+        paid_at: args.paidAt ?? new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", paymentId);
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  for (const allocation of allocations) {
+    await supabase.from("financial_payment_allocations").upsert(
+      {
+        organization_id: args.organizationId,
+        payment_id: paymentId,
+        charge_id: allocation.chargeId,
+        amount: allocation.amount
+      },
+      { onConflict: "payment_id,charge_id" }
+    );
+
+    const charge = allocatable.find((item) => item.id === allocation.chargeId);
+    if (!charge) {
+      continue;
+    }
+    const newPaid = roundMoney(charge.amount_paid + allocation.amount);
+    await supabase
+      .from("financial_charges")
+      .update({
+        amount_paid: newPaid,
+        status: nextChargeStatus(charge.amount, newPaid),
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", allocation.chargeId);
+  }
+
+  await insertLedgerEntry(supabase, {
+    organization_id: args.organizationId,
+    property_id: lease.property_id,
+    lease_id: args.leaseId,
+    resident_id: primary?.id ?? null,
+    entry_type: "payment",
+    direction: "credit",
+    amount: args.amount,
+    currency: args.currency,
+    source_type: "financial_payments",
+    source_id: paymentId!,
+    description: `Payment ${args.method}`,
+    idempotency_key: `payment:${paymentId}`,
+    created_by: args.actorId,
+    stripe_object_id: args.stripePaymentIntentId ?? args.stripeCheckoutSessionId ?? null
+  });
+
+  if (unapplied > 0) {
+    await insertLedgerEntry(supabase, {
+      organization_id: args.organizationId,
+      property_id: lease.property_id,
+      lease_id: args.leaseId,
+      resident_id: primary?.id ?? null,
+      entry_type: "credit",
+      direction: "credit",
+      amount: unapplied,
+      currency: args.currency,
+      source_type: "financial_payments",
+      source_id: paymentId!,
+      description: "Unapplied payment credit",
+      idempotency_key: `payment-credit:${paymentId}`,
+      created_by: args.actorId
+    });
+  }
+
+  const receiptNumber = `RCPT-${new Date().getUTCFullYear()}-${String(paymentId).slice(0, 8).toUpperCase()}`;
+  const { data: receipt, error: receiptError } = await supabase
+    .from("financial_receipts")
+    .upsert(
+      {
+        organization_id: args.organizationId,
+        payment_id: paymentId,
+        lease_id: args.leaseId,
+        resident_id: primary?.id ?? null,
+        receipt_number: receiptNumber,
+        amount: args.amount,
+        currency: args.currency,
+        payload: {
+          allocations,
+          unapplied,
+          method: args.method
+        }
+      },
+      { onConflict: "payment_id" }
+    )
+    .select("*")
+    .single();
+  if (receiptError) {
+    throw new Error(receiptError.message);
+  }
+
+  await emitFinanceEvent({
+    supabase,
+    organizationId: args.organizationId,
+    actorId: args.actorId,
+    eventType: "finance.payment.succeeded",
+    aggregateType: "financial_payment",
+    aggregateId: paymentId!,
+    payload: { amount: args.amount, leaseId: args.leaseId }
+  });
+  await writeFinanceAudit({
+    supabase,
+    organizationId: args.organizationId,
+    actorId: args.actorId,
+    action: "finance.payment.succeeded",
+    entityType: "financial_payment",
+    entityId: paymentId ?? null,
+    payload: { amount: args.amount, method: args.method },
+    correlationId: args.correlationId ?? null
+  });
+  await writeFinanceNotification({
+    supabase,
+    organizationId: args.organizationId,
+    userId: primary?.user_id,
+    leaseId: args.leaseId,
+    notificationKey: "finance.payment.succeeded",
+    title: "Payment received",
+    body: `We received ${formatMoney(args.amount, args.currency)}. Receipt ${receiptNumber}.`,
+    href: "/portal/tenant/billing"
+  });
+
+  await refreshResidentFinancialStatus(supabase, args.organizationId, args.leaseId);
+  return { paymentId, receipt, allocations, unapplied };
+}
+
+export async function recordManualPayment(
+  supabase: Db,
+  organizationId: string,
+  actorId: string,
+  input: RecordManualPaymentInput
+) {
+  return applySucceededPayment(supabase, {
+    organizationId,
+    actorId,
+    leaseId: input.leaseId,
+    amount: input.amount,
+    currency: input.currency,
+    method: input.method,
+    paidAt: input.paidAt ?? null
+  });
+}
+
+export async function markPaymentFailed(
+  supabase: Db,
+  paymentId: string,
+  organizationId: string,
+  reason: string,
+  correlationId?: string
+) {
+  const { data: payment, error } = await supabase
+    .from("financial_payments")
+    .update({
+      status: "failed",
+      failure_reason: reason,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", paymentId)
+    .eq("organization_id", organizationId)
+    .select("*")
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  await emitFinanceEvent({
+    supabase,
+    organizationId,
+    actorId: null,
+    eventType: "finance.payment.failed",
+    aggregateType: "financial_payment",
+    aggregateId: paymentId,
+    payload: { reason }
+  });
+  await writeFinanceAudit({
+    supabase,
+    organizationId,
+    actorId: null,
+    action: "finance.payment.failed",
+    entityType: "financial_payment",
+    entityId: paymentId,
+    payload: { reason },
+    correlationId: correlationId ?? null
+  });
+
+  if (payment.resident_id) {
+    const { data: resident } = await supabase
+      .from("lease_residents")
+      .select("user_id")
+      .eq("id", payment.resident_id)
+      .maybeSingle();
+    await writeFinanceNotification({
+      supabase,
+      organizationId,
+      userId: resident?.user_id,
+      leaseId: payment.lease_id,
+      notificationKey: "finance.payment.failed",
+      title: "Payment failed",
+      body: "Your online payment did not go through. Please try again or contact your property manager.",
+      href: "/portal/tenant/billing"
+    });
+  }
+
+  return payment;
+}
+
+export async function refreshResidentFinancialStatus(supabase: Db, organizationId: string, leaseId: string) {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: charges } = await supabase
+    .from("financial_charges")
+    .select("amount, amount_paid, status, due_at, charge_type")
+    .eq("organization_id", organizationId)
+    .eq("lease_id", leaseId)
+    .in("status", ["open", "partially_paid"]);
+
+  let openBalance = 0;
+  let hasPastDue = false;
+  for (const charge of charges ?? []) {
+    const remaining = remainingBalance({
+      amount: Number(charge.amount),
+      amount_paid: Number(charge.amount_paid)
+    });
+    if (charge.charge_type === "credit") {
+      openBalance -= remaining;
+    } else {
+      openBalance += remaining;
+      if (charge.due_at < today && remaining > 0) {
+        hasPastDue = true;
+      }
+    }
+  }
+
+  const status = deriveResidentFinancialStatus({ openBalance: roundMoney(openBalance), hasPastDue });
+  await supabase
+    .from("lease_residents")
+    .update({ financial_status: status })
+    .eq("organization_id", organizationId)
+    .eq("lease_id", leaseId);
+
+  return { openBalance: roundMoney(openBalance), hasPastDue, status };
+}
+
+export async function getLeaseLedger(supabase: Db, organizationId: string, leaseId: string) {
+  const [{ data: charges }, { data: payments }, { data: ledger }, balance] = await Promise.all([
+    supabase
+      .from("financial_charges")
+      .select("*")
+      .eq("organization_id", organizationId)
+      .eq("lease_id", leaseId)
+      .order("due_at", { ascending: true }),
+    supabase
+      .from("financial_payments")
+      .select("*, financial_receipts(*)")
+      .eq("organization_id", organizationId)
+      .eq("lease_id", leaseId)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("financial_ledger_entries")
+      .select("*")
+      .eq("organization_id", organizationId)
+      .eq("lease_id", leaseId)
+      .order("occurred_at", { ascending: false }),
+    refreshResidentFinancialStatus(supabase, organizationId, leaseId)
+  ]);
+
+  return {
+    charges: charges ?? [],
+    payments: payments ?? [],
+    ledger: ledger ?? [],
+    balance
+  };
+}
+
+export async function getOrganizationFinanceSnapshot(supabase: Db, organizationId: string) {
+  const monthStart = new Date();
+  monthStart.setUTCDate(1);
+  monthStart.setUTCHours(0, 0, 0, 0);
+  const monthStartIso = monthStart.toISOString();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [{ data: openCharges }, { data: payments }, { data: residents }, { data: upcoming }] = await Promise.all([
+    supabase
+      .from("financial_charges")
+      .select("id, amount, amount_paid, status, due_at, lease_id, property_id, label, charge_type")
+      .eq("organization_id", organizationId)
+      .in("status", ["open", "partially_paid"]),
+    supabase
+      .from("financial_payments")
+      .select("id, amount, paid_at, status, lease_id, method, created_at")
+      .eq("organization_id", organizationId)
+      .eq("status", "succeeded")
+      .gte("paid_at", monthStartIso)
+      .order("paid_at", { ascending: false })
+      .limit(20),
+    supabase
+      .from("lease_residents")
+      .select("id, display_name, financial_status, lease_id")
+      .eq("organization_id", organizationId)
+      .eq("financial_status", "delinquent"),
+    supabase
+      .from("financial_charges")
+      .select("id, label, amount, due_at, lease_id")
+      .eq("organization_id", organizationId)
+      .in("status", ["open", "partially_paid"])
+      .gte("due_at", today)
+      .order("due_at", { ascending: true })
+      .limit(10)
+  ]);
+
+  const outstanding = roundMoney(
+    (openCharges ?? []).reduce((sum, charge) => {
+      const remaining = remainingBalance({
+        amount: Number(charge.amount),
+        amount_paid: Number(charge.amount_paid)
+      });
+      return charge.charge_type === "credit" ? sum - remaining : sum + remaining;
+    }, 0)
+  );
+
+  const collectedThisMonth = roundMoney(
+    (payments ?? []).reduce((sum, payment) => sum + Number(payment.amount), 0)
+  );
+
+  return {
+    outstandingBalance: outstanding,
+    collectedThisMonth,
+    delinquentResidents: residents ?? [],
+    upcomingRent: upcoming ?? [],
+    recentPayments: payments ?? [],
+    alerts: [
+      ...(outstanding > 0
+        ? [`${formatMoney(outstanding)} outstanding across open charges`]
+        : ["No outstanding resident balances"]),
+      ...((residents ?? []).length > 0
+        ? [`${(residents ?? []).length} delinquent resident(s)`]
+        : ["No delinquent residents"])
+    ]
+  };
+}

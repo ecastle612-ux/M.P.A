@@ -9,7 +9,11 @@ export const clientEnvSchema = z.object({
 
 export const serverEnvSchema = clientEnvSchema.extend({
   SESSION_COOKIE_NAME: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional()
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  /** Optional until Stripe keys are provisioned; online pay degrades to manual-only. */
+  STRIPE_SECRET_KEY: z.string().min(1).optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).optional()
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
