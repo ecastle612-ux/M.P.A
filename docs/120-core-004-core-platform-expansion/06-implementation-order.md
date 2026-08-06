@@ -43,13 +43,15 @@ Prospect → Inquiry → Lead Qualification → Tour Scheduling → Property Sho
 
 Applicant → Approved → Lease Signed → Move-In Scheduled → Move-In Complete → Active Resident → Community Participation → Maintenance → Payments → Renewal → Move-Out Scheduled → Former Resident → Archive
 
-**Authorize:** [20](./20-phase-4-authorization.md) · **Design:** [21](./21-phase-4-design.md) · **Certify:** [22](./22-phase-4-certification.md)
+**Authorize:** [20](./20-phase-4-authorization.md) · **Design:** [21](./21-phase-4-design.md) · **Certify:** [22](./22-phase-4-certification.md) · **Accept:** [23](./23-phase-4-acceptance.md)
 
 ---
 
 ## Phase 5 — Vendor Operations
 
-Vendor Onboarding · Compliance · Insurance · Assignments · Invoices · Performance · Renewals
+Prospective → Invited → Application → Compliance → Insurance → Approved → Available → Assigned → Work In Progress → Invoice Submitted → Payment Pending → Paid → Performance Review → Preferred (optional) → Suspended (optional) → Inactive → Archived
+
+**Authorize:** [24](./24-phase-5-authorization.md) · **Design:** [25](./25-phase-5-design.md) · **Certify:** [26](./26-phase-5-certification.md)
 
 ---
 

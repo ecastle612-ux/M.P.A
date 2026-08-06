@@ -141,6 +141,6 @@ Apply migration before production use. Existing tenants backfill `workflow_stage
 | Authorize | ✅ |
 | Implement | ✅ |
 | Verify / Certify | ✅ **PASS** |
-| Accept | Awaiting `ACCEPT CORE-004 PHASE 4` before Phase 5 Authorize |
+| Accept | ✅ Accepted — [23](./23-phase-4-acceptance.md) |
 
-**Do not request Phase 5 authorization until Phase 4 is accepted.**
+Phase 4 is complete. Phase 5 was authorized after Accept.

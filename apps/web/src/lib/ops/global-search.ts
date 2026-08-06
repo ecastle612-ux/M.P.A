@@ -202,7 +202,7 @@ export async function globalSearch(input: GlobalSearchInput): Promise<{
       },
       vendors: {
         table: "vendors",
-        titleCol: "name",
+        titleCol: "business_name",
         permission: ["vendor:read"],
         href: (id) => `/vendors/${id}`
       }
@@ -252,6 +252,74 @@ export async function globalSearch(input: GlobalSearchInput): Promise<{
           deepLink: `/maintenance/${id}`,
           score: 0.78
         });
+      }
+      continue;
+    }
+
+    // CORE-004 Phase 5 — vendor search by company, trade, insurance, status, workflow
+    if (corpus === "vendors") {
+      const { data, error } = await db
+        .from("vendors")
+        .select(
+          "id, business_name, email, phone, status, workflow_stage, services, insurance_expiration, preferred_vendor"
+        )
+        .eq("organization_id", input.organizationId)
+        .is("deleted_at", null)
+        .or(
+          [
+            `business_name.ilike.${like}`,
+            `email.ilike.${like}`,
+            `phone.ilike.${like}`,
+            `status.ilike.${like}`,
+            `workflow_stage.ilike.${like}`,
+            `license_number.ilike.${like}`,
+            `id.eq.${q}`
+          ].join(",")
+        )
+        .limit(10);
+      if (error) {
+        deniedCorpora.push(corpus);
+        continue;
+      }
+      const seen = new Set<string>();
+      const pushVendorHit = (row: Record<string, unknown>, score: number) => {
+        const id = String(row["id"]);
+        const resultId = `vendors:${id}`;
+        if (seen.has(resultId)) return;
+        seen.add(resultId);
+        hits.push({
+          resultId,
+          corpus: "vendors",
+          title: String(row["business_name"] ?? id),
+          snippet: [
+            row["workflow_stage"] ?? row["status"],
+            Array.isArray(row["services"]) ? (row["services"] as string[]).slice(0, 2).join(", ") : null,
+            row["insurance_expiration"] ? `ins ${row["insurance_expiration"]}` : null
+          ]
+            .filter(Boolean)
+            .join(" · "),
+          deepLink: `/vendors/${id}`,
+          score
+        });
+      };
+      for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+        pushVendorHit(row, 0.8);
+      }
+      // Trade / services array (PostgREST contains) — complements text or-filter.
+      const tradeNeedle = q.trim().toLowerCase().replace(/%/g, "");
+      if (tradeNeedle.length >= 2 && seen.size < 10) {
+        const { data: tradeRows } = await db
+          .from("vendors")
+          .select(
+            "id, business_name, email, phone, status, workflow_stage, services, insurance_expiration"
+          )
+          .eq("organization_id", input.organizationId)
+          .is("deleted_at", null)
+          .contains("services", [tradeNeedle])
+          .limit(5);
+        for (const row of (tradeRows ?? []) as Array<Record<string, unknown>>) {
+          pushVendorHit(row, 0.75);
+        }
       }
       continue;
     }

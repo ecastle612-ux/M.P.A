@@ -2513,6 +2513,7 @@ export type Database = {
           updated_at: string;
           updated_by: string | null;
           website: string | null;
+          workflow_stage: string;
         };
         Insert: {
           address_line_1?: string | null;
@@ -2547,6 +2548,7 @@ export type Database = {
           updated_at?: string;
           updated_by?: string | null;
           website?: string | null;
+          workflow_stage?: string;
         };
         Update: {
           address_line_1?: string | null;
@@ -2581,6 +2583,7 @@ export type Database = {
           updated_at?: string;
           updated_by?: string | null;
           website?: string | null;
+          workflow_stage?: string;
         };
         Relationships: [
           {
@@ -2588,6 +2591,60 @@ export type Database = {
             columns: ["organization_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      vendor_workflow_events: {
+        Row: {
+          actor_user_id: string | null;
+          automation: Json;
+          created_at: string;
+          from_stage: string | null;
+          id: string;
+          organization_id: string;
+          payload: Json;
+          reason: string | null;
+          to_stage: string;
+          vendor_id: string;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          automation?: Json;
+          created_at?: string;
+          from_stage?: string | null;
+          id?: string;
+          organization_id: string;
+          payload?: Json;
+          reason?: string | null;
+          to_stage: string;
+          vendor_id: string;
+        };
+        Update: {
+          actor_user_id?: string | null;
+          automation?: Json;
+          created_at?: string;
+          from_stage?: string | null;
+          id?: string;
+          organization_id?: string;
+          payload?: Json;
+          reason?: string | null;
+          to_stage?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "vendor_workflow_events_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "vendor_workflow_events_vendor_id_fkey";
+            columns: ["vendor_id"];
+            isOneToOne: false;
+            referencedRelation: "vendors";
             referencedColumns: ["id"];
           }
         ];

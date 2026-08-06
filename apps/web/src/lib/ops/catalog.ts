@@ -27,6 +27,12 @@ export const OPS_SLICE_A_EVENT_TYPES = [
   "resident.activated",
   "resident.move_in_completed",
   "resident.archived",
+  // CORE-004 Phase 5 — vendor operations
+  "vendor.workflow.transitioned",
+  "vendor.approved",
+  "vendor.paid",
+  "vendor.suspended",
+  "vendor.archived",
   // Lease
   "lease.created",
   "lease.signed",

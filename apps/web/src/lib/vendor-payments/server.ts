@@ -386,6 +386,23 @@ export async function submitVendorInvoiceByToken(
     `maintenance.vendor_invoice_submitted:${wo["id"]}:${now}`
   );
 
+  // CORE-004 Phase 5 — advance vendor lifecycle on invoice submit.
+  const submittedVendorId = (payload.vendor_id as string | null) ?? null;
+  if (submittedVendorId) {
+    try {
+      const { advanceVendorFromInvoiceEvent } = await import("../vendor/workflow-server");
+      await advanceVendorFromInvoiceEvent({
+        organizationId: String(wo["organization_id"]),
+        vendorId: submittedVendorId,
+        actorUserId: String(wo["created_by"] ?? "00000000-0000-0000-0000-000000000000"),
+        event: "submitted",
+        client: admin
+      });
+    } catch {
+      /* optional until Phase 5 migration */
+    }
+  }
+
   return mapInvoice(row, await signedMediaUrl(admin, row["pdf_path"] as string | null));
 }
 
@@ -469,6 +486,21 @@ export async function reviewVendorInvoice(
       idempotencyKey: `vendor-invoice-approved:${invoiceId}`,
       workOrderId: String(invoice["work_order_id"])
     });
+    const approvedVendorId = (invoice["vendor_id"] as string | null) ?? null;
+    if (approvedVendorId) {
+      try {
+        const { advanceVendorFromInvoiceEvent } = await import("../vendor/workflow-server");
+        await advanceVendorFromInvoiceEvent({
+          organizationId,
+          vendorId: approvedVendorId,
+          actorUserId,
+          event: "approved",
+          client: admin
+        });
+      } catch {
+        /* optional until Phase 5 migration */
+      }
+    }
   } else if (action === "reject") {
     await notifyVendorEmail({
       organizationId,
@@ -664,6 +696,23 @@ export async function markVendorInvoicePaid(
     idempotencyKey: `vendor-paid:${payment.id}`,
     workOrderId: String(invoice["work_order_id"])
   });
+
+  // CORE-004 Phase 5 — advance vendor lifecycle on payment.
+  const paidVendorId = (invoice["vendor_id"] as string | null) ?? null;
+  if (paidVendorId) {
+    try {
+      const { advanceVendorFromInvoiceEvent } = await import("../vendor/workflow-server");
+      await advanceVendorFromInvoiceEvent({
+        organizationId,
+        vendorId: paidVendorId,
+        actorUserId,
+        event: "paid",
+        client: admin
+      });
+    } catch {
+      /* optional until Phase 5 migration */
+    }
+  }
 
   return {
     invoice: mapInvoice(

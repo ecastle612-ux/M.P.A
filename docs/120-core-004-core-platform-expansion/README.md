@@ -28,7 +28,8 @@
 > Phase 1: [Design](./08-phase-1-property-lifecycle-design.md) · [Authorize](./09-phase-1-authorization.md) · [Certification](./10-phase-1-certification.md) · [Acceptance](./11-phase-1-acceptance.md).  
 > Phase 2: [Authorize](./12-phase-2-authorization.md) · [Design](./13-phase-2-design.md) · [Certification](./14-phase-2-certification.md) · [Acceptance](./15-phase-2-acceptance.md).  
 > Phase 3: [Authorize](./16-phase-3-authorization.md) · [Design](./17-phase-3-design.md) · [Certification](./18-phase-3-certification.md) · [Acceptance](./19-phase-3-acceptance.md).  
-> Phase 4: [Authorize](./20-phase-4-authorization.md) · [Design](./21-phase-4-design.md) · [Certification](./22-phase-4-certification.md).
+> Phase 4: [Authorize](./20-phase-4-authorization.md) · [Design](./21-phase-4-design.md) · [Certification](./22-phase-4-certification.md) · [Acceptance](./23-phase-4-acceptance.md).  
+> Phase 5: [Authorize](./24-phase-5-authorization.md) · [Design](./25-phase-5-design.md) · [Certification](./26-phase-5-certification.md).
 
 ---
 
@@ -49,8 +50,8 @@ Build the remaining M.P.A. platform through **complete operational workflows**.
 | **1** | Property Lifecycle | ✅ Authorized · Implemented · Certified · Accepted ([10](./10-phase-1-certification.md) · [11](./11-phase-1-acceptance.md)) |
 | **2** | Maintenance Operations | ✅ Authorized · Implemented · Certified · Accepted ([14](./14-phase-2-certification.md) · [15](./15-phase-2-acceptance.md)) |
 | **3** | Leasing Operations | ✅ Authorized · Implemented · Certified · Accepted ([18](./18-phase-3-certification.md) · [19](./19-phase-3-acceptance.md)) |
-| **4** | Resident Operations | ✅ Authorized · Implemented · Certified ([20](./20-phase-4-authorization.md) · [21](./21-phase-4-design.md) · [22](./22-phase-4-certification.md)) · awaiting Accept |
-| **5** | Vendor Operations | 🔒 Queued |
+| **4** | Resident Operations | ✅ Authorized · Implemented · Certified · Accepted ([22](./22-phase-4-certification.md) · [23](./23-phase-4-acceptance.md)) |
+| **5** | Vendor Operations | ✅ Authorized · Implemented · Certified ([24](./24-phase-5-authorization.md) · [25](./25-phase-5-design.md) · [26](./26-phase-5-certification.md)) · awaiting Accept |
 | **6** | Financial Operations | 🔒 Queued |
 | **7** | Document Operations | 🔒 Queued |
 | **8** | Communications | 🔒 Queued |
@@ -87,6 +88,10 @@ Detail: [06 — Implementation order](./06-implementation-order.md)
 | [20 — Phase 4 Authorization](./20-phase-4-authorization.md) | Authorize phrase + Phase 4 scope |
 | [21 — Phase 4 Design](./21-phase-4-design.md) | Canonical resident state machine |
 | [22 — Phase 4 Certification](./22-phase-4-certification.md) | Workflow certify · diagram · verify |
+| [23 — Phase 4 Acceptance](./23-phase-4-acceptance.md) | Phase 4 accepted · Resident Operations authoritative |
+| [24 — Phase 5 Authorization](./24-phase-5-authorization.md) | Authorize phrase + Phase 5 scope |
+| [25 — Phase 5 Design](./25-phase-5-design.md) | Canonical vendor state machine |
+| [26 — Phase 5 Certification](./26-phase-5-certification.md) | Workflow certify · diagram · verify |
 
 ---
 
@@ -98,14 +103,17 @@ Detail: [06 — Implementation order](./06-implementation-order.md)
 | Document | ✅ This package |
 | Approve | ✅ **Issued** 2026-08-05 |
 | Implement | 🔓 Program unlocked · **per-phase Authorize required** |
-| Verify / Certify | Phase 1 ✅ · Phase 2 ✅ · Phase 3+ after Accept + Authorize |
+| Verify / Certify | Phase 1–5 ✅ · Phase 6+ after Accept + Authorize |
 
 ### Unlock path (active)
 
 1. ~~`APPROVE CORE-004`~~ ✅  
 2. ~~`AUTHORIZE CORE-004 PHASE 1`~~ ✅ · Accepted  
-3. ~~`AUTHORIZE CORE-004 PHASE 2 – Maintenance Operations`~~ ✅ · Certified  
-4. `ACCEPT CORE-004 PHASE 2` then `AUTHORIZE CORE-004 PHASE 3 – Leasing Operations`  
+3. ~~`AUTHORIZE CORE-004 PHASE 2 – Maintenance Operations`~~ ✅ · Accepted  
+4. ~~`AUTHORIZE CORE-004 PHASE 3 – Leasing Operations`~~ ✅ · Accepted  
+5. ~~`AUTHORIZE CORE-004 PHASE 4 – Resident Operations`~~ ✅ · Accepted  
+6. ~~`AUTHORIZE CORE-004 PHASE 5 – Vendor Operations`~~ ✅ · Certified · awaiting `ACCEPT CORE-004 PHASE 5`  
+7. Then `AUTHORIZE CORE-004 PHASE 6 – Financial Operations`  
 
 ---
 

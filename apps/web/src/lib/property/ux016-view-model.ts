@@ -48,6 +48,10 @@ export type PropertyCommandCenterInput = {
   activeLeasingCount?: number;
   /** CORE-004 Phase 4 — active residents on this property */
   activeResidentCount?: number;
+  /** CORE-004 Phase 5 — open vendor work orders on this property */
+  openVendorWorkCount?: number;
+  /** CORE-004 Phase 5 — vendors in compliance / insurance review */
+  vendorComplianceCount?: number;
   userName?: string | null;
   organizationName?: string | null;
 };
@@ -177,6 +181,34 @@ export function buildPropertyCommandCenterViewModel(
       href: `/tenants?propertyId=${encodeURIComponent(property.id)}`,
       actionLabel: "Open residents",
       severity: "normal"
+    });
+  }
+
+  if ((input.openVendorWorkCount ?? 0) > 0) {
+    attention.push({
+      id: "property-vendors",
+      title: "Open vendor work",
+      reason: `${input.openVendorWorkCount} vendor assignment${input.openVendorWorkCount === 1 ? "" : "s"} in progress`,
+      href: `/vendors`,
+      actionLabel: "Open vendors",
+      severity: "high"
+    });
+    waitingOnMe.push({
+      id: "wait-property-vendors",
+      label: "Vendor work queue",
+      detail: "Canonical vendor lifecycle assignments for this property",
+      href: `/vendors`
+    });
+  }
+
+  if ((input.vendorComplianceCount ?? 0) > 0) {
+    attention.push({
+      id: "property-vendor-compliance",
+      title: "Vendor compliance review",
+      reason: `${input.vendorComplianceCount} vendor${input.vendorComplianceCount === 1 ? "" : "s"} need compliance / insurance attention`,
+      href: `/vendors`,
+      actionLabel: "Review vendors",
+      severity: "high"
     });
   }
 

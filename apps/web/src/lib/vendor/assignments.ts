@@ -203,6 +203,20 @@ export async function assignVendorToWorkOrder(
     }
   }
 
+  // CORE-004 Phase 5 — sync vendor operational focus from assignment.
+  try {
+    const { syncVendorWorkflowFromAssignment } = await import("./workflow-server");
+    await syncVendorWorkflowFromAssignment({
+      organizationId,
+      vendorId,
+      actorUserId: userId,
+      assignmentStatus: "pending",
+      client: supabase
+    });
+  } catch {
+    /* optional until Phase 5 migration */
+  }
+
   return toVendorAssignmentRecord(assignment as VendorAssignmentRow);
 }
 
@@ -308,6 +322,20 @@ export async function updateVendorAssignmentStatus(
     actorUserId: userId,
     client: supabase
   });
+
+  // CORE-004 Phase 5 — sync vendor operational focus from assignment status.
+  try {
+    const { syncVendorWorkflowFromAssignment } = await import("./workflow-server");
+    await syncVendorWorkflowFromAssignment({
+      organizationId,
+      vendorId: currentAssignment.vendorId,
+      actorUserId: userId,
+      assignmentStatus: input.assignmentStatus,
+      client: supabase
+    });
+  } catch {
+    /* optional until Phase 5 migration */
+  }
 
   if (
     input.assignmentStatus === "accepted" ||
@@ -447,7 +475,7 @@ async function assertVendorAvailable(
 ): Promise<void> {
   const { data, error } = await client
     .from("vendors")
-    .select("id, status")
+    .select("id, status, workflow_stage, preferred_vendor")
     .eq("organization_id", organizationId)
     .eq("id", vendorId)
     .is("deleted_at", null)
@@ -459,8 +487,17 @@ async function assertVendorAvailable(
   if (!data) {
     throw new Error("Vendor not found in organization.");
   }
-  if (data.status !== "active") {
-    throw new Error("Only active vendors can be assigned to work orders.");
+
+  // CORE-004 Phase 5 — assignable stages only (available / preferred).
+  const { isVendorAssignableStage, isVendorWorkflowStage, legacyVendorStatusToWorkflowStage } =
+    await import("./workflow");
+  const stage = isVendorWorkflowStage(data.workflow_stage)
+    ? data.workflow_stage
+    : legacyVendorStatusToWorkflowStage(String(data.status), Boolean(data.preferred_vendor));
+  if (!isVendorAssignableStage(stage)) {
+    throw new Error(
+      "Only vendors in Available or Preferred Vendor stages can be assigned to work orders."
+    );
   }
 }
 

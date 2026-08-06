@@ -451,6 +451,23 @@ export async function acceptVendorJob(rawToken: string): Promise<VendorJobCard> 
     `maintenance.vendor_accepted:${wo.id}:${now}`
   );
 
+  // CORE-004 Phase 5 — sync vendor focus from mobile accept.
+  const acceptVendorId = (token["vendor_id"] as string | null) ?? null;
+  if (acceptVendorId) {
+    try {
+      const { syncVendorWorkflowFromAssignment } = await import("../vendor/workflow-server");
+      await syncVendorWorkflowFromAssignment({
+        organizationId: String(wo.organization_id),
+        vendorId: acceptVendorId,
+        actorUserId: String(wo.created_by ?? "00000000-0000-0000-0000-000000000000"),
+        assignmentStatus: "accepted",
+        client: admin
+      });
+    } catch {
+      /* optional until Phase 5 migration */
+    }
+  }
+
   return getVendorJobCard(rawToken);
 }
 
@@ -514,6 +531,23 @@ export async function declineVendorJob(
     `${wo.work_order_number}: ${wo.title}${reason ? ` — ${reason}` : ""}`,
     `maintenance.vendor_declined:${wo.id}:${now}`
   );
+
+  // CORE-004 Phase 5 — return vendor to available/preferred after decline.
+  const declineVendorId = (token["vendor_id"] as string | null) ?? null;
+  if (declineVendorId) {
+    try {
+      const { syncVendorWorkflowFromAssignment } = await import("../vendor/workflow-server");
+      await syncVendorWorkflowFromAssignment({
+        organizationId: String(wo.organization_id),
+        vendorId: declineVendorId,
+        actorUserId: String(wo.created_by ?? "00000000-0000-0000-0000-000000000000"),
+        assignmentStatus: "cancelled",
+        client: admin
+      });
+    } catch {
+      /* optional until Phase 5 migration */
+    }
+  }
 
   // Token is revoked — return a terminal card without reloading the revoked token.
   return {
@@ -658,6 +692,26 @@ export async function startVendorJob(
     `maintenance.vendor_on_site:${wo.id}:${now}`
   );
 
+  // CORE-004 Phase 5 — sync vendor focus from mobile start/arrival.
+  const startVendorId =
+    ((wo as { vendor_id?: string | null }).vendor_id as string | null) ??
+    (token["vendor_id"] as string | null) ??
+    null;
+  if (startVendorId) {
+    try {
+      const { syncVendorWorkflowFromAssignment } = await import("../vendor/workflow-server");
+      await syncVendorWorkflowFromAssignment({
+        organizationId: String(wo.organization_id),
+        vendorId: startVendorId,
+        actorUserId: String(wo.created_by ?? "00000000-0000-0000-0000-000000000000"),
+        assignmentStatus: "arrived",
+        client: admin
+      });
+    } catch {
+      /* optional until Phase 5 migration */
+    }
+  }
+
   return getVendorJobCard(rawToken);
 }
 
@@ -771,6 +825,26 @@ export async function finishVendorJob(
     `${wo.work_order_number}: ${wo.title}`,
     `maintenance.vendor_awaiting_approval:${wo.id}:${now}`
   );
+
+  // CORE-004 Phase 5 — sync vendor focus to work_in_progress after mobile finish.
+  const finishVendorId =
+    ((wo as { vendor_id?: string | null }).vendor_id as string | null) ??
+    (token["vendor_id"] as string | null) ??
+    null;
+  if (finishVendorId) {
+    try {
+      const { syncVendorWorkflowFromAssignment } = await import("../vendor/workflow-server");
+      await syncVendorWorkflowFromAssignment({
+        organizationId: String(wo.organization_id),
+        vendorId: finishVendorId,
+        actorUserId: String(wo.created_by ?? "00000000-0000-0000-0000-000000000000"),
+        assignmentStatus: "in_progress",
+        client: admin
+      });
+    } catch {
+      /* optional until Phase 5 migration */
+    }
+  }
 
   return getVendorJobCard(rawToken);
 }

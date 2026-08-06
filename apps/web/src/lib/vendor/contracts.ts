@@ -80,6 +80,8 @@ export type VendorRecord = {
   rating: number | null;
   internalNotes: string | null;
   status: VendorStatus;
+  /** CORE-004 Phase 5 — authoritative vendor lifecycle stage. */
+  workflowStage: string;
   services: string[];
   metadata: Record<string, unknown>;
   createdAt: string;
@@ -108,7 +110,13 @@ export type VendorAssignmentRecord = {
 
 export type CreateVendorInput = Omit<
   VendorRecord,
-  "id" | "organizationId" | "createdAt" | "updatedAt" | "archivedAt" | "deletedAt"
+  | "id"
+  | "organizationId"
+  | "workflowStage"
+  | "createdAt"
+  | "updatedAt"
+  | "archivedAt"
+  | "deletedAt"
 >;
 
 export type UpdateVendorInput = Partial<CreateVendorInput>;
