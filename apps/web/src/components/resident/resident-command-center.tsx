@@ -7,32 +7,20 @@ import { Badge, EmptyState, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 
 type CommandCenter = {
-  property: {
-    id: string;
-    name: string;
-    status: string;
-    unitCount: number;
-    unitsAvailable: number;
-    unitsOccupied: number;
-    residentsAssigned: number;
-    unitsAssigned: number;
-    createdAt: string;
-  };
-  units: Array<{
-    id: string;
-    unit_label: string;
-    status: string;
-    assignedResident?: string | null;
-  }>;
-  residents: Array<{
+  resident: {
     id: string;
     displayName: string;
     email: string;
     status: string;
+    statusLabel: string;
     portalStatus: string;
+    portalStatusLabel: string;
+    propertyId: string;
+    propertyName: string;
     unitId: string;
     unitLabel: string;
-  }>;
+    createdAt: string;
+  };
   timeline: Array<{
     id: string;
     title: string;
@@ -43,6 +31,12 @@ type CommandCenter = {
   assistantRecommendation: string;
   readyMessage: string;
   nextJourney: { title: string; href: string; detail: string };
+  integrations: {
+    propertyCommandCenter: string;
+    residentDirectory: string;
+    financialOperations: string;
+    maintenance: string;
+  };
 };
 
 function formatWhen(iso: string): string {
@@ -56,7 +50,7 @@ function formatWhen(iso: string): string {
   }
 }
 
-export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
+export function ResidentCommandCenter({ residentId }: { residentId: string }) {
   const searchParams = useSearchParams();
   const justCreated = searchParams.get("created") === "1";
   const [data, setData] = useState<CommandCenter | null>(null);
@@ -67,17 +61,17 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
     let cancelled = false;
     void (async () => {
       try {
-        const response = await fetch(`/api/pm/properties/${propertyId}`);
+        const response = await fetch(`/api/pm/residents/${residentId}`);
         const body = await response.json();
         if (!response.ok) {
-          throw new Error(body.error ?? "Failed to load property");
+          throw new Error(body.error ?? "Failed to load resident");
         }
         if (!cancelled) {
           setData(body as CommandCenter);
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load property");
+          setError(err instanceof Error ? err.message : "Failed to load resident");
         }
       } finally {
         if (!cancelled) {
@@ -88,7 +82,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [propertyId]);
+  }, [residentId]);
 
   if (loading) {
     return (
@@ -102,7 +96,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
   if (error || !data) {
     return (
       <main className="flex-1 p-4 md:p-6">
-        <EmptyState title="Property unavailable" description={error ?? "Try again shortly."} />
+        <EmptyState title="Resident unavailable" description={error ?? "Try again shortly."} />
       </main>
     );
   }
@@ -112,38 +106,53 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
       <Breadcrumbs
         items={[
           { href: "/pm/mission-control", label: "Mission Control" },
-          { href: "/pm/properties", label: "Properties" },
-          { label: data.property.name }
+          { href: "/pm/residents", label: "Residents" },
+          { label: data.resident.displayName }
         ]}
       />
 
       <header className="max-w-3xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          Property Command Center
+          Resident Command Center
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
-            {data.property.name}
+            {data.resident.displayName}
           </h1>
-          <Badge variant={data.property.status === "active" ? "success" : "neutral"}>
-            {data.property.status}
+          <Badge variant="neutral">{data.resident.statusLabel}</Badge>
+          <Badge
+            variant={data.resident.portalStatus === "pending_activation" ? "warning" : "success"}
+          >
+            Portal: {data.resident.portalStatusLabel}
           </Badge>
         </div>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          {data.property.unitCount} units · {data.property.unitsAvailable} available ·{" "}
-          {data.property.unitsOccupied} occupied · {data.property.residentsAssigned} residents
-          assigned ({data.property.unitsAssigned} units)
+          {data.resident.propertyName} · Unit {data.resident.unitLabel} · {data.resident.email}
         </p>
       </header>
 
-      {justCreated || data.property.status === "active" ? (
+      {justCreated ? (
         <section
           aria-live="polite"
           className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
         >
           <p className="text-base font-semibold text-emerald-900">{data.readyMessage}</p>
           <p className="mt-1 text-sm text-emerald-800">
-            {data.property.name} is active and visible across the platform.
+            {data.resident.displayName} is visible on the property, in the directory, search,
+            timeline, and audit.
+          </p>
+        </section>
+      ) : null}
+
+      {data.resident.portalStatus === "pending_activation" ? (
+        <section
+          aria-label="Portal status"
+          className="max-w-3xl rounded-md border border-amber-200 bg-amber-50 p-4"
+        >
+          <p className="text-sm font-semibold text-amber-900">Resident Portal · Pending Activation</p>
+          <p className="mt-1 text-sm text-amber-800">
+            The portal is provisioned for this resident. Activation completes after the lease is
+            signed.
           </p>
         </section>
       ) : null}
@@ -167,58 +176,30 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         </Link>
       </section>
 
-      <section className="grid max-w-5xl gap-4 lg:grid-cols-3">
+      <section className="grid max-w-5xl gap-4 lg:grid-cols-2">
         <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Units</h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {data.units.map((unit) => (
-              <li
-                key={unit.id}
-                className="flex items-center justify-between gap-3 border-b border-[var(--mpa-color-border-default)] py-2 last:border-0"
-              >
-                <span>
-                  Unit {unit.unit_label}
-                  {unit.assignedResident ? (
-                    <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-secondary)]">
-                      {unit.assignedResident}
-                    </span>
-                  ) : null}
-                </span>
-                <Badge variant="neutral">{unit.status}</Badge>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Residents</h2>
-          {data.residents.length === 0 ? (
-            <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">
-              No residents assigned yet.
-            </p>
-          ) : (
-            <ul className="mt-3 space-y-2 text-sm">
-              {data.residents.map((resident) => (
-                <li
-                  key={resident.id}
-                  className="border-b border-[var(--mpa-color-border-default)] py-2 last:border-0"
+          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Assignment</h2>
+          <dl className="mt-3 space-y-2 text-sm">
+            <div className="flex justify-between gap-3 border-b border-[var(--mpa-color-border-default)] py-2">
+              <dt className="text-[var(--mpa-color-text-secondary)]">Property</dt>
+              <dd>
+                <Link
+                  href={data.integrations.propertyCommandCenter}
+                  className="text-[var(--mpa-color-brand-primary)] underline"
                 >
-                  <Link
-                    href={`/pm/residents/${resident.id}`}
-                    className="font-medium text-[var(--mpa-color-brand-primary)] underline"
-                  >
-                    {resident.displayName}
-                  </Link>
-                  <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-secondary)]">
-                    Unit {resident.unitLabel}
-                    {resident.portalStatus === "pending_activation"
-                      ? " · Portal Pending Activation"
-                      : ""}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+                  {data.resident.propertyName}
+                </Link>
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3 border-b border-[var(--mpa-color-border-default)] py-2">
+              <dt className="text-[var(--mpa-color-text-secondary)]">Unit</dt>
+              <dd>Unit {data.resident.unitLabel}</dd>
+            </div>
+            <div className="flex justify-between gap-3 py-2">
+              <dt className="text-[var(--mpa-color-text-secondary)]">Lifecycle status</dt>
+              <dd>{data.resident.statusLabel}</dd>
+            </div>
+          </dl>
         </div>
 
         <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
@@ -233,7 +214,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
               }))}
               empty={
                 <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                  No property timeline events yet.
+                  No resident timeline events yet.
                 </p>
               }
             />
@@ -242,21 +223,21 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
       </section>
 
       <p className="max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
-        Money health:{" "}
+        Future-ready surfaces:{" "}
         <Link
           className="text-[var(--mpa-color-brand-primary)] underline"
-          href={`/pm/properties/${propertyId}/money`}
+          href={data.integrations.financialOperations}
         >
-          Property money panel
+          Financial Operations
         </Link>
         {" · "}
         <Link
           className="text-[var(--mpa-color-brand-primary)] underline"
-          href="/pm/financial-operations"
+          href={data.integrations.maintenance}
         >
-          Financial Operations
+          Maintenance
         </Link>
-        . Portfolio create stays on Properties — one creation path.
+        . Resident create stays on Residents — one creation path.
       </p>
     </main>
   );

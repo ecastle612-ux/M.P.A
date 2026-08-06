@@ -196,12 +196,15 @@ export async function getMissionControlState(
   const properties = await listPortfolioProperties(supabase, organizationId);
   const first = properties[0] ?? null;
   const { getTeamReadiness } = await import("../team/invitation-service");
+  const { getResidentReadiness } = await import("../resident/resident-service");
   const team = await getTeamReadiness(supabase, organizationId);
+  const residents = await getResidentReadiness(supabase, organizationId);
   const nextAction = buildMissionControlNextAction({
     setupComplete,
     propertyCount: properties.length,
     firstPropertyId: first?.id ?? null,
-    teamReady: team.teamReady
+    teamReady: team.teamReady,
+    residentReady: residents.residentReady
   });
 
   return {
@@ -215,6 +218,8 @@ export async function getMissionControlState(
     teamReady: team.teamReady,
     activeMemberCount: team.activeMemberCount,
     acceptedInviteCount: team.acceptedInviteCount,
+    residentReady: residents.residentReady,
+    residentCount: residents.residentCount,
     nextAction,
     assistantRecommendation: nextAction.assistantRecommendation
   };
@@ -232,6 +237,11 @@ export async function getPropertyCommandCenter(
 
   const timeline = await listPropertyTimeline(supabase, organizationId, propertyId);
   const units = property.property_units ?? [];
+  const { listResidentsForProperty } = await import("../resident/resident-service");
+  const residents = await listResidentsForProperty(supabase, organizationId, propertyId);
+  const assignedUnitIds = new Set(residents.map((row) => row.unit_id as string));
+
+  const hasResidents = residents.length > 0;
 
   return {
     property: {
@@ -243,9 +253,27 @@ export async function getPropertyCommandCenter(
       createdAt: property.created_at,
       unitCount: units.length,
       unitsAvailable: units.filter((unit) => unit.status === "available").length,
-      unitsOccupied: units.filter((unit) => unit.status === "occupied").length
+      unitsOccupied: units.filter((unit) => unit.status === "occupied").length,
+      residentsAssigned: residents.length,
+      unitsAssigned: assignedUnitIds.size
     },
-    units,
+    units: units.map((unit) => ({
+      ...unit,
+      assignedResident:
+        residents.find((resident) => resident.unit_id === unit.id)?.display_name ?? null
+    })),
+    residents: residents.map((resident) => ({
+      id: resident.id as string,
+      displayName: resident.display_name as string,
+      email: resident.email as string,
+      status: resident.status as string,
+      portalStatus: resident.portal_status as string,
+      unitId: resident.unit_id as string,
+      unitLabel:
+        (Array.isArray(resident.property_units)
+          ? resident.property_units[0]?.unit_label
+          : (resident.property_units as { unit_label?: string } | null)?.unit_label) ?? "—"
+    })),
     timeline: timeline.map((event) => ({
       id: event.id as string,
       title:
@@ -253,20 +281,33 @@ export async function getPropertyCommandCenter(
           ? "Property created"
           : event.event_type === "property.activated"
             ? "Property activated"
-            : String(event.event_type),
+            : event.event_type === "resident.property_assigned"
+              ? "Resident assigned"
+              : String(event.event_type),
       detail:
-        typeof (event.payload as { name?: string } | null)?.name === "string"
-          ? `${(event.payload as { name: string }).name} is ready for operations.`
-          : "Property lifecycle event",
+        event.event_type === "resident.property_assigned" &&
+        typeof (event.payload as { displayName?: string } | null)?.displayName === "string"
+          ? `${(event.payload as { displayName: string }).displayName} appears on this property.`
+          : typeof (event.payload as { name?: string } | null)?.name === "string"
+            ? `${(event.payload as { name: string }).name} is ready for operations.`
+            : "Property lifecycle event",
       occurredAt: event.created_at as string,
       kind: event.event_type as string
     })),
-    assistantRecommendation: buildPropertyReadyAssistantCopy(property.name),
-    readyMessage: "My property is ready.",
-    nextJourney: {
-      title: "Invite your team",
-      href: "/settings/team",
-      detail: "Bring teammates into this organization."
-    }
+    assistantRecommendation: hasResidents
+      ? "Create your first lease."
+      : buildPropertyReadyAssistantCopy(property.name),
+    readyMessage: hasResidents ? "My first resident has been added." : "My property is ready.",
+    nextJourney: hasResidents
+      ? {
+          title: "Create your first lease",
+          href: "/pm/leasing?new=1",
+          detail: "Continue the resident lifecycle with a lease."
+        }
+      : {
+          title: "Add your first resident",
+          href: "/pm/residents?new=1",
+          detail: "Assign a resident to a unit on this property."
+        }
   };
 }

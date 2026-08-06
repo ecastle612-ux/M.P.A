@@ -44,9 +44,11 @@ describe("LAUNCH-001 J1 property domain", () => {
     const afterTeam = buildMissionControlNextAction({
       setupComplete: true,
       propertyCount: 1,
-      teamReady: true
+      teamReady: true,
+      residentReady: false
     });
     expect(afterTeam.id).toBe("add_first_resident");
+    expect(afterTeam.href).toBe("/pm/residents?new=1");
     expect(afterTeam.assistantRecommendation).toBe("Add your first resident.");
     expect(buildPropertyReadyAssistantCopy("Oak Street")).toContain("Invite your team");
     expect(buildTeamReadyAssistantCopy()).toContain("Add your first resident");

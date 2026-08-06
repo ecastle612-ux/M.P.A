@@ -33,7 +33,7 @@ Master Admin
     └── Evidence pack (export for launch review)
 ```
 
-Until built: operators use the **verification scripts** below manually. J0–J2 scripts under `j0/`, `j1/`, `j2/` + Admin Launch Readiness evidence panels. Console UI may ship progressively; scripts are authoritative for Pass.
+Until built: operators use the **verification scripts** below manually. J0–J3 scripts under `j0/`, `j1/`, `j2/`, `j3/` + Admin Launch Readiness evidence panels. Console UI may ship progressively; scripts are authoritative for Pass.
 
 ---
 
@@ -57,8 +57,9 @@ Until built: operators use the **verification scripts** below manually. J0–J2 
 ### Residents
 | Check | Method |
 |-------|--------|
-| Execute | Add resident; portal link state |
-| Evidence | Resident record; portal login smoke (test resident) |
+| Execute | Add resident via `/pm/residents` (J3); confirm Command Center + property appearance |
+| Portal | Pending Activation until lease signed |
+| Evidence | [J3 certification](./j3/certification.md) + `/admin/launch-readiness` J3 panel |
 
 ### Maintenance
 | Check | Method |

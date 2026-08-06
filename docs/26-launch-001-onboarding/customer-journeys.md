@@ -127,24 +127,26 @@ Mission Control → Invite your team
 
 ---
 
-## J3 — Resident added → lease created
+## J3 — First resident
 
 ```
-Residents / Leasing
-  → Add resident
-  → Create lease on unit
-  → Status active (pre-signature if J4 separate)
-  → Visible on property
+Mission Control → Add your first resident
+  → /pm/residents
+  → Create resident → Assign property → Assign unit
+  → Resident Command Center
+  → Portal Pending Activation (no lease yet)
+  → MC / Assistant → Create your first lease
 ```
 
 | Field | Content |
 |-------|---------|
-| Current | FO-only lease+resident bundle; module stubs |
-| Blockers | Advertised modules empty |
-| Fix | Real Residents + Leasing MVP create flows; FO consumes lease |
-| MA verify | Resident + lease records; created outside FO-only workaround |
+| Status | **Authorized + delivered** |
+| Current | First-class `pm_residents`; sole create path; Command Center; MC → create lease |
+| Remaining | Master Admin runs [J3 certification](./j3/certification.md) |
+| Out of scope | Lease create / e-sign (J4) |
+| MA verify | [J3 certification](./j3/certification.md) |
 
-**Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J3`
+**Authorized:** `AUTHORIZE LAUNCH-001 JOURNEY J3`
 
 ---
 

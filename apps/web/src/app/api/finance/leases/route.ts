@@ -34,13 +34,21 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Compatibility path for billing scaffolding. Customer create for residents is /pm/residents (J3).
     const result = await createLeaseWithResident(
       authz.supabase,
       authz.organizationId,
       authz.user.id,
       parsed.data
     );
-    return NextResponse.json(result, { status: 201 });
+    return NextResponse.json(
+      {
+        ...result,
+        notice:
+          "Prefer /pm/residents for the customer resident create path (LAUNCH-001 J3). Lease create is the next journey."
+      },
+      { status: 201 }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to create lease" },

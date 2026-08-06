@@ -12,6 +12,7 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [propertyItems, setPropertyItems] = useState<Array<{ id: string; label: string }>>([]);
+  const [residentItems, setResidentItems] = useState<Array<{ id: string; label: string }>>([]);
 
   useEffect(() => {
     function handler(event: KeyboardEvent) {
@@ -37,17 +38,26 @@ export function CommandPalette() {
     let cancelled = false;
     void (async () => {
       try {
-        const response = await fetch(
-          `/api/pm/properties/search?q=${encodeURIComponent(query.trim())}`
-        );
-        if (!response.ok) {
-          return;
-        }
-        const payload = (await response.json()) as {
-          results?: Array<{ id: string; label: string; href: string }>;
-        };
-        if (!cancelled) {
+        const [propertyResponse, residentResponse] = await Promise.all([
+          fetch(`/api/pm/properties/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/pm/residents/search?q=${encodeURIComponent(query.trim())}`)
+        ]);
+        if (!cancelled && propertyResponse.ok) {
+          const payload = (await propertyResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
           setPropertyItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
+        if (!cancelled && residentResponse.ok) {
+          const payload = (await residentResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setResidentItems(
             (payload.results ?? []).map((item) => ({
               id: item.href,
               label: item.label
@@ -57,6 +67,7 @@ export function CommandPalette() {
       } catch {
         if (!cancelled) {
           setPropertyItems([]);
+          setResidentItems([]);
         }
       }
     })();
@@ -79,6 +90,12 @@ export function CommandPalette() {
         propertyItems.map((item) => ({ id: item.id, label: item.label }))
       );
     }
+    if (residentItems.length > 0) {
+      byGroup.set(
+        "Residents",
+        residentItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
 
     const navSections = [...byGroup.entries()].map(([title, items]) => ({ title, items }));
     const entitled = searchCatalogForSku(productSku, "");
@@ -86,7 +103,9 @@ export function CommandPalette() {
       title: `Quick Actions · ${productLabel ?? "No product"}`,
       items: [
         { id: "/pm/properties?new=1", label: "Add property", shortcut: "A P" },
+        { id: "/pm/residents?new=1", label: "Add resident", shortcut: "A R" },
         { id: "/pm/properties", label: "Open Properties", shortcut: "G P" },
+        { id: "/pm/residents", label: "Open Residents", shortcut: "G R" },
         { id: "/pm/mission-control", label: "Open Mission Control", shortcut: "G M" },
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
         { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
@@ -94,6 +113,7 @@ export function CommandPalette() {
       ].filter(
         (item) =>
           item.id.startsWith("/pm/properties") ||
+          item.id.startsWith("/pm/residents") ||
           item.id.startsWith("/settings") ||
           entitled.some((result) => result.href === item.id.split("?")[0]) ||
           !productSku
@@ -101,7 +121,7 @@ export function CommandPalette() {
     };
 
     return [...navSections, actions].filter((section) => section.items.length > 0);
-  }, [productLabel, productSku, propertyItems, query]);
+  }, [productLabel, productSku, propertyItems, query, residentItems]);
 
   return (
     <>

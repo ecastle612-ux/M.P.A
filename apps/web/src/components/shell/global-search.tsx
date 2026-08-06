@@ -15,14 +15,15 @@ export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [propertyResults, setPropertyResults] = useState<SearchResultItem[]>([]);
+  const [residentResults, setResidentResults] = useState<SearchResultItem[]>([]);
 
   const catalogResults = useMemo(() => searchCatalogForSku(productSku, query), [productSku, query]);
   const results = useMemo(() => {
     if (!query.trim()) {
       return catalogResults;
     }
-    return [...propertyResults, ...catalogResults];
-  }, [catalogResults, propertyResults, query]);
+    return [...residentResults, ...propertyResults, ...catalogResults];
+  }, [catalogResults, propertyResults, query, residentResults]);
   const safeActiveIndex = results.length === 0 ? 0 : Math.min(activeIndex, results.length - 1);
 
   useEffect(() => {
@@ -44,29 +45,43 @@ export function GlobalSearch() {
     const handle = window.setTimeout(() => {
       void (async () => {
         try {
-          const response = await fetch(
-            `/api/pm/properties/search?q=${encodeURIComponent(normalized)}`
-          );
-          if (!response.ok || cancelled) {
-            return;
-          }
-          const payload = (await response.json()) as {
-            results?: Array<{ id: string; label: string; href: string; group: string }>;
-          };
+          const [propertyResponse, residentResponse] = await Promise.all([
+            fetch(`/api/pm/properties/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/pm/residents/search?q=${encodeURIComponent(normalized)}`)
+          ]);
           if (cancelled) {
             return;
           }
-          setPropertyResults(
-            (payload.results ?? []).map((item) => ({
-              id: `property:${item.id}`,
-              label: item.label,
-              href: item.href,
-              group: item.group,
-              entitlement: "pm.properties"
-            }))
-          );
+          if (propertyResponse.ok) {
+            const payload = (await propertyResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setPropertyResults(
+              (payload.results ?? []).map((item) => ({
+                id: `property:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "pm.properties"
+              }))
+            );
+          }
+          if (residentResponse.ok) {
+            const payload = (await residentResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setResidentResults(
+              (payload.results ?? []).map((item) => ({
+                id: `resident:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "pm.residents"
+              }))
+            );
+          }
         } catch {
-          // Keep last successful property results; catalog still works.
+          // Keep last successful live results; catalog still works.
         }
       })();
     }, 200);
@@ -80,18 +95,19 @@ export function GlobalSearch() {
     setOpen(false);
     setQuery("");
     setPropertyResults([]);
+    setResidentResults([]);
     router.push(href);
   }
 
   return (
     <div ref={containerRef} className="relative hidden min-w-[240px] flex-1 md:block">
       <Input
-        aria-label="Search entitled workspaces and properties"
+        aria-label="Search entitled workspaces, properties, and residents"
         aria-controls={listId}
         aria-expanded={open}
         aria-autocomplete="list"
         role="combobox"
-        placeholder="Search workspaces and properties..."
+        placeholder="Search workspaces, properties, residents..."
         value={query}
         onFocus={() => setOpen(true)}
         onChange={(event) => {
@@ -99,6 +115,7 @@ export function GlobalSearch() {
           setQuery(next);
           if (!next.trim()) {
             setPropertyResults([]);
+            setResidentResults([]);
           }
           setActiveIndex(0);
           setOpen(true);
@@ -134,7 +151,7 @@ export function GlobalSearch() {
         >
           {results.length === 0 ? (
             <p className="px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              No entitled workspaces or properties match.
+              No entitled workspaces, properties, or residents match.
             </p>
           ) : (
             <ul>

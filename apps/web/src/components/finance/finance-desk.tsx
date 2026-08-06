@@ -4,12 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatMoney } from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Select } from "@mpa/ui";
 
-type Property = {
-  id: string;
-  name: string;
-  property_units?: Array<{ id: string; unit_label: string }>;
-};
-
 type Lease = {
   id: string;
   property_id: string;
@@ -75,16 +69,12 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export function FinanceDesk() {
-  const [properties, setProperties] = useState<Property[]>([]);
   const [leases, setLeases] = useState<Lease[]>([]);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [selectedLeaseId, setSelectedLeaseId] = useState<string>("");
   const [ledger, setLedger] = useState<LedgerResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [residentName, setResidentName] = useState("");
-  const [residentEmail, setResidentEmail] = useState("");
-  const [rentAmount, setRentAmount] = useState("1500");
   const [oneTimeLabel, setOneTimeLabel] = useState("Pet fee");
   const [oneTimeAmount, setOneTimeAmount] = useState("50");
   const [manualAmount, setManualAmount] = useState("");
@@ -97,12 +87,10 @@ export function FinanceDesk() {
 
   const refresh = useCallback(async () => {
     setError(null);
-    const [propertiesRes, leasesRes, snapshotRes] = await Promise.all([
-      fetchJson<{ properties: Property[] }>("/api/finance/properties"),
+    const [leasesRes, snapshotRes] = await Promise.all([
       fetchJson<{ leases: Lease[] }>("/api/finance/leases"),
       fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot")
     ]);
-    setProperties(propertiesRes.properties);
     setLeases(leasesRes.leases);
     setSnapshot(snapshotRes.snapshot);
     if (!selectedLeaseId && leasesRes.leases[0]) {
@@ -123,15 +111,13 @@ export function FinanceDesk() {
     let cancelled = false;
     void (async () => {
       try {
-        const [propertiesRes, leasesRes, snapshotRes] = await Promise.all([
-          fetchJson<{ properties: Property[] }>("/api/finance/properties"),
+        const [leasesRes, snapshotRes] = await Promise.all([
           fetchJson<{ leases: Lease[] }>("/api/finance/leases"),
           fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot")
         ]);
         if (cancelled) {
           return;
         }
-        setProperties(propertiesRes.properties);
         setLeases(leasesRes.leases);
         setSnapshot(snapshotRes.snapshot);
         setSelectedLeaseId((current) => current || leasesRes.leases[0]?.id || "");
@@ -281,58 +267,22 @@ export function FinanceDesk() {
           </Button>
         </div>
 
-        <form
-          className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void run(async () => {
-              const property = properties[0];
-              if (!property) {
-                throw new Error("Create a property first");
-              }
-              const unitId = property.property_units?.[0]?.id;
-              const result = await fetchJson<{ lease: { id: string } }>("/api/finance/leases", {
-                method: "POST",
-                body: JSON.stringify({
-                  propertyId: property.id,
-                  unitId,
-                  displayName: residentName,
-                  email: residentEmail || null,
-                  rentAmount: Number(rentAmount)
-                })
-              });
-              setSelectedLeaseId(result.lease.id);
-              setResidentName("");
-              setResidentEmail("");
-            });
-          }}
-        >
-          <h3 className="text-sm font-semibold">Add resident lease</h3>
-          <Input
-            value={residentName}
-            onChange={(event) => setResidentName(event.target.value)}
-            placeholder="Resident name"
-            required
-          />
-          <Input
-            value={residentEmail}
-            onChange={(event) => setResidentEmail(event.target.value)}
-            placeholder="Resident email (optional)"
-            type="email"
-          />
-          <Input
-            value={rentAmount}
-            onChange={(event) => setRentAmount(event.target.value)}
-            placeholder="Monthly rent"
-            type="number"
-            min="1"
-            step="0.01"
-            required
-          />
-          <Button type="submit" disabled={busy || !residentName.trim() || properties.length === 0}>
-            Create lease
+        <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <h3 className="text-sm font-semibold">Residents & leases</h3>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Create residents in the Residents directory — one creation path (J3). Lease creation is
+            the next journey; Financial Operations consumes resident and lease records for money.
+          </p>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              window.location.href = "/pm/residents?new=1";
+            }}
+          >
+            Open Residents to add
           </Button>
-        </form>
+        </div>
       </section>
 
       <section id="charges" className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
@@ -388,7 +338,7 @@ export function FinanceDesk() {
                       leaseId: selectedLeaseId,
                       chargeType: "rent",
                       label: "Monthly rent",
-                      amount: Number(selectedLease?.rent_amount ?? rentAmount),
+                      amount: Number(selectedLease?.rent_amount ?? 1500),
                       generateCurrentPeriod: true
                     })
                   });

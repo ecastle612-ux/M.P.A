@@ -1,5 +1,5 @@
 /**
- * LAUNCH-001 Mission Control / Assistant progression (J0–J2).
+ * LAUNCH-001 Mission Control / Assistant progression (J0–J3).
  */
 
 export type MissionControlNextAction = {
@@ -8,6 +8,7 @@ export type MissionControlNextAction = {
     | "add_first_property"
     | "invite_team"
     | "add_first_resident"
+    | "create_first_lease"
     | "open_property";
   title: string;
   detail: string;
@@ -21,6 +22,8 @@ export function buildMissionControlNextAction(input: {
   firstPropertyId?: string | null;
   /** True when at least one teammate has accepted / active membership beyond the creator alone. */
   teamReady?: boolean;
+  /** True when at least one operational resident exists for the organization. */
+  residentReady?: boolean;
 }): MissionControlNextAction {
   if (!input.setupComplete) {
     return {
@@ -52,12 +55,22 @@ export function buildMissionControlNextAction(input: {
     };
   }
 
+  if (!input.residentReady) {
+    return {
+      id: "add_first_resident",
+      title: "Add your first resident",
+      detail: "My team is ready. Add a resident to continue onboarding.",
+      href: "/pm/residents?new=1",
+      assistantRecommendation: "Add your first resident."
+    };
+  }
+
   return {
-    id: "add_first_resident",
-    title: "Add your first resident",
-    detail: "My team is ready. Add a resident to continue onboarding.",
-    href: "/pm/residents",
-    assistantRecommendation: "Add your first resident."
+    id: "create_first_lease",
+    title: "Create your first lease",
+    detail: "My first resident has been added. Create a lease to continue the lifecycle.",
+    href: "/pm/leasing?new=1",
+    assistantRecommendation: "Create your first lease."
   };
 }
 
@@ -67,4 +80,8 @@ export function buildPropertyReadyAssistantCopy(propertyName: string): string {
 
 export function buildTeamReadyAssistantCopy(): string {
   return "My team is ready. Add your first resident.";
+}
+
+export function buildResidentReadyAssistantCopy(residentName: string): string {
+  return `${residentName} is ready. Create your first lease.`;
 }

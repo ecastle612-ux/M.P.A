@@ -62,6 +62,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [J0 Certification](./j0/certification.md) | Purchase → trusted home Pass script |
 | [J1 Certification](./j1/certification.md) | First property Pass script |
 | [J2 Certification](./j2/certification.md) | Build your team Pass script |
+| [J3 Certification](./j3/certification.md) | First resident Pass script |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
@@ -76,7 +77,8 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE LAUNCH-001 JOURNEY J0` | Purchase → First Login / trusted home | **Authorized + delivered** — certified |
 | `AUTHORIZE LAUNCH-001 JOURNEY J1` | First property | **Authorized + delivered** — certified |
 | `AUTHORIZE LAUNCH-001 JOURNEY J2` | Build your team | **Authorized + delivered** — MA cert script ready |
-| J3–J8 | — | **Not authorized** — do not implement |
+| `AUTHORIZE LAUNCH-001 JOURNEY J3` | First resident | **Authorized + delivered** — MA cert script ready |
+| J4–J8 | — | **Not authorized** — do not implement |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 

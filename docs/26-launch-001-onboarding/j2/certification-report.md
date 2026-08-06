@@ -40,10 +40,6 @@ API: `GET /api/admin/launch/j2?organizationId=<uuid>`
 
 ---
 
-## STOP
+## Follow-on
 
-Do not implement J3 until:
-
-```
-AUTHORIZE LAUNCH-001 JOURNEY J3
-```
+J3 authorized and delivered — see [J3 certification](../j3/certification.md).
