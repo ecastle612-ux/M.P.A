@@ -7,24 +7,22 @@
 
 ## Recommendation
 
-# GO (conditional)
+# NO-GO (awaiting explicit FO authorization)
 
 Commercial Experience Hardening P0 is **Pass**.
 
-Financial Operations may now enter the normal gate:
+That clears the **prerequisite** for Financial Operations. It does **not** authorize FO implementation.
 
-**Design → Document → Approve → Implement**
-
-under Property Manager ownership only.
+Financial Operations remains **NO-GO** until a separate authorization explicitly starts the FO Design → Document → Approve → Implement cycle.
 
 Facility Operations feature work remains **deferred / NO-GO**.
 
 ---
 
-## Why GO now
+## Prerequisite status (cleared)
 
-| Prior NO-GO reason | Status after hardening |
-|--------------------|------------------------|
+| Prior blocker | Status after hardening |
+|---------------|------------------------|
 | Deep links bypass entitlements | **Fixed** — middleware fail-closed |
 | Customers could change SKU | **Fixed** — operator-only writes + RLS |
 | Dead header Search | **Fixed** — entitlement-aware Global Search |
@@ -42,23 +40,24 @@ Success criteria from hardening authorization:
 
 ---
 
-## Conditions on the GO
-
-1. **No Facility implementation** in the FO package.  
-2. **FO scope** must be designed/documented/approved as its own package (Implementation Gate).  
-3. FO surfaces must continue to require `pm.financial_operations` entitlement.  
-4. Do not reopen CORE-004 / UX-016 inside FO without separate approval.  
-5. Apply migrations `20260806010000_*` and `20260806020000_*` before production use.
-
----
-
-## Still NO-GO
+## What remains blocked
 
 | Workstream | Decision |
 |------------|----------|
-| Facility Operations features | NO-GO / deferred |
+| Financial Operations implementation | **NO-GO** until explicitly authorized |
+| Facility Operations features | **NO-GO** / deferred |
 | Capital Projects | Future |
 | CORE-004 / UX-016 | Stopped unless re-authorized |
+
+---
+
+## When FO may begin
+
+Only after an explicit authorization message that starts Financial Operations under:
+
+**Design → Document → Approve → Implement**
+
+with Property Manager ownership and `pm.financial_operations` entitlement gating.
 
 ---
 
@@ -67,5 +66,5 @@ Success criteria from hardening authorization:
 | Role | Decision |
 |------|----------|
 | Commercial Experience Hardening P0 | **Pass** |
-| Begin Financial Operations (design gate) | **GO** |
+| Begin Financial Operations | **NO-GO** (prerequisite cleared; awaiting FO auth) |
 | Begin Facility Operations features | **NO-GO** |

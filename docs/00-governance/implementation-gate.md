@@ -89,8 +89,8 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Phase 3 identity foundation | Completed (approved and implemented) |
 | Product Architecture Reset (24) | **Approved** — Phase 1 architectural alignment authorized |
 | ADR-015 (three commercial products) | **Accepted** |
-| Commercial Experience Hardening P0 | **Complete** — entitlements, integrity, search, setup, Admin visibility |
-| Financial Operations | **GO for Design → Document → Approve** (implementation only after FO package Approved) |
+| Commercial Experience Hardening P0 | **Complete / Pass** — entitlements, integrity, search, setup, Admin visibility |
+| Financial Operations | **NO-GO** — hardening prerequisite cleared; awaiting explicit FO authorization |
 | Facility Operations features | **Stopped / deferred** |
 | CORE-004 / LAUNCH-001 / UX-016 | **Stopped** unless separately re-authorized |
 

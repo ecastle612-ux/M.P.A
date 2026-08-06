@@ -1,8 +1,9 @@
 # Commercial Experience Certification
 
-**Status:** P0 Hardening complete — **GO** for Financial Operations design gate  
+**Status:** P0 Hardening complete — **Pass**  
 **Date:** 2026-08-06  
-**Facility Operations features:** Still NO-GO / deferred
+**Financial Operations:** NO-GO (prerequisite cleared; awaiting explicit FO authorization)  
+**Facility Operations features:** NO-GO / deferred
 
 ---
 
@@ -18,7 +19,7 @@ P0 Commercial Experience Hardening made the experience **fail closed and trustwo
 | Global Search | Fail | **Pass** |
 | Guided Setup | Conditional Fail | **Pass** |
 | Master Admin visibility | Fail | **Pass** |
-| Financial Operations start | NO-GO | **GO (design gate)** |
+| Financial Operations start | NO-GO | **NO-GO** (prerequisite cleared only) |
 | Facility feature start | NO-GO | **NO-GO** |
 
 ---
@@ -44,4 +45,4 @@ P0 Commercial Experience Hardening made the experience **fail closed and trustwo
 | [Commercial verification](./hardening-commercial-verification.md) | Pass |
 | [Navigation verification](./hardening-navigation-verification.md) | Pass |
 | [Onboarding verification](./hardening-onboarding-verification.md) | Pass |
-| [GO / NO-GO Financial Operations](./go-no-go-financial-operations.md) | **GO (conditional)** |
+| [GO / NO-GO Financial Operations](./go-no-go-financial-operations.md) | **NO-GO** — hardening Pass; FO not yet authorized |

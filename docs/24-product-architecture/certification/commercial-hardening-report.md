@@ -1,8 +1,9 @@
 # Commercial Hardening Report (P0)
 
-**Status:** Implemented + re-certified  
+**Status:** Implemented + re-certified — **Pass**  
 **Date:** 2026-08-06  
-**Scope:** P0 blockers only. No Financial Operations. No Facility feature work. No CORE-004.
+**Scope:** P0 blockers only. No Financial Operations. No Facility feature work. No CORE-004.  
+**FO / Facility:** Remain **NO-GO** until separately authorized.
 
 ---
 
