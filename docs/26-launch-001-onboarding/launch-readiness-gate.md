@@ -54,23 +54,27 @@ Assisted demos that rely on the above **do not** count as launch ready.
 ### North-star journey
 - [x] J0 Purchase → trusted home (**delivered + certified**)  
 - [x] J1 Property added (**delivered + certified**)  
-- [x] J2 Staff invited (**delivered** — [cert script](./j2/certification.md); MA Pass still required)  
-- [ ] J3 Resident + lease  
-- [ ] J4 Lease signed (or approved offline honesty shipped)  
-- [ ] J5 Rent collected  
-- [ ] J6 Maintenance → vendor → resolved  
-- [ ] J7 Owner reviews property  
-- [ ] J8 Notice sent (or Communications de-advertised)  
+- [x] J2 Staff invited (**delivered** — MA Pass script ready)  
+- [x] J3 First resident (**delivered** — MA Pass script ready)  
+- [x] J4 First lease (**delivered** — MA Pass script ready)  
+- [x] J5 Rent collected (**delivered** — MA Pass script ready)  
+- [x] J6 Maintenance → vendor → resolved (**delivered** — MA Pass script ready)  
+- [x] J7 Daily operations (**delivered** — MA Pass script ready)  
+- [x] J8 Owner portfolio review (**delivered** — MA Pass script ready)  
+- [x] Communications de-advertised for launch (not in J0–J8)  
+- [x] Documents honesty / de-advertise for launch  
 
 ### Master Admin
-- [ ] Certification console (or documented scripts) Pass for each journey  
+- [ ] Certification console Pass for J2–J8 on staging org  
 - [ ] Entitlement fail-closed verified  
 - [ ] Integration health visible  
+- [ ] Final [PM Customer Promise Certification](./property-manager-customer-promise-certification.md) signed  
 
 ### Governance
 - [x] `APPROVE LAUNCH-001` ([ADR-017](../18-decision-log/adr-017-launch-001-customer-promise-journeys.md))  
-- [ ] Journeys authorized and certified individually (J0–J2 authorized/delivered; J3–J8 not authorized)  
-- [x] FIN-OPS remains single money system; S4 not required for this GO unless journey needs it  
+- [x] Journeys J0–J8 authorized and delivered (MA Pass pending J2–J8)  
+- [x] FIN-OPS remains single money system; S4 not required for this GO  
+- [x] **STOP** — no new implementation after J8 without new authorization  
 
 ---
 

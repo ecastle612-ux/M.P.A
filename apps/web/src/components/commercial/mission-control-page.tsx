@@ -32,6 +32,7 @@ type MissionControlState = {
   assistantRecommendation: string;
   setupComplete: boolean;
   dailyOpsReady?: boolean;
+  ownerPortfolioReady?: boolean;
   maintenanceReady?: boolean;
   dailyOperations?: {
     greeting: string;
@@ -191,6 +192,9 @@ export function MissionControlPage() {
           <span>·</span>
           <span>{loading ? "…" : `${state?.propertyCount ?? 0} properties`}</span>
           {state?.dailyOpsReady ? <Badge variant="success">Daily ops ready</Badge> : null}
+          {state?.ownerPortfolioReady ? (
+            <Badge variant="success">Customer promise complete</Badge>
+          ) : null}
         </div>
       </header>
 
@@ -217,7 +221,11 @@ export function MissionControlPage() {
             {daily ? (
               <p className="text-sm text-[var(--mpa-color-text-secondary)]">{daily.briefing.summary}</p>
             ) : null}
-            {state?.dailyOpsReady ? (
+            {state?.ownerPortfolioReady ? (
+              <p className="text-sm text-emerald-800">
+                I can confidently monitor my investment portfolio using M.P.A.
+              </p>
+            ) : state?.dailyOpsReady ? (
               <p className="text-sm text-emerald-800">
                 I can run my property management business from this dashboard.
               </p>

@@ -1,8 +1,9 @@
 # Capability Promises — Property Manager
 
 **Parent:** [LAUNCH-001](./index.md)  
-**Status:** Draft  
-**Advertise sources:** Module Map · Subscription Matrix · Billing inclusions · PM nav (`COMMERCIAL_MODULES`)
+**Status:** Updated after J0–J8 delivery  
+**Advertise sources:** Module Map · Subscription Matrix · Billing inclusions · PM nav (`COMMERCIAL_MODULES`)  
+**Final verdict:** [Property Manager Customer Promise Certification](./property-manager-customer-promise-certification.md)
 
 Each capability is scored with the [six questions](./promise-evaluation-framework.md).
 
@@ -12,17 +13,17 @@ Each capability is scored with the [six questions](./promise-evaluation-framewor
 
 | Capability | Discover | No docs | No support | Begin→End | Matches ad | MA validate | Verdict |
 |------------|:--------:|:-------:|:----------:|:---------:|:----------:|:-----------:|---------|
-| Property Management | Partial | No | No | No | No | No | **Broken** |
-| Leasing | Yes | No | No | No | No | No | **Broken** |
-| Residents | Yes | No | No | No | No | No | **Broken** |
-| Maintenance | Yes | No | No | No | No | No | **Broken** |
-| Vendor Management | Yes | No | No | No | No | Partial | **Broken** |
-| Financial Operations | Yes | Partial | Partial | Yes | Partial | Partial | **Conditional** |
-| Documents | Yes | No | No | No | No | No | **Broken** |
-| Communications | Yes | No | No | No | No | No | **Broken** |
+| Property Management | Yes | Yes | Yes | Yes | Partial | Yes | **Pass** |
+| Leasing | Yes | Yes | Yes | Yes | Partial | Yes | **Pass** |
+| Residents | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** |
+| Maintenance | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** |
+| Vendor Management | Yes | Yes | Partial | Partial | Partial | Yes | **Conditional** |
+| Financial Operations | Yes | Yes | Yes | Yes | Partial | Yes | **Pass** |
+| Owner portfolio | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** |
+| Documents | Yes | No | No | No | No | Partial | **Fail / de-advertise** |
+| Communications | Yes | No | No | No | No | No | **Fail / de-advertise** |
 
-**Launch ready?** No — seven broken, one conditional.
-
+**Launch ready?** **CONDITIONAL GO** — J0–J8 operational path Pass; Documents & Communications must stay de-advertised.
 ---
 
 ## 1. Property Management

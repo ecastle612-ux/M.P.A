@@ -67,6 +67,8 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [J5 Certification](./j5/certification.md) | Collect first rent Pass script |
 | [J6 Certification](./j6/certification.md) | First maintenance request Pass script |
 | [J7 Certification](./j7/certification.md) | Daily operations Pass script |
+| [J8 Certification](./j8/certification.md) | Owner portfolio review Pass script |
+| [Property Manager Customer Promise Certification](./property-manager-customer-promise-certification.md) | Final GO / NO-GO for Customer #1 |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
@@ -86,7 +88,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE LAUNCH-001 JOURNEY J5` | Collect first rent | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J6` | First maintenance request | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J7` | Daily operations | **Authorized + delivered** — MA cert script ready |
-| J8 | Review owner's portfolio | **Not authorized** — do not implement |
+| `AUTHORIZE LAUNCH-001 JOURNEY J8` | Owner portfolio review | **Authorized + delivered** — MA cert script ready |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
@@ -96,16 +98,17 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 
 | Capability | Nav / catalog promise | Launch verdict today |
 |------------|----------------------|----------------------|
-| Property Management | Properties + Mission Control | **Partial** (J0+J1 create/activate shipped; deeper ops later) |
-| Leasing | Vacancy → lease | **Fail** |
-| Residents | Resident operational records | **Fail** |
-| Maintenance | Unit / resident work orders | **Partial** (J6 lifecycle delivered) |
-| Vendor Management | Assign & manage vendors | **Partial** (assignment via MCC; FO AP separate) |
-| Financial Operations | Rent, charges, collections | **Partial** (J5 collect path delivered; deeper FO later) |
-| Documents | Leases, agreements, evidence | **Fail** |
-| Communications | Threads, notices, notifications | **Fail** |
+| Property Management | Properties + Mission Control | **Pass** (J0–J1 + J7) |
+| Leasing | Vacancy → lease (launch path) | **Pass** (J3–J4 path; full pipeline deferred) |
+| Residents | Resident operational records | **Pass** (J3) |
+| Maintenance | Unit / resident work orders | **Pass** (J6) |
+| Vendor Management | Assign & manage vendors | **Conditional** (MCC assign + FO AP) |
+| Financial Operations | Rent, charges, collections, owner summary | **Pass** (J5 + FO S0–S3 + J8) |
+| Owner portfolio | Owner portal health view | **Pass** (J8) |
+| Documents | Leases, agreements, evidence | **Fail / de-advertise** |
+| Communications | Threads, notices, notifications | **Fail / de-advertise** |
 
-Detail: [Capability Promises](./capability-promises.md)
+Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer Promise Certification](./property-manager-customer-promise-certification.md)
 
 ---
 
@@ -113,11 +116,11 @@ Detail: [Capability Promises](./capability-promises.md)
 
 | Instruction |
 |-------------|
-| **Do not** implement J3–J8 until explicitly authorized |
+| **STOP** after J8 — no new platform capabilities without a new authorization |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |
 | **Do not begin Facility Operations features** |
-| **Do not advertise** a capability that cannot be completed unaided |
+| **Do not advertise** Documents or Communications as launch-ready |
 | **Do not** bypass an incomplete journey with unrelated feature work |
 
 ---

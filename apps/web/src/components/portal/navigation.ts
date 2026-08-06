@@ -6,7 +6,7 @@ export const MANAGER_PORTAL_NAVIGATION = [
 ] as const;
 
 export const OWNER_PORTAL_NAVIGATION = [
-  { href: "/portal/owner", label: "Owner home" },
+  { href: "/portal/owner", label: "Portfolio" },
   { href: "/portal/owner/financials", label: "Financials" },
   { href: "/profile", label: "Profile" }
 ] as const;

@@ -56,7 +56,7 @@ describe("LAUNCH-001 J7 daily operations journey", () => {
       dailyOpsReady: true
     });
     expect(after.id).toBe("review_owner_portfolio");
-    expect(after.href).toBe("/portal/owner/financials");
+    expect(after.href).toBe("/portal/owner");
     expect(after.assistantRecommendation).toBe("Review your owner's portfolio.");
     expect(buildDailyOpsReadyAssistantCopy()).toContain(
       "I can run my property management business from this dashboard"

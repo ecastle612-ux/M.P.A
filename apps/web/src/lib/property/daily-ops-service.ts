@@ -261,7 +261,7 @@ export async function buildDailyOperationsBriefing(
     { id: "mc-leasing", label: "Leasing", href: "/pm/leasing" },
     { id: "mc-residents", label: "Residents", href: "/pm/residents" },
     { id: "mc-properties", label: "Properties", href: "/pm/properties" },
-    { id: "mc-owner", label: "Owner summary", href: "/portal/owner/financials" },
+    { id: "mc-owner", label: "Owner portfolio", href: "/portal/owner" },
     ...(financeReport?.quickActions.slice(0, 3) ?? [])
   ];
 

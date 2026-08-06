@@ -53,7 +53,7 @@ Every step must complete successfully without workarounds.
 | **J5** | Collect first rent | Financial Operations, Residents | **Delivered** — MA cert pending | Certifying |
 | **J6** | Run a maintenance job with a vendor | Maintenance, Vendors | **Delivered** — MA cert pending | Certifying |
 | **J7** | Begin the workday from Mission Control | Mission Control (reuse existing ops data) | **Delivered** — MA cert pending | Certifying |
-| **J8** | Review your owner's portfolio | FO owner summary, Owner portal | Conditional | Blocked |
+| **J8** | Review your owner's portfolio | FO owner summary, Owner portal, PCC reuse | **Delivered** — MA cert pending | Certifying |
 
 Communications remain out of the authorized launch sequence until separately approved.
 
@@ -245,21 +245,24 @@ Property Manager logs in
 ## J8 — Review your owner's portfolio
 
 ```
-Mission Control → Review your owner's portfolio
-  → Owner financial summary (income, expenses, outstanding, occupancy)
-  → Property-level money
-  → (Optional) CSV download
+Owner logs in
+  → Owner Portfolio Home (/portal/owner)
+  → Portfolio Summary · Property Performance · Occupancy
+  → Financial Summary · Outstanding Rent · Recent Payments
+  → Open Maintenance · Vendor Activity
+  → Recent Documents (honesty) · Recent Timeline · Assistant
+  → Property drill-down (PCC + FO snapshot)
+  → Success: I can confidently monitor my investment portfolio using M.P.A.
 ```
 
 | Field | Content |
 |-------|---------|
-| Current | Owner financial summary + CSV (FO S3) exists |
-| Blockers | Discovery / membership path for owner review journey |
-| Fix | Ensure owner membership path; keep non-accounting language |
-| MA verify | Owner user / PM path sees summary for org properties |
+| Current | **Delivered** — Portfolio Home composes FO/WO/leases/timeline; drill-down reuses PCC |
+| Remaining | Master Admin runs [J8 certification](./j8/certification.md) |
+| Out of scope | Accounting; investment analytics; Document Vault; Facility; FIN-OPS S4+ |
+| MA verify | [J8 certification](./j8/certification.md) + Launch Readiness J8 panel |
 
-**Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J8`
-
+**Authorized:** `AUTHORIZE LAUNCH-001 JOURNEY J8`
 ---
 
 ## Suggested delivery order (outcomes)

@@ -3,6 +3,7 @@ import {
   buildDailyOpsReadyAssistantCopy,
   buildMaintenanceReadyAssistantCopy,
   buildMissionControlNextAction,
+  buildOwnerPortfolioReadyAssistantCopy,
   buildPropertyReadyAssistantCopy,
   buildRentReadyAssistantCopy,
   unitLabelsForCount,
@@ -14,6 +15,7 @@ import {
   getDailyOpsReadiness,
   markDailyOpsReviewed
 } from "./daily-ops-service";
+import { getOwnerPortfolioReadiness } from "./owner-portfolio-service";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -226,6 +228,8 @@ export async function getMissionControlState(
     dailyOps = await getDailyOpsReadiness(supabase, organizationId);
   }
 
+  const ownerPortfolio = await getOwnerPortfolioReadiness(supabase, organizationId);
+
   const nextAction = buildMissionControlNextAction({
     setupComplete,
     propertyCount: properties.length,
@@ -235,7 +239,8 @@ export async function getMissionControlState(
     leaseReady: leases.leaseReady,
     rentReady: rent.rentReady,
     maintenanceReady: maintenance.maintenanceReady,
-    dailyOpsReady: dailyOps.dailyOpsReady
+    dailyOpsReady: dailyOps.dailyOpsReady,
+    ownerPortfolioReady: ownerPortfolio.ownerPortfolioReady
   });
 
   const dailyOperations =
@@ -267,10 +272,13 @@ export async function getMissionControlState(
     maintenanceReady: maintenance.maintenanceReady,
     closedWorkOrderCount: maintenance.closedCount,
     dailyOpsReady: dailyOps.dailyOpsReady,
+    ownerPortfolioReady: ownerPortfolio.ownerPortfolioReady,
     nextAction,
-    assistantRecommendation: dailyOps.dailyOpsReady
-      ? buildDailyOpsReadyAssistantCopy()
-      : nextAction.assistantRecommendation,
+    assistantRecommendation: ownerPortfolio.ownerPortfolioReady
+      ? buildOwnerPortfolioReadyAssistantCopy()
+      : dailyOps.dailyOpsReady
+        ? buildDailyOpsReadyAssistantCopy()
+        : nextAction.assistantRecommendation,
     dailyOperations
   };
 }

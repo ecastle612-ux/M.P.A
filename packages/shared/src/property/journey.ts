@@ -1,5 +1,5 @@
 /**
- * LAUNCH-001 Mission Control / Assistant progression (J0–J7).
+ * LAUNCH-001 Mission Control / Assistant progression (J0–J8).
  */
 
 export type MissionControlNextAction = {
@@ -13,6 +13,7 @@ export type MissionControlNextAction = {
     | "submit_first_maintenance"
     | "review_daily_operations"
     | "review_owner_portfolio"
+    | "customer_promise_complete"
     | "open_property";
   title: string;
   detail: string;
@@ -36,6 +37,8 @@ export function buildMissionControlNextAction(input: {
   maintenanceReady?: boolean;
   /** True when the daily operations briefing has been reviewed on Mission Control. */
   dailyOpsReady?: boolean;
+  /** True when the owner portfolio home has been reviewed (J8). */
+  ownerPortfolioReady?: boolean;
 }): MissionControlNextAction {
   if (!input.setupComplete) {
     return {
@@ -117,12 +120,23 @@ export function buildMissionControlNextAction(input: {
     };
   }
 
+  if (!input.ownerPortfolioReady) {
+    return {
+      id: "review_owner_portfolio",
+      title: "Review your owner's portfolio.",
+      detail:
+        "I can run my property management business from this dashboard. Review your owner's portfolio next.",
+      href: "/portal/owner",
+      assistantRecommendation: "Review your owner's portfolio."
+    };
+  }
+
   return {
-    id: "review_owner_portfolio",
-    title: "Review your owner's portfolio.",
-    detail: "I can run my property management business from this dashboard. Review your owner's portfolio next.",
-    href: "/portal/owner/financials",
-    assistantRecommendation: "Review your owner's portfolio."
+    id: "customer_promise_complete",
+    title: "Customer promise complete",
+    detail: "I can confidently monitor my investment portfolio using M.P.A.",
+    href: "/portal/owner",
+    assistantRecommendation: "I can confidently monitor my investment portfolio using M.P.A."
   };
 }
 
@@ -157,3 +171,10 @@ export {
   type DailyOpsAttentionItem,
   type DailyOpsBriefingInput
 } from "./daily-ops";
+
+export {
+  buildOwnerPortfolioAssistantSummary,
+  buildOwnerPortfolioReadyAssistantCopy,
+  buildOwnerPortfolioGreeting,
+  type OwnerPortfolioBriefingInput
+} from "./owner-portfolio";

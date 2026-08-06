@@ -50,7 +50,7 @@ Opening Mission Control after J6 (maintenance ready) records:
 
 Then Mission Control / Assistant recommend:
 
-**Review your owner's portfolio.** → `/portal/owner/financials`
+**Review your owner's portfolio.** → `/portal/owner`
 
 Success understanding:
 
@@ -65,10 +65,6 @@ Panel: `/admin/launch-readiness` J7
 
 ---
 
-## STOP
+## Follow-on
 
-Do not implement J8 until:
-
-```
-AUTHORIZE LAUNCH-001 JOURNEY J8
-```
+J8 authorized and delivered — see [J8 certification](../j8/certification.md).

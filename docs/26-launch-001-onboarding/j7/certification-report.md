@@ -64,10 +64,6 @@ API: `GET /api/admin/launch/j7?organizationId=<uuid>`
 
 ---
 
-## STOP
+## Follow-on
 
-Do not implement J8 until:
-
-```
-AUTHORIZE LAUNCH-001 JOURNEY J8
-```
+J8 authorized and delivered — see [J8 certification report](../j8/certification-report.md).
