@@ -3,6 +3,7 @@ import {
   RESIDENT_PORTAL_STATUS_LABELS,
   RESIDENT_STATUS_LABELS,
   buildLeaseReadyAssistantCopy,
+  buildMaintenanceReadyAssistantCopy,
   buildRentReadyAssistantCopy,
   buildResidentReadyAssistantCopy,
   residentDisplayName,
@@ -362,6 +363,8 @@ export async function getResidentCommandCenter(
       .eq("status", "succeeded");
     rentCollected = (count ?? 0) > 0;
   }
+  const { getMaintenanceReadiness } = await import("../maintenance/maintenance-service");
+  const maintenance = await getMaintenanceReadiness(supabase, organizationId);
 
   return {
     resident: {
@@ -391,33 +394,43 @@ export async function getResidentCommandCenter(
       occurredAt: event.created_at as string,
       kind: event.event_type as string
     })),
-    assistantRecommendation: rentCollected
-      ? buildRentReadyAssistantCopy()
-      : active
-        ? buildLeaseReadyAssistantCopy(resident.display_name)
-        : buildResidentReadyAssistantCopy(resident.display_name),
-    readyMessage: rentCollected
-      ? "My first rent has been collected."
-      : active
-        ? "My resident is fully onboarded."
-        : "My first resident has been added.",
-    nextJourney: rentCollected
+    assistantRecommendation: maintenance.maintenanceReady
+      ? buildMaintenanceReadyAssistantCopy()
+      : rentCollected
+        ? buildRentReadyAssistantCopy()
+        : active
+          ? buildLeaseReadyAssistantCopy(resident.display_name)
+          : buildResidentReadyAssistantCopy(resident.display_name),
+    readyMessage: maintenance.maintenanceReady
+      ? "My maintenance operation is working."
+      : rentCollected
+        ? "My first rent has been collected."
+        : active
+          ? "My resident is fully onboarded."
+          : "My first resident has been added.",
+    nextJourney: maintenance.maintenanceReady
       ? {
-          title: "Submit your first maintenance request",
-          href: "/pm/maintenance",
-          detail: "Continue operations with your first maintenance request."
+          title: "Review today's operations.",
+          href: "/pm/mission-control",
+          detail: "Maintenance is working — review today's operations."
         }
-      : active
+      : rentCollected
         ? {
-            title: "Collect your first rent",
-            href: "/pm/financial-operations#collect",
-            detail: "Financial Operations is ready for the first collection."
+            title: "Submit your first maintenance request",
+            href: "/pm/maintenance",
+            detail: "Continue operations with your first maintenance request."
           }
-        : {
-            title: "Create your first lease",
-            href: resident.lease_id ? `/pm/leasing/${resident.lease_id}` : "/pm/leasing?new=1",
-            detail: "Continue the resident lifecycle with a lease."
-          },
+        : active
+          ? {
+              title: "Collect your first rent",
+              href: "/pm/financial-operations#collect",
+              detail: "Financial Operations is ready for the first collection."
+            }
+          : {
+              title: "Create your first lease",
+              href: resident.lease_id ? `/pm/leasing/${resident.lease_id}` : "/pm/leasing?new=1",
+              detail: "Continue the resident lifecycle with a lease."
+            },
     integrations: {
       propertyCommandCenter: `/pm/properties/${resident.property_id}`,
       residentDirectory: "/pm/residents",

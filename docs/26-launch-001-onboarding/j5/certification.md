@@ -118,10 +118,6 @@ Manual payment completes the customer journey when Stripe is not provisioned. On
 
 ---
 
-## STOP
+## Follow-on
 
-Do not implement J6 until:
-
-```
-AUTHORIZE LAUNCH-001 JOURNEY J6
-```
+J6 authorized and delivered — see [J6 certification](../j6/certification.md).

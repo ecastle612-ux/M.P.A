@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   LEASE_STATUS_LABELS,
   buildLeaseReadyAssistantCopy,
+  buildMaintenanceReadyAssistantCopy,
   buildRentReadyAssistantCopy,
   type CreateLeaseInput,
   type LeaseStatus
@@ -740,6 +741,8 @@ export async function getLeaseCommandCenter(
     .eq("lease_id", leaseId)
     .eq("status", "succeeded");
   const rentCollected = (leasePaymentCount ?? 0) > 0;
+  const { getMaintenanceReadiness } = await import("../maintenance/maintenance-service");
+  const maintenance = await getMaintenanceReadiness(supabase, organizationId);
 
   return {
     lease: {
@@ -790,34 +793,44 @@ export async function getLeaseCommandCenter(
       occurredAt: event.created_at as string,
       kind: event.event_type as string
     })),
-    assistantRecommendation: rentCollected
-      ? buildRentReadyAssistantCopy()
-      : active
-        ? buildLeaseReadyAssistantCopy(residentName)
-        : lease.status === "pending_signature"
-          ? "Waiting for signatures. Sync SignWell or record offline if needed."
-          : "Review the lease, then send it for signature.",
-    readyMessage: rentCollected
-      ? "My first rent has been collected."
-      : active
-        ? "My resident is fully onboarded."
-        : null,
-    nextJourney: rentCollected
+    assistantRecommendation: maintenance.maintenanceReady
+      ? buildMaintenanceReadyAssistantCopy()
+      : rentCollected
+        ? buildRentReadyAssistantCopy()
+        : active
+          ? buildLeaseReadyAssistantCopy(residentName)
+          : lease.status === "pending_signature"
+            ? "Waiting for signatures. Sync SignWell or record offline if needed."
+            : "Review the lease, then send it for signature.",
+    readyMessage: maintenance.maintenanceReady
+      ? "My maintenance operation is working."
+      : rentCollected
+        ? "My first rent has been collected."
+        : active
+          ? "My resident is fully onboarded."
+          : null,
+    nextJourney: maintenance.maintenanceReady
       ? {
-          title: "Submit your first maintenance request",
-          href: "/pm/maintenance",
-          detail: "Continue operations with your first maintenance request."
+          title: "Review today's operations.",
+          href: "/pm/mission-control",
+          detail: "Maintenance is working — review today's operations."
         }
-      : active
+      : rentCollected
         ? {
-            title: "Collect your first rent",
-            href: "/pm/financial-operations#collect",
-            detail: "Financial Operations is ready for the first collection."
+            title: "Submit your first maintenance request",
+            href: "/pm/maintenance",
+            detail: "Continue operations with your first maintenance request."
           }
-        : {
-            title: "Send for signature",
-            href: `#send`,
-            detail: "Use SignWell when configured, or the offline signed honesty path."
-          }
+        : active
+          ? {
+              title: "Collect your first rent",
+              href: "/pm/financial-operations#collect",
+              detail: "Financial Operations is ready for the first collection."
+            }
+          : {
+              title: "Send for signature",
+              href: `#send`,
+              detail: "Use SignWell when configured, or the offline signed honesty path."
+            }
   };
 }

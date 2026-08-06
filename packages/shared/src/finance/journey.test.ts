@@ -24,7 +24,8 @@ describe("LAUNCH-001 J5 rent collection journey", () => {
       teamReady: true,
       residentReady: true,
       leaseReady: true,
-      rentReady: true
+      rentReady: true,
+      maintenanceReady: false
     });
     expect(after.id).toBe("submit_first_maintenance");
     expect(after.href).toBe("/pm/maintenance");

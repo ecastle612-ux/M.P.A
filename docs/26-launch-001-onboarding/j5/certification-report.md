@@ -70,10 +70,6 @@ API: `GET /api/admin/launch/j5?organizationId=<uuid>`
 
 ---
 
-## STOP
+## Follow-on
 
-Do not implement J6 until:
-
-```
-AUTHORIZE LAUNCH-001 JOURNEY J6
-```
+J6 authorized and delivered — see [J6 certification](../j6/certification.md).

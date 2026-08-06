@@ -1,5 +1,5 @@
 /**
- * LAUNCH-001 Mission Control / Assistant progression (J0–J5).
+ * LAUNCH-001 Mission Control / Assistant progression (J0–J6).
  */
 
 export type MissionControlNextAction = {
@@ -11,6 +11,7 @@ export type MissionControlNextAction = {
     | "create_first_lease"
     | "collect_first_rent"
     | "submit_first_maintenance"
+    | "review_daily_operations"
     | "open_property";
   title: string;
   detail: string;
@@ -30,6 +31,8 @@ export function buildMissionControlNextAction(input: {
   leaseReady?: boolean;
   /** True when at least one successful rent/payment collection exists. */
   rentReady?: boolean;
+  /** True when at least one maintenance work order has been closed end-to-end. */
+  maintenanceReady?: boolean;
 }): MissionControlNextAction {
   if (!input.setupComplete) {
     return {
@@ -91,12 +94,22 @@ export function buildMissionControlNextAction(input: {
     };
   }
 
+  if (!input.maintenanceReady) {
+    return {
+      id: "submit_first_maintenance",
+      title: "Submit your first maintenance request",
+      detail: "My first rent has been collected. Handle your first maintenance request next.",
+      href: "/pm/maintenance",
+      assistantRecommendation: "Submit your first maintenance request."
+    };
+  }
+
   return {
-    id: "submit_first_maintenance",
-    title: "Submit your first maintenance request",
-    detail: "My first rent has been collected. Handle your first maintenance request next.",
-    href: "/pm/maintenance",
-    assistantRecommendation: "Submit your first maintenance request."
+    id: "review_daily_operations",
+    title: "Review today's operations.",
+    detail: "My maintenance operation is working. Review today's operations next.",
+    href: "/pm/mission-control",
+    assistantRecommendation: "Review your daily operations."
   };
 }
 
@@ -118,4 +131,8 @@ export function buildLeaseReadyAssistantCopy(residentName: string): string {
 
 export function buildRentReadyAssistantCopy(): string {
   return "My first rent has been collected. Submit your first maintenance request.";
+}
+
+export function buildMaintenanceReadyAssistantCopy(): string {
+  return "My maintenance operation is working. Review your daily operations.";
 }

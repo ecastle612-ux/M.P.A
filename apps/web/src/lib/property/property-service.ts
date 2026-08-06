@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  buildMaintenanceReadyAssistantCopy,
   buildMissionControlNextAction,
   buildPropertyReadyAssistantCopy,
   buildRentReadyAssistantCopy,
@@ -200,10 +201,12 @@ export async function getMissionControlState(
   const { getResidentReadiness } = await import("../resident/resident-service");
   const { getLeaseReadiness } = await import("../leasing/lease-service");
   const { getRentReadiness } = await import("../finance/billing-service");
+  const { getMaintenanceReadiness } = await import("../maintenance/maintenance-service");
   const team = await getTeamReadiness(supabase, organizationId);
   const residents = await getResidentReadiness(supabase, organizationId);
   const leases = await getLeaseReadiness(supabase, organizationId);
   const rent = await getRentReadiness(supabase, organizationId);
+  const maintenance = await getMaintenanceReadiness(supabase, organizationId);
   const nextAction = buildMissionControlNextAction({
     setupComplete,
     propertyCount: properties.length,
@@ -211,7 +214,8 @@ export async function getMissionControlState(
     teamReady: team.teamReady,
     residentReady: residents.residentReady,
     leaseReady: leases.leaseReady,
-    rentReady: rent.rentReady
+    rentReady: rent.rentReady,
+    maintenanceReady: maintenance.maintenanceReady
   });
 
   return {
@@ -231,6 +235,8 @@ export async function getMissionControlState(
     leaseCount: leases.leaseCount,
     rentReady: rent.rentReady,
     paymentCount: rent.paymentCount,
+    maintenanceReady: maintenance.maintenanceReady,
+    closedWorkOrderCount: maintenance.closedCount,
     nextAction,
     assistantRecommendation: nextAction.assistantRecommendation
   };
@@ -284,6 +290,18 @@ export async function getPropertyCommandCenter(
     .eq("property_id", propertyId)
     .eq("status", "succeeded");
   const hasCollectedRent = (propertyPaymentCount ?? 0) > 0;
+  const { getPropertyMaintenanceSummary, getMaintenanceReadiness } = await import(
+    "../maintenance/maintenance-service"
+  );
+  const maintenanceSummary = await getPropertyMaintenanceSummary(
+    supabase,
+    organizationId,
+    propertyId
+  );
+  const orgMaintenance = await getMaintenanceReadiness(supabase, organizationId);
+  const propertyClosedMaintenance = maintenanceSummary.history.some(
+    (row) => row.status === "closed"
+  );
 
   return {
     property: {
@@ -349,59 +367,100 @@ export async function getPropertyCommandCenter(
                 ? "Lease activated"
                 : event.event_type === "finance.payment.succeeded"
                   ? "Rent collected"
-                  : String(event.event_type),
+                  : event.event_type === "work_order.created"
+                    ? "Maintenance request"
+                    : event.event_type === "work_order.closed"
+                      ? "Maintenance closed"
+                      : event.event_type === "vendor.assigned" ||
+                          event.event_type === "work_order.assigned"
+                        ? "Maintenance assigned"
+                        : String(event.event_type),
       detail:
         event.event_type === "finance.payment.succeeded" &&
         typeof (event.payload as { amount?: number } | null)?.amount === "number"
           ? `Payment of ${Number((event.payload as { amount: number }).amount).toFixed(2)} recorded.`
-          : event.event_type === "resident.property_assigned" &&
-              typeof (event.payload as { displayName?: string } | null)?.displayName === "string"
-            ? `${(event.payload as { displayName: string }).displayName} appears on this property.`
-            : event.event_type === "lease.activated" &&
+          : event.event_type === "work_order.created" &&
+              typeof (event.payload as { title?: string } | null)?.title === "string"
+            ? `${(event.payload as { title: string }).title} submitted.`
+            : event.event_type === "resident.property_assigned" &&
                 typeof (event.payload as { displayName?: string } | null)?.displayName === "string"
-              ? `${(event.payload as { displayName: string }).displayName} is fully onboarded.`
-              : typeof (event.payload as { name?: string } | null)?.name === "string"
-                ? `${(event.payload as { name: string }).name} is ready for operations.`
-                : "Property lifecycle event",
+              ? `${(event.payload as { displayName: string }).displayName} appears on this property.`
+              : event.event_type === "lease.activated" &&
+                  typeof (event.payload as { displayName?: string } | null)?.displayName === "string"
+                ? `${(event.payload as { displayName: string }).displayName} is fully onboarded.`
+                : typeof (event.payload as { name?: string } | null)?.name === "string"
+                  ? `${(event.payload as { name: string }).name} is ready for operations.`
+                  : "Property lifecycle event",
       occurredAt: event.created_at as string,
       kind: event.event_type as string
     })),
-    assistantRecommendation: hasCollectedRent
-      ? buildRentReadyAssistantCopy()
-      : hasActiveLease
-        ? "Collect your first rent."
-        : hasResidents
-          ? "Create your first lease."
-          : buildPropertyReadyAssistantCopy(property.name),
-    readyMessage: hasCollectedRent
-      ? "My first rent has been collected."
-      : hasActiveLease
-        ? "My resident is fully onboarded."
-        : hasResidents
-          ? "My first resident has been added."
-          : "My property is ready.",
-    nextJourney: hasCollectedRent
-      ? {
-          title: "Submit your first maintenance request",
-          href: "/pm/maintenance",
-          detail: "Continue operations with your first maintenance request."
-        }
-      : hasActiveLease
+    maintenance: {
+      openCount: maintenanceSummary.openWorkOrders.length,
+      emergencyCount: maintenanceSummary.emergencyRequests.length,
+      openWorkOrders: maintenanceSummary.openWorkOrders.slice(0, 8).map((row) => ({
+        id: row.id as string,
+        title: row.title as string,
+        status: row.status as string,
+        priority: row.priority as string,
+        assigneeType: row.assignee_type as string,
+        vendorName:
+          (Array.isArray(row.vendor_vendors)
+            ? row.vendor_vendors[0]?.name
+            : (row.vendor_vendors as { name?: string } | null)?.name) ?? null
+      })),
+      recentlyCompleted: maintenanceSummary.recentlyCompleted.slice(0, 5).map((row) => ({
+        id: row.id as string,
+        title: row.title as string,
+        status: row.status as string
+      }))
+    },
+    assistantRecommendation: propertyClosedMaintenance || orgMaintenance.maintenanceReady
+      ? buildMaintenanceReadyAssistantCopy()
+      : hasCollectedRent
+        ? buildRentReadyAssistantCopy()
+        : hasActiveLease
+          ? "Collect your first rent."
+          : hasResidents
+            ? "Create your first lease."
+            : buildPropertyReadyAssistantCopy(property.name),
+    readyMessage: propertyClosedMaintenance || orgMaintenance.maintenanceReady
+      ? "My maintenance operation is working."
+      : hasCollectedRent
+        ? "My first rent has been collected."
+        : hasActiveLease
+          ? "My resident is fully onboarded."
+          : hasResidents
+            ? "My first resident has been added."
+            : "My property is ready.",
+    nextJourney:
+      propertyClosedMaintenance || orgMaintenance.maintenanceReady
         ? {
-            title: "Collect your first rent",
-            href: "/pm/financial-operations#collect",
-            detail: "Financial Operations is ready for the first collection."
+            title: "Review today's operations.",
+            href: "/pm/mission-control",
+            detail: "Maintenance is working — review today's operations."
           }
-        : hasResidents
+        : hasCollectedRent
           ? {
-              title: "Create your first lease",
-              href: "/pm/leasing?new=1",
-              detail: "Continue the resident lifecycle with a lease."
+              title: "Submit your first maintenance request",
+              href: "/pm/maintenance",
+              detail: "Continue operations with your first maintenance request."
             }
-          : {
-              title: "Add your first resident",
-              href: "/pm/residents?new=1",
-              detail: "Assign a resident to a unit on this property."
-            }
+          : hasActiveLease
+            ? {
+                title: "Collect your first rent",
+                href: "/pm/financial-operations#collect",
+                detail: "Financial Operations is ready for the first collection."
+              }
+            : hasResidents
+              ? {
+                  title: "Create your first lease",
+                  href: "/pm/leasing?new=1",
+                  detail: "Continue the resident lifecycle with a lease."
+                }
+              : {
+                  title: "Add your first resident",
+                  href: "/pm/residents?new=1",
+                  detail: "Assign a resident to a unit on this property."
+                }
   };
 }

@@ -65,6 +65,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [J3 Certification](./j3/certification.md) | First resident Pass script |
 | [J4 Certification](./j4/certification.md) | First lease Pass script |
 | [J5 Certification](./j5/certification.md) | Collect first rent Pass script |
+| [J6 Certification](./j6/certification.md) | First maintenance request Pass script |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
@@ -82,7 +83,8 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE LAUNCH-001 JOURNEY J3` | First resident | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J4` | First lease | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J5` | Collect first rent | **Authorized + delivered** — MA cert script ready |
-| J6–J8 | — | **Not authorized** — do not implement |
+| `AUTHORIZE LAUNCH-001 JOURNEY J6` | First maintenance request | **Authorized + delivered** — MA cert script ready |
+| J7–J8 | — | **Not authorized** — do not implement |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
@@ -95,8 +97,8 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | Property Management | Properties + Mission Control | **Partial** (J0+J1 create/activate shipped; deeper ops later) |
 | Leasing | Vacancy → lease | **Fail** |
 | Residents | Resident operational records | **Fail** |
-| Maintenance | Unit / resident work orders | **Fail** |
-| Vendor Management | Assign & manage vendors | **Fail** |
+| Maintenance | Unit / resident work orders | **Partial** (J6 lifecycle delivered) |
+| Vendor Management | Assign & manage vendors | **Partial** (assignment via MCC; FO AP separate) |
 | Financial Operations | Rent, charges, collections | **Partial** (J5 collect path delivered; deeper FO later) |
 | Documents | Leases, agreements, evidence | **Fail** |
 | Communications | Threads, notices, notifications | **Fail** |

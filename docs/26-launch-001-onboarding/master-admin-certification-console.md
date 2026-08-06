@@ -33,7 +33,7 @@ Master Admin
     └── Evidence pack (export for launch review)
 ```
 
-Until built: operators use the **verification scripts** below manually. J0–J5 scripts under `j0/`–`j5/` + Admin Launch Readiness evidence panels. Console UI may ship progressively; scripts are authoritative for Pass.
+Until built: operators use the **verification scripts** below manually. J0–J6 scripts under `j0/`–`j6/` + Admin Launch Readiness evidence panels. Console UI may ship progressively; scripts are authoritative for Pass.
 
 ---
 
@@ -64,17 +64,17 @@ Until built: operators use the **verification scripts** below manually. J0–J5 
 ### Maintenance
 | Check | Method |
 |-------|--------|
-| Execute | Create WO → assign → close |
-| Mission Control | Open WO appears; clears when closed |
-| Evidence | Status transitions + audit |
+| Execute | Resident submit → MCC prioritize/assign → complete → resident confirm |
+| Mission Control | After closed WO → Review your daily operations. |
+| Evidence | [J6 certification](./j6/certification.md) + `/admin/launch-readiness` J6 panel |
 
 ### Vendor Management
 | Check | Method |
 |-------|--------|
-| Directory | Create vendor in Vendors |
-| Assignment | Vendor on WO |
+| Directory | Add vendor from MCC (reuses `vendor_vendors`) |
+| Assignment | Vendor on WO; portal `/portal/vendor` |
 | Payables (optional) | Invoice path in FO still works |
-| Evidence | Vendor id + WO assignment |
+| Evidence | Vendor id + WO assignment in J6 panel |
 
 ### Financial Operations
 | Check | Method |

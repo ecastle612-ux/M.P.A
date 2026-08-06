@@ -51,11 +51,11 @@ Every step must complete successfully without workarounds.
 | **J3** | Add resident and create lease | Residents, Leasing | **Delivered** — MA cert pending | Certifying |
 | **J4** | Sign (or honestly record) the lease | Leasing, Documents | **Delivered** — MA cert pending | Certifying |
 | **J5** | Collect first rent | Financial Operations, Residents | **Delivered** — MA cert pending | Certifying |
-| **J6** | Run a maintenance job with a vendor | Maintenance, Vendors | Fail | Blocked |
+| **J6** | Run a maintenance job with a vendor | Maintenance, Vendors | **Delivered** — MA cert pending | Certifying |
 | **J7** | Owner reviews property money | FO, Property Management, Owner portal | Conditional | Blocked* |
 | **J8** | Communicate a notice | Communications | Fail | Blocked |
 
-\*J7 still depends on owner portal depth after J5 data exists; J6+ remain unauthorized.
+\*J7 still depends on owner portal discovery/membership after J5–J6 data exists; J7–J8 remain unauthorized.
 
 ---
 
@@ -199,21 +199,22 @@ Mission Control → Collect your first rent
 ## J6 — Maintenance → vendor → resolved
 
 ```
-Maintenance request submitted
-  → Vendor assigned
-  → Work progresses
-  → Issue resolved / closed
-  → Mission Control clears the item
+Resident Portal → Submit Maintenance Request
+  → Maintenance Command Center
+  → Prioritize → Assign Technician OR Vendor
+  → Progress → Complete → Resident confirms
+  → Timeline · Audit
+  → Mission Control → Review your daily operations.
 ```
 
 | Field | Content |
 |-------|---------|
-| Current | Both modules stubs; FO vendor AP ≠ assignment |
-| Blockers | Entire ops loop |
-| Fix | WO MVP + Vendors directory/assign; MC queue |
-| MA verify | WO lifecycle + assignment; optional FO invoice after |
+| Current | **Delivered** — one WO workflow; vendors via `vendor_vendors` |
+| Remaining | Master Admin runs [J6 certification](./j6/certification.md) |
+| Out of scope | Owner financial review depth (J7); communications (J8) |
+| MA verify | [J6 certification](./j6/certification.md) |
 
-**Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J6`
+**Authorized:** `AUTHORIZE LAUNCH-001 JOURNEY J6`
 
 ---
 

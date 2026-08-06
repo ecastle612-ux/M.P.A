@@ -44,6 +44,19 @@ type CommandCenter = {
     nextRentDate: string | null;
     financialStatus: string;
   }>;
+  maintenance?: {
+    openCount: number;
+    emergencyCount: number;
+    openWorkOrders: Array<{
+      id: string;
+      title: string;
+      status: string;
+      priority: string;
+      assigneeType: string;
+      vendorName: string | null;
+    }>;
+    recentlyCompleted: Array<{ id: string; title: string; status: string }>;
+  };
   timeline: Array<{
     id: string;
     title: string;
@@ -255,22 +268,78 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         </div>
 
         <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Timeline</h2>
-          <div className="mt-3">
-            <TimelineView
-              items={data.timeline.map((item) => ({
-                id: item.id,
-                title: item.title,
-                detail: item.detail,
-                occurredAtLabel: formatWhen(item.occurredAt)
-              }))}
-              empty={
-                <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                  No property timeline events yet.
-                </p>
-              }
-            />
-          </div>
+          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
+            Maintenance
+          </h2>
+          <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+            {data.maintenance?.openCount ?? 0} open · {data.maintenance?.emergencyCount ?? 0}{" "}
+            emergency
+          </p>
+          {(data.maintenance?.openWorkOrders.length ?? 0) === 0 ? (
+            <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">
+              No open work orders.{" "}
+              <Link href="/pm/maintenance" className="underline">
+                Maintenance Command Center
+              </Link>
+            </p>
+          ) : (
+            <ul className="mt-3 space-y-2 text-sm">
+              {data.maintenance?.openWorkOrders.map((row) => (
+                <li
+                  key={row.id}
+                  className="border-b border-[var(--mpa-color-border-default)] py-2 last:border-0"
+                >
+                  <Link
+                    href="/pm/maintenance"
+                    className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+                  >
+                    {row.title}
+                  </Link>
+                  <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-secondary)]">
+                    {row.status} · {row.priority}
+                    {row.assigneeType === "vendor" && row.vendorName
+                      ? ` · Vendor ${row.vendorName}`
+                      : row.assigneeType === "technician"
+                        ? " · Technician assigned"
+                        : " · Unassigned"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {(data.maintenance?.recentlyCompleted.length ?? 0) > 0 ? (
+            <div className="mt-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                Recently completed
+              </p>
+              <ul className="mt-1 space-y-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                {data.maintenance?.recentlyCompleted.map((row) => (
+                  <li key={row.id}>
+                    {row.title} · {row.status}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="max-w-5xl rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Timeline</h2>
+        <div className="mt-3">
+          <TimelineView
+            items={data.timeline.map((item) => ({
+              id: item.id,
+              title: item.title,
+              detail: item.detail,
+              occurredAtLabel: formatWhen(item.occurredAt)
+            }))}
+            empty={
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                No property timeline events yet.
+              </p>
+            }
+          />
         </div>
       </section>
 
