@@ -113,7 +113,7 @@ export const FINANCE_AUDIT_CATALOG: readonly FinanceAuditDefinition[] = [
     action: "finance.summary.generated",
     entityType: "financial_summary",
     description: "Summary generated",
-    slice: "S6"
+    slice: "S3"
   },
   {
     action: "finance.break_glass.viewed",

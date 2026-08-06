@@ -129,7 +129,7 @@ export const FINANCE_EVENT_CATALOG: readonly FinanceEventDefinition[] = [
     type: "finance.summary.generated",
     aggregateType: "financial_summary",
     description: "Property or owner summary generated",
-    slice: "S6",
+    slice: "S3",
     auditAction: "finance.summary.generated"
   }
 ] as const;

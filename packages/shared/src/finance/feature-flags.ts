@@ -12,7 +12,8 @@ export const FINANCE_FEATURE_FLAGS = {
   "finance.vendor_invoices": true,
   /** S2 vendor payment schedule / mark paid (manual rails). */
   "finance.vendor_payments": true,
-  "finance.reports": false,
+  /** S3 property / owner operational reporting (not ERP). */
+  "finance.reports": true,
   "finance.stripe_payment_execution": true,
   "finance.erp_accounting": false
 } as const;

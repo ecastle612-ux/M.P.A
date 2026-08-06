@@ -39,7 +39,8 @@ describe("FIN-OPS-001 S2 collections helpers", () => {
     expect(FINANCE_FEATURE_FLAGS["finance.vendor_invoices"]).toBe(true);
     expect(FINANCE_FEATURE_FLAGS["finance.vendor_payments"]).toBe(true);
     expect(FINANCE_FEATURE_FLAGS["finance.erp_accounting"]).toBe(false);
-    expect(FINANCIAL_DOMAIN_REGISTRATION.currentSlice).toBe("S2");
+    expect(FINANCIAL_DOMAIN_REGISTRATION.currentSlice).toBe("S3");
     expect(FIN_OPS_SLICES.find((slice) => slice.id === "S2")?.status).toBe("complete");
+    expect(FIN_OPS_SLICES.find((slice) => slice.id === "S3")?.status).toBe("complete");
   });
 });

@@ -1,6 +1,6 @@
 # FIN-OPS-001 — Delivery, Acceptance, Risks, Slices & Certification
 
-**Status:** Approved (FIN-OPS-001) · S0–S2 delivered · S3+ blocked  
+**Status:** Approved (FIN-OPS-001) · S0–S3 delivered · S4+ blocked  
 **Date:** 2026-08-06
 
 ---
@@ -79,9 +79,9 @@ Ordered for Customer #1 value; each slice is certifiable.
 | **S0** | Financial Foundation | Domain, permissions, Command Center shell, events/audit/notify/search, Connect linkage, flags — **delivered** | Approved package |
 | **S1** | Resident Billing & Rent Collection | Charges, ledger, manual + online pay, receipts, portal — **delivered** | S0 |
 | **S2** | Delinquency, Late Fees & Vendor AP | Aging, late fees, arrangements, vendor invoice approve/schedule/mark paid — **delivered** | S1 |
-| **S3** | Autopay & Payment Plans Polish | Autopay / plans polish — **blocked** | S2 |
-| **S4** | Advanced Owner/Property Reports | Property/owner summaries; Launch reports — **blocked** | S2 |
-| **S5** | Notifications, Search & Audit Polish | `finance.*` polish; search entities — **blocked** | S2–S4 |
+| **S3** | Property Financial Command Center & Owner Reporting | Snapshot, property money, owner summary + CSV — **delivered** | S2 |
+| **S4** | Autopay & Payment Plans Polish | Autopay / plans polish — **blocked** | S3 |
+| **S5** | Notifications, Search & Audit Polish | `finance.*` polish; search entities — **blocked** | S3–S4 |
 | **S6** | Launch Certification Hardening | Fail-closed tests; Connect empty states; permission matrix — **blocked** | S5 |
 
 **Out of slices until Phase 2 auth:** autopay, payment plans, QBO, trust accounting.

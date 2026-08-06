@@ -24,8 +24,8 @@
 
 | Next | Instruction |
 |------|-------------|
-| S3 Autopay & Payment Plans Polish | **Do not implement** until `AUTHORIZE FIN-OPS-001 SLICE S3` |
-| Advanced owner/property reports | **Blocked** (S4) |
+| S3 Command Center & Owner Reporting | See [S3 Certification](../s3/index.md) — **delivered** |
+| S4+ | **Do not implement** until `AUTHORIZE FIN-OPS-001 SLICE S4` |
 | Facility Operations | **Do not begin** |
 | CORE-004 | **Do not modify** |
 | ERP / COA / bank recon / payroll / tax | **Out of scope** |
@@ -35,4 +35,4 @@
 ## Verdict
 
 **S2 Delinquency, Late Fees & Vendor AP: Pass (implementation complete)**  
-**S3+: NO-GO** until explicitly authorized.
+**S3 delivered separately under its own authorization.**

@@ -8,10 +8,11 @@ import {
   buildFinanceFoundationTimeline,
   type FinanceTimelineItem
 } from "@mpa/shared";
-import { Badge, EmptyState, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
+import { Badge, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { CollectionsDesk } from "./collections-desk";
 import { FinanceDesk } from "./finance-desk";
+import { ReportingDesk } from "./reporting-desk";
 
 function formatTime(iso: string): string {
   try {
@@ -45,16 +46,13 @@ export function FinancialOperationsCommandCenter() {
           Financial Operations
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Operational finance Command Center — billing, collections, late fees, and vendor payables for
-          property managers. Not ERP.
+          Property financial Command Center — see what should have been collected, what was collected, who is
+          past due, and what vendors are owed. Operational visibility, not ERP.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Badge variant="success">S2 Collections + AP live</Badge>
+          <Badge variant="success">S3 Command Center live</Badge>
           <Badge variant="neutral">PM + Complete only</Badge>
-          {FINANCE_FEATURE_FLAGS["finance.late_fees"] ? <Badge variant="info">Late fees on</Badge> : null}
-          {FINANCE_FEATURE_FLAGS["finance.vendor_invoices"] ? (
-            <Badge variant="info">Vendor AP on</Badge>
-          ) : null}
+          {FINANCE_FEATURE_FLAGS["finance.reports"] ? <Badge variant="info">Reports on</Badge> : null}
         </div>
       </header>
 
@@ -62,24 +60,16 @@ export function FinancialOperationsCommandCenter() {
         aria-label="Financial Operations sections"
         className="flex flex-wrap gap-2 border-b border-[var(--mpa-color-border-default)] pb-3"
       >
-        {FINANCIAL_WORKSPACE_SECTIONS.map((section) => {
-          const enabled = section.slice === "S0" || section.slice === "S1" || section.slice === "S2";
-          return (
-            <a
-              key={section.id}
-              href={section.href}
-              className={
-                enabled
-                  ? "rounded-md border border-[var(--mpa-color-brand-primary)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-text-primary)]"
-                  : "rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-1.5 text-sm text-[var(--mpa-color-text-secondary)]"
-              }
-              aria-current={section.id === "overview" ? "page" : undefined}
-            >
-              {section.label}
-              {!enabled ? <span className="ml-1 text-xs">({section.slice}+)</span> : null}
-            </a>
-          );
-        })}
+        {FINANCIAL_WORKSPACE_SECTIONS.map((section) => (
+          <a
+            key={section.id}
+            href={section.href}
+            className="rounded-md border border-[var(--mpa-color-brand-primary)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-text-primary)]"
+            aria-current={section.id === "overview" ? "page" : undefined}
+          >
+            {section.label}
+          </a>
+        ))}
       </nav>
 
       <OperationsConsoleShell
@@ -88,30 +78,57 @@ export function FinancialOperationsCommandCenter() {
             <div className="border-b border-[var(--mpa-color-border-default)] px-4 py-3">
               <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Attention queue</h2>
               <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
-                Overdue residents, late fees, and vendor invoices needing approval or payment.
+                Snapshot, delinquency, vendor payables, and quick actions for today.
               </p>
             </div>
-            <div className="space-y-0 px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
-              <p>Use Billing desk for charges/payments. Use Collections & AP for delinquency and vendors.</p>
-              <p className="mt-2">
-                Residents see balance and late-fee notes in{" "}
-                <Link href="/portal/tenant/billing" className="text-[var(--mpa-color-brand-primary)] underline">
-                  Tenant Billing
-                </Link>
-                .
+            <div className="space-y-2 px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
+              <p>
+                Start with the financial snapshot, then act from Collections & AP or Billing when something needs
+                a money move.
               </p>
-              <p className="mt-2">
-                Vendor directory alignment:{" "}
-                <Link href="/pm/vendors" className="text-[var(--mpa-color-brand-primary)] underline">
-                  Vendor Operations
-                </Link>
-                .
-              </p>
+              <ul className="space-y-1">
+                <li>
+                  <a href="#reports" className="text-[var(--mpa-color-brand-primary)] underline">
+                    Financial snapshot
+                  </a>
+                </li>
+                <li>
+                  <a href="#delinquency" className="text-[var(--mpa-color-brand-primary)] underline">
+                    Delinquency
+                  </a>
+                </li>
+                <li>
+                  <a href="#vendor-invoices" className="text-[var(--mpa-color-brand-primary)] underline">
+                    Vendor invoices
+                  </a>
+                </li>
+                <li>
+                  <Link href="/pm/properties" className="text-[var(--mpa-color-brand-primary)] underline">
+                    Property money
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/portal/owner/financials" className="text-[var(--mpa-color-brand-primary)] underline">
+                    Owner summary
+                  </Link>
+                </li>
+              </ul>
             </div>
           </div>
         }
         workPlane={
-          <div className="space-y-8 p-4">
+          <div className="space-y-10 p-4">
+            <div>
+              <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+                Property financial Command Center
+              </h2>
+              <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
+                Snapshot, property health, recent activity, assistant, and quick actions.
+              </p>
+              <div className="mt-3">
+                <ReportingDesk />
+              </div>
+            </div>
             <div>
               <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Billing desk</h2>
               <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
@@ -158,16 +175,16 @@ export function FinancialOperationsCommandCenter() {
           <TimelineView
             items={[
               {
-                id: "s2-live",
-                title: "Delinquency, late fees & vendor AP live",
+                id: "s3-live",
+                title: "Property financial Command Center & owner reporting live",
                 detail:
-                  "Aging buckets, late-fee assessment, payment arrangements, vendor invoice approval, schedule, and mark paid.",
+                  "Portfolio snapshot, property money panels, owner summary CSV, assistant recommendations, and operational metrics.",
                 occurredAtLabel: formatTime(new Date().toISOString())
               },
               {
-                id: "s1-live",
-                title: "Resident billing & rent collection live",
-                detail: "Charges, manual payments, online Checkout, receipts, ledger, and portal billing.",
+                id: "s2-live",
+                title: "Delinquency, late fees & vendor AP live",
+                detail: "Aging, late-fee assessment, arrangements, vendor approve/schedule/mark paid.",
                 occurredAtLabel: formatTime(new Date().toISOString())
               },
               ...timeline.map((item: FinanceTimelineItem) => ({
@@ -179,13 +196,6 @@ export function FinancialOperationsCommandCenter() {
             ]}
           />
         </div>
-      </section>
-
-      <section id="reports" className="scroll-mt-24">
-        <EmptyState
-          title="Advanced reports — S4"
-          description="S2 includes Command Center collections and AP snapshots. Full owner/property reporting comes later."
-        />
       </section>
 
       <section aria-labelledby="slice-progress-heading" className="max-w-3xl">

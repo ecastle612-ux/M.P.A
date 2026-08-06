@@ -6,7 +6,7 @@ This blueprint defines how M.P.A. is designed, built, and evolved. Every enginee
 
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
 Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted). Slices **S0–
-S2 delivered**; S3+ **NO-GO** until slice authorization. CORE-004, LAUNCH-001,
+S3 delivered**; S4+ **NO-GO** until slice authorization. CORE-004, LAUNCH-001,
 and Facility feature work remain stopped. Implementation Gate in force.
 
 ---
@@ -51,7 +51,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
 | 24 | [Product Architecture (Commercial Reset)](./24-product-architecture/index.md) | Three offerings, ownership, nav, subscriptions, entitlements |
-| 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0–S2 delivered) |
+| 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0–S3 delivered) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -112,6 +112,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [S0 Certification](./25-fin-ops-001/s0/index.md) | Foundation slice reports |
 | [S1 Certification](./25-fin-ops-001/s1/index.md) | Resident billing & rent collection |
 | [S2 Certification](./25-fin-ops-001/s2/index.md) | Delinquency, late fees & vendor AP |
+| [S3 Certification](./25-fin-ops-001/s3/index.md) | Command Center & owner reporting |
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
 
 ### Governance & gates

@@ -30,7 +30,7 @@ export default async function OwnerPortalLayout({ children }: { children: ReactN
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       title="Property Owner Portal"
-      subtitle="Owner-focused shell foundation for visibility and approvals."
+      subtitle="Owner financial visibility — income, expenses, occupancy, and property snapshots."
       roleBadgeLabel="Owner"
       navigation={OWNER_PORTAL_NAVIGATION}
     >

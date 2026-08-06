@@ -62,7 +62,8 @@ export function AdminProductPage({ sku }: { sku: (typeof PRODUCT_SKUS)[number] }
               {module.label} · {module.readiness}
               {module.id === "financial_operations" ? (
                 <span className="mt-1 block text-xs text-[var(--mpa-color-text-secondary)]">
-                  Property Manager → Financial Operations · S0–S2 live (billing, collections, vendor AP)
+                  Property Manager → Financial Operations · S0–S3 live (billing, collections, Command Center,
+                  owner reporting)
                 </span>
               ) : null}
             </li>
@@ -237,26 +238,36 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
         {isFinancialOperations ? (
           <div className="flex justify-between gap-4">
             <dt>Current slice</dt>
-            <dd>{FINANCIAL_DOMAIN_REGISTRATION.currentSlice} · Delinquency & Vendor AP</dd>
+            <dd>{FINANCIAL_DOMAIN_REGISTRATION.currentSlice} · Command Center & Owner Reporting</dd>
           </div>
         ) : null}
       </dl>
       {isFinancialOperations ? (
-        <section className="max-w-xl rounded border bg-white p-4">
-          <h2 className="text-sm font-semibold">Implementation progress</h2>
-          <ol className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
-            {FIN_OPS_SLICES.map((slice) => (
-              <li key={slice.id} className="flex items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] py-1">
-                <span>
-                  {slice.id} · {slice.name}
-                </span>
-                <Badge variant={slice.status === "complete" ? "success" : "neutral"}>{slice.status}</Badge>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-3 text-xs text-[var(--mpa-color-text-secondary)]">
-            S0–S2 delivered. Observe delinquency, late-fee, and vendor AP lifecycle in Financial Operations.
-            S3+ remains blocked until authorized.
+        <section className="max-w-xl space-y-4 rounded border bg-white p-4">
+          <div>
+            <h2 className="text-sm font-semibold">Implementation progress</h2>
+            <ol className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
+              {FIN_OPS_SLICES.map((slice) => (
+                <li key={slice.id} className="flex items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] py-1">
+                  <span>
+                    {slice.id} · {slice.name}
+                  </span>
+                  <Badge variant={slice.status === "complete" ? "success" : "neutral"}>{slice.status}</Badge>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold">Operational verification</h3>
+            <ul className="mt-2 space-y-1 text-xs text-[var(--mpa-color-text-secondary)]">
+              <li>• Verify Command Center snapshot and property money panels</li>
+              <li>• Observe owner financial summary + CSV export</li>
+              <li>• Confirm entitlement `pm.financial_operations` and `pm.finance:reports.read`</li>
+              <li>• Review `finance.summary.generated` audit/events</li>
+            </ul>
+          </div>
+          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+            S0–S3 delivered. No accounting administration. S4+ remains blocked until authorized.
           </p>
         </section>
       ) : null}

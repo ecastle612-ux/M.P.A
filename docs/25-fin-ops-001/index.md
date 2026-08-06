@@ -16,13 +16,14 @@ This package is the **authoritative source** for Financial Operations.
 | **S0 — Financial Foundation** | **Delivered / certified** |
 | **S1 — Resident Billing & Rent Collection** | **Delivered / certified** |
 | **S2 — Delinquency, Late Fees & Vendor AP** | **Delivered / certified** |
-| S3+ | **Blocked** until `AUTHORIZE FIN-OPS-001 SLICE S3` (etc.) |
+| **S3 — Property Financial Command Center & Owner Reporting** | **Delivered / certified** |
+| S4+ | **Blocked** until `AUTHORIZE FIN-OPS-001 SLICE S4` (etc.) |
 
 ### Hard stops
 
 | Workstream | Instruction |
 |------------|-------------|
-| S3–S8 without slice auth | **Do not implement** |
+| S4–S8 without slice auth | **Do not implement** |
 | CORE-004 | **Do not modify** |
 | Facility Operations features | **Do not begin** |
 | Full ERP / GL accounting | **Out of scope** (ADR-010 / ADR-016) |
@@ -56,6 +57,7 @@ Financial Operations is **operational finance for property management**, not ent
 | [S0 Certification](./s0/index.md) | Foundation slice reports |
 | [S1 Certification](./s1/index.md) | Resident billing & rent collection reports |
 | [S2 Certification](./s2/index.md) | Delinquency, late fees & vendor AP reports |
+| [S3 Certification](./s3/index.md) | Command Center & owner reporting reports |
 
 ---
 

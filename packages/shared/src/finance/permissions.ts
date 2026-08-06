@@ -25,7 +25,7 @@ export const FINANCE_CAPABILITY_DESCRIPTIONS: Record<FinanceCapability, string> 
   "pm.finance:late_fee.manage": "Configure and post late fees (S2)",
   "pm.finance:vendor_invoice.review": "Approve or reject vendor invoices (S2)",
   "pm.finance:vendor_payment.release": "Schedule and mark vendor payments paid (S2)",
-  "pm.finance:reports.read": "Read property and owner financial reports (S4+)",
+  "pm.finance:reports.read": "Read property and owner financial summaries (S3)",
   "pm.finance:settings.manage": "Manage FO settings and Connect readiness"
 };
 
