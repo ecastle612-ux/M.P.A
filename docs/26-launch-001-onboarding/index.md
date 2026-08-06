@@ -70,6 +70,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [J8 Certification](./j8/certification.md) | Owner portfolio review Pass script |
 | [Property Manager Customer Promise Certification](./property-manager-customer-promise-certification.md) | Final GO / NO-GO for Customer #1 |
 | [Promise Remediation](./promise-remediation/index.md) | Documents + Communications completion design |
+| [Production Certification](./production-certification/index.md) | Customer #1 production audit · GO / NO-GO |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
@@ -91,6 +92,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE LAUNCH-001 JOURNEY J7` | Daily operations | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J8` | Owner portfolio review | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 – PROPERTY MANAGER PROMISE REMEDIATION` | Documents + Communications | **Authorized + delivered** — MA evidence ready |
+| `AUTHORIZE PROPERTY MANAGER PRODUCTION CERTIFICATION` | Production audit of advertised PM | **Authorized + complete** — **NO-GO** for Customer #1 (P0 portal access) |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
@@ -118,7 +120,7 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 
 | Instruction |
 |-------------|
-| **STOP** after Promise Remediation — no new platform capabilities without a new authorization |
+| **STOP** — production certification is **NO-GO**; no new PM features; clear P0 portal blockers only under new authorize |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |
 | **Do not begin Facility Operations features** |

@@ -1,33 +1,37 @@
 # Launch Readiness Gate — Customer Promises
 
 **Parent:** [LAUNCH-001](./index.md)  
-**Status:** Approved package · overall launch still **NO-GO**  
-**Date:** 2026-08-06
+**Status:** Approved package · production certification **NO-GO** for Customer #1  
+**Date:** 2026-08-06  
+**Production cert:** [production-certification/index.md](./production-certification/index.md)
 
 ---
 
 ## Verdict (today)
 
-### **NO-GO**
+### **NO-GO** for Customer #1 onboarding
 
-The platform is **not** launch ready.
+Feature delivery for advertised Property Manager is complete (J0–J8 + Documents/Communications remediation).  
+Production certification found **P0 portal-access blockers** (resident/vendor login provisioning) plus unsigned MA Pass.
 
 Success rule:
 
 > Launch ready only when every advertised Property Manager workflow can be demonstrated start-to-finish **without workarounds**.
 
-| Promise | Verdict |
-|---------|---------|
-| Property Management | Pass |
-| Leasing | Pass |
-| Residents | Pass |
-| Maintenance | Pass |
-| Vendor Management | Conditional Pass |
-| Financial Operations | Pass |
-| Documents | Pass |
-| Communications | Pass |
+| Promise | Feature delivery | Production cert |
+|---------|------------------|-----------------|
+| Property Management | Pass | Pass |
+| Leasing | Pass | Conditional (portal login gap) |
+| Residents | Pass | Conditional (portal login gap) |
+| Maintenance | Pass | Conditional (resident/vendor portal) |
+| Vendor Management | Conditional Pass | Conditional |
+| Financial Operations | Pass | Conditional (resident Pay Now) |
+| Documents | Pass | Conditional |
+| Communications | Pass | Conditional |
 
-North-star journey: **complete** (J0–J8 + Promise Remediation). Final verdict: **GO**.
+North-star feature journeys: **delivered**.  
+Production readiness score: **78 / 100**.  
+Onboarding decision: **NO-GO** — see [GO / NO-GO](./production-certification/go-no-go.md).
 
 ---
 

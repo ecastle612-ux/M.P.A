@@ -9,19 +9,22 @@
 
 ## Verdict
 
-### **GO** for Customer #1
+### Feature delivery: **GO** · Production onboarding: **NO-GO**
 
-Every advertised Property Manager capability is demonstrable begin→end within authorized scope:
+Feature delivery for the advertised Property Manager subscription is complete (J0–J8 + Documents/Communications remediation).
 
-- Customer Promise journeys **J0–J8** delivered  
-- **Documents** and **Communications** remediation delivered (no duplicate systems)  
-- Facility Operations, CORE-004, and FIN-OPS S4+ remain out of scope and unadvertised as launch blockers  
+**Production Certification** (`AUTHORIZE PROPERTY MANAGER PRODUCTION CERTIFICATION`) found P0 portal-access blockers.  
+Do **not** onboard Customer #1 until [production-certification/go-no-go.md](./production-certification/go-no-go.md) flips to GO.
 
-**Operator conditions (procedural, not product gaps):**
+- Customer Promise journeys **J0–J8** delivered (staff surfaces)  
+- **Documents** and **Communications** remediation delivered  
+- Facility Operations, CORE-004, and FIN-OPS S4+ remain out of scope  
 
-1. Master Admin runs Pass scripts for J2–J8 + Documents + Communications evidence panels on a staging org.  
-2. Confirm SignWell / Resend env for live channels used in the dry run (offline/in-app honesty remains available).  
-3. One end-to-end Customer #1 dry run completes unaided.
+**Must clear before Customer #1:**
+
+1. Resident (and vendor, if advertised) portal login provisioning after activation/assign  
+2. Master Admin Pass scripts for J2–J8 + Documents + Communications on staging  
+3. Confirm SignWell / Resend / Stripe for any live channels claimed in the dry run  
 
 ---
 
