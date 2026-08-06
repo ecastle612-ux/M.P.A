@@ -82,8 +82,9 @@ They may share platform primitives (work orders, vendors, documents, communicati
 | — | [Facility Operations Module Map](./facility-operations-module-map.md) | Definitive Facility modules and ownership (document only) |
 | — | [Complete Platform Composition](./complete-platform-composition.md) | How both products combine without duplicate homes |
 | — | [Phase 1 Alignment Verification](./phase-1-alignment-verification.md) | Verification of architectural alignment delivery |
+| — | [Commercial Experience Certification](./certification/index.md) | Post-alignment experience audit — **NO-GO** for Financial Operations |
 
-**ADR:** [ADR-015 — Three Commercial Products + Master Admin OS](../18-decision-log/adr-015-three-commercial-products-master-admin.md) (Proposed)
+**ADR:** [ADR-015 — Three Commercial Products + Master Admin OS](../18-decision-log/adr-015-three-commercial-products-master-admin.md) (Accepted)
 
 ---
 

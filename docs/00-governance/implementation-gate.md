@@ -89,8 +89,9 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Phase 3 identity foundation | Completed (approved and implemented) |
 | Product Architecture Reset (24) | **Approved** — Phase 1 architectural alignment authorized |
 | ADR-015 (three commercial products) | **Accepted** |
-| CORE-004 / LAUNCH-001 / Financial Ops / Facility feature implementation | **Stopped** — out of Phase 1 alignment scope |
-| Business feature expansion | Blocked — Phase 1 is alignment only |
+| CORE-004 / LAUNCH-001 / Financial Ops / Facility feature implementation | **Stopped** — Commercial Experience Certification **NO-GO** |
+| Commercial experience hardening (P0 gating/setup/search/admin entry) | Next authorized theme after certification |
+| Business feature expansion | Blocked until Commercial Experience Certification GO |
 
 ---
 

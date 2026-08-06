@@ -93,6 +93,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Launch Readiness](./24-product-architecture/launch-readiness.md) | Customer #1 clarity verdict |
 | [Implementation Order After Reset](./24-product-architecture/implementation-order-after-reset.md) | Post-approval sequence only |
 | [Phase 1 Alignment Verification](./24-product-architecture/phase-1-alignment-verification.md) | Architectural alignment verification |
+| [Commercial Experience Certification](./24-product-architecture/certification/index.md) | Experience audit + GO/NO-GO for Financial Operations |
 
 ### Governance & gates
 
