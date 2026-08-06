@@ -33,6 +33,17 @@ type CommandCenter = {
     unitId: string;
     unitLabel: string;
   }>;
+  activeLeases: Array<{
+    id: string;
+    status: string;
+    residentName: string;
+    portalStatus: string | null;
+    unitLabel: string;
+    rentAmount: number;
+    currency: string;
+    nextRentDate: string | null;
+    financialStatus: string;
+  }>;
   timeline: Array<{
     id: string;
     title: string;
@@ -191,8 +202,30 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         </div>
 
         <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Residents</h2>
-          {data.residents.length === 0 ? (
+          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
+            Residents & leases
+          </h2>
+          {(data.activeLeases ?? []).length > 0 ? (
+            <ul className="mt-3 space-y-2 text-sm">
+              {(data.activeLeases ?? []).map((lease) => (
+                <li
+                  key={lease.id}
+                  className="border-b border-[var(--mpa-color-border-default)] py-2 last:border-0"
+                >
+                  <Link
+                    href={`/pm/leasing/${lease.id}`}
+                    className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+                  >
+                    {lease.residentName}
+                  </Link>
+                  <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-secondary)]">
+                    Active lease · Unit {lease.unitLabel} · Occupied · Next rent{" "}
+                    {lease.nextRentDate ?? "—"} · {lease.financialStatus}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : data.residents.length === 0 ? (
             <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">
               No residents assigned yet.
             </p>

@@ -16,7 +16,12 @@ export const serverEnvSchema = clientEnvSchema.extend({
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).optional(),
   /** Optional until Resend is provisioned; invites still create + expose accept link. */
   RESEND_API_KEY: z.string().min(1).optional(),
-  RESEND_FROM_EMAIL: z.string().email().optional()
+  RESEND_FROM_EMAIL: z.string().email().optional(),
+  /** Optional until SignWell is provisioned; offline signed path remains available. */
+  SIGNWELL_API_KEY: z.string().min(1).optional(),
+  SIGNWELL_WEBHOOK_ID: z.string().min(1).optional(),
+  /** Defaults to test mode unless explicitly set to "false". */
+  SIGNWELL_TEST_MODE: z.string().optional()
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;

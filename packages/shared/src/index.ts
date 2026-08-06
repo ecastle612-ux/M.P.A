@@ -6,5 +6,6 @@ export * from "./commercial";
 export * from "./finance";
 export * from "./property";
 export * from "./resident";
+export * from "./leasing";
 export * from "./team";
 export * from "./env/base-env";

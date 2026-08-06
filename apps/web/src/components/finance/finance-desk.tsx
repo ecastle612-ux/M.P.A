@@ -270,18 +270,29 @@ export function FinanceDesk() {
         <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
           <h3 className="text-sm font-semibold">Residents & leases</h3>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Create residents in the Residents directory — one creation path (J3). Lease creation is
-            the next journey; Financial Operations consumes resident and lease records for money.
+            Create residents on Residents (J3) and leases on Leasing (J4) — one path each. Financial
+            Operations consumes activated leases for rent collection.
           </p>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => {
-              window.location.href = "/pm/residents?new=1";
-            }}
-          >
-            Open Residents to add
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                window.location.href = "/pm/residents?new=1";
+              }}
+            >
+              Open Residents
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                window.location.href = "/pm/leasing?new=1";
+              }}
+            >
+              Open Leasing
+            </Button>
+          </div>
         </div>
       </section>
 

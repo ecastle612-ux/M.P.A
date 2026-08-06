@@ -1,15 +1,10 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { Suspense } from "react";
+import { LeasingDirectory } from "../../../../components/leasing/leasing-directory";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Property Manager"
-      title="Leasing"
-      description="Vacancy-to-lease pipeline."
-      readiness="aligned"
-      entitlement="pm.leasing"
-      includedIn={["Property Manager", "Complete Platform"]}
-      requiresComplete="Facility-only customers"
-    />
+    <Suspense fallback={<main className="flex-1 p-6 text-sm">Loading leasing…</main>}>
+      <LeasingDirectory />
+    </Suspense>
   );
 }

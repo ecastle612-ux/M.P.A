@@ -33,7 +33,7 @@ Master Admin
     └── Evidence pack (export for launch review)
 ```
 
-Until built: operators use the **verification scripts** below manually. J0–J3 scripts under `j0/`, `j1/`, `j2/`, `j3/` + Admin Launch Readiness evidence panels. Console UI may ship progressively; scripts are authoritative for Pass.
+Until built: operators use the **verification scripts** below manually. J0–J4 scripts under `j0/`–`j4/` + Admin Launch Readiness evidence panels. Console UI may ship progressively; scripts are authoritative for Pass.
 
 ---
 
@@ -50,9 +50,9 @@ Until built: operators use the **verification scripts** below manually. J0–J3 
 ### Leasing
 | Check | Method |
 |-------|--------|
-| Execute | Create lease start→active (and signed per J4) from Leasing |
-| Evidence | Lease status history; link to unit/resident |
-| Negative | Confirm Facility leasing claims absent |
+| Execute | Create lease via `/pm/leasing` (J4); SignWell or offline honesty; confirm activation |
+| Evidence | [J4 certification](./j4/certification.md) + `/admin/launch-readiness` J4 panel |
+| Negative | Confirm Facility leasing claims absent; FO is not a second create path |
 
 ### Residents
 | Check | Method |

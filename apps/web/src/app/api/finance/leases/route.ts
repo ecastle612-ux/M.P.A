@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       {
         ...result,
         notice:
-          "Prefer /pm/residents for the customer resident create path (LAUNCH-001 J3). Lease create is the next journey."
+          "Prefer /pm/leasing for the customer lease create path (LAUNCH-001 J4). Residents are created on /pm/residents (J3)."
       },
       { status: 201 }
     );

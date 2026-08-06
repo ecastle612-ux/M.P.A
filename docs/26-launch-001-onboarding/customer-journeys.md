@@ -150,23 +150,26 @@ Mission Control → Add your first resident
 
 ---
 
-## J4 — Lease signed
+## J4 — First lease
 
 ```
-Lease ready
-  → Send for e-sign OR upload signed PDF / mark signed offline
-  → Status = signed
-  → Document retrievable
+Mission Control → Create your first lease
+  → /pm/leasing
+  → Select resident (Pending Lease)
+  → Lease wizard → document → SignWell (or offline honesty)
+  → Activate → Resident Active · Portal Active · recurring rent
+  → MC / Assistant → Collect your first rent
 ```
 
 | Field | Content |
 |-------|---------|
-| Current | SignWell absent; Documents stub |
-| Blockers | Cannot fulfill “signed” honestly |
-| Fix | SignWell **or** offline signed path + Documents MVP; advertise truth |
-| MA verify | Lease status signed + document attached |
+| Status | **Authorized + delivered** |
+| Current | Sole Leasing path; SignWell client + webhook; offline honesty; auto-activation |
+| Remaining | Master Admin runs [J4 certification](./j4/certification.md) |
+| Out of scope | Rent collection UX depth (J5) |
+| MA verify | [J4 certification](./j4/certification.md) |
 
-**Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J4`
+**Authorized:** `AUTHORIZE LAUNCH-001 JOURNEY J4`
 
 ---
 

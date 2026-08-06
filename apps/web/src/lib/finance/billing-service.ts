@@ -143,7 +143,7 @@ export async function createLeaseWithResident(
 export async function createRecurringScheduleAndCharge(
   supabase: Db,
   organizationId: string,
-  actorId: string,
+  actorId: string | null,
   input: CreateRecurringScheduleInput
 ) {
   const { lease, residents } = await loadLeaseContext(supabase, organizationId, input.leaseId);
@@ -226,7 +226,7 @@ async function createChargeRecord(
   supabase: Db,
   args: {
     organizationId: string;
-    actorId: string;
+    actorId: string | null;
     propertyId: string;
     unitId: string | null;
     leaseId: string;

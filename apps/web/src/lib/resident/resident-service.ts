@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   RESIDENT_PORTAL_STATUS_LABELS,
   RESIDENT_STATUS_LABELS,
+  buildLeaseReadyAssistantCopy,
   buildResidentReadyAssistantCopy,
   residentDisplayName,
   type CreateResidentInput,
@@ -309,6 +310,12 @@ function timelineTitle(eventType: string): string {
       return "Unit assigned";
     case "resident.portal_provisioned":
       return "Resident portal provisioned";
+    case "lease.created":
+      return "Lease created";
+    case "lease.signed":
+      return "Lease signed";
+    case "lease.activated":
+      return "Lease activated";
     default:
       return eventType;
   }
@@ -343,6 +350,7 @@ export async function getResidentCommandCenter(
   const timeline = await listResidentTimeline(supabase, organizationId, residentId);
   const propertyName = resident.property_properties?.name ?? "Property";
   const unitLabel = resident.property_units?.unit_label ?? "—";
+  const active = resident.status === "active" && resident.portal_status === "active";
 
   return {
     resident: {
@@ -372,18 +380,29 @@ export async function getResidentCommandCenter(
       occurredAt: event.created_at as string,
       kind: event.event_type as string
     })),
-    assistantRecommendation: buildResidentReadyAssistantCopy(resident.display_name),
-    readyMessage: "My first resident has been added.",
-    nextJourney: {
-      title: "Create your first lease",
-      href: "/pm/leasing?new=1",
-      detail: "Continue the resident lifecycle with a lease."
-    },
+    assistantRecommendation: active
+      ? buildLeaseReadyAssistantCopy(resident.display_name)
+      : buildResidentReadyAssistantCopy(resident.display_name),
+    readyMessage: active
+      ? "My resident is fully onboarded."
+      : "My first resident has been added.",
+    nextJourney: active
+      ? {
+          title: "Collect your first rent",
+          href: "/pm/financial-operations",
+          detail: "Financial Operations is ready for the first collection."
+        }
+      : {
+          title: "Create your first lease",
+          href: resident.lease_id ? `/pm/leasing/${resident.lease_id}` : "/pm/leasing?new=1",
+          detail: "Continue the resident lifecycle with a lease."
+        },
     integrations: {
       propertyCommandCenter: `/pm/properties/${resident.property_id}`,
       residentDirectory: "/pm/residents",
       financialOperations: "/pm/financial-operations",
-      maintenance: "/pm/maintenance"
+      maintenance: "/pm/maintenance",
+      portal: "/portal/tenant"
     }
   };
 }

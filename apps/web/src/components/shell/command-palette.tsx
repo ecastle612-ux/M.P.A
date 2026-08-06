@@ -104,8 +104,10 @@ export function CommandPalette() {
       items: [
         { id: "/pm/properties?new=1", label: "Add property", shortcut: "A P" },
         { id: "/pm/residents?new=1", label: "Add resident", shortcut: "A R" },
+        { id: "/pm/leasing?new=1", label: "Create lease", shortcut: "A L" },
         { id: "/pm/properties", label: "Open Properties", shortcut: "G P" },
         { id: "/pm/residents", label: "Open Residents", shortcut: "G R" },
+        { id: "/pm/leasing", label: "Open Leasing", shortcut: "G L" },
         { id: "/pm/mission-control", label: "Open Mission Control", shortcut: "G M" },
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
         { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
@@ -114,6 +116,7 @@ export function CommandPalette() {
         (item) =>
           item.id.startsWith("/pm/properties") ||
           item.id.startsWith("/pm/residents") ||
+          item.id.startsWith("/pm/leasing") ||
           item.id.startsWith("/settings") ||
           entitled.some((result) => result.href === item.id.split("?")[0]) ||
           !productSku

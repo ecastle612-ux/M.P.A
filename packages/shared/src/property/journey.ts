@@ -1,5 +1,5 @@
 /**
- * LAUNCH-001 Mission Control / Assistant progression (J0–J3).
+ * LAUNCH-001 Mission Control / Assistant progression (J0–J4).
  */
 
 export type MissionControlNextAction = {
@@ -9,6 +9,7 @@ export type MissionControlNextAction = {
     | "invite_team"
     | "add_first_resident"
     | "create_first_lease"
+    | "collect_first_rent"
     | "open_property";
   title: string;
   detail: string;
@@ -24,6 +25,8 @@ export function buildMissionControlNextAction(input: {
   teamReady?: boolean;
   /** True when at least one operational resident exists for the organization. */
   residentReady?: boolean;
+  /** True when at least one lease has been signed/activated. */
+  leaseReady?: boolean;
 }): MissionControlNextAction {
   if (!input.setupComplete) {
     return {
@@ -65,12 +68,22 @@ export function buildMissionControlNextAction(input: {
     };
   }
 
+  if (!input.leaseReady) {
+    return {
+      id: "create_first_lease",
+      title: "Create your first lease",
+      detail: "My first resident has been added. Create a lease to continue the lifecycle.",
+      href: "/pm/leasing?new=1",
+      assistantRecommendation: "Create your first lease."
+    };
+  }
+
   return {
-    id: "create_first_lease",
-    title: "Create your first lease",
-    detail: "My first resident has been added. Create a lease to continue the lifecycle.",
-    href: "/pm/leasing?new=1",
-    assistantRecommendation: "Create your first lease."
+    id: "collect_first_rent",
+    title: "Collect your first rent",
+    detail: "My resident is fully onboarded. Collect the first rent to continue operations.",
+    href: "/pm/financial-operations",
+    assistantRecommendation: "Collect your first rent."
   };
 }
 
@@ -84,4 +97,8 @@ export function buildTeamReadyAssistantCopy(): string {
 
 export function buildResidentReadyAssistantCopy(residentName: string): string {
   return `${residentName} is ready. Create your first lease.`;
+}
+
+export function buildLeaseReadyAssistantCopy(residentName: string): string {
+  return `${residentName} is fully onboarded. Collect your first rent.`;
 }

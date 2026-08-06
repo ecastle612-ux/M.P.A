@@ -36,6 +36,7 @@ type CommandCenter = {
     residentDirectory: string;
     financialOperations: string;
     maintenance: string;
+    portal?: string;
   };
 };
 
@@ -154,6 +155,26 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
             The portal is provisioned for this resident. Activation completes after the lease is
             signed.
           </p>
+        </section>
+      ) : null}
+
+      {data.resident.portalStatus === "active" ? (
+        <section
+          aria-label="Portal status"
+          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
+        >
+          <p className="text-sm font-semibold text-emerald-900">Resident Portal · Active</p>
+          <p className="mt-1 text-sm text-emerald-800">
+            The resident can open the portal for welcome, lease, rent, maintenance, and documents.
+          </p>
+          {data.integrations.portal ? (
+            <Link
+              href={data.integrations.portal}
+              className="mt-2 inline-flex text-sm font-medium text-emerald-900 underline"
+            >
+              Open Resident Portal
+            </Link>
+          ) : null}
         </section>
       ) : null}
 

@@ -56,7 +56,8 @@ describe("LAUNCH-001 J3 resident domain", () => {
       setupComplete: true,
       propertyCount: 1,
       teamReady: true,
-      residentReady: true
+      residentReady: true,
+      leaseReady: false
     });
     expect(after.id).toBe("create_first_lease");
     expect(after.href).toBe("/pm/leasing?new=1");

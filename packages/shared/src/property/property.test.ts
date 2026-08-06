@@ -45,7 +45,8 @@ describe("LAUNCH-001 J1 property domain", () => {
       setupComplete: true,
       propertyCount: 1,
       teamReady: true,
-      residentReady: false
+      residentReady: false,
+      leaseReady: false
     });
     expect(afterTeam.id).toBe("add_first_resident");
     expect(afterTeam.href).toBe("/pm/residents?new=1");
