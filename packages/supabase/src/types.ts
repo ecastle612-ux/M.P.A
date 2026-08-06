@@ -2072,6 +2072,70 @@ export type Database = {
         };
         Relationships: [];
       };
+      resident_workflow_events: {
+        Row: {
+          actor_user_id: string | null;
+          automation: Json;
+          created_at: string;
+          from_stage: string | null;
+          id: string;
+          organization_id: string;
+          payload: Json;
+          property_id: string | null;
+          reason: string | null;
+          tenant_id: string;
+          to_stage: string;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          automation?: Json;
+          created_at?: string;
+          from_stage?: string | null;
+          id?: string;
+          organization_id: string;
+          payload?: Json;
+          property_id?: string | null;
+          reason?: string | null;
+          tenant_id: string;
+          to_stage: string;
+        };
+        Update: {
+          actor_user_id?: string | null;
+          automation?: Json;
+          created_at?: string;
+          from_stage?: string | null;
+          id?: string;
+          organization_id?: string;
+          payload?: Json;
+          property_id?: string | null;
+          reason?: string | null;
+          tenant_id?: string;
+          to_stage?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "resident_workflow_events_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "resident_workflow_events_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "resident_workflow_events_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       tenants: {
         Row: {
           archived_at: string | null;
@@ -2109,6 +2173,20 @@ export type Database = {
             | "notice_given"
             | "moving_out"
             | "former";
+          workflow_stage:
+            | "applicant"
+            | "approved"
+            | "lease_signed"
+            | "move_in_scheduled"
+            | "move_in_complete"
+            | "active_resident"
+            | "community_participation"
+            | "maintenance"
+            | "payments"
+            | "renewal"
+            | "move_out_scheduled"
+            | "former_resident"
+            | "archive";
         };
         Insert: {
           archived_at?: string | null;
@@ -2146,6 +2224,20 @@ export type Database = {
             | "notice_given"
             | "moving_out"
             | "former";
+          workflow_stage?:
+            | "applicant"
+            | "approved"
+            | "lease_signed"
+            | "move_in_scheduled"
+            | "move_in_complete"
+            | "active_resident"
+            | "community_participation"
+            | "maintenance"
+            | "payments"
+            | "renewal"
+            | "move_out_scheduled"
+            | "former_resident"
+            | "archive";
         };
         Update: {
           archived_at?: string | null;
@@ -2183,6 +2275,20 @@ export type Database = {
             | "notice_given"
             | "moving_out"
             | "former";
+          workflow_stage?:
+            | "applicant"
+            | "approved"
+            | "lease_signed"
+            | "move_in_scheduled"
+            | "move_in_complete"
+            | "active_resident"
+            | "community_participation"
+            | "maintenance"
+            | "payments"
+            | "renewal"
+            | "move_out_scheduled"
+            | "former_resident"
+            | "archive";
         };
         Relationships: [
           {

@@ -27,7 +27,8 @@
 > **Program Approved.** Do **not** implement a phase until `AUTHORIZE CORE-004 PHASE …` is issued.  
 > Phase 1: [Design](./08-phase-1-property-lifecycle-design.md) · [Authorize](./09-phase-1-authorization.md) · [Certification](./10-phase-1-certification.md) · [Acceptance](./11-phase-1-acceptance.md).  
 > Phase 2: [Authorize](./12-phase-2-authorization.md) · [Design](./13-phase-2-design.md) · [Certification](./14-phase-2-certification.md) · [Acceptance](./15-phase-2-acceptance.md).  
-> Phase 3: [Authorize](./16-phase-3-authorization.md) · [Design](./17-phase-3-design.md) · [Certification](./18-phase-3-certification.md).
+> Phase 3: [Authorize](./16-phase-3-authorization.md) · [Design](./17-phase-3-design.md) · [Certification](./18-phase-3-certification.md) · [Acceptance](./19-phase-3-acceptance.md).  
+> Phase 4: [Authorize](./20-phase-4-authorization.md) · [Design](./21-phase-4-design.md) · [Certification](./22-phase-4-certification.md).
 
 ---
 
@@ -47,8 +48,8 @@ Build the remaining M.P.A. platform through **complete operational workflows**.
 |-------|--------|--------|
 | **1** | Property Lifecycle | ✅ Authorized · Implemented · Certified · Accepted ([10](./10-phase-1-certification.md) · [11](./11-phase-1-acceptance.md)) |
 | **2** | Maintenance Operations | ✅ Authorized · Implemented · Certified · Accepted ([14](./14-phase-2-certification.md) · [15](./15-phase-2-acceptance.md)) |
-| **3** | Leasing Operations | ✅ Authorized · Implemented · Certified ([16](./16-phase-3-authorization.md) · [17](./17-phase-3-design.md) · [18](./18-phase-3-certification.md)) · awaiting Accept |
-| **4** | Resident Operations | 🔒 Queued |
+| **3** | Leasing Operations | ✅ Authorized · Implemented · Certified · Accepted ([18](./18-phase-3-certification.md) · [19](./19-phase-3-acceptance.md)) |
+| **4** | Resident Operations | ✅ Authorized · Implemented · Certified ([20](./20-phase-4-authorization.md) · [21](./21-phase-4-design.md) · [22](./22-phase-4-certification.md)) · awaiting Accept |
 | **5** | Vendor Operations | 🔒 Queued |
 | **6** | Financial Operations | 🔒 Queued |
 | **7** | Document Operations | 🔒 Queued |
@@ -82,6 +83,10 @@ Detail: [06 — Implementation order](./06-implementation-order.md)
 | [16 — Phase 3 Authorization](./16-phase-3-authorization.md) | Authorize phrase + Phase 3 scope |
 | [17 — Phase 3 Design](./17-phase-3-design.md) | Canonical leasing state machine |
 | [18 — Phase 3 Certification](./18-phase-3-certification.md) | Workflow certify · diagram · verify |
+| [19 — Phase 3 Acceptance](./19-phase-3-acceptance.md) | Phase 3 accepted · Leasing Operations authoritative |
+| [20 — Phase 4 Authorization](./20-phase-4-authorization.md) | Authorize phrase + Phase 4 scope |
+| [21 — Phase 4 Design](./21-phase-4-design.md) | Canonical resident state machine |
+| [22 — Phase 4 Certification](./22-phase-4-certification.md) | Workflow certify · diagram · verify |
 
 ---
 

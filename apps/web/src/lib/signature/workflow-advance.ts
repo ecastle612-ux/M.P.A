@@ -54,6 +54,30 @@ export async function advanceBusinessWorkflowAfterSignature(input: {
     } catch {
       /* workflow advance optional if migration not applied */
     }
+
+    // CORE-004 Phase 4 — activate resident identity after lease signature.
+    try {
+      const { data: lease } = await client
+        .from("leases")
+        .select("primary_tenant_id")
+        .eq("id", pkg.leaseId)
+        .eq("organization_id", organizationId)
+        .maybeSingle();
+      const tenantId = (lease?.primary_tenant_id as string | null) ?? pkg.tenantId;
+      if (tenantId) {
+        const { advanceResidentAfterLeaseSigned } = await import("../resident/workflow-server");
+        await advanceResidentAfterLeaseSigned({
+          organizationId,
+          tenantId,
+          actorUserId,
+          leaseId: pkg.leaseId,
+          client: client as never
+        });
+        advanced.push("resident.lease_signed");
+      }
+    } catch {
+      /* optional until Phase 4 migration */
+    }
   }
 
   // A2 — Lease Renewal: apply renewal dates using existing renew semantics.
@@ -129,7 +153,7 @@ export async function advanceBusinessWorkflowAfterSignature(input: {
         moveInAcknowledgementCompletedAt: now,
         moveInAcknowledgementPackageId: pkg.id
       });
-      await finalizePendingMoveIn(client, organizationId, pkg.tenantId, pkg.leaseId, now);
+      await finalizePendingMoveIn(client, organizationId, pkg.tenantId, pkg.leaseId, now, actorUserId);
     } else {
       const { data: lease } = await client
         .from("leases")
@@ -143,7 +167,7 @@ export async function advanceBusinessWorkflowAfterSignature(input: {
           moveInAcknowledgementCompletedAt: now,
           moveInAcknowledgementPackageId: pkg.id
         });
-        await finalizePendingMoveIn(client, organizationId, tenantId, pkg.leaseId, now);
+        await finalizePendingMoveIn(client, organizationId, tenantId, pkg.leaseId, now, actorUserId);
       }
     }
     advanced.push("move_in.acknowledgement_completed");
@@ -188,7 +212,8 @@ async function finalizePendingMoveIn(
   organizationId: string,
   tenantId: string,
   leaseId: string,
-  now: string
+  now: string,
+  actorUserId: string
 ) {
   const { data: tenant } = await client
     .from("tenants")
@@ -222,6 +247,19 @@ async function finalizePendingMoveIn(
     })
     .eq("id", tenantId)
     .eq("organization_id", organizationId);
+
+  // CORE-004 Phase 4 — canonical resident advance after move-in acknowledgement.
+  try {
+    const { advanceResidentAfterMoveInComplete } = await import("../resident/workflow-server");
+    await advanceResidentAfterMoveInComplete({
+      organizationId,
+      tenantId,
+      actorUserId,
+      client: client as never
+    });
+  } catch {
+    /* optional until Phase 4 migration */
+  }
   void leaseId;
 }
 

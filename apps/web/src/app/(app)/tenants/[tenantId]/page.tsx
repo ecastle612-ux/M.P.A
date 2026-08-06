@@ -12,8 +12,13 @@ import { WorkflowSuccessBanner } from "../../../../components/workflow/workflow-
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
+import { ResidentWorkflowPanel } from "../../../../components/resident/resident-workflow-panel";
 import { toTenantStatusLabel } from "../../../../lib/tenant/contracts";
 import { getTenantForOrganization } from "../../../../lib/tenant/server";
+import {
+  isResidentWorkflowStage,
+  legacyLifecycleStatusToWorkflowStage
+} from "../../../../lib/resident/workflow";
 import { getPortfolioCounts } from "../../../../lib/workflow/server/portfolio-counts";
 import { buildTenantCreatedSuccess } from "../../../../lib/workflow/shared/success-configs";
 
@@ -301,6 +306,15 @@ export default async function TenantDetailPage({
       toolbelt={<EntityActionToolbelt actions={toolbeltPrimary} moreActions={toolbeltMore} />}
       main={
         <>
+        <ResidentWorkflowPanel
+          tenantId={tenant.id}
+          canUpdate={canUpdateTenant}
+          currentStage={
+            isResidentWorkflowStage(tenant.workflowStage)
+              ? tenant.workflowStage
+              : legacyLifecycleStatusToWorkflowStage(tenant.lifecycleStatus)
+          }
+        />
         <Card variant="elevated" className="space-y-4">
           <div className="flex items-center gap-3">
             <Avatar

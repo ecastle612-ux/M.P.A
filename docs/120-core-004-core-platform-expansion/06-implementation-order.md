@@ -41,7 +41,9 @@ Prospect → Inquiry → Lead Qualification → Tour Scheduling → Property Sho
 
 ## Phase 4 — Resident Operations
 
-Resident Profile · Communications · Payments · Maintenance · Documents · Community · Notifications
+Applicant → Approved → Lease Signed → Move-In Scheduled → Move-In Complete → Active Resident → Community Participation → Maintenance → Payments → Renewal → Move-Out Scheduled → Former Resident → Archive
+
+**Authorize:** [20](./20-phase-4-authorization.md) · **Design:** [21](./21-phase-4-design.md) · **Certify:** [22](./22-phase-4-certification.md)
 
 ---
 

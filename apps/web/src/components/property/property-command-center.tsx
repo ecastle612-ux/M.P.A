@@ -20,6 +20,7 @@ export function PropertyCommandCenter({
   recentLifecycle,
   openMaintenanceCount = 0,
   activeLeasingCount = 0,
+  activeResidentCount = 0,
   userName,
   organizationName
 }: {
@@ -40,6 +41,7 @@ export function PropertyCommandCenter({
   }>;
   openMaintenanceCount?: number;
   activeLeasingCount?: number;
+  activeResidentCount?: number;
   userName: string | null;
   organizationName: string | null;
 }) {
@@ -55,6 +57,7 @@ export function PropertyCommandCenter({
     recentLifecycle,
     openMaintenanceCount,
     activeLeasingCount,
+    activeResidentCount,
     userName,
     organizationName
   });

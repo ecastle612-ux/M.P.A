@@ -178,7 +178,7 @@ export async function globalSearch(input: GlobalSearchInput): Promise<{
       },
       tenants: {
         table: "tenants",
-        titleCol: "full_name",
+        titleCol: "last_name",
         permission: ["tenant:read"],
         href: (id) => `/tenants/${id}`
       },
@@ -251,6 +251,53 @@ export async function globalSearch(input: GlobalSearchInput): Promise<{
             .join(" · "),
           deepLink: `/maintenance/${id}`,
           score: 0.78
+        });
+      }
+      continue;
+    }
+
+    // CORE-004 Phase 4 — resident search by name, email, phone, status, workflow, property/unit
+    if (corpus === "tenants") {
+      const { data, error } = await db
+        .from("tenants")
+        .select(
+          "id, first_name, last_name, preferred_name, email, phone, status, lifecycle_status, workflow_stage, property_id, unit_id"
+        )
+        .eq("organization_id", input.organizationId)
+        .is("deleted_at", null)
+        .or(
+          [
+            `first_name.ilike.${like}`,
+            `last_name.ilike.${like}`,
+            `preferred_name.ilike.${like}`,
+            `email.ilike.${like}`,
+            `phone.ilike.${like}`,
+            `status.ilike.${like}`,
+            `lifecycle_status.ilike.${like}`,
+            `workflow_stage.ilike.${like}`,
+            `id.eq.${q}`
+          ].join(",")
+        )
+        .limit(10);
+      if (error) {
+        deniedCorpora.push(corpus);
+        continue;
+      }
+      for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+        const id = String(row["id"]);
+        const name =
+          String(row["preferred_name"] ?? "").trim() ||
+          `${row["first_name"] ?? ""} ${row["last_name"] ?? ""}`.trim() ||
+          id;
+        hits.push({
+          resultId: `tenants:${id}`,
+          corpus: "tenants",
+          title: name,
+          snippet: [row["email"], row["phone"], row["workflow_stage"] ?? row["lifecycle_status"]]
+            .filter(Boolean)
+            .join(" · "),
+          deepLink: `/tenants/${id}`,
+          score: 0.8
         });
       }
       continue;
