@@ -1,9 +1,14 @@
 import { createAuthServerComponentClient } from "../auth/server";
 import type { Database, Json } from "@mpa/supabase";
 import type { CreateTenantInput, TenantRecord, UpdateTenantInput } from "./contracts";
+import {
+  isResidentWorkflowStage,
+  legacyLifecycleStatusToWorkflowStage,
+  type ResidentWorkflowStage
+} from "../resident/workflow";
 
 const TENANT_SELECT =
-  "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, lifecycle_status, metadata, created_at, updated_at, archived_at, deleted_at, user_id";
+  "id, organization_id, property_id, unit_id, first_name, last_name, preferred_name, email, avatar_url, phone, date_of_birth, move_in_date, move_out_date, documents_placeholder, emergency_contact_name, emergency_contact_phone, notes, status, lifecycle_status, workflow_stage, metadata, created_at, updated_at, archived_at, deleted_at, user_id";
 
 const TENANT_LIST_SELECT = `${TENANT_SELECT}, properties(name), units(unit_number, property_id)`;
 
@@ -27,6 +32,7 @@ type TenantRow = {
   notes: string | null;
   status: TenantRecord["status"];
   lifecycle_status: TenantRecord["lifecycleStatus"];
+  workflow_stage?: string | null;
   metadata: Json | null;
   created_at: string;
   updated_at: string;
@@ -139,6 +145,9 @@ export async function createTenant(
     delete (metadata as Record<string, unknown>)["avatarMediaAssetId"];
   }
 
+  const lifecycleStatus = input.lifecycleStatus ?? "awaiting_move_in";
+  const workflowStage = legacyLifecycleStatusToWorkflowStage(lifecycleStatus);
+
   const { data, error } = await supabase
     .from("tenants")
     .insert({
@@ -159,7 +168,8 @@ export async function createTenant(
       emergency_contact_phone: input.emergencyContactPhone,
       notes: input.notes,
       status: input.status,
-      lifecycle_status: input.lifecycleStatus ?? "awaiting_move_in",
+      lifecycle_status: lifecycleStatus,
+      workflow_stage: workflowStage,
       metadata: metadata as Json,
       created_by: userId,
       updated_by: userId
@@ -403,6 +413,11 @@ function readAvatarMediaAssetId(metadata: Json | null): string | null {
 }
 
 function toTenantRecord(row: TenantRow): TenantRecord {
+  const lifecycleStatus = row.lifecycle_status ?? "awaiting_move_in";
+  const workflowStage: ResidentWorkflowStage = isResidentWorkflowStage(row.workflow_stage)
+    ? row.workflow_stage
+    : legacyLifecycleStatusToWorkflowStage(lifecycleStatus);
+
   return {
     id: row.id,
     organizationId: row.organization_id,
@@ -423,7 +438,8 @@ function toTenantRecord(row: TenantRow): TenantRecord {
     emergencyContactPhone: row.emergency_contact_phone,
     notes: row.notes,
     status: row.status,
-    lifecycleStatus: row.lifecycle_status ?? "awaiting_move_in",
+    lifecycleStatus,
+    workflowStage,
     metadata:
       row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata)
         ? (row.metadata as Record<string, unknown>)

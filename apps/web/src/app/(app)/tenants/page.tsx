@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Card } from "@mpa/ui";
 import { AppPage } from "../../../components/presentation/app-page";
-import { TenantsTable } from "../../../components/tenant/tenants-table";
+import { ResidentCommandCenter } from "../../../components/resident/resident-command-center";
 import { createAuthServerComponentClient } from "../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../lib/organization/server";
@@ -13,6 +13,8 @@ export default async function TenantsPage({
   searchParams: Promise<{ propertyId?: string; q?: string }>;
 }) {
   const { propertyId, q } = await searchParams;
+  void propertyId;
+  void q;
   const supabase = await createAuthServerComponentClient();
   const {
     data: { user }
@@ -48,13 +50,18 @@ export default async function TenantsPage({
     canDelete: evaluatePermission(authorization, "tenant:delete")
   };
 
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("display_name")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   return (
-    <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Tenants" }]}>
-      <TenantsTable
-        initialItems={items}
+    <AppPage wide breadcrumbs={[{ href: "/dashboard", label: "Dashboard" }, { label: "Residents" }]}>
+      <ResidentCommandCenter
+        tenants={items}
         permissions={permissions}
-        {...(propertyId ? { initialPropertyId: propertyId } : {})}
-        {...(q ? { initialQuery: q } : {})}
+        userName={(profile?.display_name as string | null) ?? user.email ?? null}
       />
     </AppPage>
   );

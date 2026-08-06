@@ -46,6 +46,8 @@ export type PropertyCommandCenterInput = {
   openMaintenanceCount?: number;
   /** CORE-004 Phase 3 — active leasing pipeline count (non-terminal workflow stages) */
   activeLeasingCount?: number;
+  /** CORE-004 Phase 4 — active residents on this property */
+  activeResidentCount?: number;
   userName?: string | null;
   organizationName?: string | null;
 };
@@ -164,6 +166,17 @@ export function buildPropertyCommandCenterViewModel(
       label: "Property leasing queue",
       detail: "Canonical leasing lifecycle for this property",
       href: `/leases?propertyId=${encodeURIComponent(property.id)}`
+    });
+  }
+
+  if ((input.activeResidentCount ?? 0) > 0) {
+    attention.push({
+      id: "property-residents",
+      title: "Active residents",
+      reason: `${input.activeResidentCount} resident${input.activeResidentCount === 1 ? "" : "s"} on this property`,
+      href: `/tenants?propertyId=${encodeURIComponent(property.id)}`,
+      actionLabel: "Open residents",
+      severity: "normal"
     });
   }
 

@@ -155,6 +155,6 @@ Apply migration before production use. Existing applicants/leases backfill `work
 | Authorize | ✅ |
 | Implement | ✅ |
 | Verify / Certify | ✅ **PASS** |
-| Accept | Awaiting `ACCEPT CORE-004 PHASE 3` before Phase 4 Authorize |
+| Accept | ✅ Accepted — [19](./19-phase-3-acceptance.md) |
 
-**Do not request Phase 4 authorization until Phase 3 is accepted.**
+Phase 3 is complete. Phase 4 was authorized after Accept.

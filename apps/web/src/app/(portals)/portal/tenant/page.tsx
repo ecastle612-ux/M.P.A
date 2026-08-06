@@ -1,15 +1,19 @@
 import { redirect } from "next/navigation";
 import { AppPage } from "../../../../components/presentation/app-page";
-import {
-  TenantPortalHome,
-  type TenantAttentionItem,
-  type TenantTodayCard
-} from "../../../../components/portal/tenant-portal-home";
+import { ResidentPortalHome } from "../../../../components/resident/resident-portal-home";
+import type {
+  ResidentPortalAttention,
+  ResidentPortalTodayCard
+} from "../../../../lib/resident/ux016-view-model";
 import { MasterAdminPortalDemoPanel } from "../../../../components/master-admin/master-admin-portal-demo-panel";
 import { createAuthServerComponentClient } from "../../../../lib/auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../../../../lib/auth/authorization";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/server";
 import { resolveLinkedTenantForUser } from "../../../../lib/resident/resolve-tenant";
+import {
+  isResidentWorkflowStage,
+  legacyLifecycleStatusToWorkflowStage
+} from "../../../../lib/resident/workflow";
 import { getActiveMasterAdminSession } from "../../../../lib/master-admin/session";
 import { getResidentAnnouncementsForUser } from "../../../../lib/communication/server";
 import { getNotificationsForUser } from "../../../../lib/notifications/server";
@@ -33,13 +37,12 @@ function isWithinDays(iso: string | null | undefined, days: number): boolean {
   return delta >= -1000 * 60 * 60 * 24 && delta <= 1000 * 60 * 60 * 24 * days;
 }
 
-/** Critical → Unread → Time-sensitive → Everything else (newest within band). */
-function sortAttention(items: TenantAttentionItem[]): TenantAttentionItem[] {
+function sortAttention(items: ResidentPortalAttention[]): ResidentPortalAttention[] {
   return [...items].sort((a, b) => {
     if (a.critical !== b.critical) return a.critical ? -1 : 1;
     if (a.unread !== b.unread) return a.unread ? -1 : 1;
     if (a.timeSensitive !== b.timeSensitive) return a.timeSensitive ? -1 : 1;
-    return b.createdAt.localeCompare(a.createdAt);
+    return 0;
   });
 }
 
@@ -56,7 +59,6 @@ export default async function TenantPortalPage() {
   const session = await getActiveMasterAdminSession(user.id);
   const inPortalTest = session?.mode === "portal_test" && session.portal === "resident";
 
-  // MAC-002 — Test Mode is simulation only: do not load live resident/org data.
   if (inPortalTest) {
     return (
       <AppPage>
@@ -112,7 +114,7 @@ export default async function TenantPortalPage() {
       : Promise.resolve([])
   ]);
 
-  const attentionRaw: TenantAttentionItem[] = [];
+  const attentionRaw: ResidentPortalAttention[] = [];
 
   for (const item of announcements.slice(0, 12)) {
     const timeSensitive =
@@ -126,9 +128,7 @@ export default async function TenantPortalPage() {
       href: `/portal/tenant/announcements/${item.id}`,
       critical: item.priority === "emergency",
       unread: !item.isRead,
-      timeSensitive: timeSensitive && item.priority !== "emergency",
-      createdAt: item.publishedAt ?? item.createdAt,
-      kind: "announcement"
+      timeSensitive: timeSensitive && item.priority !== "emergency"
     });
   }
 
@@ -147,9 +147,7 @@ export default async function TenantPortalPage() {
       href: item.href?.trim() || "/portal/tenant/notifications",
       critical: item.priority === "emergency",
       unread: !item.readAt,
-      timeSensitive: timeSensitive && item.priority !== "emergency",
-      createdAt: item.createdAt,
-      kind: "notification"
+      timeSensitive: timeSensitive && item.priority !== "emergency"
     });
   }
 
@@ -163,15 +161,12 @@ export default async function TenantPortalPage() {
       href: `/portal/tenant/messages?thread=${encodeURIComponent(thread.id)}`,
       critical: false,
       unread,
-      timeSensitive: unread,
-      createdAt: thread.lastMessageAt ?? thread.updatedAt ?? thread.createdAt,
-      kind: "message"
+      timeSensitive: unread
     });
   }
 
   const attentionItems = sortAttention(attentionRaw).slice(0, 5);
-
-  const todayCards: TenantTodayCard[] = [];
+  const todayCards: ResidentPortalTodayCard[] = [];
 
   if (payments && payments.balanceDue > 0) {
     todayCards.push({
@@ -228,15 +223,24 @@ export default async function TenantPortalPage() {
     }
   }
 
+  const workflowStage = tenantDetail
+    ? isResidentWorkflowStage(tenantDetail.workflowStage)
+      ? tenantDetail.workflowStage
+      : legacyLifecycleStatusToWorkflowStage(tenantDetail.lifecycleStatus)
+    : null;
+
   return (
     <AppPage>
-      <TenantPortalHome
+      <ResidentPortalHome
         firstName={firstName}
         propertyName={tenantDetail?.propertyName ?? null}
         unitNumber={tenantDetail?.unitNumber ?? null}
         hasLinkedTenant={Boolean(tenant)}
+        workflowStage={workflowStage}
         attentionItems={attentionItems}
         todayCards={todayCards}
+        balanceDue={payments?.balanceDue ?? null}
+        openMaintenanceCount={openWorkOrders.length}
       />
     </AppPage>
   );

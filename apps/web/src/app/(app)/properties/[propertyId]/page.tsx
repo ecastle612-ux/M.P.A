@@ -278,6 +278,15 @@ export default async function PropertyDetailPage({
     .is("deleted_at", null)
     .neq("workflow_stage", "archive");
 
+  // CORE-004 Phase 4 — active residents (non-terminal workflow stages)
+  const { count: activeResidentCount } = await supabase
+    .from("tenants")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId)
+    .eq("property_id", property.id)
+    .is("deleted_at", null)
+    .not("workflow_stage", "in", '("former_resident","archive")');
+
   const occupancyRate = (unitsTotal ?? 0) === 0 ? 0 : Math.round(((occupiedUnits ?? 0) / (unitsTotal ?? 0)) * 100);
 
   const activity = [
@@ -453,6 +462,7 @@ export default async function PropertyDetailPage({
           recentLifecycle={recentLifecycle}
           openMaintenanceCount={openMaintenance.length}
           activeLeasingCount={activeLeasingCount ?? 0}
+          activeResidentCount={activeResidentCount ?? 0}
           userName={(profile?.display_name as string | null) ?? user.email ?? null}
           organizationName={null}
         />

@@ -34,6 +34,8 @@ export type TenantRecord = {
   notes: string | null;
   status: TenantStatus;
   lifecycleStatus: TenantLifecycleStatus;
+  /** CORE-004 Phase 4 — authoritative resident lifecycle stage. */
+  workflowStage: string;
   metadata: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
@@ -43,7 +45,13 @@ export type TenantRecord = {
 
 export type CreateTenantInput = Omit<
   TenantRecord,
-  "id" | "organizationId" | "createdAt" | "updatedAt" | "archivedAt" | "deletedAt"
+  | "id"
+  | "organizationId"
+  | "workflowStage"
+  | "createdAt"
+  | "updatedAt"
+  | "archivedAt"
+  | "deletedAt"
 >;
 
 export type UpdateTenantInput = Partial<CreateTenantInput>;

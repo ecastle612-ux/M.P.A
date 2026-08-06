@@ -23,6 +23,10 @@ export const OPS_SLICE_A_EVENT_TYPES = [
   "unit.created",
   "tenant.created",
   "tenant.invited",
+  "resident.workflow.transitioned",
+  "resident.activated",
+  "resident.move_in_completed",
+  "resident.archived",
   // Lease
   "lease.created",
   "lease.signed",
