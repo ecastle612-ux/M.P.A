@@ -87,7 +87,10 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Foundation scaffold | Completed (Phase 2) |
 | Foundation hardening | Completed (Phase 2.1) |
 | Phase 3 identity foundation | Completed (approved and implemented) |
-| Business features | Blocked until Foundation exit criteria met |
+| Product Architecture Reset (24) | **Draft** — must Approve before product/feature work resumes |
+| ADR-015 (three commercial products) | **Proposed** |
+| CORE-004 / LAUNCH-001 / Financial Ops implementation | **Stopped** until Product Architecture Approved |
+| Business features | Blocked until Product Architecture Approved and feature-specific gates clear |
 
 ---
 

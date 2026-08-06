@@ -4,8 +4,9 @@ The permanent source of truth for M.P.A. (My Property Assistant).
 
 This blueprint defines how M.P.A. is designed, built, and evolved. Every engineer, designer, and product contributor should treat these documents as authoritative until superseded by an approved Decision Log entry.
 
-**Current status:** Phase 2.1 Foundation Hardening complete; Phase 3 Identity
-Foundation documented and awaiting approval. Implementation Gate in force.
+**Current status:** Product Architecture Reset in progress (`docs/24-product-architecture/`,
+Draft). CORE-004, LAUNCH-001, and Financial Operations implementation are stopped
+until the commercial blueprint is approved. Implementation Gate in force.
 
 ---
 
@@ -26,9 +27,10 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 1. Read **01 Vision** through **05 Business Workflows** to understand *why* we build.
 2. Read **06 Design Language (Canopy)** through **07 UX Principles** to understand *how it should feel*.
 3. Read **08 Software Architecture** through **16 Testing Standards** to understand *how it is built*.
-4. Consult **17 Development Roadmap** for sequencing.
-5. Check **18 Decision Log** before proposing architectural changes.
-6. Reference **19** and **20** for long-term platform direction.
+4. Read **24 Product Architecture** for commercial packaging (three offerings + Master Admin).
+5. Consult **17 Development Roadmap** for sequencing (reconcile to 24 after approval).
+6. Check **18 Decision Log** before proposing architectural changes.
+7. Reference **19** and **20** for long-term platform direction.
 
 ---
 
@@ -46,6 +48,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 21 | [Experience Architecture](./21-experience-architecture/index.md) | How M.P.A. should *feel* (Phase 1.6) |
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
+| 24 | [Product Architecture (Commercial Reset)](./24-product-architecture/index.md) | Three offerings, ownership, nav, subscriptions, entitlements |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -71,6 +74,23 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Zero Learning Goal](./21-experience-architecture/zero-learning-goal.md) | Understandable without training |
 | [Micro Interaction Philosophy](./21-experience-architecture/micro-interaction-philosophy.md) | Emotional outcomes of key actions |
 | [Recommendations Before Implementation](./21-experience-architecture/recommendations-before-implementation.md) | Experience gate |
+
+### 24 Product Architecture (Commercial Reset)
+
+| Document | Purpose |
+|----------|---------|
+| [Index & Audit Verdict](./24-product-architecture/index.md) | Stop notice, audit summary, approval checklist |
+| [Master Product Architecture](./24-product-architecture/master-product-architecture.md) | Commercial model and boundary rules |
+| [Module Ownership Matrix](./24-product-architecture/module-ownership-matrix.md) | PM / Facility / Shared / Master Admin / Unknown |
+| [Property Manager Module Map](./24-product-architecture/property-manager-module-map.md) | Definitive PM modules, nav, workspaces, workflows |
+| [Facility Operations Module Map](./24-product-architecture/facility-operations-module-map.md) | Definitive Facility ownership (no implementation) |
+| [Complete Platform Composition](./24-product-architecture/complete-platform-composition.md) | Union without duplicate homes |
+| [Master Admin Capability Map](./24-product-architecture/master-admin-capability-map.md) | Operator OS gaps and target IA |
+| [Navigation Map](./24-product-architecture/navigation-map.md) | Sidebar, launcher, Mission Control, routes, search |
+| [Subscription Matrix](./24-product-architecture/subscription-matrix.md) | SKU inclusion matrix |
+| [Entitlement Matrix](./24-product-architecture/entitlement-matrix.md) | Capability keys by SKU |
+| [Launch Readiness](./24-product-architecture/launch-readiness.md) | Customer #1 clarity verdict |
+| [Implementation Order After Reset](./24-product-architecture/implementation-order-after-reset.md) | Post-approval sequence only |
 
 ### Governance & gates
 
@@ -114,6 +134,6 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Field | Value |
 |-------|-------|
-| Blueprint version | 0.4.0 |
-| Last updated | 2026-07-13 |
-| Phase | 2.1 Foundation Hardening |
+| Blueprint version | 0.5.0-draft |
+| Last updated | 2026-08-06 |
+| Phase | Product Architecture Reset (Draft) |
