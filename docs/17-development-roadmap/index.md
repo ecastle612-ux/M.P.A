@@ -8,6 +8,19 @@ Every phase produces something a property manager can use to eliminate a real he
 
 ---
 
+## Customer #1 sequencing (authoritative when approved)
+
+**Status:** Draft — see package **25** and **ADR-016**.
+
+Certified product baseline now includes Identity, Master Admin, UX-016, STD-001, NAV-001, ARCH-001, Property Lifecycle, Maintenance, Leasing, Resident, and SignWell Production. Legacy phase numbers below are retained for history; **do not start CORE-004 Facility implementation next.**
+
+| Next build | CORE-L1 Financial Operations (Rent Collection) |
+|------------|------------------------------------------------|
+| Facility   | First-class architecture (24 / ADR-015); implement as **CORE-L8** post-launch by default |
+| Full guide | [25 Launch Readiness & Roadmap Alignment](../25-launch-readiness-roadmap/index.md) |
+
+---
+
 ## Phase 0: Blueprint Approval
 
 **Status:** Architecture approved
@@ -388,5 +401,7 @@ Phase 4.5 / 8.5 are **Proposed** roadmap inserts from the Facility Operations ar
 - **05** Business Workflows — workflow definitions
 - **08** Architecture Improvements — pre-development blockers
 - **19** Future Native Mobile Strategy
-- **24** Facility Operations Architecture — Proposed Phase 4.5 / CORE-004 framing
+- **24** Facility Operations Architecture — first-class Facility ownership (Proposed)
+- **25** Launch Readiness & Roadmap Alignment — Customer #1 CORE-L* sequence (Proposed)
 - **ADR-015** Facility Operations as first-class workspace (Proposed)
+- **ADR-016** Customer #1 launch-aligned roadmap (Proposed)

@@ -20,11 +20,13 @@ This package answers that question **before CORE-004 continues**.
 | Question | Recommendation |
 |----------|----------------|
 | Is Facility Operations first-class? | **Yes** — a first-class **operational workspace**, not a Maintenance sub-screen |
-| Own CORE-004 phase? | **Yes** — Facility Operations deserves a dedicated CORE design/delivery phase |
+| Own dedicated CORE phase? | **Yes** — as **CORE-L8** (architecture now; implementation after Customer #1 launch path) |
 | Inventory / Assets / PM / Capital home? | **Yes** — primary ownership inside Facility Operations; Maintenance consumes outputs |
-| Roadmap | Insert Facility as a distinct phase after Maintenance work-order core; do not bury it under Maintenance |
+| Next build after Resident? | **No** — see [25 Launch Readiness](../25-launch-readiness-roadmap/index.md): **Financial Operations (CORE-L1)** next |
+| Roadmap | Facility is distinct and first-class; **do not** bury under Maintenance; **do not** jump ahead of Customer #1 blockers |
 
-Full analysis: [Product Architecture Review](./product-architecture-review.md)
+Full analysis: [Product Architecture Review](./product-architecture-review.md)  
+Launch sequencing: [25 / ADR-016](../25-launch-readiness-roadmap/index.md)
 
 ---
 
@@ -61,10 +63,12 @@ This review builds on — and does not silently override — approved doctrine:
 
 | Item | Required for |
 |------|----------------|
-| Stakeholder accept of this package + ADR-015 | Continuing CORE-004 Facility product scope |
-| Explicit reject or revise | If Facility should remain a Maintenance presentation surface only |
+| Stakeholder accept of this package + ADR-015 | Facility **ownership** (architecture) |
+| Stakeholder accept of **25** + ADR-016 | Facility **implementation timing** (CORE-L8 default) |
+| Explicit reject or revise ADR-015 | If Facility should remain a Maintenance presentation surface only |
 
-Until status moves to **Approved**, no Facility application code, schema, or nav expansion beyond already-approved Maintenance/STD presentation work.
+Until ADR-015 is **Accepted**, no Facility domain implementation.  
+Until ADR-016 launch path allows it (or contract exception), do **not** start Facility Foundation as the next CORE track.
 
 ---
 

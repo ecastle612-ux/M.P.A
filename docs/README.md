@@ -47,6 +47,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
 | 24 | [Facility Operations Architecture](./24-facility-operations-architecture/index.md) | Product Architecture review — Facility vs Maintenance (Draft) |
+| 25 | [Launch Readiness & Roadmap Alignment](./25-launch-readiness-roadmap/index.md) | Customer #1 blockers + revised CORE sequence (Draft) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -80,6 +81,14 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Product Architecture Review](./24-facility-operations-architecture/product-architecture-review.md) | Facility vs Maintenance boundaries and recommendations |
 | [Capability Ownership Matrix](./24-facility-operations-architecture/capability-ownership-matrix.md) | Inventory → Facility Analytics ownership audit |
 | [ADR-015](./18-decision-log/adr-015-facility-operations-first-class-workspace.md) | Proposed decision — Facility as first-class workspace |
+
+### 25 Launch Readiness & Roadmap Alignment (Draft)
+
+| Document | Purpose |
+|----------|---------|
+| [Launch Readiness Audit](./25-launch-readiness-roadmap/launch-readiness-audit.md) | BLOCKER vs POST-LAUNCH for remaining platform areas |
+| [Revised CORE Roadmap](./25-launch-readiness-roadmap/revised-core-roadmap.md) | CORE-L1…L12 sequence for Customer #1 |
+| [ADR-016](./18-decision-log/adr-016-customer-one-launch-roadmap.md) | Proposed decision — Financial next; Facility post-launch |
 
 ### Governance & gates
 
@@ -123,6 +132,6 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Field | Value |
 |-------|-------|
-| Blueprint version | 0.4.1 |
+| Blueprint version | 0.4.2 |
 | Last updated | 2026-08-06 |
-| Phase | 2.1 Foundation Hardening · Facility Ops architecture Draft |
+| Phase | Customer #1 launch alignment Draft · Facility architecture Draft |

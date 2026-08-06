@@ -51,6 +51,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-013](./adr-013-experience-architecture-before-ui.md) | Experience Architecture Before UI Implementation | Accepted | 2026-07-13 |
 | [ADR-014](./adr-014-phase-3-identity-multitenant-foundation.md) | Phase 3 Identity & Multi-Tenant Foundation | Accepted | 2026-07-13 |
 | [ADR-015](./adr-015-facility-operations-first-class-workspace.md) | Facility Operations as First-Class Operational Workspace | Proposed | 2026-08-06 |
+| [ADR-016](./adr-016-customer-one-launch-roadmap.md) | Customer #1 Launch-Aligned CORE Roadmap | Proposed | 2026-08-06 |
 
 ---
 

@@ -25,8 +25,10 @@ See: [24 Facility Operations Product Architecture](../24-facility-operations-arc
 3. **Facility Operations** owns plant stewardship (assets/equipment, inventory/parts master data, PM programs, capital projects, operational inspection programs, safety incidents, facility compliance posture, facility stewardship analytics).
 4. **Handoff pattern:** Facility plans/governs and emits work; Maintenance executes/closes; domain events update Facility state (asset history, PM compliance, CapEx actuals, parts consumption).
 5. **Inventory, Assets, Preventive Maintenance programs, and Capital Projects** have primary ownership under Facility Operations.
-6. **Facility product depth requires its own CORE phase** (CORE-004a architecture approval, then CORE-004b / roadmap Phase 4.5 foundation implementation). Presentation remount (STD-001) is not product approval.
+6. **Facility product depth requires its own CORE phase** (architecture approval now; foundation implementation as **CORE-L8** per ADR-016 — after Customer #1 launch path, not as the next build). Presentation remount (STD-001) is not product approval.
 7. **Operations Console** remains the cross-cutting attention layer; Facility Analytics must not become a second dashboard home.
+
+**Timing:** Ownership is defined here. **When to implement** relative to Customer #1 is defined in [ADR-016](./adr-016-customer-one-launch-roadmap.md).
 
 ## Consequences
 

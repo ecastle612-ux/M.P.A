@@ -216,18 +216,17 @@ Build a full CMMS before Maintenance work-order core.
 | Fold Facility into existing Maintenance roadmap Phase 3 only | **No** — overloads P0 maintenance delivery; muddies exit criteria |
 | **Dedicated Facility Operations CORE phase** (design → approve → implement) | **Yes** — correct gate alignment |
 
-### Proposed CORE framing
+### Proposed CORE framing (updated for Customer #1)
 
 | Phase | Intent |
 |-------|--------|
-| **CORE-004a — Facility Operations Architecture (this package)** | Design & approve workspace boundaries, ownership, IA, data contracts |
-| **CORE-004b — Facility Foundation (implementation, post-approval)** | Asset registry + PM program spine + inventory minimum viable; emit/consume work orders |
-| Maintenance Phase 3 (existing 17) | Remains work-order + vendor foundation; **does not** absorb Facility depth |
+| **Architecture (this package + ADR-015)** | Design & approve workspace boundaries, ownership, IA, data contracts |
+| **CORE-L1…L7** | Customer #1 launch path — **Financial first**, not Facility ([25](../25-launch-readiness-roadmap/index.md) / ADR-016) |
+| **CORE-L8 — Facility Foundation** | Asset registry + PM program spine + inventory minimum viable; emit/consume work orders |
+| Maintenance (certified) | Remains work-order execution home; **does not** absorb Facility depth |
 
-CORE-004a is **documentation/approval only** (this package + ADR-015).  
-CORE-004b must not start until ADR-015 is **Accepted**.
-
-If the organization prefers roadmap numbering over CORE IDs, treat CORE-004b as a new **Phase 3.5 / Phase 4.5** insert in **17** (see §8). The naming is secondary to the gate: Facility needs its own approved design slice.
+Architecture approval is **documentation only** until ADR-015 is **Accepted**.  
+Facility Foundation implementation waits for ADR-016 launch sequencing (default: after Customer #1), even if ADR-015 is Accepted earlier.
 
 ---
 
