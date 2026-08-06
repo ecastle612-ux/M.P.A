@@ -1,6 +1,6 @@
 # Module Ownership Matrix
 
-**Status:** Draft — awaiting approval  
+**Status:** Approved  
 **Parent:** [24 Product Architecture](./index.md)
 
 Every capability is categorized as exactly one of:

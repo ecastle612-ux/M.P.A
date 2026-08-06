@@ -1,6 +1,6 @@
 # Facility Operations — Definitive Module Map
 
-**Status:** Draft — awaiting approval  
+**Status:** Approved  
 **SKU:** Product 2 — Facility Operations  
 **Also included in:** Product 3 — Complete Platform  
 **Parent:** [24 Product Architecture](./index.md)

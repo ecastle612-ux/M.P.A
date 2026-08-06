@@ -1,10 +1,11 @@
-import { USER_ROLES, isUserRole, type UserRole } from "@mpa/shared";
+import { USER_ROLES, isProductSku, isUserRole, type ProductSku, type UserRole } from "@mpa/shared";
 
 export const ACTIVE_ORGANIZATION_COOKIE = "mpa_active_organization_id";
 
 export type CreateOrganizationInput = {
   name: string;
   slug?: string;
+  productSku: ProductSku;
 };
 
 export type SwitchOrganizationInput = {
@@ -27,6 +28,9 @@ export type OrganizationSummary = {
   name: string;
   slug: string;
   roles: UserRole[];
+  productSku: ProductSku | null;
+  productLabel: string | null;
+  setupComplete: boolean;
 };
 
 export function parseCreateOrganizationInput(payload: unknown): CreateOrganizationInput | null {
@@ -36,19 +40,20 @@ export function parseCreateOrganizationInput(payload: unknown): CreateOrganizati
   const value = payload as Record<string, unknown>;
   const name = typeof value["name"] === "string" ? value["name"].trim() : "";
   const slugRaw = typeof value["slug"] === "string" ? value["slug"].trim() : undefined;
+  const productSkuRaw = value["productSku"];
   const slug =
     slugRaw && slugRaw.length >= 2 && slugRaw.length <= 80 && /^[a-z0-9-]+$/.test(slugRaw)
       ? slugRaw
       : undefined;
 
-  if (name.length < 2 || name.length > 120) {
+  if (name.length < 2 || name.length > 120 || !isProductSku(productSkuRaw)) {
     return null;
   }
 
   if (slug) {
-    return { name, slug };
+    return { name, slug, productSku: productSkuRaw };
   }
-  return { name };
+  return { name, productSku: productSkuRaw };
 }
 
 export function parseSwitchOrganizationInput(payload: unknown): SwitchOrganizationInput | null {

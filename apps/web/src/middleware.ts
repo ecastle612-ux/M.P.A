@@ -33,9 +33,17 @@ export async function middleware(request: NextRequest) {
   const isLoginRoute = pathname.startsWith("/login");
   const isForgotPasswordRoute = pathname.startsWith("/forgot-password");
   const isProtected =
-    request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/portal") ||
-    request.nextUrl.pathname.startsWith("/profile");
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/portal") ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/launcher") ||
+    pathname.startsWith("/setup") ||
+    pathname.startsWith("/billing") ||
+    pathname.startsWith("/pm") ||
+    pathname.startsWith("/facility") ||
+    pathname.startsWith("/shared") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/admin");
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
@@ -45,7 +53,7 @@ export async function middleware(request: NextRequest) {
 
   if ((isLoginRoute || isForgotPasswordRoute) && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/portal";
+    url.pathname = "/launcher";
     return NextResponse.redirect(url);
   }
 
@@ -57,6 +65,14 @@ export const config = {
     "/dashboard/:path*",
     "/portal/:path*",
     "/profile/:path*",
+    "/launcher/:path*",
+    "/setup/:path*",
+    "/billing/:path*",
+    "/pm/:path*",
+    "/facility/:path*",
+    "/shared/:path*",
+    "/settings/:path*",
+    "/admin/:path*",
     "/login",
     "/forgot-password",
     "/reset-password",

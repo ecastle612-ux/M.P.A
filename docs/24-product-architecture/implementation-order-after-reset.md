@@ -1,6 +1,6 @@
 # Recommended Implementation Order (After Reset)
 
-**Status:** Draft — awaiting approval  
+**Status:** Approved  
 **Parent:** [24 Product Architecture](./index.md)
 
 **Now:** No implementation.  

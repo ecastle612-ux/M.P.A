@@ -73,6 +73,15 @@ export function ProfileMenu() {
           <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/profile")}>
             Profile
           </Button>
+          <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/billing")}>
+            Billing & Plan
+          </Button>
+          <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/setup")}>
+            Guided Setup
+          </Button>
+          <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/admin")}>
+            Master Admin
+          </Button>
           <Button className="w-full" variant="secondary" onClick={handleLogout}>
             Logout
           </Button>

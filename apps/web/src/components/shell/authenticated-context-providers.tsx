@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import type { UserRole } from "@mpa/shared";
+import type { ProductSku, UserRole } from "@mpa/shared";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
 import { OrganizationProvider } from "./organization-context";
 import { RoleProvider } from "./role-context";
+import { CommercialProvider } from "./commercial-context";
 
 export function AuthenticatedContextProviders({
   children,
@@ -36,20 +37,28 @@ export function AuthenticatedContextProviders({
             organizationName: string;
             organizationSlug: string;
             roles: UserRole[];
+            productSku: ProductSku | null;
+            productLabel: string | null;
+            setupComplete: boolean;
           }>;
         };
         const refreshedOrganizations = (payload.memberships ?? []).map((membership) => ({
           id: membership.organizationId,
           name: membership.organizationName,
           slug: membership.organizationSlug,
-          roles: membership.roles
+          roles: membership.roles,
+          productSku: membership.productSku,
+          productLabel: membership.productLabel,
+          setupComplete: membership.setupComplete
         }));
         setOrganizationState(refreshedOrganizations);
       }}
     >
-      <RoleProvider fallbackRoles={availableRoles} defaultRole={defaultRole}>
-        {children}
-      </RoleProvider>
+      <CommercialProvider>
+        <RoleProvider fallbackRoles={availableRoles} defaultRole={defaultRole}>
+          {children}
+        </RoleProvider>
+      </CommercialProvider>
     </OrganizationProvider>
   );
 }

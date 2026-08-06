@@ -1,6 +1,6 @@
 # Master Product Architecture
 
-**Status:** Draft — awaiting approval  
+**Status:** Approved  
 **Parent:** [24 Product Architecture](./index.md)
 
 ---

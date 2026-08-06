@@ -1,6 +1,6 @@
 # Property Manager — Definitive Module Map
 
-**Status:** Draft — awaiting approval  
+**Status:** Approved  
 **SKU:** Product 1 — Property Manager  
 **Also included in:** Product 3 — Complete Platform  
 **Parent:** [24 Product Architecture](./index.md)

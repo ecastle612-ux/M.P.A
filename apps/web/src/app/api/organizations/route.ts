@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { toSkuLabel } from "@mpa/shared";
 import {
   ACTIVE_ORGANIZATION_COOKIE,
   createOrganizationSlugFromName,
@@ -6,18 +7,8 @@ import {
   parseCreateOrganizationInput
 } from "../../../lib/organization/contracts";
 import { createAuthServerClient } from "../../../lib/auth/server";
-
-type OrganizationMembershipRow = {
-  id: string;
-  organization_id: string;
-  roles: string[];
-  status: "active" | "inactive";
-  organizations: {
-    id: string;
-    name: string;
-    slug: string;
-  } | null;
-};
+import { assignOrganizationSubscription } from "../../../lib/commercial/server";
+import { getOrganizationsForUser } from "../../../lib/organization/server";
 
 export async function GET() {
   const supabase = await createAuthServerClient();
@@ -29,50 +20,44 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
-  const { data: membershipRows, error: membershipError } = await supabase
-    .from("organization_memberships")
-    .select("id, organization_id, roles, status, organizations(id, name, slug)")
-    .eq("user_id", user.id)
-    .eq("status", "active");
+  try {
+    const organizations = await getOrganizationsForUser(user.id);
+    const { data: invitationRows, error: invitationError } = await supabase
+      .from("organization_invitations")
+      .select("id, organization_id, email, roles, status, token, expires_at")
+      .eq("email", user.email ?? "")
+      .eq("status", "pending");
 
-  if (membershipError) {
-    return NextResponse.json({ error: membershipError.message }, { status: 400 });
+    if (invitationError) {
+      return NextResponse.json({ error: invitationError.message }, { status: 400 });
+    }
+
+    return NextResponse.json({
+      memberships: organizations.map((organization) => ({
+        organizationId: organization.id,
+        organizationName: organization.name,
+        organizationSlug: organization.slug,
+        roles: organization.roles,
+        productSku: organization.productSku,
+        productLabel: organization.productLabel,
+        setupComplete: organization.setupComplete
+      })),
+      invitations: (invitationRows ?? []).map((row) => ({
+        id: row.id,
+        organization_id: row.organization_id,
+        email: row.email,
+        roles: normalizeRoles(row.roles),
+        status: row.status,
+        token: row.token,
+        expires_at: row.expires_at
+      }))
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to load organizations" },
+      { status: 400 }
+    );
   }
-
-  const { data: invitationRows, error: invitationError } = await supabase
-    .from("organization_invitations")
-    .select("id, organization_id, email, roles, status, token, expires_at")
-    .eq("email", user.email ?? "")
-    .eq("status", "pending");
-
-  if (invitationError) {
-    return NextResponse.json({ error: invitationError.message }, { status: 400 });
-  }
-
-  const memberships = ((membershipRows ?? []) as OrganizationMembershipRow[])
-    .filter((row) => row.organizations)
-    .map((row) => ({
-      membershipId: row.id,
-      organizationId: row.organization_id,
-      organizationName: row.organizations?.name ?? "",
-      organizationSlug: row.organizations?.slug ?? "",
-      roles: row.roles
-    }));
-
-  const invitations = (invitationRows ?? []).map((row) => ({
-    id: row.id,
-    organization_id: row.organization_id,
-    email: row.email,
-    roles: normalizeRoles(row.roles),
-    status: row.status,
-    token: row.token,
-    expires_at: row.expires_at
-  }));
-
-  return NextResponse.json({
-    memberships,
-    invitations
-  });
 }
 
 export async function POST(request: Request) {
@@ -88,7 +73,10 @@ export async function POST(request: Request) {
   const payload = await request.json().catch(() => null);
   const parsed = parseCreateOrganizationInput(payload);
   if (!parsed) {
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid payload. name and productSku (commercial product) are required." },
+      { status: 400 }
+    );
   }
 
   const slugCandidate = parsed.slug ?? createOrganizationSlugFromName(parsed.name);
@@ -119,11 +107,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: membershipError.message }, { status: 400 });
   }
 
+  const subscriptionResult = await assignOrganizationSubscription({
+    organizationId: organization.id,
+    sku: parsed.productSku,
+    assignedBy: user.id
+  });
+
+  if (subscriptionResult.error) {
+    return NextResponse.json({ error: subscriptionResult.error }, { status: 400 });
+  }
+
   const response = NextResponse.json({
     organization,
     membership: {
       organizationId: organization.id,
       roles: ["property_manager"]
+    },
+    subscription: {
+      productSku: parsed.productSku,
+      productLabel: toSkuLabel(parsed.productSku)
     }
   });
 

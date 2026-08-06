@@ -1,6 +1,6 @@
 # Complete Platform — Composition
 
-**Status:** Draft — awaiting approval  
+**Status:** Approved  
 **SKU:** Product 3 — Complete Platform  
 **Parent:** [24 Product Architecture](./index.md)
 

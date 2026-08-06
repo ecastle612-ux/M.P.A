@@ -4,9 +4,10 @@ The permanent source of truth for M.P.A. (My Property Assistant).
 
 This blueprint defines how M.P.A. is designed, built, and evolved. Every engineer, designer, and product contributor should treat these documents as authoritative until superseded by an approved Decision Log entry.
 
-**Current status:** Product Architecture Reset in progress (`docs/24-product-architecture/`,
-Draft). CORE-004, LAUNCH-001, and Financial Operations implementation are stopped
-until the commercial blueprint is approved. Implementation Gate in force.
+**Current status:** Product Architecture Reset **Approved**. Phase 1 architectural
+alignment authorized (subscriptions, entitlements, navigation, launcher, setup,
+billing, Master Admin). CORE-004, LAUNCH-001, Financial Ops, and Facility feature
+work remain stopped. Implementation Gate in force.
 
 ---
 
@@ -91,6 +92,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Entitlement Matrix](./24-product-architecture/entitlement-matrix.md) | Capability keys by SKU |
 | [Launch Readiness](./24-product-architecture/launch-readiness.md) | Customer #1 clarity verdict |
 | [Implementation Order After Reset](./24-product-architecture/implementation-order-after-reset.md) | Post-approval sequence only |
+| [Phase 1 Alignment Verification](./24-product-architecture/phase-1-alignment-verification.md) | Architectural alignment verification |
 
 ### Governance & gates
 
@@ -134,6 +136,6 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Field | Value |
 |-------|-------|
-| Blueprint version | 0.5.0-draft |
+| Blueprint version | 0.5.0 |
 | Last updated | 2026-08-06 |
-| Phase | Product Architecture Reset (Draft) |
+| Phase | Product Architecture Alignment Phase 1 |

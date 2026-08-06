@@ -1,6 +1,6 @@
 # Navigation Map
 
-**Status:** Draft — awaiting approval  
+**Status:** Approved  
 **Parent:** [24 Product Architecture](./index.md)
 
 Covers: Sidebar, Workspace Launcher, Mission Control, Guided Setup, Dashboards, Workspaces, Search, Quick Actions, Routes.

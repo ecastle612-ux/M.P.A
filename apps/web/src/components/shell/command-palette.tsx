@@ -1,26 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CommandPaletteShell } from "@mpa/ui";
-
-const PLACEHOLDER_SECTIONS = [
-  {
-    title: "Navigation",
-    items: [
-      { id: "dashboard", label: "Go to Dashboard", shortcut: "G D" },
-      { id: "settings", label: "Open Settings (placeholder)", shortcut: "G S" }
-    ]
-  },
-  {
-    title: "Actions",
-    items: [
-      { id: "switch-role", label: "Switch role", shortcut: "R" },
-      { id: "open-notifications", label: "Open notifications", shortcut: "N" }
-    ]
-  }
-] as const;
+import { useCommercialContext } from "./commercial-context";
 
 export function CommandPalette() {
+  const router = useRouter();
+  const { navigationGroups, productLabel } = useCommercialContext();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -41,15 +28,37 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const filteredSections = useMemo(() => {
-    if (!query.trim()) return PLACEHOLDER_SECTIONS;
-    return PLACEHOLDER_SECTIONS.map((section) => ({
-      ...section,
-      items: section.items.filter((item) =>
-        item.label.toLowerCase().includes(query.toLowerCase()),
+  const sections = useMemo(() => {
+    const navSection = {
+      title: `Navigation · ${productLabel ?? "No product"}`,
+      items: navigationGroups.flatMap((group) =>
+        group.items.map((item) => ({
+          id: item.href,
+          label: `${group.title}: ${item.label}${item.readiness === "planned" ? " (Planned)" : ""}`
+        }))
       )
-    })).filter((section) => section.items.length > 0);
-  }, [query]);
+    };
+
+    const actionSection = {
+      title: "Quick Actions",
+      items: [
+        { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
+        { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
+        { id: "/launcher", label: "Open Workspace Launcher", shortcut: "G L" }
+      ]
+    };
+
+    const all = [navSection, actionSection];
+    if (!query.trim()) {
+      return all;
+    }
+    return all
+      .map((section) => ({
+        ...section,
+        items: section.items.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()))
+      }))
+      .filter((section) => section.items.length > 0);
+  }, [navigationGroups, productLabel, query]);
 
   return (
     <>
@@ -60,14 +69,18 @@ export function CommandPalette() {
         aria-expanded={open}
         className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-gray-50"
       >
-        Command Palette <kbd className="ml-2 text-xs">⌘K</kbd>
+        Search / Actions <kbd className="ml-2 text-xs">⌘K</kbd>
       </button>
       <CommandPaletteShell
         open={open}
         query={query}
         onQueryChange={setQuery}
-        sections={filteredSections}
+        sections={sections}
         onClose={() => setOpen(false)}
+        onSelect={(id) => {
+          setOpen(false);
+          router.push(id);
+        }}
       />
     </>
   );

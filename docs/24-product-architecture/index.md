@@ -1,7 +1,7 @@
 # 24 — Product Architecture (Commercial Reset)
 
-**Status:** Draft — awaiting approval  
-**Gate:** Design → Document → **Approve** → Implement  
+**Status:** Approved  
+**Gate:** Design → Document → Approve → **Implement (Phase 1 alignment authorized)**  
 **Scope of this package:** Documentation only. No implementation. No code. No UI redesign.  
 **Supersedes for product packaging:** Implicit single-product framing in Vision, Roadmap, and Experience docs until those are reconciled after approval.
 
@@ -81,6 +81,7 @@ They may share platform primitives (work orders, vendors, documents, communicati
 | — | [Property Manager Module Map](./property-manager-module-map.md) | Definitive PM modules, nav, workspaces, workflows |
 | — | [Facility Operations Module Map](./facility-operations-module-map.md) | Definitive Facility modules and ownership (document only) |
 | — | [Complete Platform Composition](./complete-platform-composition.md) | How both products combine without duplicate homes |
+| — | [Phase 1 Alignment Verification](./phase-1-alignment-verification.md) | Verification of architectural alignment delivery |
 
 **ADR:** [ADR-015 — Three Commercial Products + Master Admin OS](../18-decision-log/adr-015-three-commercial-products-master-admin.md) (Proposed)
 
@@ -90,8 +91,8 @@ They may share platform primitives (work orders, vendors, documents, communicati
 
 Before any implementation resumes:
 
-- [ ] Stakeholder approves this package (status → Approved)
-- [ ] ADR-015 accepted
+- [x] Stakeholder approves this package (status → Approved)
+- [x] ADR-015 accepted
 - [ ] Vision (01), Philosophy (02), Workflows (05), Personas (03), Roadmap (17) reconciled to this model
 - [ ] CORE-004 / LAUNCH-001 / Financial Ops re-scoped against approved ownership
 - [ ] Explicit go-ahead to resume implementation under the gate
@@ -102,7 +103,7 @@ Before any implementation resumes:
 
 | Field | Value |
 |-------|-------|
-| Package version | 0.1.0 |
+| Package version | 1.0.0 |
 | Created | 2026-08-06 |
-| Status | Draft |
-| Implementation | Forbidden until Approved |
+| Status | Approved |
+| Implementation | Phase 1 architectural alignment authorized |

@@ -15,7 +15,8 @@ export function CommandPaletteShell({
   query,
   onQueryChange,
   sections,
-  onClose
+  onClose,
+  onSelect
 }: {
   open: boolean;
   query: string;
@@ -25,6 +26,7 @@ export function CommandPaletteShell({
     items: ReadonlyArray<CommandPaletteItem>;
   }>;
   onClose: () => void;
+  onSelect?: (id: string) => void;
 }) {
   const titleId = useId();
   const containerRef = useFocusTrap<HTMLDivElement>(open, onClose);
@@ -65,6 +67,10 @@ export function CommandPaletteShell({
                   <li key={item.id}>
                     <button
                       type="button"
+                      onClick={() => {
+                        onSelect?.(item.id);
+                        onClose();
+                      }}
                       className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm text-[var(--mpa-color-text-primary)] hover:bg-gray-100"
                     >
                       <span>{item.label}</span>

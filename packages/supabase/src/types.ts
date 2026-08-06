@@ -270,6 +270,121 @@ export type Database = {
         };
         Relationships: [];
       };
+      product_skus: {
+        Row: {
+          code: "mpa_property_manager" | "mpa_facility_operations" | "mpa_complete_platform";
+          created_at: string;
+          description: string;
+          label: string;
+        };
+        Insert: {
+          code: "mpa_property_manager" | "mpa_facility_operations" | "mpa_complete_platform";
+          created_at?: string;
+          description: string;
+          label: string;
+        };
+        Update: {
+          code?: "mpa_property_manager" | "mpa_facility_operations" | "mpa_complete_platform";
+          created_at?: string;
+          description?: string;
+          label?: string;
+        };
+        Relationships: [];
+      };
+      organization_subscriptions: {
+        Row: {
+          assigned_by: string | null;
+          created_at: string;
+          id: string;
+          organization_id: string;
+          sku_code: "mpa_property_manager" | "mpa_facility_operations" | "mpa_complete_platform";
+          status: "active" | "trialing" | "past_due" | "canceled";
+          updated_at: string;
+        };
+        Insert: {
+          assigned_by?: string | null;
+          created_at?: string;
+          id?: string;
+          organization_id: string;
+          sku_code: "mpa_property_manager" | "mpa_facility_operations" | "mpa_complete_platform";
+          status?: "active" | "trialing" | "past_due" | "canceled";
+          updated_at?: string;
+        };
+        Update: {
+          assigned_by?: string | null;
+          created_at?: string;
+          id?: string;
+          organization_id?: string;
+          sku_code?: "mpa_property_manager" | "mpa_facility_operations" | "mpa_complete_platform";
+          status?: "active" | "trialing" | "past_due" | "canceled";
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_subscriptions_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: true;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      organization_setup_state: {
+        Row: {
+          checklist: Json;
+          completed_at: string | null;
+          organization_id: string;
+          product_confirmed: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          checklist?: Json;
+          completed_at?: string | null;
+          organization_id: string;
+          product_confirmed?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          checklist?: Json;
+          completed_at?: string | null;
+          organization_id?: string;
+          product_confirmed?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_setup_state_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: true;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      platform_operators: {
+        Row: {
+          created_at: string;
+          granted_by: string | null;
+          status: "active" | "inactive";
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          granted_by?: string | null;
+          status?: "active" | "inactive";
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          granted_by?: string | null;
+          status?: "active" | "inactive";
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -279,6 +394,10 @@ export type Database = {
       };
       is_org_manager: {
         Args: { target_org_id: string };
+        Returns: boolean;
+      };
+      is_platform_operator: {
+        Args: Record<string, never>;
         Returns: boolean;
       };
     };

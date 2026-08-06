@@ -11,7 +11,7 @@ export function OrganizationSwitcher() {
       Organization
       <Select
         aria-label="Active organization"
-        className="w-52"
+        className="w-64"
         value={activeOrganizationId ?? ""}
         onChange={(event) => {
           void setActiveOrganization(event.target.value);
@@ -22,6 +22,7 @@ export function OrganizationSwitcher() {
         {organizations.map((organization) => (
           <option key={organization.id} value={organization.id}>
             {organization.name}
+            {organization.productLabel ? ` · ${organization.productLabel}` : " · No product"}
           </option>
         ))}
       </Select>

@@ -1,6 +1,6 @@
 # Master Admin Capability Map
 
-**Status:** Draft — awaiting approval  
+**Status:** Approved  
 **Parent:** [24 Product Architecture](./index.md)
 
 Master Admin is **not a customer product**. It is the operator OS for running M.P.A.

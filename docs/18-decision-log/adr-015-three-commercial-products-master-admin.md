@@ -1,7 +1,7 @@
 # ADR-015: Three Commercial Products + Master Admin OS
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-06

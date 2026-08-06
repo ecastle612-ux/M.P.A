@@ -1,6 +1,8 @@
 export const MANAGER_PORTAL_NAVIGATION = [
   { href: "/portal/manager", label: "Manager home" },
-  { href: "/dashboard", label: "Foundation dashboard" },
+  { href: "/launcher", label: "Workspace Launcher" },
+  { href: "/setup", label: "Guided Setup" },
+  { href: "/billing", label: "Billing & Plan" },
   { href: "/profile", label: "Profile" }
 ] as const;
 

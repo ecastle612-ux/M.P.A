@@ -1,6 +1,6 @@
 # Entitlement Matrix
 
-**Status:** Draft — awaiting approval  
+**Status:** Approved  
 **Parent:** [24 Product Architecture](./index.md)
 
 Entitlements gate **what an organization may use**.  
