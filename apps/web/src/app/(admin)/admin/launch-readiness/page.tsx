@@ -6,6 +6,8 @@ import { J5CertificationPanel } from "../../../../components/admin/j5-certificat
 import { J6CertificationPanel } from "../../../../components/admin/j6-certification-panel";
 import { J7CertificationPanel } from "../../../../components/admin/j7-certification-panel";
 import { J8CertificationPanel } from "../../../../components/admin/j8-certification-panel";
+import { DocumentsCertificationPanel } from "../../../../components/admin/documents-certification-panel";
+import { CommunicationsCertificationPanel } from "../../../../components/admin/communications-certification-panel";
 
 export default function Page() {
   return (
@@ -15,8 +17,8 @@ export default function Page() {
           Launch Readiness
         </h1>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Customer Promise launch evidence. J0–J8 delivered; verify J8 below. Property Manager
-          Customer Promise certification is the GO / NO-GO gate for Customer #1.
+          Customer Promise launch evidence. J0–J8 delivered. Documents and Communications remediation
+          evidence closes the remaining advertised Property Manager promises for full GO.
         </p>
         <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Status: aligned
@@ -30,6 +32,8 @@ export default function Page() {
       <J6CertificationPanel />
       <J7CertificationPanel />
       <J8CertificationPanel />
+      <DocumentsCertificationPanel />
+      <CommunicationsCertificationPanel />
     </main>
   );
 }

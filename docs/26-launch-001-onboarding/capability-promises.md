@@ -1,9 +1,9 @@
 # Capability Promises — Property Manager
 
 **Parent:** [LAUNCH-001](./index.md)  
-**Status:** Updated after J0–J8 delivery  
+**Status:** Updated after Promise Remediation (Documents · Communications)  
 **Advertise sources:** Module Map · Subscription Matrix · Billing inclusions · PM nav (`COMMERCIAL_MODULES`)  
-**Final verdict:** [Property Manager Customer Promise Certification](./property-manager-customer-promise-certification.md)
+**Final verdict:** [Property Manager Customer Promise Certification](./property-manager-customer-promise-certification.md) — **GO**
 
 Each capability is scored with the [six questions](./promise-evaluation-framework.md).
 
@@ -17,13 +17,13 @@ Each capability is scored with the [six questions](./promise-evaluation-framewor
 | Leasing | Yes | Yes | Yes | Yes | Partial | Yes | **Pass** |
 | Residents | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** |
 | Maintenance | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** |
-| Vendor Management | Yes | Yes | Partial | Partial | Partial | Yes | **Conditional** |
+| Vendor Management | Yes | Yes | Partial | Partial | Partial | Yes | **Conditional Pass** |
 | Financial Operations | Yes | Yes | Yes | Yes | Partial | Yes | **Pass** |
 | Owner portfolio | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** |
-| Documents | Yes | No | No | No | No | Partial | **Fail / de-advertise** |
-| Communications | Yes | No | No | No | No | No | **Fail / de-advertise** |
+| Documents | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** |
+| Communications | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** |
 
-**Launch ready?** **CONDITIONAL GO** — J0–J8 operational path Pass; Documents & Communications must stay de-advertised.
+**Launch ready?** **GO** — advertised Property Manager promises demonstrable begin→end.
 ---
 
 ## 1. Property Management
@@ -343,39 +343,36 @@ Leases, agreements, evidence across PM workflows (shared platform module include
 ```
 Open Documents
   → Upload or generate document
-  → Attach to property / lease / resident / WO
-  → Share or send for signature when needed
-  → Retrieve later from context
+  → Attach to property / lease / resident / WO / vendor
+  → Access SignWell signed leases
+  → Retrieve later from the shared library
 ```
 
 ### Current Status
-- `/shared/documents` = alignment stub (`platform.documents`).
-- No document store UX; SignWell absent.
-- Receipts exist as FO data (numbers), not a Documents module.
+- `/shared/documents` = operational library (`document_documents` + lease reuse).
+- Upload/organize by entity; SignWell sync for signed leases.
+- Remediation: [promise-remediation](./promise-remediation/index.md)
 
 ### Six questions
 | # | Answer |
 |---|--------|
 | 1 Discover | **Yes** |
-| 2–5 | **No** |
-| 6 MA validate | **No** |
+| 2 No docs | **Yes** |
+| 3 No support | **Yes** |
+| 4 Begin→End | **Yes** |
+| 5 Matches ad | **Yes** |
+| 6 MA validate | **Yes** — Launch Readiness Documents panel |
 
 ### Friction Points
-- Included on Billing; zero product.
+- 2 MB upload limit for launch; binary preview is size metadata.
 
 ### Launch Blockers
-- Cannot attach lease PDF or evidence.
-- Blocks “lease signed” if e-sign/storage required.
-
-### Recommended Fix
-- MVP: upload + attach to lease/property + list/download.
-- Signature: SignWell **or** “mark signed offline” with file upload.
-- Until then: remove or mark Planned on customer Billing.
+- None for advertised Documents promise.
 
 ### Verification Steps
-1. Upload lease file to a lease.  
-2. Retrieve from lease/property context.  
-3. MA cert “Documents.”
+1. Upload a file to a property/lease/WO.  
+2. Retrieve from Documents + see lease/SignWell entries.  
+3. MA Documents evidence Pass.
 
 ---
 
@@ -387,41 +384,38 @@ Threads, notices, notifications across PM workflows.
 ### Customer Journey
 ```
 Open Communications
-  → Message resident / staff / vendor
-  → Send notice (e.g. entry, past due)
-  → See history on the person/property
+  → Message resident / owner / vendor
+  → See notification inbox (FO + maintenance + messages)
+  → View communication history
   → Recipient gets in-app (and email when configured)
 ```
 
 ### Current Status
-- `/shared/communications` = alignment stub.
-- FO writes some `financial_notifications` rows for money events — not a Communications product.
-- No general messaging/notices UI.
+- `/shared/communications` = compose + history + unified inbox.
+- Reuses `financial_notifications` + `maintenance_notifications`; adds `comms_messages` / `comms_notifications`.
+- Shell NotificationCenter is live-backed.
+- Remediation: [promise-remediation](./promise-remediation/index.md)
 
 ### Six questions
 | # | Answer |
 |---|--------|
 | 1 Discover | **Yes** |
-| 2–5 | **No** |
-| 6 MA validate | **No** |
+| 2 No docs | **Yes** |
+| 3 No support | **Yes** |
+| 4 Begin→End | **Yes** |
+| 5 Matches ad | **Yes** |
+| 6 MA validate | **Yes** — Launch Readiness Communications panel |
 
 ### Friction Points
-- Customers expect inbox; get empty shell.
-- Money notifications ≠ Communications module.
+- Email depends on Resend configuration; in-app always works.
 
 ### Launch Blockers
-- No staff↔resident messaging or notices.
-- Past-due “notify” in FO is narrow and not the advertised product.
-
-### Recommended Fix
-- MVP: notice to resident (template) + in-app list; email when provider live.
-- Threaded messaging can follow if notices ship first.
-- Or de-advertise until MVP exists.
+- None for advertised Communications promise.
 
 ### Verification Steps
-1. Send notice to resident from Communications.  
-2. Resident sees it.  
-3. MA cert “Communications.”
+1. Send message to resident/owner/vendor.  
+2. Confirm inbox + history.  
+3. MA Communications evidence Pass.
 
 ---
 

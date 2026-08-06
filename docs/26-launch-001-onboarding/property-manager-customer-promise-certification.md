@@ -1,7 +1,7 @@
 # Property Manager Customer Promise Certification
 
 **Package:** LAUNCH-001  
-**Scope:** Property Manager subscription — Customer Promise journeys **J0–J8**  
+**Scope:** Property Manager subscription — Customer Promise journeys **J0–J8** + Promise Remediation (Documents · Communications)  
 **Date:** 2026-08-06  
 **Audience:** Master Admin / launch decision for Customer #1  
 
@@ -9,18 +9,19 @@
 
 ## Verdict
 
-### **CONDITIONAL GO** for Customer #1
+### **GO** for Customer #1
 
-Customer Promise journeys **J0–J8** are delivered and ready for Master Admin Pass scripts. The north-star path (purchase → property → team → resident → lease → rent → maintenance → daily ops → owner portfolio) completes without workarounds inside authorized scope.
+Every advertised Property Manager capability is demonstrable begin→end within authorized scope:
 
-**Conditions before white-glove go-live:**
+- Customer Promise journeys **J0–J8** delivered  
+- **Documents** and **Communications** remediation delivered (no duplicate systems)  
+- Facility Operations, CORE-004, and FIN-OPS S4+ remain out of scope and unadvertised as launch blockers  
 
-1. Master Admin runs Pass scripts for **J2–J8** evidence panels (J0–J1 already certified).  
-2. **Documents** and **Communications** remain **de-advertised** / honesty-scoped (not part of J0–J8 operational promise).  
-3. No Facility Operations; no FIN-OPS beyond approved S0–S3 slices.  
-4. Operator confirms one end-to-end dry run on a staging org with live Stripe/SignWell (or documented offline honesty) as used in J4/J5.
+**Operator conditions (procedural, not product gaps):**
 
-If Documents or Communications are still marketed as full product modules without honesty, treat as **NO-GO** until advertise copy is corrected.
+1. Master Admin runs Pass scripts for J2–J8 + Documents + Communications evidence panels on a staging org.  
+2. Confirm SignWell / Resend env for live channels used in the dry run (offline/in-app honesty remains available).  
+3. One end-to-end Customer #1 dry run completes unaided.
 
 ---
 
@@ -48,16 +49,16 @@ If Documents or Communications are still marketed as full product modules withou
 | Leasing | Yes | Yes | Yes | Yes | Partial | Yes | **Pass** | Full vacancy pipeline deferred; launch path + SignWell/offline honesty |
 | Residents | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** | Portal activation edge cases |
 | Maintenance | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** | Vendor FO AP separate from MCC assign |
-| Vendor Management | Yes | Yes | Partial | Partial | Partial | Yes | **Conditional** | Assignment via MCC; payables via FO |
-| Financial Operations | Yes | Yes | Yes | Yes | Partial | Yes | **Pass** | S0–S3 operational money only; not full accounting |
-| Owner portfolio (FO/Owner) | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** | J8 operational insight |
-| Mission Control | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** | Reuses ops data; no second dashboard |
-| Documents | Yes | No | No | No | No | Partial | **Fail / de-advertise** | Honesty empty state on owner portfolio |
-| Communications | Yes | No | No | No | No | No | **Fail / de-advertise** | Out of authorized launch sequence |
+| Vendor Management | Yes | Yes | Partial | Partial | Partial | Yes | **Conditional Pass** | Assignment via MCC; payables via FO — operational for launch |
+| Financial Operations | Yes | Yes | Yes | Yes | Partial | Yes | **Pass** | Operational money only (approved S0–S3) |
+| Owner portfolio | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** | J8 |
+| Mission Control | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** | Reuses ops data |
+| Documents | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** | Remediation — shared library |
+| Communications | Yes | Yes | Yes | Yes | Yes | Yes | **Pass** | Remediation — messages + unified inbox |
 
 ---
 
-## Customer understanding (must be true after J8)
+## Customer understanding
 
 | Role | Understanding |
 |------|----------------|
@@ -66,23 +67,24 @@ If Documents or Communications are still marketed as full product modules withou
 
 ---
 
-## Remaining friction (accepted for launch)
+## Remaining friction (accepted, non-blocking)
 
-- Document Vault not enabled — show honesty, do not fake documents.  
-- Communications / notices not in J0–J8 — do not advertise as ready.  
-- Full leasing marketing/screening pipeline not required for Customer Promise path.  
-- FIN-OPS remains operational money (collections, payables, owner summary) — not general ledger.  
+- Full leasing marketing/screening pipeline deferred beyond launch path.  
+- FIN-OPS is operational money, not a general ledger.  
+- Email delivery depends on Resend configuration; in-app path always works.  
+- SignWell completed PDF URL depends on provider configuration; lease body + status always available.  
 - SaaS self-serve checkout may remain white-glove / Admin assign for Customer #1.
 
 ---
 
-## Hard stops after certification
+## Hard stops after GO
 
 ```
 STOP
-Do not begin new platform capabilities.
 Do not begin Facility Operations.
+Do not resume CORE-004.
 Do not continue FIN-OPS beyond approved slices.
+Do not introduce new capabilities beyond completing the advertised Property Manager subscription.
 ```
 
 ---
@@ -91,10 +93,12 @@ Do not continue FIN-OPS beyond approved slices.
 
 - [ ] J0–J1 already Pass  
 - [ ] J2–J8 evidence panels Pass on staging org  
-- [ ] Owner login + portfolio + drill-down observed  
-- [ ] Advertise copy excludes full Documents / Communications (or honesty present)  
+- [ ] Documents remediation panel Pass (upload + retrieve + lease/SignWell)  
+- [ ] Communications remediation panel Pass (send + inbox + history)  
 - [ ] Customer #1 dry-run script succeeds unaided  
-- [ ] Final box: **CONDITIONAL GO** confirmed by operator  
+- [ ] Final box: **GO** confirmed by operator  
 
 **Operator:** _______________________ **Date:** ________  
-**Decision:** ☐ CONDITIONAL GO ☐ NO-GO  
+**Decision:** ☐ GO ☐ NO-GO  
+
+**Remediation report:** [promise-remediation/remediation-report.md](./promise-remediation/remediation-report.md)

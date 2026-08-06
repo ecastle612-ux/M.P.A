@@ -37,7 +37,7 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     entitlement: "platform.documents",
     href: "/shared/documents",
     readiness: "aligned",
-    description: "Shared document surface (alignment shell)."
+    description: "Shared document library — upload, organize, and retrieve property records."
   },
   {
     id: "communications",
@@ -46,7 +46,7 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     entitlement: "platform.communications",
     href: "/shared/communications",
     readiness: "aligned",
-    description: "Shared communications surface (alignment shell)."
+    description: "Shared messages and notifications for residents, owners, and vendors."
   },
   {
     id: "pm_mission_control",

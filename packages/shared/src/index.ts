@@ -9,4 +9,6 @@ export * from "./resident";
 export * from "./leasing";
 export * from "./maintenance";
 export * from "./team";
+export * from "./documents";
+export * from "./communications";
 export * from "./env/base-env";

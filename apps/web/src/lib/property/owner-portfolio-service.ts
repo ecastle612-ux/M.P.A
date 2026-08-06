@@ -217,12 +217,32 @@ export async function buildOwnerPortfolioHome(
         href: `/portal/owner/properties/${lease.property_id}`
       };
     }),
-    recentDocuments: {
-      available: false,
-      items: [] as Array<{ id: string; title: string }>,
-      honesty:
-        "Recent documents will appear here when Document Vault is enabled for this organization. Lease and payment records remain available in Financials and property drill-down."
-    },
+    recentDocuments: await (async () => {
+      try {
+        const { listDocuments } = await import("../documents/document-service");
+        const docs = await listDocuments(supabase, organizationId);
+        return {
+          available: docs.length > 0,
+          items: docs.slice(0, 6).map((doc) => ({
+            id: doc.id,
+            title: doc.title,
+            detail: `${doc.entityType} · ${doc.category}`,
+            href: "/shared/documents"
+          })),
+          honesty:
+            docs.length > 0
+              ? null
+              : "No portfolio documents yet. Lease agreements and uploads appear here from the shared Documents library."
+        };
+      } catch {
+        return {
+          available: false,
+          items: [] as Array<{ id: string; title: string; detail?: string; href?: string }>,
+          honesty:
+            "Documents are temporarily unavailable. Open the shared Documents library when ready."
+        };
+      }
+    })(),
     recentTimeline: (recentEvents ?? []).slice(0, 10).map((event) => ({
       id: event.id as string,
       title: String(event.event_type),

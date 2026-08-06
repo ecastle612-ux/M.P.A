@@ -1,14 +1,9 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { DocumentsWorkspace } from "../../../../components/documents/documents-workspace";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Shared Platform"
-      title="Documents"
-      description="Shared document surface for entitled products."
-      readiness="aligned"
-      entitlement="platform.documents"
-      includedIn={["Property Manager", "Facility Operations", "Complete Platform"]}
-    />
+    <main className="p-4 md:p-6">
+      <DocumentsWorkspace />
+    </main>
   );
 }

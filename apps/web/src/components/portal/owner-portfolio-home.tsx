@@ -65,7 +65,11 @@ type PortfolioHome = {
     rentAmount: number;
     href: string;
   }>;
-  recentDocuments: { available: boolean; honesty: string };
+  recentDocuments: {
+    available: boolean;
+    honesty: string | null;
+    items: Array<{ id: string; title: string; detail?: string; href?: string }>;
+  };
   recentTimeline: Array<{
     id: string;
     title: string;
@@ -359,9 +363,29 @@ export function OwnerPortfolioHome() {
         </ListSection>
 
         <ListSection title="Recent documents">
-          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            {data.recentDocuments.honesty}
-          </p>
+          {data.recentDocuments.items.length > 0 ? (
+            <ul className="space-y-2 text-sm">
+              {data.recentDocuments.items.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={item.href ?? "/shared/documents"}
+                    className="text-[var(--mpa-color-brand-primary)] underline"
+                  >
+                    {item.title}
+                  </Link>
+                  {item.detail ? (
+                    <span className="block text-xs text-[var(--mpa-color-text-secondary)]">
+                      {item.detail}
+                    </span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+              {data.recentDocuments.honesty ?? "No recent documents."}
+            </p>
+          )}
         </ListSection>
       </div>
 

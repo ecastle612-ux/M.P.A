@@ -252,7 +252,27 @@ export async function buildDailyOperationsBriefing(
   const recommendedActions = [
     immediateAttention[0],
     waitingOnMe[0],
-    waitingOnOthers[0]
+    waitingOnOthers[0],
+    workOrders.length > 0
+      ? {
+          id: "docs-evidence",
+          domain: "property" as const,
+          title: "Attach maintenance evidence in Documents",
+          detail: "Upload photos or invoices to the work order record",
+          href: "/shared/documents",
+          urgency: "waiting_on_me" as const
+        }
+      : null,
+    outstandingRent > 0
+      ? {
+          id: "comms-followup",
+          domain: "resident" as const,
+          title: "Message residents about outstanding rent",
+          detail: "Use Communications for a clear follow-up",
+          href: "/shared/communications",
+          urgency: "waiting_on_me" as const
+        }
+      : null
   ].filter(Boolean) as DailyOpsAttentionItem[];
 
   const quickActions = [
@@ -261,6 +281,8 @@ export async function buildDailyOperationsBriefing(
     { id: "mc-leasing", label: "Leasing", href: "/pm/leasing" },
     { id: "mc-residents", label: "Residents", href: "/pm/residents" },
     { id: "mc-properties", label: "Properties", href: "/pm/properties" },
+    { id: "mc-documents", label: "Documents", href: "/shared/documents" },
+    { id: "mc-communications", label: "Communications", href: "/shared/communications" },
     { id: "mc-owner", label: "Owner portfolio", href: "/portal/owner" },
     ...(financeReport?.quickActions.slice(0, 3) ?? [])
   ];

@@ -18,16 +18,16 @@ Success rule:
 
 | Promise | Verdict |
 |---------|---------|
-| Property Management | Broken |
-| Leasing | Broken |
-| Residents | Broken |
-| Maintenance | Broken |
-| Vendor Management | Broken |
-| Financial Operations | Conditional |
-| Documents | Broken |
-| Communications | Broken |
+| Property Management | Pass |
+| Leasing | Pass |
+| Residents | Pass |
+| Maintenance | Pass |
+| Vendor Management | Conditional Pass |
+| Financial Operations | Pass |
+| Documents | Pass |
+| Communications | Pass |
 
-North-star journey: **incomplete**.
+North-star journey: **complete** (J0–J8 + Promise Remediation). Final verdict: **GO**.
 
 ---
 
@@ -61,20 +61,22 @@ Assisted demos that rely on the above **do not** count as launch ready.
 - [x] J6 Maintenance → vendor → resolved (**delivered** — MA Pass script ready)  
 - [x] J7 Daily operations (**delivered** — MA Pass script ready)  
 - [x] J8 Owner portfolio review (**delivered** — MA Pass script ready)  
-- [x] Communications de-advertised for launch (not in J0–J8)  
-- [x] Documents honesty / de-advertise for launch  
+- [x] Documents remediation delivered (`/shared/documents`)  
+- [x] Communications remediation delivered (`/shared/communications`)  
 
 ### Master Admin
 - [ ] Certification console Pass for J2–J8 on staging org  
+- [ ] Documents + Communications remediation panels Pass  
 - [ ] Entitlement fail-closed verified  
 - [ ] Integration health visible  
-- [ ] Final [PM Customer Promise Certification](./property-manager-customer-promise-certification.md) signed  
+- [ ] Final [PM Customer Promise Certification](./property-manager-customer-promise-certification.md) signed (**GO**)  
 
 ### Governance
 - [x] `APPROVE LAUNCH-001` ([ADR-017](../18-decision-log/adr-017-launch-001-customer-promise-journeys.md))  
 - [x] Journeys J0–J8 authorized and delivered (MA Pass pending J2–J8)  
+- [x] Promise Remediation authorized and delivered  
 - [x] FIN-OPS remains single money system; S4 not required for this GO  
-- [x] **STOP** — no new implementation after J8 without new authorization  
+- [x] **STOP** — no Facility / CORE-004 / FIN-OPS expansion without new authorization  
 
 ---
 

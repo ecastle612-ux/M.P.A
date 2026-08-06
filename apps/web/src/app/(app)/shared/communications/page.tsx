@@ -1,14 +1,9 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { CommunicationsWorkspace } from "../../../../components/communications/communications-workspace";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Shared Platform"
-      title="Communications"
-      description="Shared communications surface for entitled products."
-      readiness="aligned"
-      entitlement="platform.communications"
-      includedIn={["Property Manager", "Facility Operations", "Complete Platform"]}
-    />
+    <main className="p-4 md:p-6">
+      <CommunicationsWorkspace />
+    </main>
   );
 }

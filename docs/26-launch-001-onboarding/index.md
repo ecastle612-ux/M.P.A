@@ -69,6 +69,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [J7 Certification](./j7/certification.md) | Daily operations Pass script |
 | [J8 Certification](./j8/certification.md) | Owner portfolio review Pass script |
 | [Property Manager Customer Promise Certification](./property-manager-customer-promise-certification.md) | Final GO / NO-GO for Customer #1 |
+| [Promise Remediation](./promise-remediation/index.md) | Documents + Communications completion design |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
@@ -89,6 +90,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE LAUNCH-001 JOURNEY J6` | First maintenance request | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J7` | Daily operations | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J8` | Owner portfolio review | **Authorized + delivered** — MA cert script ready |
+| `AUTHORIZE LAUNCH-001 – PROPERTY MANAGER PROMISE REMEDIATION` | Documents + Communications | **Authorized + delivered** — MA evidence ready |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
@@ -105,10 +107,10 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | Vendor Management | Assign & manage vendors | **Conditional** (MCC assign + FO AP) |
 | Financial Operations | Rent, charges, collections, owner summary | **Pass** (J5 + FO S0–S3 + J8) |
 | Owner portfolio | Owner portal health view | **Pass** (J8) |
-| Documents | Leases, agreements, evidence | **Fail / de-advertise** |
-| Communications | Threads, notices, notifications | **Fail / de-advertise** |
+| Documents | Leases, agreements, evidence | **Pass** (Promise Remediation) |
+| Communications | Threads, notices, notifications | **Pass** (Promise Remediation) |
 
-Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer Promise Certification](./property-manager-customer-promise-certification.md)
+Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer Promise Certification](./property-manager-customer-promise-certification.md) (**GO**)
 
 ---
 
@@ -116,11 +118,11 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 
 | Instruction |
 |-------------|
-| **STOP** after J8 — no new platform capabilities without a new authorization |
+| **STOP** after Promise Remediation — no new platform capabilities without a new authorization |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |
 | **Do not begin Facility Operations features** |
-| **Do not advertise** Documents or Communications as launch-ready |
+| **Do not resume CORE-004** |
 | **Do not** bypass an incomplete journey with unrelated feature work |
 
 ---
