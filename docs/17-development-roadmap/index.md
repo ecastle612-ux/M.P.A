@@ -8,16 +8,21 @@ Every phase produces something a property manager can use to eliminate a real he
 
 ---
 
-## Customer #1 sequencing (authoritative when approved)
+## LAUNCH-001 (governing — when authorized)
 
-**Status:** Draft — see package **25** and **ADR-016**.
+**Status:** Draft — see package **26** and **ADR-017**.
 
-Certified product baseline now includes Identity, Master Admin, UX-016, STD-001, NAV-001, ARCH-001, Property Lifecycle, Maintenance, Leasing, Resident, and SignWell Production. Legacy phase numbers below are retained for history; **do not start CORE-004 Facility implementation next.**
+**LAUNCH-001** temporarily becomes the highest priority until Customer #1 is onboarded. It does **not** replace CORE-004 (long-term roadmap). Legacy phase numbers below are retained for history.
 
-| Next build | CORE-L1 Financial Operations (Rent Collection) |
-|------------|------------------------------------------------|
-| Facility   | First-class architecture (24 / ADR-015); implement as **CORE-L8** post-launch by default |
-| Full guide | [25 Launch Readiness & Roadmap Alignment](../25-launch-readiness-roadmap/index.md) |
+| Rule | Detail |
+|------|--------|
+| Priority | Launch Blockers → Customer #1 → Commercial → Production → Post-Launch |
+| Allowed implementation | Only work that clears a 🔴 item on the [Launch Board](../26-launch-001/launch-readiness-board.md) |
+| CORE-004 Phase 6+ | **Frozen** (unless 🔴-mapped) |
+| Facility expansion | 🔵 Post Launch (ADR-015 ownership stands) |
+| Desk GO/NO-GO | **NO-GO** for unsupervised Customer #1 until board clear |
+
+Sequencing precursor: [25](../25-launch-readiness-roadmap/index.md) · ADR-016.
 
 ---
 
@@ -403,5 +408,7 @@ Phase 4.5 / 8.5 are **Proposed** roadmap inserts from the Facility Operations ar
 - **19** Future Native Mobile Strategy
 - **24** Facility Operations Architecture — first-class Facility ownership (Proposed)
 - **25** Launch Readiness & Roadmap Alignment — Customer #1 CORE-L* sequence (Proposed)
+- **26** LAUNCH-001 — Customer #1 Production Readiness governing program (Proposed)
 - **ADR-015** Facility Operations as first-class workspace (Proposed)
 - **ADR-016** Customer #1 launch-aligned roadmap (Proposed)
+- **ADR-017** LAUNCH-001 governing program (Proposed)

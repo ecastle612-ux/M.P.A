@@ -13,6 +13,8 @@ Align the entire roadmap to **onboard the first production customer**.
 
 Do **not** continue CORE-004 Facility implementation until this package and the Facility architecture decision (24 / ADR-015) are reconciled with launch sequencing below.
 
+**Superseding program:** [LAUNCH-001](../26-launch-001/index.md) / [ADR-017](../18-decision-log/adr-017-launch-001-customer-one-production-readiness.md) is the governing launch program. Package 25 remains the CORE-L* sequencing precursor; the living board and GO/NO-GO live in **26**.
+
 ---
 
 ## Certified baseline (given)

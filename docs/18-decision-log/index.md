@@ -52,6 +52,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-014](./adr-014-phase-3-identity-multitenant-foundation.md) | Phase 3 Identity & Multi-Tenant Foundation | Accepted | 2026-07-13 |
 | [ADR-015](./adr-015-facility-operations-first-class-workspace.md) | Facility Operations as First-Class Operational Workspace | Proposed | 2026-08-06 |
 | [ADR-016](./adr-016-customer-one-launch-roadmap.md) | Customer #1 Launch-Aligned CORE Roadmap | Proposed | 2026-08-06 |
+| [ADR-017](./adr-017-launch-001-customer-one-production-readiness.md) | LAUNCH-001 Customer #1 Production Readiness Program | Proposed | 2026-08-06 |
 
 ---
 

@@ -48,6 +48,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
 | 24 | [Facility Operations Architecture](./24-facility-operations-architecture/index.md) | Product Architecture review — Facility vs Maintenance (Draft) |
 | 25 | [Launch Readiness & Roadmap Alignment](./25-launch-readiness-roadmap/index.md) | Customer #1 blockers + revised CORE sequence (Draft) |
+| 26 | [LAUNCH-001 Customer #1 Production Readiness](./26-launch-001/index.md) | Governing launch program until first paying customer (Draft) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -90,11 +91,22 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Revised CORE Roadmap](./25-launch-readiness-roadmap/revised-core-roadmap.md) | CORE-L1…L12 sequence for Customer #1 |
 | [ADR-016](./18-decision-log/adr-016-customer-one-launch-roadmap.md) | Proposed decision — Financial next; Facility post-launch |
 
+### 26 LAUNCH-001 — Customer #1 Production Readiness (Draft)
+
+| Document | Purpose |
+|----------|---------|
+| [Launch Readiness Report](./26-launch-001/launch-readiness-report.md) | Official A/B/C classification + freeze rule |
+| [Launch Readiness Board](./26-launch-001/launch-readiness-board.md) | Living 🔴🟡🟢🔵 board |
+| [Customer #1 Checklist](./26-launch-001/customer-one-checklist.md) | Production dry-run checklist |
+| [GO / NO-GO](./26-launch-001/go-no-go.md) | Scores + recommendation |
+| [ADR-017](./18-decision-log/adr-017-launch-001-customer-one-production-readiness.md) | Proposed program authorization |
+
 ### Governance & gates
 
 | Document | Purpose |
 |----------|---------|
 | [Implementation Gate](./00-governance/implementation-gate.md) | Design → Document → Approve → Implement (permanent) |
+| [LAUNCH-001](./26-launch-001/index.md) | Highest priority until Customer #1 (does not replace CORE-004) |
 
 ### 06 Design Language — Canopy (Phase 1.5)
 
@@ -132,6 +144,6 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Field | Value |
 |-------|-------|
-| Blueprint version | 0.4.2 |
+| Blueprint version | 0.5.0 |
 | Last updated | 2026-08-06 |
-| Phase | Customer #1 launch alignment Draft · Facility architecture Draft |
+| Phase | LAUNCH-001 Draft (governing) · CORE-004 capability freeze |

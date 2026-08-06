@@ -87,7 +87,9 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Foundation scaffold | Completed (Phase 2) |
 | Foundation hardening | Completed (Phase 2.1) |
 | Phase 3 identity foundation | Completed (approved and implemented) |
-| Business features | Blocked until Foundation exit criteria met |
+| **LAUNCH-001** | **Draft — pending authorization (ADR-017).** While active: highest priority; no new platform capabilities unless they remove a documented Launch Board 🔴 blocker. CORE-004 not replaced; capability work frozen. |
+| CORE-004 Phase 6+ | **Frozen** until LAUNCH-001 Customer #1 GO (unless 🔴-mapped) |
+| Facility expansion | Post-launch (ADR-015 ownership stands; ADR-016 / LAUNCH-001 timing) |
 
 ---
 
@@ -96,6 +98,7 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 - Agents and engineers **must refuse** to write application/UI code for unapproved work.
 - Documentation-only updates are always allowed.
 - If asked to “just build it,” respond with the missing Design / Document / Approve step.
+- During **LAUNCH-001**: refuse non-blocker feature work; point to [Launch Readiness Board](../26-launch-001/launch-readiness-board.md).
 
 ---
 
