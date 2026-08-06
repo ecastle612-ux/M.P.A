@@ -66,6 +66,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [J4 Certification](./j4/certification.md) | First lease Pass script |
 | [J5 Certification](./j5/certification.md) | Collect first rent Pass script |
 | [J6 Certification](./j6/certification.md) | First maintenance request Pass script |
+| [J7 Certification](./j7/certification.md) | Daily operations Pass script |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
@@ -84,7 +85,8 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE LAUNCH-001 JOURNEY J4` | First lease | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J5` | Collect first rent | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J6` | First maintenance request | **Authorized + delivered** — MA cert script ready |
-| J7–J8 | — | **Not authorized** — do not implement |
+| `AUTHORIZE LAUNCH-001 JOURNEY J7` | Daily operations | **Authorized + delivered** — MA cert script ready |
+| J8 | Review owner's portfolio | **Not authorized** — do not implement |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 

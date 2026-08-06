@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  buildDailyOpsReadyAssistantCopy,
   buildMaintenanceReadyAssistantCopy,
   buildMissionControlNextAction,
   buildPropertyReadyAssistantCopy,
@@ -8,6 +9,11 @@ import {
   type CreatePortfolioPropertyInput
 } from "@mpa/shared";
 import { emitPropertyEvent, writePropertyAudit } from "./events-audit";
+import {
+  buildDailyOperationsBriefing,
+  getDailyOpsReadiness,
+  markDailyOpsReviewed
+} from "./daily-ops-service";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -193,7 +199,8 @@ export async function listPropertyTimeline(
 export async function getMissionControlState(
   supabase: Db,
   organizationId: string,
-  setupComplete: boolean
+  setupComplete: boolean,
+  actor?: { userId: string; displayName?: string | null; organizationName?: string | null }
 ) {
   const properties = await listPortfolioProperties(supabase, organizationId);
   const first = properties[0] ?? null;
@@ -207,6 +214,18 @@ export async function getMissionControlState(
   const leases = await getLeaseReadiness(supabase, organizationId);
   const rent = await getRentReadiness(supabase, organizationId);
   const maintenance = await getMaintenanceReadiness(supabase, organizationId);
+
+  let dailyOps = await getDailyOpsReadiness(supabase, organizationId);
+  if (actor?.userId && maintenance.maintenanceReady && !dailyOps.dailyOpsReady) {
+    await markDailyOpsReviewed(
+      supabase,
+      organizationId,
+      actor.userId,
+      maintenance.maintenanceReady
+    );
+    dailyOps = await getDailyOpsReadiness(supabase, organizationId);
+  }
+
   const nextAction = buildMissionControlNextAction({
     setupComplete,
     propertyCount: properties.length,
@@ -215,8 +234,18 @@ export async function getMissionControlState(
     residentReady: residents.residentReady,
     leaseReady: leases.leaseReady,
     rentReady: rent.rentReady,
-    maintenanceReady: maintenance.maintenanceReady
+    maintenanceReady: maintenance.maintenanceReady,
+    dailyOpsReady: dailyOps.dailyOpsReady
   });
+
+  const dailyOperations =
+    actor?.userId && (maintenance.maintenanceReady || properties.length > 0)
+      ? await buildDailyOperationsBriefing(supabase, organizationId, actor, {
+          organizationName: actor.organizationName ?? null,
+          propertyCount: properties.length,
+          firstActionTitle: nextAction.title
+        })
+      : null;
 
   return {
     propertyCount: properties.length,
@@ -237,8 +266,12 @@ export async function getMissionControlState(
     paymentCount: rent.paymentCount,
     maintenanceReady: maintenance.maintenanceReady,
     closedWorkOrderCount: maintenance.closedCount,
+    dailyOpsReady: dailyOps.dailyOpsReady,
     nextAction,
-    assistantRecommendation: nextAction.assistantRecommendation
+    assistantRecommendation: dailyOps.dailyOpsReady
+      ? buildDailyOpsReadyAssistantCopy()
+      : nextAction.assistantRecommendation,
+    dailyOperations
   };
 }
 

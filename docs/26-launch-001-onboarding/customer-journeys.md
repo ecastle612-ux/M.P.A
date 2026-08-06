@@ -52,10 +52,10 @@ Every step must complete successfully without workarounds.
 | **J4** | Sign (or honestly record) the lease | Leasing, Documents | **Delivered** — MA cert pending | Certifying |
 | **J5** | Collect first rent | Financial Operations, Residents | **Delivered** — MA cert pending | Certifying |
 | **J6** | Run a maintenance job with a vendor | Maintenance, Vendors | **Delivered** — MA cert pending | Certifying |
-| **J7** | Owner reviews property money | FO, Property Management, Owner portal | Conditional | Blocked* |
-| **J8** | Communicate a notice | Communications | Fail | Blocked |
+| **J7** | Begin the workday from Mission Control | Mission Control (reuse existing ops data) | **Delivered** — MA cert pending | Certifying |
+| **J8** | Review your owner's portfolio | FO owner summary, Owner portal | Conditional | Blocked |
 
-\*J7 still depends on owner portal discovery/membership after J5–J6 data exists; J7–J8 remain unauthorized.
+Communications remain out of the authorized launch sequence until separately approved.
 
 ---
 
@@ -218,40 +218,45 @@ Resident Portal → Submit Maintenance Request
 
 ---
 
-## J7 — Owner reviews property
+## J7 — Daily operations
 
 ```
-Owner opens portal financials (or PM shares snapshot)
-  → Sees income, expenses, outstanding, occupancy
-  → Reviews property-level money
-  → (Optional) downloads summary
+Property Manager logs in
+  → Mission Control
+  → Greeting + Assistant briefing (existing data only)
+  → Immediate Attention · Waiting on Me · Waiting on Others
+  → Today's Mission · Recommended Actions · Quick Actions
+  → Financial snapshot · Open maintenance · Upcoming leases
+  → Resident / vendor alerts · Recent activity · Timeline
+  → Next: Review your owner's portfolio.
+```
+
+| Field | Content |
+|-------|---------|
+| Current | **Delivered** — OperationsConsoleShell + existing FO/WO/lease/resident signals |
+| Remaining | Master Admin runs [J7 certification](./j7/certification.md) |
+| Out of scope | New dashboards; AI generation; J8 owner portfolio depth |
+| MA verify | [J7 certification](./j7/certification.md) |
+
+**Authorized:** `AUTHORIZE LAUNCH-001 JOURNEY J7`
+
+---
+
+## J8 — Review your owner's portfolio
+
+```
+Mission Control → Review your owner's portfolio
+  → Owner financial summary (income, expenses, outstanding, occupancy)
+  → Property-level money
+  → (Optional) CSV download
 ```
 
 | Field | Content |
 |-------|---------|
 | Current | Owner financial summary + CSV (FO S3) exists |
-| Blockers | Depends on J1/J5 data; owner role provisioning; discovery |
-| Fix | Ensure owner membership path; link from property; keep non-accounting language |
-| MA verify | Owner user sees summary for org properties |
-
-**Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J7`
-
----
-
-## J8 — Notice / communication
-
-```
-Staff sends notice to resident
-  → Resident receives in-app (and email if configured)
-  → History visible on resident/communications
-```
-
-| Field | Content |
-|-------|---------|
-| Current | Communications stub; FO money notifications only |
-| Blockers | Module empty while advertised included |
-| Fix | Notices MVP **or** de-advertise |
-| MA verify | Notice created + delivered flag |
+| Blockers | Discovery / membership path for owner review journey |
+| Fix | Ensure owner membership path; keep non-accounting language |
+| MA verify | Owner user / PM path sees summary for org properties |
 
 **Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J8`
 
@@ -267,11 +272,11 @@ J3  Resident + lease
 J4  Lease signed (or scoped offline honesty)
 J5  Rent collected
 J6  Maintenance + vendor resolved
-J7  Owner reviews property
-J8  Communications notice
+J7  Daily operations (Mission Control)
+J8  Review owner's portfolio
 ```
 
-Parallelism allowed only when journeys do not share unfinished blockers (e.g. J7 after J5 data exists).
+Parallelism allowed only when journeys do not share unfinished blockers.
 
 ---
 

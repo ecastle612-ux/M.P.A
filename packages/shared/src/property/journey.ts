@@ -1,5 +1,5 @@
 /**
- * LAUNCH-001 Mission Control / Assistant progression (J0–J6).
+ * LAUNCH-001 Mission Control / Assistant progression (J0–J7).
  */
 
 export type MissionControlNextAction = {
@@ -12,6 +12,7 @@ export type MissionControlNextAction = {
     | "collect_first_rent"
     | "submit_first_maintenance"
     | "review_daily_operations"
+    | "review_owner_portfolio"
     | "open_property";
   title: string;
   detail: string;
@@ -33,6 +34,8 @@ export function buildMissionControlNextAction(input: {
   rentReady?: boolean;
   /** True when at least one maintenance work order has been closed end-to-end. */
   maintenanceReady?: boolean;
+  /** True when the daily operations briefing has been reviewed on Mission Control. */
+  dailyOpsReady?: boolean;
 }): MissionControlNextAction {
   if (!input.setupComplete) {
     return {
@@ -104,12 +107,22 @@ export function buildMissionControlNextAction(input: {
     };
   }
 
+  if (!input.dailyOpsReady) {
+    return {
+      id: "review_daily_operations",
+      title: "Review today's operations.",
+      detail: "My maintenance operation is working. Review today's operations next.",
+      href: "/pm/mission-control",
+      assistantRecommendation: "Review your daily operations."
+    };
+  }
+
   return {
-    id: "review_daily_operations",
-    title: "Review today's operations.",
-    detail: "My maintenance operation is working. Review today's operations next.",
-    href: "/pm/mission-control",
-    assistantRecommendation: "Review your daily operations."
+    id: "review_owner_portfolio",
+    title: "Review your owner's portfolio.",
+    detail: "I can run my property management business from this dashboard. Review your owner's portfolio next.",
+    href: "/portal/owner/financials",
+    assistantRecommendation: "Review your owner's portfolio."
   };
 }
 
@@ -136,3 +149,11 @@ export function buildRentReadyAssistantCopy(): string {
 export function buildMaintenanceReadyAssistantCopy(): string {
   return "My maintenance operation is working. Review your daily operations.";
 }
+
+export {
+  buildDailyOpsGreeting,
+  buildDailyOpsAssistantBriefing,
+  buildDailyOpsReadyAssistantCopy,
+  type DailyOpsAttentionItem,
+  type DailyOpsBriefingInput
+} from "./daily-ops";

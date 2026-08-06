@@ -26,7 +26,8 @@ describe("LAUNCH-001 J6 maintenance journey", () => {
       residentReady: true,
       leaseReady: true,
       rentReady: true,
-      maintenanceReady: true
+      maintenanceReady: true,
+      dailyOpsReady: false
     });
     expect(after.id).toBe("review_daily_operations");
     expect(after.href).toBe("/pm/mission-control");

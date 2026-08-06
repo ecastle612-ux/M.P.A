@@ -11,10 +11,29 @@ export async function GET() {
 
   try {
     const commercial = await getOrganizationCommercialState(authz.organizationId);
+    const [{ data: profile }, { data: organization }] = await Promise.all([
+      authz.supabase
+        .from("user_profiles")
+        .select("display_name, contact_email")
+        .eq("user_id", authz.user.id)
+        .maybeSingle(),
+      authz.supabase.from("organizations").select("name").eq("id", authz.organizationId).maybeSingle()
+    ]);
+    const profileRow = profile as { display_name?: string | null; contact_email?: string | null } | null;
+    const organizationName =
+      organization && typeof (organization as { name?: string }).name === "string"
+        ? (organization as { name: string }).name
+        : null;
+
     const state = await getMissionControlState(
       authz.supabase,
       authz.organizationId,
-      commercial.setupComplete
+      commercial.setupComplete,
+      {
+        userId: authz.user.id,
+        displayName: profileRow?.display_name ?? profileRow?.contact_email ?? authz.user.email ?? null,
+        organizationName
+      }
     );
     return NextResponse.json({
       ...state,
