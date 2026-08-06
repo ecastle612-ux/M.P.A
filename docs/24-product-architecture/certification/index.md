@@ -2,7 +2,7 @@
 
 **Status:** P0 Hardening complete — **Pass**  
 **Date:** 2026-08-06  
-**Financial Operations:** NO-GO (prerequisite cleared; awaiting explicit FO authorization)  
+**Financial Operations:** Design → Document **authorized** (FIN-OPS-001 Draft); **implementation NO-GO** until `APPROVE FIN-OPS-001`  
 **Facility Operations features:** NO-GO / deferred
 
 ---
@@ -10,16 +10,18 @@
 ## Latest result
 
 Phase 1 alignment framed the three products.  
-P0 Commercial Experience Hardening made the experience **fail closed and trustworthy**.
+P0 Commercial Experience Hardening made the experience **fail closed and trustworthy**.  
+FIN-OPS-001 design package is Draft under `docs/25-fin-ops-001/`.
 
-| Area | Pre-hardening | Post-hardening |
-|------|---------------|----------------|
+| Area | Pre-hardening | Post-hardening / now |
+|------|---------------|----------------------|
 | Entitlement deep links | Fail | **Pass** |
 | Commercial integrity | Fail | **Pass** |
 | Global Search | Fail | **Pass** |
 | Guided Setup | Conditional Fail | **Pass** |
 | Master Admin visibility | Fail | **Pass** |
-| Financial Operations start | NO-GO | **NO-GO** (prerequisite cleared only) |
+| Financial Operations design | — | **GO** (Design → Document) |
+| Financial Operations implementation | NO-GO | **NO-GO** (await APPROVE FIN-OPS-001) |
 | Facility feature start | NO-GO | **NO-GO** |
 
 ---
@@ -45,4 +47,5 @@ P0 Commercial Experience Hardening made the experience **fail closed and trustwo
 | [Commercial verification](./hardening-commercial-verification.md) | Pass |
 | [Navigation verification](./hardening-navigation-verification.md) | Pass |
 | [Onboarding verification](./hardening-onboarding-verification.md) | Pass |
-| [GO / NO-GO Financial Operations](./go-no-go-financial-operations.md) | **NO-GO** — hardening Pass; FO not yet authorized |
+| [GO / NO-GO Financial Operations](./go-no-go-financial-operations.md) | Design **GO**; implementation **NO-GO** until APPROVE FIN-OPS-001 |
+| [FIN-OPS-001 package](../../25-fin-ops-001/index.md) | Draft design package + Proposed ADR-016 |

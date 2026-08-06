@@ -1,21 +1,25 @@
 # GO / NO-GO — Begin Financial Operations?
 
-**Parent:** [Commercial Experience Certification](./index.md) · [Hardening Report](./commercial-hardening-report.md)  
-**Updated:** 2026-08-06 (after P0 Commercial Experience Hardening)
+**Parent:** [Commercial Experience Certification](./index.md) · [FIN-OPS-001](../../25-fin-ops-001/index.md)  
+**Updated:** 2026-08-06 (FIN-OPS-001 Design → Document authorized)
 
 ---
 
 ## Recommendation
 
-# NO-GO (awaiting explicit FO authorization)
+# Design GO / Implementation NO-GO
 
-Commercial Experience Hardening P0 is **Pass**.
+| Stage | Decision |
+|-------|----------|
+| Design → Document | **GO** — authorized; package in `docs/25-fin-ops-001/` |
+| Approve | **Pending** — await `APPROVE FIN-OPS-001` + ADR-016 Accepted |
+| Implement application code | **NO-GO** |
+| Facility Operations features | **NO-GO** / deferred |
+| CORE-004 changes | **NO-GO** |
 
-That clears the **prerequisite** for Financial Operations. It does **not** authorize FO implementation.
+Commercial Experience Hardening P0 is **Pass** (prerequisite cleared).
 
-Financial Operations remains **NO-GO** until a separate authorization explicitly starts the FO Design → Document → Approve → Implement cycle.
-
-Facility Operations feature work remains **deferred / NO-GO**.
+FIN-OPS-001 Design → Document is **authorized**. FO **implementation remains NO-GO** until explicit package approval.
 
 ---
 
@@ -29,14 +33,15 @@ Facility Operations feature work remains **deferred / NO-GO**.
 | Guided Setup auto-complete | **Fixed** — billing + home required; exits to product home |
 | Master Admin visible to all | **Fixed** — operator-only visibility + route gate |
 
-Success criteria from hardening authorization:
+---
 
-| Criterion | Met? |
-|-----------|------|
-| PM customer cannot accidentally experience Facility | Yes |
-| Facility customer cannot accidentally experience PM | Yes |
-| Complete customer sees one cohesive commercial OS | Yes |
-| Master Admin only for platform operators | Yes |
+## Design package status
+
+| Artifact | Status |
+|----------|--------|
+| `docs/25-fin-ops-001/` | Draft — Design → Document complete |
+| ADR-016 | Proposed |
+| Implementation slices | Documented; not started |
 
 ---
 
@@ -44,20 +49,22 @@ Success criteria from hardening authorization:
 
 | Workstream | Decision |
 |------------|----------|
-| Financial Operations implementation | **NO-GO** until explicitly authorized |
+| Financial Operations **implementation** | **NO-GO** until `APPROVE FIN-OPS-001` |
 | Facility Operations features | **NO-GO** / deferred |
 | Capital Projects | Future |
 | CORE-004 / UX-016 | Stopped unless re-authorized |
 
 ---
 
-## When FO may begin
+## When FO implementation may begin
 
-Only after an explicit authorization message that starts Financial Operations under:
+Only after an explicit message:
 
-**Design → Document → Approve → Implement**
+**APPROVE FIN-OPS-001**
 
-with Property Manager ownership and `pm.financial_operations` entitlement gating.
+and ADR-016 status → Accepted, with package status → Approved.
+
+Then implement only approved Launch-critical slices under `/pm/financial-operations` and entitlement `pm.financial_operations`.
 
 ---
 
@@ -66,5 +73,6 @@ with Property Manager ownership and `pm.financial_operations` entitlement gating
 | Role | Decision |
 |------|----------|
 | Commercial Experience Hardening P0 | **Pass** |
-| Begin Financial Operations | **NO-GO** (prerequisite cleared; awaiting FO auth) |
+| FIN-OPS-001 Design → Document | **Authorized / Draft complete** |
+| Begin Financial Operations implementation | **NO-GO** (await APPROVE FIN-OPS-001) |
 | Begin Facility Operations features | **NO-GO** |

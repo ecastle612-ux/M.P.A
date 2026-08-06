@@ -90,7 +90,7 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Product Architecture Reset (24) | **Approved** — Phase 1 architectural alignment authorized |
 | ADR-015 (three commercial products) | **Accepted** |
 | Commercial Experience Hardening P0 | **Complete / Pass** — entitlements, integrity, search, setup, Admin visibility |
-| Financial Operations | **NO-GO** — hardening prerequisite cleared; awaiting explicit FO authorization |
+| Financial Operations (FIN-OPS-001) | **Design → Document authorized** — package Draft; **implementation NO-GO** until `APPROVE FIN-OPS-001` + ADR-016 Accepted |
 | Facility Operations features | **Stopped / deferred** |
 | CORE-004 / LAUNCH-001 / UX-016 | **Stopped** unless separately re-authorized |
 

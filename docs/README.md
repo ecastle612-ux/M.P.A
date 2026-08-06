@@ -4,10 +4,11 @@ The permanent source of truth for M.P.A. (My Property Assistant).
 
 This blueprint defines how M.P.A. is designed, built, and evolved. Every engineer, designer, and product contributor should treat these documents as authoritative until superseded by an approved Decision Log entry.
 
-**Current status:** Product Architecture Reset **Approved**. Phase 1 architectural
-alignment authorized (subscriptions, entitlements, navigation, launcher, setup,
-billing, Master Admin). CORE-004, LAUNCH-001, Financial Ops, and Facility feature
-work remain stopped. Implementation Gate in force.
+**Current status:** Product Architecture Reset **Approved**. Commercial Experience
+Hardening P0 **Pass**. FIN-OPS-001 Design → Document **authorized** (Draft package
+in `docs/25-fin-ops-001/`); FO **implementation NO-GO** until `APPROVE FIN-OPS-001`.
+CORE-004, LAUNCH-001, and Facility feature work remain stopped. Implementation Gate
+in force.
 
 ---
 
@@ -29,9 +30,10 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 2. Read **06 Design Language (Canopy)** through **07 UX Principles** to understand *how it should feel*.
 3. Read **08 Software Architecture** through **16 Testing Standards** to understand *how it is built*.
 4. Read **24 Product Architecture** for commercial packaging (three offerings + Master Admin).
-5. Consult **17 Development Roadmap** for sequencing (reconcile to 24 after approval).
-6. Check **18 Decision Log** before proposing architectural changes.
-7. Reference **19** and **20** for long-term platform direction.
+5. Read **25 FIN-OPS-001** for Financial Operations design (awaiting approval before code).
+6. Consult **17 Development Roadmap** for sequencing (reconcile to 24 after approval).
+7. Check **18 Decision Log** before proposing architectural changes.
+8. Reference **19** and **20** for long-term platform direction.
 
 ---
 
@@ -50,6 +52,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
 | 24 | [Product Architecture (Commercial Reset)](./24-product-architecture/index.md) | Three offerings, ownership, nav, subscriptions, entitlements |
+| 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance design (Draft — awaiting APPROVE) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -93,8 +96,21 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Launch Readiness](./24-product-architecture/launch-readiness.md) | Customer #1 clarity verdict |
 | [Implementation Order After Reset](./24-product-architecture/implementation-order-after-reset.md) | Post-approval sequence only |
 | [Phase 1 Alignment Verification](./24-product-architecture/phase-1-alignment-verification.md) | Architectural alignment verification |
-| [Commercial Experience Certification](./24-product-architecture/certification/index.md) | Hardening P0 Pass; FO and Facility remain NO-GO |
+| [Commercial Experience Certification](./24-product-architecture/certification/index.md) | Hardening P0 Pass; FO design authorized; FO impl NO-GO |
 | [Commercial Hardening Report](./24-product-architecture/certification/commercial-hardening-report.md) | P0 checklist and verification |
+
+### 25 FIN-OPS-001 (Financial Operations)
+
+| Document | Purpose |
+|----------|---------|
+| [Package Index](./25-fin-ops-001/index.md) | Stop notice, prerequisites, approval checklist |
+| [Product Vision & Scope](./25-fin-ops-001/product-vision-and-scope.md) | Vision, boundaries, Launch / Phase 2 / Post-launch |
+| [Workflows & State Machines](./25-fin-ops-001/workflows-and-state-machines.md) | Canonical FO workflows and states |
+| [Ownership, Permissions & Integrations](./25-fin-ops-001/ownership-permissions-integrations.md) | SKU, permissions, property/resident/vendor |
+| [Stripe & Ledger Architecture](./25-fin-ops-001/stripe-and-ledger-architecture.md) | Connect, Checkout, ledger, SaaS boundary |
+| [Surfaces & Cross-cutting UX](./25-fin-ops-001/surfaces-dashboard-notifications-search-mobile.md) | Dashboard, notifications, audit, search, mobile |
+| [Delivery & Certification](./25-fin-ops-001/delivery-acceptance-risks-slices-certification.md) | Acceptance, risks, slices, cert plan |
+| [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Proposed — operational finance decision |
 
 ### Governance & gates
 
