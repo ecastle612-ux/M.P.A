@@ -31,6 +31,11 @@ type Snapshot = {
   upcomingRent: Array<{ id: string; label: string; amount: number; due_at: string }>;
   recentPayments: Array<{ id: string; amount: number; paid_at: string | null; method: string }>;
   alerts: string[];
+  totalDelinquency?: number;
+  residentsOverdue?: Array<unknown>;
+  vendorInvoicesAwaitingApproval?: Array<unknown>;
+  vendorPaymentsDue?: Array<unknown>;
+  upcomingLateFees?: Array<unknown>;
 };
 
 type LedgerResponse = {
@@ -188,7 +193,7 @@ export function FinanceDesk() {
         </p>
       ) : null}
 
-      <section id="command-metrics" className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <section id="command-metrics" className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         <Metric
           label="Outstanding balance"
           value={formatMoney(snapshot?.outstandingBalance ?? 0)}
@@ -198,10 +203,21 @@ export function FinanceDesk() {
           value={formatMoney(snapshot?.collectedThisMonth ?? 0)}
         />
         <Metric
-          label="Delinquent residents"
-          value={String(snapshot?.delinquentResidents.length ?? 0)}
+          label="Total delinquency"
+          value={formatMoney(snapshot?.totalDelinquency ?? 0)}
         />
-        <Metric label="Upcoming rent items" value={String(snapshot?.upcomingRent.length ?? 0)} />
+        <Metric
+          label="Residents overdue"
+          value={String(snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length ?? 0)}
+        />
+        <Metric
+          label="Invoices awaiting approval"
+          value={String(snapshot?.vendorInvoicesAwaitingApproval?.length ?? 0)}
+        />
+        <Metric
+          label="Vendor payments due"
+          value={String(snapshot?.vendorPaymentsDue?.length ?? 0)}
+        />
       </section>
 
       <section
@@ -212,11 +228,13 @@ export function FinanceDesk() {
           Assistant recommendation
         </p>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-primary)]">
-          {(snapshot?.delinquentResidents.length ?? 0) > 0
-            ? `Focus collections on ${snapshot?.delinquentResidents.length} delinquent resident(s). Start with the oldest open rent charge, send a reminder, then offer Pay Now from the resident portal.`
-            : (snapshot?.outstandingBalance ?? 0) > 0
-              ? "Balances are open but not delinquent yet. Generate this month’s rent early and confirm residents can reach Billing → Pay now."
-              : "No open balances. Create recurring rent schedules for active leases so the next period posts automatically."}
+          {(snapshot?.vendorInvoicesAwaitingApproval?.length ?? 0) > 0
+            ? `Review ${snapshot?.vendorInvoicesAwaitingApproval?.length} vendor invoice(s) awaiting approval, then schedule payment.`
+            : (snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length ?? 0) > 0
+              ? `Focus collections on ${snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length} overdue resident(s). Assess late fees after grace, send a reminder, or record a payment arrangement.`
+              : (snapshot?.outstandingBalance ?? 0) > 0
+                ? "Balances are open but not delinquent yet. Generate this month’s rent early and confirm residents can reach Billing → Pay now."
+                : "No open balances. Create recurring rent schedules for active leases so the next period posts automatically."}
         </p>
       </section>
 

@@ -12,8 +12,35 @@ type ResidentAccount = {
     financial_status: string;
   };
   balance: { openBalance: number; hasPastDue: boolean; status: string };
-  openCharges: Array<{ id: string; label: string; amount: number; amount_paid: number; due_at: string; status: string }>;
+  openCharges: Array<{
+    id: string;
+    label: string;
+    amount: number;
+    amount_paid: number;
+    due_at: string;
+    status: string;
+    charge_type?: string;
+    memo?: string | null;
+  }>;
   upcomingCharges: Array<{ id: string; label: string; amount: number; due_at: string }>;
+  lateFees: Array<{
+    id: string;
+    label: string;
+    amount: number;
+    amount_paid: number;
+    due_at: string;
+    memo?: string | null;
+  }>;
+  paymentArrangements: Array<{
+    id: string;
+    status: string;
+    total_amount: number;
+    installment_amount: number;
+    installments_total: number;
+    installments_paid: number;
+    next_due_on: string | null;
+    notes?: string | null;
+  }>;
   recentPayments: Array<{
     id: string;
     amount: number;
@@ -142,6 +169,54 @@ export function ResidentBillingPortal() {
                 ) : null}
               </div>
             </div>
+
+            {(account.lateFees?.length ?? 0) > 0 ? (
+              <div className="rounded-md border border-[var(--mpa-color-border-subtle)] px-4 py-3">
+                <h3 className="text-sm font-semibold">Late fee explanation</h3>
+                <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                  A late fee was added because a charge stayed unpaid after the grace period your property allows.
+                </p>
+                <ul className="mt-2 space-y-2 text-sm">
+                  {account.lateFees.map((fee) => (
+                    <li key={fee.id} className="flex justify-between gap-2 border-b py-1">
+                      <span>
+                        {fee.label}
+                        {fee.memo ? (
+                          <span className="block text-xs text-[var(--mpa-color-text-secondary)]">{fee.memo}</span>
+                        ) : null}
+                      </span>
+                      <span>{formatMoney(Number(fee.amount) - Number(fee.amount_paid))}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {(account.paymentArrangements?.length ?? 0) > 0 ? (
+              <div className="rounded-md border border-[var(--mpa-color-border-subtle)] px-4 py-3">
+                <h3 className="text-sm font-semibold">Payment arrangement</h3>
+                <ul className="mt-2 space-y-2 text-sm">
+                  {account.paymentArrangements.map((arrangement) => (
+                    <li key={arrangement.id} className="border-b py-1">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span>
+                          {formatMoney(Number(arrangement.installment_amount))} per installment ·{" "}
+                          {arrangement.installments_paid}/{arrangement.installments_total} paid
+                        </span>
+                        <Badge variant={arrangement.status === "active" ? "info" : "neutral"}>
+                          {arrangement.status === "active" ? "In progress" : arrangement.status}
+                        </Badge>
+                      </div>
+                      {arrangement.next_due_on ? (
+                        <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                          Next installment due {arrangement.next_due_on}
+                        </p>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>

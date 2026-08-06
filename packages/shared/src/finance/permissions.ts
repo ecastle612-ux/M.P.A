@@ -21,11 +21,11 @@ export type FinanceCapability = (typeof FINANCE_CAPABILITIES)[number];
 export const FINANCE_CAPABILITY_DESCRIPTIONS: Record<FinanceCapability, string> = {
   "pm.finance:read": "Read Financial Operations surfaces, queues, and summaries",
   "pm.finance:charge.write": "Create and void resident charges (S1+)",
-  "pm.finance:payment.refund": "Issue payment refunds (S2+)",
-  "pm.finance:late_fee.manage": "Configure and post late fees (S3+)",
-  "pm.finance:vendor_invoice.review": "Approve or reject vendor invoices (S4+)",
-  "pm.finance:vendor_payment.release": "Release vendor payments (S5+)",
-  "pm.finance:reports.read": "Read property and owner financial reports (S6+)",
+  "pm.finance:payment.refund": "Issue payment refunds (post-S2; not in S2 scope)",
+  "pm.finance:late_fee.manage": "Configure and post late fees (S2)",
+  "pm.finance:vendor_invoice.review": "Approve or reject vendor invoices (S2)",
+  "pm.finance:vendor_payment.release": "Schedule and mark vendor payments paid (S2)",
+  "pm.finance:reports.read": "Read property and owner financial reports (S4+)",
   "pm.finance:settings.manage": "Manage FO settings and Connect readiness"
 };
 

@@ -1,28 +1,19 @@
 /**
  * FIN-OPS-001 feature flags — slice gates for operational finance.
- * Entitlements still fail-closed at the product boundary; flags gate unfinished slices.
- *
- * S1 authorization includes resident online payments + webhooks (expanded beyond original S1 design).
  */
 
 export const FINANCE_FEATURE_FLAGS = {
-  /** S0 Command Center and foundation surfaces. */
   "finance.foundation": true,
-  /** S1 charges, ledger, manual payments, receipts. */
   "finance.charges": true,
-  /** S1 resident online payments + webhooks (authorized with S1). */
   "finance.payments": true,
-  /** S3 late fees. */
-  "finance.late_fees": false,
-  /** S4 vendor invoice approval. */
-  "finance.vendor_invoices": false,
-  /** S5 vendor payment release / Stripe payout execution. */
-  "finance.vendor_payments": false,
-  /** S6 property/owner summaries & reports (snapshot in S1 is basic). */
+  /** S2 delinquency + late fee assessment. */
+  "finance.late_fees": true,
+  /** S2 vendor invoice approval. */
+  "finance.vendor_invoices": true,
+  /** S2 vendor payment schedule / mark paid (manual rails). */
+  "finance.vendor_payments": true,
   "finance.reports": false,
-  /** Resident Stripe Checkout execution — enabled with S1 authorization. */
   "finance.stripe_payment_execution": true,
-  /** ERP / GL workflows — permanently off under FIN-OPS-001 Launch. */
   "finance.erp_accounting": false
 } as const;
 

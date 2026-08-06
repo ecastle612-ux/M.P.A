@@ -72,12 +72,14 @@ describe("FIN-OPS-001 S1 billing allocation", () => {
     expect(bounds.nextRunOn).toBe("2026-09-01");
   });
 
-  it("enables S1 charge and payment feature flags", () => {
+  it("enables S1–S2 charge, payment, and vendor AP feature flags", () => {
     expect(FINANCE_FEATURE_FLAGS["finance.charges"]).toBe(true);
     expect(FINANCE_FEATURE_FLAGS["finance.payments"]).toBe(true);
     expect(FINANCE_FEATURE_FLAGS["finance.stripe_payment_execution"]).toBe(true);
-    expect(FINANCE_FEATURE_FLAGS["finance.vendor_payments"]).toBe(false);
-    expect(FINANCIAL_DOMAIN_REGISTRATION.currentSlice).toBe("S1");
+    expect(FINANCE_FEATURE_FLAGS["finance.vendor_payments"]).toBe(true);
+    expect(FINANCE_FEATURE_FLAGS["finance.erp_accounting"]).toBe(false);
+    expect(FINANCIAL_DOMAIN_REGISTRATION.currentSlice).toBe("S2");
     expect(FIN_OPS_SLICES.find((slice) => slice.id === "S1")?.status).toBe("complete");
+    expect(FIN_OPS_SLICES.find((slice) => slice.id === "S2")?.status).toBe("complete");
   });
 });

@@ -24,9 +24,8 @@
 
 | Next | Instruction |
 |------|-------------|
-| S2 Payment Enhancements | **Do not implement** until `AUTHORIZE FIN-OPS-001 SLICE S2` |
-| Late fees (S3) | **Blocked** |
-| Vendor AP (S4–S5) | **Blocked** |
+| S2 Delinquency / Late Fees / Vendor AP | See [S2 Certification](../s2/index.md) — **delivered** |
+| S3+ | **Do not implement** until `AUTHORIZE FIN-OPS-001 SLICE S3` |
 | Facility Operations | **Do not begin** |
 | CORE-004 | **Do not modify** |
 
@@ -35,4 +34,4 @@
 ## Verdict
 
 **S1 Resident Billing & Rent Collection: Pass (implementation complete)**  
-**S2+: NO-GO** until explicitly authorized.
+**S2 delivered separately under its own authorization.**

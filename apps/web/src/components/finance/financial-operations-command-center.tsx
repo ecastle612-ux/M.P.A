@@ -10,6 +10,7 @@ import {
 } from "@mpa/shared";
 import { Badge, EmptyState, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { CollectionsDesk } from "./collections-desk";
 import { FinanceDesk } from "./finance-desk";
 
 function formatTime(iso: string): string {
@@ -44,14 +45,15 @@ export function FinancialOperationsCommandCenter() {
           Financial Operations
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Resident billing and rent collection Command Center. Create charges, collect payments, and keep
-          ledgers current — without ERP complexity.
+          Operational finance Command Center — billing, collections, late fees, and vendor payables for
+          property managers. Not ERP.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Badge variant="success">S1 Billing live</Badge>
+          <Badge variant="success">S2 Collections + AP live</Badge>
           <Badge variant="neutral">PM + Complete only</Badge>
-          {FINANCE_FEATURE_FLAGS["finance.stripe_payment_execution"] ? (
-            <Badge variant="info">Online pay enabled</Badge>
+          {FINANCE_FEATURE_FLAGS["finance.late_fees"] ? <Badge variant="info">Late fees on</Badge> : null}
+          {FINANCE_FEATURE_FLAGS["finance.vendor_invoices"] ? (
+            <Badge variant="info">Vendor AP on</Badge>
           ) : null}
         </div>
       </header>
@@ -61,7 +63,7 @@ export function FinancialOperationsCommandCenter() {
         className="flex flex-wrap gap-2 border-b border-[var(--mpa-color-border-default)] pb-3"
       >
         {FINANCIAL_WORKSPACE_SECTIONS.map((section) => {
-          const enabled = section.slice === "S0" || section.slice === "S1";
+          const enabled = section.slice === "S0" || section.slice === "S1" || section.slice === "S2";
           return (
             <a
               key={section.id}
@@ -86,15 +88,22 @@ export function FinancialOperationsCommandCenter() {
             <div className="border-b border-[var(--mpa-color-border-default)] px-4 py-3">
               <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Attention queue</h2>
               <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
-                Money actions for today — metrics refresh from live charges and payments.
+                Overdue residents, late fees, and vendor invoices needing approval or payment.
               </p>
             </div>
             <div className="space-y-0 px-4 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
-              <p>Use the desk below to post rent, record payments, and review delinquency.</p>
+              <p>Use Billing desk for charges/payments. Use Collections & AP for delinquency and vendors.</p>
               <p className="mt-2">
-                Residents pay online from{" "}
+                Residents see balance and late-fee notes in{" "}
                 <Link href="/portal/tenant/billing" className="text-[var(--mpa-color-brand-primary)] underline">
                   Tenant Billing
+                </Link>
+                .
+              </p>
+              <p className="mt-2">
+                Vendor directory alignment:{" "}
+                <Link href="/pm/vendors" className="text-[var(--mpa-color-brand-primary)] underline">
+                  Vendor Operations
                 </Link>
                 .
               </p>
@@ -102,14 +111,25 @@ export function FinancialOperationsCommandCenter() {
           </div>
         }
         workPlane={
-          <div className="space-y-4 p-4">
+          <div className="space-y-8 p-4">
             <div>
               <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Billing desk</h2>
               <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
-                One canonical path: lease → charges → payment → receipt → ledger.
+                Lease → charges → payment → receipt → ledger.
               </p>
+              <div className="mt-3">
+                <FinanceDesk />
+              </div>
             </div>
-            <FinanceDesk />
+            <div>
+              <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Collections & vendor AP</h2>
+              <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
+                Delinquency aging, late fees, arrangements, invoice approval, scheduled payments.
+              </p>
+              <div className="mt-3">
+                <CollectionsDesk />
+              </div>
+            </div>
           </div>
         }
       />
@@ -138,6 +158,13 @@ export function FinancialOperationsCommandCenter() {
           <TimelineView
             items={[
               {
+                id: "s2-live",
+                title: "Delinquency, late fees & vendor AP live",
+                detail:
+                  "Aging buckets, late-fee assessment, payment arrangements, vendor invoice approval, schedule, and mark paid.",
+                occurredAtLabel: formatTime(new Date().toISOString())
+              },
+              {
                 id: "s1-live",
                 title: "Resident billing & rent collection live",
                 detail: "Charges, manual payments, online Checkout, receipts, ledger, and portal billing.",
@@ -154,19 +181,10 @@ export function FinancialOperationsCommandCenter() {
         </div>
       </section>
 
-      <section id="late-fees" className="scroll-mt-24">
-        <EmptyState title="Late fees — S3" description="Automated late fee posting remains blocked until S3 authorization." />
-      </section>
-      <section id="vendor-invoices" className="scroll-mt-24">
-        <EmptyState title="Vendor invoices — S4" description="Vendor AP is out of S1 scope." />
-      </section>
-      <section id="vendor-payments" className="scroll-mt-24">
-        <EmptyState title="Vendor payments — S5" description="Vendor payouts remain disabled." />
-      </section>
       <section id="reports" className="scroll-mt-24">
         <EmptyState
-          title="Advanced reports — S6"
-          description="S1 includes Command Center snapshots. Full owner/property reporting comes later."
+          title="Advanced reports — S4"
+          description="S2 includes Command Center collections and AP snapshots. Full owner/property reporting comes later."
         />
       </section>
 
@@ -198,10 +216,7 @@ export function FinancialOperationsCommandCenterLoading() {
       <Skeleton className="h-4 w-48" />
       <Skeleton className="h-8 w-80" />
       <Skeleton className="h-4 w-96" />
-      <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
-        <Skeleton className="h-72" />
-        <Skeleton className="h-72" />
-      </div>
+      <Skeleton className="h-64 w-full" />
     </main>
   );
 }

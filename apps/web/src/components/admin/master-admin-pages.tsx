@@ -62,7 +62,7 @@ export function AdminProductPage({ sku }: { sku: (typeof PRODUCT_SKUS)[number] }
               {module.label} · {module.readiness}
               {module.id === "financial_operations" ? (
                 <span className="mt-1 block text-xs text-[var(--mpa-color-text-secondary)]">
-                  Property Manager → Financial Operations · S0 Foundation
+                  Property Manager → Financial Operations · S0–S2 live (billing, collections, vendor AP)
                 </span>
               ) : null}
             </li>
@@ -237,7 +237,7 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
         {isFinancialOperations ? (
           <div className="flex justify-between gap-4">
             <dt>Current slice</dt>
-            <dd>{FINANCIAL_DOMAIN_REGISTRATION.currentSlice} · Foundation</dd>
+            <dd>{FINANCIAL_DOMAIN_REGISTRATION.currentSlice} · Delinquency & Vendor AP</dd>
           </div>
         ) : null}
       </dl>
@@ -255,7 +255,8 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
             ))}
           </ol>
           <p className="mt-3 text-xs text-[var(--mpa-color-text-secondary)]">
-            Operational finance (charges, payments, ledgers) remains blocked until slice authorization.
+            S0–S2 delivered. Observe delinquency, late-fee, and vendor AP lifecycle in Financial Operations.
+            S3+ remains blocked until authorized.
           </p>
         </section>
       ) : null}

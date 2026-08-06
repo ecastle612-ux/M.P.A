@@ -84,35 +84,35 @@ export const FINANCE_NOTIFICATION_CATALOG: readonly FinanceNotificationDefinitio
     label: "Late fee posted",
     defaultChannels: ["in_app", "email"],
     audience: ["resident"],
-    slice: "S3"
+    slice: "S2"
   },
   {
     key: "finance.vendor_invoice.submitted",
     label: "Vendor invoice submitted",
     defaultChannels: ["in_app"],
     audience: ["staff"],
-    slice: "S4"
+    slice: "S2"
   },
   {
     key: "finance.vendor_invoice.approved",
     label: "Vendor invoice approved",
     defaultChannels: ["in_app", "email"],
     audience: ["vendor", "staff"],
-    slice: "S4"
+    slice: "S2"
   },
   {
     key: "finance.vendor_invoice.rejected",
     label: "Vendor invoice rejected",
     defaultChannels: ["in_app", "email"],
     audience: ["vendor", "staff"],
-    slice: "S4"
+    slice: "S2"
   },
   {
     key: "finance.vendor_payment.paid",
-    label: "Vendor payment sent",
+    label: "Vendor payment recorded",
     defaultChannels: ["in_app", "email"],
     audience: ["vendor", "staff"],
-    slice: "S5"
+    slice: "S2"
   },
   {
     key: "finance.dispute.opened",

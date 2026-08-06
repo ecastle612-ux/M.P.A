@@ -1,6 +1,6 @@
 # FIN-OPS-001 — Delivery, Acceptance, Risks, Slices & Certification
 
-**Status:** Approved (FIN-OPS-001) · S0 delivered · S1+ blocked  
+**Status:** Approved (FIN-OPS-001) · S0–S2 delivered · S3+ blocked  
 **Date:** 2026-08-06
 
 ---
@@ -78,13 +78,11 @@ Ordered for Customer #1 value; each slice is certifiable.
 |-------|------|----------|---------|
 | **S0** | Financial Foundation | Domain, permissions, Command Center shell, events/audit/notify/search, Connect linkage, flags — **delivered** | Approved package |
 | **S1** | Resident Billing & Rent Collection | Charges, ledger, manual + online pay, receipts, portal — **delivered** | S0 |
-| **S2** | Payment Enhancements | Autopay / plans / polish — **blocked** | S1 |
-| **S3** | Late fees | Policy + post job/action | S1 |
-| **S4** | Vendor invoices | Submit/approve/reject | S0 |
-| **S5** | Vendor payments | Pay / mark paid; link to invoice | S4, Connect |
-| **S6** | Summaries & reports | Property/owner summaries; Launch reports | S2, S5 |
-| **S7** | Notifications, search, audit polish | `finance.*` events; search entities; audit coverage | S2–S6 |
-| **S8** | Certification hardening | Fail-closed tests; Connect empty states; permission matrix tests | S7 |
+| **S2** | Delinquency, Late Fees & Vendor AP | Aging, late fees, arrangements, vendor invoice approve/schedule/mark paid — **delivered** | S1 |
+| **S3** | Autopay & Payment Plans Polish | Autopay / plans polish — **blocked** | S2 |
+| **S4** | Advanced Owner/Property Reports | Property/owner summaries; Launch reports — **blocked** | S2 |
+| **S5** | Notifications, Search & Audit Polish | `finance.*` polish; search entities — **blocked** | S2–S4 |
+| **S6** | Launch Certification Hardening | Fail-closed tests; Connect empty states; permission matrix — **blocked** | S5 |
 
 **Out of slices until Phase 2 auth:** autopay, payment plans, QBO, trust accounting.
 

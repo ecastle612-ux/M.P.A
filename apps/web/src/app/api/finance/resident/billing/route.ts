@@ -47,6 +47,7 @@ export async function GET() {
     const openCharges = (ledger.charges ?? []).filter((charge) =>
       ["open", "partially_paid"].includes(charge.status)
     );
+    const lateFees = openCharges.filter((charge) => charge.charge_type === "late_fee");
     const receipts = (ledger.payments ?? [])
       .flatMap((payment) => {
         const nested = payment.financial_receipts;
@@ -57,11 +58,21 @@ export async function GET() {
       })
       .filter(Boolean);
 
+    const { data: arrangements } = await supabase
+      .from("financial_payment_arrangements")
+      .select("id, status, total_amount, installment_amount, installments_total, installments_paid, next_due_on, notes")
+      .eq("organization_id", resident.organization_id)
+      .eq("lease_id", resident.lease_id)
+      .in("status", ["proposed", "active"])
+      .order("created_at", { ascending: false });
+
     accounts.push({
       resident,
       balance,
       openCharges,
       upcomingCharges: upcoming,
+      lateFees,
+      paymentArrangements: arrangements ?? [],
       recentPayments: (ledger.payments ?? []).slice(0, 10),
       receipts,
       recentTransactions: (ledger.ledger ?? []).slice(0, 15)

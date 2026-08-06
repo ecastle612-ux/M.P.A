@@ -89,7 +89,7 @@ export const FINANCE_EVENT_CATALOG: readonly FinanceEventDefinition[] = [
     type: "finance.late_fee.applied",
     aggregateType: "financial_charge",
     description: "Late fee charge posted",
-    slice: "S3",
+    slice: "S2",
     notificationKey: "finance.late_fee.applied",
     auditAction: "finance.late_fee.applied"
   },
@@ -97,7 +97,7 @@ export const FINANCE_EVENT_CATALOG: readonly FinanceEventDefinition[] = [
     type: "finance.vendor_invoice.submitted",
     aggregateType: "financial_vendor_invoice",
     description: "Vendor invoice submitted",
-    slice: "S4",
+    slice: "S2",
     notificationKey: "finance.vendor_invoice.submitted",
     auditAction: "finance.vendor_invoice.submitted"
   },
@@ -105,7 +105,7 @@ export const FINANCE_EVENT_CATALOG: readonly FinanceEventDefinition[] = [
     type: "finance.vendor_invoice.approved",
     aggregateType: "financial_vendor_invoice",
     description: "Vendor invoice approved",
-    slice: "S4",
+    slice: "S2",
     notificationKey: "finance.vendor_invoice.approved",
     auditAction: "finance.vendor_invoice.approved"
   },
@@ -113,15 +113,15 @@ export const FINANCE_EVENT_CATALOG: readonly FinanceEventDefinition[] = [
     type: "finance.vendor_invoice.rejected",
     aggregateType: "financial_vendor_invoice",
     description: "Vendor invoice rejected",
-    slice: "S4",
+    slice: "S2",
     notificationKey: "finance.vendor_invoice.rejected",
     auditAction: "finance.vendor_invoice.rejected"
   },
   {
     type: "finance.vendor_payment.paid",
     aggregateType: "financial_vendor_payment",
-    description: "Vendor payout confirmed",
-    slice: "S5",
+    description: "Vendor payment marked paid",
+    slice: "S2",
     notificationKey: "finance.vendor_payment.paid",
     auditAction: "finance.vendor_payment.paid"
   },

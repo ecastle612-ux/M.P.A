@@ -83,31 +83,31 @@ export const FINANCE_AUDIT_CATALOG: readonly FinanceAuditDefinition[] = [
     action: "finance.late_fee.applied",
     entityType: "financial_charge",
     description: "Late fee applied",
-    slice: "S3"
+    slice: "S2"
   },
   {
     action: "finance.vendor_invoice.submitted",
     entityType: "financial_vendor_invoice",
     description: "Vendor invoice submitted",
-    slice: "S4"
+    slice: "S2"
   },
   {
     action: "finance.vendor_invoice.approved",
     entityType: "financial_vendor_invoice",
     description: "Vendor invoice approved",
-    slice: "S4"
+    slice: "S2"
   },
   {
     action: "finance.vendor_invoice.rejected",
     entityType: "financial_vendor_invoice",
     description: "Vendor invoice rejected",
-    slice: "S4"
+    slice: "S2"
   },
   {
     action: "finance.vendor_payment.paid",
     entityType: "financial_vendor_payment",
-    description: "Vendor payment released",
-    slice: "S5"
+    description: "Vendor payment marked paid",
+    slice: "S2"
   },
   {
     action: "finance.summary.generated",
