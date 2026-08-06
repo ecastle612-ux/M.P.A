@@ -1,16 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { FINANCE_NOTIFICATION_CATALOG } from "@mpa/shared";
 import { Badge } from "@mpa/ui";
+import { useCommercialContext } from "./commercial-context";
 
-const PLACEHOLDER_NOTIFICATIONS = [
-  "Notification framework initialized",
-  "No business alerts configured yet",
-  "Use this center for platform-level events"
-];
+type NotificationItem = {
+  id: string;
+  title: string;
+  detail: string;
+  badge: string;
+};
 
 export function NotificationCenter() {
   const [open, setOpen] = useState(false);
+  const { canAccess } = useCommercialContext();
+
+  const items = useMemo<NotificationItem[]>(() => {
+    const base: NotificationItem[] = [
+      {
+        id: "platform-framework",
+        title: "Notification framework initialized",
+        detail: "Platform-level alerts use this center.",
+        badge: "Framework"
+      }
+    ];
+
+    if (canAccess("pm.financial_operations")) {
+      const foundation = FINANCE_NOTIFICATION_CATALOG.find((item) => item.key === "finance.foundation.ready");
+      base.unshift({
+        id: "finance-foundation",
+        title: foundation?.label ?? "Financial Operations foundation ready",
+        detail: "FO Command Center, audit, events, and search are registered (S0). No payment alerts yet.",
+        badge: "Finance"
+      });
+    }
+
+    return base;
+  }, [canAccess]);
 
   return (
     <div className="relative">
@@ -24,7 +51,7 @@ export function NotificationCenter() {
       >
         Notifications
         <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] text-xs text-white">
-          3
+          {items.length}
         </span>
       </button>
 
@@ -36,12 +63,19 @@ export function NotificationCenter() {
         >
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Notifications</p>
-            <Badge variant="info">Framework</Badge>
+            <Badge variant="info">Registered</Badge>
           </div>
           <ul className="space-y-2">
-            {PLACEHOLDER_NOTIFICATIONS.map((item) => (
-              <li key={item} className="rounded-md border border-[var(--mpa-color-border-subtle)] p-2 text-xs text-[var(--mpa-color-text-secondary)]">
-                {item}
+            {items.map((item) => (
+              <li
+                key={item.id}
+                className="rounded-md border border-[var(--mpa-color-border-subtle)] p-2 text-xs text-[var(--mpa-color-text-secondary)]"
+              >
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <span className="font-medium text-[var(--mpa-color-text-primary)]">{item.title}</span>
+                  <Badge variant="neutral">{item.badge}</Badge>
+                </div>
+                {item.detail}
               </li>
             ))}
           </ul>

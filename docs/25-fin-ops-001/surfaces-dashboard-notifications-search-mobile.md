@@ -1,6 +1,6 @@
 # FIN-OPS-001 — Surfaces, Dashboard, Notifications, Search & Mobile
 
-**Status:** Draft — awaiting APPROVE FIN-OPS-001  
+**Status:** Approved (FIN-OPS-001)  
 **Date:** 2026-08-06
 
 ---

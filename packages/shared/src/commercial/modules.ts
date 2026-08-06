@@ -108,9 +108,9 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "property_manager",
     entitlement: "pm.financial_operations",
     href: "/pm/financial-operations",
-    readiness: "planned",
-    description: "Rent, charges, and collections.",
-    plannedLabel: "Included in Property Manager — implementation deferred"
+    readiness: "aligned",
+    description: "Operational finance Command Center (S0 foundation). Collections unlock in later slices.",
+    plannedLabel: "S0 Foundation complete — operational finance pending AUTHORIZE SLICE S1+"
   },
   {
     id: "facility_mission_control",
@@ -287,7 +287,7 @@ export function navigationGroupsForSku(sku: ProductSku | null): NavGroup[] {
         {
           href: "/pm/financial-operations",
           label: "Financial Operations",
-          readiness: "planned",
+          readiness: "aligned",
           entitlement: "pm.financial_operations"
         }
       ]
@@ -425,6 +425,14 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
         title: "Maintenance Triage",
         description: "Residential maintenance — not Facility Operations.",
         href: "/pm/maintenance",
+        product: "property_manager",
+        readiness: "aligned"
+      },
+      {
+        id: "pm_financial_operations",
+        title: "Financial Operations",
+        description: "Property Manager money Command Center — foundation (S0).",
+        href: "/pm/financial-operations",
         product: "property_manager",
         readiness: "aligned"
       }

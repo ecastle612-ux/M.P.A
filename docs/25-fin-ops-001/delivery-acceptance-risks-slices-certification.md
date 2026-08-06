@@ -1,6 +1,6 @@
 # FIN-OPS-001 — Delivery, Acceptance, Risks, Slices & Certification
 
-**Status:** Draft — awaiting APPROVE FIN-OPS-001  
+**Status:** Approved (FIN-OPS-001) · S0 delivered · S1+ blocked  
 **Date:** 2026-08-06
 
 ---
@@ -76,7 +76,7 @@ Ordered for Customer #1 value; each slice is certifiable.
 
 | Slice | Name | Delivers | Depends |
 |-------|------|----------|---------|
-| **S0** | Schema & entitlements wiring | `financial_*` tables, RLS, Connect account linkage, FO nav routes gated | Approved package |
+| **S0** | Financial Foundation | Domain, permissions, Command Center shell, events/audit/notify/search, Connect linkage, flags — **delivered** | Approved package |
 | **S1** | Charges & resident ledger | Create/list charges; ledger view; balance | S0 |
 | **S2** | Checkout & payment webhooks | Resident pay; payment history; idempotent post | S1 |
 | **S3** | Late fees | Policy + post job/action | S1 |

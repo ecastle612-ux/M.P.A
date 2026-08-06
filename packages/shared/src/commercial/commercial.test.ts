@@ -74,10 +74,18 @@ describe("module ownership boundaries", () => {
     expect(modules.some((module) => module.id === "maintenance")).toBe(true);
   });
 
-  it("keeps Financial Operations as planned (not implemented)", () => {
+  it("exposes Financial Operations foundation as aligned for PM/Complete", () => {
     const modules = modulesForSku("mpa_property_manager");
     const financial = modules.find((module) => module.id === "financial_operations");
-    expect(financial?.readiness).toBe("planned");
+    expect(financial?.readiness).toBe("aligned");
+    expect(modulesForSku("mpa_facility_operations").some((module) => module.id === "financial_operations")).toBe(
+      false
+    );
+  });
+
+  it("includes Financial Operations in the Property Manager launcher", () => {
+    const items = workspaceLauncherItemsForSku("mpa_property_manager");
+    expect(items.some((item) => item.id === "pm_financial_operations")).toBe(true);
   });
 });
 
@@ -134,10 +142,22 @@ describe("master admin catalog", () => {
 
   it("does not hide planned capabilities from Master Admin", () => {
     const workspaces = MASTER_ADMIN_NAV.find((group) => group.id === "workspaces")?.items ?? [];
-    expect(workspaces.some((item) => item.label.includes("Financial Operations") && item.status === "planned")).toBe(
-      true
-    );
+    expect(
+      workspaces.some((item) => item.label.includes("Financial Operations") && item.status === "aligned")
+    ).toBe(true);
     expect(workspaces.some((item) => item.label.includes("Assets") && item.status === "planned")).toBe(true);
     expect(workspaces.some((item) => item.label.includes("Capital Projects"))).toBe(true);
+  });
+
+  it("allows FO routes for PM and Complete, denies Facility-only", () => {
+    expect(
+      evaluatePathEntitlement({ pathname: "/pm/financial-operations", sku: "mpa_property_manager" }).allowed
+    ).toBe(true);
+    expect(
+      evaluatePathEntitlement({ pathname: "/pm/financial-operations", sku: "mpa_complete_platform" }).allowed
+    ).toBe(true);
+    expect(
+      evaluatePathEntitlement({ pathname: "/pm/financial-operations", sku: "mpa_facility_operations" }).allowed
+    ).toBe(false);
   });
 });

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import {
   COMMERCIAL_MODULES,
+  FINANCIAL_DOMAIN_REGISTRATION,
+  FIN_OPS_SLICES,
   MASTER_ADMIN_NAV,
   PRODUCT_SKUS,
   SKU_SUMMARIES,
@@ -8,6 +10,7 @@ import {
   modulesForSku,
   toSkuLabel
 } from "@mpa/shared";
+import { Badge } from "@mpa/ui";
 
 export function AdminHomePage() {
   return (
@@ -44,6 +47,7 @@ export function AdminProductPage({ sku }: { sku: (typeof PRODUCT_SKUS)[number] }
   const summary = SKU_SUMMARIES[sku];
   const modules = modulesForSku(sku);
   const entitlements = entitlementsForSku(sku);
+  const includesFinancialOps = modules.some((module) => module.id === "financial_operations");
 
   return (
     <main className="space-y-4 p-4 md:p-6">
@@ -56,10 +60,39 @@ export function AdminProductPage({ sku }: { sku: (typeof PRODUCT_SKUS)[number] }
           {modules.map((module) => (
             <li key={module.id} className="rounded border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm">
               {module.label} · {module.readiness}
+              {module.id === "financial_operations" ? (
+                <span className="mt-1 block text-xs text-[var(--mpa-color-text-secondary)]">
+                  Property Manager → Financial Operations · S0 Foundation
+                </span>
+              ) : null}
             </li>
           ))}
         </ul>
       </section>
+      {includesFinancialOps ? (
+        <section className="rounded border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <h2 className="text-base font-semibold">Property Manager → Financial Operations</h2>
+          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+            Automatically discovered from the commercial module catalog. Implementation progress:
+          </p>
+          <ol className="mt-3 space-y-1 text-sm">
+            {FIN_OPS_SLICES.map((slice) => (
+              <li key={slice.id} className="flex items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] py-1">
+                <span>
+                  {slice.id} · {slice.name}
+                </span>
+                <Badge variant={slice.status === "complete" ? "success" : "neutral"}>{slice.status}</Badge>
+              </li>
+            ))}
+          </ol>
+          <Link
+            href="/admin/workspaces/financial_operations"
+            className="mt-3 inline-block text-sm text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open Financial Operations workspace admin
+          </Link>
+        </section>
+      ) : null}
       <section>
         <h2 className="text-base font-semibold">Entitlements</h2>
         <ul className="mt-2 columns-1 gap-2 text-xs font-mono text-[var(--mpa-color-text-secondary)] md:columns-2">
@@ -169,8 +202,15 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
     );
   }
 
+  const isFinancialOperations = commercialModule.id === "financial_operations";
+
   return (
     <main className="space-y-3 p-4 md:p-6">
+      {isFinancialOperations ? (
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+          Property Manager → Financial Operations
+        </p>
+      ) : null}
       <h1 className="font-display text-2xl font-semibold">
         {commercialModule.label}
       </h1>
@@ -194,9 +234,33 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
           <dt>Customer href</dt>
           <dd className="font-mono text-xs">{commercialModule.href}</dd>
         </div>
+        {isFinancialOperations ? (
+          <div className="flex justify-between gap-4">
+            <dt>Current slice</dt>
+            <dd>{FINANCIAL_DOMAIN_REGISTRATION.currentSlice} · Foundation</dd>
+          </div>
+        ) : null}
       </dl>
+      {isFinancialOperations ? (
+        <section className="max-w-xl rounded border bg-white p-4">
+          <h2 className="text-sm font-semibold">Implementation progress</h2>
+          <ol className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
+            {FIN_OPS_SLICES.map((slice) => (
+              <li key={slice.id} className="flex items-center justify-between gap-3 border-b border-[var(--mpa-color-border-subtle)] py-1">
+                <span>
+                  {slice.id} · {slice.name}
+                </span>
+                <Badge variant={slice.status === "complete" ? "success" : "neutral"}>{slice.status}</Badge>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-3 text-xs text-[var(--mpa-color-text-secondary)]">
+            Operational finance (charges, payments, ledgers) remains blocked until slice authorization.
+          </p>
+        </section>
+      ) : null}
       <Link href={commercialModule.href} className="text-sm text-[var(--mpa-color-brand-primary)] underline">
-        Open customer alignment surface
+        {isFinancialOperations ? "Open Financial Operations Command Center" : "Open customer alignment surface"}
       </Link>
     </main>
   );

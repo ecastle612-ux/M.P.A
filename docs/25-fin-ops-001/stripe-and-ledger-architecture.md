@@ -1,7 +1,7 @@
 # Stripe & Ledger Architecture
 
 **Parent:** [FIN-OPS-001](./index.md)  
-**Status:** Draft — awaiting APPROVE FIN-OPS-001  
+**Status:** Approved (FIN-OPS-001)  
 **Aligns with:** ADR-010, Stripe best practices (Checkout Sessions, Connect)
 
 ---

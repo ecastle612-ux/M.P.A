@@ -5,8 +5,8 @@ The permanent source of truth for M.P.A. (My Property Assistant).
 This blueprint defines how M.P.A. is designed, built, and evolved. Every engineer, designer, and product contributor should treat these documents as authoritative until superseded by an approved Decision Log entry.
 
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
-Hardening P0 **Pass**. FIN-OPS-001 Design → Document **authorized** (Draft package
-in `docs/25-fin-ops-001/`); FO **implementation NO-GO** until `APPROVE FIN-OPS-001`.
+Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted). Slice **S0
+Foundation delivered**; S1+ operational finance **NO-GO** until slice authorization.
 CORE-004, LAUNCH-001, and Facility feature work remain stopped. Implementation Gate
 in force.
 
@@ -52,7 +52,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 22 | [Phase 2 Foundation Hardening](./22-phase-2-scaffold-review/index.md) | Readiness hardening and quality assessment |
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
 | 24 | [Product Architecture (Commercial Reset)](./24-product-architecture/index.md) | Three offerings, ownership, nav, subscriptions, entitlements |
-| 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance design (Draft — awaiting APPROVE) |
+| 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0 foundation delivered) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -103,14 +103,15 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 
 | Document | Purpose |
 |----------|---------|
-| [Package Index](./25-fin-ops-001/index.md) | Stop notice, prerequisites, approval checklist |
+| [Package Index](./25-fin-ops-001/index.md) | Authoritative FO package (Approved) |
 | [Product Vision & Scope](./25-fin-ops-001/product-vision-and-scope.md) | Vision, boundaries, Launch / Phase 2 / Post-launch |
 | [Workflows & State Machines](./25-fin-ops-001/workflows-and-state-machines.md) | Canonical FO workflows and states |
 | [Ownership, Permissions & Integrations](./25-fin-ops-001/ownership-permissions-integrations.md) | SKU, permissions, property/resident/vendor |
 | [Stripe & Ledger Architecture](./25-fin-ops-001/stripe-and-ledger-architecture.md) | Connect, Checkout, ledger, SaaS boundary |
 | [Surfaces & Cross-cutting UX](./25-fin-ops-001/surfaces-dashboard-notifications-search-mobile.md) | Dashboard, notifications, audit, search, mobile |
 | [Delivery & Certification](./25-fin-ops-001/delivery-acceptance-risks-slices-certification.md) | Acceptance, risks, slices, cert plan |
-| [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Proposed — operational finance decision |
+| [S0 Certification](./25-fin-ops-001/s0/index.md) | Foundation slice reports |
+| [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
 
 ### Governance & gates
 

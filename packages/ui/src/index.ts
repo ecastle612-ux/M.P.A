@@ -21,3 +21,7 @@ export * from "./primitives/skeleton";
 export * from "./primitives/spinner";
 
 export * from "./components/command-palette-shell";
+
+export * from "./patterns/empty-state";
+export * from "./patterns/timeline-view";
+export * from "./patterns/operations-console-shell";

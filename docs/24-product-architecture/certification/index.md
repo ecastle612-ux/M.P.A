@@ -2,7 +2,7 @@
 
 **Status:** P0 Hardening complete — **Pass**  
 **Date:** 2026-08-06  
-**Financial Operations:** Design → Document **authorized** (FIN-OPS-001 Draft); **implementation NO-GO** until `APPROVE FIN-OPS-001`  
+**Financial Operations:** Package **Approved** · ADR-016 **Accepted** · **S0 delivered** · S1+ **NO-GO**  
 **Facility Operations features:** NO-GO / deferred
 
 ---
@@ -20,8 +20,9 @@ FIN-OPS-001 design package is Draft under `docs/25-fin-ops-001/`.
 | Global Search | Fail | **Pass** |
 | Guided Setup | Conditional Fail | **Pass** |
 | Master Admin visibility | Fail | **Pass** |
-| Financial Operations design | — | **GO** (Design → Document) |
-| Financial Operations implementation | NO-GO | **NO-GO** (await APPROVE FIN-OPS-001) |
+| Financial Operations design | — | **Approved** |
+| Financial Operations S0 | — | **Delivered** |
+| Financial Operations S1+ | NO-GO | **NO-GO** (await slice auth) |
 | Facility feature start | NO-GO | **NO-GO** |
 
 ---
@@ -47,5 +48,6 @@ FIN-OPS-001 design package is Draft under `docs/25-fin-ops-001/`.
 | [Commercial verification](./hardening-commercial-verification.md) | Pass |
 | [Navigation verification](./hardening-navigation-verification.md) | Pass |
 | [Onboarding verification](./hardening-onboarding-verification.md) | Pass |
-| [GO / NO-GO Financial Operations](./go-no-go-financial-operations.md) | Design **GO**; implementation **NO-GO** until APPROVE FIN-OPS-001 |
-| [FIN-OPS-001 package](../../25-fin-ops-001/index.md) | Draft design package + Proposed ADR-016 |
+| [GO / NO-GO Financial Operations](./go-no-go-financial-operations.md) | S0 delivered; S1+ NO-GO |
+| [FIN-OPS-001 package](../../25-fin-ops-001/index.md) | Approved · ADR-016 Accepted |
+| [S0 Certification](../../25-fin-ops-001/s0/index.md) | Foundation implementation + verification |

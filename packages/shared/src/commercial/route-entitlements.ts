@@ -11,7 +11,7 @@ export type RouteAccessDecision =
  * Fail closed: unknown product namespaces are denied.
  */
 export function requiredEntitlementForPath(pathname: string): EntitlementKey | null | "deny" {
-  const path = pathname.split("?")[0] ?? pathname;
+  const path = (pathname.split("?")[0] ?? pathname).split("#")[0] ?? pathname;
 
   if (
     path === "/" ||
@@ -186,7 +186,39 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations",
-        "Financial Operations (Planned)",
+        "Financial Operations",
+        "Property Manager",
+        "pm.financial_operations"
+      )
+    );
+    push(
+      decisionPath(
+        "/pm/financial-operations#charges",
+        "FO · Charges & ledger (S1+)",
+        "Property Manager",
+        "pm.financial_operations"
+      )
+    );
+    push(
+      decisionPath(
+        "/pm/financial-operations#payments",
+        "FO · Payments (S2+)",
+        "Property Manager",
+        "pm.financial_operations"
+      )
+    );
+    push(
+      decisionPath(
+        "/pm/financial-operations#vendor-invoices",
+        "FO · Vendor invoices (S4+)",
+        "Property Manager",
+        "pm.financial_operations"
+      )
+    );
+    push(
+      decisionPath(
+        "/pm/financial-operations#reports",
+        "FO · Reports (S6+)",
         "Property Manager",
         "pm.financial_operations"
       )

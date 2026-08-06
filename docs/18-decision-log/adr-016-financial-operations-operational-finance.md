@@ -1,7 +1,7 @@
 # ADR-016: Financial Operations as Operational Finance (Property Manager)
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-06

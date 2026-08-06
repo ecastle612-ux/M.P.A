@@ -1,7 +1,7 @@
 # Product Vision & Scope
 
 **Parent:** [FIN-OPS-001](./index.md)  
-**Status:** Draft — awaiting APPROVE FIN-OPS-001
+**Status:** Approved (FIN-OPS-001)
 
 ---
 
