@@ -45,8 +45,8 @@ Every step must complete successfully without workarounds.
 
 | ID | Journey (customer outcome) | Promises exercised | Status today | Launch |
 |----|----------------------------|--------------------|--------------|--------|
-| **J0** | Buy Property Manager and reach a trusted home | Purchase, Setup, Mission Control | **Delivered** — MA cert pending | Certifying |
-| **J1** | Add first property | Property Management | Fail | Blocked |
+| **J0** | Buy Property Manager and reach a trusted home | Purchase, Setup, Mission Control | **Delivered** — certified | Pass |
+| **J1** | Add first property | Property Management | **Delivered** — MA cert pending | Certifying |
 | **J2** | Invite staff who can log in and help | Organizations / team | Fail | Blocked |
 | **J3** | Add resident and create lease | Residents, Leasing | Fail | Blocked |
 | **J4** | Sign (or honestly record) the lease | Leasing, Documents | Fail | Blocked |
@@ -84,20 +84,23 @@ Purchase Property Manager
 ## J1 — Property added
 
 ```
-From Mission Control / Setup / Properties
-  → Create property (+ unit)
-  → See it in portfolio
-  → Open property context
+Mission Control
+  → Add your first property
+  → Wizard (name + units)
+  → Active property
+  → Directory + Command Center + MC + search + timeline + audit + Assistant
+  → Assistant: Invite your team
 ```
 
 | Field | Content |
 |-------|---------|
-| Current | Create only in FO desk; Properties list is money health |
-| Blockers | Wrong surface; Setup silent |
-| Fix | Properties create; Setup step; MC CTA |
-| MA verify | Property exists; created via Properties path |
+| Status | **Authorized + delivered** |
+| Current | Properties wizard creates/activates; Command Center; MC progresses to invite team; FO create removed |
+| Remaining | Master Admin runs [J1 certification](./j1/certification.md) |
+| Out of scope | Invite email/accept (J2) |
+| MA verify | [J1 certification](./j1/certification.md) |
 
-**Authorize as:** `AUTHORIZE LAUNCH-001 JOURNEY J1`
+**Authorized:** `AUTHORIZE LAUNCH-001 JOURNEY J1`
 
 ---
 

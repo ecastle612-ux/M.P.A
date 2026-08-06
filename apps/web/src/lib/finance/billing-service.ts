@@ -71,51 +71,26 @@ async function insertLedgerEntry(
   }
 }
 
+/**
+ * @deprecated Prefer `/api/pm/properties` (J1). Kept for FO compatibility —
+ * delegates to the single portfolio create path.
+ */
 export async function createBillingProperty(
   supabase: Db,
   organizationId: string,
   actorId: string,
   input: CreatePropertyInput
 ) {
-  const { data: property, error } = await supabase
-    .from("property_properties")
-    .insert({
-      organization_id: organizationId,
-      name: input.name,
-      address_line1: input.addressLine1 ?? null,
-      city: input.city ?? null
-    })
-    .select("*")
-    .single();
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  const { data: unit, error: unitError } = await supabase
-    .from("property_units")
-    .insert({
-      organization_id: organizationId,
-      property_id: property.id,
-      unit_label: input.unitLabel,
-      status: "available"
-    })
-    .select("*")
-    .single();
-  if (unitError) {
-    throw new Error(unitError.message);
-  }
-
-  await writeFinanceAudit({
-    supabase,
-    organizationId,
-    actorId,
-    action: "finance.settings.updated",
-    entityType: "property_properties",
-    entityId: property.id,
-    payload: { name: property.name }
+  const { createPortfolioProperty } = await import("../property/property-service");
+  const result = await createPortfolioProperty(supabase, organizationId, actorId, {
+    name: input.name,
+    unitCount: 1
   });
-
-  return { property, unit };
+  const unit = result.units[0] ?? null;
+  if (!unit) {
+    throw new Error("Property created without a unit");
+  }
+  return { property: result.property, unit };
 }
 
 export async function createLeaseWithResident(

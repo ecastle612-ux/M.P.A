@@ -82,7 +82,6 @@ export function FinanceDesk() {
   const [ledger, setLedger] = useState<LedgerResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [propertyName, setPropertyName] = useState("");
   const [residentName, setResidentName] = useState("");
   const [residentEmail, setResidentEmail] = useState("");
   const [rentAmount, setRentAmount] = useState("1500");
@@ -265,30 +264,22 @@ export function FinanceDesk() {
       </section>
 
       <section id="setup" className="grid gap-4 lg:grid-cols-2">
-        <form
-          className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void run(async () => {
-              await fetchJson("/api/finance/properties", {
-                method: "POST",
-                body: JSON.stringify({ name: propertyName, unitLabel: "1" })
-              });
-              setPropertyName("");
-            });
-          }}
-        >
-          <h3 className="text-sm font-semibold">Add property (billing)</h3>
-          <Input
-            value={propertyName}
-            onChange={(event) => setPropertyName(event.target.value)}
-            placeholder="Property name"
-            required
-          />
-          <Button type="submit" disabled={busy || !propertyName.trim()}>
-            Create property
+        <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <h3 className="text-sm font-semibold">Properties</h3>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Create properties in the Properties directory — one creation path for the portfolio (J1).
+            Financial Operations consumes those properties for leases and money.
+          </p>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              window.location.href = "/pm/properties?new=1";
+            }}
+          >
+            Open Properties to add
           </Button>
-        </form>
+        </div>
 
         <form
           className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"

@@ -7,7 +7,7 @@ This blueprint defines how M.P.A. is designed, built, and evolved. Every enginee
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
 Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0–
 S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Promise Roadmap
-**Approved** (ADR-017); journey-gated — **J0 delivered**, J1–J8 not authorized.
+**Approved** (ADR-017); journey-gated — **J0–J1 delivered**, J2–J8 not authorized.
 CORE-004 and Facility feature work remain stopped. Implementation Gate in force.
 
 ---
@@ -54,7 +54,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 23 | [Phase 3 Identity Foundation](./23-phase-3-identity-foundation/index.md) | Identity and multi-tenant foundation design package |
 | 24 | [Product Architecture (Commercial Reset)](./24-product-architecture/index.md) | Three offerings, ownership, nav, subscriptions, entitlements |
 | 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0–S3 delivered; paused) |
-| 26 | [LAUNCH-001 Customer Promise Roadmap](./26-launch-001-onboarding/index.md) | Approved; journey-gated launch (J0 delivered; J1+ blocked) |
+| 26 | [LAUNCH-001 Customer Promise Roadmap](./26-launch-001-onboarding/index.md) | Approved; journey-gated launch (J0–J1 delivered; J2+ blocked) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

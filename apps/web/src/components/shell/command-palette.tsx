@@ -11,6 +11,7 @@ export function CommandPalette() {
   const { productSku, productLabel } = useCommercialContext();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [propertyItems, setPropertyItems] = useState<Array<{ id: string; label: string }>>([]);
 
   useEffect(() => {
     function handler(event: KeyboardEvent) {
@@ -29,6 +30,41 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  useEffect(() => {
+    if (!open || !productSku) {
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch(
+          `/api/pm/properties/search?q=${encodeURIComponent(query.trim())}`
+        );
+        if (!response.ok) {
+          return;
+        }
+        const payload = (await response.json()) as {
+          results?: Array<{ id: string; label: string; href: string }>;
+        };
+        if (!cancelled) {
+          setPropertyItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
+      } catch {
+        if (!cancelled) {
+          setPropertyItems([]);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, productSku, query]);
+
   const sections = useMemo(() => {
     const results = searchCatalogForSku(productSku, query);
     const byGroup = new Map<string, Array<{ id: string; label: string; shortcut?: string }>>();
@@ -37,19 +73,35 @@ export function CommandPalette() {
       group.push({ id: item.href, label: item.label });
       byGroup.set(item.group, group);
     }
+    if (propertyItems.length > 0) {
+      byGroup.set(
+        "Properties",
+        propertyItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
 
     const navSections = [...byGroup.entries()].map(([title, items]) => ({ title, items }));
+    const entitled = searchCatalogForSku(productSku, "");
     const actions = {
       title: `Quick Actions · ${productLabel ?? "No product"}`,
       items: [
+        { id: "/pm/properties?new=1", label: "Add property", shortcut: "A P" },
+        { id: "/pm/properties", label: "Open Properties", shortcut: "G P" },
+        { id: "/pm/mission-control", label: "Open Mission Control", shortcut: "G M" },
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
         { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
-        { id: "/launcher", label: "Open Workspace Launcher", shortcut: "G L" }
-      ].filter((item) => searchCatalogForSku(productSku, "").some((result) => result.href === item.id) || !productSku)
+        { id: "/settings/organization", label: "Invite your team", shortcut: "I T" }
+      ].filter(
+        (item) =>
+          item.id.startsWith("/pm/properties") ||
+          item.id.startsWith("/settings") ||
+          entitled.some((result) => result.href === item.id.split("?")[0]) ||
+          !productSku
+      )
     };
 
     return [...navSections, actions].filter((section) => section.items.length > 0);
-  }, [productLabel, productSku, query]);
+  }, [productLabel, productSku, propertyItems, query]);
 
   return (
     <>

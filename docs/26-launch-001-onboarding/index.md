@@ -60,6 +60,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [Capability Promises](./capability-promises.md) | All PM promises: journey, status, friction, blockers, fix, verify |
 | [Customer Journeys](./customer-journeys.md) | Outcome-ordered journeys (replaces engineering slices) |
 | [J0 Certification](./j0/certification.md) | Purchase → trusted home Pass script |
+| [J1 Certification](./j1/certification.md) | First property Pass script |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
@@ -71,8 +72,9 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | Authorization | Scope | Status |
 |---------------|-------|--------|
 | `APPROVE LAUNCH-001` | Customer Promise framework + journey model | **Approved** |
-| `AUTHORIZE LAUNCH-001 JOURNEY J0` | Purchase → First Login / trusted home | **Authorized + delivered** — MA cert script ready |
-| J1–J8 | — | **Not authorized** — do not implement |
+| `AUTHORIZE LAUNCH-001 JOURNEY J0` | Purchase → First Login / trusted home | **Authorized + delivered** — certified |
+| `AUTHORIZE LAUNCH-001 JOURNEY J1` | First property | **Authorized + delivered** — MA cert script ready |
+| J2–J8 | — | **Not authorized** — do not implement |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
@@ -82,7 +84,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 
 | Capability | Nav / catalog promise | Launch verdict today |
 |------------|----------------------|----------------------|
-| Property Management | Properties + Mission Control | **Fail** (MC home shipped; portfolio create = J1) |
+| Property Management | Properties + Mission Control | **Partial** (J0+J1 create/activate shipped; deeper ops later) |
 | Leasing | Vacancy → lease | **Fail** |
 | Residents | Resident operational records | **Fail** |
 | Maintenance | Unit / resident work orders | **Fail** |
@@ -99,7 +101,7 @@ Detail: [Capability Promises](./capability-promises.md)
 
 | Instruction |
 |-------------|
-| **Do not** implement J1–J8 until explicitly authorized |
+| **Do not** implement J2–J8 until explicitly authorized |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |
 | **Do not begin Facility Operations features** |
@@ -126,4 +128,4 @@ Detail: [Capability Promises](./capability-promises.md)
 |-------|-------|
 | Package | LAUNCH-001 Customer Promise Roadmap |
 | Version | 1.0.0-approved |
-| Implementation | **Journey-gated** (J0 delivered; J1+ blocked) |
+| Implementation | **Journey-gated** (J0–J1 delivered; J2+ blocked) |

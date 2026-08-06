@@ -179,6 +179,14 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
   if (sku) {
     push(decisionPath("/pm/mission-control", "Property Manager · Mission Control", "Property Manager", "pm.mission_control"));
     push(decisionPath("/pm/properties", "Properties", "Property Manager", "pm.properties"));
+    push(
+      decisionPath(
+        "/pm/properties?new=1",
+        "Add property",
+        "Property Manager",
+        "pm.properties"
+      )
+    );
     push(decisionPath("/pm/residents", "Residents", "Property Manager", "pm.residents"));
     push(decisionPath("/pm/leasing", "Leasing", "Property Manager", "pm.leasing"));
     push(decisionPath("/pm/maintenance", "Maintenance", "Property Manager", "pm.maintenance"));

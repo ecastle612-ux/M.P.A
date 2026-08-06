@@ -3,6 +3,10 @@ import { createPropertyInputSchema } from "@mpa/shared";
 import { requireFinancePermission } from "../../../../lib/finance/authz";
 import { createBillingProperty } from "../../../../lib/finance/billing-service";
 
+/**
+ * FO property list remains for billing pickers.
+ * Create delegates to the single J1 portfolio path (prefer `/api/pm/properties`).
+ */
 export async function GET() {
   const authz = await requireFinancePermission("pm.finance:read");
   if ("error" in authz) {
@@ -40,7 +44,13 @@ export async function POST(request: Request) {
       authz.user.id,
       parsed.data
     );
-    return NextResponse.json(result, { status: 201 });
+    return NextResponse.json(
+      {
+        ...result,
+        notice: "Property created via portfolio path. Prefer /pm/properties for customer create."
+      },
+      { status: 201 }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to create property" },

@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { searchCatalogForSku } from "@mpa/shared";
+import { searchCatalogForSku, type SearchResultItem } from "@mpa/shared";
 import { Input } from "@mpa/ui";
 import { useCommercialContext } from "./commercial-context";
 
@@ -14,8 +14,15 @@ export function GlobalSearch() {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [propertyResults, setPropertyResults] = useState<SearchResultItem[]>([]);
 
-  const results = useMemo(() => searchCatalogForSku(productSku, query), [productSku, query]);
+  const catalogResults = useMemo(() => searchCatalogForSku(productSku, query), [productSku, query]);
+  const results = useMemo(() => {
+    if (!query.trim()) {
+      return catalogResults;
+    }
+    return [...propertyResults, ...catalogResults];
+  }, [catalogResults, propertyResults, query]);
   const safeActiveIndex = results.length === 0 ? 0 : Math.min(activeIndex, results.length - 1);
 
   useEffect(() => {
@@ -28,25 +35,71 @@ export function GlobalSearch() {
     return () => window.removeEventListener("mousedown", onPointerDown);
   }, []);
 
+  useEffect(() => {
+    const normalized = query.trim();
+    if (!productSku || !normalized) {
+      return;
+    }
+    let cancelled = false;
+    const handle = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const response = await fetch(
+            `/api/pm/properties/search?q=${encodeURIComponent(normalized)}`
+          );
+          if (!response.ok || cancelled) {
+            return;
+          }
+          const payload = (await response.json()) as {
+            results?: Array<{ id: string; label: string; href: string; group: string }>;
+          };
+          if (cancelled) {
+            return;
+          }
+          setPropertyResults(
+            (payload.results ?? []).map((item) => ({
+              id: `property:${item.id}`,
+              label: item.label,
+              href: item.href,
+              group: item.group,
+              entitlement: "pm.properties"
+            }))
+          );
+        } catch {
+          // Keep last successful property results; catalog still works.
+        }
+      })();
+    }, 200);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [productSku, query]);
+
   function navigateTo(href: string) {
     setOpen(false);
     setQuery("");
+    setPropertyResults([]);
     router.push(href);
   }
 
   return (
     <div ref={containerRef} className="relative hidden min-w-[240px] flex-1 md:block">
       <Input
-        aria-label="Search entitled workspaces"
+        aria-label="Search entitled workspaces and properties"
         aria-controls={listId}
         aria-expanded={open}
         aria-autocomplete="list"
         role="combobox"
-        placeholder="Search your subscribed workspaces..."
+        placeholder="Search workspaces and properties..."
         value={query}
         onFocus={() => setOpen(true)}
         onChange={(event) => {
-          setQuery(event.target.value);
+          const next = event.target.value;
+          setQuery(next);
+          if (!next.trim()) {
+            setPropertyResults([]);
+          }
           setActiveIndex(0);
           setOpen(true);
         }}
@@ -81,7 +134,7 @@ export function GlobalSearch() {
         >
           {results.length === 0 ? (
             <p className="px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              No entitled workspaces match. Hidden modules never appear here.
+              No entitled workspaces or properties match.
             </p>
           ) : (
             <ul>
@@ -90,13 +143,19 @@ export function GlobalSearch() {
                   <button
                     type="button"
                     className={`flex w-full flex-col px-3 py-2 text-left text-sm ${
-                      index === safeActiveIndex ? "bg-[var(--mpa-color-bg-app)]" : "hover:bg-[var(--mpa-color-bg-app)]"
+                      index === safeActiveIndex
+                        ? "bg-[var(--mpa-color-bg-app)]"
+                        : "hover:bg-[var(--mpa-color-bg-app)]"
                     }`}
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => navigateTo(item.href)}
                   >
-                    <span className="font-medium text-[var(--mpa-color-text-primary)]">{item.label}</span>
-                    <span className="text-xs text-[var(--mpa-color-text-secondary)]">{item.group}</span>
+                    <span className="font-medium text-[var(--mpa-color-text-primary)]">
+                      {item.label}
+                    </span>
+                    <span className="text-xs text-[var(--mpa-color-text-secondary)]">
+                      {item.group}
+                    </span>
                   </button>
                 </li>
               ))}

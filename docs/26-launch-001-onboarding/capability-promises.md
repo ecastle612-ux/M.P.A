@@ -40,38 +40,39 @@ Open Property Manager home
 ```
 
 ### Current Status
-- `/pm/mission-control` = trusted home with org/plan + **Add your first property** CTA (J0).
-- `/pm/properties` = FO money health list (S3); **cannot create** property here yet (J1).
-- Property create still exists on Financial Operations Finance Desk.
-- Guided Setup completes commercial onboarding and points to Mission Control (J0); first-property create is J1.
+- `/pm/mission-control` progresses: first property → **Invite your team** (J0+J1).
+- `/pm/properties` = portfolio directory + create wizard; Command Center at `/pm/properties/[id]`.
+- FO create form removed — single create path on Properties.
+- Money panel secondary at `/pm/properties/[id]/money`.
 
 ### Six questions
 | # | Answer |
 |---|--------|
-| 1 Discover | **Partial** — Mission Control CTA + Properties nav; create still not on Properties |
-| 2 No docs | **No** — create still requires FO path until J1 |
-| 3 No support | **No** |
-| 4 Begin→End | **Partial** — J0 home has clear next action; property create end-state is J1 |
-| 5 Matches ad | **No** — portfolio ops not complete until J1 |
-| 6 MA validate | **Partial** — [J0 cert](./j0/certification.md); Property Management full cert after J1 |
+| 1 Discover | **Yes** — MC CTA + Properties + search/quick actions |
+| 2 No docs | **Yes** — wizard is guided |
+| 3 No support | **Yes** — unaided create/activate |
+| 4 Begin→End | **Yes** — create → active → Command Center ready |
+| 5 Matches ad | **Partial** — first-property ops yes; full portfolio ops still thin |
+| 6 MA validate | **Yes** — [J1 cert](./j1/certification.md) + Admin evidence panel |
 
 ### Friction Points
-- Properties page still looks financial, not administrative.
-- CTA honesty: create is the next journey, not finished on Properties yet.
+- Deeper property editing / multi-address still minimal (by design for launch).
+- Invite team recommended but J2 not delivered yet.
 
 ### Launch Blockers
-- Property create not on the advertised Properties surface (J1).
-- No unaided first-property completion from Properties (J1).
+- Downstream promises (leasing, residents, etc.) still broken.
+- J2+ required for full north-star journey.
 
 ### Recommended Fix
-- J1: Properties create/edit property & units; money panel secondary.
-- Guided Setup / Mission Control already point at first property (J0 done).
+- Proceed to authorized J2 for invites.
+- Keep Properties as sole create path.
 
 ### Verification Steps
-1. New PM org → Mission Control shows single next action (**J0**).  
-2. Create property without opening FO (**J1**).  
-3. Property appears in list and detail (**J1**).  
-4. Master Admin runs J0 then Property Management cert after J1.
+1. New PM org → Mission Control shows Add first property (**J0**).  
+2. Create property on Properties without FO (**J1**).  
+3. Property in directory + Command Center + search (**J1**).  
+4. MC / Assistant → Invite your team (**J1**).  
+5. Master Admin J1 evidence Pass.
 
 ---
 

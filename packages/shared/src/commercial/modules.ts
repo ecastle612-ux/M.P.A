@@ -64,7 +64,7 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     entitlement: "pm.properties",
     href: "/pm/properties",
     readiness: "aligned",
-    description: "Portfolio properties and units."
+    description: "Portfolio properties and units — create via Properties (J1)."
   },
   {
     id: "residents",
