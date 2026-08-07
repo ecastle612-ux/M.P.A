@@ -1,7 +1,7 @@
 # COM-002 — Implementation Slices
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 **Rule:** Each slice requires its own **Approve/Authorize Implement** after COM-002 package Approve.  
 
 ---
@@ -21,6 +21,8 @@
 ---
 
 ## Slice A — Commercial foundation
+
+**Authorize status:** **AUTHORIZED / IMPLEMENTED** (2026-08-07) — see [39 Slice A](../39-com-002-slice-a/index.md).  
 
 **Includes:** CatalogOffer model, Product × Plan × Cycle resolution, limit fields, admin read models, migrate interim Confirm Plan to read new catalog (without charging).  
 **Excludes:** Stripe charges, demo runtime, provisioning.  

@@ -60,12 +60,12 @@ export const SKU_SUMMARIES: Record<
     id: "facility_operations",
     label: "Facility Operations",
     description:
-      "M.P.A.'s Facility Operations product for facility and building teams. Includes a dedicated Facility home and module areas for assets, inventory, parts, preventive maintenance, inspections, safety, compliance, and building systems. Your plan is activated with your organization during onboarding."
+      "Facility product for building teams — available through Enterprise. Our team activates Facility capabilities with your organization during implementation."
   },
   mpa_complete_platform: {
     id: "complete_platform",
     label: "Complete Platform",
     description:
-      "Property Manager and Facility Operations together — one organization, shared documents and communications, and both product homes. Property Manager access begins at setup; Facility Operations is activated with your organization during onboarding."
+      "Property Manager and Facility Operations together — available through Enterprise. Implementation activates both product homes for your organization."
   }
 };

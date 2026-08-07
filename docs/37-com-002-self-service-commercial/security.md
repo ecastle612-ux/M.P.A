@@ -1,7 +1,7 @@
 # COM-002 — Security
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 **Amendments:** A2, A3, A6  
 
 ---

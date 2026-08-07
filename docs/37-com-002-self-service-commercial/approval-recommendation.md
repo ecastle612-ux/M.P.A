@@ -13,7 +13,8 @@
 
 # Authorize Slice A
 
-*(Slice A authorize is a separate implement authorization — **not started** by this documentation package.)*
+**Recorded:** COM-002 Approved · ADR-018 Accepted · Slice A Authorized (2026-08-07).  
+Implementation: [docs/39-com-002-slice-a](../39-com-002-slice-a/index.md).
 
 ---
 
@@ -43,10 +44,8 @@ Internal consistency pass: journeys, Stripe, demo, provisioning, defaults, and h
 
 ## Explicitly not authorized here
 
-- Implementing Slice A (needs separate Implement authorize after Approve)  
-- Slices B–G  
+- Slices B–G (Demo, Stripe Checkout, provisioning, lifecycle, portal, cert)  
 - Stripe go-live  
-- UI/application code in this step  
 - Capital Projects  
 - FO feature depth / FO-READY declaration  
 
@@ -56,8 +55,8 @@ Internal consistency pass: journeys, Stripe, demo, provisioning, defaults, and h
 
 ```
 STOP
-Documentation only.
-Do not implement COM-002.
+COM-002 Approved · ADR-018 Accepted · Slice A authorized separately.
+Do not implement Slices B–G without authorize.
 Do not begin Slice A until Implement authorize after Approve.
 Do not begin Capital Projects.
 ```

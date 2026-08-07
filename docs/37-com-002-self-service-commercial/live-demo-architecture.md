@@ -1,7 +1,7 @@
 # COM-002 — Live Demo Architecture (A3)
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 **Amendment:** A3 — scalable tenancy (no naive full clones)  
 
 ---

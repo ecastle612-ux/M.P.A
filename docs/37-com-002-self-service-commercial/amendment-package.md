@@ -1,6 +1,6 @@
 # COM-002 Amendment Package (A1–A7)
 
-**Status:** Incorporated into COM-002 Draft (awaiting Approve)  
+**Status:** Incorporated — COM-002 Approved  
 **Authority:** Authorize COM-002 Amendment Package  
 **Prior review:** [38 — Architecture Review](../38-com-002-architecture-review/index.md) → APPROVE WITH AMENDMENTS  
 **Rule:** Documentation only — no implementation  

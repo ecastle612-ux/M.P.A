@@ -1,7 +1,7 @@
 # COM-002 — Architecture
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft (amended A1–A7)  
+**Status:** Approved (amended A1–A7)  
 
 ---
 

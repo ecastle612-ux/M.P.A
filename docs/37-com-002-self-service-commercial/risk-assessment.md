@@ -1,7 +1,7 @@
 # COM-002 — Risk Assessment (Amended)
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 **Amendments:** A1–A7 incorporated  
 
 ---

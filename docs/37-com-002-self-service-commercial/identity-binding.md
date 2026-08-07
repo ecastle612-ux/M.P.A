@@ -1,7 +1,7 @@
 # COM-002 — Identity Binding (A2)
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft (binding upon Approve)  
+**Status:** Approved (binding)  
 **Amendment:** A2  
 **Related defaults:** [Commercial Defaults](./commercial-defaults.md)  
 

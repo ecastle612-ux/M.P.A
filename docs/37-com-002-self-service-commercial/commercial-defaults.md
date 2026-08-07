@@ -1,7 +1,7 @@
 # COM-002 — Commercial Defaults (Binding — A7)
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft (binding upon Approve)  
+**Status:** Approved (binding)  
 **Amendment:** A7  
 
 These defaults are **authoritative architecture**. Dollar prices remain a commercial publish step before Slice C go-live but do not block Approve.

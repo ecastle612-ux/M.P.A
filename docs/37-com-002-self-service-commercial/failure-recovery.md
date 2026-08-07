@@ -1,7 +1,7 @@
 # COM-002 — Failure Recovery
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 **Amendments:** A2, A4, A5  
 
 ---

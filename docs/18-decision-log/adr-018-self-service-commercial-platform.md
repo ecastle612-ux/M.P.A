@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed  
-*(Amendments A1–A7 incorporated into COM-002 Draft — ready for Accept upon APPROVE COM-002)*
+Accepted  
+*(COM-002 Approved; Slice A authorized 2026-08-07)*
 
 ## Date
 

@@ -2,35 +2,86 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
+  ACQUISITION_OFFER_COOKIE,
   ACQUISITION_SKU_COOKIE,
   SKU_SUMMARIES,
   acquisitionHref,
   marketingModulesForSku,
+  parseAcquisitionCycle,
+  parseAcquisitionPlan,
   parseAcquisitionSku,
-  skuIncludesFacilityOperations,
+  requiresEnterpriseMotion,
+  resolveCatalogOffer,
+  toBillingCycleLabel,
+  toPlanTierLabel,
+  type BillingCycle,
+  type PlanTier,
   type ProductSku
 } from "@mpa/shared";
 import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
 
 /**
- * Pre-auth plan confirmation for the public commercial funnel.
- * URL remains /checkout; customer-facing copy uses "Confirm Plan".
+ * Confirm Plan (Slice A) — no payment.
+ * FO/Complete selections redirect to Enterprise.
  */
 export function CheckoutPage({
   isAuthenticated = false,
-  selectedSkuRaw
+  selectedSkuRaw,
+  selectedPlanRaw,
+  selectedCycleRaw
 }: {
   isAuthenticated?: boolean;
   selectedSkuRaw?: string | null;
+  selectedPlanRaw?: string | null;
+  selectedCycleRaw?: string | null;
 }) {
+  const router = useRouter();
   const sku = parseAcquisitionSku(selectedSkuRaw) ?? "mpa_property_manager";
+  const planTier = (parseAcquisitionPlan(selectedPlanRaw) ?? "professional") as PlanTier;
+  const billingCycle = (parseAcquisitionCycle(selectedCycleRaw) ?? "monthly") as BillingCycle;
+
+  useEffect(() => {
+    if (requiresEnterpriseMotion(sku) || planTier === "enterprise") {
+      router.replace(acquisitionHref("enterprise", sku));
+    }
+  }, [sku, planTier, router]);
+
+  const offer =
+    resolveCatalogOffer({
+      productSku: sku,
+      planTier: planTier === "enterprise" ? "professional" : planTier,
+      billingCycle
+    }) ?? null;
   const summary = SKU_SUMMARIES[sku];
   const modules = marketingModulesForSku(sku);
 
   useEffect(() => {
+    if (requiresEnterpriseMotion(sku)) {
+      return;
+    }
     document.cookie = `${ACQUISITION_SKU_COOKIE}=${encodeURIComponent(sku)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
-  }, [sku]);
+    if (offer) {
+      document.cookie = `${ACQUISITION_OFFER_COOKIE}=${encodeURIComponent(offer.id)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+    }
+  }, [sku, offer]);
+
+  if (requiresEnterpriseMotion(sku) || planTier === "enterprise") {
+    return (
+      <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
+        <main className="mx-auto max-w-3xl space-y-6 px-4 pb-16 pt-10 md:px-6">
+          <h1 className="font-display text-3xl font-semibold">Enterprise</h1>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Redirecting to Request Enterprise…
+          </p>
+          <Link href={acquisitionHref("enterprise", sku)} className={marketingPrimaryCtaClass}>
+            Continue to Request Enterprise
+          </Link>
+        </main>
+      </MarketingChrome>
+    );
+  }
 
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
@@ -41,9 +92,8 @@ export function CheckoutPage({
           </p>
           <h1 className="font-display text-3xl font-semibold">Confirm Plan</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Review your selected plan, then continue to account creation. Enterprise pricing and
-            subscription billing are finalized with our commercial team during onboarding — no card
-            payment is collected on this page.
+            Review your Property Manager plan. No card payment is collected here — billing is
+            finalized during onboarding until self-service checkout ships.
           </p>
         </header>
 
@@ -62,12 +112,22 @@ export function CheckoutPage({
               Selected plan
             </p>
             <h2 className="mt-1 font-display text-2xl font-semibold">{summary.label}</h2>
+            <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+              {toPlanTierLabel(planTier === "enterprise" ? "professional" : planTier)} ·{" "}
+              {toBillingCycleLabel(billingCycle)}
+            </p>
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{summary.description}</p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold">Limits</p>
+            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+              {offer?.seatLimit ?? "—"} seats · {offer?.propertyLimit ?? "—"} properties
+            </p>
           </div>
           <div>
             <p className="text-sm font-semibold">Pricing</p>
             <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              Enterprise pricing — confirmed with our commercial team during onboarding.
+              Enterprise pricing — finalized during onboarding. No payment on this page.
             </p>
           </div>
           <div>
@@ -80,10 +140,25 @@ export function CheckoutPage({
           </div>
         </section>
 
-        <WhatHappensNext sku={sku} />
+        <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-4 text-sm text-[var(--mpa-color-text-secondary)]">
+          <p className="font-semibold text-[var(--mpa-color-text-primary)]">What happens next</p>
+          <ol className="list-decimal space-y-1 pl-5">
+            <li>Create your account.</li>
+            <li>Complete Guided Setup to create your organization.</li>
+            <li>Confirm your plan and receive working access.</li>
+            <li>Enter Mission Control to begin portfolio operations.</li>
+          </ol>
+        </section>
 
         <div className="flex flex-wrap gap-3">
-          <Link href={acquisitionHref("pricing", sku)} className={marketingSecondaryCtaClass}>
+          <Link
+            href={acquisitionHref("pricing", {
+              sku,
+              planTier: planTier === "enterprise" ? "professional" : planTier,
+              billingCycle
+            })}
+            className={marketingSecondaryCtaClass}
+          >
             Back to pricing
           </Link>
           {isAuthenticated ? (
@@ -98,30 +173,5 @@ export function CheckoutPage({
         </div>
       </main>
     </MarketingChrome>
-  );
-}
-
-function WhatHappensNext({ sku }: { sku: ProductSku }) {
-  const includesFacility = skuIncludesFacilityOperations(sku);
-
-  return (
-    <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-4 text-sm text-[var(--mpa-color-text-secondary)]">
-      <p className="font-semibold text-[var(--mpa-color-text-primary)]">What happens next</p>
-      <ol className="list-decimal space-y-1 pl-5">
-        <li>Create your account (no sign-in required before this step).</li>
-        <li>Complete Guided Setup to create your organization.</li>
-        <li>Confirm your plan and receive your working role access.</li>
-        {includesFacility ? (
-          <li>
-            Your organization begins with Property Manager access. Our commercial team activates{" "}
-            {SKU_SUMMARIES[sku].label} with your organization during onboarding so Facility areas
-            become available under your plan.
-          </li>
-        ) : (
-          <li>Enter Mission Control to begin portfolio operations.</li>
-        )}
-        {includesFacility ? <li>Enter Mission Control once setup is complete.</li> : null}
-      </ol>
-    </section>
   );
 }

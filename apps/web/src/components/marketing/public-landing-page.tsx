@@ -198,12 +198,20 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="facility-operations"
         eyebrow="Facility Operations"
         title="Facility product for building teams"
-        description="Facility Operations is a commercial product with its own home and module areas. Capital Projects are not offered today."
+        description="Facility Operations is available through Enterprise — not self-service checkout. Capital Projects are not offered today."
       >
         <CapabilityList
           modules={foModules}
-          note="Facility Operations modules are included with your plan and made available when your subscription is activated during onboarding. Your organization begins with account setup first; our team completes Facility plan activation with you."
+          note="Our team activates Facility capabilities with your organization during Enterprise implementation."
         />
+        <div className="pt-4">
+          <Link
+            href={acquisitionHref("enterprise", "mpa_facility_operations")}
+            className={marketingSecondaryCtaClass}
+          >
+            Request Enterprise
+          </Link>
+        </div>
       </Section>
 
       <Section
@@ -235,11 +243,14 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           </table>
         </div>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Property Manager access begins at setup. Facility Operations areas on Complete Platform are
-          activated with your organization during onboarding.
+          Complete Platform is available through Enterprise. Property Manager and Facility Operations
+          homes are activated together during implementation.
         </p>
-        <Link href={acquisitionHref("pricing", "mpa_complete_platform")} className={marketingSecondaryCtaClass}>
-          Review Complete Platform pricing
+        <Link
+          href={acquisitionHref("enterprise", "mpa_complete_platform")}
+          className={marketingSecondaryCtaClass}
+        >
+          Request Enterprise
         </Link>
       </Section>
 

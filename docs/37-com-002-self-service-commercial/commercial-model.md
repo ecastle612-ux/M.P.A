@@ -1,7 +1,7 @@
 # COM-002 — Commercial Model
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 **Preserves:** ADR-015 three commercial products  
 **Amendments:** A1, A6, A7 — see [Amendment Package](./amendment-package.md) · [Commercial Defaults](./commercial-defaults.md)  
 

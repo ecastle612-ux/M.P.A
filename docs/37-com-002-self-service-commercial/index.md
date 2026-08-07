@@ -1,9 +1,9 @@
 # 37 — COM-002 Self-Service Commercial Platform
 
-**Status:** Draft — **Amendments A1–A7 incorporated** (awaiting Approve)  
+**Status:** Approved — Slice A authorized 2026-08-07  
 **Gate:** Design → Document → **Approve** → Implement  
 **Package id:** COM-002  
-**ADR:** [ADR-018 Proposed](../18-decision-log/adr-018-self-service-commercial-platform.md)  
+**ADR:** [ADR-018 Accepted](../18-decision-log/adr-018-self-service-commercial-platform.md)  
 **Review:** [38 Architecture Review](../38-com-002-architecture-review/index.md) → amendments applied  
 **Amendment package:** [amendment-package.md](./amendment-package.md)  
 **Approval recommendation:** [APPROVE COM-002](./approval-recommendation.md)  
@@ -14,7 +14,7 @@
 
 Authoritative commercial blueprint: automate **Professional / Business** Property Manager self-serve; keep **Enterprise** high-touch; scalable Live Demo; SaaS Stripe separated from FIN-OPS.
 
-**Does not authorize implementation.**
+**COM-002 Approved. ADR-018 Accepted. Slice A authorized.** Slices B–G require separate authorize.
 
 ---
 
@@ -38,7 +38,7 @@ Details: [Commercial Defaults](./commercial-defaults.md).
 
 | Workstream | Instruction |
 |------------|-------------|
-| Application code / UI / migrations / APIs | **Do not implement** without Approve + slice authorize |
+| Application code / UI / migrations / APIs | **Slice A only** authorized; B–G require separate authorize |
 | Stripe SaaS Checkout | **Do not implement** until Slice C authorize |
 | Live Demo platform | **Do not implement** until Slice B authorize |
 | Capital Projects | **Do not begin** |
@@ -71,15 +71,16 @@ Details: [Commercial Defaults](./commercial-defaults.md).
 | [Certification](./certification.md) | Cert plan |
 | [Risk Assessment](./risk-assessment.md) | Risks |
 | [Approval Recommendation](./approval-recommendation.md) | Approve / ADR / Slice A |
+| [39 Slice A Implementation](../39-com-002-slice-a/index.md) | Slice A implement + verification |
 
 ---
 
-## Approval required
+## Approval recorded
 
 ```
-APPROVE COM-002
-Accept ADR-018
-Then authorize Slice A (Implement) separately
+APPROVE COM-002 — recorded
+Accept ADR-018 — recorded
+AUTHORIZE COM-002 SLICE A — recorded (implement in progress / delivered)
 ```
 
 ---
@@ -89,6 +90,6 @@ Then authorize Slice A (Implement) separately
 | Field | Value |
 |-------|--------|
 | Package | COM-002 |
-| Status | Draft (amended) |
+| Status | Approved · Slice A authorized |
 | Amended | 2026-08-07 |
 | Docs | `docs/37-com-002-self-service-commercial/` |

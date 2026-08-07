@@ -1,7 +1,7 @@
 # COM-002 — Provisioning Architecture (A5)
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 **Amendments:** A2, A5  
 
 ---

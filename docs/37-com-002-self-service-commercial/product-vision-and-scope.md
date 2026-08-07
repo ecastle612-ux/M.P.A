@@ -1,7 +1,7 @@
 # COM-002 — Product Vision & Scope
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 
 ---
 

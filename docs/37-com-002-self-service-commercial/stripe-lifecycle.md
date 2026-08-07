@@ -1,7 +1,7 @@
 # COM-002 — Stripe Lifecycle (Design Only)
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 **Amendments:** A4, A6, A7  
 **Implementation:** Forbidden until Slice C+ authorized  
 

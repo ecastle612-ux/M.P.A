@@ -1,7 +1,7 @@
 # COM-002 — Certification Plan (Amended)
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft — execute only after Slice G authorize  
+**Status:** Approved plan — execute only after Slice G authorize  
 
 ---
 

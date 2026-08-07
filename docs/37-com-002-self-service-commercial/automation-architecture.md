@@ -1,7 +1,7 @@
 # COM-002 — Automation Architecture
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 
 ---
 

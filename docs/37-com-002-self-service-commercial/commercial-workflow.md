@@ -1,7 +1,7 @@
 # COM-002 — Commercial Workflow
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Approved  
 **Amendments:** A4, A5, A6, A7  
 
 ---
