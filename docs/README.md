@@ -57,7 +57,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 24 | [Product Architecture (Commercial Reset)](./24-product-architecture/index.md) | Three offerings, ownership, nav, subscriptions, entitlements |
 | 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0–S3 delivered; paused) |
 | 26 | [LAUNCH-001 Customer Promise Roadmap](./26-launch-001-onboarding/index.md) | Approved; journey-gated launch (J0–J2 delivered; J3+ blocked) |
-| 29 | [BUG-001 Public Homepage Routing](./29-bug-001-public-homepage-routing/index.md) | `/` public marketing landing; protected routes unchanged |
+| 29 | [BUG-001 Public Homepage Routing](./29-bug-001-public-homepage-routing/index.md) | **CLOSED** — public marketing at `/`; prod SHA `79ade03` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
