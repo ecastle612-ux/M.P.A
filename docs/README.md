@@ -7,10 +7,10 @@ This blueprint defines how M.P.A. is designed, built, and evolved. Every enginee
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
 Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0–
 S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Promise Roadmap
-**Approved** (ADR-017); journey-gated — **J0–J2 delivered**, J3–J8 not authorized.
-CORE-004 remains stopped. Facility Operations feature Implement authorize (2026-08-07)
-**refused** pending workflows + schema design package ([27](./27-facility-operations/index.md)).
-Implementation Gate in force.
+**Approved** (ADR-017); Customer #1 certified lineage on `main` under PM feature freeze.
+CORE-004 remains stopped. Facility Operations FAC-OPS-001 **design package Proposed**
+([27/design-package](./27-facility-operations/design-package/index.md)); feature
+**Implement NO-GO** until Approve + Phase E.x authorize. Implementation Gate in force.
 
 ---
 
@@ -175,5 +175,5 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | Field | Value |
 |-------|-------|
 | Blueprint version | 0.5.0 |
-| Last updated | 2026-08-06 |
+| Last updated | 2026-08-07 |
 | Phase | Product Architecture Alignment Phase 1 |
