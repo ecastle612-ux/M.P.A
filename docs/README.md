@@ -63,6 +63,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 34 | [PR #46 Blocking Remediation](./34-pr-46-blocking-remediation/index.md) | B1–B5 commercial honesty |
 | 35 | [PR #46 R1 Remediation](./35-pr-46-r1-remediation/index.md) | Account creation copy |
 | 36 | [PR #46 Merge Closeout](./36-pr-46-merge-closeout/index.md) | Merged; Production `3d081ad`; BUG-003/004 CLOSED |
+| 37 | [COM-002 Self-Service Commercial](./37-com-002-self-service-commercial/index.md) | **Draft** — automated Pro/Business SaaS + Live Demo; Enterprise high-touch |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
