@@ -207,13 +207,13 @@ export function ReportingDesk() {
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b text-[var(--mpa-color-text-secondary)]">
-                  <th className="px-3 py-2">Property</th>
-                  <th className="px-3 py-2">Collected</th>
-                  <th className="px-3 py-2">Outstanding</th>
-                  <th className="px-3 py-2">Past due</th>
-                  <th className="px-3 py-2">Vendor open</th>
-                  <th className="px-3 py-2">Occupancy</th>
-                  <th className="px-3 py-2">Status</th>
+                  <th scope="col" className="px-3 py-2">Property</th>
+                  <th scope="col" className="px-3 py-2">Collected</th>
+                  <th scope="col" className="px-3 py-2">Outstanding</th>
+                  <th scope="col" className="px-3 py-2">Past due</th>
+                  <th scope="col" className="px-3 py-2">Vendor open</th>
+                  <th scope="col" className="px-3 py-2">Occupancy</th>
+                  <th scope="col" className="px-3 py-2">Status</th>
                 </tr>
               </thead>
               <tbody>

@@ -250,13 +250,13 @@ export function CollectionsDesk() {
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b text-[var(--mpa-color-text-secondary)]">
-                  <th className="px-3 py-2">Resident</th>
-                  <th className="px-3 py-2">Property</th>
-                  <th className="px-3 py-2">Balance</th>
-                  <th className="px-3 py-2">Days</th>
-                  <th className="px-3 py-2">Bucket</th>
-                  <th className="px-3 py-2">Status</th>
-                  <th className="px-3 py-2">Actions</th>
+                  <th scope="col" className="px-3 py-2">Resident</th>
+                  <th scope="col" className="px-3 py-2">Property</th>
+                  <th scope="col" className="px-3 py-2">Balance</th>
+                  <th scope="col" className="px-3 py-2">Days</th>
+                  <th scope="col" className="px-3 py-2">Bucket</th>
+                  <th scope="col" className="px-3 py-2">Status</th>
+                  <th scope="col" className="px-3 py-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -541,11 +541,11 @@ export function CollectionsDesk() {
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b text-[var(--mpa-color-text-secondary)]">
-                  <th className="px-3 py-2">Vendor</th>
-                  <th className="px-3 py-2">Invoice</th>
-                  <th className="px-3 py-2">Amount</th>
-                  <th className="px-3 py-2">Status</th>
-                  <th className="px-3 py-2">Actions</th>
+                  <th scope="col" className="px-3 py-2">Vendor</th>
+                  <th scope="col" className="px-3 py-2">Invoice</th>
+                  <th scope="col" className="px-3 py-2">Amount</th>
+                  <th scope="col" className="px-3 py-2">Status</th>
+                  <th scope="col" className="px-3 py-2">Actions</th>
                 </tr>
               </thead>
               <tbody>

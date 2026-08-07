@@ -7,6 +7,7 @@ import { AuthenticatedContextProviders } from "./authenticated-context-providers
 import { Sidebar } from "./sidebar";
 import { TopNavigation } from "./top-navigation";
 import { ResponsiveNavigation } from "./responsive-navigation";
+import { SkipToContent } from "./skip-to-content";
 
 export function ApplicationShell({
   children,
@@ -32,6 +33,7 @@ export function ApplicationShell({
       isPlatformOperator={isPlatformOperator}
     >
       <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)]">
+        <SkipToContent />
         <Sidebar />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <div className="flex items-center justify-between px-4 pt-3 lg:hidden">
@@ -39,7 +41,9 @@ export function ApplicationShell({
             <ResponsiveNavigation />
           </div>
           <TopNavigation />
-          {children}
+          <div id="main-content" className="flex min-h-0 flex-1 flex-col">
+            {children}
+          </div>
         </div>
       </div>
     </AuthenticatedContextProviders>

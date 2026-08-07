@@ -343,7 +343,8 @@ export function navigationGroupsForSku(sku: ProductSku | null): NavGroup[] {
         entitlement: "platform.communications"
       },
       { href: "/billing", label: "Billing & Plan", readiness: "aligned", entitlement: "platform.billing_self" },
-      { href: "/settings/organization", label: "Settings", readiness: "aligned", entitlement: "platform.org" }
+      { href: "/settings/organization", label: "Organization", readiness: "aligned", entitlement: "platform.org" },
+      { href: "/settings/team", label: "Team", readiness: "aligned", entitlement: "platform.org" }
     ]
   });
 

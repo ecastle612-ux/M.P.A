@@ -18,20 +18,21 @@ export default async function UnauthorizedPage({ searchParams }: PageProps) {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 p-6">
+      <p className="font-display text-sm font-semibold text-[var(--mpa-color-brand-primary)]">M.P.A.</p>
       <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">Access denied</h1>
       <p className="text-sm text-[var(--mpa-color-text-secondary)]">{message}</p>
       {required ? (
         <p className="font-mono text-xs text-[var(--mpa-color-text-secondary)]">Required: {required}</p>
       ) : null}
       <div className="flex flex-wrap gap-3 text-sm">
+        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/dashboard">
+          Go to your workspace
+        </Link>
         <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/launcher">
           Workspace Launcher
         </Link>
         <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/billing">
           Billing & Plan
-        </Link>
-        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/setup">
-          Guided Setup
         </Link>
       </div>
     </main>

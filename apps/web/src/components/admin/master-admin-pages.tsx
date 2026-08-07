@@ -161,12 +161,12 @@ export function AdminSimplePage({
           <table className="min-w-full text-left text-sm">
             <thead>
               <tr className="border-b">
-                <th className="py-2 pr-4">Module</th>
-                <th className="py-2 pr-4">Owner</th>
-                <th className="py-2 pr-4">PM</th>
-                <th className="py-2 pr-4">Facility</th>
-                <th className="py-2 pr-4">Complete</th>
-                <th className="py-2">Readiness</th>
+                <th scope="col" className="py-2 pr-4">Module</th>
+                <th scope="col" className="py-2 pr-4">Owner</th>
+                <th scope="col" className="py-2 pr-4">PM</th>
+                <th scope="col" className="py-2 pr-4">Facility</th>
+                <th scope="col" className="py-2 pr-4">Complete</th>
+                <th scope="col" className="py-2">Readiness</th>
               </tr>
             </thead>
             <tbody>

@@ -49,6 +49,14 @@ describe("navigation and launcher awareness", () => {
     expect(groups.some((group) => group.id === "facility_operations")).toBe(false);
   });
 
+  it("surfaces Team beside Organization in Shared Platform nav", () => {
+    const groups = navigationGroupsForSku("mpa_property_manager");
+    const shared = groups.find((group) => group.id === "shared");
+    const hrefs = shared?.items.map((item) => item.href) ?? [];
+    expect(hrefs).toContain("/settings/organization");
+    expect(hrefs).toContain("/settings/team");
+  });
+
   it("shows both product groups for Complete Platform", () => {
     const groups = navigationGroupsForSku("mpa_complete_platform");
     expect(groups.some((group) => group.id === "property_manager")).toBe(true);

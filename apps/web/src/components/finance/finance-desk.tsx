@@ -492,12 +492,12 @@ export function FinanceDesk() {
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b text-[var(--mpa-color-text-secondary)]">
-                  <th className="py-2 pr-3">Charge</th>
-                  <th className="py-2 pr-3">Due</th>
-                  <th className="py-2 pr-3">Amount</th>
-                  <th className="py-2 pr-3">Paid</th>
-                  <th className="py-2 pr-3">Status</th>
-                  <th className="py-2">Actions</th>
+                  <th scope="col" className="py-2 pr-3">Charge</th>
+                  <th scope="col" className="py-2 pr-3">Due</th>
+                  <th scope="col" className="py-2 pr-3">Amount</th>
+                  <th scope="col" className="py-2 pr-3">Paid</th>
+                  <th scope="col" className="py-2 pr-3">Status</th>
+                  <th scope="col" className="py-2">Actions</th>
                 </tr>
               </thead>
               <tbody>

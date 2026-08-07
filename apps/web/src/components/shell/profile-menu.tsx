@@ -72,21 +72,41 @@ export function ProfileMenu() {
           className="absolute right-0 top-10 z-40 w-56 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-2 shadow-lg"
         >
           <p className="px-2 py-2 text-xs text-[var(--mpa-color-text-secondary)]">{displayName}</p>
-          <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/profile")}>
+          <Button
+            className="mb-2 w-full"
+            variant="secondary"
+            role="menuitem"
+            onClick={() => router.push("/profile")}
+          >
             Profile
           </Button>
-          <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/billing")}>
+          <Button
+            className="mb-2 w-full"
+            variant="secondary"
+            role="menuitem"
+            onClick={() => router.push("/billing")}
+          >
             Billing & Plan
           </Button>
-          <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/setup")}>
+          <Button
+            className="mb-2 w-full"
+            variant="secondary"
+            role="menuitem"
+            onClick={() => router.push("/setup")}
+          >
             Guided Setup
           </Button>
           {isPlatformOperator ? (
-            <Button className="mb-2 w-full" variant="secondary" onClick={() => router.push("/admin")}>
+            <Button
+              className="mb-2 w-full"
+              variant="secondary"
+              role="menuitem"
+              onClick={() => router.push("/admin")}
+            >
               Master Admin
             </Button>
           ) : null}
-          <Button className="w-full" variant="secondary" onClick={handleLogout}>
+          <Button className="w-full" variant="secondary" role="menuitem" onClick={handleLogout}>
             Logout
           </Button>
         </div>

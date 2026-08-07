@@ -94,6 +94,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE LAUNCH-001 – PROPERTY MANAGER PROMISE REMEDIATION` | Documents + Communications | **Authorized + delivered** — MA evidence ready |
 | `AUTHORIZE PROPERTY MANAGER PRODUCTION CERTIFICATION` | Production audit of advertised PM | **Authorized + complete** — initial **NO-GO** (P0 portal access) |
 | `AUTHORIZE LAUNCH-001 – P0 PRODUCTION REMEDIATION` | Clear LB-001/002/003 only | **Authorized + delivered** — **GO** (92/100; no open P0) |
+| `AUTHORIZE LAUNCH STABILIZATION – WORLD-CLASS UX & PRODUCTION AUDIT` | Defects/friction/polish only | **Authorized + delivered** — audit package + surgical polish; **STOP** |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
@@ -121,7 +122,8 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 
 | Instruction |
 |-------------|
-| **STOP** — production certification is **NO-GO**; no new PM features; clear P0 portal blockers only under new authorize |
+| **STOP** — Launch Readiness is **GO**; launch stabilization audit complete; no further changes without new authorize |
+| **Do not** add Property Manager features — polish/defects only when explicitly authorized |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |
 | **Do not begin Facility Operations features** |
@@ -134,6 +136,7 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 
 | Package | Role |
 |---------|------|
+| [Launch Stabilization](./launch-stabilization/index.md) | World-class UX / production polish audit |
 | [24 Property Manager Module Map](../24-product-architecture/property-manager-module-map.md) | What we advertise |
 | [24 Subscription Matrix](../24-product-architecture/subscription-matrix.md) | SKU inclusion |
 | [25 FIN-OPS-001](../25-fin-ops-001/index.md) | Money capability (partial promise met) |
@@ -148,4 +151,4 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 |-------|-------|
 | Package | LAUNCH-001 Customer Promise Roadmap |
 | Version | 1.0.0-approved |
-| Implementation | **Journey-gated** (J0–J2 delivered; J3+ blocked) |
+| Implementation | **Journey-gated** · Production **GO** · Stabilization audit complete |

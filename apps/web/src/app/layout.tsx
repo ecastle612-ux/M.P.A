@@ -5,8 +5,8 @@ import { AppProviders } from "./providers";
 import { RegisterServiceWorker } from "../components/pwa/register-service-worker";
 
 export const metadata: Metadata = {
-  title: "M.P.A. Foundation",
-  description: "M.P.A. phase 2 foundation scaffold",
+  title: "M.P.A. — My Property Assistant",
+  description: "Property operations for portfolio managers, residents, vendors, and owners.",
   applicationName: "M.P.A."
 };
 

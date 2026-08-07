@@ -300,6 +300,6 @@ export async function buildOwnerPropertyDrillDown(
           ? `${commandCenter.maintenance.openCount} open maintenance item(s) on this property.`
           : "This property looks operationally steady. Review the timeline for recent activity.",
     documentsHonesty:
-      "Property documents will appear when Document Vault is enabled. Operational records below reuse Property Command Center and Financial Operations."
+      "Property documents appear in Documents when uploaded or indexed from leases. Operational records below reuse Property Command Center and Financial Operations."
   };
 }

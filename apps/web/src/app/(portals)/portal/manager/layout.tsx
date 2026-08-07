@@ -30,7 +30,7 @@ export default async function ManagerPortalLayout({ children }: { children: Reac
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       title="Property Manager Portal"
-      subtitle="Operations-first shell foundation for managers."
+      subtitle="Quick access to setup, billing, and your workspace."
       roleBadgeLabel="Manager"
       navigation={MANAGER_PORTAL_NAVIGATION}
     >

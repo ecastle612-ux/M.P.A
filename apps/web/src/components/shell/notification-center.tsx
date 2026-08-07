@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { UnifiedNotificationRecord } from "@mpa/shared";
-import { Badge } from "@mpa/ui";
+import { Badge, EmptyState } from "@mpa/ui";
 
 export function NotificationCenter() {
   const [open, setOpen] = useState(false);
@@ -12,8 +12,10 @@ export function NotificationCenter() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function load() {
-    setLoading(true);
+  async function load(options?: { showLoading?: boolean }) {
+    if (options?.showLoading) {
+      setLoading(true);
+    }
     try {
       const response = await fetch("/api/shared/communications/notifications");
       const body = await response.json();
@@ -29,15 +31,44 @@ export function NotificationCenter() {
     } catch {
       setError("Unable to load notifications");
     } finally {
-      setLoading(false);
+      if (options?.showLoading) {
+        setLoading(false);
+      }
     }
   }
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch("/api/shared/communications/notifications");
+        const body = await response.json();
+        if (cancelled) {
+          return;
+        }
+        if (!response.ok) {
+          setItems([]);
+          setUnreadCount(0);
+          return;
+        }
+        setItems((body.notifications as UnifiedNotificationRecord[]).slice(0, 12));
+        setUnreadCount(Number(body.unreadCount ?? 0));
+      } catch {
+        if (!cancelled) {
+          // Badge stays at 0; panel load will surface errors.
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function toggle() {
     const next = !open;
     setOpen(next);
     if (next) {
-      await load();
+      await load({ showLoading: true });
     }
   }
 
@@ -58,10 +89,13 @@ export function NotificationCenter() {
         aria-haspopup="menu"
         aria-expanded={open}
         className="relative rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-gray-50"
-        aria-label="Open notifications"
+        aria-label={`Open notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
       >
         Notifications
-        <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] text-xs text-white">
+        <span
+          className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] px-1 text-xs text-white"
+          aria-hidden="true"
+        >
           {unreadCount}
         </span>
       </button>
@@ -70,12 +104,13 @@ export function NotificationCenter() {
         <div
           role="menu"
           aria-label="Notifications"
-          className="absolute right-0 top-12 z-40 w-96 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 shadow-xl"
+          className="absolute right-0 top-12 z-40 w-[min(24rem,calc(100vw-2rem))] rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 shadow-xl"
         >
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Notifications</p>
             <Link
               href="/shared/communications"
+              role="menuitem"
               className="text-xs text-[var(--mpa-color-brand-primary)] underline"
             >
               Open Communications
@@ -85,9 +120,11 @@ export function NotificationCenter() {
           {loading ? (
             <p className="text-xs text-[var(--mpa-color-text-secondary)]">Loading…</p>
           ) : items.length === 0 ? (
-            <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-              No system notifications yet. Finance, maintenance, and messages appear here.
-            </p>
+            <EmptyState
+              className="border-0 bg-transparent px-0 py-2"
+              title="No notifications yet"
+              description="Finance, maintenance, and messages appear here when activity starts."
+            />
           ) : (
             <ul className="max-h-80 space-y-2 overflow-auto">
               {items.map((item) => (
@@ -106,6 +143,7 @@ export function NotificationCenter() {
                     {item.href ? (
                       <Link
                         href={item.href}
+                        role="menuitem"
                         className="text-[var(--mpa-color-brand-primary)] underline"
                       >
                         Open
@@ -114,6 +152,7 @@ export function NotificationCenter() {
                     {!item.readAt ? (
                       <button
                         type="button"
+                        role="menuitem"
                         className="text-[var(--mpa-color-brand-primary)] underline"
                         onClick={() => void markRead(item.id)}
                       >

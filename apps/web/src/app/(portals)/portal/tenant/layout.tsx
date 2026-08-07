@@ -30,7 +30,7 @@ export default async function TenantPortalLayout({ children }: { children: React
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       title="Tenant Portal"
-      subtitle="Tenant-facing shell foundation for requests and updates."
+      subtitle="Billing, maintenance, and documents for your home."
       roleBadgeLabel="Tenant"
       navigation={TENANT_PORTAL_NAVIGATION}
     >
