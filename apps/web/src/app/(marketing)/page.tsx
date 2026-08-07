@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 /**
  * Public homepage. Never redirects to authentication.
- * Acquisition: Choose Modules → Pricing → Checkout (plan confirm) → account creation.
+ * Funnel: Choose Modules → Pricing → Confirm Plan → account creation.
  */
 export default async function MarketingHomePage() {
   const supabase = await createAuthServerClient();

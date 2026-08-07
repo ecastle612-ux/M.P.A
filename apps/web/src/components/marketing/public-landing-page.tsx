@@ -14,6 +14,7 @@ import {
   marketingPrimaryCtaClass,
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
+import { marketingModuleDescription } from "./marketing-module-copy";
 
 function Section({
   id,
@@ -66,13 +67,10 @@ function CapabilityList({
             key={module.id}
             className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
           >
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-medium text-[var(--mpa-color-text-primary)]">{module.label}</h3>
-              <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-                {module.readiness === "planned" ? "Roadmap module" : "In product"}
-              </span>
-            </div>
-            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{module.description}</p>
+            <h3 className="font-medium text-[var(--mpa-color-text-primary)]">{module.label}</h3>
+            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+              {marketingModuleDescription(module.id, module.description)}
+            </p>
           </li>
         ))}
       </ul>
@@ -190,8 +188,8 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
       <Section
         id="property-manager"
         eyebrow="Property Manager"
-        title="Certified portfolio operations"
-        description="Live Property Manager capabilities from the customer promise certification — Mission Control through financial operations and portals."
+        title="Portfolio operations for professional teams"
+        description="After you create your account and complete Guided Setup, Property Manager gives your team Mission Control, portfolio desks, financial operations, and customer portals."
       >
         <CapabilityList modules={pmModules} />
       </Section>
@@ -199,20 +197,20 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
       <Section
         id="facility-operations"
         eyebrow="Facility Operations"
-        title="Facility product catalog"
-        description="Modules included in the Facility Operations commercial product. Capital Projects remain deferred and are not offered here."
+        title="Facility product for building teams"
+        description="Facility Operations is a commercial product with its own home and module areas. Capital Projects are not offered today."
       >
         <CapabilityList
           modules={foModules}
-          note="Facility Operations product modules follow commercial ownership. Operational depth ships only after approved Facility phases — we do not invent live facility workflows here."
+          note="Facility Operations modules are included with your plan and made available when your subscription is activated during onboarding. Your organization begins with account setup first; our team completes Facility plan activation with you."
         />
       </Section>
 
       <Section
         id="complete-platform"
         eyebrow="Complete Platform"
-        title="Side-by-side subscription comparison"
-        description="Complete Platform is the union of Property Manager and Facility Operations — one organization, two product homes, shared platform spine."
+        title="Side-by-side plan comparison"
+        description="Complete Platform combines Property Manager and Facility Operations — one organization, two product homes, and a shared platform foundation."
       >
         <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]">
           <table className="w-full min-w-[40rem] border-collapse text-sm">
@@ -236,6 +234,10 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             </tbody>
           </table>
         </div>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          Property Manager access begins at setup. Facility Operations areas on Complete Platform are
+          activated with your organization during onboarding.
+        </p>
         <Link href={acquisitionHref("pricing", "mpa_complete_platform")} className={marketingSecondaryCtaClass}>
           Review Complete Platform pricing
         </Link>
@@ -245,7 +247,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="financial-operations"
         eyebrow="Financial Operations"
         title="Operational money — not a general ledger"
-        description="S0–S3 delivered: charges, resident ledger, Stripe/manual collection honesty, collections, vendor invoice approval, property money, and owner summaries."
+        description="Property Manager financial operations cover resident charges and ledgers, rent collection (card or manual), collections and late fees, vendor invoice approval, property money views, and owner summaries."
       >
         <ul className="grid gap-2 text-sm text-[var(--mpa-color-text-secondary)] md:grid-cols-2">
           {[
@@ -270,7 +272,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="portals"
         eyebrow="Portals"
         title="Resident, owner, and vendor access"
-        description="Role portals ship with Property Manager / Complete — not sold as separate products."
+        description="Role portals are included with Property Manager and Complete Platform — not sold as separate products."
       >
         <ul className="grid gap-4 md:grid-cols-3">
           {[
@@ -302,20 +304,22 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="mission-control"
         eyebrow="Mission Control & Assistant"
         title="Start every day from ranked attention"
-        description="Mission Control is the trusted home — not an analytics dashboard. The Assistant surfaces rule-based recommendations from existing operational signals."
+        description="Mission Control is the trusted home for what needs attention — not an analytics dashboard. The Assistant surfaces clear next-action guidance from your operational signals."
       >
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
             <h3 className="font-semibold">Mission Control</h3>
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
               Immediate attention, waiting queues, recommended actions, and a clear next step for
-              Property Manager. Facility Operations has its own product home when entitled.
+              Property Manager. Facility Operations includes its own Mission Control home once your
+              plan is active.
             </p>
           </div>
           <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
             <h3 className="font-semibold">M.P.A. Assistant</h3>
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              Briefings and next-action guidance grounded in live desks — not generative speculation.
+              Briefings and next-action guidance grounded in your desks — practical recommendations,
+              not speculation.
             </p>
           </div>
         </div>
@@ -325,17 +329,17 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="shared-platform"
         eyebrow="Shared platform"
         title="Documents, communications, search, audit, notifications"
-        description="Shared spine capabilities available across entitled products."
+        description="Shared capabilities available across your entitled products."
       >
         <CapabilityList modules={sharedModules} />
         <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { title: "Search / ⌘K", body: "Entitlement-filtered command search across your workspace." },
-            { title: "Audit & timeline", body: "Entity event trails on property, lease, finance, and work orders." },
-            { title: "Notifications", body: "Journey-tied alerts — maintenance, payments, and inbox signals." },
+            { title: "Search / ⌘K", body: "Command search across the modules your plan includes." },
+            { title: "Audit & timeline", body: "Event trails on property, lease, finance, and work orders." },
+            { title: "Notifications", body: "Alerts for maintenance, payments, and inbox activity." },
             {
               title: "Master Admin",
-              body: "Operator headquarters for M.P.A. — not a customer SKU. Certify, subscribe, observe."
+              body: "M.P.A. operator headquarters — not a customer product."
             }
           ].map((item) => (
             <li
@@ -353,7 +357,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="pricing"
         eyebrow="Pricing preview"
         title="Plans by inclusion — enterprise pricing finalized in onboarding"
-        description="Published SKUs compare by module inclusion. Dollar checkout for SaaS subscriptions remains white-glove commercial operations; the public funnel selects a plan, then creates your account."
+        description="Compare what each plan includes. Enterprise pricing and subscription billing are finalized with our commercial team after you create your account."
       >
         <ul className="grid gap-4 md:grid-cols-3">
           {PRODUCT_SKUS.map((sku) => {
@@ -373,7 +377,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                   Enterprise pricing
                 </p>
                 <Link href={acquisitionHref("checkout", sku)} className={`${marketingPrimaryCtaClass} mt-4`}>
-                  Continue to checkout
+                  Confirm this plan
                 </Link>
               </li>
             );
@@ -385,7 +389,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="journey"
         eyebrow="Customer journey"
         title="From landing to Mission Control"
-        description="The certified acquisition path reuses Guided Setup and role-aware post-login routing."
+        description="A clear path from plan selection to your working home."
       >
         <ol className="grid gap-3 md:grid-cols-4">
           {[
@@ -407,7 +411,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         </ol>
         <div className="flex flex-wrap gap-3">
           <Link href={acquisitionHref("modules")} className={marketingPrimaryCtaClass}>
-            Start acquisition
+            Get started
           </Link>
           <Link href="/login" className={marketingSecondaryCtaClass}>
             Sign In
@@ -418,16 +422,16 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
       <Section
         id="security"
         eyebrow="Enterprise security"
-        title="Fail-closed entitlements and operator-gated commercial control"
-        description="Documented Pass controls from commercial hardening — not invented compliance badges."
+        title="Access control that protects every organization"
+        description="M.P.A. is built so teams only see the products and modules included in their plan."
       >
         <ul className="grid gap-3 md:grid-cols-2">
           {[
-            "Entitlement fail-closed on customer routes",
-            "Search never lists unentitled modules",
-            "Customers cannot self-change SKU (operator-gated)",
-            "Master Admin blocked for non-operators",
-            "Stripe payment secrets stay server-side",
+            "Plan-based access on every customer workspace",
+            "Search only shows modules included in your plan",
+            "Customers cannot change their own subscription plan",
+            "Operator tools are reserved for M.P.A. staff",
+            "Payment credentials stay on secure servers",
             "Multi-tenant organization membership model"
           ].map((item) => (
             <li
@@ -440,28 +444,24 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         </ul>
       </Section>
 
-      <Section
-        id="faq"
-        eyebrow="FAQ"
-        title="Straight answers"
-      >
+      <Section id="faq" eyebrow="FAQ" title="Straight answers">
         <dl className="space-y-4">
           {[
             {
               q: "Is Capital Projects available?",
-              a: "No. Capital Projects are intentionally deferred and are not part of current customer offers."
+              a: "No. Capital Projects are not part of current customer offers."
             },
             {
               q: "Can I buy online with a credit card today?",
-              a: "Plan selection and account creation are self-serve. SaaS subscription payment remains white-glove through commercial operations — we do not invent a Stripe SaaS checkout here."
+              a: "You can select a plan and create your account online. Enterprise subscription pricing and billing are completed with our commercial team during onboarding."
             },
             {
               q: "What happens after I create an account?",
-              a: "You continue Guided Setup, provision your organization, acknowledge your plan, and land in Mission Control via role-aware routing."
+              a: "You complete Guided Setup to create your organization, confirm your plan, receive the right role access, and enter Mission Control. If you selected Facility Operations or Complete Platform, our team activates that plan with your organization during onboarding."
             },
             {
               q: "Is Master Admin something customers buy?",
-              a: "No. Master Admin is M.P.A. operator headquarters — certify, subscribe, and observe products."
+              a: "No. Master Admin is M.P.A. operator headquarters — not a customer product."
             }
           ].map((item) => (
             <div

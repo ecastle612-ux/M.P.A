@@ -7,14 +7,15 @@ import {
   SKU_SUMMARIES,
   acquisitionHref,
   marketingModulesForSku,
-  parseAcquisitionSku
+  parseAcquisitionSku,
+  skuIncludesFacilityOperations,
+  type ProductSku
 } from "@mpa/shared";
 import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
 
 /**
- * Pre-auth plan confirmation ("checkout") for the commercial acquisition funnel.
- * Does NOT invent Stripe SaaS payment — payment remains white-glove per certified model.
- * Next step is account creation, then Guided Setup → Mission Control.
+ * Pre-auth plan confirmation for the public commercial funnel.
+ * URL remains /checkout; customer-facing copy uses "Confirm Plan".
  */
 export function CheckoutPage({
   isAuthenticated = false,
@@ -36,13 +37,13 @@ export function CheckoutPage({
       <main className="mx-auto max-w-3xl space-y-8 px-4 pb-16 pt-10 md:px-6">
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Acquisition · Step 3
+            Get started · Step 3
           </p>
-          <h1 className="font-display text-3xl font-semibold">Checkout</h1>
+          <h1 className="font-display text-3xl font-semibold">Confirm Plan</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Confirm your selected subscription. Card payment for SaaS plans is completed with commercial
-            operations — this checkout confirms selection without requiring authentication, then
-            continues to account creation.
+            Review your selected plan, then continue to account creation. Enterprise pricing and
+            subscription billing are finalized with our commercial team during onboarding — no card
+            payment is collected on this page.
           </p>
         </header>
 
@@ -50,7 +51,7 @@ export function CheckoutPage({
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">1 · Modules</li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">2 · Pricing</li>
           <li className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-2 py-1 text-[var(--mpa-color-brand-primary)]">
-            3 · Checkout
+            3 · Confirm Plan
           </li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Account</li>
         </ol>
@@ -66,8 +67,7 @@ export function CheckoutPage({
           <div>
             <p className="text-sm font-semibold">Pricing</p>
             <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              Enterprise pricing — finalized during onboarding / commercial ops (white-glove SaaS
-              billing). No invented card charge on this page.
+              Enterprise pricing — confirmed with our commercial team during onboarding.
             </p>
           </div>
           <div>
@@ -80,15 +80,7 @@ export function CheckoutPage({
           </div>
         </section>
 
-        <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-4 text-sm text-[var(--mpa-color-text-secondary)]">
-          <p className="font-semibold text-[var(--mpa-color-text-primary)]">What happens next</p>
-          <ol className="list-decimal space-y-1 pl-5">
-            <li>Create your account (still no auth required before this step).</li>
-            <li>Organization provisioning in Guided Setup.</li>
-            <li>Plan acknowledgment — commercial ops confirms paid subscription.</li>
-            <li>Mission Control via role-aware post-login routing.</li>
-          </ol>
-        </section>
+        <WhatHappensNext sku={sku} />
 
         <div className="flex flex-wrap gap-3">
           <Link href={acquisitionHref("pricing", sku)} className={marketingSecondaryCtaClass}>
@@ -106,5 +98,30 @@ export function CheckoutPage({
         </div>
       </main>
     </MarketingChrome>
+  );
+}
+
+function WhatHappensNext({ sku }: { sku: ProductSku }) {
+  const includesFacility = skuIncludesFacilityOperations(sku);
+
+  return (
+    <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-4 text-sm text-[var(--mpa-color-text-secondary)]">
+      <p className="font-semibold text-[var(--mpa-color-text-primary)]">What happens next</p>
+      <ol className="list-decimal space-y-1 pl-5">
+        <li>Create your account (no sign-in required before this step).</li>
+        <li>Complete Guided Setup to create your organization.</li>
+        <li>Confirm your plan and receive your working role access.</li>
+        {includesFacility ? (
+          <li>
+            Your organization begins with Property Manager access. Our commercial team activates{" "}
+            {SKU_SUMMARIES[sku].label} with your organization during onboarding so Facility areas
+            become available under your plan.
+          </li>
+        ) : (
+          <li>Enter Mission Control to begin portfolio operations.</li>
+        )}
+        {includesFacility ? <li>Enter Mission Control once setup is complete.</li> : null}
+      </ol>
+    </section>
   );
 }

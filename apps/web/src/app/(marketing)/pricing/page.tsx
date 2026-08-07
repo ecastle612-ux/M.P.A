@@ -4,7 +4,7 @@ import { createAuthServerClient } from "../../../lib/auth/server";
 
 export const metadata: Metadata = {
   title: "Pricing — M.P.A.",
-  description: "Compare M.P.A. commercial subscriptions and continue to checkout."
+  description: "Compare M.P.A. commercial subscriptions and continue to confirm your plan."
 };
 
 export default async function Page({

@@ -72,15 +72,15 @@ export function GuidedSetupPage() {
         done: hasOrg,
         detail: hasOrg
           ? `Active: ${activeOrganization?.name ?? "selected"}`
-          : "Create your organization. Property Manager is assigned from your purchase."
+          : "Create your organization to begin with Property Manager access."
       },
       {
         id: "product",
         label: "Property Manager confirmed",
         done: hasProduct,
         detail: hasProduct
-          ? `Purchased: ${lockedLabel} — not a SKU shopping step`
-          : "Create the organization to lock Property Manager."
+          ? `Plan confirmed: ${lockedLabel}`
+          : "Create the organization to confirm Property Manager for setup."
       },
       {
         id: "billing",
@@ -214,16 +214,16 @@ export function GuidedSetupPage() {
         </h1>
         <p className="mt-1 max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
           Confirm your organization and plan, then enter Mission Control with one clear next step.
-          You do not shop SKUs here — Property Manager is already assigned.
+          Plan changes are handled with our commercial team — not from this screen.
         </p>
         {acquisitionSku ? (
           <p className="mt-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-            Checkout preference:{" "}
+            Selected plan:{" "}
             <span className="font-semibold text-[var(--mpa-color-text-primary)]">
               {SKU_SUMMARIES[acquisitionSku].label}
             </span>
-            . Paid subscription confirmation remains with commercial operations; org create still
-            provisions Property Manager until ops upgrades the SKU.
+            . Your organization begins with Property Manager access. If you selected Facility
+            Operations or Complete Platform, our team activates that plan during onboarding.
           </p>
         ) : null}
         {setupComplete ? (
@@ -258,11 +258,12 @@ export function GuidedSetupPage() {
                 Create your organization
               </h2>
               <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                Product:{" "}
+                Starting product:{" "}
                 <span className="font-medium text-[var(--mpa-color-text-primary)]">
                   {SKU_SUMMARIES.mpa_property_manager.label}
-                </span>{" "}
-                — assigned from purchase.
+                </span>
+                . Facility Operations or Complete Platform activation, if selected, is completed
+                during onboarding.
               </p>
               <Input
                 placeholder="Organization name"

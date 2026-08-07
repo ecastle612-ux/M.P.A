@@ -25,12 +25,12 @@ export function PricingPage({
       <main className="mx-auto max-w-6xl space-y-8 px-4 pb-16 pt-10 md:px-6">
         <header className="max-w-2xl space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Acquisition · Step 2
+            Get started · Step 2
           </p>
           <h1 className="font-display text-3xl font-semibold">Subscription comparison & pricing</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Compare inclusion across commercial SKUs. Enterprise pricing is finalized with commercial
-            operations — this step does not invent payment amounts or require authentication.
+            Compare what each plan includes. Enterprise pricing is finalized with our commercial team
+            after account creation — no payment is collected on this page.
           </p>
         </header>
 
@@ -39,7 +39,7 @@ export function PricingPage({
           <li className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-2 py-1 text-[var(--mpa-color-brand-primary)]">
             2 · Pricing
           </li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Checkout</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Confirm Plan</li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Account</li>
         </ol>
 
@@ -51,6 +51,10 @@ export function PricingPage({
 
         <section className="space-y-3">
           <h2 className="font-display text-xl font-semibold">Inclusion matrix</h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Facility Operations areas on Facility and Complete plans are activated with your
+            organization during onboarding.
+          </p>
           <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]">
             <table className="w-full min-w-[40rem] border-collapse text-sm">
               <thead className="bg-[var(--mpa-color-bg-subtle,#F7F8FA)]">
@@ -83,7 +87,7 @@ export function PricingPage({
             href={acquisitionHref("checkout", selected ?? "mpa_property_manager")}
             className={marketingPrimaryCtaClass}
           >
-            Continue to checkout
+            Continue to confirm plan
           </Link>
         </div>
       </main>
@@ -114,10 +118,10 @@ function PlanCard({ sku, selected }: { sku: ProductSku; selected: boolean }) {
       </p>
       <p className="mt-1 text-lg font-semibold">Enterprise pricing</p>
       <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-        Confirmed with commercial operations after account creation.
+        Confirmed with our commercial team after account creation.
       </p>
       <Link href={acquisitionHref("checkout", sku)} className={`${marketingPrimaryCtaClass} mt-4`}>
-        Checkout {summary.label}
+        Confirm {summary.label}
       </Link>
     </li>
   );

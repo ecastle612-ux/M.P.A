@@ -3,7 +3,7 @@ import { CheckoutPage } from "../../../components/marketing/checkout-page";
 import { createAuthServerClient } from "../../../lib/auth/server";
 
 export const metadata: Metadata = {
-  title: "Checkout — M.P.A.",
+  title: "Confirm Plan — M.P.A.",
   description: "Confirm your M.P.A. plan selection and continue to account creation."
 };
 

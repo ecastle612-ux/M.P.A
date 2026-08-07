@@ -8,7 +8,7 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
       <main className="mx-auto max-w-6xl space-y-8 px-4 pb-16 pt-10 md:px-6">
         <header className="max-w-2xl space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Acquisition · Step 1
+            Get started · Step 1
           </p>
           <h1 className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
             Choose Modules
@@ -24,7 +24,7 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
             1 · Modules
           </li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">2 · Pricing</li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Checkout</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Confirm Plan</li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Account</li>
         </ol>
 
@@ -49,7 +49,7 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                     Compare & continue
                   </Link>
                   <Link href={acquisitionHref("checkout", sku)} className={marketingSecondaryCtaClass}>
-                    Skip to checkout
+                    Skip to confirm plan
                   </Link>
                 </div>
               </li>
