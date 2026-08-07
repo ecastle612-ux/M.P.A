@@ -3,7 +3,8 @@
 **Commercial ownership:** Approved ([module map](../24-product-architecture/facility-operations-module-map.md))  
 **Feature design package:** [FAC-OPS-001 Design Package](./design-package/index.md) — **Approved**  
 **ADR:** [ADR-018 Accepted](../18-decision-log/adr-018-facility-operations-design-package.md)  
-**Feature Implement:** Phases **E.1–E.6 complete**; post-FAC-OPS / Capital **NO-GO** until authorize  
+**Feature Implement:** Phases **E.1–E.6 complete**  
+**Product Certification:** **CONDITIONAL GO** — [product certification package](./design-package/certification/product/index.md) · Capital / post-FAC-OPS **NO-GO** until authorize  
 **Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)
 
 ---
@@ -21,7 +22,8 @@
 | Phase E.4 (Preventive Maintenance programs) | **Complete / certified** |
 | Phase E.5 (Inventory + Parts) | **Complete / certified** |
 | Phase E.6 (Inspections + Safety + Compliance) | **Complete / certified** |
-| Capital / post-FAC-OPS | **Blocked** pending authorize |
+| Product certification (FO subscription) | **CONDITIONAL GO** — staging MA Pass required for Operational Pass |
+| Capital / post-FAC-OPS | **NO-GO** |
 
 ---
 
@@ -33,7 +35,7 @@
 
 ### Certification
 
-→ **[certification/e1/](./design-package/certification/e1/)** · **[e2/](./design-package/certification/e2/)** · **[e3/](./design-package/certification/e3/)** · **[e4/](./design-package/certification/e4/)** · **[e5/](./design-package/certification/e5/)** · **[e6/](./design-package/certification/e6/)**
+→ **[product/](./design-package/certification/product/)** · **[e1/](./design-package/certification/e1/)** · **[e2/](./design-package/certification/e2/)** · **[e3/](./design-package/certification/e3/)** · **[e4/](./design-package/certification/e4/)** · **[e5/](./design-package/certification/e5/)** · **[e6/](./design-package/certification/e6/)**
 
 ### Gate history
 

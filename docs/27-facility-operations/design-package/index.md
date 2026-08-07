@@ -92,9 +92,10 @@ Mission Control pattern · Universal Dashboard Framework · Assistant · Notific
 | E.4 Preventive Maintenance programs | **Complete / certified** |
 | E.5 Inventory + Parts | **Complete / certified** |
 | E.6 Inspections + Safety + Compliance | **Complete / certified** |
+| Product certification (FO subscription) | **CONDITIONAL GO** — [certification/product/](./certification/product/) |
 | E.7 Capital | Future gate — **NO-GO** until authorize |
 
-Certification artifacts: [certification/e1/](./certification/e1/) · [certification/e2/](./certification/e2/) · [certification/e3/](./certification/e3/) · [certification/e4/](./certification/e4/) · [certification/e5/](./certification/e5/) · [certification/e6/](./certification/e6/)
+Certification artifacts: [product/](./certification/product/) · [e1/](./certification/e1/) · [e2/](./certification/e2/) · [e3/](./certification/e3/) · [e4/](./certification/e4/) · [e5/](./certification/e5/) · [e6/](./certification/e6/)
 
 ---
 

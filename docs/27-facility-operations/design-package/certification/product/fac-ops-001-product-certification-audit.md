@@ -7,6 +7,8 @@
 **Mode:** CERTIFICATION ONLY — no product code changes  
 **Evidence class:** Code-verified (static). Staging Master Admin Pass **not** witnessed in this audit.
 
+**Canonical deliverables:** [Product certification package index](./index.md) · [Final GO / NO-GO](./go-no-go.md)
+
 ---
 
 ## Verdict (executive)
