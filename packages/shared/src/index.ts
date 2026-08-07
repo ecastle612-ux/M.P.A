@@ -6,6 +6,7 @@ export * from "./auth/post-auth-home";
 export * from "./commercial";
 export * from "./finance";
 export * from "./property";
+export * from "./facility";
 export * from "./resident";
 export * from "./leasing";
 export * from "./maintenance";
