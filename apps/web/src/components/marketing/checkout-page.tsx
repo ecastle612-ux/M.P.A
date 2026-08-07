@@ -16,9 +16,7 @@ import {
   resolveCatalogOffer,
   toBillingCycleLabel,
   toPlanTierLabel,
-  type BillingCycle,
-  type PlanTier,
-  type ProductSku
+  type PlanTier
 } from "@mpa/shared";
 import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
 
@@ -39,35 +37,38 @@ export function CheckoutPage({
 }) {
   const router = useRouter();
   const sku = parseAcquisitionSku(selectedSkuRaw) ?? "mpa_property_manager";
-  const planTier = (parseAcquisitionPlan(selectedPlanRaw) ?? "professional") as PlanTier;
-  const billingCycle = (parseAcquisitionCycle(selectedCycleRaw) ?? "monthly") as BillingCycle;
+  const parsedPlan = parseAcquisitionPlan(selectedPlanRaw) ?? "professional";
+  const billingCycle = parseAcquisitionCycle(selectedCycleRaw) ?? "monthly";
+  const enterpriseSelection =
+    requiresEnterpriseMotion(sku) || parsedPlan === "enterprise";
+  const planTier: PlanTier = parsedPlan === "enterprise" ? "professional" : parsedPlan;
 
   useEffect(() => {
-    if (requiresEnterpriseMotion(sku) || planTier === "enterprise") {
+    if (enterpriseSelection) {
       router.replace(acquisitionHref("enterprise", sku));
     }
-  }, [sku, planTier, router]);
+  }, [sku, enterpriseSelection, router]);
 
   const offer =
     resolveCatalogOffer({
       productSku: sku,
-      planTier: planTier === "enterprise" ? "professional" : planTier,
+      planTier,
       billingCycle
     }) ?? null;
   const summary = SKU_SUMMARIES[sku];
   const modules = marketingModulesForSku(sku);
 
   useEffect(() => {
-    if (requiresEnterpriseMotion(sku)) {
+    if (enterpriseSelection) {
       return;
     }
     document.cookie = `${ACQUISITION_SKU_COOKIE}=${encodeURIComponent(sku)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
     if (offer) {
       document.cookie = `${ACQUISITION_OFFER_COOKIE}=${encodeURIComponent(offer.id)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
     }
-  }, [sku, offer]);
+  }, [sku, offer, enterpriseSelection]);
 
-  if (requiresEnterpriseMotion(sku) || planTier === "enterprise") {
+  if (enterpriseSelection) {
     return (
       <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
         <main className="mx-auto max-w-3xl space-y-6 px-4 pb-16 pt-10 md:px-6">
@@ -113,8 +114,7 @@ export function CheckoutPage({
             </p>
             <h2 className="mt-1 font-display text-2xl font-semibold">{summary.label}</h2>
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              {toPlanTierLabel(planTier === "enterprise" ? "professional" : planTier)} ·{" "}
-              {toBillingCycleLabel(billingCycle)}
+              {toPlanTierLabel(planTier)} · {toBillingCycleLabel(billingCycle)}
             </p>
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{summary.description}</p>
           </div>
@@ -154,7 +154,7 @@ export function CheckoutPage({
           <Link
             href={acquisitionHref("pricing", {
               sku,
-              planTier: planTier === "enterprise" ? "professional" : planTier,
+              planTier,
               billingCycle
             })}
             className={marketingSecondaryCtaClass}

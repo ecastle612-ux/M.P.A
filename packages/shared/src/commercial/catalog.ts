@@ -211,9 +211,6 @@ export function validateCommercialSelection(input: {
 
   const planTier = input.planTier ?? "professional";
   const billingCycle = input.billingCycle ?? "monthly";
-  if (planTier === "enterprise") {
-    return { ok: false, reason: "enterprise_not_self_serve", route: "enterprise" };
-  }
 
   const offer = resolveCatalogOffer({
     productSku: input.productSku,

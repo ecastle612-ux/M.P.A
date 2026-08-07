@@ -2,6 +2,7 @@
 
 **Date:** 2026-08-07  
 **Branch:** `cursor/com-002-slice-a-f5dd`  
+**PR:** #49  
 
 ---
 
@@ -15,11 +16,11 @@ Confirm Slice A commercial foundation does not introduce payment, demo, or provi
 
 | Check | Command | Result |
 |-------|---------|--------|
-| Tests | `pnpm test` | _(filled after run)_ |
-| Typecheck | `pnpm typecheck` | _(filled after run)_ |
-| Lint | `pnpm lint` | _(filled after run)_ |
-| Build | `pnpm build` | _(filled after run)_ |
-| Boundaries | `pnpm check:boundaries` | _(filled after run)_ |
+| Tests | `pnpm test` | **Pass** — 21 files / 89 tests |
+| Typecheck | `pnpm typecheck` | **Pass** |
+| Lint | `pnpm lint` | **Pass** |
+| Build | `pnpm build` | **Pass** |
+| Boundaries | `pnpm check:boundaries` | **Pass** — 417 modules, 1058 deps, 0 violations |
 
 ---
 
@@ -27,16 +28,16 @@ Confirm Slice A commercial foundation does not introduce payment, demo, or provi
 
 | Area | Expectation | Status |
 |------|-------------|--------|
-| Public homepage | Still serves marketing landing | Expected pass |
-| Confirm Plan | Still no Stripe charge | Expected pass |
-| FO/Complete honesty | Enterprise path, not fake self-serve checkout | Expected pass |
-| Capital Projects | Still absent from public marketing | Expected pass |
-| FIN-OPS Stripe | Untouched | Expected pass |
-| Master Admin | Existing commercial pages remain; catalog added | Expected pass |
+| Public homepage | Still serves marketing landing | Pass (build includes `/`) |
+| Confirm Plan | Still no Stripe charge | Pass (code review + no Stripe session) |
+| FO/Complete honesty | Enterprise path, not fake self-serve checkout | Pass (unit + route redirect) |
+| Capital Projects | Still absent from public marketing | Pass (acquisition tests) |
+| FIN-OPS Stripe | Untouched | Pass (no FIN-OPS file changes) |
+| Master Admin | Existing commercial pages remain; catalog added | Pass (`/admin/commercial/catalog` in build) |
 
 ---
 
-## Out of scope (must remain absent)
+## Out of scope (confirmed absent)
 
 - Stripe Checkout Session  
 - Demo platform runtime  
@@ -48,4 +49,4 @@ Confirm Slice A commercial foundation does not introduce payment, demo, or provi
 
 ## Notes
 
-Results section updated after CI/local verification in this agent run.
+Commercial catalog unit coverage: self-serve eligibility (4 PM offers), Enterprise routing for FO/Complete, seat/property limits, entitlement preparation, funnel state transitions.

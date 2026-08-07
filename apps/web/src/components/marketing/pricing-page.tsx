@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   BILLING_CYCLES,
   PROPERTY_LIMITS,
@@ -36,25 +36,22 @@ export function PricingPage({
   selectedCycleRaw?: string | null;
 }) {
   const selectedSku = parseAcquisitionSku(selectedSkuRaw) ?? "mpa_property_manager";
-  const initialPlan = (parseAcquisitionPlan(selectedPlanRaw) as SelfServePlanTier | null) ?? "professional";
+  const parsedPlan = parseAcquisitionPlan(selectedPlanRaw);
+  const initialPlan: SelfServePlanTier =
+    parsedPlan === "business" ? "business" : "professional";
   const initialCycle = parseAcquisitionCycle(selectedCycleRaw) ?? "monthly";
-  const [planTier, setPlanTier] = useState<SelfServePlanTier>(
-    initialPlan === "enterprise" ? "professional" : initialPlan
-  );
+  const [planTier, setPlanTier] = useState<SelfServePlanTier>(initialPlan);
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(initialCycle);
   const rows = skuComparisonRows();
   const enterpriseProduct = requiresEnterpriseMotion(selectedSku);
 
-  const continueHref = useMemo(() => {
-    if (enterpriseProduct) {
-      return acquisitionHref("enterprise", selectedSku);
-    }
-    return commercialContinueHref({
-      productSku: selectedSku,
-      planTier,
-      billingCycle
-    });
-  }, [selectedSku, planTier, billingCycle, enterpriseProduct]);
+  const continueHref = enterpriseProduct
+    ? acquisitionHref("enterprise", selectedSku)
+    : commercialContinueHref({
+        productSku: selectedSku,
+        planTier,
+        billingCycle
+      });
 
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
