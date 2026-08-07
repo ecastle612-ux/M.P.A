@@ -6,10 +6,11 @@ This blueprint defines how M.P.A. is designed, built, and evolved. Every enginee
 
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
 Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0–
-S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Promise Roadmap
-**Approved** (ADR-017); journey-gated — **J0–J2 delivered**, J3–J8 not authorized.
-CORE-004 remains stopped. Facility Operations feature Implement authorize (2026-08-07)
-**refused** pending workflows + schema design package ([27](./27-facility-operations/index.md)).
+S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 / Customer #1 certified
+lineage on `main` under **feature freeze** for new PM scope. CORE-004 remains
+stopped. Facility Operations `IMPLEMENTATION PHASE 1` authorize (2026-08-07)
+**refused** — Phase 1 shells already shipped; Phase E features blocked until
+workflows + schema design package Approved ([27](./27-facility-operations/index.md)).
 Implementation Gate in force.
 
 ---
@@ -131,6 +132,15 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Master Admin Certification Console](./26-launch-001-onboarding/master-admin-certification-console.md) | How operators certify each promise |
 | [Launch Readiness Gate](./26-launch-001-onboarding/launch-readiness-gate.md) | GO only when journeys work unaided |
 
+### 27 Facility Operations (Gate Response)
+
+| Document | Purpose |
+|----------|---------|
+| [Package Index](./27-facility-operations/index.md) | FO Implement refuses; design package required |
+| [Phase 1 Implementation Report](./27-facility-operations/phase-1-implementation-report.md) | Phase 1 shells vs Phase E features |
+| [Certification](./27-facility-operations/certification.md) | Formal NO-GO for FO feature code |
+| [Missing Design Package](./27-facility-operations/missing-design-package.md) | Pre-Implement Design Debt checklist |
+
 ### Governance & gates
 
 | Document | Purpose |
@@ -174,5 +184,5 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | Field | Value |
 |-------|-------|
 | Blueprint version | 0.5.0 |
-| Last updated | 2026-08-06 |
+| Last updated | 2026-08-07 |
 | Phase | Product Architecture Alignment Phase 1 |

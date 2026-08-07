@@ -92,7 +92,7 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 | Commercial Experience Hardening P0 | **Complete / Pass** — entitlements, integrity, search, setup, Admin visibility |
 | Financial Operations (FIN-OPS-001) | **Approved** · ADR-016 **Accepted** · **S0–S3 delivered** · **Paused** (S4+ **NO-GO**) |
 | LAUNCH-001 Customer Promise Roadmap | **Approved** ([ADR-017](../18-decision-log/adr-017-launch-001-customer-promise-journeys.md)) · journey-gated · **J0–J2 delivered**; J3–J8 **NO-GO** until authorized |
-| Facility Operations features | **Stopped / deferred** — `AUTHORIZE FACILITY OPERATIONS IMPLEMENTATION` (2026-08-07) **refused**: workflows + schema design package missing ([docs/27-facility-operations](../27-facility-operations/index.md)) |
+| Facility Operations features | **Stopped / deferred** — `AUTHORIZE FACILITY OPERATIONS – IMPLEMENTATION PHASE 1` (2026-08-07) **refused**: Phase 1 shells already shipped; Phase E features blocked until workflows + schema design package Approved ([docs/27-facility-operations](../27-facility-operations/index.md)) |
 | CORE-004 / UX-016 | **Stopped** unless separately re-authorized |
 
 ---

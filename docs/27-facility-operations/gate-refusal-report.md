@@ -1,6 +1,7 @@
 # Facility Operations — Gate Refusal Report
 
-**Authorization:** `AUTHORIZE FACILITY OPERATIONS IMPLEMENTATION`  
+**Latest authorization:** `AUTHORIZE FACILITY OPERATIONS – IMPLEMENTATION PHASE 1`  
+**Also covers:** prior `AUTHORIZE FACILITY OPERATIONS IMPLEMENTATION`  
 **Date:** 2026-08-07  
 **Outcome:** Refuse FO feature implementation
 
@@ -16,9 +17,20 @@ Design → Document → Approve → Implement
 |-------|------------------------------|----------|
 | Design (commercial ownership) | **Done** | Module map, ADR-015, entitlement/nav matrices |
 | Design (workflows + schema + MC attention) | **Missing** | Module map: Workflow Ownership **Not designed** |
-| Document (FO feature package peer to FIN-OPS-001 / 05) | **Missing** | No `docs/` FO workflows or schema design package |
+| Document (FO feature package peer to FIN-OPS-001 / 05) | **Missing** | No Approved FO workflows or schema design package |
 | Approve (FO feature / Phase E slice) | **Not reached** | Gate table: Stopped / deferred; cert NO-GO |
 | Implement | **Refused** | This report |
+
+---
+
+## “Phase 1” naming
+
+| Meaning in Approved docs | Status |
+|--------------------------|--------|
+| Commercial / shell Phase 1 alignment | **Already shipped** |
+| First feature vertical slice (Phase E.1+) | **Not authorized** — requires design package Approve first |
+
+This authorize’s title does not override the Approved Phase E prerequisite.
 
 ---
 
@@ -54,12 +66,13 @@ From [implementation-gate.md](../00-governance/implementation-gate.md):
 
 ## What was done
 
-- Recorded authorization receipt and gate refusal  
-- Documented missing design package and baseline already shipped  
-- Certification: FO features remain **NO-GO** until design package Approved + slice authorize  
+- Recorded `IMPLEMENTATION PHASE 1` authorization receipt and gate refusal  
+- Clarified Phase 1 shell baseline vs Phase E feature Implement  
+- Expanded verification reports (MA, workflow, nav, PM regression)  
+- Certification: FO features remain **NO-GO** until design package Approved + Phase E.1 authorize  
 
 ---
 
 ## STOP
 
-Await authorize for **Facility Operations design package** (Document stage), then Approve, then a scoped Phase E.1 Implement authorize.
+Await authorize for **Facility Operations design package** (Document stage), then Approve, then a scoped **Phase E.1** Implement authorize.
