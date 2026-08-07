@@ -53,16 +53,19 @@ export const SKU_SUMMARIES: Record<
   mpa_property_manager: {
     id: "property_manager",
     label: "Property Manager",
-    description: "Organizations, properties, residents, leasing, maintenance, vendors, financial operations, documents, and communications."
+    description:
+      "Portfolio operations you can run after setup — properties, residents, leasing, maintenance, vendors, financial operations, documents, and communications, plus resident, owner, and vendor portals."
   },
   mpa_facility_operations: {
     id: "facility_operations",
     label: "Facility Operations",
-    description: "Facility operations, assets, inventory, parts, preventive maintenance, inspections, safety, compliance, and building systems."
+    description:
+      "M.P.A.'s Facility Operations product for facility and building teams. Includes a dedicated Facility home and module areas for assets, inventory, parts, preventive maintenance, inspections, safety, compliance, and building systems. Your plan is activated with your organization during onboarding."
   },
   mpa_complete_platform: {
     id: "complete_platform",
     label: "Complete Platform",
-    description: "Everything in Property Manager and Facility Operations — one platform, no duplicated homes."
+    description:
+      "Property Manager and Facility Operations together — one organization, shared documents and communications, and both product homes. Property Manager access begins at setup; Facility Operations is activated with your organization during onboarding."
   }
 };
