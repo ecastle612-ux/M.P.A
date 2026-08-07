@@ -11,7 +11,7 @@
 | Workflow | Home | States / transitions | Automation | Audit / notify | Verdict |
 |----------|------|----------------------|------------|----------------|---------|
 | WF-01 Site profile | Sites | draft→active→archived | Setup MC clear | `facility.site.*` | **Pass** |
-| WF-02 Asset lifecycle | Assets | intake→active→in_repair→decommissioned | Critical in-repair MC | `facility.asset.*` | **Conditional** — relocate/history incomplete |
+| WF-02 Asset lifecycle | Assets | intake→active→in_repair→decommissioned + relocate | Critical in-repair MC | `facility.asset.*` incl. relocated | **Pass** — P1-2 |
 | WF-03 Building system status | Systems | active/degraded/down | Down → MC | `facility.system.*` | **Pass** |
 | WF-04 Corrective facility work | Operations | Shared WO machine | Emergency MC | `work_order.*` + FO context | **Pass** |
 | WF-05 Preventive generation | Preventive | schedule → generate → acknowledge | Idempotent due key | `facility.pm_schedule.*` | **Pass** |
@@ -48,7 +48,7 @@
 | Empty states | Pass — EmptyState on FO desks |
 | Loading states | Pass — Skeleton patterns |
 | Error handling | Pass — inline error strings on fetch/mutation failure |
-| Premium enterprise quality | Conditional — gaps in docs picker, relocate, overview copy, MCC labels |
+| Premium enterprise quality | Pass for P1 blockers — remaining P2 polish only (overview copy / reports) |
 
 ---
 

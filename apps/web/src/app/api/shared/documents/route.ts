@@ -26,8 +26,10 @@ export async function GET(request: Request) {
   try {
     const q = searchParams.get("q");
     const propertyId = searchParams.get("propertyId");
+    const entityId = searchParams.get("entityId");
     const documents = await listDocuments(authz.supabase, authz.organizationId, {
       entityType,
+      ...(entityId ? { entityId } : {}),
       ...(q ? { query: q } : {}),
       ...(propertyId ? { propertyId } : {})
     });

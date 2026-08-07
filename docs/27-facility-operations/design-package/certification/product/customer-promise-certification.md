@@ -65,13 +65,13 @@ All FAC-OPS-001 authorized capabilities for E.1–E.6 are delivered as product h
 
 ---
 
-## Remaining friction (accepted for CONDITIONAL GO)
+## Remaining friction
 
-1. Staging MA Pass not yet filed.  
-2. Asset relocate + location history incomplete (J-F6).  
-3. Maintenance CC / Vendor portal under-surface facility site/asset/system labels.  
-4. Inspection/compliance document UX not premium picker-level.  
-5. No separate FO Reports/export module (honesty allowed for later).  
+1. ~~Staging MA Pass not yet filed~~ — **cleared** ([p1-remediation](./p1-remediation/))  
+2. ~~Asset relocate + location history~~ — **cleared** (P1-2)  
+3. ~~Maintenance CC / Vendor facility labels~~ — **cleared** (P1-3)  
+4. ~~Inspection document attach UX~~ — **cleared** (P1-4); compliance picker polish remains P2  
+5. No separate FO Reports/export module (honesty allowed for later — P2)  
 
 ---
 
@@ -81,5 +81,5 @@ All FAC-OPS-001 authorized capabilities for E.1–E.6 are delivered as product h
 STOP
 Do not implement Capital Projects.
 Do not expand post-FAC-OPS roadmap.
-Do not claim FO Operational GO Pass until staging MA evidence is recorded.
+Await next authorization before any post-FAC-OPS work.
 ```

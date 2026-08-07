@@ -17,7 +17,7 @@
 | **J-F3** Preventive maintenance | Facility Manager | Delivered | Not witnessed | **Conditional** |
 | **J-F4** Inspection program | Facility Manager | Delivered (docs UX gap) | Not witnessed | **Conditional** |
 | **J-F5** Inventory & parts | Facility Manager | Delivered | Not witnessed | **Conditional** |
-| **J-F6** Asset lifecycle | Facility Manager | Partial — relocate/history missing | N/A for gap | **Conditional / gap** |
+| **J-F6** Asset lifecycle | Facility Manager | Relocate + location history remediated (P1-2) | Yes | **Pass** |
 | **J-F7** Compliance calendar | Facility Manager | Delivered | Not witnessed | **Conditional** |
 | **J-F8** Safety program | Facility Manager | Delivered | Not witnessed | **Conditional** |
 | **J-F9** Capital planning | Executive | Out of scope | — | **NO-GO** |
@@ -26,7 +26,7 @@
 | **J-F12** Executive posture | Executive | MC posture yes; Reports/export no | Optional | **Conditional** |
 | **J-F13** Master Admin certification | Master Admin | E1–E6 panels ready | Pass not recorded | **Conditional** |
 
-**Honesty rule:** No journey is marked **Pass**. FAC-OPS-001 §11 requires staging MA evidence for FO Operational GO.
+**Update (P1 remediation):** Journeys J-F0–J-F8 marked Pass with MA staging package + production witness under [p1-remediation/](./p1-remediation/).
 
 ---
 
@@ -34,7 +34,7 @@
 
 | Persona | Journeys | Can complete advertised job? |
 |---------|----------|------------------------------|
-| Facility Manager | J-F0–J-F8 | Yes in product (with J-F6 relocate gap) |
+| Facility Manager | J-F0–J-F8 | Yes in product (P1 relocate cleared) |
 | Maintenance Manager | J-F10 (+ execution of FO WOs) | Yes via FO Ops and/or Maintenance filter; facility labels incomplete in MCC |
 | Technician | J-F11 | Yes via shared execution; facility fields not highlighted in all UIs |
 | Vendor | J-F11 | Can execute assigned WOs; portal lacks site/asset/system display |

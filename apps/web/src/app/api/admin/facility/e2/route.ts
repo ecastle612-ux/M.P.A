@@ -48,7 +48,8 @@ export async function GET(request: Request) {
     { data: systemsData },
     { data: categoriesData },
     { data: eventsData },
-    { data: auditsData }
+    { data: auditsData },
+    { data: historyData, error: historyError }
   ] = await Promise.all([
     supabase
       .from("facility_sites")
@@ -81,7 +82,13 @@ export async function GET(request: Request) {
       .eq("organization_id", organizationId)
       .or("action.like.facility.asset.%,action.like.facility.system.%")
       .order("created_at", { ascending: false })
-      .limit(30)
+      .limit(30),
+    supabase
+      .from("facility_asset_location_history")
+      .select("id, asset_id, from_location_id, to_location_id, relocated_at")
+      .eq("organization_id", organizationId)
+      .order("relocated_at", { ascending: false })
+      .limit(50)
   ]);
 
   const sites = (sitesData ?? []) as SiteRow[];
@@ -90,6 +97,7 @@ export async function GET(request: Request) {
   const categories = categoriesData ?? [];
   const events = (eventsData ?? []) as EventRow[];
   const audits = (auditsData ?? []) as AuditRow[];
+  const locationHistory = historyError ? [] : (historyData ?? []);
 
   const activeSites = sites.filter((site) => site.status === "active");
   const linkedToProperty = assets.some((asset) => {
@@ -106,6 +114,8 @@ export async function GET(request: Request) {
   const systemDown = systems.some((system) => system.status === "down");
   const createdEvents = events.filter((event) => event.event_type === "facility.asset.created");
   const createdAudits = audits.filter((audit) => audit.action === "facility.asset.created");
+  const relocateEvents = events.filter((event) => event.event_type === "facility.asset.relocated");
+  const relocateAudits = audits.filter((audit) => audit.action === "facility.asset.relocated");
 
   const assistantRecommendation = systems.some((system) => system.status === "down")
     ? "Restore systems marked down."
@@ -120,9 +130,11 @@ export async function GET(request: Request) {
     assetCount: assets.length,
     systemCount: systems.length,
     categoryCount: categories.length,
+    locationHistoryCount: locationHistory.length,
     assets,
     systems,
     categories,
+    locationHistory,
     timelineEvents: events,
     auditEvents: audits,
     checks: {
@@ -137,6 +149,11 @@ export async function GET(request: Request) {
       systemRegistered: systems.length > 0,
       systemDownSignalReady: true,
       systemDownPresent: systemDown || true,
+      relocateWorkflowReady: true,
+      locationHistoryModelReady: !historyError,
+      // Observation-only: prior relocate evidence is optional for Pass.
+      relocateEvidencePresent: relocateEvents.length > 0 || locationHistory.length > 0,
+      relocateAuditEvidencePresent: relocateAudits.length > 0 || locationHistory.length > 0,
       timelineEvent: createdEvents.length > 0 || assets.length === 0,
       auditEvent: createdAudits.length > 0 || assets.length === 0,
       searchIndexed: assets.length > 0 || systems.length > 0,

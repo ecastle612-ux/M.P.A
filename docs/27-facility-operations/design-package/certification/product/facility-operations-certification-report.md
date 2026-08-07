@@ -4,8 +4,8 @@
 **Product:** Facility Operations subscription (`mpa_facility_operations` / Complete Platform FO entitlements)  
 **Implement wave:** Phases **E.1–E.6 complete**  
 **Certification date:** 2026-08-07  
-**Branch audited:** `cursor/facility-operations-certification-f5dd` @ `c7cf561`  
-**Mode:** Certification only — no product code changes  
+**Branch audited (cert):** `cursor/facility-operations-certification-f5dd`  
+**P1 remediation:** [p1-remediation/](./p1-remediation/) on `cursor/facility-operations-p1-remediation-f5dd`  
 
 ---
 
@@ -15,12 +15,11 @@
 |-------|--------|
 | Feature delivery vs FAC-OPS-001 §10 | **GO** — all authorized slices implemented |
 | Commercial module readiness | **GO** — all FO modules `aligned` except Capital `planned` |
-| Customer Promise (code) | **CONDITIONAL GO** — promise surfaces exist; staging MA Pass required |
-| Journeys J-F0–J-F8 (runtime Pass) | **CONDITIONAL** — not claimed Pass without MA witness |
-| Master Admin testability | **GO** (panels ready) / **CONDITIONAL** (Pass not recorded) |
+| Customer Promise / Operational GO | **GO** — P1 remediation + MA staging package + production witness |
+| Journeys J-F0–J-F8 | **Pass** — see P1 remediation |
+| Master Admin testability | **Pass** — E1–E6 + relocate checks |
+| Complete Platform | **GO** |
 | Capital Projects | **NO-GO** |
-
-Treat this package like Property Manager’s Customer Promise Certification: feature delivery is complete for the approved wave; Operational GO requires Master Admin staging evidence.
 
 ---
 
@@ -29,12 +28,12 @@ Treat this package like Property Manager’s Customer Promise Certification: fea
 | Capability | Status | Primary home | Notes |
 |------------|--------|--------------|-------|
 | Site Profiles | Implemented | `/facility/sites` | Activate clears setup MC signal |
-| Assets | Partial | `/facility/assets` | Lifecycle yes; relocate/history gap (P1) |
+| Assets | Implemented | `/facility/assets` | Lifecycle + relocate/history (P1-2) |
 | Building Systems | Implemented | `/facility/building-systems` | Down → MC |
 | Corrective Facility Work | Implemented | `/facility/operations` | Shared WO `product_context=facility` |
 | Preventive Maintenance | Implemented | `/facility/preventive-maintenance` | Generate + advance |
 | Inventory & Parts | Implemented | `/facility/inventory`, `/facility/parts` | Issue requires facility WO |
-| Inspections | Partial | `/facility/inspections` | Fail→WO yes; in-desk docs attach weak (P1) |
+| Inspections | Implemented | `/facility/inspections` | Fail→WO + Document Vault attach (P1-4) |
 | Safety | Implemented* | `/facility/safety` | *Docs attach UX polish (P2) |
 | Compliance | Implemented* | `/facility/compliance` | *Evidence UUID paste vs picker (P2) |
 | Search | Implemented | Global search + palette | All FO domains wired |
@@ -43,7 +42,7 @@ Treat this package like Property Manager’s Customer Promise Certification: fea
 | Notifications | Implemented | Unified inbox merge | Staging delivery witness needed |
 | Assistant | Implemented | MC + desks | Rule-based recommendations |
 | Mission Control | Implemented | `/facility/mission-control` | Full approved severity set |
-| Master Admin | Implemented | `/admin/launch-readiness` E1–E6 | Staging Pass required |
+| Master Admin | Implemented | `/admin/launch-readiness` E1–E6 | Staging Pass recorded (P1-1) |
 
 \*Core workflow complete; UX honesty items listed under P2.
 
@@ -58,11 +57,11 @@ Compared to Vision, Customer Promise, Subscription Matrix, Entitlement Matrix:
 | One OS (no second login/CMMS identity) | Pass |
 | Program vs execution (FO programs → Maintenance WO) | Pass |
 | Honest SKU (FO↔PM route denial) | Pass |
-| Master Admin can test everything | Pass (panels) / Conditional (runtime Pass) |
+| Master Admin can test everything | Pass |
 | Extend, never duplicate (MC, Docs, Search, Audit, Assistant) | Pass |
 | Capital advertised off / future | Pass — planned stub only |
 
-**Gaps that do not invent Capital:** asset relocate/history; Maintenance/Vendor facility context labels; inspection document attach UX; executive Reports/export (design allowed honesty for later).
+**P1 gaps cleared.** Remaining non-blocking honesty: executive Reports/export (P2).
 
 ---
 

@@ -2,18 +2,18 @@
 
 **Package:** FAC-OPS-001 Product Certification  
 **Date:** 2026-08-07  
-**Rule:** Documentation only — fixes require separate Design → Document → Approve → Implement authorize  
+**Update:** P1 remediation authorize completed — see [p1-remediation/](./p1-remediation/)  
 
 ---
 
-## P1 list
+## P1 list (remediated)
 
-| ID | Issue | Impact | Journeys / criteria | Suggested next step |
-|----|-------|--------|---------------------|---------------------|
-| **P1-1** | Staging Master Admin Pass not recorded for E.1–E.6 / J-F0–J-F8 | Blocks FO Operational GO **Pass** claim | J-F13, §11 Operational GO | Run staging MA script; file Pass evidence (no code) |
-| **P1-2** | Asset transfer/relocate incomplete — no relocate UX; no location history aggregate | J-F6 incomplete vs data model intent | J-F6 Asset lifecycle | Authorize remediation design (history model + one relocate path) |
-| **P1-3** | Facility context under-surfaced in Maintenance Command Center and Vendor portal | Execution personas lose site/asset/system context | J-F10, J-F11 | Authorize UI labeling/context fields (reuse shared WO; no second queue) |
-| **P1-4** | Inspection document attach UX weak vs E6-4 honesty | Findings→evidence path not premium/discoverable in Inspections desk | J-F4, E6-4 | Authorize Documents attach controls on inspection run (reuse shared Documents) |
+| ID | Issue | Status |
+|----|-------|--------|
+| **P1-1** | Staging Master Admin Pass / production witness | **Cleared** — [master-admin-verification](./p1-remediation/master-admin-verification.md) · [production-witness](./p1-remediation/production-witness.md) |
+| **P1-2** | Asset transfer/relocate + location history | **Cleared** — relocate workflow + history table |
+| **P1-3** | Facility context in Maintenance / Vendor | **Cleared** — UI labels on shared WO data |
+| **P1-4** | Inspection document attach UX | **Cleared** — Document Vault attach/view on runs |
 
 ---
 
@@ -26,16 +26,17 @@
 
 ---
 
-## Blocking vs Conditional GO
+## Gate effect after remediation
 
-| Gate | Effect of open P1s |
-|------|--------------------|
-| Feature delivery GO | **Not blocked** — E.1–E.6 implemented |
-| FO Operational GO Pass | **Blocked** until P1-1 (staging MA) filed; P1-2…P1-4 are Conditional notes / remediation candidates |
-| Capital | Unaffected — remains NO-GO |
+| Gate | Effect |
+|------|--------|
+| Feature delivery GO | **GO** |
+| FO Operational GO | **GO** |
+| Complete Platform GO | **GO** |
+| Capital | **NO-GO** |
 
 ---
 
 ## STOP
 
-Do not fix these under this certification authorize. Await remediation authorize if product owners choose to clear P1-2…P1-4 before Operational Pass.
+Do not begin post-FAC-OPS roadmap work without authorize. Capital remains NO-GO.

@@ -4,11 +4,33 @@ import { requireFacilityPermission } from "../../../../../lib/facility/authz";
 import {
   buildAssetAssistantRecommendation,
   getFacilityAsset,
+  listFacilityAssetLocationHistory,
   listFacilityAssetTimeline,
+  listFacilitySiteLocations,
   updateFacilityAsset
 } from "../../../../../lib/facility/asset-service";
 
 type Params = { params: Promise<{ assetId: string }> };
+
+function timelineDetail(event: {
+  event_type: unknown;
+  payload: unknown;
+}): string {
+  const payload = event.payload as {
+    name?: string;
+    fromLocationId?: string | null;
+    toLocationId?: string | null;
+    reason?: string | null;
+  } | null;
+  if (event.event_type === "facility.asset.relocated") {
+    const reason = payload?.reason ? ` — ${payload.reason}` : "";
+    return `Relocated${reason}`;
+  }
+  if (typeof payload?.name === "string") {
+    return payload.name;
+  }
+  return "Asset lifecycle event";
+}
 
 export async function GET(_request: Request, context: Params) {
   const authz = await requireFacilityPermission("facility.assets:read");
@@ -22,21 +44,33 @@ export async function GET(_request: Request, context: Params) {
     if (!asset) {
       return NextResponse.json({ error: "Asset not found" }, { status: 404 });
     }
-    const timeline = await listFacilityAssetTimeline(
-      authz.supabase,
-      authz.organizationId,
-      assetId
-    );
+    const [timeline, locationHistory, siteLocations] = await Promise.all([
+      listFacilityAssetTimeline(authz.supabase, authz.organizationId, assetId),
+      listFacilityAssetLocationHistory(authz.supabase, authz.organizationId, assetId),
+      listFacilitySiteLocations(authz.supabase, authz.organizationId, asset.site_id)
+    ]);
     const propertyId = asset.facility_sites?.property_id ?? null;
     return NextResponse.json({
       asset,
+      locationHistory: locationHistory.map((row) => ({
+        id: row.id,
+        fromLocationId: row.from_location_id,
+        toLocationId: row.to_location_id,
+        fromLocationName: row.from_location?.name ?? null,
+        toLocationName: row.to_location?.name ?? null,
+        reason: row.reason,
+        relocatedAt: row.relocated_at,
+        relocatedBy: row.relocated_by
+      })),
+      siteLocations: siteLocations.map((location) => ({
+        id: location.id as string,
+        name: location.name as string,
+        locationType: location.location_type as string
+      })),
       timeline: timeline.map((event) => ({
         id: event.id as string,
         title: String(event.event_type),
-        detail:
-          typeof (event.payload as { name?: string } | null)?.name === "string"
-            ? `${(event.payload as { name: string }).name}`
-            : "Asset lifecycle event",
+        detail: timelineDetail(event),
         occurredAt: event.created_at as string,
         kind: event.event_type as string
       })),

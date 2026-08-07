@@ -5,6 +5,7 @@ import {
   type CreateFacilityAssetInput,
   type FacilityAssetLifecycleInput,
   type FacilityAssetStatus,
+  type RelocateFacilityAssetInput,
   type UpdateFacilityAssetInput
 } from "@mpa/shared";
 import { emitFacilityEvent, writeFacilityAudit, writeFacilityNotification } from "./events-audit";
@@ -53,6 +54,21 @@ export type FacilityAsset = {
     system_id: string;
     facility_systems?: { id: string; name: string; status: string; system_type: string } | null;
   }>;
+};
+
+export type FacilityAssetLocationHistoryRow = {
+  id: string;
+  organization_id: string;
+  asset_id: string;
+  site_id: string;
+  from_location_id: string | null;
+  to_location_id: string | null;
+  reason: string | null;
+  relocated_by: string | null;
+  relocated_at: string;
+  created_at: string;
+  from_location?: { id: string; name: string } | null;
+  to_location?: { id: string; name: string } | null;
 };
 
 const DEFAULT_CATEGORIES: Array<{ name: string; criticalityDefault: string }> = [
@@ -323,6 +339,72 @@ export async function listFacilityAssetTimeline(
   return data ?? [];
 }
 
+export async function listFacilityAssetLocationHistory(
+  supabase: Db,
+  organizationId: string,
+  assetId: string
+) {
+  const { data, error } = await supabase
+    .from("facility_asset_location_history")
+    .select(
+      "id, organization_id, asset_id, site_id, from_location_id, to_location_id, reason, relocated_by, relocated_at, created_at"
+    )
+    .eq("organization_id", organizationId)
+    .eq("asset_id", assetId)
+    .order("relocated_at", { ascending: false })
+    .limit(100);
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const rows = (data ?? []) as FacilityAssetLocationHistoryRow[];
+  const locationIds = Array.from(
+    new Set(
+      rows
+        .flatMap((row) => [row.from_location_id, row.to_location_id])
+        .filter((id): id is string => Boolean(id))
+    )
+  );
+  if (locationIds.length === 0) {
+    return rows;
+  }
+
+  const { data: locations, error: locationError } = await supabase
+    .from("facility_locations")
+    .select("id, name")
+    .eq("organization_id", organizationId)
+    .in("id", locationIds);
+  if (locationError) {
+    throw new Error(locationError.message);
+  }
+  const byId = new Map(
+    (locations ?? []).map((location) => [location.id as string, location as { id: string; name: string }])
+  );
+  return rows.map((row) => ({
+    ...row,
+    from_location: row.from_location_id ? (byId.get(row.from_location_id) ?? null) : null,
+    to_location: row.to_location_id ? (byId.get(row.to_location_id) ?? null) : null
+  }));
+}
+
+export async function listFacilitySiteLocations(
+  supabase: Db,
+  organizationId: string,
+  siteId: string
+) {
+  const { data, error } = await supabase
+    .from("facility_locations")
+    .select("id, name, location_type, status")
+    .eq("organization_id", organizationId)
+    .eq("site_id", siteId)
+    .eq("status", "active")
+    .order("name");
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data ?? [];
+}
+
 export async function createFacilityAsset(
   supabase: Db,
   organizationId: string,
@@ -433,12 +515,9 @@ export async function updateFacilityAsset(
     throw new Error("Decommissioned assets cannot be updated");
   }
 
-  await assertLocationOnSite(
-    supabase,
-    organizationId,
-    existing.site_id,
-    input.locationId === undefined ? existing.location_id : input.locationId
-  );
+  if (input.locationId !== undefined && input.locationId !== existing.location_id) {
+    throw new Error("Use the asset relocate workflow to change location (preserves history)");
+  }
   await assertParentAsset(
     supabase,
     organizationId,
@@ -448,7 +527,6 @@ export async function updateFacilityAsset(
   );
 
   const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
-  if (input.locationId !== undefined) patch["location_id"] = input.locationId;
   if (input.parentAssetId !== undefined) patch["parent_asset_id"] = input.parentAssetId;
   if (input.categoryId !== undefined) patch["category_id"] = input.categoryId;
   if (input.name !== undefined) patch["name"] = input.name;
@@ -494,6 +572,101 @@ export async function updateFacilityAsset(
   });
 
   return getFacilityAsset(supabase, organizationId, assetId);
+}
+
+export async function relocateFacilityAsset(
+  supabase: Db,
+  organizationId: string,
+  actorId: string,
+  assetId: string,
+  input: RelocateFacilityAssetInput
+) {
+  const existing = await getFacilityAsset(supabase, organizationId, assetId);
+  if (!existing) {
+    throw new Error("Asset not found");
+  }
+  if (existing.status === "decommissioned") {
+    throw new Error("Decommissioned assets cannot be relocated");
+  }
+
+  const nextLocationId = input.locationId;
+  if (nextLocationId === existing.location_id) {
+    return {
+      asset: existing,
+      locationHistory: await listFacilityAssetLocationHistory(supabase, organizationId, assetId),
+      unchanged: true as const
+    };
+  }
+
+  await assertLocationOnSite(supabase, organizationId, existing.site_id, nextLocationId);
+
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from("facility_assets")
+    .update({
+      location_id: nextLocationId,
+      updated_at: now
+    })
+    .eq("organization_id", organizationId)
+    .eq("id", assetId);
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data: historyRow, error: historyError } = await supabase
+    .from("facility_asset_location_history")
+    .insert({
+      organization_id: organizationId,
+      asset_id: assetId,
+      site_id: existing.site_id,
+      from_location_id: existing.location_id,
+      to_location_id: nextLocationId,
+      reason: input.reason?.trim() || null,
+      relocated_by: actorId,
+      relocated_at: now
+    })
+    .select("*")
+    .single();
+  if (historyError) {
+    throw new Error(historyError.message);
+  }
+
+  const payload = {
+    name: existing.name,
+    siteId: existing.site_id,
+    fromLocationId: existing.location_id,
+    toLocationId: nextLocationId,
+    reason: input.reason?.trim() || null,
+    historyId: historyRow.id as string,
+    source: "facility.assets.relocate"
+  };
+
+  await emitFacilityEvent({
+    supabase,
+    organizationId,
+    actorId,
+    eventType: "facility.asset.relocated",
+    aggregateType: "facility_assets",
+    aggregateId: assetId,
+    payload
+  });
+  await writeFacilityAudit({
+    supabase,
+    organizationId,
+    actorId,
+    action: "facility.asset.relocated",
+    entityType: "facility_assets",
+    entityId: assetId,
+    payload
+  });
+
+  const asset = await getFacilityAsset(supabase, organizationId, assetId);
+  const locationHistory = await listFacilityAssetLocationHistory(
+    supabase,
+    organizationId,
+    assetId
+  );
+  return { asset: asset!, locationHistory, unchanged: false as const };
 }
 
 export async function transitionFacilityAssetStatus(

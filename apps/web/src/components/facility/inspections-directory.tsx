@@ -7,6 +7,7 @@ import {
   INSPECTION_CADENCE_UNITS,
   INSPECTION_ITEM_OUTCOMES,
   INSPECTION_SCOPE_TYPES,
+  type DocumentRecord,
   type InspectionItemOutcome,
   type InspectionScopeType
 } from "@mpa/shared";
@@ -110,6 +111,12 @@ export function InspectionsDirectory() {
   const [completionNotes, setCompletionNotes] = useState("");
   const [resultRows, setResultRows] = useState<ResultItem[]>([]);
   const [cancelReason, setCancelReason] = useState("");
+  const [runDocuments, setRunDocuments] = useState<DocumentRecord[]>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
+  const [evidenceTitle, setEvidenceTitle] = useState("");
+  const [evidenceText, setEvidenceText] = useState("");
+  const [evidenceFileName, setEvidenceFileName] = useState("");
+  const [evidenceBase64, setEvidenceBase64] = useState<string | null>(null);
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -185,6 +192,38 @@ export function InspectionsDirectory() {
     },
     [preferredRunId, selectedProgramId, selectedRunId, siteId]
   );
+
+  const loadRunDocuments = useCallback(async (runId: string) => {
+    if (!runId) {
+      setRunDocuments([]);
+      return;
+    }
+    setDocsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        entityType: "facility_inspection_run",
+        entityId: runId
+      });
+      const response = await fetch(`/api/shared/documents?${params.toString()}`);
+      const body = await response.json();
+      if (!response.ok) {
+        throw new Error(body.error ?? "Failed to load documents");
+      }
+      setRunDocuments((body.documents ?? []) as DocumentRecord[]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load documents");
+    } finally {
+      setDocsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (listView === "runs" && selectedRunId) {
+      void loadRunDocuments(selectedRunId);
+    } else {
+      setRunDocuments([]);
+    }
+  }, [listView, loadRunDocuments, selectedRunId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -878,6 +917,142 @@ export function InspectionsDirectory() {
                   ) : null}
                 </div>
               )}
+              <div className="space-y-3 border-t border-[var(--mpa-color-border-default)] pt-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-semibold">Inspection evidence</h3>
+                    <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                      Attach and view evidence in the shared Document Vault (
+                      <span className="font-mono">facility_inspection_run</span>).
+                    </p>
+                  </div>
+                  <Link
+                    href={`/shared/documents?entityType=facility_inspection_run`}
+                    className="text-xs underline"
+                  >
+                    Open Document Vault
+                  </Link>
+                </div>
+                {docsLoading ? (
+                  <Skeleton className="h-16 w-full" />
+                ) : runDocuments.length === 0 ? (
+                  <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                    No evidence documents attached yet.
+                  </p>
+                ) : (
+                  <ul className="space-y-2 text-sm">
+                    {runDocuments.map((doc) => (
+                      <li
+                        key={doc.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2"
+                      >
+                        <div>
+                          <p className="font-medium">{doc.title}</p>
+                          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                            {doc.category} · {doc.createdAt}
+                          </p>
+                        </div>
+                        <Link
+                          href={`/shared/documents?documentId=${encodeURIComponent(doc.id)}`}
+                          className="text-xs underline"
+                        >
+                          View
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                    Attach evidence
+                  </p>
+                  <Input
+                    value={evidenceTitle}
+                    onChange={(e) => setEvidenceTitle(e.target.value)}
+                    placeholder="Document title"
+                  />
+                  <Textarea
+                    value={evidenceText}
+                    onChange={(e) => setEvidenceText(e.target.value)}
+                    rows={2}
+                    placeholder="Optional text notes / transcript"
+                  />
+                  <Input
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      if (!file) {
+                        setEvidenceBase64(null);
+                        setEvidenceFileName("");
+                        return;
+                      }
+                      setEvidenceFileName(file.name);
+                      if (!evidenceTitle) {
+                        setEvidenceTitle(file.name.replace(/\.[^.]+$/, ""));
+                      }
+                      void file.arrayBuffer().then((buffer) => {
+                        const bytes = new Uint8Array(buffer);
+                        let binary = "";
+                        bytes.forEach((byte) => {
+                          binary += String.fromCharCode(byte);
+                        });
+                        setEvidenceBase64(btoa(binary));
+                      });
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={
+                      busy ||
+                      !evidenceTitle.trim() ||
+                      (!evidenceText.trim() && !evidenceBase64)
+                    }
+                    onClick={() => {
+                      void (async () => {
+                        setBusy(true);
+                        setError(null);
+                        setNotice(null);
+                        try {
+                          const response = await fetch("/api/shared/documents", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              entityType: "facility_inspection_run",
+                              entityId: selectedRun.id,
+                              title: evidenceTitle.trim(),
+                              category: "evidence",
+                              fileName: evidenceFileName || undefined,
+                              mimeType: evidenceBase64
+                                ? "application/octet-stream"
+                                : "text/plain",
+                              contentText: evidenceText.trim() || undefined,
+                              contentBase64: evidenceBase64 || undefined
+                            })
+                          });
+                          const body = await response.json();
+                          if (!response.ok) {
+                            throw new Error(body.error ?? "Upload failed");
+                          }
+                          setEvidenceTitle("");
+                          setEvidenceText("");
+                          setEvidenceFileName("");
+                          setEvidenceBase64(null);
+                          setNotice("Evidence attached to Document Vault.");
+                          await loadRunDocuments(selectedRun.id);
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message : "Upload failed");
+                        } finally {
+                          setBusy(false);
+                        }
+                      })();
+                    }}
+                  >
+                    Attach to vault
+                  </Button>
+                </div>
+              </div>
+
               {selectedRun.status === "in_progress" ? (
                 <div className="space-y-2 border-t border-[var(--mpa-color-border-default)] pt-3">
                   <h3 className="text-sm font-semibold">Cancel run</h3>

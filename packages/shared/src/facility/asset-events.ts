@@ -4,7 +4,8 @@ export const FACILITY_ASSET_EVENT_TYPES = [
   "facility.asset.in_repair",
   "facility.asset.returned_active",
   "facility.asset.decommissioned",
-  "facility.asset.updated"
+  "facility.asset.updated",
+  "facility.asset.relocated"
 ] as const;
 export type FacilityAssetEventType = (typeof FACILITY_ASSET_EVENT_TYPES)[number];
 

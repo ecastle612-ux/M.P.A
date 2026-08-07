@@ -64,6 +64,14 @@ export const updateFacilityAssetInputSchema = z.object({
 
 export type UpdateFacilityAssetInput = z.infer<typeof updateFacilityAssetInputSchema>;
 
+/** Dedicated relocate workflow (J-F6). Prefer this over PATCH locationId. */
+export const relocateFacilityAssetInputSchema = z.object({
+  locationId: z.string().uuid().nullable(),
+  reason: z.string().trim().max(500).optional().nullable()
+});
+
+export type RelocateFacilityAssetInput = z.infer<typeof relocateFacilityAssetInputSchema>;
+
 export const facilityAssetLifecycleInputSchema = z.object({
   status: z.enum(FACILITY_ASSET_STATUSES)
 });

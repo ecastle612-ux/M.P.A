@@ -42,9 +42,15 @@ export function E2CertificationPanel() {
     }
   }
 
+  const requiredChecks = report
+    ? Object.entries(report.checks).filter(
+        ([key]) =>
+          key !== "relocateEvidencePresent" && key !== "relocateAuditEvidencePresent"
+      )
+    : [];
   const allPass =
     report &&
-    Object.values(report.checks).every(Boolean) &&
+    requiredChecks.every(([, value]) => value) &&
     report.assetCount > 0 &&
     report.systemCount > 0;
 

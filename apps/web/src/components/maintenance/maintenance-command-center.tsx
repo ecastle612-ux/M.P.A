@@ -22,11 +22,33 @@ type WorkOrder = {
   technician_user_id: string | null;
   vendor_id: string | null;
   submitted_at: string;
+  product_context?: "property_manager" | "facility";
   property_properties?: { name: string } | null;
   property_units?: { unit_label: string } | null;
   pm_residents?: { display_name: string; email: string } | null;
   vendor_vendors?: { name: string } | null;
+  facility_sites?: { id: string; name: string } | null;
+  facility_assets?: { id: string; name: string; criticality: string } | null;
+  facility_systems?: { id: string; name: string; criticality: string } | null;
 };
+
+function workOrderContextLine(row: WorkOrder, viewingFacility: boolean) {
+  if (viewingFacility || row.product_context === "facility") {
+    const parts = [
+      row.facility_sites?.name ? `Site ${row.facility_sites.name}` : "Facility site",
+      row.facility_assets?.name ? `Asset ${row.facility_assets.name}` : null,
+      row.facility_systems?.name ? `System ${row.facility_systems.name}` : null
+    ].filter(Boolean);
+    return parts.join(" · ");
+  }
+  return [
+    row.pm_residents?.display_name ?? "Resident",
+    row.property_properties?.name ?? "Property",
+    row.property_units?.unit_label ? `Unit ${row.property_units.unit_label}` : null
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
 
 type Technician = { userId: string; displayName: string; email: string | null };
 type Vendor = { id: string; name: string; email: string | null; user_id?: string | null };
@@ -323,12 +345,8 @@ export function MaintenanceCommandCenter() {
                       </Badge>
                     </div>
                     <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                      {row.pm_residents?.display_name ?? "Resident"} ·{" "}
-                      {row.property_properties?.name ?? "Property"}
-                      {row.property_units?.unit_label
-                        ? ` · Unit ${row.property_units.unit_label}`
-                        : ""}{" "}
-                      · {WORK_ORDER_PRIORITY_LABELS[row.priority]}
+                      {workOrderContextLine(row, productContext === "facility")} ·{" "}
+                      {WORK_ORDER_PRIORITY_LABELS[row.priority]}
                     </p>
                   </button>
                 </li>
@@ -353,15 +371,47 @@ export function MaintenanceCommandCenter() {
                     {WORK_ORDER_PRIORITY_LABELS[selected.priority]}
                   </Badge>
                   <Badge variant="neutral">{selected.category}</Badge>
+                  {productContext === "facility" || selected.product_context === "facility" ? (
+                    <Badge variant="info">Facility context</Badge>
+                  ) : null}
                 </div>
+                {productContext === "facility" || selected.product_context === "facility" ? (
+                  <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        Facility site
+                      </dt>
+                      <dd>{selected.facility_sites?.name ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Asset</dt>
+                      <dd>{selected.facility_assets?.name ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        Building system
+                      </dt>
+                      <dd>{selected.facility_systems?.name ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        Facility context
+                      </dt>
+                      <dd>Facility Operations</dd>
+                    </div>
+                  </dl>
+                ) : (
+                  <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                    Resident: {selected.pm_residents?.display_name ?? "—"} · Property:{" "}
+                    {selected.property_properties?.name ?? "—"}
+                  </p>
+                )}
                 <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-                  Resident: {selected.pm_residents?.display_name ?? "—"} · Property:{" "}
-                  {selected.property_properties?.name ?? "—"}
                   {selected.assignee_type === "vendor" && selected.vendor_vendors?.name
-                    ? ` · Vendor: ${selected.vendor_vendors.name}`
+                    ? `Vendor: ${selected.vendor_vendors.name}`
                     : null}
                   {selected.assignee_type === "technician" && selected.technician_user_id
-                    ? ` · Technician assigned`
+                    ? `Technician assigned`
                     : null}
                 </p>
               </div>

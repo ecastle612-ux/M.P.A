@@ -165,6 +165,7 @@ export async function listDocuments(
   organizationId: string,
   filters?: {
     entityType?: DocumentEntityType | "all";
+    entityId?: string;
     query?: string;
     propertyId?: string;
   }
@@ -180,6 +181,9 @@ export async function listDocuments(
 
   if (filters?.entityType && filters.entityType !== "all") {
     query = query.eq("entity_type", filters.entityType);
+  }
+  if (filters?.entityId) {
+    query = query.eq("entity_id", filters.entityId);
   }
   if (filters?.propertyId) {
     query = query.eq("property_id", filters.propertyId);
