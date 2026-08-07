@@ -51,13 +51,26 @@ describe("UX-013 module selection", () => {
       "facility_ops",
       "both"
     ]);
-    expect(moduleSelectionLabel("both")).toBe("Property + Facility");
-    expect(ACQ_MODULE_OPTIONS.every((option) => option.bestFor && option.packageHint)).toBe(true);
+    expect(moduleSelectionLabel("property_ops")).toBe("Property Manager");
+    expect(moduleSelectionLabel("facility_ops")).toBe("Facility Operations");
+    expect(moduleSelectionLabel("both")).toBe("Complete Platform");
+    expect(ACQ_MODULE_OPTIONS.find((option) => option.id === "facility_ops")?.availability).toBe(
+      "coming_soon"
+    );
+    expect(ACQ_MODULE_OPTIONS.find((option) => option.id === "facility_ops")?.cta.href).toBe(
+      "/contact-sales"
+    );
+    expect(ACQ_MODULE_OPTIONS.find((option) => option.id === "property_ops")?.cta.href).toBe(
+      "/pricing?modules=property_ops"
+    );
+    expect(ACQ_MODULE_OPTIONS.find((option) => option.id === "both")?.cta.href).toBe(
+      "/pricing?modules=both"
+    );
     expect(
-      ACQ_MODULE_OPTIONS.some((option) =>
-        /Professional property management platform/i.test(option.subtitle)
+      ACQ_MODULE_OPTIONS.find((option) => option.id === "property_ops")?.groups.every(
+        (group) => group.status === "included"
       )
-    ).toBe(false);
+    ).toBe(true);
   });
 });
 

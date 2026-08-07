@@ -11,7 +11,7 @@ import {
 } from "../../../lib/acquire/seo";
 
 const title = "Choose what you're buying";
-const description = `Choose Property Operations, Facility Operations, or Property + Facility on ${MPA_BRAND_NAME}. One module leads to Essentials pricing; both modules lead to Professional bundle pricing.`;
+const description = `Compare ${MPA_BRAND_NAME} subscriptions: Property Manager (available now), Facility Operations (Coming Soon), and Complete Platform.`;
 
 export const metadata: Metadata = {
   title,
