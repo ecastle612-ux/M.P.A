@@ -1,15 +1,10 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { Suspense } from "react";
+import { AssetsDirectory } from "../../../../components/facility/assets-directory";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
-      title="Assets"
-      description="Asset registry. Feature work not in Phase 1."
-      readiness="planned"
-      entitlement="facility.assets"
-      includedIn={["Facility Operations", "Complete Platform"]}
-      requiresComplete="Property Manager-only customers"
-    />
+    <Suspense fallback={<main className="flex-1 p-6">Loading assets…</main>}>
+      <AssetsDirectory />
+    </Suspense>
   );
 }

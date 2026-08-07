@@ -105,6 +105,56 @@ async function resolveEntityLabel(
         .maybeSingle();
       return { label: (data?.name as string) ?? "Vendor", propertyId: null };
     }
+    case "facility_inspection_run": {
+      const { data } = await supabase
+        .from("facility_inspection_runs")
+        .select("id, program_id, facility_inspection_programs(name), facility_sites(property_id)")
+        .eq("organization_id", organizationId)
+        .eq("id", entityId)
+        .maybeSingle();
+      const program = Array.isArray(data?.facility_inspection_programs)
+        ? data?.facility_inspection_programs[0]
+        : data?.facility_inspection_programs;
+      const site = Array.isArray(data?.facility_sites)
+        ? data?.facility_sites[0]
+        : data?.facility_sites;
+      return {
+        label: (program as { name?: string } | null)?.name
+          ? `Inspection: ${(program as { name: string }).name}`
+          : "Inspection run",
+        propertyId: (site as { property_id?: string | null } | null)?.property_id ?? null
+      };
+    }
+    case "facility_safety_incident": {
+      const { data } = await supabase
+        .from("facility_safety_incidents")
+        .select("id, title, facility_sites(property_id)")
+        .eq("organization_id", organizationId)
+        .eq("id", entityId)
+        .maybeSingle();
+      const site = Array.isArray(data?.facility_sites)
+        ? data?.facility_sites[0]
+        : data?.facility_sites;
+      return {
+        label: (data?.title as string) ?? "Safety incident",
+        propertyId: (site as { property_id?: string | null } | null)?.property_id ?? null
+      };
+    }
+    case "facility_compliance_obligation": {
+      const { data } = await supabase
+        .from("facility_compliance_obligations")
+        .select("id, title, facility_sites(property_id)")
+        .eq("organization_id", organizationId)
+        .eq("id", entityId)
+        .maybeSingle();
+      const site = Array.isArray(data?.facility_sites)
+        ? data?.facility_sites[0]
+        : data?.facility_sites;
+      return {
+        label: (data?.title as string) ?? "Compliance obligation",
+        propertyId: (site as { property_id?: string | null } | null)?.property_id ?? null
+      };
+    }
     default:
       return { label: "Organization", propertyId: null };
   }
