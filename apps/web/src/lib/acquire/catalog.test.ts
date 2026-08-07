@@ -16,7 +16,9 @@ import {
   TOUR_STEPS
 } from "./catalog";
 import {
+  ACQ_MODULE_OPTIONS,
   isAcqModuleSelection,
+  moduleSelectionLabel,
   modulesPricingHref,
   parseAcqModuleSelection
 } from "./modules";
@@ -41,6 +43,34 @@ describe("UX-013 module selection", () => {
     expect(parseAcqModuleSelection("facility_ops")).toBe("facility_ops");
     expect(parseAcqModuleSelection("trial")).toBeNull();
     expect(modulesPricingHref("both")).toBe("/pricing?modules=both");
+  });
+
+  it("keeps commercial labels buyer-clear without renaming selection ids", () => {
+    expect(ACQ_MODULE_OPTIONS.map((option) => option.id)).toEqual([
+      "property_ops",
+      "facility_ops",
+      "both"
+    ]);
+    expect(moduleSelectionLabel("property_ops")).toBe("Property Manager");
+    expect(moduleSelectionLabel("facility_ops")).toBe("Facility Operations");
+    expect(moduleSelectionLabel("both")).toBe("Complete Platform");
+    expect(ACQ_MODULE_OPTIONS.find((option) => option.id === "facility_ops")?.availability).toBe(
+      "coming_soon"
+    );
+    expect(ACQ_MODULE_OPTIONS.find((option) => option.id === "facility_ops")?.cta.href).toBe(
+      "/contact-sales"
+    );
+    expect(ACQ_MODULE_OPTIONS.find((option) => option.id === "property_ops")?.cta.href).toBe(
+      "/pricing?modules=property_ops"
+    );
+    expect(ACQ_MODULE_OPTIONS.find((option) => option.id === "both")?.cta.href).toBe(
+      "/pricing?modules=both"
+    );
+    expect(
+      ACQ_MODULE_OPTIONS.find((option) => option.id === "property_ops")?.groups.every(
+        (group) => group.status === "included"
+      )
+    ).toBe(true);
   });
 });
 
