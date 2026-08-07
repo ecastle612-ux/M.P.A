@@ -224,9 +224,13 @@ describe("master admin catalog", () => {
       workspaces.some((item) => item.label.includes("Financial Operations") && item.status === "aligned")
     ).toBe(true);
     expect(workspaces.some((item) => item.label.includes("Assets") && item.status === "aligned")).toBe(true);
-    expect(workspaces.some((item) => item.label.includes("Inventory") && item.status === "planned")).toBe(
+    expect(workspaces.some((item) => item.label.includes("Inventory") && item.status === "aligned")).toBe(
       true
     );
+    expect(workspaces.some((item) => item.label.includes("Parts") && item.status === "aligned")).toBe(true);
+    expect(
+      workspaces.some((item) => item.label.includes("Inspections") && item.status === "planned")
+    ).toBe(true);
     expect(workspaces.some((item) => item.label.includes("Capital Projects"))).toBe(true);
   });
 
