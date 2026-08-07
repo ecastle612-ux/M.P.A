@@ -218,18 +218,13 @@ export function InspectionsDirectory() {
   }, []);
 
   useEffect(() => {
-    if (listView === "runs" && selectedRunId) {
-      void loadRunDocuments(selectedRunId);
-    } else {
-      setRunDocuments([]);
-    }
-  }, [listView, loadRunDocuments, selectedRunId]);
-
-  useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
         await refresh(preferredRunId || undefined);
+        if (!cancelled && (preferredRunId || selectedRunId)) {
+          await loadRunDocuments(preferredRunId || selectedRunId);
+        }
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Failed to load");
@@ -315,6 +310,7 @@ export function InspectionsDirectory() {
           outcome: item.outcome === "not_checked" ? "pass" : item.outcome
         }))
       );
+      await loadRunDocuments(run.id);
       setNotice("Inspection run started.");
     });
   }
@@ -734,6 +730,7 @@ export function InspectionsDirectory() {
                               }))
                             );
                           }
+                          void loadRunDocuments(run.id);
                         }}
                       >
                         <div className="flex flex-wrap items-center gap-2">
