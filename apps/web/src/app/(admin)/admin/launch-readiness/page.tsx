@@ -10,6 +10,7 @@ import { J8CertificationPanel } from "../../../../components/admin/j8-certificat
 import { DocumentsCertificationPanel } from "../../../../components/admin/documents-certification-panel";
 import { CommunicationsCertificationPanel } from "../../../../components/admin/communications-certification-panel";
 import { E1CertificationPanel } from "../../../../components/admin/e1-certification-panel";
+import { E2CertificationPanel } from "../../../../components/admin/e2-certification-panel";
 
 export default function Page() {
   return (
@@ -39,6 +40,7 @@ export default function Page() {
       <DocumentsCertificationPanel />
       <CommunicationsCertificationPanel />
       <E1CertificationPanel />
+      <E2CertificationPanel />
     </main>
   );
 }

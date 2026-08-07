@@ -14,6 +14,8 @@ export function CommandPalette() {
   const [propertyItems, setPropertyItems] = useState<Array<{ id: string; label: string }>>([]);
   const [residentItems, setResidentItems] = useState<Array<{ id: string; label: string }>>([]);
   const [facilitySiteItems, setFacilitySiteItems] = useState<Array<{ id: string; label: string }>>([]);
+  const [facilityAssetItems, setFacilityAssetItems] = useState<Array<{ id: string; label: string }>>([]);
+  const [facilitySystemItems, setFacilitySystemItems] = useState<Array<{ id: string; label: string }>>([]);
 
   useEffect(() => {
     function handler(event: KeyboardEvent) {
@@ -39,10 +41,18 @@ export function CommandPalette() {
     let cancelled = false;
     void (async () => {
       try {
-        const [propertyResponse, residentResponse, facilityResponse] = await Promise.all([
+        const [
+          propertyResponse,
+          residentResponse,
+          facilityResponse,
+          assetResponse,
+          systemResponse
+        ] = await Promise.all([
           fetch(`/api/pm/properties/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/pm/residents/search?q=${encodeURIComponent(query.trim())}`),
-          fetch(`/api/facility/sites/search?q=${encodeURIComponent(query.trim())}`)
+          fetch(`/api/facility/sites/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/facility/assets/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/facility/systems/search?q=${encodeURIComponent(query.trim())}`)
         ]);
         if (!cancelled && propertyResponse.ok) {
           const payload = (await propertyResponse.json()) as {
@@ -77,11 +87,35 @@ export function CommandPalette() {
             }))
           );
         }
+        if (!cancelled && assetResponse.ok) {
+          const payload = (await assetResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setFacilityAssetItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
+        if (!cancelled && systemResponse.ok) {
+          const payload = (await systemResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setFacilitySystemItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
       } catch {
         if (!cancelled) {
           setPropertyItems([]);
           setResidentItems([]);
           setFacilitySiteItems([]);
+          setFacilityAssetItems([]);
+          setFacilitySystemItems([]);
         }
       }
     })();
@@ -116,6 +150,18 @@ export function CommandPalette() {
         facilitySiteItems.map((item) => ({ id: item.id, label: item.label }))
       );
     }
+    if (facilityAssetItems.length > 0) {
+      byGroup.set(
+        "Facility Assets",
+        facilityAssetItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
+    if (facilitySystemItems.length > 0) {
+      byGroup.set(
+        "Building Systems",
+        facilitySystemItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
 
     const navSections = [...byGroup.entries()].map(([title, items]) => ({ title, items }));
     const entitled = searchCatalogForSku(productSku, "");
@@ -126,12 +172,15 @@ export function CommandPalette() {
         { id: "/pm/residents?new=1", label: "Add resident", shortcut: "A R" },
         { id: "/pm/leasing?new=1", label: "Create lease", shortcut: "A L" },
         { id: "/facility/sites?new=1", label: "Add facility site", shortcut: "A S" },
+        { id: "/facility/assets?new=1", label: "Register asset", shortcut: "A A" },
         { id: "/pm/properties", label: "Open Properties", shortcut: "G P" },
         { id: "/pm/residents", label: "Open Residents", shortcut: "G R" },
         { id: "/pm/leasing", label: "Open Leasing", shortcut: "G L" },
         { id: "/pm/mission-control", label: "Open Mission Control", shortcut: "G M" },
         { id: "/facility/mission-control", label: "Open Facility Mission Control", shortcut: "G F" },
         { id: "/facility/overview", label: "Open Facility Overview", shortcut: "G O" },
+        { id: "/facility/assets", label: "Open Assets", shortcut: "G A" },
+        { id: "/facility/building-systems", label: "Open Building Systems", shortcut: "G Y" },
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
         { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
         { id: "/settings/team", label: "Invite your team", shortcut: "I T" },
@@ -148,7 +197,16 @@ export function CommandPalette() {
     };
 
     return [...navSections, actions].filter((section) => section.items.length > 0);
-  }, [facilitySiteItems, productLabel, productSku, propertyItems, query, residentItems]);
+  }, [
+    facilityAssetItems,
+    facilitySiteItems,
+    facilitySystemItems,
+    productLabel,
+    productSku,
+    propertyItems,
+    query,
+    residentItems
+  ]);
 
   return (
     <>

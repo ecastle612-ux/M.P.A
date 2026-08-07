@@ -9,8 +9,9 @@ Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0�
 S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Promise Roadmap
 **Approved** (ADR-017); Customer #1 certified lineage on `main` under PM feature freeze.
 CORE-004 remains stopped. Facility Operations FAC-OPS-001 **Approved** (ADR-018
-Accepted); Phase **E.1 authorized** ([27/design-package](./27-facility-operations/design-package/index.md));
-E.2+ **NO-GO**. Implementation Gate in force.
+Accepted); Phase **E.1 complete**, Phase **E.2 authorized**
+([27/design-package](./27-facility-operations/design-package/index.md)); E.3+ **NO-GO**.
+Implementation Gate in force.
 
 ---
 
@@ -139,6 +140,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [FAC-OPS-001 Design Package](./27-facility-operations/design-package/index.md) | **Approved** authoritative FO implementation contract |
 | [ADR-018](./18-decision-log/adr-018-facility-operations-design-package.md) | Accepted — FO design package decision |
 | [Phase E.1 certification](./27-facility-operations/design-package/certification/e1/) | E.1 implementation & MA verification artifacts |
+| [Phase E.2 certification](./27-facility-operations/design-package/certification/e2/) | E.2 assets/systems implementation & MA verification |
 | [Design debt status](./27-facility-operations/missing-design-package.md) | Checklist closed at Document stage |
 
 ### Governance & gates

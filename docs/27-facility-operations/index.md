@@ -15,8 +15,9 @@
 | SKU / entitlements / nav shells (Phase 1 commercial alignment) | **Shipped** — [baseline](./baseline-already-shipped.md) |
 | FAC-OPS-001 design package | **Approved** |
 | ADR-018 | **Accepted** |
-| Phase E.1 (Site profile + FO Mission Control) | **Authorized** |
-| Phase E.2–E.6 / Capital | **Blocked** pending authorize |
+| Phase E.1 (Site profile + FO Mission Control) | **Complete / certified** |
+| Phase E.2 (Assets + Building Systems) | **Authorized** |
+| Phase E.3–E.6 / Capital | **Blocked** pending authorize |
 
 ---
 

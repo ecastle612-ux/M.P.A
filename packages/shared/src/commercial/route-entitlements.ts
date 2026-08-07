@@ -261,7 +261,18 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
       )
     );
     push(decisionPath("/facility/operations", "Facility Operations (Planned)", "Facility Operations", "facility.operations"));
-    push(decisionPath("/facility/assets", "Assets (Planned)", "Facility Operations", "facility.assets"));
+    push(decisionPath("/facility/assets", "Assets", "Facility Operations", "facility.assets"));
+    push(
+      decisionPath("/facility/assets?new=1", "Register asset", "Facility Operations", "facility.assets")
+    );
+    push(
+      decisionPath(
+        "/facility/building-systems",
+        "Building Systems",
+        "Facility Operations",
+        "facility.building_systems"
+      )
+    );
     push(decisionPath("/facility/inventory", "Inventory (Planned)", "Facility Operations", "facility.inventory"));
     push(decisionPath("/facility/parts", "Parts (Planned)", "Facility Operations", "facility.parts"));
     push(
@@ -275,15 +286,6 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(decisionPath("/facility/inspections", "Inspections (Planned)", "Facility Operations", "facility.inspections"));
     push(decisionPath("/facility/safety", "Safety (Planned)", "Facility Operations", "facility.safety"));
     push(decisionPath("/facility/compliance", "Compliance (Planned)", "Facility Operations", "facility.compliance"));
-    push(
-      decisionPath(
-        "/facility/building-systems",
-        "Building Systems (Planned)",
-        "Facility Operations",
-        "facility.building_systems"
-      )
-    );
-
     push(decisionPath("/shared/documents", "Documents", "Shared Platform", "platform.documents"));
     push(decisionPath("/shared/communications", "Communications", "Shared Platform", "platform.communications"));
   }

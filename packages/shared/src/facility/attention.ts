@@ -1,6 +1,6 @@
 /**
- * Facility Mission Control attention — Phase E.1 signals only.
- * Later slices populate additional severities; placeholders stay empty until authorized.
+ * Facility Mission Control attention — E.1 + E.2 signals.
+ * Later slices populate remaining severities.
  */
 
 export const FACILITY_ATTENTION_SEVERITIES = [
@@ -96,11 +96,61 @@ export function buildFacilitySetupIncompleteAttention(input: {
   ];
 }
 
+export function buildFacilitySystemDownAttention(
+  systems: readonly {
+    id: string;
+    name: string;
+    siteId: string;
+    status: string;
+  }[]
+): FacilityAttentionItem[] {
+  return systems
+    .filter((system) => system.status === "down")
+    .map((system) => ({
+      id: `system_down:${system.id}`,
+      severity: "system_down" as const,
+      priority: priorityForFacilitySeverity("system_down"),
+      title: `${system.name} is down`,
+      detail: "Building system marked down — restore or open corrective work.",
+      href: `/facility/building-systems/${system.id}`,
+      aggregateType: "facility_systems",
+      aggregateId: system.id,
+      siteId: system.siteId
+    }));
+}
+
+export function buildFacilityCriticalAssetAttention(
+  assets: readonly {
+    id: string;
+    name: string;
+    siteId: string;
+    status: string;
+    criticality: string;
+  }[]
+): FacilityAttentionItem[] {
+  return assets
+    .filter((asset) => asset.criticality === "critical" && asset.status === "in_repair")
+    .map((asset) => ({
+      id: `critical_asset_repair:${asset.id}`,
+      severity: "wo_open_critical" as const,
+      priority: priorityForFacilitySeverity("wo_open_critical"),
+      title: `${asset.name} needs attention`,
+      detail: "Critical asset is in repair.",
+      href: `/facility/assets/${asset.id}`,
+      aggregateType: "facility_assets",
+      aggregateId: asset.id,
+      siteId: asset.siteId
+    }));
+}
+
 export function buildFacilityMissionControlNextAction(input: {
   setupComplete: boolean;
   activeSiteCount: number;
   draftSiteCount: number;
   firstActiveSiteId?: string | null;
+  activeAssetCount?: number;
+  downSystemCount?: number;
+  firstAssetId?: string | null;
 }): {
   id: string;
   title: string;
@@ -137,13 +187,31 @@ export function buildFacilityMissionControlNextAction(input: {
     };
   }
 
+  if ((input.downSystemCount ?? 0) > 0) {
+    return {
+      id: "restore_system",
+      title: "Restore down building systems",
+      detail: "A building system is marked down — review System Command Center.",
+      href: "/facility/building-systems",
+      assistantRecommendation: "Restore systems marked down."
+    };
+  }
+
+  if ((input.activeAssetCount ?? 0) <= 0) {
+    return {
+      id: "register_first_asset",
+      title: "Register your first asset",
+      detail: "Build the asset registry for your active facility site.",
+      href: "/facility/assets?new=1",
+      assistantRecommendation: "Register your first asset."
+    };
+  }
+
   return {
-    id: "site_ready",
-    title: "Facility site is active",
-    detail: "Review Overview. Later slices add assets, systems, and work programs.",
-    href: input.firstActiveSiteId
-      ? `/facility/sites/${input.firstActiveSiteId}`
-      : "/facility/overview",
-    assistantRecommendation: "Your facility site is ready. Review Facility Overview."
+    id: "assets_ready",
+    title: "Asset registry is active",
+    detail: "Review assets and building systems. Later slices add work programs.",
+    href: input.firstAssetId ? `/facility/assets/${input.firstAssetId}` : "/facility/assets",
+    assistantRecommendation: "Your asset registry is ready. Review critical assets and systems."
   };
 }

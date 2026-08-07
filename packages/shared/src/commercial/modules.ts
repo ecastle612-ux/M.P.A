@@ -212,9 +212,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.assets",
     href: "/facility/assets",
-    readiness: "planned",
-    description: "Asset registry.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "Asset registry, categories, hierarchy, and lifecycle (Phase E.2)."
   },
   {
     id: "inventory",
@@ -282,9 +281,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.building_systems",
     href: "/facility/building-systems",
-    readiness: "planned",
-    description: "HVAC, electrical, fire, and related systems.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "HVAC, electrical, fire, and related systems with status attention (Phase E.2)."
   },
   {
     id: "capital_projects",
@@ -397,7 +395,13 @@ export function navigationGroupsForSku(
           entitlement: "facility.mission_control"
         },
         { href: "/facility/operations", label: "Facility Operations", readiness: "planned", entitlement: "facility.operations" },
-        { href: "/facility/assets", label: "Assets", readiness: "planned", entitlement: "facility.assets" },
+        { href: "/facility/assets", label: "Assets", readiness: "aligned", entitlement: "facility.assets" },
+        {
+          href: "/facility/building-systems",
+          label: "Building Systems",
+          readiness: "aligned",
+          entitlement: "facility.building_systems"
+        },
         { href: "/facility/inventory", label: "Inventory", readiness: "planned", entitlement: "facility.inventory" },
         { href: "/facility/parts", label: "Parts", readiness: "planned", entitlement: "facility.parts" },
         {
@@ -408,13 +412,7 @@ export function navigationGroupsForSku(
         },
         { href: "/facility/inspections", label: "Inspections", readiness: "planned", entitlement: "facility.inspections" },
         { href: "/facility/safety", label: "Safety", readiness: "planned", entitlement: "facility.safety" },
-        { href: "/facility/compliance", label: "Compliance", readiness: "planned", entitlement: "facility.compliance" },
-        {
-          href: "/facility/building-systems",
-          label: "Building Systems",
-          readiness: "planned",
-          entitlement: "facility.building_systems"
-        }
+        { href: "/facility/compliance", label: "Compliance", readiness: "planned", entitlement: "facility.compliance" }
         // Capital Projects: future entitlement — Master Admin + Billing only until enabled
       ]
     });
@@ -569,10 +567,18 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
       {
         id: "fac_assets",
         title: "Asset Registry",
-        description: "Facility workspace (planned capability).",
+        description: "Facility asset registry, categories, hierarchy, and lifecycle.",
         href: "/facility/assets",
         product: "facility_operations",
-        readiness: "planned"
+        readiness: "aligned"
+      },
+      {
+        id: "fac_systems",
+        title: "Building Systems",
+        description: "Register systems and raise Mission Control attention when down.",
+        href: "/facility/building-systems",
+        product: "facility_operations",
+        readiness: "aligned"
       }
     );
   }

@@ -28,6 +28,9 @@ type FacilityMissionControlState = {
   siteCount: number;
   activeSiteCount: number;
   draftSiteCount: number;
+  assetCount?: number;
+  systemCount?: number;
+  downSystemCount?: number;
   sites: Array<{
     id: string;
     name: string;
@@ -35,6 +38,20 @@ type FacilityMissionControlState = {
     timezone: string;
     locationCount: number;
     propertyName: string | null;
+  }>;
+  assets?: Array<{
+    id: string;
+    name: string;
+    status: string;
+    criticality: string;
+    siteName: string | null;
+  }>;
+  systems?: Array<{
+    id: string;
+    name: string;
+    status: string;
+    systemType: string;
+    siteName: string | null;
   }>;
   attention: AttentionItem[];
   nextAction: NextAction;
@@ -125,7 +142,7 @@ export function FacilityMissionControlPage() {
           <span>
             {loading
               ? "…"
-              : `${state?.activeSiteCount ?? 0} active sites · ${state?.siteCount ?? 0} total`}
+              : `${state?.activeSiteCount ?? 0} active sites · ${state?.assetCount ?? 0} assets · ${state?.systemCount ?? 0} systems`}
           </span>
         </div>
       </header>
@@ -226,6 +243,72 @@ export function FacilityMissionControlPage() {
                       <span className="text-xs text-[var(--mpa-color-text-secondary)]">
                         {site.status} · {site.timezone} · {site.locationCount} locations
                         {site.propertyName ? ` · ${site.propertyName}` : ""}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="max-w-3xl space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                Assets
+              </h2>
+              <Link href="/facility/assets" className="text-sm underline">
+                Registry
+              </Link>
+            </div>
+            {(state?.assets ?? []).length === 0 ? (
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                No assets yet — register assets for active sites.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {(state?.assets ?? []).map((asset) => (
+                  <li key={asset.id}>
+                    <Link
+                      href={`/facility/assets/${asset.id}`}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2 text-sm"
+                    >
+                      <span className="font-medium">{asset.name}</span>
+                      <span className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        {asset.status} · {asset.criticality}
+                        {asset.siteName ? ` · ${asset.siteName}` : ""}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="max-w-3xl space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                Building systems
+              </h2>
+              <Link href="/facility/building-systems" className="text-sm underline">
+                All systems
+              </Link>
+            </div>
+            {(state?.systems ?? []).length === 0 ? (
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                No building systems registered yet.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {(state?.systems ?? []).map((system) => (
+                  <li key={system.id}>
+                    <Link
+                      href={`/facility/building-systems/${system.id}`}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2 text-sm"
+                    >
+                      <span className="font-medium">{system.name}</span>
+                      <span className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        {system.status} · {system.systemType}
+                        {system.siteName ? ` · ${system.siteName}` : ""}
                       </span>
                     </Link>
                   </li>

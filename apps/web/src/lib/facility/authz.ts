@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { FacilitySiteCapability } from "@mpa/shared";
+import type { FacilityCapability } from "@mpa/shared";
 import { createAuthServerClient } from "../auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../auth/authorization";
 import { getActiveOrganizationIdFromCookie } from "../organization/server";
 
 export async function requireFacilityPermission(
-  capability: FacilitySiteCapability,
+  capability: FacilityCapability,
   organizationId?: string
 ) {
   const supabase = await createAuthServerClient();

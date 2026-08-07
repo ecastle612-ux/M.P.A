@@ -17,14 +17,31 @@ export function GlobalSearch() {
   const [propertyResults, setPropertyResults] = useState<SearchResultItem[]>([]);
   const [residentResults, setResidentResults] = useState<SearchResultItem[]>([]);
   const [facilitySiteResults, setFacilitySiteResults] = useState<SearchResultItem[]>([]);
+  const [facilityAssetResults, setFacilityAssetResults] = useState<SearchResultItem[]>([]);
+  const [facilitySystemResults, setFacilitySystemResults] = useState<SearchResultItem[]>([]);
 
   const catalogResults = useMemo(() => searchCatalogForSku(productSku, query), [productSku, query]);
   const results = useMemo(() => {
     if (!query.trim()) {
       return catalogResults;
     }
-    return [...residentResults, ...propertyResults, ...facilitySiteResults, ...catalogResults];
-  }, [catalogResults, facilitySiteResults, propertyResults, query, residentResults]);
+    return [
+      ...residentResults,
+      ...propertyResults,
+      ...facilitySiteResults,
+      ...facilityAssetResults,
+      ...facilitySystemResults,
+      ...catalogResults
+    ];
+  }, [
+    catalogResults,
+    facilityAssetResults,
+    facilitySiteResults,
+    facilitySystemResults,
+    propertyResults,
+    query,
+    residentResults
+  ]);
   const safeActiveIndex = results.length === 0 ? 0 : Math.min(activeIndex, results.length - 1);
 
   useEffect(() => {
@@ -46,10 +63,18 @@ export function GlobalSearch() {
     const handle = window.setTimeout(() => {
       void (async () => {
         try {
-          const [propertyResponse, residentResponse, facilityResponse] = await Promise.all([
+          const [
+            propertyResponse,
+            residentResponse,
+            facilityResponse,
+            assetResponse,
+            systemResponse
+          ] = await Promise.all([
             fetch(`/api/pm/properties/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/pm/residents/search?q=${encodeURIComponent(normalized)}`),
-            fetch(`/api/facility/sites/search?q=${encodeURIComponent(normalized)}`)
+            fetch(`/api/facility/sites/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/facility/assets/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/facility/systems/search?q=${encodeURIComponent(normalized)}`)
           ]);
           if (cancelled) {
             return;
@@ -96,6 +121,34 @@ export function GlobalSearch() {
               }))
             );
           }
+          if (assetResponse.ok) {
+            const payload = (await assetResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setFacilityAssetResults(
+              (payload.results ?? []).map((item) => ({
+                id: `facility-asset:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "facility.assets"
+              }))
+            );
+          }
+          if (systemResponse.ok) {
+            const payload = (await systemResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setFacilitySystemResults(
+              (payload.results ?? []).map((item) => ({
+                id: `facility-system:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "facility.building_systems"
+              }))
+            );
+          }
         } catch {
           // Keep last successful live results; catalog still works.
         }
@@ -113,6 +166,8 @@ export function GlobalSearch() {
     setPropertyResults([]);
     setResidentResults([]);
     setFacilitySiteResults([]);
+    setFacilityAssetResults([]);
+    setFacilitySystemResults([]);
     router.push(href);
   }
 
@@ -134,6 +189,8 @@ export function GlobalSearch() {
             setPropertyResults([]);
             setResidentResults([]);
             setFacilitySiteResults([]);
+            setFacilityAssetResults([]);
+            setFacilitySystemResults([]);
           }
           setActiveIndex(0);
           setOpen(true);
