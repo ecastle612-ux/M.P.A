@@ -53,7 +53,8 @@ export function CommunicationsCertificationPanel() {
       <div>
         <h2 className="text-base font-semibold">LAUNCH-001 · Communications remediation</h2>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Verify send paths, unified inbox, history, timeline/audit, and reuse of FO/maintenance notices.
+          Verify send paths, unified inbox, history, timeline/audit, and reuse of
+          Financial Operations / maintenance notices.
         </p>
       </div>
       <div className="flex flex-wrap items-end gap-2">
@@ -80,8 +81,9 @@ export function CommunicationsCertificationPanel() {
           ) : null}
           <p className="text-xs text-[var(--mpa-color-text-secondary)]">
             Messages: {report.readiness.messageCount} · Comms notices:{" "}
-            {report.readiness.notificationCount} · FO notices: {report.financeNotificationCount} ·
-            Maintenance notices: {report.maintenanceNotificationCount}
+            {report.readiness.notificationCount} · Financial Operations notices:{" "}
+            {report.financeNotificationCount} · Maintenance notices:{" "}
+            {report.maintenanceNotificationCount}
           </p>
           <ul className="space-y-1">
             {Object.entries(report.checks).map(([key, value]) => (

@@ -35,7 +35,7 @@ export const FINANCE_AUDIT_CATALOG: readonly FinanceAuditDefinition[] = [
   {
     action: "finance.foundation.registered",
     entityType: "financial_domain",
-    description: "FO foundation registered / Command Center opened context",
+    description: "Financial Operations foundation registered / Command Center opened context",
     slice: "S0"
   },
   {
@@ -47,7 +47,7 @@ export const FINANCE_AUDIT_CATALOG: readonly FinanceAuditDefinition[] = [
   {
     action: "finance.settings.updated",
     entityType: "financial_module_settings",
-    description: "FO module settings changed",
+    description: "Financial Operations module settings changed",
     slice: "S0"
   },
   {

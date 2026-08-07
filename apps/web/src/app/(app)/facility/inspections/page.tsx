@@ -1,15 +1,10 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { Suspense } from "react";
+import { InspectionsDirectory } from "../../../../components/facility/inspections-directory";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
-      title="Inspections"
-      description="Facility inspection programs — not lease move-in/out inspections."
-      readiness="planned"
-      entitlement="facility.inspections"
-      includedIn={["Facility Operations", "Complete Platform"]}
-      requiresComplete="Property Manager-only customers"
-    />
+    <Suspense fallback={<main className="flex-1 p-6 text-sm">Loading Inspections…</main>}>
+      <InspectionsDirectory />
+    </Suspense>
   );
 }

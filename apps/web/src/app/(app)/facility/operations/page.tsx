@@ -1,15 +1,10 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { Suspense } from "react";
+import { OperationsQueue } from "../../../../components/facility/operations-queue";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
-      title="Facility Operations"
-      description="Facility corrective operations home. Feature work not in Phase 1."
-      readiness="planned"
-      entitlement="facility.operations"
-      includedIn={["Facility Operations", "Complete Platform"]}
-      requiresComplete="Property Manager-only customers"
-    />
+    <Suspense fallback={<main className="flex-1 p-6 text-sm">Loading Facility Operations…</main>}>
+      <OperationsQueue />
+    </Suspense>
   );
 }
