@@ -123,7 +123,8 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 
 | Instruction |
 |-------------|
-| **STOP** — Launch Readiness is **GO**; launch stabilization audit complete; no further changes without new authorize |
+| **STOP** — Customer #1 Dry Run report complete; remediation of dry-run criticals requires a new authorize |
+| Launch Readiness remains **GO** for staff PM; dry run found **multi-role return-login criticals** — see dry-run report |
 | **Do not** add Property Manager features — polish/defects only when explicitly authorized |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |
@@ -138,6 +139,7 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 | Package | Role |
 |---------|------|
 | [Launch Stabilization](./launch-stabilization/index.md) | World-class UX / production polish audit |
+| [Customer #1 Dry Run](./customer-1-dry-run/index.md) | Zero-knowledge operational simulation report |
 | [24 Property Manager Module Map](../24-product-architecture/property-manager-module-map.md) | What we advertise |
 | [24 Subscription Matrix](../24-product-architecture/subscription-matrix.md) | SKU inclusion |
 | [25 FIN-OPS-001](../25-fin-ops-001/index.md) | Money capability (partial promise met) |
