@@ -94,9 +94,10 @@ export function LoginForm() {
       </p>
       {selectedPlanLabel && mode === "sign_up" ? (
         <p className="mt-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          Selected plan from checkout:{" "}
+          Your selected plan,{" "}
           <span className="font-semibold text-[var(--mpa-color-text-primary)]">{selectedPlanLabel}</span>
-          . Commercial operations confirms paid subscription during onboarding.
+          , is saved. Create your account to continue Guided Setup. Enterprise pricing and billing are
+          finalized during onboarding.
         </p>
       ) : null}
       <div className="mt-4 grid grid-cols-2 gap-2">

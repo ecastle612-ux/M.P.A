@@ -61,6 +61,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 31 | [BUG-003/004 Landing & Acquisition](./31-bug-003-004-landing-acquisition/index.md) | Enterprise landing + public plan funnel; no invented SaaS Stripe |
 | 33 | [PR #46 Pre-Merge Review](./33-pr-46-pre-merge-review/index.md) | Required B1–B5 before merge |
 | 34 | [PR #46 Blocking Remediation](./34-pr-46-blocking-remediation/index.md) | B1–B5 commercial honesty; Ready to Merge pending final verify |
+| 35 | [PR #46 R1 Remediation](./35-pr-46-r1-remediation/index.md) | Account creation copy; READY FOR MERGE pending authorize |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
