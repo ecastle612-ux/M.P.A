@@ -94,6 +94,6 @@ export async function GET(request: Request) {
       ? "I can confidently monitor my investment portfolio using M.P.A."
       : "Review your owner's portfolio.",
     note:
-      "J8 reuses Owner FO summary, Property Command Center, maintenance WOs, leasing, and timeline. No duplicate dashboard. Opening Owner Portfolio Home after J7 records owner_portfolio.reviewed."
+      "J8 reuses Owner Financial Operations summary, Property Command Center, maintenance WOs, leasing, and timeline. No duplicate dashboard. Opening Owner Portfolio Home after J7 records owner_portfolio.reviewed."
   });
 }

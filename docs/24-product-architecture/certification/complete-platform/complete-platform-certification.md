@@ -12,9 +12,9 @@
 | Layer | Result |
 |-------|--------|
 | Composition law (union, two MCs, one WO family) | **GO** — model + commercial hardening Pass |
-| Advertised Complete capabilities (PM ∪ FO) | **GO on production candidate** — PM on main · FO on P1 remediation branch |
-| Seamless OS feel (nav, search, notifications, docs) | **CONDITIONAL** — candidate integrates; polish + MA dual-SKU witness open |
-| Deployable Complete Platform from stable `main` | **NO-GO** — FO still `ModuleAlignmentPage` shells on `main` |
+| Advertised Complete capabilities (PM ∪ Facility Operations) | **GO** — both on authoritative main-line tip after P1 remediation |
+| Seamless OS feel (nav, search, notifications, docs) | **GO** — P1 terminology + MA witness cleared; residual P2 polish only |
+| Deployable Complete Platform from main-line tip | **GO** — Facility Operations no longer alignment shells |
 | Capital Projects | **NO-GO** |
 
 Complete Platform is **not** a third product copy. It is Property Manager and Facility Operations on one organization with Shared Platform underneath ([composition](../../complete-platform-composition.md)).

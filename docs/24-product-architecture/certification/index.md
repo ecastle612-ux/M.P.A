@@ -4,8 +4,8 @@
 **Date:** 2026-08-06  
 **Financial Operations:** Package **Approved** · ADR-016 **Accepted** · **S0–S3 delivered** · **Paused** (S4+ NO-GO)  
 **LAUNCH-001:** Customer Promise roadmap at `docs/26-launch-001-onboarding/` · **NO-GO implement** until Approve  
-**Facility Operations features:** Production GO on candidate branch (PR #40); `main` tip still shells — see [Complete Platform certification](./complete-platform/index.md)  
-**Complete Platform:** Certification package filed 2026-08-07 — **CONDITIONAL GO**
+**Facility Operations features:** Production GO on authoritative main line via [Complete Platform P1 remediation](./complete-platform/p1-remediation/index.md)  
+**Complete Platform:** **GO** after P1 remediation (2026-08-07)
 
 ---
 
@@ -29,8 +29,8 @@ Complete Platform product certification is under `certification/complete-platfor
 | Financial Operations S2 | — | **Delivered** |
 | Financial Operations S3 | — | **Delivered** |
 | Financial Operations S4+ | NO-GO | **NO-GO** (await slice auth) |
-| Facility Operations (candidate) | NO-GO | **GO on candidate** · merge pending for `main` |
-| Complete Platform certification | — | **CONDITIONAL GO** |
+| Facility Operations | NO-GO | **GO** (merged to main line) |
+| Complete Platform certification | — | **GO** (P1 remediation) |
 
 ---
 
@@ -66,5 +66,6 @@ Complete Platform product certification is under `certification/complete-platfor
 
 | Document | Notes |
 |----------|-------|
-| [Complete Platform Certification Package](./complete-platform/index.md) | Conditionally ready — merge FO + MA dual-SKU Pass |
-| [Final GO / NO-GO](./complete-platform/go-no-go.md) | Composition GO · Operational CONDITIONAL · Capital NO-GO |
+| [Complete Platform Certification Package](./complete-platform/index.md) | Production GO after P1 remediation |
+| [P1 Remediation](./complete-platform/p1-remediation/index.md) | Merge + MA witness + terminology |
+| [Final GO / NO-GO](./complete-platform/go-no-go.md) | Composition GO · Operational GO · Capital NO-GO |

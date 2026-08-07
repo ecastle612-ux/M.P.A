@@ -556,7 +556,7 @@ export function MaintenanceCommandCenter() {
                     setVendorEmail("");
                     setVendorId(body.vendor?.id ?? "");
                     setAssigneeType("vendor");
-                    setNotice("Vendor added to directory (same FO vendor identity).");
+                    setNotice("Vendor added to directory (same shared vendor identity).");
                   });
                 }}
               >

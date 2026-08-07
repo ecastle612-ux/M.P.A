@@ -207,7 +207,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations#charges",
-        "FO · Charges & ledger (S1+)",
+        "Financial Operations · Charges & ledger (S1+)",
         "Property Manager",
         "pm.financial_operations"
       )
@@ -215,7 +215,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations#payments",
-        "FO · Payments",
+        "Financial Operations · Payments",
         "Property Manager",
         "pm.financial_operations"
       )
@@ -223,7 +223,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations#vendor-invoices",
-        "FO · Vendor invoices (S4+)",
+        "Financial Operations · Vendor invoices (S4+)",
         "Property Manager",
         "pm.financial_operations"
       )
@@ -231,7 +231,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations#reports",
-        "FO · Reports (S6+)",
+        "Financial Operations · Reports (S6+)",
         "Property Manager",
         "pm.financial_operations"
       )
