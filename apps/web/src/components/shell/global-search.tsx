@@ -16,14 +16,15 @@ export function GlobalSearch() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [propertyResults, setPropertyResults] = useState<SearchResultItem[]>([]);
   const [residentResults, setResidentResults] = useState<SearchResultItem[]>([]);
+  const [facilitySiteResults, setFacilitySiteResults] = useState<SearchResultItem[]>([]);
 
   const catalogResults = useMemo(() => searchCatalogForSku(productSku, query), [productSku, query]);
   const results = useMemo(() => {
     if (!query.trim()) {
       return catalogResults;
     }
-    return [...residentResults, ...propertyResults, ...catalogResults];
-  }, [catalogResults, propertyResults, query, residentResults]);
+    return [...residentResults, ...propertyResults, ...facilitySiteResults, ...catalogResults];
+  }, [catalogResults, facilitySiteResults, propertyResults, query, residentResults]);
   const safeActiveIndex = results.length === 0 ? 0 : Math.min(activeIndex, results.length - 1);
 
   useEffect(() => {
@@ -45,9 +46,10 @@ export function GlobalSearch() {
     const handle = window.setTimeout(() => {
       void (async () => {
         try {
-          const [propertyResponse, residentResponse] = await Promise.all([
+          const [propertyResponse, residentResponse, facilityResponse] = await Promise.all([
             fetch(`/api/pm/properties/search?q=${encodeURIComponent(normalized)}`),
-            fetch(`/api/pm/residents/search?q=${encodeURIComponent(normalized)}`)
+            fetch(`/api/pm/residents/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/facility/sites/search?q=${encodeURIComponent(normalized)}`)
           ]);
           if (cancelled) {
             return;
@@ -80,6 +82,20 @@ export function GlobalSearch() {
               }))
             );
           }
+          if (facilityResponse.ok) {
+            const payload = (await facilityResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setFacilitySiteResults(
+              (payload.results ?? []).map((item) => ({
+                id: `facility-site:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "facility.mission_control"
+              }))
+            );
+          }
         } catch {
           // Keep last successful live results; catalog still works.
         }
@@ -96,6 +112,7 @@ export function GlobalSearch() {
     setQuery("");
     setPropertyResults([]);
     setResidentResults([]);
+    setFacilitySiteResults([]);
     router.push(href);
   }
 
@@ -116,6 +133,7 @@ export function GlobalSearch() {
           if (!next.trim()) {
             setPropertyResults([]);
             setResidentResults([]);
+            setFacilitySiteResults([]);
           }
           setActiveIndex(0);
           setOpen(true);

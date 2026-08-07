@@ -13,6 +13,7 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const [propertyItems, setPropertyItems] = useState<Array<{ id: string; label: string }>>([]);
   const [residentItems, setResidentItems] = useState<Array<{ id: string; label: string }>>([]);
+  const [facilitySiteItems, setFacilitySiteItems] = useState<Array<{ id: string; label: string }>>([]);
 
   useEffect(() => {
     function handler(event: KeyboardEvent) {
@@ -38,9 +39,10 @@ export function CommandPalette() {
     let cancelled = false;
     void (async () => {
       try {
-        const [propertyResponse, residentResponse] = await Promise.all([
+        const [propertyResponse, residentResponse, facilityResponse] = await Promise.all([
           fetch(`/api/pm/properties/search?q=${encodeURIComponent(query.trim())}`),
-          fetch(`/api/pm/residents/search?q=${encodeURIComponent(query.trim())}`)
+          fetch(`/api/pm/residents/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/facility/sites/search?q=${encodeURIComponent(query.trim())}`)
         ]);
         if (!cancelled && propertyResponse.ok) {
           const payload = (await propertyResponse.json()) as {
@@ -64,10 +66,22 @@ export function CommandPalette() {
             }))
           );
         }
+        if (!cancelled && facilityResponse.ok) {
+          const payload = (await facilityResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setFacilitySiteItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
       } catch {
         if (!cancelled) {
           setPropertyItems([]);
           setResidentItems([]);
+          setFacilitySiteItems([]);
         }
       }
     })();
@@ -96,6 +110,12 @@ export function CommandPalette() {
         residentItems.map((item) => ({ id: item.id, label: item.label }))
       );
     }
+    if (facilitySiteItems.length > 0) {
+      byGroup.set(
+        "Facility Sites",
+        facilitySiteItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
 
     const navSections = [...byGroup.entries()].map(([title, items]) => ({ title, items }));
     const entitled = searchCatalogForSku(productSku, "");
@@ -105,26 +125,30 @@ export function CommandPalette() {
         { id: "/pm/properties?new=1", label: "Add property", shortcut: "A P" },
         { id: "/pm/residents?new=1", label: "Add resident", shortcut: "A R" },
         { id: "/pm/leasing?new=1", label: "Create lease", shortcut: "A L" },
+        { id: "/facility/sites?new=1", label: "Add facility site", shortcut: "A S" },
         { id: "/pm/properties", label: "Open Properties", shortcut: "G P" },
         { id: "/pm/residents", label: "Open Residents", shortcut: "G R" },
         { id: "/pm/leasing", label: "Open Leasing", shortcut: "G L" },
         { id: "/pm/mission-control", label: "Open Mission Control", shortcut: "G M" },
+        { id: "/facility/mission-control", label: "Open Facility Mission Control", shortcut: "G F" },
+        { id: "/facility/overview", label: "Open Facility Overview", shortcut: "G O" },
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
         { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
-        { id: "/settings/team", label: "Invite your team", shortcut: "I T" }
+        { id: "/settings/team", label: "Invite your team", shortcut: "I T" },
+        { id: "/settings/facility-sites", label: "Facility site settings", shortcut: "G T" }
       ].filter(
         (item) =>
           item.id.startsWith("/pm/properties") ||
           item.id.startsWith("/pm/residents") ||
           item.id.startsWith("/pm/leasing") ||
-          item.id.startsWith("/settings") ||
+          (item.id.startsWith("/settings") && !item.id.startsWith("/settings/facility")) ||
           entitled.some((result) => result.href === item.id.split("?")[0]) ||
           !productSku
       )
     };
 
     return [...navSections, actions].filter((section) => section.items.length > 0);
-  }, [productLabel, productSku, propertyItems, query, residentItems]);
+  }, [facilitySiteItems, productLabel, productSku, propertyItems, query, residentItems]);
 
   return (
     <>
