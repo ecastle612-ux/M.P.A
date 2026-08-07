@@ -1,15 +1,10 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { Suspense } from "react";
+import { SafetyDesk } from "../../../../components/facility/safety-desk";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
-      title="Safety"
-      description="Safety incidents and protocols. Feature work not in Phase 1."
-      readiness="planned"
-      entitlement="facility.safety"
-      includedIn={["Facility Operations", "Complete Platform"]}
-      requiresComplete="Property Manager-only customers"
-    />
+    <Suspense fallback={<main className="flex-1 p-6 text-sm">Loading Safety…</main>}>
+      <SafetyDesk />
+    </Suspense>
   );
 }
