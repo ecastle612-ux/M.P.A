@@ -2,45 +2,37 @@
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Draft  
+**Amendments:** A4, A6, A7  
 **Implementation:** Forbidden until Slice C+ authorized  
 
 ---
 
-## Boundary reminder
+## Boundary
 
-This document covers **M.P.A. SaaS plan billing** only.
+**SaaS plan billing only.** Resident rent remains FIN-OPS (ADR-016).
 
-Resident rent Checkout / Connect remains [FIN-OPS Stripe & Ledger](../25-fin-ops-001/stripe-and-ledger-architecture.md).
-
-Webhook handlers must ignore or separately route events lacking `mpa_money_domain=saas_billing` (or equivalent).
+**Binding:** Dedicated SaaS webhook endpoint — not shared handler with metadata-only routing.
 
 ---
 
-## Products & Prices
+## Products & Prices (self-serve v1)
 
-| Stripe Product (suggested) | Maps to |
-|----------------------------|---------|
-| M.P.A. Property Manager | `mpa_property_manager` |
-| M.P.A. Facility Operations | `mpa_facility_operations` |
-| M.P.A. Complete Platform | `mpa_complete_platform` |
+| Stripe Product | SKU | Self-serve |
+|----------------|-----|------------|
+| M.P.A. Property Manager | `mpa_property_manager` | **Yes** |
+| M.P.A. Facility Operations | `mpa_facility_operations` | **No** until FO-READY |
+| M.P.A. Complete Platform | `mpa_complete_platform` | **No** until FO-READY |
 
-Each product has Prices for:
+Property Manager Prices:
 
-| Plan tier | Monthly Price | Annual Price |
-|-----------|---------------|--------------|
-| Professional | `price_…_pro_month` | `price_…_pro_year` |
-| Business | `price_…_biz_month` | `price_…_biz_year` |
+| Tier | Monthly | Annual |
+|------|---------|--------|
+| Professional | required | required |
+| Business | required | required |
 
-Enterprise: no public Price for Checkout; optional Stripe Price for invoicing after contract.
+Enterprise: **no public Checkout Price**. Optional invoice Price after contract only.
 
-Metadata on Price/Product:
-
-```
-mpa_product_sku
-mpa_plan_tier
-mpa_billing_cycle
-mpa_money_domain=saas_billing
-```
+Metadata: `mpa_product_sku`, `mpa_plan_tier`, `mpa_billing_cycle`, `mpa_money_domain=saas_billing`, `mpa_seat_limit`, `mpa_property_limit`.
 
 ---
 
@@ -49,115 +41,67 @@ mpa_money_domain=saas_billing
 | Attribute | Design |
 |-----------|--------|
 | Mode | `subscription` |
-| UI | Stripe-hosted Checkout (preferred for trust/speed) |
-| Customer email | Collected in Checkout |
-| Trial | Via Price/Subscription trial days when enabled |
-| Success URL | App route: account bind / provisioning status |
-| Cancel URL | Return to plan selection with state restored |
-| Tax | Stripe Tax enabled when commercially ready |
-| Coupons | Allowed via promotion codes (Approve policy) |
+| UI | Stripe-hosted |
+| Eligible offers | PM Pro/Business only (A1/A6) |
+| Trial | **None** (A7) |
+| Tax | Stripe Tax **on** at go-live |
+| Coupons | Promotion codes allowed (ops-generated) |
+| Success URL | Signed continue → identity bind |
+| Cancel URL | Return to plan selection |
 
 ---
 
-## Subscriptions
+## Subscriptions & seats
 
-| Concern | Design |
-|---------|--------|
-| Create | Via Checkout Session |
-| Status sync | Webhooks are source of truth for access |
-| Proration | Default Stripe proration on upgrades |
-| Quantity | Seats as quantity **or** separate seat Price (Approve choice) |
-| Property limits | Enforced in-app from plan metadata (not Stripe metered unless future) |
+- Webhooks are access truth.  
+- Seats/properties: **flat limits in metadata** — not Stripe quantity metering in v1.  
+- Proration on upgrade immediate; downgrade at period end.
 
 ---
 
-## Trials
+## Webhooks (minimum)
 
-- Configured on Price or Subscription.  
-- Card collection recommended.  
-- `customer.subscription.trial_will_end` → email.  
-- Trial end without cancel → `active` + invoice.
-
----
-
-## Coupons & discounts
-
-| Use | Design |
-|-----|--------|
-| Annual incentive | Percent-off coupon or separate annual Price |
-| Sales assists | Single-use promotion codes (ops generated) |
-| Enterprise | Prefer contract; coupons secondary |
-
----
-
-## Invoices, taxes, receipts, refunds
-
-| Object | Behavior |
-|--------|----------|
-| Invoices | Stripe-generated; Customer Portal + email |
-| Taxes | Stripe Tax (jurisdiction-aware) when enabled |
-| Receipts | Stripe receipts / hosted invoice page |
-| Refunds | Ops via Stripe Dashboard or Master Admin support action (audited); entitlement impact per refund type |
+| Event | Action |
+|-------|--------|
+| `checkout.session.completed` | Start provisioning |
+| `checkout.session.expired` | Cleanup incomplete |
+| `customer.subscription.created` | Ensure subscription row |
+| `customer.subscription.updated` | Sync status/price/cancel |
+| `customer.subscription.deleted` | Revoke at effective end |
+| `invoice.paid` | Clear past_due |
+| `invoice.payment_failed` | past_due + dunning |
+| `invoice.payment_action_required` | SCA pending UX |
+| `charge.refunded` | Audit + policy |
+| `charge.dispute.created` | `dispute_hold` fail closed |
+| `charge.dispute.closed` | Restore or suspend |
 
 ---
 
-## Payment failures & retries
+## Dunning (binding cadence)
 
-1. `invoice.payment_failed` → mark `past_due`; notify customer.  
-2. Stripe Smart Retries.  
-3. After final failure → `unpaid` / cancel per Stripe settings.  
-4. Entitlement grace: see [Failure Recovery](./failure-recovery.md).
+Day 0 fail · Day 3 remind · Day 6 warn · Day 7 suspend + notice. Stripe Smart Retries throughout.
+
+---
+
+## Pause
+
+**Not used** for self-serve v1.
 
 ---
 
 ## Customer Portal
 
-Stripe Billing Customer Portal enabled for Professional / Business:
-
-- Payment methods  
-- Invoice history  
-- Cancel (configuration: at period end)  
-- Optional plan updates (or keep plan changes in-app for catalog control)
-
-Deep link from in-app **Billing & Plan**.
+Enabled for payment methods, invoices, cancel-at-period-end. **Plan switching off** — in-app only.
 
 ---
 
-## Webhooks (minimum set)
+## Status mapping
 
-| Event | Action |
-|-------|--------|
-| `checkout.session.completed` | Start provisioning / bind customer |
-| `customer.subscription.created` | Ensure subscription row |
-| `customer.subscription.updated` | Sync status, price, cancel flags; reconcile entitlements |
-| `customer.subscription.deleted` | Revoke entitlements at effective end |
-| `invoice.paid` | Clear past_due; record receipt |
-| `invoice.payment_failed` | past_due + notify |
-| `customer.subscription.trial_will_end` | Notify |
-| `charge.refunded` | Audit + support policy |
-
-All handlers: verify signature, idempotent keys, structured logging, dead-letter on poison messages.
-
----
-
-## Provisioning triggers
-
-| Trigger | Provisioning effect |
-|---------|---------------------|
-| First successful Checkout | Create org + assign offer entitlements |
-| Subscription updated to new Price | Recompute entitlements / limits |
-| Subscription canceled (effective) | Revoke modules; retain data |
-| Enterprise operator assign | Manual provision path (no Checkout event) |
-
----
-
-## Status → platform mapping
-
-| Stripe status | Platform subscription status | Access |
-|---------------|------------------------------|--------|
-| `trialing` | `trialing` | On |
-| `active` | `active` | On |
+| Stripe | Platform | Access |
+|--------|----------|--------|
+| `active` | `active` | On (if owner_bound) |
 | `past_due` | `past_due` | Grace then off |
 | `canceled` | `canceled` | Off at period end |
 | `unpaid` | `unpaid` | Off |
-| `incomplete` | `incomplete` | Off |
+| `incomplete` / action required | `incomplete` | Off |
+| `trialing` | unused v1 | — |

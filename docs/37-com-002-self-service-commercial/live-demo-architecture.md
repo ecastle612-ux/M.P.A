@@ -1,31 +1,32 @@
-# COM-002 — Live Demo Architecture
+# COM-002 — Live Demo Architecture (A3)
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Draft  
+**Amendment:** A3 — scalable tenancy (no naive full clones)  
 
 ---
 
 ## Goals
 
-- No account required  
-- No payment required  
-- No real organization created  
-- Fully interactive  
-- Feels identical to production UX  
-- Automatic reset  
-- Separate demos for Property Manager, Facility Operations, Complete Platform  
-- Instant role switching  
+- No account · no payment · no real organization  
+- Interactive · automatic reset · role switch  
+- Separate demos: Property Manager, Facility Operations, Complete Platform  
 - Isolated from production  
+- **Scales** under abuse and concurrent use  
 
 ---
 
-## Demo products
+## Binding tenancy model (replaces clone-default)
 
-| Demo | Surfaces available |
-|------|-------------------|
-| Property Manager | PM Mission Control, properties, residents, leasing, maintenance, vendors, FinOps (demo data), portals as roles |
-| Facility Operations | Facility Mission Control + FO module homes (demo-safe depth; no Capital Projects) |
-| Complete Platform | Union — launcher between PM and FO homes |
+| Layer | Design |
+|-------|--------|
+| **Immutable shared snapshot** | Versioned read-mostly dataset per demo product |
+| **Session write overlay** | Mutations tagged with `demo_session_id` (or ephemeral overlay store); never mutate shared snapshot |
+| **Isolation plane** | **Separate database/project** from production (mandatory — not schema-only) |
+| **Reset** | Drop overlay rows for session; rebind to snapshot version |
+| **Forbidden default** | Full per-session database clone / restore |
+
+Copy-on-write full clones are **out of scope** for v1.
 
 ---
 
@@ -33,65 +34,51 @@
 
 ```
 DemoSession {
-  id: uuid
-  product: sku
-  persona: role
-  datasetVersion: string
-  createdAt / expiresAt
-  lastActiveAt
-  conversionOfferHint?: { planTier, billingCycle }
+  id, product, persona, snapshotVersion
+  createdAt, expiresAt, lastActiveAt
+  writeOverlayRef
+  conversionHint?
 }
 ```
 
-- Issued as signed httpOnly cookie or short-lived token.  
-- **TTL:** default 2 hours; idle timeout 30 minutes (Approve-tunable).  
-- Exceed TTL → soft wall with Restart Demo / Start Subscription.
+- Signed httpOnly cookie / token.  
+- **TTL:** 2 hours · **Idle:** 30 minutes.  
+- **Concurrency:** soft cap per IP; global cap with wait/queue UX.  
+- Sweeper: every **5 minutes** (not daily-only).
 
 ---
 
-## Datasets
+## Demo products & honesty (A1)
 
-| Asset | Description |
-|-------|-------------|
-| Snapshot templates | Versioned seed per product (properties, people, work orders, invoices — synthetic) |
-| Per-session clone | Copy-on-write or schema-separated clone from snapshot |
-| Reset | Destroy session clone; rehydrate from snapshot |
-
-**Rules:**
-
-- Synthetic PII only (clearly fake names/emails).  
-- No customer production data.  
-- No outbound email/SMS to real addresses (notifications stubbed or demo sink).  
-- Payments in demo are simulated — never call live Stripe charges.
+| Demo | Depth | Labeling |
+|------|-------|----------|
+| Property Manager | Full interactive (certified PM surfaces) | Standard |
+| Facility Operations | Product-shape / navigation demo | Banner: “Demonstration of Facility product areas — operational depth expands with Enterprise / FO readiness” |
+| Complete | Launcher between PM + FO demo surfaces | Same FO honesty banner on FO side |
 
 ---
 
 ## Role switching
 
-Demo chrome includes a **View as** control:
+Demo chrome **View as** with label: “Demonstration roles — not your real team.”
 
-| Persona | Typical for |
-|---------|-------------|
-| Property Manager | PM / Complete |
-| Facility Operator | FO / Complete |
-| Owner | PM / Complete |
-| Resident | PM / Complete |
-| Vendor | PM / Complete |
-
-Switching rebinds entitlements/persona without new session id; audit as demo-only.
+Personas: Property Manager, Facility Operator (FO/Complete), Owner, Resident, Vendor — as product allows.
 
 ---
 
-## Security
+## Security & abuse
 
 | Control | Requirement |
 |---------|-------------|
-| Network / DB | Demo data plane isolated (separate schema, DB, or project) |
-| Credentials | Demo runtime cannot obtain production service role keys |
-| Rate limit | Session create / reset rate limits per IP |
-| Abuse | CAPTCHA or bot score on session create if needed |
-| Content | No secret exfiltration paths; uploads quarantined / disabled if risky |
-| Indexing | `noindex` on demo routes |
+| Secrets | Demo runtime cannot use production service keys |
+| Uploads | **Disabled** by default |
+| Export | Disabled |
+| Rate limit | Session create + reset cooldown |
+| Bot score / CAPTCHA | On session create when thresholds hit |
+| Indexing | `noindex` |
+| Outbound email/SMS | Stub / sink only |
+| Payments | Simulated only — never live Stripe charges |
+| Watermark | Synthetic data clearly fake |
 
 ---
 
@@ -99,41 +86,40 @@ Switching rebinds entitlements/persona without new session id; audit as demo-onl
 
 | Trigger | Behavior |
 |---------|----------|
-| User “Reset demo” | Confirm → rehydrate snapshot |
-| TTL / idle | Expire session; next action starts fresh |
-| Deploy of new snapshot version | New sessions only; existing expire naturally |
-| Daily sweeper | Delete abandoned clones |
+| User Reset | Confirm → clear overlay (cooldown 30s) |
+| TTL / idle | Destroy session + overlay |
+| Snapshot deploy | New sessions get new version; old expire naturally |
+| Sweeper | Purge abandoned overlays |
 
 ---
 
-## Analytics (demo)
+## Performance targets (design)
 
-Track (privacy-light):
-
-- Demo product entered  
-- Time in session  
-- Roles switched  
-- Reset count  
-- CTA clicks: Start Subscription / Request Enterprise  
-- Funnel drop-off step  
-
-No invasive session replay of sensitive fields.
+| Metric | Target |
+|--------|--------|
+| Session start p95 | < 2s (attach overlay, not clone DB) |
+| Concurrent sessions | Hundreds–thousands with caps; horizontal overlay store |
+| Reset p95 | < 1s |
 
 ---
 
-## Conversion Demo → Paid
+## Analytics
 
-1. CTA **Start Subscription** carries `product` (+ optional plan/cycle if chosen in demo chrome).  
-2. Lands on Choose Plan / Billing (skip product if known).  
-3. Completes J1 Checkout.  
-4. Demo session is **not** converted into the production org — production org is freshly provisioned.  
-5. Optional: store `demo_session_id` on Checkout metadata for attribution only.
+Product entered, time in session, roles switched, resets, CTA clicks (Subscribe / Request Enterprise), funnel drop-off. No invasive replay of sensitive fields.
+
+---
+
+## Demo → Paid
+
+1. **Start Subscription** → J1 (PM) with hints.  
+2. **Request Enterprise** → J3 (FO/Complete interest).  
+3. Demo session **never** becomes production org.  
+4. Optional `demo_session_id` on Checkout metadata for attribution.
 
 ---
 
 ## Explicit non-goals
 
-- Persisting demo work into a paid org  
-- Real money movement  
-- Real vendor/owner notifications  
-- Capital Projects in demo  
+- Persisting demo work into paid orgs  
+- Full DB clones per visitor  
+- Claiming FO production depth before FO-READY  

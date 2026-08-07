@@ -1,75 +1,64 @@
-# COM-002 — Certification
+# COM-002 — Certification Plan (Amended)
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Draft — execute only after Slice G authorize  
 
 ---
 
-## Certification statement (template)
+## Statement
 
-> COM-002 Self-Service Commercial Platform is certified when Professional and Business customers can subscribe, provision, and operate without employee interaction; Enterprise remains high-touch; Live Demo is isolated; SaaS Stripe is separated from FIN-OPS resident payments; and Capital Projects remain unsold.
+> COM-002 is certified when Professional and Business **Property Manager** customers can subscribe, prove email ownership, provision, and reach Mission Control without employees; Facility Operations and Complete remain Enterprise (or post–FO-READY self-serve); Live Demo uses scalable overlay isolation; SaaS Stripe is separated from FIN-OPS; lifecycle including SCA/dispute/cancel/reactivate/invite is proven; Capital Projects remain unsold.
 
 ---
 
 ## Checklist
 
-### Design package
+### Design
 
-- [ ] COM-002 Approved  
+- [ ] COM-002 Approved (after A1–A7)  
 - [ ] ADR-018 Accepted  
-- [ ] Pricing numbers / limits decided  
+- [ ] Public PM prices published before live Checkout  
 
-### Self-service
+### Self-serve PM
 
-- [ ] Checkout test + live (as authorized)  
-- [ ] Automatic provisioning  
-- [ ] Guided Setup handoff  
-- [ ] Mission Control entry  
-- [ ] Lifecycle matrix  
-- [ ] Customer Portal  
+- [ ] Checkout test + live  
+- [ ] Checkpoint provisioning  
+- [ ] Email bind security  
+- [ ] Guided Setup → Mission Control  
+- [ ] Limits enforced (seats/properties)  
+- [ ] Lifecycle matrix Pass  
+
+### Negative
+
+- [ ] FO/Complete Checkout rejected pre–FO-READY  
+- [ ] Enterprise Checkout rejected  
+- [ ] Access before verify impossible  
 
 ### Demo
 
-- [ ] PM / FO / Complete demos  
-- [ ] Role switch + reset  
-- [ ] Isolation proof  
-- [ ] Conversion attribution  
+- [ ] Overlay model; separate DB  
+- [ ] PM / FO / Complete demos with honesty banners  
+- [ ] Abuse caps  
 
 ### Enterprise
 
-- [ ] Request Enterprise path  
-- [ ] Operator provision + audit  
+- [ ] Request path; operator provision audit  
 
 ### Integrity
 
-- [ ] Webhook security  
-- [ ] Entitlement fail closed  
-- [ ] FIN-OPS regression Pass  
-- [ ] No Capital Projects offer  
-- [ ] Copy audit (no internal jargon)  
-
-### Master Admin
-
-- [ ] MA1–MA8 Pass  
-- [ ] MN1–MN3 Pass  
+- [ ] Dedicated SaaS webhooks  
+- [ ] FIN-OPS regression  
+- [ ] Copy audit  
 
 ---
 
 ## Sign-off
 
-| Role | Name | Date | Result |
-|------|------|------|--------|
-| Product | | | |
-| Engineering | | | |
-| Security | | | |
-| Commercial ops | | | |
+| Role | Result |
+|------|--------|
+| Product | ☐ |
+| Engineering | ☐ |
+| Security | ☐ |
+| Commercial ops | ☐ |
 
 **Result:** ☐ Pass · ☐ Fail  
-
----
-
-## Post-certification
-
-- Retire white-glove Confirm Plan as the default Pro/Business path.  
-- Keep Enterprise high-touch.  
-- Monitor commerce SLOs for 14 days.  

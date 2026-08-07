@@ -10,13 +10,13 @@
 
 | Slice | Name | Independently testable outcome |
 |-------|------|--------------------------------|
-| **A** | Commercial foundation | Catalog offers, plan/tier model, entitlement limit metadata, feature flags |
-| **B** | Demo platform | Isolated interactive demos for PM / FO / Complete with reset + roles |
-| **C** | Stripe Checkout | Hosted subscription Checkout for Professional / Business prices |
-| **D** | Automatic provisioning | Webhook → org + entitlements + welcome; no operator |
-| **E** | Subscription lifecycle | Upgrade, downgrade, cancel, reactivate, past_due grace |
-| **F** | Customer portal | Stripe Portal + in-app Billing surfaces |
-| **G** | Commercial certification | End-to-end cert + Master Admin tests + go-live checklist |
+| **A** | Commercial foundation | Catalog offers (PM self-serve + Enterprise flags), limits 5/25 & 25/150, FO-READY flag false |
+| **B** | Demo platform | Snapshot + overlay demos; separate DB; honesty banners; caps |
+| **C** | Stripe Checkout | Hosted Checkout for **PM** Pro/Business only; dedicated SaaS webhooks |
+| **D** | Automatic provisioning | Checkpoint provisioner + identity bind; no access before verify |
+| **E** | Subscription lifecycle | Upgrade/downgrade/cancel/reactivate/dunning/SCA/dispute |
+| **F** | Customer portal | Portal + in-app Billing (no Portal plan switching) |
+| **G** | Commercial certification | Full cert per amended certification plan |
 
 ---
 

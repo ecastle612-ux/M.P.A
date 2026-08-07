@@ -1,46 +1,49 @@
-# COM-002 — Risk Assessment
+# COM-002 — Risk Assessment (Amended)
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Draft  
+**Amendments:** A1–A7 incorporated  
 
 ---
 
-## Risks
+## Risks & status
 
-| ID | Risk | Severity | Mitigation |
-|----|------|----------|------------|
-| R1 | Conflating SaaS Stripe with FIN-OPS resident Stripe | High | Hard metadata boundary; separate handlers; cert regression |
-| R2 | Half-provisioned orgs after payment | High | Idempotent jobs; success polling; reconciler; alerts |
-| R3 | Demo escapes into production | High | Isolated data plane; separate secrets; automated isolation test |
-| R4 | Entitlement fraud / client price tampering | High | Server allowlist of Prices; webhook as truth |
-| R5 | Abuse of trials / demos | Medium | Carded trials; rate limits; CAPTCHA |
-| R6 | Customer confusion vs interim Confirm Plan | Medium | Clear launch messaging; feature flag cutover |
-| R7 | Enterprise buyers forced through Checkout | Medium | Distinct CTAs; plan page Enterprise path |
-| R8 | Downgrade data surprise | Medium | Fail closed modules; retain data; warn UX |
-| R9 | Scope creep into Capital / FO features | Medium | Hard stops in index; slice reviews |
-| R10 | Tax/VAT misconfiguration | Medium | Stripe Tax; commercial review before live |
-| R11 | Webhook outage | Medium | Retries; reconciler; status page |
-| R12 | Multi-org account bind conflicts | Low–Med | Explicit bind policy at Approve |
-
----
-
-## Open decisions (must resolve at Approve)
-
-| # | Decision | Options |
-|---|----------|---------|
-| O1 | Public price amounts | Set Professional / Business monthly & annual |
-| O2 | Seat & property limits per tier | Numeric caps |
-| O3 | Trial length & card requirement | e.g. 14 days + card |
-| O4 | Past-due grace length | e.g. 3–7 days |
-| O5 | Seat model | Stripe quantity vs flat tier |
-| O6 | Account-before-pay vs pay-before-account | Package recommends pay-before-account |
-| O7 | Stripe Tax go-live timing | With Slice C or later |
-| O8 | Customer Portal plan switching vs in-app only | Prefer in-app catalog control |
-| O9 | Demo hosting | Same app route vs subdomain |
-| O10 | Enterprise CRM | External vs in-app leads only for v1 |
+| ID | Risk | Severity | Status after amendments |
+|----|------|----------|-------------------------|
+| R1 | SaaS vs FIN-OPS Stripe conflation | High | Mitigated — dedicated SaaS webhook |
+| R2 | Half-provisioned orgs | High | Mitigated — checkpoints A5 |
+| R3 | Demo escapes / cost explosion | High | Mitigated — overlay + separate DB A3 |
+| R4 | Price tampering | High | Mitigated — allowlist |
+| R5 | Trial/demo abuse | Medium | Mitigated — no trials; demo caps |
+| R6 | Confirm Plan cutover confusion | Medium | Slice G messaging |
+| R7 | Enterprise in Checkout | Medium | Mitigated — A6 |
+| R8 | Downgrade surprise | Medium | Period-end + warn UX |
+| R9 | FO oversell | High | Mitigated — A1 PM-only self-serve |
+| R10 | Tax misconfig | Medium | Stripe Tax on at go-live |
+| R11 | Webhook outage | Medium | Retries + reconciler |
+| R12 | Account bind attacks | High | Mitigated — A2 |
+| R13 | Dispute silent access | High | Mitigated — A4 fail closed |
+| R14 | Unclaimed paid orgs | Medium | Day 7 suspend |
 
 ---
 
-## Residual risk after certification
+## Open decisions — closed by A7
 
-Automation never eliminates support entirely. Target: **human time concentrates on Enterprise and Sev-1 commerce incidents**, not routine Pro/Business onboarding.
+| Former | Binding default |
+|--------|-----------------|
+| O1 Prices | Publish before Slice C live (amounts commercial); architecture unblocked |
+| O2 Limits | Pro 5/25 · Business 25/150 |
+| O3 Trial | **None** self-serve |
+| O4 Grace | 7 days |
+| O5 Seats | Flat included — not metered |
+| O6 Account timing | Pay → provision → verify → access |
+| O7 Tax | On at go-live |
+| O8 Portal plans | In-app only |
+| O9 Demo host | `demo.` separation |
+| O10 CRM | External CRM + in-app lead v1 |
+
+---
+
+## Residual
+
+Enterprise human work and Sev-1 commerce incidents remain. FO self-serve waits on FO-READY. Acceptable.

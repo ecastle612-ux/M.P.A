@@ -1,7 +1,19 @@
 # COM-002 — Architecture
 
 **Parent:** [COM-002 Index](./index.md)  
-**Status:** Draft  
+**Status:** Draft (amended A1–A7)  
+
+---
+
+## Amended constraints
+
+| Constraint | Binding |
+|------------|---------|
+| Self-serve Checkout SKU | Property Manager only until FO-READY |
+| SaaS webhooks | Dedicated endpoint |
+| Demo data plane | Separate DB/project; snapshot + overlay |
+| Access before email verify | Forbidden |
+| Enterprise | No Checkout Session |
 
 ---
 
@@ -13,23 +25,24 @@
 │ Demo Host    │     │ (web)            │     │ (SaaS mode)     │
 └──────────────┘     └────────┬─────────┘     └────────▲────────┘
                               │                        │
-                              │ webhooks               │
+                              │ dedicated SaaS webhooks│
                               ▼                        │
                      ┌──────────────────┐              │
                      │ Provisioning     │──────────────┘
                      │ Orchestrator     │
+                     │ (checkpoints)    │
                      └────────┬─────────┘
                               │
               ┌───────────────┼───────────────┐
               ▼               ▼               ▼
-        Identity/Auth   Organizations    Entitlements
-        (Supabase)      + Memberships    + Subscriptions
+        Identity bind   Organizations    Entitlements
+        (verify email)  + Memberships    + Limits
                               │
                               ▼
                     Guided Setup → Mission Control
                               │
                               ▼
-                 Product domains (PM / FO / Shared)
+                 PM (self-serve) / FO+Complete (Enterprise / FO-READY)
 ```
 
 ---
@@ -50,7 +63,7 @@
 1. **Platform Billing** — `mode: subscription` for M.P.A. SaaS plans (COM-002).  
 2. **Resident Payments** — FIN-OPS Checkout / Connect (ADR-016).
 
-Shared Stripe **account** may be used only with strict metadata separation and webhook routing; preferred design is **logical separation** via metadata `mpa_money_domain = saas_billing | resident_payments` and dedicated webhook handlers.
+**Binding:** Dedicated SaaS webhook **endpoint** (not a single shared handler with metadata-only switches). Metadata `mpa_money_domain=saas_billing` remains required on SaaS objects.
 
 ---
 

@@ -7,15 +7,17 @@
 
 ---
 
-## Recommendation
+## Recommendation (original review)
 
 # APPROVE WITH AMENDMENTS
 
-COM-002 is directionally correct and strong enough to become the commercial blueprint **after** the amendments below are written into the package (or an explicit amendment addendum is Accepted with COM-002).
+## Post-amendment status
 
-It is **not** APPROVE as-is: several gaps would cause trust failures, security holes, or non-scalability at tens of thousands of organizations if implemented from the current Draft without correction.
+**A1–A7 incorporated** into COM-002 Draft (2026-08-07). See [Amendment Package](../37-com-002-self-service-commercial/amendment-package.md) and [Approval Recommendation](../37-com-002-self-service-commercial/approval-recommendation.md):
 
-It is **not** NO-GO: the philosophy, product×plan model, Stripe/FIN-OPS boundary, Enterprise divergence, and slice plan are sound.
+# APPROVE COM-002 · Accept ADR-018 · Authorize Slice A
+
+*(Implement still requires separate authorize after Approve — not started.)*
 
 ---
 

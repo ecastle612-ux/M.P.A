@@ -2,118 +2,60 @@
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Draft  
+**Amendments:** A4, A5, A6, A7  
 
 ---
 
-## Self-service purchase workflow
+## Self-service purchase (PM)
 
 ```
-Select Product
-    → Select Plan (Professional | Business)
-    → Select Billing Cycle (Monthly | Annual)
-    → Resolve CatalogOffer + Stripe Price
-    → Create Checkout Session
-    → Customer pays / starts trial on Stripe
-    → Stripe webhook: checkout.session.completed
-    → Create/link SaaS customer
-    → Enqueue provisioning job (idempotent key = session.id)
-    → Create Organization
-    → Assign subscription + plan entitlements + limits
-    → Create owner membership bind (pending user if needed)
-    → Send welcome + verify-email
-    → Customer completes account
-    → Guided Setup (remaining checklist)
-    → Mission Control
+Select Property Manager
+  → Select Professional | Business
+  → Select Monthly | Annual
+  → Create Checkout Session (allowlisted Price)
+  → Pay on Stripe
+  → Webhook → provisioning checkpoints (A5)
+  → owner_pending → verify email → owner_bound (A2)
+  → Guided Setup → Mission Control
 ```
 
----
-
-## State machine — SaaS subscription
-
-| Status | Meaning | Module access |
-|--------|---------|---------------|
-| `incomplete` | Checkout started, not paid | None |
-| `trialing` | In trial | Full plan entitlements |
-| `active` | Paid current | Full plan entitlements |
-| `past_due` | Payment failed; retrying | Grace policy (see Failure Recovery) |
-| `canceled` | Ended | Fail closed after period end |
-| `unpaid` | Exhausted retries | Fail closed |
-| `paused` | If used | Fail closed or limited (Approve policy) |
-
-Enterprise subscriptions may use `active` via operator assignment without Checkout.
+Enterprise divergence is **before** Checkout ([Journeys](./customer-journeys.md)).
 
 ---
 
-## Lifecycle workflows
+## Lifecycle catalog (nothing undefined — A4)
 
-### Upgrade (self-serve)
-
-1. Customer selects higher product and/or tier.  
-2. App calculates target Price.  
-3. Stripe `subscriptions.update` with proration.  
-4. Webhook → expand entitlements / limits immediately.  
-5. Notify customer; Mission Control may surface new home if Complete unlocked.
-
-### Downgrade (self-serve)
-
-1. Customer selects lower offer.  
-2. Default: schedule change at period end.  
-3. On effective date: shrink entitlements; fail closed on removed modules.  
-4. Historical data retained; UI hides modules.
-
-### Cancel
-
-1. Customer cancels via Portal or Billing.  
-2. `cancel_at_period_end = true` (default).  
-3. Access until period end.  
-4. On end: status `canceled`; entitlements revoked; data retained per retention policy.
-
-### Reactivate
-
-1. If within retention window: resubscribe Checkout or Portal reactivate.  
-2. Provisioning reconciles entitlements to active offer.  
-3. Guided Setup only if org incomplete.
-
-### Seat / property limit changes
-
-1. Business tier (or add-on — future) raises limits.  
-2. Entitlement engine enforces caps on create property / invite seat.  
-3. Soft block UI + hard block API.
+| State / event | Customer effect | System |
+|---------------|-----------------|--------|
+| Trial | **N/A self-serve v1** | Use Live Demo |
+| Active | Full entitled access | `active` + owner_bound |
+| Renewal | Continuous access | `invoice.paid` |
+| Failed payment | Banner + emails | `past_due` |
+| Retry | Stripe Smart Retries | Automatic |
+| SCA / action required | Complete auth | `invoice.payment_action_required` |
+| Dispute / chargeback | Access fail closed | `dispute_hold` |
+| Pause | **Not offered** | Cancel instead |
+| Resume | N/A (no pause) | — |
+| Cancellation scheduled | Access until period end | `cancel_at_period_end` |
+| Cancellation effective | Expired wall + reactivate CTA | entitlements off |
+| Reactivation | Restore offer | Checkout/Portal |
+| Invite acceptance | Seat membership | Enforce seat cap |
+| Organization transfer | New owner | Audited transfer |
+| Unclaimed paid org | Suspend Day 7 | `suspended_unclaimed` |
 
 ---
 
-## Enterprise workflow (divergence)
+## Upgrade / downgrade
 
-```
-Request Enterprise
-  → Lead created
-  → Consultation scheduled
-  → Sales / proposal / contract
-  → Operator creates org (Master Admin)
-  → Operator assigns Enterprise entitlements / SKU
-  → Optional Stripe invoice or offline payment record
-  → Implementation checklist
-  → Customer Guided Setup / training
-  → Production Mission Control
-```
-
-No automatic Checkout provisioning.
+| Change | When |
+|--------|------|
+| Pro → Business | Immediate proration |
+| Business → Pro | Period end |
+| FO/Complete add (pre FO-READY) | Enterprise only |
+| Self-serve → Enterprise | Sales migration |
 
 ---
 
-## Email workflow (minimum)
+## Audit
 
-| Event | Email |
-|-------|-------|
-| Checkout success | Welcome + set password / verify |
-| Trial ending | Reminder (T-3 / T-1) |
-| Payment failed | Update payment method |
-| Renewal receipt | Invoice / receipt |
-| Cancellation confirm | Access end date |
-| Enterprise lead received | Sales notification (internal) |
-
----
-
-## Audit workflow
-
-Every commercial state change writes `subscription_events` with actor (`system:stripe`, `user:{id}`, `admin:{id}`), before/after status, Stripe ids, and correlation id.
+Every transition writes actor, before/after, Stripe ids, correlation id.

@@ -7,9 +7,13 @@
 
 ## Vision
 
-A prospective customer can discover M.P.A., try a live interactive demo, subscribe online, and land in Mission Control — without waiting for a human — for Professional and Business plans.
+A prospective customer can discover M.P.A., try a live interactive demo, subscribe online to **Property Manager** (Professional or Business), and land in Mission Control — without waiting for a human.
 
-Enterprise buyers receive a premium high-touch path: consultation, proposal, contract, and implementation.
+**Facility Operations** and **Complete Platform** are sold with commercial honesty: Enterprise implementation today; self-serve only after **FO-READY**.
+
+Enterprise buyers receive a premium high-touch path that forks **before** Checkout: consultation, proposal, contract, and implementation.
+
+Try-before-buy is **Live Demo** (no self-serve card trials in v1).
 
 The purchasing experience must feel comparable to HubSpot, Monday.com, Shopify, Slack, Notion, Stripe, and Linear: professional, minimal, fast, clear, premium.
 
@@ -28,12 +32,13 @@ The purchasing experience must feel comparable to HubSpot, Monday.com, Shopify, 
 
 ## Goals
 
-1. Fully automated self-service for Professional and Business.
+1. Fully automated self-service for Property Manager Professional and Business.
 2. Secure Stripe Checkout for SaaS subscriptions (platform billing).
-3. Automatic organization provisioning and module activation after payment.
-4. Isolated Live Demo for each commercial product — no account, no payment.
-5. Clear Enterprise divergence (human sales → production).
+3. Checkpointed organization provisioning; modules usable only after email-verified bind.
+4. Scalable isolated Live Demo (snapshot + overlay) — no account, no payment.
+5. Enterprise divergence before Checkout (human sales → production).
 6. Preserve three commercial products (ADR-015) and FIN-OPS SaaS boundary (ADR-016).
+7. Never oversell Facility Operations depth on self-serve before FO-READY.
 
 ---
 

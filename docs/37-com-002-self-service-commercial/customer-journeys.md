@@ -2,134 +2,161 @@
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Draft  
+**Amendments:** A1, A2, A4, A6  
 
 ---
 
-## Journey map overview
+## Journey map (Enterprise forks first)
 
 ```
-                         ┌─────────────────┐
-                         │  Public Landing │
-                         └────────┬────────┘
-                                  │
-                         Choose Product
-                                  │
-                           Choose Plan
-                                  │
-                      Choose Billing Cycle*
-                                  │
-              ┌───────────────────┴───────────────────┐
-              │                                       │
-       Try Live Demo                          Start Subscription
-              │                                       │
-     (no account / no pay)                    Enterprise?
-              │                                  │        │
-         Interactive demo                       No       Yes
-         Role switch / reset                     │        │
-              │                                  │        ▼
-              │                                  │   Request Enterprise
-              │                                  │        │
-              ▼                                  │   Schedule → Sales →
-        Convert to Paid ─────────────────────────┘   Proposal → Contract →
-                                                     Implementation → Prod
-              │
-              ▼
-      Secure Stripe Checkout
-              │
-      Payment successful
-              │
-         Create Account
-              │
-   Automatic org provisioning
-              │
-   Automatic module activation
-              │
-         Guided Setup
-              │
-        Mission Control
+Public Landing
+    │
+    ├─────────────── Request Enterprise ──► Schedule → Sales → Proposal
+    │                                            → Contract → Implementation → Prod
+    │
+    Choose Product (self-serve: Property Manager highlighted)
+    │
+    Choose Plan (Professional | Business)     [Enterprise CTA → Request Enterprise]
+    │
+    Choose Billing Cycle (Monthly | Annual)
+    │
+    ├──────── Try Live Demo ──► interactive → Convert to Subscribe
+    │
+    └──────── Start Subscription
+                 │
+                 Secure Stripe Checkout (PM self-serve only)
+                 │
+                 Payment successful
+                 │
+                 Automatic org provisioning (owner_pending)
+                 │
+                 Create / verify account (email ownership)
+                 │
+                 Guided Setup
+                 │
+                 Mission Control
 ```
-
-\*Billing cycle applies to Professional / Business only. Enterprise skips Checkout.
 
 ---
 
-## J1 — Self-service subscribe (Professional / Business)
+## J1 — Self-service subscribe (Property Manager × Pro/Business)
 
-| Step | Customer sees | System does |
-|------|---------------|-------------|
-| 1 Landing | Brand, value, CTAs | Serve marketing |
-| 2 Choose Product | PM / FO / Complete | Persist selection |
-| 3 Choose Plan | Professional / Business (+ Enterprise CTA) | Persist tier |
-| 4 Choose Billing Cycle | Monthly / Annual | Persist cycle → resolve Stripe Price |
-| 5 Start Subscription | Checkout CTA | Create Stripe Checkout Session (`mode: subscription`) |
-| 6 Pay | Stripe-hosted Checkout | Collect payment / trial start |
-| 7 Success | “Creating your workspace…” | Webhook-driven provision |
-| 8 Create Account | Email / password or magic link (design: post-payment account bind) | Link auth user to new org as owner |
-| 9 Guided Setup | Checklist | Org already provisioned; customer completes profile/property first steps |
-| 10 Mission Control | Ranked attention home | Role-aware routing |
+| Step | Customer sees | System |
+|------|---------------|--------|
+| 1 Landing | Brand + CTAs | Marketing |
+| 2 Product | Property Manager primary; FO/Complete → Enterprise until FO-READY | Honesty (A1) |
+| 3 Plan | Professional / Business | Persist tier |
+| 4 Cycle | Monthly / Annual | Resolve Price |
+| 5 Checkout | Stripe-hosted | `mode=subscription` |
+| 6 Success | Preparing workspace | Webhook provision |
+| 7 Account | Create/sign in + verify email | [Identity Binding](./identity-binding.md) |
+| 8 Setup | Guided Setup | Org pre-created |
+| 9 Home | Mission Control | Entitled PM |
 
 **No employee interaction.**
-
-### Account timing (design decision)
-
-**Preferred sequence (this package):**
-
-1. Stripe Checkout collects email + payment (or trial).  
-2. On `checkout.session.completed` / `customer.subscription.created`: create Stripe Customer linkage, provision Organization + subscription row + entitlements.  
-3. Redirect to **Create Account** (or password set) bound to Checkout email.  
-4. First login → Guided Setup → Mission Control.
-
-Alternate (account-before-pay) is rejected for self-serve default to reduce abandoned half-orgs; may be used only if Approve requires it.
 
 ---
 
 ## J2 — Live Demo
 
-| Step | Customer sees | System does |
-|------|---------------|-------------|
-| 1 Choose Product | Demo entry per SKU | Route to demo host |
-| 2 Enter demo | Full interactive UI | Issue demo session token; no auth account |
-| 3 Operate | Realistic data | Read/write against demo dataset only |
-| 4 Switch role | Role switcher | Rebind session persona (manager, owner, tenant, vendor, facility — as product allows) |
-| 5 Reset | “Reset demo” | Reload snapshot |
-| 6 Expire | Soft end / continue CTA | TTL expiry; destroy session |
-| 7 Convert | Start Subscription | Carry product (+ optional plan) into J1 |
+See [Live Demo Architecture](./live-demo-architecture.md).
 
-**Constraints:** No real organization. No payment. Isolated from production data.
+- No account, no payment.  
+- PM demo = full interactive depth.  
+- FO / Complete demos = clearly labeled demonstration of product shape; no claim of production FO depth until FO-READY.  
+- Convert → J1 with product hint (PM) or Enterprise CTA for FO interest.
 
 ---
 
-## J3 — Enterprise (high-touch)
+## J3 — Enterprise (high-touch) — A6
 
-| Step | Customer sees | System does |
-|------|---------------|-------------|
-| 1 Landing / Plan | Enterprise highlighted | CTA: Request Enterprise |
-| 2 Request | Form (company, portfolio size, product interest, contact) | Create Enterprise lead record; notify sales |
-| 3 Schedule Consultation | Calendar booking (external or embedded) | Link lead ↔ meeting |
-| 4 Sales | Discovery | CRM / notes (ops tools TBD) |
-| 5 Proposal | Commercial proposal | Human-authored |
-| 6 Contract | Legal / MSA | Human-authored |
-| 7 Implementation | Onboarding plan | Operator provisions via Master Admin + playbooks |
-| 8 Production | Mission Control | Entitlements assigned by ops; may use invoice Stripe or offline payment |
+| Step | Customer sees | System |
+|------|---------------|--------|
+| 1 | Request Enterprise | Lead capture |
+| 2 | Schedule consultation | Calendar |
+| 3–6 | Sales → proposal → contract | Humans |
+| 7 | Implementation | Operator provision (audited) |
+| 8 | Production | Mission Control |
 
-**Divergence from self-service:** No public Stripe Checkout. No automatic org create from Checkout. Provisioning is operator-gated.
+**Never** uses public Checkout. **Never** shares self-serve billing Portal as the buy path.
 
 ---
 
-## J4 — Returning customer billing
+## J4 — Returning customer (billing)
 
 | Intent | Path |
 |--------|------|
-| Update payment method | Stripe Customer Portal |
-| View invoices / receipts | Customer Portal + in-app Billing |
-| Cancel | Portal or in-app → Stripe cancel at period end (default) |
-| Upgrade / downgrade | In-app plan change → Stripe subscription update |
-| Reactivate | Resubscribe Checkout or Portal |
+| Update payment method | In-app Billing → Stripe Customer Portal |
+| Invoices / receipts | Billing + Portal |
+| Upgrade Pro → Business | In-app plan change |
+| Downgrade | Scheduled period end |
+| Cancel | Period end |
+| Reactivate | Resubscribe Checkout (PM) or Portal reactivate |
+
+---
+
+## J5 — Failed payment / dunning (A4)
+
+1. `invoice.payment_failed` → `past_due` + banner + email (Day 0).  
+2. Stripe Smart Retries.  
+3. Reminder emails Day 3, Day 6.  
+4. Day 7 grace end → entitlements off; suspended notice.  
+5. Update payment → `active` → access restored.
+
+---
+
+## J6 — SCA / payment action required (A4)
+
+If `invoice.payment_action_required`: customer completes authentication via Stripe-hosted flow / hosted invoice; access follows resulting paid/failed state. Success/continue pages must handle **pending action** (not false “you’re in”).
+
+---
+
+## J7 — Dispute / chargeback (A4)
+
+1. `charge.dispute.created` → flag org `dispute_hold`.  
+2. Module access: **fail closed** (or read-only finance-safe mode — default **fail closed**).  
+3. Notify owner + commerce ops.  
+4. On win → restore; on lose → cancel/suspend per finance policy.
+
+---
+
+## J8 — Pause (A4)
+
+**Not offered** in v1 ([Defaults](./commercial-defaults.md)). Customer cancels at period end instead.
+
+---
+
+## J9 — Cancellation & expired access (A4)
+
+| Phase | Experience |
+|-------|------------|
+| Cancel scheduled | Banner: access through `{period_end}` |
+| Period ended | Dedicated “Subscription ended” page — Reactivate / Contact Enterprise |
+| Data | Retained per retention policy; modules fail closed |
+
+---
+
+## J10 — Reactivation (A4)
+
+Verified owner → Checkout or Portal reactivate → entitlements restored to purchased offer → Mission Control (Guided Setup only if incomplete).
+
+---
+
+## J11 — Team invite (A4)
+
+After `owner_bound`: owner invites seats up to plan cap. Invitee accepts → membership. At cap → upgrade CTA (Business) or Enterprise.
+
+---
+
+## J12 — Organization transfer (A4)
+
+Owner initiates transfer to another verified member (or support-assisted). Audit required. Billing Stripe Customer remains on org; ownership membership moves. Enterprise transfers: operator-assisted.
 
 ---
 
 ## Journey copy principles
 
-- Customer language only (no “SKU”, “webhook”, “provisioner”, “commercial operations”).  
-- Always one obvious next step.  
-- Enterprise never looks “broken” for lacking Checkout — it looks intentional.  
+- Customer language only.  
+- One next step.  
+- Enterprise looks intentional.  
+- FO/Complete never oversold on self-serve.  

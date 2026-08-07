@@ -1,66 +1,39 @@
-# COM-002 — Acceptance Criteria
+# COM-002 — Acceptance Criteria (Amended)
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Draft  
 
 ---
 
-## Package-level acceptance (before Approve)
+## Package acceptance (Approve gate)
 
-| # | Criterion |
-|---|-----------|
-| D1 | Journeys for self-serve, demo, and Enterprise are documented and non-conflicting |
-| D2 | SaaS Stripe vs FIN-OPS resident Stripe boundary is explicit |
-| D3 | Professional / Business automated; Enterprise human path explicit |
-| D4 | Demo isolation and conversion rules documented |
-| D5 | Slices A–G are independently testable with entry/exit criteria |
-| D6 | No Capital Projects scope creep |
-| D7 | ADR-018 Proposed and linked |
-
----
-
-## Implementation acceptance (after slices — summary)
-
-### Self-service
-
-| # | Criterion |
-|---|-----------|
-| S1 | Customer can select Product → Plan → Cycle → pay via Stripe Checkout |
-| S2 | Successful payment/trial creates org + entitlements with zero operator action |
-| S3 | Customer reaches Guided Setup then Mission Control |
-| S4 | Failed payment does not grant modules |
-| S5 | Upgrade/downgrade/cancel/reactivate work without operators |
-| S6 | Customer Portal reachable from Billing |
-| S7 | No customer-visible engineering jargon |
-
-### Demo
-
-| # | Criterion |
-|---|-----------|
-| M1 | Three product demos runnable without account/payment |
-| M2 | Role switch works; reset restores snapshot |
-| M3 | Demo data cannot read/write production |
-| M4 | Convert CTA carries product into subscribe flow |
-
-### Enterprise
-
-| # | Criterion |
-|---|-----------|
-| E1 | Request Enterprise does not enter Checkout |
-| E2 | Lead notifies sales |
-| E3 | Operator can provision Enterprise org with audit |
-
-### Integrity
-
-| # | Criterion |
-|---|-----------|
-| I1 | Webhooks signature-verified and idempotent |
-| I2 | FIN-OPS resident webhooks unaffected |
-| I3 | Capital Projects still not sold |
-| I4 | Master Admin remains non-SKU |
+| # | Criterion | Met? |
+|---|-----------|------|
+| D1 | Self-serve, demo, Enterprise journeys non-conflicting; Enterprise before Checkout | Yes (A6) |
+| D2 | SaaS vs FIN-OPS boundary + dedicated webhook | Yes |
+| D3 | Pro/Business automated; Enterprise human | Yes |
+| D4 | Demo overlay scale model | Yes (A3) |
+| D5 | Slices A–G testable | Yes |
+| D6 | No Capital Projects | Yes |
+| D7 | ADR-018 Proposed + amendments incorporated | Yes |
+| D8 | A1 honesty — PM-only self-serve until FO-READY | Yes |
+| D9 | A2 identity binding documented | Yes |
+| D10 | A4 lifecycle complete (incl. SCA/dispute/invite/transfer/pause=out) | Yes |
+| D11 | A5 provisioning checkpoints + compensation | Yes |
+| D12 | A7 binding defaults (no TBD architecture) | Yes |
 
 ---
 
-## Certification gate
+## Implementation acceptance (post-slices — summary)
 
-Slice G may certify only when S1–S7, M1–M4, E1–E3, I1–I4 pass in a production-like environment.
+| # | Criterion |
+|---|-----------|
+| S1 | PM Pro/Business Checkout works |
+| S2 | FO/Complete cannot Checkout until FO-READY |
+| S3 | Enterprise never hits Checkout Session create |
+| S4 | Provisioning checkpoints + no access before verify |
+| S5 | Demo overlay isolation proven |
+| S6 | Lifecycle: fail, SCA, dispute, cancel, reactivate, invite |
+| S7 | Portal + in-app Billing |
+| S8 | FIN-OPS regression Pass |
+| S9 | No customer-visible engineering jargon |

@@ -3,32 +3,66 @@
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Draft  
 **Preserves:** ADR-015 three commercial products  
+**Amendments:** A1, A6, A7 — see [Amendment Package](./amendment-package.md) · [Commercial Defaults](./commercial-defaults.md)  
 
 ---
 
 ## Dimensions
 
-Every self-service purchase resolves three dimensions:
+Self-service purchase resolves:
 
 ```
 Commercial Product  ×  Plan Tier  ×  Billing Cycle
 ```
 
-Enterprise resolves Product + custom commercial terms (no public Checkout).
+**Enterprise** selects Product intent on a **Request Enterprise** path and **never** enters Stripe Checkout.
 
 ---
 
-## Commercial products (unchanged SKUs)
+## Commercial products (ADR-015)
 
-| SKU code | Customer name | Role |
-|----------|---------------|------|
-| `mpa_property_manager` | Property Manager | Portfolio / residential operations |
-| `mpa_facility_operations` | Facility Operations | Facility / building operations |
-| `mpa_complete_platform` | Complete Platform | Union of PM + FO |
+| SKU code | Customer name | What the customer receives |
+|----------|---------------|----------------------------|
+| `mpa_property_manager` | Property Manager | Portfolio operations after setup: properties, residents, leasing, maintenance, vendors, financial operations, documents, communications, portals |
+| `mpa_facility_operations` | Facility Operations | Facility product home + module areas for facility operations domains — **operational depth only when FO-READY** (see honesty) |
+| `mpa_complete_platform` | Complete Platform | Property Manager ∪ Facility Operations under one org |
 
-Master Admin remains **not** a customer SKU.
+Master Admin is **not** a customer SKU.
 
-Module inclusion continues to follow [Subscription Matrix](../24-product-architecture/subscription-matrix.md). COM-002 does not redefine module ownership.
+---
+
+## A1 — Commercial honesty (binding)
+
+### Self-serve Checkout catalog (COM-002 v1 launch)
+
+| Offer in public Checkout | Allowed? |
+|--------------------------|----------|
+| Property Manager × Professional × (Monthly\|Annual) | **Yes** |
+| Property Manager × Business × (Monthly\|Annual) | **Yes** |
+| Facility Operations × any self-serve | **No** |
+| Complete Platform × any self-serve | **No** |
+| Any × Enterprise | **No** (not a Checkout offer) |
+
+### How customers get FO / Complete
+
+| Path | When |
+|------|------|
+| **Enterprise** | Always available via Request Enterprise → sales → operator provision |
+| **Self-serve FO / Complete** | Only after platform declares **`FO-READY=true`** in a future approved gate (FO operational certification). Until then, marketing and Checkout must not sell FO/Complete as instant self-serve depth |
+
+### Customer-facing FO timing language (required)
+
+Until FO-READY:
+
+> Facility Operations and Complete Platform are available through our Enterprise plan. Our team activates Facility capabilities with your organization during implementation.
+
+After FO-READY (future):
+
+> Facility Operations modules included in your plan become available when your subscription is active — same automated provisioning as Property Manager.
+
+### Property Manager activation timing
+
+After successful Checkout → provisioning `entitled` → owner email verified → Guided Setup → Mission Control. PM modules match certified launch capabilities (not FO shells).
 
 ---
 
@@ -37,81 +71,85 @@ Module inclusion continues to follow [Subscription Matrix](../24-product-archite
 | Plan | Motion | Who |
 |------|--------|-----|
 | **Professional** | Self-service | SMB / growing operators |
-| **Business** | Self-service | Mid-market teams needing higher limits and collaboration |
-| **Enterprise** | High-touch | Large portfolios, custom terms, security review, implementation |
+| **Business** | Self-service | Mid-market teams (higher limits) |
+| **Enterprise** | High-touch **only** | Large portfolios, custom terms, FO/Complete today, security review |
 
-### Plan capability framing (customer language)
+### Limits (binding — A7)
 
-| Capability class | Professional | Business | Enterprise |
-|------------------|:------------:|:--------:|:----------:|
-| Core product modules (per SKU) | ● | ● | ● |
+| Tier | Seats | Properties |
+|------|------:|-----------:|
+| Professional | 5 | 25 |
+| Business | 25 | 150 |
+| Enterprise | Custom | Custom |
+
+Full defaults: [Commercial Defaults](./commercial-defaults.md).
+
+### Capability framing
+
+| Capability | Professional | Business | Enterprise |
+|------------|:------------:|:--------:|:----------:|
+| Property Manager (self-serve) | ● | ● | ● |
+| Facility Operations | — self-serve v1 | — self-serve v1 | ● (implementation) |
+| Complete Platform | — self-serve v1 | — self-serve v1 | ● |
 | Guided Setup + Mission Control | ● | ● | ● |
-| Shared Documents / Communications | ● | ● | ● |
-| Seat / property limits | Standard | Higher | Custom |
-| SSO / advanced security | — | ○ (if approved later) | ● custom |
-| Dedicated success / implementation | — | — | ● |
-| Self-serve Stripe Checkout | ● | ● | — (contract) |
-| Live Demo | ● | ● | ● (same demos) |
-
-● included · ○ optional / future · — not included  
-
-Exact numeric seat/property limits are an **Approve-time commercial decision** (see open decisions in Risk Assessment). Design requires that limits exist as enforceable entitlement metadata.
+| Live Demo (PM; FO demo labeled) | ● | ● | ● |
+| Stripe Checkout | ● | ● | — |
+| SSO / custom security | — | — | ● |
 
 ---
 
-## Billing cycles (self-service)
+## Billing cycles
 
-| Cycle | Availability |
-|-------|----------------|
-| Monthly | Professional, Business |
-| Annual | Professional, Business (preferentially discounted; amount TBD at Approve) |
+Monthly and Annual for Professional / Business self-serve. Enterprise: contract cadence.
 
-Enterprise: invoice / contract cadence negotiated (not public Checkout cycles).
+**Trials:** None for self-serve v1 — Live Demo is try-before-buy ([Defaults](./commercial-defaults.md)).
 
 ---
 
-## Trials (design policy)
-
-| Rule | Decision |
-|------|----------|
-| Default trial | Optional **time-boxed trial** attachable to Professional / Business prices (duration TBD at Approve, e.g. 14 days) |
-| Card required for trial | **Yes** (recommended) — reduces abuse; configurable per price |
-| Trial → paid | Automatic conversion unless canceled before trial end |
-| Enterprise trial | Only by sales exception — not self-serve |
-
----
-
-## Commercial catalog object (logical)
+## CatalogOffer (logical)
 
 ```
 CatalogOffer {
-  productSku: mpa_property_manager | mpa_facility_operations | mpa_complete_platform
+  productSku
   planTier: professional | business | enterprise
-  billingCycle: monthly | annual | null  // null for enterprise
-  stripeProductId?: string               // self-serve only
-  stripePriceId?: string                 // self-serve only
-  entitlements: EntitlementSet           // modules + limits
+  billingCycle: monthly | annual | null
   motion: self_serve | enterprise_sales
+  selfServeEligible: boolean   // false for FO/Complete until FO-READY; false for enterprise
+  stripeProductId?
+  stripePriceId?
+  seatLimit
+  propertyLimit
+  entitlements
 }
 ```
 
-Only offers with `motion = self_serve` appear in Start Subscription Checkout.
+**Checkout Session create** rejects any offer where `motion != self_serve` OR `selfServeEligible != true`.
 
 ---
 
-## Upgrade / downgrade matrix (self-service)
+## A6 — Enterprise separation (binding)
+
+1. Pricing UI shows Enterprise as **Contact sales / Request Enterprise** — not “Subscribe”.  
+2. Choosing Enterprise routes to lead form **before** any Checkout API call.  
+3. No Enterprise Stripe Price is passed to Checkout.  
+4. Self-serve users cannot “accidentally” select Enterprise checkout.  
+5. Enterprise customers are billed by contract/invoice — not public subscription Checkout.
+
+---
+
+## Upgrade / downgrade (self-serve PM)
 
 | Change | Behavior |
 |--------|----------|
-| Product upgrade (PM → Complete, FO → Complete) | Prorated Stripe subscription update + entitlement expand |
-| Product lateral (PM ↔ FO) | Not self-serve lateral swap — path is Complete or cancel/resubscribe (policy retained from subscription matrix) |
-| Tier upgrade (Professional → Business) | Proration; raise limits |
-| Tier downgrade | At period end (default) or immediate with proration (policy TBD at Approve); entitlements fail closed to new limits |
-| Cycle change (monthly ↔ annual) | Stripe subscription schedule / proration rules |
-| Enterprise from Pro/Business | Exit self-serve → Request Enterprise (sales takes over; Stripe cancel or migrate per contract) |
+| Professional → Business | Immediate proration; raise limits |
+| Business → Professional | Effective period end; limits fail closed |
+| Monthly ↔ Annual | Stripe schedule / proration rules |
+| Add FO / Complete before FO-READY | **Request Enterprise** (not self-serve upgrade) |
+| Add FO / Complete after FO-READY | Future self-serve upgrade matrix (separate amend when FO-READY) |
+| Move to Enterprise | Request Enterprise; sales migrates/cancels self-serve as needed |
 
 ---
 
-## Relationship to “Confirm Plan” interim
+## Interim Confirm Plan
 
-Until COM-002 Slice C+ ships, production retains Confirm Plan + white-glove billing (BUG-003/004). After Slice G certification, Confirm Plan is retired or reduced to a no-payment edge case (Enterprise handoff only).
+Until Slice C+ ships, Confirm Plan + white-glove remains production. After Slice G, self-serve PM uses Checkout; Enterprise remains high-touch.

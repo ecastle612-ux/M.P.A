@@ -2,77 +2,39 @@
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Draft  
+**Amendments:** A2, A3, A6  
 
 ---
 
-## Threat model (summary)
+## Threat mitigations (binding)
 
 | Threat | Mitigation |
 |--------|------------|
-| Forged Stripe webhooks | Signature verification; endpoint secrets |
-| Entitlement bypass | Fail-closed route/API guards (existing pattern) |
-| Demo → production data leak | Isolated demo data plane; no shared secrets |
-| Card data exposure | Stripe-hosted Checkout; no card PAN on M.P.A. servers |
-| Privilege escalation via plan change | Server-side price allowlist; never trust client price ids blindly |
-| Cross-tenant access | Existing org membership RLS / checks |
-| Operator abuse | Master Admin audited actions |
-| Spam org creation | Checkout payment/trial card; rate limits |
+| Forged webhooks | Dedicated SaaS endpoint + signature verify |
+| FIN-OPS cross-talk | Separate endpoint from resident payments |
+| Checkout email takeover | No module session until verified bind (A2) |
+| Price tampering | Server Price allowlist |
+| Enterprise Checkout leak | Reject non–self-serve offers at Session create (A6) |
+| Demo → prod leak | Separate demo DB/project; separate secrets (A3) |
+| Demo scrape/abuse | Caps, CAPTCHA, uploads off, sweeper |
+| Trial abuse | No self-serve trials (A7) |
+| Duplicate provision | Idempotency + unique session id |
+| Operator abuse | Audited Enterprise provision |
 
 ---
 
 ## Secrets
 
-| Secret | Storage |
-|--------|---------|
-| Stripe secret key | Server env only |
-| Webhook signing secret | Server env only |
-| Demo signing keys | Separate from production auth secrets |
-
-Never expose in client bundles or marketing.
+Stripe secret + SaaS webhook secret + demo signing keys — server only; demo keys ≠ production.
 
 ---
 
 ## Entitlement integrity
 
-- Purchased offer → grant snapshot stored on org.  
-- Client cannot self-assign SKU (hardens ADR-015 integrity).  
-- Plan changes only through verified Stripe updates or audited Enterprise operator path.  
-- Search / nav continue to hide unentitled modules.
+Client cannot self-assign SKU. Plan changes via verified Stripe updates or audited Enterprise ops. Fail closed nav/API.
 
 ---
 
-## Demo security
+## Auth
 
-- Separate database/schema/project.  
-- Short-lived sessions.  
-- Rate limits.  
-- `noindex`.  
-- No production PII.  
-- Outbound communications disabled or sandboxed.
-
----
-
-## Privacy & compliance notes
-
-- Checkout email used for account bind — disclose in privacy copy.  
-- Stripe is payment processor — DPA / subprocessors list update at Implement.  
-- Tax/VAT handling via Stripe Tax when enabled.  
-- Retention: canceled org data retained per platform retention policy (reference Security Standards).
-
----
-
-## Auth interactions
-
-| Flow | Security requirement |
-|------|----------------------|
-| Post-Checkout account create | Email verified before full access (or soft verify with limited window — Approve) |
-| Password reset | Existing auth patterns |
-| Enterprise invites | Signed invite tokens |
-
----
-
-## Logging
-
-- No card data in logs.  
-- Redact Stripe secrets.  
-- Correlate `checkout_session_id` / `subscription_id` / `org_id` for forensics.
+Post-Checkout: verify email before `owner_bound`. Soft verify windows that grant modules are **forbidden**.

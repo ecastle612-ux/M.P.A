@@ -7,9 +7,9 @@
 
 ## Principle
 
-For Professional and Business: **nothing manual**.
+For Property Manager Professional and Business: **nothing manual**.
 
-Humans appear only for Enterprise sales/implementation and exceptional support.
+Humans appear only for Enterprise sales/implementation, FO/Complete until FO-READY, and exceptional support.
 
 ---
 
@@ -17,23 +17,23 @@ Humans appear only for Enterprise sales/implementation and exceptional support.
 
 | Area | Automated behavior |
 |------|--------------------|
-| Organization creation | Created by provisioner after paid/trialing Checkout |
-| User creation | Auth user created/bound from Checkout email; owner membership attached |
-| Stripe customer | Created by Checkout; stored link `saas_customers` |
+| Organization creation | Checkpointed provisioner after paid Checkout |
+| User creation | Auth bind after **email verification** (A2) |
+| Stripe customer | Created by Checkout; `saas_customers` link |
 | Subscription lifecycle | Webhook-driven status sync |
-| Trial handling | Start, remind, convert/cancel automatically |
-| Module activation | Entitlement set applied from CatalogOffer — no operator SKU click |
-| Guided Setup | Opens with org pre-created; checklist auto-marks provisioning items |
-| Email verification | Auth verify flow triggered post-account |
-| Welcome emails | On provisioning success |
+| Trial handling | **N/A** — no self-serve trials; Live Demo instead |
+| Module activation | PM entitlements at `entitled`; usable after `owner_bound` |
+| Guided Setup | Org pre-created; plan read-only |
+| Email verification | Required before workspace access |
+| Welcome emails | On owner_bound / welcome_sent |
 | Billing | Stripe invoices + Portal |
 | Renewals | Stripe automatic collection |
-| Failed payments | Retries + emails + grace → fail closed |
-| Cancellation | Portal/in-app → period-end revoke |
+| Failed payments | Retries + dunning cadence → fail closed |
+| SCA / disputes | Action-required UX; dispute_hold fail closed |
+| Cancellation | Period-end revoke |
 | Upgrade / downgrade | In-app → Stripe update → entitlement reconcile |
 | Re-activation | Resubscribe → entitlement restore |
-| Seat changes | Quantity/limit update + enforce |
-| Property limits | Enforce on create |
+| Seat / property limits | Enforce caps (flat limits, not metered quantity) |
 | Audit | `subscription_events` + platform audit trail |
 | Notifications | In-app + email for commercial events |
 | Mission Control | Available when entitlements active + setup rules met |
