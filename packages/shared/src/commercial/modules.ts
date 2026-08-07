@@ -240,9 +240,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.preventive",
     href: "/facility/preventive-maintenance",
-    readiness: "planned",
-    description: "Preventive schedules on assets/systems.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "Preventive programs and schedules that generate shared facility work orders."
   },
   {
     id: "inspections",
@@ -411,7 +410,7 @@ export function navigationGroupsForSku(
         {
           href: "/facility/preventive-maintenance",
           label: "Preventive Maintenance",
-          readiness: "planned",
+          readiness: "aligned",
           entitlement: "facility.preventive"
         },
         { href: "/facility/inspections", label: "Inspections", readiness: "planned", entitlement: "facility.inspections" },
@@ -573,6 +572,14 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
         title: "Facility Operations",
         description: "Corrective facility work queue with shared Maintenance execution.",
         href: "/facility/operations",
+        product: "facility_operations",
+        readiness: "aligned"
+      },
+      {
+        id: "fac_preventive",
+        title: "Preventive Maintenance",
+        description: "PM programs that generate shared facility work orders.",
+        href: "/facility/preventive-maintenance",
         product: "facility_operations",
         readiness: "aligned"
       },

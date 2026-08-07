@@ -16,11 +16,18 @@ export const FACILITY_OPERATIONS_CAPABILITIES = [
 ] as const;
 export type FacilityOperationsCapability = (typeof FACILITY_OPERATIONS_CAPABILITIES)[number];
 
+export const FACILITY_PREVENTIVE_CAPABILITIES = [
+  "facility.preventive:read",
+  "facility.preventive:write"
+] as const;
+export type FacilityPreventiveCapability = (typeof FACILITY_PREVENTIVE_CAPABILITIES)[number];
+
 export const FACILITY_CAPABILITIES = [
   ...FACILITY_SITE_CAPABILITIES,
   ...FACILITY_ASSET_CAPABILITIES,
   ...FACILITY_SYSTEM_CAPABILITIES,
-  ...FACILITY_OPERATIONS_CAPABILITIES
+  ...FACILITY_OPERATIONS_CAPABILITIES,
+  ...FACILITY_PREVENTIVE_CAPABILITIES
 ] as const;
 export type FacilityCapability = (typeof FACILITY_CAPABILITIES)[number];
 
@@ -46,6 +53,14 @@ export const FACILITY_OPERATIONS_CAPABILITY_DESCRIPTIONS: Record<
   "facility.operations:read": "Read Facility Operations corrective work queue",
   "facility.operations:write": "Create facility corrective work and record progress",
   "facility.operations:assign": "Prioritize and assign facility corrective work"
+};
+
+export const FACILITY_PREVENTIVE_CAPABILITY_DESCRIPTIONS: Record<
+  FacilityPreventiveCapability,
+  string
+> = {
+  "facility.preventive:read": "Read preventive maintenance programs and schedules",
+  "facility.preventive:write": "Create and manage preventive maintenance programs"
 };
 
 export function hasFacilityCapability(

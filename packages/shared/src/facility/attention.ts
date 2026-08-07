@@ -1,7 +1,9 @@
 /**
- * Facility Mission Control attention — E.1–E.3 signals.
+ * Facility Mission Control attention — E.1–E.4 signals.
  * Later slices populate remaining severities.
  */
+
+import { daysBetweenUtcDates, todayUtcDate } from "./pm-schemas";
 
 const OPEN_WO_STATUSES = new Set([
   "submitted",
@@ -213,6 +215,94 @@ export function buildFacilityOpenCriticalWorkAttention(
     }));
 }
 
+function pmAttentionPriority(
+  severity: "pm_due" | "pm_overdue",
+  criticality: string,
+  daysOverdue: number
+): number {
+  const base = priorityForFacilitySeverity(severity);
+  if (severity === "pm_due") {
+    return base;
+  }
+  let bump = 0;
+  if (criticality === "critical") {
+    bump += 1;
+  } else if (criticality === "high") {
+    bump += 0.5;
+  }
+  if (daysOverdue >= 7) {
+    bump += 1;
+  } else if (daysOverdue >= 3) {
+    bump += 0.5;
+  }
+  return Math.min(5, Math.round(base + bump));
+}
+
+export function buildFacilityPmDueAttention(
+  schedules: readonly {
+    id: string;
+    name: string;
+    siteId: string;
+    status: string;
+    nextDueOn: string | null;
+    criticality: string;
+  }[],
+  asOf: string = todayUtcDate()
+): FacilityAttentionItem[] {
+  return schedules
+    .filter(
+      (schedule) =>
+        schedule.status === "active" &&
+        schedule.nextDueOn != null &&
+        schedule.nextDueOn === asOf
+    )
+    .map((schedule) => ({
+      id: `pm_due:${schedule.id}`,
+      severity: "pm_due" as const,
+      priority: pmAttentionPriority("pm_due", schedule.criticality, 0),
+      title: `PM due: ${schedule.name}`,
+      detail: "Preventive maintenance is due today — generate or complete work.",
+      href: `/facility/preventive-maintenance?scheduleId=${schedule.id}`,
+      aggregateType: "facility_pm_schedules",
+      aggregateId: schedule.id,
+      siteId: schedule.siteId
+    }));
+}
+
+export function buildFacilityPmOverdueAttention(
+  schedules: readonly {
+    id: string;
+    name: string;
+    siteId: string;
+    status: string;
+    nextDueOn: string | null;
+    criticality: string;
+  }[],
+  asOf: string = todayUtcDate()
+): FacilityAttentionItem[] {
+  return schedules
+    .filter(
+      (schedule) =>
+        schedule.status === "active" &&
+        schedule.nextDueOn != null &&
+        schedule.nextDueOn < asOf
+    )
+    .map((schedule) => {
+      const daysOverdue = daysBetweenUtcDates(schedule.nextDueOn!, asOf);
+      return {
+        id: `pm_overdue:${schedule.id}`,
+        severity: "pm_overdue" as const,
+        priority: pmAttentionPriority("pm_overdue", schedule.criticality, daysOverdue),
+        title: `PM overdue: ${schedule.name}`,
+        detail: `${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue — restore program health.`,
+        href: `/facility/preventive-maintenance?scheduleId=${schedule.id}`,
+        aggregateType: "facility_pm_schedules",
+        aggregateId: schedule.id,
+        siteId: schedule.siteId
+      };
+    });
+}
+
 export function buildFacilityMissionControlNextAction(input: {
   setupComplete: boolean;
   activeSiteCount: number;
@@ -224,6 +314,9 @@ export function buildFacilityMissionControlNextAction(input: {
   openFacilityWorkCount?: number;
   emergencyFacilityWorkCount?: number;
   firstOpenWorkOrderId?: string | null;
+  overduePmCount?: number;
+  duePmCount?: number;
+  firstPmScheduleId?: string | null;
 }): {
   id: string;
   title: string;
@@ -282,6 +375,18 @@ export function buildFacilityMissionControlNextAction(input: {
     };
   }
 
+  if ((input.overduePmCount ?? 0) > 0) {
+    return {
+      id: "catch_up_pm",
+      title: "Catch up overdue preventive maintenance",
+      detail: "Active PM schedules are past due — generate work and restore program health.",
+      href: input.firstPmScheduleId
+        ? `/facility/preventive-maintenance?scheduleId=${input.firstPmScheduleId}`
+        : "/facility/preventive-maintenance",
+      assistantRecommendation: "Generate and complete overdue preventive maintenance work."
+    };
+  }
+
   if ((input.openFacilityWorkCount ?? 0) > 0) {
     return {
       id: "advance_facility_work",
@@ -291,6 +396,18 @@ export function buildFacilityMissionControlNextAction(input: {
         ? `/facility/operations?workOrderId=${input.firstOpenWorkOrderId}`
         : "/facility/operations",
       assistantRecommendation: "Review the Facility Operations queue and hand off to Maintenance."
+    };
+  }
+
+  if ((input.duePmCount ?? 0) > 0) {
+    return {
+      id: "run_due_pm",
+      title: "Run preventive maintenance due today",
+      detail: "Generate shared work orders for schedules due today.",
+      href: input.firstPmScheduleId
+        ? `/facility/preventive-maintenance?scheduleId=${input.firstPmScheduleId}`
+        : "/facility/preventive-maintenance",
+      assistantRecommendation: "Generate preventive work orders that are due today."
     };
   }
 
@@ -305,11 +422,11 @@ export function buildFacilityMissionControlNextAction(input: {
   }
 
   return {
-    id: "operations_ready",
-    title: "Facility Operations is ready",
-    detail: "Create corrective work from the Facility Operations queue when issues arise.",
-    href: "/facility/operations",
+    id: "programs_ready",
+    title: "Facility programs are ready",
+    detail: "Create preventive schedules and open corrective work when issues arise.",
+    href: "/facility/preventive-maintenance",
     assistantRecommendation:
-      "Facility Operations is ready. Open corrective work when assets or systems need attention."
+      "Preventive Maintenance is ready. Activate schedules so due work generates into Maintenance."
   };
 }

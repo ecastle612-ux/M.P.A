@@ -8,3 +8,5 @@ export * from "./asset-schemas";
 export * from "./asset-events";
 export * from "./operations-schemas";
 export * from "./operations-events";
+export * from "./pm-schemas";
+export * from "./pm-events";

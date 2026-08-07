@@ -286,7 +286,15 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/facility/preventive-maintenance",
-        "Preventive Maintenance (Planned)",
+        "Preventive Maintenance",
+        "Facility Operations",
+        "facility.preventive"
+      )
+    );
+    push(
+      decisionPath(
+        "/facility/preventive-maintenance?new=1",
+        "Create PM program",
         "Facility Operations",
         "facility.preventive"
       )

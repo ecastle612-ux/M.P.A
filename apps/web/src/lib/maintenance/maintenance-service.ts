@@ -898,6 +898,12 @@ export async function closeFacilityWorkOrder(
     ...facilityFanout(closed),
     payload: contextPayload(closed, { note: body })
   });
+
+  if (closed.work_kind === "facility_preventive") {
+    const { acknowledgePmRunForWorkOrder } = await import("../facility/pm-service");
+    await acknowledgePmRunForWorkOrder(supabase, organizationId, actorUserId, closed.id);
+  }
+
   return closed;
 }
 

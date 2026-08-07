@@ -3,13 +3,15 @@ import {
   buildFacilityCriticalAssetAttention,
   buildFacilityMissionControlNextAction,
   buildFacilityOpenCriticalWorkAttention,
+  buildFacilityPmDueAttention,
+  buildFacilityPmOverdueAttention,
   buildFacilitySetupIncompleteAttention,
   buildFacilitySystemDownAttention,
   buildFacilityWorkOrderEmergencyAttention,
   rankFacilityAttention
 } from "./attention";
 
-describe("facility mission control attention (E.1–E.3)", () => {
+describe("facility mission control attention (E.1–E.4)", () => {
   it("surfaces setup_incomplete when no sites exist", () => {
     const items = buildFacilitySetupIncompleteAttention({
       activeSiteCount: 0,
@@ -149,5 +151,53 @@ describe("facility mission control attention (E.1–E.3)", () => {
     });
     expect(next.id).toBe("advance_facility_work");
     expect(next.href).toContain("wo-9");
+  });
+
+  it("surfaces PM due and overdue attention", () => {
+    const due = buildFacilityPmDueAttention(
+      [
+        {
+          id: "pm1",
+          name: "Filter change",
+          siteId: "site-1",
+          status: "active",
+          nextDueOn: "2026-08-07",
+          criticality: "medium"
+        }
+      ],
+      "2026-08-07"
+    );
+    expect(due).toHaveLength(1);
+    expect(due[0]?.severity).toBe("pm_due");
+
+    const overdue = buildFacilityPmOverdueAttention(
+      [
+        {
+          id: "pm2",
+          name: "Chiller inspection",
+          siteId: "site-1",
+          status: "active",
+          nextDueOn: "2026-08-01",
+          criticality: "critical"
+        }
+      ],
+      "2026-08-07"
+    );
+    expect(overdue).toHaveLength(1);
+    expect(overdue[0]?.severity).toBe("pm_overdue");
+    expect(overdue[0]?.detail).toMatch(/6 days overdue/);
+  });
+
+  it("prioritizes overdue PM in next action", () => {
+    const next = buildFacilityMissionControlNextAction({
+      setupComplete: true,
+      activeSiteCount: 1,
+      draftSiteCount: 0,
+      activeAssetCount: 2,
+      overduePmCount: 2,
+      firstPmScheduleId: "pm-9"
+    });
+    expect(next.id).toBe("catch_up_pm");
+    expect(next.href).toContain("pm-9");
   });
 });

@@ -40,3 +40,15 @@ export const FACILITY_OPERATIONS_AUDIT_ACTIONS = [
 ] as const;
 
 export type FacilityOperationsAuditAction = (typeof FACILITY_OPERATIONS_AUDIT_ACTIONS)[number];
+
+export const FACILITY_PM_AUDIT_ACTIONS = [
+  "facility.pm_schedule.created",
+  "facility.pm_schedule.activated",
+  "facility.pm_schedule.paused",
+  "facility.pm_schedule.resumed",
+  "facility.pm_schedule.retired",
+  "facility.pm_schedule.generated_work",
+  "facility.pm_schedule.acknowledged"
+] as const;
+
+export type FacilityPmAuditAction = (typeof FACILITY_PM_AUDIT_ACTIONS)[number];
