@@ -1,15 +1,10 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { Suspense } from "react";
+import { InventoryDirectory } from "../../../../components/facility/inventory-directory";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
-      title="Inventory"
-      description="Inventory locations and counts. Feature work not in Phase 1."
-      readiness="planned"
-      entitlement="facility.inventory"
-      includedIn={["Facility Operations", "Complete Platform"]}
-      requiresComplete="Property Manager-only customers"
-    />
+    <Suspense fallback={<main className="flex-1 p-6 text-sm">Loading Inventory…</main>}>
+      <InventoryDirectory />
+    </Suspense>
   );
 }
