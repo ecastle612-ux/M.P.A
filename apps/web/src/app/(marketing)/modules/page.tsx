@@ -10,8 +10,8 @@ import {
   marketingTwitter
 } from "../../../lib/acquire/seo";
 
-const title = "Choose modules";
-const description = `Select Property Operations, Facility Operations, or both before ${MPA_BRAND_NAME} pricing.`;
+const title = "Choose what you're buying";
+const description = `Choose Property Operations, Facility Operations, or Property + Facility on ${MPA_BRAND_NAME}. One module leads to Essentials pricing; both modules lead to Professional bundle pricing.`;
 
 export const metadata: Metadata = {
   title,

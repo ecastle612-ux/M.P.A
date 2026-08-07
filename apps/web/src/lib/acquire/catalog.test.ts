@@ -16,7 +16,9 @@ import {
   TOUR_STEPS
 } from "./catalog";
 import {
+  ACQ_MODULE_OPTIONS,
   isAcqModuleSelection,
+  moduleSelectionLabel,
   modulesPricingHref,
   parseAcqModuleSelection
 } from "./modules";
@@ -41,6 +43,21 @@ describe("UX-013 module selection", () => {
     expect(parseAcqModuleSelection("facility_ops")).toBe("facility_ops");
     expect(parseAcqModuleSelection("trial")).toBeNull();
     expect(modulesPricingHref("both")).toBe("/pricing?modules=both");
+  });
+
+  it("keeps commercial labels buyer-clear without renaming selection ids", () => {
+    expect(ACQ_MODULE_OPTIONS.map((option) => option.id)).toEqual([
+      "property_ops",
+      "facility_ops",
+      "both"
+    ]);
+    expect(moduleSelectionLabel("both")).toBe("Property + Facility");
+    expect(ACQ_MODULE_OPTIONS.every((option) => option.bestFor && option.packageHint)).toBe(true);
+    expect(
+      ACQ_MODULE_OPTIONS.some((option) =>
+        /Professional property management platform/i.test(option.subtitle)
+      )
+    ).toBe(false);
   });
 });
 
