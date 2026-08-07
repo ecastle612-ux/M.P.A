@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Badge, EmptyState, Skeleton, TimelineView } from "@mpa/ui";
+import { Badge, EmptyState, PageHeader, Skeleton, StatusBanner, TimelineView } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { useOrganizationContext } from "../shell/organization-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
@@ -124,30 +124,32 @@ export function FacilityMissionControlPage() {
         ]}
       />
 
-      <header className="max-w-3xl space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          {productLabel ?? "Facility Operations"} · Attention home
-        </p>
-        <h1 className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Facility Mission Control
-        </h1>
-        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-          {loading
+      <PageHeader
+        eyebrow={`${productLabel ?? "Facility Operations"} · Attention home`}
+        title="Facility Mission Control"
+        description={
+          loading
             ? "Loading facility attention…"
-            : "Ranked operational attention for Facility Operations — not an analytics dashboard."}
-        </p>
-        <div className="flex flex-wrap gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          <span>{activeOrganization?.name ?? "Organization"}</span>
-          <span>·</span>
-          <span>
-            {loading
-              ? "…"
-              : `${state?.activeSiteCount ?? 0} active sites · ${state?.assetCount ?? 0} assets · ${state?.systemCount ?? 0} systems`}
-          </span>
-        </div>
-      </header>
+            : "Ranked operational attention for Facility Operations — not an analytics dashboard."
+        }
+        meta={
+          <div className="flex flex-wrap gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
+            <span>{activeOrganization?.name ?? "Organization"}</span>
+            <span>·</span>
+            <span>
+              {loading
+                ? "…"
+                : `${state?.activeSiteCount ?? 0} active sites · ${state?.assetCount ?? 0} assets · ${state?.systemCount ?? 0} systems`}
+            </span>
+          </div>
+        }
+      />
 
-      {error ? <EmptyState title="Unable to load Mission Control" description={error} /> : null}
+      {error ? (
+        <StatusBanner variant="danger">
+          Unable to load Mission Control — {error}
+        </StatusBanner>
+      ) : null}
 
       {loading ? (
         <div className="max-w-3xl space-y-3">
@@ -160,7 +162,7 @@ export function FacilityMissionControlPage() {
         <>
           <section
             aria-label="M.P.A. Assistant"
-            className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+            className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
               M.P.A. Assistant
@@ -176,7 +178,7 @@ export function FacilityMissionControlPage() {
             </div>
             <Link
               href={nextAction.href}
-              className="inline-flex rounded-md bg-[var(--mpa-color-action-primary,#1F4D3A)] px-4 py-2 text-sm font-medium text-white"
+              className="inline-flex rounded-md bg-[var(--mpa-color-brand-primary)] px-4 py-2 text-sm font-medium text-white"
             >
               {nextAction.title}
             </Link>
@@ -196,7 +198,7 @@ export function FacilityMissionControlPage() {
                   <li key={item.id}>
                     <Link
                       href={item.href}
-                      className="block rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2 text-sm hover:bg-[var(--mpa-color-bg-subtle,#f7faf9)]"
+                      className="block rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm hover:bg-[var(--mpa-color-bg-subtle)]"
                     >
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium text-[var(--mpa-color-text-primary)]">
@@ -237,7 +239,7 @@ export function FacilityMissionControlPage() {
                   <li key={site.id}>
                     <Link
                       href={`/facility/sites/${site.id}`}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2 text-sm"
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm"
                     >
                       <span className="font-medium text-[var(--mpa-color-text-primary)]">{site.name}</span>
                       <span className="text-xs text-[var(--mpa-color-text-secondary)]">
@@ -270,7 +272,7 @@ export function FacilityMissionControlPage() {
                   <li key={asset.id}>
                     <Link
                       href={`/facility/assets/${asset.id}`}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2 text-sm"
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm"
                     >
                       <span className="font-medium">{asset.name}</span>
                       <span className="text-xs text-[var(--mpa-color-text-secondary)]">
@@ -303,7 +305,7 @@ export function FacilityMissionControlPage() {
                   <li key={system.id}>
                     <Link
                       href={`/facility/building-systems/${system.id}`}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2 text-sm"
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm"
                     >
                       <span className="font-medium">{system.name}</span>
                       <span className="text-xs text-[var(--mpa-color-text-secondary)]">

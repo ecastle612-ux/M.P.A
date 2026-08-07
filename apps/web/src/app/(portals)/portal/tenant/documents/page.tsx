@@ -43,7 +43,7 @@ export default async function TenantDocumentsPage() {
   }
 
   return (
-    <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+    <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
       <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
         Documents
       </h2>

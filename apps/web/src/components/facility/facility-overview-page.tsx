@@ -101,7 +101,7 @@ export function FacilityOverviewPage() {
             <li key={site.id}>
               <Link
                 href={`/facility/sites/${site.id}`}
-                className="block rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3"
+                className="block rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-medium text-[var(--mpa-color-text-primary)]">{site.name}</span>

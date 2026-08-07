@@ -211,7 +211,7 @@ export function OperationsQueue() {
 
       <section
         aria-label="Assistant recommendation"
-        className="max-w-3xl rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3"
+        className="max-w-3xl rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Assistant recommendation
@@ -229,18 +229,18 @@ export function OperationsQueue() {
       ) : null}
 
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
+        <p className="rounded-md border border-[var(--mpa-color-status-danger)]/30 bg-[var(--mpa-color-status-danger-subtle)] px-3 py-2 text-sm text-[var(--mpa-color-status-danger)]">
           {error}
         </p>
       ) : null}
       {notice ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+        <p className="rounded-md border border-[var(--mpa-color-status-success)]/30 bg-[var(--mpa-color-status-success-subtle)] px-3 py-2 text-sm text-[var(--mpa-color-status-success)]">
           {notice}
         </p>
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-        <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <h2 className="text-sm font-semibold">Corrective work queue</h2>
             <label className="space-y-1 text-xs">
@@ -299,7 +299,7 @@ export function OperationsQueue() {
           )}
         </section>
 
-        <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           {!selected ? (
             <EmptyState
               title="Select a work order"

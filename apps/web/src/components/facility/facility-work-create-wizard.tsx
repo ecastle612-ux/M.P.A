@@ -91,7 +91,7 @@ export function FacilityWorkCreateWizard({ onCancel }: FacilityWorkCreateWizardP
   return (
     <form
       onSubmit={(event) => void onCreate(event)}
-      className="max-w-2xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+      className="max-w-2xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
     >
       <div>
         <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
@@ -210,7 +210,7 @@ export function FacilityWorkCreateWizard({ onCancel }: FacilityWorkCreateWizardP
         </label>
       </div>
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
 
       <div className="flex flex-wrap gap-2">
         <Button type="submit" disabled={busy || !siteId || title.trim().length < 3}>

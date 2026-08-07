@@ -123,13 +123,13 @@ export function ReportingDesk() {
           <div className="flex flex-wrap gap-2">
             <Link
               href="/portal/owner/financials"
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-1.5 text-sm"
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-1.5 text-sm"
             >
               Owner summary
             </Link>
             <a
               href="/api/finance/reports/owner?format=csv"
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-1.5 text-sm"
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-1.5 text-sm"
             >
               Download CSV
             </a>
@@ -149,7 +149,7 @@ export function ReportingDesk() {
 
         <section
           aria-label="Assistant recommendation"
-          className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3"
+          className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
             Assistant recommendation
@@ -158,7 +158,7 @@ export function ReportingDesk() {
         </section>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
             <h4 className="text-sm font-semibold">Financial alerts</h4>
             <ul className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
               {report.alerts.map((alert) => (
@@ -166,7 +166,7 @@ export function ReportingDesk() {
               ))}
             </ul>
           </div>
-          <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
             <h4 className="text-sm font-semibold">Quick actions</h4>
             <ul className="mt-2 flex flex-wrap gap-2">
               {report.quickActions.map((action) => (
@@ -203,7 +203,7 @@ export function ReportingDesk() {
             description="Add a property from the billing desk to see portfolio money health."
           />
         ) : (
-          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-white">
+          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]">
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b text-[var(--mpa-color-text-secondary)]">
@@ -252,7 +252,7 @@ export function ReportingDesk() {
         {report.recentActivity.length === 0 ? (
           <EmptyState title="No recent activity" description="Payments, charges, and vendor bills will appear here." />
         ) : (
-          <ul className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 text-sm">
+          <ul className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 text-sm">
             {report.recentActivity.map((item) => (
               <li
                 key={item.id}
@@ -283,7 +283,7 @@ export function ReportingDesk() {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
+    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3">
       <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{label}</p>
       <p className="mt-1 font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{value}</p>
     </div>

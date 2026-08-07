@@ -69,7 +69,7 @@ export function ProfileMenu() {
         <div
           role="menu"
           aria-label="Profile menu"
-          className="absolute right-0 top-10 z-40 w-56 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-2 shadow-lg"
+          className="absolute right-0 top-10 z-40 w-56 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-2 shadow-lg"
         >
           <p className="px-2 py-2 text-xs text-[var(--mpa-color-text-secondary)]">{displayName}</p>
           <Button

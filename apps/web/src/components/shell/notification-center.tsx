@@ -98,7 +98,7 @@ export function NotificationCenter() {
         onClick={() => void toggle()}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="relative rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-gray-50"
+        className="relative rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-subtle)]"
         aria-label={`Open notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
       >
         Notifications
@@ -114,7 +114,7 @@ export function NotificationCenter() {
         <div
           role="menu"
           aria-label="Notifications"
-          className="absolute right-0 top-12 z-40 w-[min(24rem,calc(100vw-2rem))] rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 shadow-xl"
+          className="absolute right-0 top-12 z-40 w-[min(24rem,calc(100vw-2rem))] rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 shadow-xl"
         >
           <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Notifications</p>
@@ -126,7 +126,7 @@ export function NotificationCenter() {
               Open Communications
             </Link>
           </div>
-          {error ? <p className="text-xs text-[#C0392B]">{error}</p> : null}
+          {error ? <p className="text-xs text-[var(--mpa-color-status-danger)]">{error}</p> : null}
           {loading ? (
             <p className="text-xs text-[var(--mpa-color-text-secondary)]">Loading…</p>
           ) : items.length === 0 ? (

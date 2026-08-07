@@ -193,18 +193,18 @@ export function AssetCommandCenter({ assetId }: { assetId: string }) {
       </header>
 
       {justCreated ? (
-        <section className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4">
-          <p className="font-semibold text-emerald-900">Asset registered.</p>
-          <p className="mt-1 text-sm text-emerald-800">{data.assistantRecommendation}</p>
+        <section className="max-w-3xl rounded-md border border-[var(--mpa-color-status-success)]/30 bg-[var(--mpa-color-status-success-subtle)] p-4">
+          <p className="font-semibold text-[var(--mpa-color-status-success)]">Asset registered.</p>
+          <p className="mt-1 text-sm text-[var(--mpa-color-status-success)]">{data.assistantRecommendation}</p>
         </section>
       ) : null}
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
       {notice ? (
-        <p className="text-sm text-emerald-800">{notice}</p>
+        <p className="text-sm text-[var(--mpa-color-status-success)]">{notice}</p>
       ) : null}
 
-      <section className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+      <section className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           M.P.A. Assistant
         </p>
@@ -239,7 +239,7 @@ export function AssetCommandCenter({ assetId }: { assetId: string }) {
       </section>
 
       <section className="grid max-w-4xl gap-4 md:grid-cols-2">
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 text-sm">
+        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 text-sm">
           <h2 className="font-semibold">Identity</h2>
           <p>Category: {asset.facility_asset_categories?.name ?? "—"}</p>
           <p>Manufacturer: {asset.manufacturer ?? "—"}</p>
@@ -248,7 +248,7 @@ export function AssetCommandCenter({ assetId }: { assetId: string }) {
           <p>Installed: {asset.installed_on ?? "—"}</p>
           <p>Warranty until: {asset.warranty_until ?? "—"}</p>
         </div>
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 text-sm">
+        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 text-sm">
           <h2 className="font-semibold">Associations</h2>
           <p>
             Site:{" "}
@@ -295,7 +295,7 @@ export function AssetCommandCenter({ assetId }: { assetId: string }) {
       </section>
 
       {asset.status !== "decommissioned" ? (
-        <section className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+        <section className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
           <div>
             <h2 className="font-semibold">Relocate asset</h2>
             <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
@@ -341,7 +341,7 @@ export function AssetCommandCenter({ assetId }: { assetId: string }) {
             No relocate events yet. Initial placement is shown on the asset profile.
           </p>
         ) : (
-          <ul className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 text-sm">
+          <ul className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 text-sm">
             {data.locationHistory.map((row) => (
               <li
                 key={row.id}

@@ -115,7 +115,7 @@ export function PropertiesDirectory() {
             return (
               <li
                 key={property.id}
-                className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+                className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>

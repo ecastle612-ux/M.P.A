@@ -129,7 +129,7 @@ export function SystemsDirectory() {
       {creating ? (
         <form
           onSubmit={(event) => void onCreate(event)}
-          className="max-w-xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+          className="max-w-xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
         >
           <label className="block space-y-1 text-sm">
             <span>Site</span>
@@ -176,7 +176,7 @@ export function SystemsDirectory() {
       ) : null}
 
       {loading ? <Skeleton className="h-24 w-full max-w-3xl" /> : null}
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
 
       {!loading && systems.length > 0 ? (
         <ul className="max-w-3xl space-y-2">
@@ -184,7 +184,7 @@ export function SystemsDirectory() {
             <li key={system.id}>
               <Link
                 href={`/facility/building-systems/${system.id}`}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 text-sm"
               >
                 <span>
                   <span className="font-medium">{system.name}</span>

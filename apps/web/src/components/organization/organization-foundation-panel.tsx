@@ -72,8 +72,8 @@ export function OrganizationFoundationPanel() {
             {loading ? "Creating..." : "Create organization"}
           </Button>
         </form>
-        {error ? <p className="mt-2 text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="mt-2 text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? <p className="mt-2 text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
+        {notice ? <p className="mt-2 text-sm text-[var(--mpa-color-status-success)]">{notice}</p> : null}
         {hasOrganizations ? (
           <p className="mt-4 text-xs text-[var(--mpa-color-text-secondary)]">
             {organizations.length} organization{organizations.length === 1 ? "" : "s"} available.

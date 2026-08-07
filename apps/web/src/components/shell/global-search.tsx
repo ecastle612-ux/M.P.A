@@ -362,7 +362,7 @@ export function GlobalSearch() {
         <div
           id={listId}
           role="listbox"
-          className="absolute z-50 mt-1 max-h-80 w-full overflow-auto rounded-md border border-[var(--mpa-color-border-default)] bg-white shadow-lg"
+          className="absolute z-50 mt-1 max-h-80 w-full overflow-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] shadow-lg"
         >
           {results.length === 0 ? (
             <p className="px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">

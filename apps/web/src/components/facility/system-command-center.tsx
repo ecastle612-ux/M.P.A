@@ -134,9 +134,9 @@ export function SystemCommandCenter({ systemId }: { systemId: string }) {
         </p>
       </header>
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
 
-      <section className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+      <section className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           M.P.A. Assistant
         </p>
@@ -175,7 +175,7 @@ export function SystemCommandCenter({ systemId }: { systemId: string }) {
         </div>
       </section>
 
-      <section className="max-w-3xl space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 text-sm">
+      <section className="max-w-3xl space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 text-sm">
         <h2 className="font-semibold">Associations</h2>
         <p>
           Site:{" "}

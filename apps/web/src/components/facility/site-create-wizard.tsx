@@ -58,7 +58,7 @@ export function SiteCreateWizard({ onCancel, propertyOptions = [] }: SiteCreateW
   return (
     <section
       aria-labelledby="facility-site-create-title"
-      className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+      className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
     >
       <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
@@ -185,7 +185,7 @@ export function SiteCreateWizard({ onCancel, propertyOptions = [] }: SiteCreateW
               </label>
               <select
                 id="property-link"
-                className="w-full rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm"
+                className="w-full rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm"
                 value={propertyId}
                 onChange={(event) => setPropertyId(event.target.value)}
               >
@@ -217,7 +217,7 @@ export function SiteCreateWizard({ onCancel, propertyOptions = [] }: SiteCreateW
         </form>
       ) : null}
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
     </section>
   );
 }

@@ -98,7 +98,7 @@ export function AssetCreateWizard({ onCancel }: AssetCreateWizardProps) {
 
   if (sites.length === 0) {
     return (
-      <section className="max-w-xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+      <section className="max-w-xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
         <h2 className="font-display text-xl font-semibold">Activate a site first</h2>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
           Assets require an active Facility Site. Create and activate a site, then return here.
@@ -118,7 +118,7 @@ export function AssetCreateWizard({ onCancel }: AssetCreateWizardProps) {
   }
 
   return (
-    <section className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+    <section className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
       <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Step {step} of 3
@@ -280,7 +280,7 @@ export function AssetCreateWizard({ onCancel }: AssetCreateWizardProps) {
         </form>
       ) : null}
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
     </section>
   );
 }

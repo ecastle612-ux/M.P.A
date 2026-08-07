@@ -222,12 +222,12 @@ export function GuidedSetupPage() {
           You do not shop SKUs here — Property Manager is already assigned.
         </p>
         {setupComplete ? (
-          <p className="mt-2 text-sm text-[#0F6B56]">Setup already completed for this organization.</p>
+          <p className="mt-2 text-sm text-[var(--mpa-color-status-success)]">Setup already completed for this organization.</p>
         ) : null}
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Required checklist</h2>
           <ul className="mt-3 space-y-3">
             {checklist.map((item) => (
@@ -244,7 +244,7 @@ export function GuidedSetupPage() {
         <div className="space-y-4">
           {!hasOrg ? (
             <form
-              className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+              className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
               onSubmit={handleCreateOrganization}
             >
               <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
@@ -268,7 +268,7 @@ export function GuidedSetupPage() {
               </Button>
             </form>
           ) : (
-            <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+            <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
               <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
                 Purchased product
               </h2>
@@ -281,7 +281,7 @@ export function GuidedSetupPage() {
             </div>
           )}
 
-          <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
             <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
               Billing acknowledgment
             </h2>
@@ -307,7 +307,7 @@ export function GuidedSetupPage() {
             </label>
           </div>
 
-          <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
             <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
               You&apos;re in
             </h2>
@@ -349,8 +349,8 @@ export function GuidedSetupPage() {
         </div>
       </section>
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-      {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
+      {notice ? <p className="text-sm text-[var(--mpa-color-status-success)]">{notice}</p> : null}
     </main>
   );
 }

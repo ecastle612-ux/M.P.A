@@ -115,9 +115,9 @@ export function AssetsDirectory() {
       ) : null}
 
       {!loading && assets.length > 0 ? (
-        <div className="max-w-4xl overflow-hidden rounded-md border border-[var(--mpa-color-border-default)] bg-white">
+        <div className="max-w-4xl overflow-hidden rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[var(--mpa-color-bg-subtle,#f7faf9)] text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+            <thead className="bg-[var(--mpa-color-bg-subtle)] text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
               <tr>
                 <th className="px-4 py-3 font-semibold">Asset</th>
                 <th className="px-4 py-3 font-semibold">Site / location</th>

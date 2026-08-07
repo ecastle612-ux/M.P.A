@@ -147,7 +147,7 @@ export function SitesDirectory() {
             <li key={site.id}>
               <Link
                 href={`/facility/sites/${site.id}`}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 text-sm"
               >
                 <span className="font-medium text-[var(--mpa-color-text-primary)]">{site.name}</span>
                 <span className="flex flex-wrap items-center gap-2 text-xs text-[var(--mpa-color-text-secondary)]">

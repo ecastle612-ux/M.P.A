@@ -110,7 +110,7 @@ export function PmCreateWizard({ onCancel }: PmCreateWizardProps) {
   return (
     <form
       onSubmit={(event) => void onCreate(event)}
-      className="max-w-2xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+      className="max-w-2xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
     >
       <div>
         <h2 className="text-base font-semibold">Create preventive maintenance program</h2>
@@ -309,7 +309,7 @@ export function PmCreateWizard({ onCancel }: PmCreateWizardProps) {
         </div>
       </div>
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
 
       <div className="flex flex-wrap gap-2">
         <Button

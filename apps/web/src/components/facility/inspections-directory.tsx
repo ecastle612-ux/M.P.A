@@ -439,20 +439,20 @@ export function InspectionsDirectory() {
         <Badge variant="neutral">{summary.activeProgramCount} active programs</Badge>
       </section>
 
-      <section className="max-w-3xl rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3 text-sm">
+      <section className="max-w-3xl rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 text-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Assistant recommendation
         </p>
         <p className="mt-1">{assistantRecommendation}</p>
       </section>
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-      {notice ? <p className="text-sm text-emerald-800">{notice}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
+      {notice ? <p className="text-sm text-[var(--mpa-color-status-success)]">{notice}</p> : null}
 
       {showCreate ? (
         <form
           onSubmit={(event) => void createProgram(event)}
-          className="max-w-2xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+          className="max-w-2xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
         >
           <h2 className="text-base font-semibold">Create inspection program</h2>
           <div className="grid gap-3 md:grid-cols-2">
@@ -647,7 +647,7 @@ export function InspectionsDirectory() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-        <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           {listView === "programs" ? (
             <>
               <div className="flex flex-wrap gap-2">
@@ -752,7 +752,7 @@ export function InspectionsDirectory() {
           )}
         </section>
 
-        <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           {listView === "programs" && selectedProgram ? (
             <>
               <h2 className="text-lg font-semibold">{selectedProgram.name}</h2>

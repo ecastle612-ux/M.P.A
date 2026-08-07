@@ -11,7 +11,7 @@ export function ResponsiveNavigation() {
       <summary className="cursor-pointer list-none rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 text-sm">
         Menu
       </summary>
-      <div className="absolute right-0 z-40 mt-2 max-h-[70vh] w-72 overflow-auto rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 shadow-lg">
+      <div className="absolute right-0 z-40 mt-2 max-h-[70vh] w-72 overflow-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 shadow-lg">
         {navigationGroups.map((group) => (
           <div key={group.id} className="mb-3">
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">

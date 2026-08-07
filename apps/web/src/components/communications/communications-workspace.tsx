@@ -148,12 +148,12 @@ export function CommunicationsWorkspace() {
         </p>
       </header>
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
 
       <div className="grid gap-4 xl:grid-cols-2">
         <section
           aria-label="Compose message"
-          className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+          className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
         >
           <h2 className="text-sm font-semibold">Send message</h2>
           <label className="block space-y-1 text-sm">
@@ -223,7 +223,7 @@ export function CommunicationsWorkspace() {
 
         <section
           aria-label="System notifications"
-          className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+          className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
         >
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold">Notification inbox</h2>
@@ -307,7 +307,7 @@ export function CommunicationsWorkspace() {
             {messages.map((message) => (
               <li
                 key={message.id}
-                className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3"
+                className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-medium text-[var(--mpa-color-text-primary)]">{message.subject}</p>

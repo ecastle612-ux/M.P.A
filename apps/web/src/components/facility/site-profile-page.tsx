@@ -153,20 +153,20 @@ export function SiteProfilePage({ siteId }: { siteId: string }) {
       {justCreated || site.status === "active" ? (
         <section
           aria-live="polite"
-          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
+          className="max-w-3xl rounded-md border border-[var(--mpa-color-status-success)]/30 bg-[var(--mpa-color-status-success-subtle)] p-4"
         >
-          <p className="text-base font-semibold text-emerald-900">
+          <p className="text-base font-semibold text-[var(--mpa-color-status-success)]">
             {site.status === "active" ? "Facility site is active." : "Facility site created."}
           </p>
-          <p className="mt-1 text-sm text-emerald-800">{data.assistantRecommendation}</p>
+          <p className="mt-1 text-sm text-[var(--mpa-color-status-success)]">{data.assistantRecommendation}</p>
         </section>
       ) : null}
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
 
       <section
         aria-label="M.P.A. Assistant"
-        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           M.P.A. Assistant
@@ -205,7 +205,7 @@ export function SiteProfilePage({ siteId }: { siteId: string }) {
           {(site.facility_locations ?? []).map((location) => (
             <li
               key={location.id}
-              className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2 text-sm"
+              className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm"
             >
               <span className="font-medium">{location.name}</span>
               <span className="ml-2 text-xs text-[var(--mpa-color-text-secondary)]">

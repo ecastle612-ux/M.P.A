@@ -118,7 +118,7 @@ export function VendorMaintenancePortal() {
       </header>
 
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
+        <p className="rounded-md border border-[var(--mpa-color-status-danger)]/30 bg-[var(--mpa-color-status-danger-subtle)] px-3 py-2 text-sm text-[var(--mpa-color-status-danger)]">
           {error}
         </p>
       ) : null}
@@ -132,7 +132,7 @@ export function VendorMaintenancePortal() {
         entries.map(({ workOrder, updates }) => (
           <article
             key={workOrder.id}
-            className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+            className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>

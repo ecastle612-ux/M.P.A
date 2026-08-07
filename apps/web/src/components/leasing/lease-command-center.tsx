@@ -186,12 +186,12 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
       {justCreated || data.readyMessage ? (
         <section
           aria-live="polite"
-          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
+          className="max-w-3xl rounded-md border border-[var(--mpa-color-status-success)]/30 bg-[var(--mpa-color-status-success-subtle)] p-4"
         >
-          <p className="text-base font-semibold text-emerald-900">
+          <p className="text-base font-semibold text-[var(--mpa-color-status-success)]">
             {data.readyMessage ?? "Lease draft is ready."}
           </p>
-          <p className="mt-1 text-sm text-emerald-800">
+          <p className="mt-1 text-sm text-[var(--mpa-color-status-success)]">
             {active
               ? "Resident, portal, occupancy, and recurring rent are active."
               : "Review the generated document, then send through SignWell."}
@@ -201,7 +201,7 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
 
       <section
         aria-label="M.P.A. Assistant"
-        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           M.P.A. Assistant
@@ -222,7 +222,7 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
 
       <section
         id="send"
-        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
       >
         <h2 className="text-base font-semibold">Signature workflow</h2>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
@@ -253,7 +253,7 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
           ) : null}
         </dl>
         {data.lease.signwellError ? (
-          <p className="text-sm text-[#C0392B]">{data.lease.signwellError}</p>
+          <p className="text-sm text-[var(--mpa-color-status-danger)]">{data.lease.signwellError}</p>
         ) : null}
         <div className="flex flex-wrap gap-2">
           {canSend ? (
@@ -311,17 +311,17 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
             ) : null}
           </div>
         ) : null}
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+        {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
       </section>
 
       <section className="grid max-w-5xl gap-4 lg:grid-cols-2">
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-base font-semibold">Lease document</h2>
           <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded-md bg-[var(--mpa-color-bg-app)] p-3 text-xs text-[var(--mpa-color-text-primary)]">
             {data.lease.documentBody ?? "No document generated."}
           </pre>
         </div>
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-base font-semibold">Activation & money</h2>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between gap-3">

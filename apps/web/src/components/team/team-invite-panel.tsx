@@ -174,7 +174,7 @@ export function TeamInvitePanel() {
 
   return (
     <div className="space-y-6">
-      <section className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+      <section className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
         <header className="space-y-1">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
             Invite a teammate
@@ -234,12 +234,12 @@ export function TeamInvitePanel() {
             </Button>
           </div>
         ) : null}
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
+        {notice ? <p className="text-sm text-[var(--mpa-color-status-success)]">{notice}</p> : null}
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
             Pending invitations
           </h3>
@@ -276,7 +276,7 @@ export function TeamInvitePanel() {
           )}
         </div>
 
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
             Organization team
           </h3>

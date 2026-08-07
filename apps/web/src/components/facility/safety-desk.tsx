@@ -297,20 +297,20 @@ export function SafetyDesk() {
         <Badge variant="neutral">{summary.openCount} open</Badge>
       </section>
 
-      <section className="max-w-3xl rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3 text-sm">
+      <section className="max-w-3xl rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 text-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Assistant recommendation
         </p>
         <p className="mt-1">{assistantRecommendation}</p>
       </section>
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-      {notice ? <p className="text-sm text-emerald-800">{notice}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
+      {notice ? <p className="text-sm text-[var(--mpa-color-status-success)]">{notice}</p> : null}
 
       {reporting ? (
         <form
           onSubmit={(event) => void reportIncident(event)}
-          className="max-w-xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+          className="max-w-xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
         >
           <h2 className="text-base font-semibold">Report safety incident</h2>
           <label className="block space-y-1 text-sm">
@@ -378,7 +378,7 @@ export function SafetyDesk() {
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-        <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <div className="flex flex-wrap gap-2">
             {(
               [
@@ -432,7 +432,7 @@ export function SafetyDesk() {
           )}
         </section>
 
-        <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           {!selected ? (
             <EmptyState
               title="Select an incident"

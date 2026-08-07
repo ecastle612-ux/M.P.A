@@ -52,7 +52,7 @@ export function WorkspaceLauncherPage() {
                 <li key={item.id}>
                   <Link
                     href={item.href}
-                    className="block rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 hover:border-[var(--mpa-color-brand-primary)]"
+                    className="block rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 hover:border-[var(--mpa-color-brand-primary)]"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <p className="font-medium text-[var(--mpa-color-text-primary)]">{item.title}</p>

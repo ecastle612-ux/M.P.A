@@ -46,7 +46,7 @@ export function J1CertificationPanel() {
     report.assistantRecommendation === "Invite your team.";
 
   return (
-    <section className="max-w-3xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+    <section className="max-w-3xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
       <div>
         <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
           LAUNCH-001 · J1 certification
@@ -69,7 +69,7 @@ export function J1CertificationPanel() {
           {loading ? "Loading…" : "Load J1 evidence"}
         </Button>
       </div>
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
       {report ? (
         <div className="space-y-3 text-sm">
           <div className="flex flex-wrap items-center gap-2">

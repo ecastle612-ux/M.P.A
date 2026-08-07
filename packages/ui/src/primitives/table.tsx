@@ -13,7 +13,7 @@ export function Table({ className, ...props }: TableHTMLAttributes<HTMLTableElem
 }
 
 export function TableHead({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className={cn("bg-gray-50", className)} {...props} />;
+  return <thead className={cn("bg-[var(--mpa-color-bg-subtle)]", className)} {...props} />;
 }
 
 export function TableBody({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
@@ -23,7 +23,10 @@ export function TableBody({ className, ...props }: HTMLAttributes<HTMLTableSecti
 export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) {
   return (
     <tr
-      className={cn("border-b border-[var(--mpa-color-border-default)] hover:bg-gray-50", className)}
+      className={cn(
+        "border-b border-[var(--mpa-color-border-default)] hover:bg-[var(--mpa-color-bg-subtle)]",
+        className
+      )}
       {...props}
     />
   );

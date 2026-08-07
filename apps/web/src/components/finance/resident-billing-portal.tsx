@@ -147,12 +147,12 @@ export function ResidentBillingPortal() {
   return (
     <div className="space-y-6">
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">{error}</p>
+        <p className="rounded-md border border-[var(--mpa-color-status-danger)]/30 bg-[var(--mpa-color-status-danger-subtle)] px-3 py-2 text-sm text-[var(--mpa-color-status-danger)]">{error}</p>
       ) : null}
       {paymentNotice ? (
         <p
           role="status"
-          className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900"
+          className="rounded-md border border-[var(--mpa-color-status-success)]/30 bg-[var(--mpa-color-status-success-subtle)] px-3 py-2 text-sm text-[var(--mpa-color-status-success)]"
         >
           {paymentNotice}
         </p>
@@ -163,7 +163,7 @@ export function ResidentBillingPortal() {
         return (
           <section
             key={account.resident.id}
-            className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+            className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
           >
             <header className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -179,7 +179,7 @@ export function ResidentBillingPortal() {
               </Badge>
             </header>
 
-            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#fafafa)] px-4 py-5">
+            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle)] px-4 py-5">
               <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">Current balance</p>
               <p className="mt-1 font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
                 {formatMoney(account.balance.openBalance)}

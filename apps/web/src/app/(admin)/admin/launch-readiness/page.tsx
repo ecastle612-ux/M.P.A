@@ -15,40 +15,73 @@ import { E3CertificationPanel } from "../../../../components/admin/e3-certificat
 import { E4CertificationPanel } from "../../../../components/admin/e4-certification-panel";
 import { E5CertificationPanel } from "../../../../components/admin/e5-certification-panel";
 import { E6CertificationPanel } from "../../../../components/admin/e6-certification-panel";
+import { Badge, PageHeader } from "@mpa/ui";
 
 export default function Page() {
   return (
-    <main className="space-y-6 p-4 md:p-6">
-      <section className="space-y-2">
-        <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Launch Readiness
-        </h1>
-        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Customer Promise launch evidence. J0–J8 verification scripts plus Documents and
-          Communications remediation. Portal access provisioning is required for J4/J6 Pass.
-          Facility Operations Phase E.1–E.6 certification is included below.
-        </p>
-        <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          Status: aligned
-        </p>
+    <main className="space-y-8 p-4 md:p-6">
+      <PageHeader
+        eyebrow="Certification"
+        title="Launch Readiness"
+        description="Run evidence scripts for Property Manager, shared platform surfaces, and Facility Operations. Portal provisioning is required for J4 and J6 Pass."
+        meta={<Badge variant="success">Aligned</Badge>}
+      />
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+            Property Manager · J0–J8
+          </h2>
+          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+            Customer Promise journeys and operational handoffs.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <J0CertificationPanel />
+          <J1CertificationPanel />
+          <J2CertificationPanel />
+          <J3CertificationPanel />
+          <J4CertificationPanel />
+          <J5CertificationPanel />
+          <J6CertificationPanel />
+          <J7CertificationPanel />
+          <J8CertificationPanel />
+        </div>
       </section>
-      <J0CertificationPanel />
-      <J1CertificationPanel />
-      <J2CertificationPanel />
-      <J3CertificationPanel />
-      <J4CertificationPanel />
-      <J5CertificationPanel />
-      <J6CertificationPanel />
-      <J7CertificationPanel />
-      <J8CertificationPanel />
-      <DocumentsCertificationPanel />
-      <CommunicationsCertificationPanel />
-      <E1CertificationPanel />
-      <E2CertificationPanel />
-      <E3CertificationPanel />
-      <E4CertificationPanel />
-      <E5CertificationPanel />
-      <E6CertificationPanel />
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+            Shared Platform
+          </h2>
+          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+            Documents and Communications evidence across products.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <DocumentsCertificationPanel />
+          <CommunicationsCertificationPanel />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+            Facility Operations · E.1–E.6
+          </h2>
+          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+            Site through inspections, safety, and compliance certification panels.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <E1CertificationPanel />
+          <E2CertificationPanel />
+          <E3CertificationPanel />
+          <E4CertificationPanel />
+          <E5CertificationPanel />
+          <E6CertificationPanel />
+        </div>
+      </section>
     </main>
   );
 }
