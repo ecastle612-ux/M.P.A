@@ -24,6 +24,9 @@
   --mpa-color-text-sidebar-active: #ffffff;
 
   --mpa-color-brand-primary: #0f6b56;
+  --mpa-color-brand-primary-hover: #0c5a48;
+  --mpa-color-border-focus: #0f6b56;
+  --mpa-color-bg-subtle: #f7f8fa;
 }
 
 html,
@@ -62,5 +65,25 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@keyframes mpa-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mpa-grid-drift {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 48px 48px, 48px 48px;
   }
 }
