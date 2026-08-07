@@ -4,7 +4,7 @@
 **Date:** 2026-08-06  
 **Financial Operations:** Package **Approved** · ADR-016 **Accepted** · **S0–S3 delivered** · **Paused** (S4+ NO-GO)  
 **LAUNCH-001:** Customer Promise roadmap at `docs/26-launch-001-onboarding/` · **NO-GO implement** until Approve  
-**Facility Operations features:** NO-GO / deferred
+**Facility Operations features:** NO-GO / deferred — Implement authorize (2026-08-07) refused; see [docs/27-facility-operations](../../27-facility-operations/index.md)
 
 ---
 

@@ -101,6 +101,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE CUSTOMER #1 DRY RUN REMEDIATION` | Clear DR-C1…DR-C5 only | **Authorized + delivered** — **GO**; [Remediation Report](./customer-1-dry-run/dry-run-remediation-report.md); **STOP** |
 | `AUTHORIZE PRODUCTION DEPLOYMENT SUPPORT` | Deploy ops + Customer #1 onboarding support (no features) | **Authorized + delivered** — [Production Deployment Support](./production-deployment/index.md); **STOP** |
 | `AUTHORIZE PRODUCTION VALIDATION SPRINT 1` | Validate as Customer #1; fix production-quality defects only | **Authorized + delivered** — **GO WITH OBSERVATIONS** (96/100); [Validation Report](./production-validation-sprint-1/production-validation-report.md); **STOP** |
+| `AUTHORIZE FACILITY OPERATIONS IMPLEMENTATION` | FO feature implement | **Refused** — workflows + schema design missing; [docs/27](../27-facility-operations/index.md) |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
