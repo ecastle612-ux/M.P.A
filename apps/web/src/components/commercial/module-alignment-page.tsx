@@ -27,7 +27,7 @@ export function ModuleAlignmentPage({
         </p>
         <h1 className="mt-1 font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">{title}</h1>
         <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{description}</p>
-        <dl className="mt-4 grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 text-sm">
+        <dl className="mt-4 grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 text-sm">
           <div className="flex justify-between gap-4">
             <dt className="text-[var(--mpa-color-text-secondary)]">Commercial readiness</dt>
             <dd className="font-medium text-[var(--mpa-color-text-primary)]">

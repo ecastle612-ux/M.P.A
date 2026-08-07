@@ -144,7 +144,7 @@ export function OwnerPropertyDrillDown({ propertyId }: { propertyId: string }) {
 
       <section
         aria-label="Assistant"
-        className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3"
+        className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Assistant
@@ -173,7 +173,7 @@ export function OwnerPropertyDrillDown({ propertyId }: { propertyId: string }) {
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-sm font-semibold">Residents</h2>
           {data.residents.length === 0 ? (
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No residents assigned.</p>
@@ -191,7 +191,7 @@ export function OwnerPropertyDrillDown({ propertyId }: { propertyId: string }) {
           )}
         </section>
 
-        <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-sm font-semibold">Active leases</h2>
           {data.activeLeases.length === 0 ? (
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No active leases.</p>
@@ -210,7 +210,7 @@ export function OwnerPropertyDrillDown({ propertyId }: { propertyId: string }) {
           )}
         </section>
 
-        <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-sm font-semibold">Maintenance summary</h2>
           {!data.maintenance || data.maintenance.openWorkOrders.length === 0 ? (
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
@@ -231,7 +231,7 @@ export function OwnerPropertyDrillDown({ propertyId }: { propertyId: string }) {
           )}
         </section>
 
-        <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-sm font-semibold">Recent money activity</h2>
           {data.recentActivity.length === 0 ? (
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No recent activity.</p>
@@ -253,7 +253,7 @@ export function OwnerPropertyDrillDown({ propertyId }: { propertyId: string }) {
         </section>
       </div>
 
-      <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+      <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
         <h2 className="text-sm font-semibold">Documents</h2>
         <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{data.documentsHonesty}</p>
       </section>
@@ -289,7 +289,7 @@ function formatWhen(iso: string): string {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
+    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3">
       <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
         {label}
       </p>

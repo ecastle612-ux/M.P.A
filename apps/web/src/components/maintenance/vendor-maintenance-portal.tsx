@@ -17,8 +17,12 @@ type Entry = {
     status: WorkOrderStatus;
     priority: WorkOrderPriority;
     organization_id: string;
+    product_context?: "property_manager" | "facility";
     property_properties?: { name: string } | null;
     property_units?: { unit_label: string } | null;
+    facility_sites?: { id: string; name: string } | null;
+    facility_assets?: { id: string; name: string; criticality: string } | null;
+    facility_systems?: { id: string; name: string; criticality: string } | null;
   };
   updates: Array<{ id: string; body: string; actor_role: string }>;
 };
@@ -103,7 +107,8 @@ export function VendorMaintenancePortal() {
           Vendor work orders
         </h2>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Assignments from Property Manager Maintenance. Update progress and complete work here.
+          Assignments from Property Manager and Facility Operations. Update progress and complete
+          work here.
         </p>
         {vendors.length > 0 ? (
           <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">
@@ -113,7 +118,7 @@ export function VendorMaintenancePortal() {
       </header>
 
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
+        <p className="rounded-md border border-[var(--mpa-color-status-danger)]/30 bg-[var(--mpa-color-status-danger-subtle)] px-3 py-2 text-sm text-[var(--mpa-color-status-danger)]">
           {error}
         </p>
       ) : null}
@@ -121,13 +126,13 @@ export function VendorMaintenancePortal() {
       {entries.length === 0 ? (
         <EmptyState
           title="No assigned work yet"
-          description="When a property manager assigns your vendor account, work orders appear here."
+          description="When a property manager or facility manager assigns your vendor account, work orders appear here."
         />
       ) : (
         entries.map(({ workOrder, updates }) => (
           <article
             key={workOrder.id}
-            className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+            className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
@@ -135,18 +140,48 @@ export function VendorMaintenancePortal() {
                 <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
                   {workOrder.description}
                 </p>
-                <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                  {workOrder.property_properties?.name ?? "Property"}
-                  {workOrder.property_units?.unit_label
-                    ? ` · Unit ${workOrder.property_units.unit_label}`
-                    : ""}
-                </p>
+                {workOrder.product_context === "facility" ? (
+                  <dl className="mt-2 grid gap-1 text-xs text-[var(--mpa-color-text-secondary)] sm:grid-cols-2">
+                    <div>
+                      <dt className="font-medium text-[var(--mpa-color-text-primary)]">
+                        Facility site
+                      </dt>
+                      <dd>{workOrder.facility_sites?.name ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium text-[var(--mpa-color-text-primary)]">Asset</dt>
+                      <dd>{workOrder.facility_assets?.name ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium text-[var(--mpa-color-text-primary)]">
+                        Building system
+                      </dt>
+                      <dd>{workOrder.facility_systems?.name ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium text-[var(--mpa-color-text-primary)]">
+                        Facility context
+                      </dt>
+                      <dd>Facility Operations</dd>
+                    </div>
+                  </dl>
+                ) : (
+                  <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                    {workOrder.property_properties?.name ?? "Property"}
+                    {workOrder.property_units?.unit_label
+                      ? ` · Unit ${workOrder.property_units.unit_label}`
+                      : ""}
+                  </p>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Badge variant="neutral">{WORK_ORDER_STATUS_LABELS[workOrder.status]}</Badge>
                 <Badge variant={workOrder.priority === "emergency" ? "danger" : "info"}>
                   {WORK_ORDER_PRIORITY_LABELS[workOrder.priority]}
                 </Badge>
+                {workOrder.product_context === "facility" ? (
+                  <Badge variant="info">Facility</Badge>
+                ) : null}
               </div>
             </div>
             <ul className="space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">

@@ -1,15 +1,10 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { Suspense } from "react";
+import { ComplianceDesk } from "../../../../components/facility/compliance-desk";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
-      title="Compliance"
-      description="Building and facility compliance. Feature work not in Phase 1."
-      readiness="planned"
-      entitlement="facility.compliance"
-      includedIn={["Facility Operations", "Complete Platform"]}
-      requiresComplete="Property Manager-only customers"
-    />
+    <Suspense fallback={<main className="flex-1 p-6 text-sm">Loading Compliance…</main>}>
+      <ComplianceDesk />
+    </Suspense>
   );
 }

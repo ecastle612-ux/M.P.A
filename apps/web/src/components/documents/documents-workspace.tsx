@@ -177,7 +177,7 @@ export function DocumentsWorkspace() {
         <label className="space-y-1 text-sm">
           <span className="text-xs text-[var(--mpa-color-text-secondary)]">Filter</span>
           <select
-            className="block rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2"
+            className="block rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2"
             value={entityType}
             onChange={(event) => setEntityType(event.target.value as (typeof FILTERS)[number])}
           >
@@ -202,7 +202,7 @@ export function DocumentsWorkspace() {
         </Button>
       </section>
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <section className="space-y-3" aria-label="Document list">
@@ -220,7 +220,7 @@ export function DocumentsWorkspace() {
                   <button
                     type="button"
                     onClick={() => void openDocument(doc.id)}
-                    className="w-full rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 text-left hover:bg-gray-50"
+                    className="w-full rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 text-left hover:bg-[var(--mpa-color-bg-subtle)]"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="font-medium text-[var(--mpa-color-text-primary)]">
@@ -246,7 +246,7 @@ export function DocumentsWorkspace() {
         <div className="space-y-4">
           <section
             aria-label="Upload document"
-            className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+            className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
           >
             <h2 className="text-sm font-semibold">Upload & organize</h2>
             <label className="block space-y-1 text-sm">
@@ -324,7 +324,7 @@ export function DocumentsWorkspace() {
 
           <section
             aria-label="Document detail"
-            className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+            className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
           >
             <h2 className="text-sm font-semibold">Document detail</h2>
             {!selectedId ? (
@@ -359,7 +359,7 @@ export function DocumentsWorkspace() {
                   </a>
                 ) : null}
                 {detail.contentText ? (
-                  <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-md bg-gray-50 p-3 text-xs">
+                  <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-md bg-[var(--mpa-color-bg-subtle)] p-3 text-xs">
                     {detail.contentText}
                   </pre>
                 ) : detail.contentBase64 ? (

@@ -11,10 +11,15 @@
   --mpa-color-bg-sidebar: #12151a;
   --mpa-color-bg-sidebar-elevated: #1a1e25;
   --mpa-color-bg-surface: #ffffff;
+  --mpa-color-bg-surface-muted: #eef0f3;
+  --mpa-color-bg-subtle: #f7f8fa;
+  --mpa-color-bg-sunken: #e5e7eb;
   --mpa-color-bg-overlay: #12151a99;
 
   --mpa-color-border-default: #d1d5db;
   --mpa-color-border-subtle: #e5e7eb;
+  --mpa-color-border-strong: #9ca3af;
+  --mpa-color-border-focus: #0f6b56;
   --mpa-color-border-sidebar: #2a2f38;
 
   --mpa-color-text-primary: #12151a;
@@ -22,8 +27,21 @@
   --mpa-color-text-muted: #6b7280;
   --mpa-color-text-sidebar: #c4c9d1;
   --mpa-color-text-sidebar-active: #ffffff;
+  --mpa-color-text-link: #0f6b56;
+  --mpa-color-text-danger: #b42318;
 
   --mpa-color-brand-primary: #0f6b56;
+  --mpa-color-brand-primary-hover: #0c5a48;
+  --mpa-color-brand-primary-subtle: #e6f4ef;
+
+  --mpa-color-status-success: #0e7a57;
+  --mpa-color-status-warning: #b45309;
+  --mpa-color-status-danger: #c0392b;
+  --mpa-color-status-info: #1d6aa5;
+  --mpa-color-status-success-subtle: #e3f5ee;
+  --mpa-color-status-warning-subtle: #fef3c7;
+  --mpa-color-status-danger-subtle: #fce8e6;
+  --mpa-color-status-info-subtle: #e5f1fa;
 }
 
 html,

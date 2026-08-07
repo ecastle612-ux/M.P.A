@@ -13,6 +13,7 @@ export const canopyTokens = {
       sidebarElevated: "#1A1E25",
       surface: "#FFFFFF",
       surfaceMuted: "#EEF0F3",
+      subtle: "#F7F8FA",
       sunken: "#E5E7EB",
       overlay: "#12151A99"
     },

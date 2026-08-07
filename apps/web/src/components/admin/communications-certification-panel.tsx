@@ -49,11 +49,12 @@ export function CommunicationsCertificationPanel() {
     report.readiness.communicationsReady;
 
   return (
-    <section className="max-w-3xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+    <section className="max-w-3xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
       <div>
         <h2 className="text-base font-semibold">LAUNCH-001 · Communications remediation</h2>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Verify send paths, unified inbox, history, timeline/audit, and reuse of FO/maintenance notices.
+          Verify send paths, unified inbox, history, timeline/audit, and reuse of
+          Financial Operations / maintenance notices.
         </p>
       </div>
       <div className="flex flex-wrap items-end gap-2">
@@ -69,7 +70,7 @@ export function CommunicationsCertificationPanel() {
           {loading ? "Loading…" : "Load Communications evidence"}
         </Button>
       </div>
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
       {report ? (
         <div className="space-y-3 text-sm">
           <Badge variant={corePass ? "success" : "danger"}>
@@ -80,8 +81,9 @@ export function CommunicationsCertificationPanel() {
           ) : null}
           <p className="text-xs text-[var(--mpa-color-text-secondary)]">
             Messages: {report.readiness.messageCount} · Comms notices:{" "}
-            {report.readiness.notificationCount} · FO notices: {report.financeNotificationCount} ·
-            Maintenance notices: {report.maintenanceNotificationCount}
+            {report.readiness.notificationCount} · Financial Operations notices:{" "}
+            {report.financeNotificationCount} · Maintenance notices:{" "}
+            {report.maintenanceNotificationCount}
           </p>
           <ul className="space-y-1">
             {Object.entries(report.checks).map(([key, value]) => (

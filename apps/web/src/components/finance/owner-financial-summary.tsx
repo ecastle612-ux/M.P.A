@@ -88,7 +88,7 @@ export function OwnerFinancialSummary() {
         </div>
         <a
           href="/api/finance/reports/owner?format=csv"
-          className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-1.5 text-sm"
+          className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-1.5 text-sm"
         >
           Download summary CSV
         </a>
@@ -108,7 +108,7 @@ export function OwnerFinancialSummary() {
 
       <section
         aria-label="Assistant recommendation"
-        className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3"
+        className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Assistant recommendation
@@ -125,7 +125,7 @@ export function OwnerFinancialSummary() {
             {summary.properties.map((property) => (
               <li
                 key={property.propertyId}
-                className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+                className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="font-medium">{property.propertyName}</h3>
@@ -162,7 +162,7 @@ export function OwnerFinancialSummary() {
         )}
       </section>
 
-      <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+      <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
         <h2 className="text-sm font-semibold">Alerts</h2>
         <ul className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
           {summary.alerts.map((alert) => (
@@ -179,7 +179,7 @@ export function OwnerFinancialSummary() {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
+    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3">
       <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{label}</p>
       <p className="mt-1 font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{value}</p>
     </div>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatMoney } from "@mpa/shared";
-import { Badge, Button, EmptyState, Input, Select } from "@mpa/ui";
+import { Badge, Button, EmptyState, Input, Select, StatusBanner } from "@mpa/ui";
 
 type Lease = {
   id: string;
@@ -189,21 +189,13 @@ export function FinanceDesk() {
 
   return (
     <div className="space-y-6">
-      {error ? (
-        <p className="rounded-md border border-[var(--mpa-color-danger,#C0392B)] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
-      ) : null}
-      {notice ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
-          {notice}
-        </p>
-      ) : null}
+      {error ? <StatusBanner variant="danger">{error}</StatusBanner> : null}
+      {notice ? <StatusBanner variant="success">{notice}</StatusBanner> : null}
 
       <section
         id="collect"
         aria-labelledby="collect-first-rent-title"
-        className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+        className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
       >
         <h2
           id="collect-first-rent-title"
@@ -223,7 +215,7 @@ export function FinanceDesk() {
             <li>Resident pays online, or you record a manual payment + receipt.</li>
           </ol>
         ) : (
-          <p className="text-sm font-medium text-emerald-800">My first rent has been collected.</p>
+          <p className="text-sm font-medium text-[var(--mpa-color-status-success)]">My first rent has been collected.</p>
         )}
         <div className="flex flex-wrap gap-2">
           <Button
@@ -294,7 +286,7 @@ export function FinanceDesk() {
 
       <section
         aria-label="Assistant recommendation"
-        className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3"
+        className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Assistant recommendation
@@ -313,7 +305,7 @@ export function FinanceDesk() {
       </section>
 
       <section className="grid gap-3 lg:grid-cols-2">
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-sm font-semibold">Financial alerts</h3>
           <ul className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
             {(snapshot?.alerts ?? ["Loading…"]).map((alert) => (
@@ -321,7 +313,7 @@ export function FinanceDesk() {
             ))}
           </ul>
         </div>
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-sm font-semibold">Recent payments</h3>
           {(snapshot?.recentPayments.length ?? 0) === 0 ? (
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No payments yet this month.</p>
@@ -339,7 +331,7 @@ export function FinanceDesk() {
       </section>
 
       <section id="setup" className="grid gap-4 lg:grid-cols-2">
-        <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-sm font-semibold">Properties</h3>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
             Create properties in the Properties directory — one creation path for the portfolio (J1).
@@ -356,7 +348,7 @@ export function FinanceDesk() {
           </Button>
         </div>
 
-        <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-sm font-semibold">Residents & leases</h3>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
             Create residents on Residents (J3) and leases on Leasing (J4) — one path each. Financial
@@ -385,7 +377,7 @@ export function FinanceDesk() {
         </div>
       </section>
 
-      <section id="charges" className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+      <section id="charges" className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
             <span className="mb-1 block text-[var(--mpa-color-text-secondary)]">Resident lease</span>
@@ -542,7 +534,7 @@ export function FinanceDesk() {
         ) : null}
       </section>
 
-      <section id="payments" className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+      <section id="payments" className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
         <h3 className="text-sm font-semibold">Record manual payment</h3>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
           Same canonical payment path as Stripe checkout — balance, receipt, property snapshot, owner
@@ -619,7 +611,7 @@ export function FinanceDesk() {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
+    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3">
       <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{label}</p>
       <p className="mt-1 font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{value}</p>
     </div>

@@ -88,7 +88,7 @@ export function AcceptInvitationCard({ token }: { token: string }) {
           </p>
           <p>Invited email: {preview.email}</p>
           {preview.expired || preview.status !== "pending" ? (
-            <p className="text-[#C0392B]">This invitation is no longer available.</p>
+            <p className="text-[var(--mpa-color-status-danger)]">This invitation is no longer available.</p>
           ) : null}
         </div>
       ) : (
@@ -114,13 +114,13 @@ export function AcceptInvitationCard({ token }: { token: string }) {
       ) : null}
 
       {emailMismatch ? (
-        <p className="text-sm text-[#C0392B]">
+        <p className="text-sm text-[var(--mpa-color-status-danger)]">
           You are signed in as {signedInEmail}. Sign in as {preview?.email} to accept.
         </p>
       ) : null}
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-      {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
+      {notice ? <p className="text-sm text-[var(--mpa-color-status-success)]">{notice}</p> : null}
 
       {signedInEmail && !emailMismatch && preview && !preview.expired && preview.status === "pending" ? (
         <Button disabled={loading} onClick={() => void acceptInvitation()}>

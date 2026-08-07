@@ -122,7 +122,7 @@ export function PropertyFinancialPanel({ propertyId }: { propertyId: string }) {
 
       <section
         aria-label="Assistant insights"
-        className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3"
+        className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Assistant insights
@@ -137,7 +137,7 @@ export function PropertyFinancialPanel({ propertyId }: { propertyId: string }) {
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-sm font-semibold">Financial alerts</h2>
           <ul className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
             {snapshot.alerts.map((alert) => (
@@ -151,7 +151,7 @@ export function PropertyFinancialPanel({ propertyId }: { propertyId: string }) {
             Open Financial Operations
           </Link>
         </div>
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-sm font-semibold">Timeline</h2>
           <div className="mt-3">
             {activity.length === 0 ? (
@@ -175,7 +175,7 @@ export function PropertyFinancialPanel({ propertyId }: { propertyId: string }) {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
+    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3">
       <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{label}</p>
       <p className="mt-1 font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{value}</p>
     </div>

@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Select } from "@mpa/ui";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  PageHeader,
+  Select,
+  Skeleton,
+  StatusBanner
+} from "@mpa/ui";
 import { PRODUCT_SKUS, SKU_SUMMARIES, type ProductSku } from "@mpa/shared";
 
 type AdminOrganization = {
@@ -65,34 +73,58 @@ export function SubscriptionConsole() {
 
   return (
     <main className="space-y-4 p-4 md:p-6">
-      <h1 className="font-display text-2xl font-semibold">Subscriptions</h1>
-      <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        Platform operators assign and inspect organization SKUs and Guided Setup state (J0). Customers
-        cannot change subscriptions.
-      </p>
-      {organizations === null ? (
-        <Button type="button" onClick={() => void load()}>
-          Load organizations
-        </Button>
+      <PageHeader
+        eyebrow="Commercial"
+        title="Subscriptions"
+        description="Assign and inspect organization SKUs and Guided Setup state. Customers cannot change subscriptions."
+        actions={
+          organizations === null ? (
+            <Button type="button" onClick={() => void load()}>
+              Load organizations
+            </Button>
+          ) : (
+            <Button type="button" variant="secondary" disabled={loading} onClick={() => void load()}>
+              Refresh
+            </Button>
+          )
+        }
+      />
+      {loading && organizations === null ? (
+        <div className="space-y-3">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
       ) : null}
-      {loading ? <p className="text-sm text-[var(--mpa-color-text-secondary)]">Loading…</p> : null}
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-      {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
-      {organizations ? (
+      {error ? <StatusBanner variant="danger">{error}</StatusBanner> : null}
+      {notice ? <StatusBanner variant="success">{notice}</StatusBanner> : null}
+      {organizations && organizations.length === 0 ? (
+        <EmptyState
+          title="No organizations found"
+          description="Create or invite an organization before assigning a commercial SKU."
+        />
+      ) : null}
+      {organizations && organizations.length > 0 ? (
         <ul className="space-y-3">
           {organizations.map((organization) => (
             <li
               key={organization.id}
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 text-sm"
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 text-sm"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div>
+                <div className="space-y-2">
                   <p className="font-medium text-[var(--mpa-color-text-primary)]">{organization.name}</p>
                   <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                    {organization.slug} · Current: {organization.productLabel ?? "None"}{" "}
-                    {organization.subscriptionStatus ? `(${organization.subscriptionStatus})` : ""} ·
-                    Setup: {organization.setupComplete ? "complete" : "incomplete"}
+                    {organization.slug}
                   </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="info">{organization.productLabel ?? "No SKU"}</Badge>
+                    <Badge variant={organization.setupComplete ? "success" : "warning"}>
+                      Setup {organization.setupComplete ? "complete" : "incomplete"}
+                    </Badge>
+                    {organization.subscriptionStatus ? (
+                      <Badge variant="neutral">{organization.subscriptionStatus}</Badge>
+                    ) : null}
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Select
@@ -118,9 +150,6 @@ export function SubscriptionConsole() {
             </li>
           ))}
         </ul>
-      ) : null}
-      {organizations?.length === 0 ? (
-        <p className="text-sm text-[var(--mpa-color-text-secondary)]">No organizations found.</p>
       ) : null}
     </main>
   );

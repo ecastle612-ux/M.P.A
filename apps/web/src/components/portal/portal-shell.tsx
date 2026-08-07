@@ -29,7 +29,7 @@ export function PortalShell({
   return (
     <div className="min-h-screen bg-[var(--mpa-color-bg-app)]">
       <SkipToContent />
-      <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
+      <header className="sticky top-0 z-20 border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3">
           <p className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{title}</p>
           <Badge>{roleBadgeLabel}</Badge>
@@ -44,7 +44,7 @@ export function PortalShell({
       <div className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-4 lg:grid-cols-[240px_1fr]">
         <nav
           aria-label={`${roleBadgeLabel} portal`}
-          className="h-fit rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3"
+          className="h-fit rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3"
         >
           <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">Navigation</p>
           <ul className="mt-3 space-y-1">

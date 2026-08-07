@@ -135,10 +135,10 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
       {justCreated ? (
         <section
           aria-live="polite"
-          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
+          className="max-w-3xl rounded-md border border-[var(--mpa-color-status-success)]/30 bg-[var(--mpa-color-status-success-subtle)] p-4"
         >
-          <p className="text-base font-semibold text-emerald-900">{data.readyMessage}</p>
-          <p className="mt-1 text-sm text-emerald-800">
+          <p className="text-base font-semibold text-[var(--mpa-color-status-success)]">{data.readyMessage}</p>
+          <p className="mt-1 text-sm text-[var(--mpa-color-status-success)]">
             {data.resident.displayName} is visible on the property, in the directory, search,
             timeline, and audit.
           </p>
@@ -161,16 +161,16 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
       {data.resident.portalStatus === "active" ? (
         <section
           aria-label="Portal status"
-          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
+          className="max-w-3xl rounded-md border border-[var(--mpa-color-status-success)]/30 bg-[var(--mpa-color-status-success-subtle)] p-4"
         >
-          <p className="text-sm font-semibold text-emerald-900">Resident Portal · Active</p>
-          <p className="mt-1 text-sm text-emerald-800">
+          <p className="text-sm font-semibold text-[var(--mpa-color-status-success)]">Resident Portal · Active</p>
+          <p className="mt-1 text-sm text-[var(--mpa-color-status-success)]">
             The resident can open the portal for welcome, lease, rent, maintenance, and documents.
           </p>
           {data.integrations.portal ? (
             <Link
               href={data.integrations.portal}
-              className="mt-2 inline-flex text-sm font-medium text-emerald-900 underline"
+              className="mt-2 inline-flex text-sm font-medium text-[var(--mpa-color-status-success)] underline"
             >
               Open Resident Portal
             </Link>
@@ -180,7 +180,7 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
 
       <section
         aria-label="M.P.A. Assistant"
-        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           M.P.A. Assistant
@@ -198,7 +198,7 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
       </section>
 
       <section className="grid max-w-5xl gap-4 lg:grid-cols-2">
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Assignment</h2>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between gap-3 border-b border-[var(--mpa-color-border-default)] py-2">
@@ -223,7 +223,7 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
           </dl>
         </div>
 
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Timeline</h2>
           <div className="mt-3">
             <TimelineView

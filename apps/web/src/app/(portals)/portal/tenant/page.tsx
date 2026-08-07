@@ -97,7 +97,7 @@ export default async function TenantPortalPage() {
 
   return (
     <div className="space-y-4">
-      <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+      <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Welcome
         </p>
@@ -111,7 +111,7 @@ export default async function TenantPortalPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-base font-semibold">Lease information</h3>
           {leaseSummary ? (
             <dl className="space-y-1 text-sm">
@@ -135,7 +135,7 @@ export default async function TenantPortalPage() {
           )}
         </div>
 
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-base font-semibold">Rent summary</h3>
           {leaseSummary ? (
             <dl className="space-y-1 text-sm">
@@ -165,7 +165,7 @@ export default async function TenantPortalPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-base font-semibold">Maintenance request</h3>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
             Submit and track maintenance requests for your home from this portal.
@@ -177,7 +177,7 @@ export default async function TenantPortalPage() {
             Open maintenance
           </Link>
         </div>
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h3 className="text-base font-semibold">Documents</h3>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
             Your signed lease and related documents are available here once activated.

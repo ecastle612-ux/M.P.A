@@ -73,8 +73,8 @@ export function ResetPasswordForm() {
             onChange={(event) => setConfirmPassword(event.target.value)}
           />
         </div>
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
+        {notice ? <p className="text-sm text-[var(--mpa-color-status-success)]">{notice}</p> : null}
         <Button className="w-full" disabled={loading} type="submit">
           {loading ? "Updating..." : "Update password"}
         </Button>

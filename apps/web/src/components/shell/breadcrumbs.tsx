@@ -7,19 +7,31 @@ export function Breadcrumbs({
 }) {
   return (
     <nav aria-label="Breadcrumb">
-      <ol className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
+      <ol className="flex flex-wrap items-center gap-1.5 text-sm text-[var(--mpa-color-text-secondary)]">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
-            <li key={item.label} className="flex items-center gap-2">
+            <li key={`${item.label}-${index}`} className="flex items-center gap-1.5">
               {item.href && !isLast ? (
-                <Link className="hover:text-[var(--mpa-color-text-primary)]" href={item.href}>
+                <Link
+                  className="rounded-sm transition-colors hover:text-[var(--mpa-color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]"
+                  href={item.href}
+                >
                   {item.label}
                 </Link>
               ) : (
-                <span className={isLast ? "text-[var(--mpa-color-text-primary)]" : ""}>{item.label}</span>
+                <span
+                  className={isLast ? "font-medium text-[var(--mpa-color-text-primary)]" : undefined}
+                  aria-current={isLast ? "page" : undefined}
+                >
+                  {item.label}
+                </span>
               )}
-              {!isLast ? <span aria-hidden>/</span> : null}
+              {!isLast ? (
+                <span aria-hidden className="text-[var(--mpa-color-text-muted)]">
+                  /
+                </span>
+              ) : null}
             </li>
           );
         })}

@@ -67,6 +67,7 @@ type CommandCenter = {
   assistantRecommendation: string;
   readyMessage: string;
   nextJourney: { title: string; href: string; detail: string };
+  facilitySite?: { id: string; name: string; status: string; href: string } | null;
 };
 
 function formatWhen(iso: string): string {
@@ -163,10 +164,10 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
       {justCreated || data.property.status === "active" ? (
         <section
           aria-live="polite"
-          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
+          className="max-w-3xl rounded-md border border-[var(--mpa-color-status-success)]/30 bg-[var(--mpa-color-status-success-subtle)] p-4"
         >
-          <p className="text-base font-semibold text-emerald-900">{data.readyMessage}</p>
-          <p className="mt-1 text-sm text-emerald-800">
+          <p className="text-base font-semibold text-[var(--mpa-color-status-success)]">{data.readyMessage}</p>
+          <p className="mt-1 text-sm text-[var(--mpa-color-status-success)]">
             {data.property.name} is active and visible across the platform.
           </p>
         </section>
@@ -174,7 +175,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
 
       <section
         aria-label="M.P.A. Assistant"
-        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+        className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           M.P.A. Assistant
@@ -189,10 +190,19 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         >
           {data.nextJourney.title}
         </Link>
+        {data.facilitySite ? (
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Facility site:{" "}
+            <Link href={data.facilitySite.href} className="underline">
+              {data.facilitySite.name}
+            </Link>{" "}
+            ({data.facilitySite.status})
+          </p>
+        ) : null}
       </section>
 
       <section className="grid max-w-5xl gap-4 lg:grid-cols-3">
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Units</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {data.units.map((unit) => (
@@ -214,7 +224,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
           </ul>
         </div>
 
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
             Residents & leases
           </h2>
@@ -267,7 +277,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
           )}
         </div>
 
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
             Maintenance
           </h2>
@@ -324,7 +334,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         </div>
       </section>
 
-      <section className="max-w-5xl rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+      <section className="max-w-5xl rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
         <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Timeline</h2>
         <div className="mt-3">
           <TimelineView

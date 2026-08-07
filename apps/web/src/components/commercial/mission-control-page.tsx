@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatMoney } from "@mpa/shared";
-import { Badge, EmptyState, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
+import {
+  Badge,
+  EmptyState,
+  OperationsConsoleShell,
+  PageHeader,
+  Skeleton,
+  StatusBanner,
+  TimelineView
+} from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { useOrganizationContext } from "../shell/organization-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
@@ -96,7 +104,7 @@ function AttentionList({
             <li key={item.id}>
               <Link
                 href={item.href}
-                className="block rounded-md border border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm hover:bg-[var(--mpa-color-bg-subtle,#f7faf9)]"
+                className="block rounded-md border border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm hover:bg-[var(--mpa-color-bg-subtle)]"
               >
                 <span className="font-medium text-[var(--mpa-color-text-primary)]">{item.title}</span>
                 <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-secondary)]">
@@ -179,38 +187,32 @@ export function MissionControlPage() {
         ]}
       />
 
-      <header className="max-w-3xl space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          {productLabel ?? "Property Manager"} · Daily operations
-        </p>
-        <h1 className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Mission Control
-        </h1>
-        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-          {loading
+      <PageHeader
+        eyebrow={`${productLabel ?? "Property Manager"} · Daily operations`}
+        title="Mission Control"
+        description={
+          loading
             ? "Loading your attention home…"
-            : (daily?.greeting ?? "Your attention home — start the day here.")}
-        </p>
-        <div className="flex flex-wrap gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          <span>{activeOrganization?.name ?? "Organization"}</span>
-          <span>·</span>
-          <span>{loading ? "…" : `${state?.propertyCount ?? 0} properties`}</span>
-          {state?.dailyOpsReady ? <Badge variant="success">Daily ops ready</Badge> : null}
-          {state?.ownerPortfolioReady ? (
-            <Badge variant="success">Customer promise complete</Badge>
-          ) : null}
-        </div>
-      </header>
+            : (daily?.greeting ?? "Your attention home — start the day here.")
+        }
+        meta={
+          <div className="flex flex-wrap gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
+            <span>{activeOrganization?.name ?? "Organization"}</span>
+            <span>·</span>
+            <span>{loading ? "…" : `${state?.propertyCount ?? 0} properties`}</span>
+            {state?.dailyOpsReady ? <Badge variant="success">Daily ops ready</Badge> : null}
+            {state?.ownerPortfolioReady ? (
+              <Badge variant="success">Customer promise complete</Badge>
+            ) : null}
+          </div>
+        }
+      />
 
-      {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
-      ) : null}
+      {error ? <StatusBanner variant="danger">{error}</StatusBanner> : null}
 
       <section
         aria-label="M.P.A. Assistant briefing"
-        className="max-w-4xl space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+        className="max-w-4xl space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           M.P.A. Assistant
@@ -230,11 +232,11 @@ export function MissionControlPage() {
               <p className="text-sm text-[var(--mpa-color-text-secondary)]">{daily.briefing.summary}</p>
             ) : null}
             {state?.ownerPortfolioReady ? (
-              <p className="text-sm text-emerald-800">
+              <p className="text-sm text-[var(--mpa-color-status-success)]">
                 I can confidently monitor my investment portfolio using M.P.A.
               </p>
             ) : state?.dailyOpsReady ? (
-              <p className="text-sm text-emerald-800">
+              <p className="text-sm text-[var(--mpa-color-status-success)]">
                 I can run my property management business from this dashboard.
               </p>
             ) : null}
@@ -245,7 +247,7 @@ export function MissionControlPage() {
       {nextAction ? (
         <section
           aria-label="Today's mission"
-          className="max-w-4xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+          className="max-w-4xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
             Today&apos;s mission
@@ -358,7 +360,7 @@ export function MissionControlPage() {
                     <Link
                       key={action.id}
                       href={action.href}
-                      className="rounded-md border border-[var(--mpa-color-brand-primary)] bg-white px-3 py-1.5 text-sm font-medium"
+                      className="rounded-md border border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-bg-surface)] px-3 py-1.5 text-sm font-medium"
                     >
                       {action.label}
                     </Link>
@@ -534,7 +536,7 @@ export function MissionControlPage() {
               <li key={property.id}>
                 <Link
                   href={`/pm/properties/${property.id}`}
-                  className="flex items-center justify-between rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3 text-sm hover:bg-gray-50"
+                  className="flex items-center justify-between rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3 text-sm hover:bg-[var(--mpa-color-bg-subtle)]"
                 >
                   <span className="font-medium text-[var(--mpa-color-text-primary)]">
                     {property.name}

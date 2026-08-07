@@ -112,7 +112,7 @@ export function ResidentCreateWizard({ onCancel }: ResidentCreateWizardProps) {
     return (
       <section
         aria-labelledby="resident-create-title"
-        className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+        className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
       >
         <h2
           id="resident-create-title"
@@ -138,7 +138,7 @@ export function ResidentCreateWizard({ onCancel }: ResidentCreateWizardProps) {
   return (
     <section
       aria-labelledby="resident-create-title"
-      className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+      className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
     >
       <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
@@ -298,7 +298,7 @@ export function ResidentCreateWizard({ onCancel }: ResidentCreateWizardProps) {
               ))}
             </Select>
             {units.length === 0 ? (
-              <p className="text-xs text-[#C0392B]">This property has no units yet.</p>
+              <p className="text-xs text-[var(--mpa-color-status-danger)]">This property has no units yet.</p>
             ) : null}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -357,7 +357,7 @@ export function ResidentCreateWizard({ onCancel }: ResidentCreateWizardProps) {
         </div>
       ) : null}
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
     </section>
   );
 }

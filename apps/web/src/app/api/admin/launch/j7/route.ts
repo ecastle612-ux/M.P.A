@@ -92,6 +92,6 @@ export async function GET(request: Request) {
       ? "Review your owner's portfolio."
       : "Review your daily operations.",
     note:
-      "J7 reuses OperationsConsoleShell + existing FO/maintenance/leasing/resident signals. No new dashboard. Opening Mission Control after J6 records mission_control.daily_ops_reviewed. Next → /portal/owner (J8)."
+      "J7 reuses OperationsConsoleShell + existing Financial Operations/maintenance/leasing/resident signals. No new dashboard. Opening Mission Control after J6 records mission_control.daily_ops_reviewed. Next → /portal/owner (J8)."
   });
 }

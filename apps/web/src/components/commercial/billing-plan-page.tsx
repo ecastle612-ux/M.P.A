@@ -32,8 +32,8 @@ export function BillingPlanPage() {
               key={sku}
               className={`rounded-md border p-4 ${
                 active
-                  ? "border-[var(--mpa-color-brand-primary)] bg-white"
-                  : "border-[var(--mpa-color-border-default)] bg-white opacity-80"
+                  ? "border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-bg-surface)]"
+                  : "border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] opacity-80"
               }`}
             >
               <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
@@ -54,7 +54,7 @@ export function BillingPlanPage() {
           {included.map((module) => (
             <li
               key={module.id}
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm"
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="font-medium text-[var(--mpa-color-text-primary)]">{module.label}</span>
@@ -75,7 +75,7 @@ export function BillingPlanPage() {
           {cues.map((cue) => (
             <li
               key={`${cue.moduleLabel}-${cue.requires}`}
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 text-sm"
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 text-sm"
             >
               <p className="font-medium text-[var(--mpa-color-text-primary)]">Requires {cue.requires}</p>
               <p className="mt-1 text-[var(--mpa-color-text-secondary)]">{cue.moduleLabel}</p>

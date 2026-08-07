@@ -73,7 +73,7 @@ export function FinancialOperationsCommandCenter() {
           <a
             key={section.id}
             href={section.href}
-            className="rounded-md border border-[var(--mpa-color-brand-primary)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-text-primary)]"
+            className="rounded-md border border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-bg-surface)] px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-text-primary)]"
             aria-current={section.id === "overview" ? "page" : undefined}
           >
             {section.label}
@@ -164,7 +164,7 @@ export function FinancialOperationsCommandCenter() {
         <h2 className="text-sm font-semibold">Domain integration points</h2>
         <ul className="grid gap-3 md:grid-cols-3">
           {FINANCE_INTEGRATION_POINTS.map((point) => (
-            <li key={point.id} className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3">
+            <li key={point.id} className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3">
               <p className="text-sm font-medium">{point.label}</p>
               <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{point.description}</p>
               <Link
@@ -178,7 +178,7 @@ export function FinancialOperationsCommandCenter() {
         </ul>
       </section>
 
-      <section id="timeline" className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+      <section id="timeline" className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
         <h2 className="text-sm font-semibold">Timeline</h2>
         <div className="mt-3">
           <TimelineView

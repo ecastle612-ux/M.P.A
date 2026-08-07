@@ -173,12 +173,12 @@ export function CollectionsDesk() {
   return (
     <div className="space-y-6">
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">{error}</p>
+        <p className="rounded-md border border-[var(--mpa-color-status-danger)]/30 bg-[var(--mpa-color-status-danger-subtle)] px-3 py-2 text-sm text-[var(--mpa-color-status-danger)]">{error}</p>
       ) : null}
 
       <section
         aria-label="Collections assistant recommendation"
-        className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3"
+        className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Assistant recommendation
@@ -236,7 +236,7 @@ export function CollectionsDesk() {
               ["90_plus", "90+"]
             ] as const
           ).map(([key, label]) => (
-            <div key={key} className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2">
+            <div key={key} className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2">
               <p className="text-xs text-[var(--mpa-color-text-secondary)]">{label}</p>
               <p className="font-display text-lg font-semibold">{formatMoney(aging?.[key] ?? 0)}</p>
             </div>
@@ -246,7 +246,7 @@ export function CollectionsDesk() {
         {overdue.length === 0 ? (
           <EmptyState title="No delinquent residents" description="Open balances past due will appear here after sync." />
         ) : (
-          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-white">
+          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]">
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b text-[var(--mpa-color-text-secondary)]">
@@ -295,7 +295,7 @@ export function CollectionsDesk() {
         )}
 
         <form
-          className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 md:grid-cols-2 lg:grid-cols-3"
           onSubmit={(event) => {
             event.preventDefault();
             void run(async () => {
@@ -392,7 +392,7 @@ export function CollectionsDesk() {
         </div>
 
         <form
-          className="flex flex-wrap items-end gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+          className="flex flex-wrap items-end gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
           onSubmit={(event) => {
             event.preventDefault();
             void run(async () => {
@@ -433,7 +433,7 @@ export function CollectionsDesk() {
         {(snapshot?.upcomingLateFees.length ?? 0) === 0 ? (
           <EmptyState title="No open late fees" description="Assessed late fees still unpaid show here." />
         ) : (
-          <ul className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 text-sm">
+          <ul className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 text-sm">
             {snapshot?.upcomingLateFees.map((fee) => (
               <li key={fee.id} className="flex justify-between gap-2 border-b border-[var(--mpa-color-border-subtle)] py-1">
                 <span>
@@ -455,7 +455,7 @@ export function CollectionsDesk() {
 
         <div className="grid gap-4 lg:grid-cols-2">
           <form
-            className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+            className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
             onSubmit={(event) => {
               event.preventDefault();
               void run(async () => {
@@ -475,7 +475,7 @@ export function CollectionsDesk() {
           </form>
 
           <form
-            className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+            className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
             onSubmit={(event) => {
               event.preventDefault();
               void run(async () => {
@@ -537,7 +537,7 @@ export function CollectionsDesk() {
         {invoices.length === 0 ? (
           <EmptyState title="No vendor invoices" description="Submitted invoices await review here." />
         ) : (
-          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-white">
+          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]">
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b text-[var(--mpa-color-text-secondary)]">
@@ -643,7 +643,7 @@ export function CollectionsDesk() {
             description="Approved invoices scheduled for payment appear here until marked paid."
           />
         ) : (
-          <ul className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 text-sm">
+          <ul className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 text-sm">
             {snapshot?.vendorPaymentsDue.map((payment) => (
               <li key={payment.id} className="flex flex-wrap justify-between gap-2 border-b border-[var(--mpa-color-border-subtle)] py-1">
                 <span>
@@ -665,7 +665,7 @@ export function CollectionsDesk() {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
+    <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3">
       <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{label}</p>
       <p className="mt-1 font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{value}</p>
     </div>

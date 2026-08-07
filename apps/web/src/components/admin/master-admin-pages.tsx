@@ -10,31 +10,34 @@ import {
   modulesForSku,
   toSkuLabel
 } from "@mpa/shared";
-import { Badge } from "@mpa/ui";
+import { Badge, PageHeader } from "@mpa/ui";
 
 export function AdminHomePage() {
   return (
     <main className="space-y-6 p-4 md:p-6">
-      <section>
-        <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Master Admin Mission Control
-        </h1>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Operational headquarters for Property Manager, Facility Operations, Complete Platform, platform
-          administration, testing, impersonation, commercial, billing, and launch readiness.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="Master Admin"
+        title="Platform headquarters"
+        description="Certify and operate Property Manager, Facility Operations, and Complete Platform from one calm console."
+      />
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {MASTER_ADMIN_NAV.filter((group) => group.id !== "workspaces").flatMap((group) =>
           group.items.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 hover:border-[var(--mpa-color-brand-primary)]"
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 transition-colors hover:border-[var(--mpa-color-brand-primary)] hover:bg-[var(--mpa-color-bg-subtle)]"
             >
-              <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{group.title}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                {group.title}
+              </p>
               <p className="mt-1 font-medium text-[var(--mpa-color-text-primary)]">{item.label}</p>
               <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{item.description}</p>
+              {item.status === "planned" ? (
+                <Badge variant="neutral" className="mt-3">
+                  Planned
+                </Badge>
+              ) : null}
             </Link>
           ))
         )}
@@ -51,15 +54,26 @@ export function AdminProductPage({ sku }: { sku: (typeof PRODUCT_SKUS)[number] }
 
   return (
     <main className="space-y-4 p-4 md:p-6">
-      <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">{summary.label}</h1>
-      <p className="text-sm text-[var(--mpa-color-text-secondary)]">{summary.description}</p>
-      <p className="text-xs font-mono text-[var(--mpa-color-text-secondary)]">SKU: {sku}</p>
+      <PageHeader
+        eyebrow="Commercial product"
+        title={summary.label}
+        description={summary.description}
+        meta={<p className="font-mono text-xs text-[var(--mpa-color-text-muted)]">SKU: {sku}</p>}
+      />
       <section>
         <h2 className="text-base font-semibold">Modules</h2>
         <ul className="mt-2 grid gap-2 md:grid-cols-2">
           {modules.map((module) => (
-            <li key={module.id} className="rounded border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm">
-              {module.label} · {module.readiness}
+            <li
+              key={module.id}
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span>{module.label}</span>
+                <Badge variant={module.readiness === "aligned" ? "success" : "neutral"}>
+                  {module.readiness}
+                </Badge>
+              </div>
               {module.id === "financial_operations" ? (
                 <span className="mt-1 block text-xs text-[var(--mpa-color-text-secondary)]">
                   Property Manager → Financial Operations · S0–S3 live (billing, collections, Command Center,
@@ -71,7 +85,7 @@ export function AdminProductPage({ sku }: { sku: (typeof PRODUCT_SKUS)[number] }
         </ul>
       </section>
       {includesFinancialOps ? (
-        <section className="rounded border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
           <h2 className="text-base font-semibold">Property Manager → Financial Operations</h2>
           <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
             Automatically discovered from the commercial module catalog. Implementation progress:
@@ -109,23 +123,29 @@ export function AdminProductPage({ sku }: { sku: (typeof PRODUCT_SKUS)[number] }
 export function AdminCatalogPage() {
   return (
     <main className="space-y-4 p-4 md:p-6">
-      <h1 className="font-display text-2xl font-semibold">Capability Catalog</h1>
-      <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        Nothing disappears because it is unimplemented. Planned capabilities remain visible.
-      </p>
+      <PageHeader
+        eyebrow="Platform"
+        title="Capability Catalog"
+        description="Nothing disappears because it is unimplemented. Planned capabilities remain visible."
+      />
       <ul className="space-y-2">
         {COMMERCIAL_MODULES.map((module) => (
-          <li key={module.id} className="rounded border border-[var(--mpa-color-border-default)] bg-white p-3 text-sm">
+          <li
+            key={module.id}
+            className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 text-sm"
+          >
             <div className="flex items-center justify-between gap-3">
               <span className="font-medium">
                 {module.label} · {module.owner.split("_").join(" ")}
               </span>
-              <span className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+              <Badge variant={module.readiness === "aligned" ? "success" : "neutral"}>
                 {module.readiness}
-              </span>
+              </Badge>
             </div>
-            <p className="mt-1 text-[var(--mpa-color-text-secondary)]">{module.plannedLabel ?? module.description}</p>
-            <p className="mt-1 font-mono text-xs">{module.entitlement}</p>
+            <p className="mt-1 text-[var(--mpa-color-text-secondary)]">
+              {module.plannedLabel ?? module.description}
+            </p>
+            <p className="mt-1 font-mono text-xs text-[var(--mpa-color-text-muted)]">{module.entitlement}</p>
           </li>
         ))}
       </ul>
@@ -144,14 +164,20 @@ export function AdminSimplePage({
 }) {
   return (
     <main className="space-y-4 p-4 md:p-6">
-      <h1 className="font-display text-2xl font-semibold">{title}</h1>
-      <p className="text-sm text-[var(--mpa-color-text-secondary)]">{description}</p>
-      <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">Status: {status}</p>
+      <PageHeader
+        eyebrow="Master Admin"
+        title={title}
+        description={description}
+        meta={<Badge variant={status === "aligned" ? "success" : "neutral"}>{status}</Badge>}
+      />
       {title === "Subscriptions" ? (
         <ul className="mt-4 space-y-2 text-sm">
           {PRODUCT_SKUS.map((sku) => (
-            <li key={sku} className="rounded border bg-white px-3 py-2">
-              {toSkuLabel(sku)} <span className="font-mono text-xs">({sku})</span>
+            <li
+              key={sku}
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2"
+            >
+              {toSkuLabel(sku)} <span className="font-mono text-xs text-[var(--mpa-color-text-muted)]">({sku})</span>
             </li>
           ))}
         </ul>
@@ -206,25 +232,28 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
   const isFinancialOperations = commercialModule.id === "financial_operations";
 
   return (
-    <main className="space-y-3 p-4 md:p-6">
-      {isFinancialOperations ? (
-        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          Property Manager → Financial Operations
-        </p>
-      ) : null}
-      <h1 className="font-display text-2xl font-semibold">
-        {commercialModule.label}
-      </h1>
-      <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        {commercialModule.plannedLabel ?? commercialModule.description}
-      </p>
-      <dl className="grid max-w-xl gap-2 rounded border bg-white p-4 text-sm">
+    <main className="space-y-4 p-4 md:p-6">
+      <PageHeader
+        eyebrow={
+          isFinancialOperations
+            ? "Property Manager → Financial Operations"
+            : "Operational workspace"
+        }
+        title={commercialModule.label}
+        description={commercialModule.plannedLabel ?? commercialModule.description}
+        meta={
+          <Badge variant={commercialModule.readiness === "aligned" ? "success" : "neutral"}>
+            {commercialModule.readiness}
+          </Badge>
+        }
+      />
+      <dl className="grid max-w-xl gap-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 text-sm">
         <div className="flex justify-between gap-4">
-          <dt>Owner</dt>
+          <dt className="text-[var(--mpa-color-text-secondary)]">Owner</dt>
           <dd>{commercialModule.owner}</dd>
         </div>
         <div className="flex justify-between gap-4">
-          <dt>Readiness</dt>
+          <dt className="text-[var(--mpa-color-text-secondary)]">Readiness</dt>
           <dd>{commercialModule.readiness}</dd>
         </div>
         <div className="flex justify-between gap-4">
@@ -243,7 +272,7 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
         ) : null}
       </dl>
       {isFinancialOperations ? (
-        <section className="max-w-xl space-y-4 rounded border bg-white p-4">
+        <section className="max-w-xl space-y-4 rounded border bg-[var(--mpa-color-bg-surface)] p-4">
           <div>
             <h2 className="text-sm font-semibold">Implementation progress</h2>
             <ol className="mt-2 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
@@ -271,8 +300,13 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
           </p>
         </section>
       ) : null}
-      <Link href={commercialModule.href} className="text-sm text-[var(--mpa-color-brand-primary)] underline">
-        {isFinancialOperations ? "Open Financial Operations Command Center" : "Open customer alignment surface"}
+      <Link
+        href={commercialModule.href}
+        className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 text-sm font-medium text-[var(--mpa-color-text-primary)] hover:bg-[var(--mpa-color-bg-subtle)]"
+      >
+        {isFinancialOperations
+          ? "Open Financial Operations Command Center"
+          : "Open customer surface"}
       </Link>
     </main>
   );

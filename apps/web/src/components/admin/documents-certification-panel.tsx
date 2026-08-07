@@ -49,7 +49,7 @@ export function DocumentsCertificationPanel() {
     (report.readiness.documentsReady || report.readiness.leaseDocumentCount > 0);
 
   return (
-    <section className="max-w-3xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+    <section className="max-w-3xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
       <div>
         <h2 className="text-base font-semibold">LAUNCH-001 · Documents remediation</h2>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
@@ -69,7 +69,7 @@ export function DocumentsCertificationPanel() {
           {loading ? "Loading…" : "Load Documents evidence"}
         </Button>
       </div>
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--mpa-color-status-danger)]">{error}</p> : null}
       {report ? (
         <div className="space-y-3 text-sm">
           <Badge variant={corePass ? "success" : "danger"}>

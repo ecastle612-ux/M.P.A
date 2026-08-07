@@ -7,9 +7,11 @@ This blueprint defines how M.P.A. is designed, built, and evolved. Every enginee
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
 Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0–
 S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Promise Roadmap
-**Approved** (ADR-017); journey-gated — **J0–J2 delivered**, J3–J8 not authorized.
-CORE-004 remains stopped. Facility Operations feature Implement authorize (2026-08-07)
-**refused** pending workflows + schema design package ([27](./27-facility-operations/index.md)).
+**Approved** (ADR-017); Customer #1 certified lineage on `main` under PM feature freeze.
+CORE-004 remains stopped. Facility Operations FAC-OPS-001 **Approved** (ADR-018);
+Production **GO** with Complete Platform ([27](./27-facility-operations/index.md)).
+PLATFORM UX-001 enterprise polish **authorized/delivered**
+([28](./28-platform-ux-001/index.md)). Capital Projects **NO-GO**.
 Implementation Gate in force.
 
 ---
@@ -57,6 +59,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 24 | [Product Architecture (Commercial Reset)](./24-product-architecture/index.md) | Three offerings, ownership, nav, subscriptions, entitlements |
 | 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0–S3 delivered; paused) |
 | 26 | [LAUNCH-001 Customer Promise Roadmap](./26-launch-001-onboarding/index.md) | Approved; journey-gated launch (J0–J2 delivered; J3+ blocked) |
+| 27 | [Facility Operations FAC-OPS-001](./27-facility-operations/index.md) | Approved (ADR-018); E.1–E.6 delivered; Capital NO-GO |
+| 28 | [PLATFORM UX-001 Enterprise Experience Polish](./28-platform-ux-001/index.md) | Authorized polish; Production GO posture retained; Capital NO-GO |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -131,6 +135,17 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Master Admin Certification Console](./26-launch-001-onboarding/master-admin-certification-console.md) | How operators certify each promise |
 | [Launch Readiness Gate](./26-launch-001-onboarding/launch-readiness-gate.md) | GO only when journeys work unaided |
 
+### 27 Facility Operations (FAC-OPS-001)
+
+| Document | Purpose |
+|----------|---------|
+| [Package Index](./27-facility-operations/index.md) | FO status; links to design package |
+| [FAC-OPS-001 Design Package](./27-facility-operations/design-package/index.md) | **Approved** authoritative FO implementation contract |
+| [ADR-018](./18-decision-log/adr-018-facility-operations-design-package.md) | Accepted — FO design package decision |
+| [Phase E.1 certification](./27-facility-operations/design-package/certification/e1/) | E.1 implementation & MA verification artifacts |
+| [Phase E.2 certification](./27-facility-operations/design-package/certification/e2/) | E.2 assets/systems implementation & MA verification |
+| [Design debt status](./27-facility-operations/missing-design-package.md) | Checklist closed at Document stage |
+
 ### Governance & gates
 
 | Document | Purpose |
@@ -174,5 +189,5 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | Field | Value |
 |-------|-------|
 | Blueprint version | 0.5.0 |
-| Last updated | 2026-08-06 |
+| Last updated | 2026-08-07 |
 | Phase | Product Architecture Alignment Phase 1 |

@@ -4,7 +4,8 @@
 **Date:** 2026-08-06  
 **Financial Operations:** Package **Approved** · ADR-016 **Accepted** · **S0–S3 delivered** · **Paused** (S4+ NO-GO)  
 **LAUNCH-001:** Customer Promise roadmap at `docs/26-launch-001-onboarding/` · **NO-GO implement** until Approve  
-**Facility Operations features:** NO-GO / deferred — Implement authorize (2026-08-07) refused; see [docs/27-facility-operations](../../27-facility-operations/index.md)
+**Facility Operations features:** Production GO on authoritative main line via [Complete Platform P1 remediation](./complete-platform/p1-remediation/index.md)  
+**Complete Platform:** **GO** after P1 remediation (2026-08-07)
 
 ---
 
@@ -12,7 +13,8 @@
 
 Phase 1 alignment framed the three products.  
 P0 Commercial Experience Hardening made the experience **fail closed and trustworthy**.  
-FIN-OPS-001 design package is Approved under `docs/25-fin-ops-001/`.
+FIN-OPS-001 design package is Approved under `docs/25-fin-ops-001/`.  
+Complete Platform product certification is under `certification/complete-platform/`.
 
 | Area | Pre-hardening | Post-hardening / now |
 |------|---------------|----------------------|
@@ -27,7 +29,8 @@ FIN-OPS-001 design package is Approved under `docs/25-fin-ops-001/`.
 | Financial Operations S2 | — | **Delivered** |
 | Financial Operations S3 | — | **Delivered** |
 | Financial Operations S4+ | NO-GO | **NO-GO** (await slice auth) |
-| Facility feature start | NO-GO | **NO-GO** |
+| Facility Operations | NO-GO | **GO** (merged to main line) |
+| Complete Platform certification | — | **GO** (P1 remediation) |
 
 ---
 
@@ -58,3 +61,11 @@ FIN-OPS-001 design package is Approved under `docs/25-fin-ops-001/`.
 | [S1 Certification](../../25-fin-ops-001/s1/index.md) | Resident billing & rent collection |
 | [S2 Certification](../../25-fin-ops-001/s2/index.md) | Delinquency, late fees & vendor AP |
 | [S3 Certification](../../25-fin-ops-001/s3/index.md) | Command Center & owner reporting |
+
+### Complete Platform product certification (2026-08-07)
+
+| Document | Notes |
+|----------|-------|
+| [Complete Platform Certification Package](./complete-platform/index.md) | Production GO after P1 remediation |
+| [P1 Remediation](./complete-platform/p1-remediation/index.md) | Merge + MA witness + terminology |
+| [Final GO / NO-GO](./complete-platform/go-no-go.md) | Composition GO · Operational GO · Capital NO-GO |
