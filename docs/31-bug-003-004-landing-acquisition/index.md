@@ -1,5 +1,8 @@
 # BUG-003 / BUG-004 — Enterprise Landing & Commercial Acquisition
 
+**Status:** **CLOSED** — PR [#46](https://github.com/ecastle612-ux/M.P.A/pull/46) merged; Production SHA `3d081ad`.  
+**Closeout:** [docs/36-pr-46-merge-closeout](../36-pr-46-merge-closeout/index.md)
+
 **Status:** Delivered (honest scope)  
 **Date:** 2026-08-07  
 **Branch:** `cursor/bug-003-004-landing-acquisition-f5dd`  
