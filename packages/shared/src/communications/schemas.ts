@@ -26,7 +26,7 @@ export type CommsMessageRecord = {
 
 export type UnifiedNotificationRecord = {
   id: string;
-  source: "finance" | "maintenance" | "comms";
+  source: "finance" | "maintenance" | "comms" | "facility";
   title: string;
   body: string;
   href: string | null;

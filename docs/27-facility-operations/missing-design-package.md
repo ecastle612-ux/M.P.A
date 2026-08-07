@@ -1,43 +1,44 @@
-# Missing Design Package — Facility Operations Features
+# Missing Design Package — Status After FAC-OPS-001 Document
 
-**Parent:** [27 Facility Operations Gate Response](./index.md)  
-**Source of truth:** [Facility Operations Module Map](../24-product-architecture/facility-operations-module-map.md) Design Debt  
-**Rule:** Do not invent a new roadmap — complete the Approved pre-implementation debt only.
-
----
-
-## Required before any FO feature Implement
-
-| # | Artifact | Status today | Notes |
-|---|----------|--------------|-------|
-| 1 | Facility business workflows document (peer to `docs/05`) | **Missing** | Site setup, asset intake, corrective work, PM generation, parts/inventory, inspections, safety, compliance, building systems |
-| 2 | Facility personas (if distinct) | **Missing / partial** | May extend `docs/03` |
-| 3 | Schema design — assets / inventory / parts / systems prefixes + RLS | **Missing** | Peer note under `docs/09` or FO design package |
-| 4 | Work-order product context model (Shared domain; Maintenance executes) | **Missing** | Must not duplicate PM Maintenance homes |
-| 5 | Facility Mission Control attention rules | **Missing** | Reuse Universal Dashboard / Assistant — define FO signals only |
-| 6 | Entitlement keys | **Done** | `facility.*` in entitlement matrix + shared code |
-| 7 | Module map approval | **Done** | Ownership Approved |
-
-Capital Projects remain **future** — do not design-build in the first FO design package.
+**Parent:** [27 Facility Operations](./index.md)  
+**Source of truth:** [FAC-OPS-001 Design Package](./design-package/index.md)  
+**Authorization:** `AUTHORIZE FACILITY OPERATIONS DESIGN PACKAGE` (documentation only)
 
 ---
 
-## Phase E Implement order (after design Approved)
+## Required artifacts
 
-From Approved [implementation-order-after-reset.md](../24-product-architecture/implementation-order-after-reset.md) — unchanged:
+| # | Artifact | Status | Where |
+|---|----------|--------|-------|
+| 1 | Facility business workflows | **Documented (Proposed)** | [04 Workflow Catalog](./design-package/04-workflow-catalog.md) |
+| 2 | Facility personas / journeys | **Documented (Proposed)** | [03 Personas & Journeys](./design-package/03-personas-and-customer-journeys.md) |
+| 3 | Conceptual schema / prefixes | **Documented (Proposed)** | [06 Conceptual Data Model](./design-package/06-conceptual-data-model.md) — no SQL |
+| 4 | Work-order product context | **Documented (Proposed)** | [07 Work Order Product Context](./design-package/07-work-order-product-context.md) |
+| 5 | Facility Mission Control attention | **Documented (Proposed)** | [05 Information Architecture](./design-package/05-information-architecture.md) |
+| 6 | Entitlement keys | **Done (Approved)** | Entitlement matrix — unchanged |
+| 7 | Module map ownership | **Done (Approved)** | Module map — unchanged |
 
-1. Facility site profile + Facility Mission Control attention rules  
-2. Assets + Building Systems  
-3. Facility Operations corrective work (shared work-order domain + facility context)  
-4. Preventive Maintenance  
-5. Inventory + Parts  
-6. Inspections + Safety + Compliance  
-7. Capital Projects — future gate  
-
-Each slice still requires its own **Approve → Implement** authorize after the design package is Approved.
+Capital Projects: conceptual stub only; Implement remains **future gate** (E.7).
 
 ---
 
-## Suggested next authorization (not this one)
+## Remaining gate (not documentation)
 
-`AUTHORIZE FACILITY OPERATIONS DESIGN PACKAGE` — Document-only: workflows + schema + MC attention + work-order context, citing the module map Design Debt. No application code.
+| Step | Status |
+|------|--------|
+| Approve FAC-OPS-001 / Accept ADR-018 | **Pending** |
+| Authorize Phase E.1 Implement | **Blocked** until Approve |
+
+---
+
+## Phase E Implement order (unchanged)
+
+1. E.1 Facility site profile + Facility Mission Control attention rules  
+2. E.2 Assets + Building Systems  
+3. E.3 Facility Operations corrective work (shared work-order domain + facility context)  
+4. E.4 Preventive Maintenance  
+5. E.5 Inventory + Parts  
+6. E.6 Inspections + Safety + Compliance  
+7. E.7 Capital Projects — future gate  
+
+Details: [10 Implementation Order & Slices](./design-package/10-implementation-order-and-slices.md)
