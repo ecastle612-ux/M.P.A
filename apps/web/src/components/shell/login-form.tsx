@@ -19,8 +19,9 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = safeNextPath(searchParams.get("next"));
+  const initialMode: AuthMode = searchParams.get("mode") === "sign_up" ? "sign_up" : "sign_in";
   const supabase = createAuthClient();
-  const [mode, setMode] = useState<AuthMode>("sign_in");
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -79,7 +80,7 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-        {mode === "sign_in" ? "Sign in to Property Manager" : "Create your account"}
+        {mode === "sign_in" ? "Sign in to M.P.A." : "Create your account"}
       </h1>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
         {nextPath

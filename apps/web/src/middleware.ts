@@ -33,6 +33,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+  // `/` (marketing homepage) is intentionally public and is not matched below.
   const isLoginRoute = pathname.startsWith("/login");
   const isForgotPasswordRoute = pathname.startsWith("/forgot-password");
   const isProtected =
