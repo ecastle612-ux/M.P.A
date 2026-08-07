@@ -42,6 +42,12 @@ export const createFacilityWorkOrderInputSchema = z.object({
 });
 export type CreateFacilityWorkOrderInput = z.infer<typeof createFacilityWorkOrderInputSchema>;
 
+export const closeFacilityWorkOrderInputSchema = z.object({
+  workOrderId: z.string().uuid(),
+  note: z.string().trim().max(1000).optional()
+});
+export type CloseFacilityWorkOrderInput = z.infer<typeof closeFacilityWorkOrderInputSchema>;
+
 export function defaultPriorityFromCriticality(
   criticality: string | null | undefined
 ): (typeof WORK_ORDER_PRIORITIES)[number] {

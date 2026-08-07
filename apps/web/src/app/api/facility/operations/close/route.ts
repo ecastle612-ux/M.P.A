@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { closeFacilityWorkOrderInputSchema } from "@mpa/shared";
 import { requireFacilityPermission } from "../../../../../lib/facility/authz";
 import { closeFacilityOperationsWorkOrder } from "../../../../../lib/facility/operations-service";
-
-const closeSchema = z.object({
-  workOrderId: z.string().uuid(),
-  note: z.string().trim().max(1000).optional()
-});
 
 export async function POST(request: Request) {
   const authz = await requireFacilityPermission("facility.operations:write");
@@ -15,7 +10,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const input = closeSchema.parse(await request.json());
+    const input = closeFacilityWorkOrderInputSchema.parse(await request.json());
     const workOrder = await closeFacilityOperationsWorkOrder(
       authz.supabase,
       authz.organizationId,
