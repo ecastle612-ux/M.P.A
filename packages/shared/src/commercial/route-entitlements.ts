@@ -307,9 +307,33 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
         "facility.preventive"
       )
     );
-    push(decisionPath("/facility/inspections", "Inspections (Planned)", "Facility Operations", "facility.inspections"));
-    push(decisionPath("/facility/safety", "Safety (Planned)", "Facility Operations", "facility.safety"));
-    push(decisionPath("/facility/compliance", "Compliance (Planned)", "Facility Operations", "facility.compliance"));
+    push(decisionPath("/facility/inspections", "Inspections", "Facility Operations", "facility.inspections"));
+    push(
+      decisionPath(
+        "/facility/inspections?new=1",
+        "Create inspection program",
+        "Facility Operations",
+        "facility.inspections"
+      )
+    );
+    push(decisionPath("/facility/safety", "Safety", "Facility Operations", "facility.safety"));
+    push(
+      decisionPath(
+        "/facility/safety?new=1",
+        "Report safety incident",
+        "Facility Operations",
+        "facility.safety"
+      )
+    );
+    push(decisionPath("/facility/compliance", "Compliance", "Facility Operations", "facility.compliance"));
+    push(
+      decisionPath(
+        "/facility/compliance?new=1",
+        "Create compliance obligation",
+        "Facility Operations",
+        "facility.compliance"
+      )
+    );
     push(decisionPath("/shared/documents", "Documents", "Shared Platform", "platform.documents"));
     push(decisionPath("/shared/communications", "Communications", "Shared Platform", "platform.communications"));
   }

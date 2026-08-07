@@ -9,6 +9,9 @@ export const FACILITY_NOTIFICATION_KEYS = [
   "facility.pm_schedule.overdue",
   "facility.pm_schedule.generated_work",
   "facility.inventory.stockout",
-  "facility.inventory.low_stock"
+  "facility.inventory.low_stock",
+  "facility.inspection.failed",
+  "facility.safety.incident_reported",
+  "facility.compliance.obligation_overdue"
 ] as const;
 export type FacilityNotificationKey = (typeof FACILITY_NOTIFICATION_KEYS)[number];

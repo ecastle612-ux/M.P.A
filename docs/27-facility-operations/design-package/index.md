@@ -91,10 +91,10 @@ Mission Control pattern · Universal Dashboard Framework · Assistant · Notific
 | E.3 Corrective facility work | **Complete / certified** |
 | E.4 Preventive Maintenance programs | **Complete / certified** |
 | E.5 Inventory + Parts | **Complete / certified** |
-| E.6 | **NO-GO** until slice authorize |
-| E.7 Capital | Future gate |
+| E.6 Inspections + Safety + Compliance | **Complete / certified** |
+| E.7 Capital | Future gate — **NO-GO** until authorize |
 
-Certification artifacts: [certification/e1/](./certification/e1/) · [certification/e2/](./certification/e2/) · [certification/e3/](./certification/e3/) · [certification/e4/](./certification/e4/) · [certification/e5/](./certification/e5/)
+Certification artifacts: [certification/e1/](./certification/e1/) · [certification/e2/](./certification/e2/) · [certification/e3/](./certification/e3/) · [certification/e4/](./certification/e4/) · [certification/e5/](./certification/e5/) · [certification/e6/](./certification/e6/)
 
 ---
 

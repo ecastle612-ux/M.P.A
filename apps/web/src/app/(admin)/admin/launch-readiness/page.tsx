@@ -14,6 +14,7 @@ import { E2CertificationPanel } from "../../../../components/admin/e2-certificat
 import { E3CertificationPanel } from "../../../../components/admin/e3-certification-panel";
 import { E4CertificationPanel } from "../../../../components/admin/e4-certification-panel";
 import { E5CertificationPanel } from "../../../../components/admin/e5-certification-panel";
+import { E6CertificationPanel } from "../../../../components/admin/e6-certification-panel";
 
 export default function Page() {
   return (
@@ -25,7 +26,7 @@ export default function Page() {
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
           Customer Promise launch evidence. J0–J8 verification scripts plus Documents and
           Communications remediation. Portal access provisioning is required for J4/J6 Pass.
-          Facility Operations Phase E.1–E.5 certification is included below.
+          Facility Operations Phase E.1–E.6 certification is included below.
         </p>
         <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Status: aligned
@@ -47,6 +48,7 @@ export default function Page() {
       <E3CertificationPanel />
       <E4CertificationPanel />
       <E5CertificationPanel />
+      <E6CertificationPanel />
     </main>
   );
 }

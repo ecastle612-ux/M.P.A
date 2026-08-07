@@ -23,6 +23,9 @@ export function GlobalSearch() {
   const [facilityPmResults, setFacilityPmResults] = useState<SearchResultItem[]>([]);
   const [facilityPartResults, setFacilityPartResults] = useState<SearchResultItem[]>([]);
   const [facilityInventoryResults, setFacilityInventoryResults] = useState<SearchResultItem[]>([]);
+  const [facilityInspectionResults, setFacilityInspectionResults] = useState<SearchResultItem[]>([]);
+  const [facilitySafetyResults, setFacilitySafetyResults] = useState<SearchResultItem[]>([]);
+  const [facilityComplianceResults, setFacilityComplianceResults] = useState<SearchResultItem[]>([]);
 
   const catalogResults = useMemo(() => searchCatalogForSku(productSku, query), [productSku, query]);
   const results = useMemo(() => {
@@ -39,12 +42,18 @@ export function GlobalSearch() {
       ...facilityPmResults,
       ...facilityPartResults,
       ...facilityInventoryResults,
+      ...facilityInspectionResults,
+      ...facilitySafetyResults,
+      ...facilityComplianceResults,
       ...catalogResults
     ];
   }, [
     catalogResults,
     facilityAssetResults,
     facilityInventoryResults,
+    facilityInspectionResults,
+    facilitySafetyResults,
+    facilityComplianceResults,
     facilityPartResults,
     facilityPmResults,
     facilitySiteResults,
@@ -66,6 +75,9 @@ export function GlobalSearch() {
     setFacilityPmResults([]);
     setFacilityPartResults([]);
     setFacilityInventoryResults([]);
+    setFacilityInspectionResults([]);
+    setFacilitySafetyResults([]);
+    setFacilityComplianceResults([]);
   }
 
   useEffect(() => {
@@ -96,7 +108,10 @@ export function GlobalSearch() {
             workResponse,
             pmResponse,
             partsResponse,
-            inventoryResponse
+            inventoryResponse,
+            inspectionsResponse,
+            safetyResponse,
+            complianceResponse
           ] = await Promise.all([
             fetch(`/api/pm/properties/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/pm/residents/search?q=${encodeURIComponent(normalized)}`),
@@ -106,7 +121,10 @@ export function GlobalSearch() {
             fetch(`/api/facility/operations/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/facility/preventive/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/facility/parts/search?q=${encodeURIComponent(normalized)}`),
-            fetch(`/api/facility/inventory/search?q=${encodeURIComponent(normalized)}`)
+            fetch(`/api/facility/inventory/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/facility/inspections/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/facility/safety/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/facility/compliance/search?q=${encodeURIComponent(normalized)}`)
           ]);
           if (cancelled) {
             return;
@@ -234,6 +252,48 @@ export function GlobalSearch() {
                 href: item.href,
                 group: item.group,
                 entitlement: "facility.inventory"
+              }))
+            );
+          }
+          if (inspectionsResponse.ok) {
+            const payload = (await inspectionsResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setFacilityInspectionResults(
+              (payload.results ?? []).map((item) => ({
+                id: `facility-inspection:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "facility.inspections"
+              }))
+            );
+          }
+          if (safetyResponse.ok) {
+            const payload = (await safetyResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setFacilitySafetyResults(
+              (payload.results ?? []).map((item) => ({
+                id: `facility-safety:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "facility.safety"
+              }))
+            );
+          }
+          if (complianceResponse.ok) {
+            const payload = (await complianceResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setFacilityComplianceResults(
+              (payload.results ?? []).map((item) => ({
+                id: `facility-compliance:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "facility.compliance"
               }))
             );
           }

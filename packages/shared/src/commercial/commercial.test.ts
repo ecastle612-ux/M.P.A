@@ -133,6 +133,20 @@ describe("navigation and launcher awareness", () => {
     );
   });
 
+  it("exposes aligned Inspections, Safety, and Compliance for FO SKU", () => {
+    const groups = navigationGroupsForSku("mpa_facility_operations");
+    const facility = groups.find((group) => group.id === "facility_operations");
+    expect(facility?.items.find((item) => item.href === "/facility/inspections")?.readiness).toBe(
+      "aligned"
+    );
+    expect(facility?.items.find((item) => item.href === "/facility/safety")?.readiness).toBe(
+      "aligned"
+    );
+    expect(facility?.items.find((item) => item.href === "/facility/compliance")?.readiness).toBe(
+      "aligned"
+    );
+  });
+
   it("organizes launcher workspaces by commercial product", () => {
     const items = workspaceLauncherItemsForSku("mpa_complete_platform");
     expect(items.some((item) => item.product === "property_manager")).toBe(true);
@@ -229,7 +243,16 @@ describe("master admin catalog", () => {
     );
     expect(workspaces.some((item) => item.label.includes("Parts") && item.status === "aligned")).toBe(true);
     expect(
-      workspaces.some((item) => item.label.includes("Inspections") && item.status === "planned")
+      workspaces.some((item) => item.label.includes("Inspections") && item.status === "aligned")
+    ).toBe(true);
+    expect(workspaces.some((item) => item.label.includes("Safety") && item.status === "aligned")).toBe(
+      true
+    );
+    expect(
+      workspaces.some((item) => item.label.includes("Compliance") && item.status === "aligned")
+    ).toBe(true);
+    expect(
+      workspaces.some((item) => item.label.includes("Capital Projects") && item.status === "planned")
     ).toBe(true);
     expect(workspaces.some((item) => item.label.includes("Capital Projects"))).toBe(true);
   });

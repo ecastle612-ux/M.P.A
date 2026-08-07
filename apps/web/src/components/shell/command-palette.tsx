@@ -22,6 +22,13 @@ export function CommandPalette() {
   const [facilityInventoryItems, setFacilityInventoryItems] = useState<
     Array<{ id: string; label: string }>
   >([]);
+  const [facilityInspectionItems, setFacilityInspectionItems] = useState<
+    Array<{ id: string; label: string }>
+  >([]);
+  const [facilitySafetyItems, setFacilitySafetyItems] = useState<Array<{ id: string; label: string }>>([]);
+  const [facilityComplianceItems, setFacilityComplianceItems] = useState<
+    Array<{ id: string; label: string }>
+  >([]);
 
   useEffect(() => {
     function handler(event: KeyboardEvent) {
@@ -56,7 +63,10 @@ export function CommandPalette() {
           workResponse,
           pmResponse,
           partsResponse,
-          inventoryResponse
+          inventoryResponse,
+          inspectionsResponse,
+          safetyResponse,
+          complianceResponse
         ] = await Promise.all([
           fetch(`/api/pm/properties/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/pm/residents/search?q=${encodeURIComponent(query.trim())}`),
@@ -66,7 +76,10 @@ export function CommandPalette() {
           fetch(`/api/facility/operations/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/facility/preventive/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/facility/parts/search?q=${encodeURIComponent(query.trim())}`),
-          fetch(`/api/facility/inventory/search?q=${encodeURIComponent(query.trim())}`)
+          fetch(`/api/facility/inventory/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/facility/inspections/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/facility/safety/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/facility/compliance/search?q=${encodeURIComponent(query.trim())}`)
         ]);
         if (!cancelled && propertyResponse.ok) {
           const payload = (await propertyResponse.json()) as {
@@ -167,6 +180,39 @@ export function CommandPalette() {
             }))
           );
         }
+        if (!cancelled && inspectionsResponse.ok) {
+          const payload = (await inspectionsResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setFacilityInspectionItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
+        if (!cancelled && safetyResponse.ok) {
+          const payload = (await safetyResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setFacilitySafetyItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
+        if (!cancelled && complianceResponse.ok) {
+          const payload = (await complianceResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setFacilityComplianceItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
       } catch {
         if (!cancelled) {
           setPropertyItems([]);
@@ -178,6 +224,9 @@ export function CommandPalette() {
           setFacilityPmItems([]);
           setFacilityPartItems([]);
           setFacilityInventoryItems([]);
+          setFacilityInspectionItems([]);
+          setFacilitySafetyItems([]);
+          setFacilityComplianceItems([]);
         }
       }
     })();
@@ -248,6 +297,24 @@ export function CommandPalette() {
         facilityInventoryItems.map((item) => ({ id: item.id, label: item.label }))
       );
     }
+    if (facilityInspectionItems.length > 0) {
+      byGroup.set(
+        "Inspections",
+        facilityInspectionItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
+    if (facilitySafetyItems.length > 0) {
+      byGroup.set(
+        "Safety",
+        facilitySafetyItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
+    if (facilityComplianceItems.length > 0) {
+      byGroup.set(
+        "Compliance",
+        facilityComplianceItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
 
     const navSections = [...byGroup.entries()].map(([title, items]) => ({ title, items }));
     const entitled = searchCatalogForSku(productSku, "");
@@ -262,6 +329,9 @@ export function CommandPalette() {
         { id: "/facility/operations?new=1", label: "Create facility work", shortcut: "A W" },
         { id: "/facility/preventive-maintenance?new=1", label: "Create PM program", shortcut: "A M" },
         { id: "/facility/parts?new=1", label: "Create part", shortcut: "A C" },
+        { id: "/facility/inspections?new=1", label: "Create inspection program", shortcut: "A I" },
+        { id: "/facility/safety?new=1", label: "Report safety incident", shortcut: "A X" },
+        { id: "/facility/compliance?new=1", label: "Create compliance obligation", shortcut: "A O" },
         { id: "/pm/properties", label: "Open Properties", shortcut: "G P" },
         { id: "/pm/residents", label: "Open Residents", shortcut: "G R" },
         { id: "/pm/leasing", label: "Open Leasing", shortcut: "G L" },
@@ -276,6 +346,9 @@ export function CommandPalette() {
         },
         { id: "/facility/inventory", label: "Open Inventory", shortcut: "G I" },
         { id: "/facility/parts", label: "Open Parts", shortcut: "G T" },
+        { id: "/facility/inspections", label: "Open Inspections", shortcut: "G N" },
+        { id: "/facility/safety", label: "Open Safety", shortcut: "G H" },
+        { id: "/facility/compliance", label: "Open Compliance", shortcut: "G C" },
         { id: "/facility/assets", label: "Open Assets", shortcut: "G A" },
         { id: "/facility/building-systems", label: "Open Building Systems", shortcut: "G Y" },
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
@@ -297,6 +370,9 @@ export function CommandPalette() {
   }, [
     facilityAssetItems,
     facilityInventoryItems,
+    facilityInspectionItems,
+    facilitySafetyItems,
+    facilityComplianceItems,
     facilityPartItems,
     facilityPmItems,
     facilitySiteItems,

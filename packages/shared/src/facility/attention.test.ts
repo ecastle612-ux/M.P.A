@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildFacilityComplianceOverdueAttention,
   buildFacilityCriticalAssetAttention,
   buildFacilityMissionControlNextAction,
   buildFacilityOpenCriticalWorkAttention,
   buildFacilityPmDueAttention,
   buildFacilityPmOverdueAttention,
+  buildFacilitySafetyOpenAttention,
   buildFacilitySetupIncompleteAttention,
   buildFacilityStockoutAttention,
   buildFacilitySystemDownAttention,
@@ -236,5 +238,28 @@ describe("facility mission control attention (E.1–E.5)", () => {
     });
     expect(next.id).toBe("replenish_stock");
     expect(next.href).toContain("stock-9");
+  });
+
+  it("surfaces safety_open and compliance_overdue attention", () => {
+    const safety = buildFacilitySafetyOpenAttention([
+      {
+        id: "s1",
+        title: "Chemical spill",
+        siteId: "site-1",
+        severity: "high",
+        status: "reported"
+      }
+    ]);
+    expect(safety[0]?.severity).toBe("safety_open");
+    const compliance = buildFacilityComplianceOverdueAttention([
+      {
+        id: "c1",
+        title: "Fire cert",
+        siteId: "site-1",
+        dueOn: "2026-08-01",
+        status: "overdue"
+      }
+    ]);
+    expect(compliance[0]?.severity).toBe("compliance_overdue");
   });
 });

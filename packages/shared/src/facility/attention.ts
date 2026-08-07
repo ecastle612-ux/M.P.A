@@ -346,6 +346,61 @@ export function buildFacilityStockoutAttention(
     });
 }
 
+export function buildFacilitySafetyOpenAttention(
+  incidents: readonly {
+    id: string;
+    title: string;
+    siteId: string;
+    severity: string;
+    status: string;
+  }[]
+): FacilityAttentionItem[] {
+  return incidents
+    .filter(
+      (incident) =>
+        incident.status !== "closed" &&
+        (incident.severity === "high" || incident.severity === "critical")
+    )
+    .map((incident) => ({
+      id: `safety_open:${incident.id}`,
+      severity: "safety_open" as const,
+      priority: Math.min(
+        5,
+        priorityForFacilitySeverity("safety_open") + (incident.severity === "critical" ? 0 : 0)
+      ),
+      title: `Open safety: ${incident.title}`,
+      detail: `${incident.severity} · ${incident.status}`,
+      href: `/facility/safety?incidentId=${incident.id}`,
+      aggregateType: "facility_safety_incidents",
+      aggregateId: incident.id,
+      siteId: incident.siteId
+    }));
+}
+
+export function buildFacilityComplianceOverdueAttention(
+  obligations: readonly {
+    id: string;
+    title: string;
+    siteId: string;
+    dueOn: string;
+    status: string;
+  }[]
+): FacilityAttentionItem[] {
+  return obligations
+    .filter((obligation) => obligation.status === "overdue")
+    .map((obligation) => ({
+      id: `compliance_overdue:${obligation.id}`,
+      severity: "compliance_overdue" as const,
+      priority: priorityForFacilitySeverity("compliance_overdue"),
+      title: `Compliance overdue: ${obligation.title}`,
+      detail: `Due ${obligation.dueOn}`,
+      href: `/facility/compliance?obligationId=${obligation.id}`,
+      aggregateType: "facility_compliance_obligations",
+      aggregateId: obligation.id,
+      siteId: obligation.siteId
+    }));
+}
+
 export function buildFacilityMissionControlNextAction(input: {
   setupComplete: boolean;
   activeSiteCount: number;
@@ -362,6 +417,10 @@ export function buildFacilityMissionControlNextAction(input: {
   firstPmScheduleId?: string | null;
   stockoutCount?: number;
   firstStockId?: string | null;
+  openSafetyCount?: number;
+  firstSafetyIncidentId?: string | null;
+  overdueComplianceCount?: number;
+  firstComplianceObligationId?: string | null;
 }): {
   id: string;
   title: string;
@@ -417,6 +476,30 @@ export function buildFacilityMissionControlNextAction(input: {
         ? `/facility/operations?workOrderId=${input.firstOpenWorkOrderId}`
         : "/facility/operations",
       assistantRecommendation: "Assign and resolve emergency facility work orders."
+    };
+  }
+
+  if ((input.openSafetyCount ?? 0) > 0) {
+    return {
+      id: "triage_safety",
+      title: "Triage open high-severity safety incidents",
+      detail: "High or critical safety incidents need triage and corrective actions.",
+      href: input.firstSafetyIncidentId
+        ? `/facility/safety?incidentId=${input.firstSafetyIncidentId}`
+        : "/facility/safety",
+      assistantRecommendation: "Triage high-severity safety incidents and open corrective work."
+    };
+  }
+
+  if ((input.overdueComplianceCount ?? 0) > 0) {
+    return {
+      id: "satisfy_compliance",
+      title: "Satisfy overdue compliance obligations",
+      detail: "Regulatory or internal obligations are past due and need evidence.",
+      href: input.firstComplianceObligationId
+        ? `/facility/compliance?obligationId=${input.firstComplianceObligationId}`
+        : "/facility/compliance",
+      assistantRecommendation: "Satisfy overdue compliance obligations with evidence documents."
     };
   }
 
@@ -480,10 +563,11 @@ export function buildFacilityMissionControlNextAction(input: {
 
   return {
     id: "programs_ready",
-    title: "Facility programs are ready",
-    detail: "Inventory, preventive schedules, and corrective work are ready for daily operations.",
-    href: "/facility/inventory",
+    title: "Facility Operations is ready",
+    detail:
+      "Inspections, safety, compliance, inventory, and preventive programs are ready for daily operations.",
+    href: "/facility/mission-control",
     assistantRecommendation:
-      "Facility inventory is ready. Keep storeroom counts accurate and issue parts to work orders."
+      "Facility Operations is ready. Keep inspections, safety, and compliance current."
   };
 }

@@ -31,6 +31,25 @@ export const FACILITY_INVENTORY_CAPABILITIES = [
 ] as const;
 export type FacilityInventoryCapability = (typeof FACILITY_INVENTORY_CAPABILITIES)[number];
 
+export const FACILITY_INSPECTIONS_CAPABILITIES = [
+  "facility.inspections:read",
+  "facility.inspections:write"
+] as const;
+export type FacilityInspectionsCapability = (typeof FACILITY_INSPECTIONS_CAPABILITIES)[number];
+
+export const FACILITY_SAFETY_CAPABILITIES = [
+  "facility.safety:read",
+  "facility.safety:write"
+] as const;
+export type FacilitySafetyCapability = (typeof FACILITY_SAFETY_CAPABILITIES)[number];
+
+export const FACILITY_COMPLIANCE_CAPABILITIES = [
+  "facility.compliance:read",
+  "facility.compliance:write",
+  "facility.compliance:waive"
+] as const;
+export type FacilityComplianceCapability = (typeof FACILITY_COMPLIANCE_CAPABILITIES)[number];
+
 export const FACILITY_CAPABILITIES = [
   ...FACILITY_SITE_CAPABILITIES,
   ...FACILITY_ASSET_CAPABILITIES,
@@ -38,7 +57,10 @@ export const FACILITY_CAPABILITIES = [
   ...FACILITY_OPERATIONS_CAPABILITIES,
   ...FACILITY_PREVENTIVE_CAPABILITIES,
   ...FACILITY_PARTS_CAPABILITIES,
-  ...FACILITY_INVENTORY_CAPABILITIES
+  ...FACILITY_INVENTORY_CAPABILITIES,
+  ...FACILITY_INSPECTIONS_CAPABILITIES,
+  ...FACILITY_SAFETY_CAPABILITIES,
+  ...FACILITY_COMPLIANCE_CAPABILITIES
 ] as const;
 export type FacilityCapability = (typeof FACILITY_CAPABILITIES)[number];
 
@@ -85,6 +107,28 @@ export const FACILITY_INVENTORY_CAPABILITY_DESCRIPTIONS: Record<
 > = {
   "facility.inventory:read": "Read inventory locations, stock, and movements",
   "facility.inventory:write": "Receive, issue, adjust, and return inventory"
+};
+
+export const FACILITY_INSPECTIONS_CAPABILITY_DESCRIPTIONS: Record<
+  FacilityInspectionsCapability,
+  string
+> = {
+  "facility.inspections:read": "Read inspection programs and runs",
+  "facility.inspections:write": "Create and run facility inspections"
+};
+
+export const FACILITY_SAFETY_CAPABILITY_DESCRIPTIONS: Record<FacilitySafetyCapability, string> = {
+  "facility.safety:read": "Read safety incidents and actions",
+  "facility.safety:write": "Report and manage safety incidents"
+};
+
+export const FACILITY_COMPLIANCE_CAPABILITY_DESCRIPTIONS: Record<
+  FacilityComplianceCapability,
+  string
+> = {
+  "facility.compliance:read": "Read compliance obligations",
+  "facility.compliance:write": "Create and satisfy compliance obligations",
+  "facility.compliance:waive": "Waive compliance obligations with reason"
 };
 
 export function hasFacilityCapability(

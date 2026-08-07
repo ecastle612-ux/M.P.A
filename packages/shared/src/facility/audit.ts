@@ -66,3 +66,33 @@ export const FACILITY_INVENTORY_AUDIT_ACTIONS = [
 ] as const;
 
 export type FacilityInventoryAuditAction = (typeof FACILITY_INVENTORY_AUDIT_ACTIONS)[number];
+
+export const FACILITY_INSPECTION_AUDIT_ACTIONS = [
+  "facility.inspection.program_created",
+  "facility.inspection.program_activated",
+  "facility.inspection.started",
+  "facility.inspection.completed",
+  "facility.inspection.failed",
+  "facility.inspection.cancelled"
+] as const;
+
+export type FacilityInspectionAuditAction = (typeof FACILITY_INSPECTION_AUDIT_ACTIONS)[number];
+
+export const FACILITY_SAFETY_AUDIT_ACTIONS = [
+  "facility.safety.incident_reported",
+  "facility.safety.incident_triaged",
+  "facility.safety.actions_open",
+  "facility.safety.incident_closed"
+] as const;
+
+export type FacilitySafetyAuditAction = (typeof FACILITY_SAFETY_AUDIT_ACTIONS)[number];
+
+export const FACILITY_COMPLIANCE_AUDIT_ACTIONS = [
+  "facility.compliance.obligation_created",
+  "facility.compliance.obligation_due",
+  "facility.compliance.obligation_overdue",
+  "facility.compliance.satisfied",
+  "facility.compliance.waived"
+] as const;
+
+export type FacilityComplianceAuditAction = (typeof FACILITY_COMPLIANCE_AUDIT_ACTIONS)[number];

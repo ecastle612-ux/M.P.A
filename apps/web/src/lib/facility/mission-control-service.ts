@@ -1,10 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  buildFacilityComplianceOverdueAttention,
   buildFacilityCriticalAssetAttention,
   buildFacilityMissionControlNextAction,
   buildFacilityOpenCriticalWorkAttention,
   buildFacilityPmDueAttention,
   buildFacilityPmOverdueAttention,
+  buildFacilitySafetyOpenAttention,
   buildFacilitySetupIncompleteAttention,
   buildFacilityStockoutAttention,
   buildFacilitySystemDownAttention,
@@ -12,9 +14,11 @@ import {
   rankFacilityAttention
 } from "@mpa/shared";
 import { listFacilityAssets } from "./asset-service";
+import { listComplianceObligations, summarizeCompliance } from "./compliance-service";
 import { listInventoryStock, summarizeInventory } from "./inventory-service";
 import { listFacilityWorkOrders, summarizeFacilityWorkOrders } from "./operations-service";
 import { listPmSchedules, summarizePmSchedules } from "./pm-service";
+import { listSafetyIncidents, summarizeSafety } from "./safety-service";
 import { listFacilitySites } from "./site-service";
 import { listFacilitySystems } from "./system-service";
 
@@ -26,14 +30,17 @@ export async function getFacilityMissionControlState(
   organizationId: string,
   setupComplete: boolean
 ) {
-  const [sites, assets, systems, workOrders, pmSchedules, stock] = await Promise.all([
-    listFacilitySites(supabase, organizationId),
-    listFacilityAssets(supabase, organizationId),
-    listFacilitySystems(supabase, organizationId),
-    listFacilityWorkOrders(supabase, organizationId),
-    listPmSchedules(supabase, organizationId),
-    listInventoryStock(supabase, organizationId)
-  ]);
+  const [sites, assets, systems, workOrders, pmSchedules, stock, incidents, obligations] =
+    await Promise.all([
+      listFacilitySites(supabase, organizationId),
+      listFacilityAssets(supabase, organizationId),
+      listFacilitySystems(supabase, organizationId),
+      listFacilityWorkOrders(supabase, organizationId),
+      listPmSchedules(supabase, organizationId),
+      listInventoryStock(supabase, organizationId),
+      listSafetyIncidents(supabase, organizationId),
+      listComplianceObligations(supabase, organizationId)
+    ]);
 
   const activeSites = sites.filter((site) => site.status === "active");
   const draftSites = sites.filter((site) => site.status === "draft");
@@ -45,6 +52,8 @@ export async function getFacilityMissionControlState(
   const workSummary = summarizeFacilityWorkOrders(workOrders);
   const pmSummary = summarizePmSchedules(pmSchedules);
   const inventorySummary = summarizeInventory(stock);
+  const safetySummary = summarizeSafety(incidents);
+  const complianceSummary = summarizeCompliance(obligations);
   const pmAttentionInput = pmSchedules.map((schedule) => ({
     id: schedule.id,
     name: schedule.name,
@@ -73,6 +82,24 @@ export async function getFacilityMissionControlState(
     criticalPart: Boolean(row.facility_parts?.critical_part)
   }));
   const stockoutAttention = buildFacilityStockoutAttention(stockAttentionInput);
+  const safetyAttention = buildFacilitySafetyOpenAttention(
+    incidents.map((incident) => ({
+      id: incident.id,
+      title: incident.title,
+      siteId: incident.site_id,
+      severity: incident.severity,
+      status: incident.status
+    }))
+  );
+  const complianceAttention = buildFacilityComplianceOverdueAttention(
+    obligations.map((obligation) => ({
+      id: obligation.id,
+      title: obligation.title,
+      siteId: obligation.site_id,
+      dueOn: obligation.due_on,
+      status: obligation.status
+    }))
+  );
 
   const attention = rankFacilityAttention([
     ...buildFacilitySetupIncompleteAttention({
@@ -88,6 +115,8 @@ export async function getFacilityMissionControlState(
       }))
     ),
     ...buildFacilityWorkOrderEmergencyAttention(workOrderAttentionInput),
+    ...safetyAttention,
+    ...complianceAttention,
     ...buildFacilityPmOverdueAttention(pmAttentionInput),
     ...buildFacilityCriticalAssetAttention(
       assets.map((asset) => ({
@@ -118,7 +147,11 @@ export async function getFacilityMissionControlState(
     duePmCount: pmSummary.dueCount,
     firstPmScheduleId: pmSummary.firstDueOrOverdueId,
     stockoutCount: stockoutAttention.length,
-    firstStockId: inventorySummary.firstStockoutId
+    firstStockId: inventorySummary.firstStockoutId,
+    openSafetyCount: safetyAttention.length,
+    firstSafetyIncidentId: safetyAttention[0]?.aggregateId ?? safetySummary.firstOpenIncidentId,
+    overdueComplianceCount: complianceAttention.length,
+    firstComplianceObligationId: complianceSummary.firstOverdueId
   });
 
   const recentEvents = await supabase
@@ -126,7 +159,7 @@ export async function getFacilityMissionControlState(
     .select("id, event_type, aggregate_id, aggregate_type, payload, created_at")
     .eq("organization_id", organizationId)
     .or(
-      "event_type.like.facility.site.%,event_type.like.facility.asset.%,event_type.like.facility.system.%,event_type.like.facility.pm_schedule.%,event_type.like.facility.part.%,event_type.like.facility.inventory.%,event_type.eq.work_order.created,event_type.eq.work_order.triaged,event_type.eq.work_order.assigned,event_type.eq.work_order.completed,event_type.eq.work_order.closed"
+      "event_type.like.facility.site.%,event_type.like.facility.asset.%,event_type.like.facility.system.%,event_type.like.facility.pm_schedule.%,event_type.like.facility.part.%,event_type.like.facility.inventory.%,event_type.like.facility.inspection.%,event_type.like.facility.safety.%,event_type.like.facility.compliance.%,event_type.eq.work_order.created,event_type.eq.work_order.triaged,event_type.eq.work_order.assigned,event_type.eq.work_order.completed,event_type.eq.work_order.closed"
     )
     .order("created_at", { ascending: false })
     .limit(12);
@@ -147,6 +180,9 @@ export async function getFacilityMissionControlState(
     stockLineCount: inventorySummary.stockLineCount,
     stockoutCount: inventorySummary.stockoutCount,
     lowStockCount: inventorySummary.lowCount,
+    openSafetyCount: safetySummary.openCount,
+    highSeveritySafetyCount: safetySummary.highSeverityCount,
+    overdueComplianceCount: complianceSummary.overdueCount,
     sites: sites.slice(0, 8).map((site) => ({
       id: site.id,
       name: site.name,
@@ -195,9 +231,16 @@ export async function getFacilityMissionControlState(
                     ? `/facility/parts?partId=${event.aggregate_id as string}`
                     : aggregateType === "facility_inventory_locations"
                       ? `/facility/inventory?locationId=${event.aggregate_id as string}`
-                      : typeof payload?.workOrderId === "string"
-                        ? `/facility/operations?workOrderId=${payload.workOrderId}`
-                        : `/facility/sites/${event.aggregate_id as string}`;
+                      : aggregateType === "facility_inspection_runs" ||
+                          aggregateType === "facility_inspection_programs"
+                        ? `/facility/inspections?runId=${event.aggregate_id as string}`
+                        : aggregateType === "facility_safety_incidents"
+                          ? `/facility/safety?incidentId=${event.aggregate_id as string}`
+                          : aggregateType === "facility_compliance_obligations"
+                            ? `/facility/compliance?obligationId=${event.aggregate_id as string}`
+                            : typeof payload?.workOrderId === "string"
+                              ? `/facility/operations?workOrderId=${payload.workOrderId}`
+                              : `/facility/sites/${event.aggregate_id as string}`;
       return {
         id: event.id as string,
         title: String(event.event_type),
@@ -211,6 +254,6 @@ export async function getFacilityMissionControlState(
         href
       };
     }),
-    deferredSignals: ["safety_open", "compliance_overdue"]
+    deferredSignals: [] as string[]
   };
 }

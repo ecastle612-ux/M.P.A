@@ -247,9 +247,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.inspections",
     href: "/facility/inspections",
-    readiness: "planned",
-    description: "Facility and building inspection programs.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "Inspection programs, checklists, runs, findings, and corrective work spawn."
   },
   {
     id: "safety",
@@ -257,9 +256,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.safety",
     href: "/facility/safety",
-    readiness: "planned",
-    description: "Safety incidents and protocols.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "Safety incidents, triage, and corrective actions via shared work orders."
   },
   {
     id: "compliance",
@@ -267,9 +265,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.compliance",
     href: "/facility/compliance",
-    readiness: "planned",
-    description: "Building and facility compliance programs.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "Compliance obligations, due dates, evidence satisfy, and waiver audit."
   },
   {
     id: "building_systems",
@@ -411,9 +408,9 @@ export function navigationGroupsForSku(
           readiness: "aligned",
           entitlement: "facility.preventive"
         },
-        { href: "/facility/inspections", label: "Inspections", readiness: "planned", entitlement: "facility.inspections" },
-        { href: "/facility/safety", label: "Safety", readiness: "planned", entitlement: "facility.safety" },
-        { href: "/facility/compliance", label: "Compliance", readiness: "planned", entitlement: "facility.compliance" }
+        { href: "/facility/inspections", label: "Inspections", readiness: "aligned", entitlement: "facility.inspections" },
+        { href: "/facility/safety", label: "Safety", readiness: "aligned", entitlement: "facility.safety" },
+        { href: "/facility/compliance", label: "Compliance", readiness: "aligned", entitlement: "facility.compliance" }
         // Capital Projects: future entitlement — Master Admin + Billing only until enabled
       ]
     });
@@ -594,6 +591,30 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
         title: "Parts Catalog",
         description: "Facility parts catalog used by inventory and work orders.",
         href: "/facility/parts",
+        product: "facility_operations",
+        readiness: "aligned"
+      },
+      {
+        id: "fac_inspections",
+        title: "Inspections",
+        description: "Inspection programs, runs, findings, and corrective spawn.",
+        href: "/facility/inspections",
+        product: "facility_operations",
+        readiness: "aligned"
+      },
+      {
+        id: "fac_safety",
+        title: "Safety",
+        description: "Safety incidents and corrective actions.",
+        href: "/facility/safety",
+        product: "facility_operations",
+        readiness: "aligned"
+      },
+      {
+        id: "fac_compliance",
+        title: "Compliance",
+        description: "Compliance obligations, evidence, and overdue attention.",
+        href: "/facility/compliance",
         product: "facility_operations",
         readiness: "aligned"
       },
