@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
+import { resolvePostAuthHome } from "@mpa/shared";
 import { createAuthServerClient } from "../../../lib/auth/server";
 import { resolveAuthenticatedShellContext } from "../../../lib/auth/get-shell-context";
-import { defaultHomeForSku } from "../../../lib/commercial/server";
+import { isPlatformOperatorUser } from "../../../lib/commercial/server";
 
 export default async function DashboardPage() {
   const supabase = await createAuthServerClient();
@@ -15,13 +16,14 @@ export default async function DashboardPage() {
 
   const shell = await resolveAuthenticatedShellContext(user);
   const active = shell.organizations.find((organization) => organization.id === shell.defaultOrganizationId);
+  const isPlatformOperator = await isPlatformOperatorUser(user);
 
-  if (!active?.productSku) {
-    redirect("/setup");
-  }
-  // J0: unfinished Guided Setup always wins over Mission Control / Launcher.
-  if (!active.setupComplete) {
-    redirect("/setup");
-  }
-  redirect(defaultHomeForSku(active.productSku));
+  redirect(
+    resolvePostAuthHome({
+      roles: shell.availableRoles,
+      productSku: active?.productSku ?? null,
+      setupComplete: active?.setupComplete ?? false,
+      isPlatformOperator
+    })
+  );
 }

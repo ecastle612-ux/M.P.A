@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
-import { isProductSku, toSkuLabel, type ProductSku } from "@mpa/shared";
+import { isProductSku, isUserRole, toSkuLabel, type ProductSku, type UserRole } from "@mpa/shared";
 import { createAuthServerClient } from "../auth/server";
 import { ACTIVE_ORGANIZATION_COOKIE, type OrganizationSummary } from "./contracts";
 
@@ -45,7 +45,7 @@ export async function requireAuthenticatedUser(): Promise<{
 }
 
 export function isOrganizationManager(roles: readonly string[]): boolean {
-  return roles.includes("property_manager");
+  return roles.includes("property_manager") || roles.includes("organization_admin");
 }
 
 export async function getOrganizationsForUser(userId: string): Promise<OrganizationSummary[]> {
@@ -94,10 +94,7 @@ export async function getOrganizationsForUser(userId: string): Promise<Organizat
         id: row.organization_id,
         name: row.organizations?.name ?? "",
         slug: row.organizations?.slug ?? "",
-        roles: row.roles.filter(
-          (role): role is "property_manager" | "property_owner" | "tenant" | "vendor" =>
-            role === "property_manager" || role === "property_owner" || role === "tenant" || role === "vendor"
-        ),
+        roles: row.roles.filter((role): role is UserRole => isUserRole(role)),
         productSku,
         productLabel: productSku ? toSkuLabel(productSku) : null,
         setupComplete: setupCompleteByOrg.get(row.organization_id) ?? false

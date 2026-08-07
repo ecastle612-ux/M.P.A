@@ -95,7 +95,8 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE PROPERTY MANAGER PRODUCTION CERTIFICATION` | Production audit of advertised PM | **Authorized + complete** — initial **NO-GO** (P0 portal access) |
 | `AUTHORIZE LAUNCH-001 – P0 PRODUCTION REMEDIATION` | Clear LB-001/002/003 only | **Authorized + delivered** — **GO** (92/100; no open P0) |
 | `AUTHORIZE LAUNCH STABILIZATION – WORLD-CLASS UX & PRODUCTION AUDIT` | Defects/friction/polish only | **Authorized + delivered** — audit package + surgical polish; **STOP** |
-| `AUTHORIZE CUSTOMER #1 DRY RUN` | Zero-knowledge operational simulation | **Authorized + complete** — [Dry Run Report](./customer-1-dry-run/customer-1-dry-run-report.md); **no code changes**; **STOP** |
+| `AUTHORIZE CUSTOMER #1 DRY RUN` | Zero-knowledge operational simulation | **Authorized + complete** — criticals found |
+| `AUTHORIZE CUSTOMER #1 DRY RUN REMEDIATION` | Clear DR-C1…DR-C5 only | **Authorized + delivered** — **GO**; [Remediation Report](./customer-1-dry-run/dry-run-remediation-report.md); **STOP** |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
@@ -123,8 +124,8 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 
 | Instruction |
 |-------------|
-| **STOP** — Customer #1 Dry Run report complete; remediation of dry-run criticals requires a new authorize |
-| Launch Readiness remains **GO** for staff PM; dry run found **multi-role return-login criticals** — see dry-run report |
+| **STOP** — Dry-run criticals remediated; recommend production deployment + Customer #1 onboarding |
+| **Do not** begin new feature development |
 | **Do not** add Property Manager features — polish/defects only when explicitly authorized |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |

@@ -11,6 +11,18 @@ import { createServiceRoleClient } from "../supabase/service-role";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
 
+export type PortalAccessHandoff = {
+  status: "ready" | "failed";
+  role: PortalAccessRole;
+  email: string;
+  homeHref: string;
+  loginHref: string;
+  firstLoginMessage: string;
+  magicLink: string | null;
+  createdAuthUser: boolean;
+  recoveryMessage?: string;
+};
+
 export type PortalAccessProvisionResult = {
   userId: string;
   role: PortalAccessRole;
@@ -19,6 +31,7 @@ export type PortalAccessProvisionResult = {
   linkedEntity: boolean;
   alreadyProvisioned: boolean;
   homeHref: string;
+  handoff: PortalAccessHandoff;
 };
 
 function appUrl() {
@@ -28,10 +41,50 @@ function appUrl() {
 function adminClient(): Db {
   if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY is required to provision portal access (auth user + membership)."
+      "Portal access could not be provisioned: SUPABASE_SERVICE_ROLE_KEY is not configured. Add the service role key, then re-run lease activation or vendor assignment. Do not send the resident/vendor to /unauthorized without a login link."
     );
   }
   return createServiceRoleClient();
+}
+
+async function buildMagicLink(admin: Db, email: string, homeHref: string): Promise<string | null> {
+  try {
+    const link = await admin.auth.admin.generateLink({
+      type: "magiclink",
+      email,
+      options: {
+        redirectTo: `${appUrl()}${homeHref}`
+      }
+    });
+    return link.data.properties?.action_link ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function buildHandoff(args: {
+  role: PortalAccessRole;
+  email: string;
+  homeHref: string;
+  createdAuthUser: boolean;
+  magicLink: string | null;
+}): PortalAccessHandoff {
+  const loginHref = `/login?next=${encodeURIComponent(args.homeHref)}`;
+  const roleLabel = args.role === "tenant" ? "Resident Portal" : "Vendor Portal";
+  const firstLoginMessage = args.createdAuthUser
+    ? `${roleLabel} access is ready for ${args.email}. Share the magic link (or ask them to sign in at ${loginHref} after setting a password from the invite email).`
+    : `${roleLabel} access is ready for ${args.email}. They can sign in at ${loginHref}.`;
+
+  return {
+    status: "ready",
+    role: args.role,
+    email: args.email,
+    homeHref: args.homeHref,
+    loginHref,
+    firstLoginMessage,
+    magicLink: args.magicLink,
+    createdAuthUser: args.createdAuthUser
+  };
 }
 
 async function findAuthUserIdByEmail(admin: Db, email: string): Promise<string | null> {
@@ -323,6 +376,9 @@ async function provisionPortalAccess(args: {
     });
   }
 
+  const homeHref = defaultHomeForRole(args.role);
+  const magicLink = await buildMagicLink(admin, email, homeHref);
+
   return {
     userId,
     role: args.role,
@@ -330,7 +386,14 @@ async function provisionPortalAccess(args: {
     createdAuthUser,
     linkedEntity,
     alreadyProvisioned,
-    homeHref: defaultHomeForRole(args.role)
+    homeHref,
+    handoff: buildHandoff({
+      role: args.role,
+      email,
+      homeHref,
+      createdAuthUser,
+      magicLink
+    })
   };
 }
 

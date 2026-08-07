@@ -166,8 +166,7 @@ export default async function TenantPortalPage() {
         <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
           <h3 className="text-base font-semibold">Maintenance request</h3>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Submit and track maintenance from your portal home. Full work-order journeys continue in
-            later launch steps.
+            Submit and track maintenance requests for your home from this portal.
           </p>
           <Link
             href="/portal/tenant/maintenance"

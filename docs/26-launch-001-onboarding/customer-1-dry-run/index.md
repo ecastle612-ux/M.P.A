@@ -7,28 +7,22 @@
 
 ---
 
-## Deliverable
+## Deliverables
 
 | Document | Purpose |
 |----------|---------|
-| [Customer #1 Dry Run Report](./customer-1-dry-run-report.md) | Critical bugs, workflow friction, and confidence-hurting polish only |
+| [Customer #1 Dry Run Report](./customer-1-dry-run-report.md) | Updated post-remediation |
+| [Dry Run Remediation Report](./dry-run-remediation-report.md) | DR-C1…DR-C5 clearance |
 
 ---
 
-## Method
+## Status
 
-| Aspect | Detail |
-|--------|--------|
-| Stance | Zero internal knowledge — new paying customer |
-| Org | Assumed brand-new (no seeded portfolio) |
-| Live browser / staging DB | **Unavailable in this agent environment** (no app env / Supabase credentials) |
-| Simulation basis | Shipped routes, UI copy, APIs, redirects, RLS/role wiring, and journey CTAs in current `main`/`cursor/product-architecture-reset-5922` |
-
-This is an **operational code-path dry run**. Findings below are reproducible from product behavior as implemented. A live staging Pass (DEF-003) remains required to stamp human MA evidence.
+**DR-C criticals cleared.** Launch decision **GO**.  
+Record staging Master Admin Pass, then production deploy + Customer #1 onboarding.
 
 ---
 
 ## STOP
 
-No implementation in this authorization.  
-Await explicit authorization before fixing listed defects.
+No new feature development.

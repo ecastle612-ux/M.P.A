@@ -1,6 +1,9 @@
 /**
  * LAUNCH-001 Mission Control / Assistant progression (J0–J8).
+ * Recommendations are role-appropriate — staff never get resident-only CTAs.
  */
+
+import type { UserRole } from "../types/roles";
 
 export type MissionControlNextAction = {
   id:
@@ -10,11 +13,15 @@ export type MissionControlNextAction = {
     | "add_first_resident"
     | "create_first_lease"
     | "collect_first_rent"
+    | "review_maintenance_queue"
     | "submit_first_maintenance"
+    | "start_assigned_work"
+    | "view_vendor_assignments"
     | "review_daily_operations"
     | "review_owner_portfolio"
     | "customer_promise_complete"
-    | "open_property";
+    | "open_property"
+    | "platform_operations";
   title: string;
   detail: string;
   href: string;
@@ -39,7 +46,58 @@ export function buildMissionControlNextAction(input: {
   dailyOpsReady?: boolean;
   /** True when the owner portfolio home has been reviewed (J8). */
   ownerPortfolioReady?: boolean;
+  /** Active actor role — keeps CTAs executable for that role. */
+  actorRole?: UserRole | null;
 }): MissionControlNextAction {
+  if (input.actorRole === "tenant") {
+    return {
+      id: "submit_first_maintenance",
+      title: "Submit a maintenance request",
+      detail: "Tell your property team what needs attention.",
+      href: "/portal/tenant/maintenance",
+      assistantRecommendation: "Submit a maintenance request."
+    };
+  }
+
+  if (input.actorRole === "vendor") {
+    return {
+      id: "view_vendor_assignments",
+      title: "View assigned work",
+      detail: "Open your vendor workspace for assigned work orders.",
+      href: "/portal/vendor",
+      assistantRecommendation: "View assigned work."
+    };
+  }
+
+  if (input.actorRole === "property_owner") {
+    return {
+      id: "review_owner_portfolio",
+      title: "Review your portfolio",
+      detail: "Check occupancy, rent, balances, and maintenance for your properties.",
+      href: "/portal/owner",
+      assistantRecommendation: "Review your portfolio."
+    };
+  }
+
+  if (input.actorRole === "maintenance_technician") {
+    return {
+      id: "start_assigned_work",
+      title: "Start assigned work",
+      detail: "Open Maintenance to see work orders assigned to you.",
+      href: "/pm/maintenance",
+      assistantRecommendation: "Start assigned work."
+    };
+  }
+
+  if (input.actorRole === "leasing_agent") {
+    return {
+      id: "create_first_lease",
+      title: "Open leasing",
+      detail: "Continue leasing work from your workspace.",
+      href: "/pm/leasing",
+      assistantRecommendation: "Open leasing."
+    };
+  }
   if (!input.setupComplete) {
     return {
       id: "complete_setup",
@@ -102,11 +160,12 @@ export function buildMissionControlNextAction(input: {
 
   if (!input.maintenanceReady) {
     return {
-      id: "submit_first_maintenance",
-      title: "Submit your first maintenance request",
-      detail: "My first rent has been collected. Handle your first maintenance request next.",
+      id: "review_maintenance_queue",
+      title: "Review your maintenance queue",
+      detail:
+        "My first rent has been collected. Open Maintenance to triage resident requests — residents submit from their portal.",
       href: "/pm/maintenance",
-      assistantRecommendation: "Submit your first maintenance request."
+      assistantRecommendation: "Review your maintenance queue."
     };
   }
 
@@ -157,7 +216,7 @@ export function buildLeaseReadyAssistantCopy(residentName: string): string {
 }
 
 export function buildRentReadyAssistantCopy(): string {
-  return "My first rent has been collected. Submit your first maintenance request.";
+  return "My first rent has been collected. Review your maintenance queue.";
 }
 
 export function buildMaintenanceReadyAssistantCopy(): string {

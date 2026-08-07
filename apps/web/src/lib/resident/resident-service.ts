@@ -416,9 +416,9 @@ export async function getResidentCommandCenter(
         }
       : rentCollected
         ? {
-            title: "Submit your first maintenance request",
+            title: "Review your maintenance queue",
             href: "/pm/maintenance",
-            detail: "Continue operations with your first maintenance request."
+            detail: "Open Maintenance to triage resident requests from the portal."
           }
         : active
           ? {

@@ -63,6 +63,12 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [portalHandoff, setPortalHandoff] = useState<{
+    firstLoginMessage: string;
+    loginHref: string;
+    magicLink: string | null;
+    email: string;
+  } | null>(null);
 
   const load = useCallback(async () => {
     const response = await fetch(`/api/pm/leasing/${leaseId}`);
@@ -108,6 +114,14 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
         throw new Error(body.error ?? "Action failed");
       }
       setActionMessage(body.notice ?? body.readyMessage ?? body.assistantRecommendation ?? successFallback);
+      if (body.portalHandoff?.firstLoginMessage) {
+        setPortalHandoff({
+          firstLoginMessage: body.portalHandoff.firstLoginMessage as string,
+          loginHref: (body.portalHandoff.loginHref as string) ?? "/login?next=/portal/tenant",
+          magicLink: (body.portalHandoff.magicLink as string | null) ?? null,
+          email: (body.portalHandoff.email as string) ?? ""
+        });
+      }
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Action failed");
@@ -278,6 +292,25 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
           ) : null}
         </div>
         {actionMessage ? <p className="text-sm text-[var(--mpa-color-text-secondary)]">{actionMessage}</p> : null}
+        {portalHandoff ? (
+          <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)] p-3 text-sm">
+            <p className="font-medium text-[var(--mpa-color-text-primary)]">Resident portal first login</p>
+            <p className="mt-1 text-[var(--mpa-color-text-secondary)]">{portalHandoff.firstLoginMessage}</p>
+            <p className="mt-2">
+              <Link
+                href={portalHandoff.loginHref}
+                className="text-[var(--mpa-color-brand-primary)] underline"
+              >
+                Open resident login path
+              </Link>
+            </p>
+            {portalHandoff.magicLink ? (
+              <p className="mt-2 break-all text-xs text-[var(--mpa-color-text-secondary)]">
+                Magic link: {portalHandoff.magicLink}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
       </section>
 

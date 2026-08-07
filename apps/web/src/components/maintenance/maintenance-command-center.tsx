@@ -217,7 +217,7 @@ export function MaintenanceCommandCenter() {
           {maintenanceReady
             ? "My maintenance operation is working. Review your daily operations."
             : assistantRecommendation ||
-              "Submit your first maintenance request — residents use the portal; you manage the lifecycle here."}
+              "Review the queue — residents submit from their portal; you triage, assign, and close here."}
         </p>
         {maintenanceReady ? (
           <Link
@@ -382,7 +382,28 @@ export function MaintenanceCommandCenter() {
                       if (!response.ok) {
                         throw new Error(body.error ?? "Assign failed");
                       }
-                      setNotice("Assignment sent.");
+                      const handoff = body.vendorPortalHandoff as
+                        | {
+                            firstLoginMessage?: string;
+                            magicLink?: string | null;
+                            loginHref?: string;
+                          }
+                        | null
+                        | undefined;
+                      if (handoff?.firstLoginMessage) {
+                        setNotice(
+                          [
+                            "Assignment sent.",
+                            handoff.firstLoginMessage,
+                            handoff.magicLink ? `Magic link: ${handoff.magicLink}` : null,
+                            handoff.loginHref ? `Login: ${handoff.loginHref}` : null
+                          ]
+                            .filter(Boolean)
+                            .join(" ")
+                        );
+                      } else {
+                        setNotice("Assignment sent.");
+                      }
                     });
                   }}
                 >

@@ -182,7 +182,7 @@ export async function GET(request: Request) {
       receipts: receipts.length
     },
     assistantRecommendation: rent.rentReady
-      ? "Submit your first maintenance request."
+      ? "Review your maintenance queue."
       : "Collect your first rent.",
     stripeNote:
       "Pass on stripePayment requires a succeeded Stripe/online checkout in this org. Manual payment alone can complete the customer journey; Stripe remains the online path when configured."

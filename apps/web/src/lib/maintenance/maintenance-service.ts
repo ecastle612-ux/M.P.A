@@ -518,6 +518,10 @@ export async function assignWorkOrder(
       href: "/pm/maintenance"
     });
   }
+  let vendorPortalHandoff: Awaited<
+    ReturnType<typeof provisionVendorPortalAccess>
+  >["handoff"] | null = null;
+
   if (vendorId) {
     const { data: vendor } = await supabase
       .from("vendor_vendors")
@@ -529,7 +533,7 @@ export async function assignWorkOrder(
     const vendorEmail = (vendor?.email as string | null | undefined) ?? null;
     if (!vendorEmail) {
       throw new Error(
-        "Vendor email is required to provision vendor portal access on assignment."
+        "Vendor email is required to provision vendor portal access on assignment. Add a vendor email, then assign again."
       );
     }
     const portalAccess = await provisionVendorPortalAccess({
@@ -541,6 +545,7 @@ export async function assignWorkOrder(
       existingUserId: vendorUserId
     });
     vendorUserId = portalAccess.userId;
+    vendorPortalHandoff = portalAccess.handoff;
 
     await notify(supabase, {
       organizationId,
@@ -567,7 +572,10 @@ export async function assignWorkOrder(
     href: "/portal/tenant/maintenance"
   });
 
-  return data as WorkOrderRow;
+  return {
+    workOrder: data as WorkOrderRow,
+    vendorPortalHandoff
+  };
 }
 
 export async function progressWorkOrder(

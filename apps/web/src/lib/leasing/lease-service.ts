@@ -451,13 +451,14 @@ export async function activateSignedLease(
   }
   if (lease.status === "active" && lease.activated_at) {
     // Idempotent remediation: activation may have set portal_status without membership.
+    let portalHandoff = null;
     if (lease.resident_id && lease.pm_residents?.email) {
       const { data: residentLink } = await supabase
         .from("pm_residents")
         .select("user_id, email")
         .eq("id", lease.resident_id)
         .maybeSingle();
-      await provisionResidentPortalAccess({
+      const portalAccess = await provisionResidentPortalAccess({
         supabase,
         organizationId,
         actorId,
@@ -465,10 +466,12 @@ export async function activateSignedLease(
         email: (residentLink?.email as string | undefined) ?? lease.pm_residents.email,
         existingUserId: (residentLink?.user_id as string | null | undefined) ?? null
       });
+      portalHandoff = portalAccess.handoff;
     }
     return {
       lease,
       alreadyActive: true,
+      portalHandoff,
       assistantRecommendation: buildLeaseReadyAssistantCopy(
         lease.pm_residents?.display_name ?? "Resident"
       ),
@@ -551,6 +554,9 @@ export async function activateSignedLease(
     : { data: null };
 
   let linkedUserId = (pmResidentRow?.user_id as string | null | undefined) ?? null;
+  let portalHandoff = null as Awaited<
+    ReturnType<typeof provisionResidentPortalAccess>
+  >["handoff"] | null;
   if (lease.resident_id && residentEmail) {
     const portalAccess = await provisionResidentPortalAccess({
       supabase,
@@ -561,9 +567,10 @@ export async function activateSignedLease(
       existingUserId: linkedUserId
     });
     linkedUserId = portalAccess.userId;
+    portalHandoff = portalAccess.handoff;
   } else if (lease.resident_id && !residentEmail) {
     throw new Error(
-      "Resident email is required to provision portal access during lease activation."
+      "Resident email is required to provision portal access during lease activation. Add an email on the resident, then activate again."
     );
   }
 
@@ -640,6 +647,7 @@ export async function activateSignedLease(
   return {
     lease: activeLease as PortfolioLease,
     alreadyActive: false,
+    portalHandoff,
     assistantRecommendation: buildLeaseReadyAssistantCopy(residentName),
     readyMessage: "My resident is fully onboarded."
   };
@@ -852,9 +860,9 @@ export async function getLeaseCommandCenter(
         }
       : rentCollected
         ? {
-            title: "Submit your first maintenance request",
+            title: "Review your maintenance queue",
             href: "/pm/maintenance",
-            detail: "Continue operations with your first maintenance request."
+            detail: "Open Maintenance to triage resident requests from the portal."
           }
         : active
           ? {

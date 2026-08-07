@@ -19,13 +19,16 @@ export async function POST(request: Request) {
   }
 
   try {
-    const workOrder = await assignWorkOrder(
+    const result = await assignWorkOrder(
       authz.supabase,
       authz.organizationId,
       authz.user.id,
       parsed.data
     );
-    return NextResponse.json({ workOrder });
+    return NextResponse.json({
+      workOrder: result.workOrder,
+      vendorPortalHandoff: result.vendorPortalHandoff
+    });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to assign" },

@@ -60,7 +60,7 @@ export function J5CertificationPanel() {
     report.checks["propertyFinancialUpdate"] &&
     report.checks["ownerSummaryUpdate"] &&
     report.checks["rentReady"] &&
-    report.assistantRecommendation === "Submit your first maintenance request.";
+    report.assistantRecommendation === "Review your maintenance queue.";
 
   return (
     <section className="max-w-3xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">

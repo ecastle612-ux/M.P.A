@@ -27,7 +27,7 @@ export async function GET() {
       readiness,
       assistantRecommendation: readiness.maintenanceReady
         ? "Review your daily operations."
-        : "Submit your first maintenance request."
+        : "Review your maintenance queue."
     });
   } catch (error) {
     return NextResponse.json(

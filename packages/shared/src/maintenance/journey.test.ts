@@ -15,9 +15,9 @@ describe("LAUNCH-001 J6 maintenance journey", () => {
       rentReady: true,
       maintenanceReady: false
     });
-    expect(before.id).toBe("submit_first_maintenance");
+    expect(before.id).toBe("review_maintenance_queue");
     expect(before.href).toBe("/pm/maintenance");
-    expect(before.assistantRecommendation).toBe("Submit your first maintenance request.");
+    expect(before.assistantRecommendation).toBe("Review your maintenance queue.");
 
     const after = buildMissionControlNextAction({
       setupComplete: true,

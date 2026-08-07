@@ -168,7 +168,7 @@ export async function GET(request: Request) {
     checks,
     assistantRecommendation: readiness.maintenanceReady
       ? "Review your daily operations."
-      : "Submit your first maintenance request.",
+      : "Review your maintenance queue.",
     vendorNote:
       "Vendor assignment reuses vendor_vendors and auto-provisions vendor portal membership. When vendorAssigned is exercised, vendorPortalAccessProvisioned requires linked user_id + vendor role."
   });

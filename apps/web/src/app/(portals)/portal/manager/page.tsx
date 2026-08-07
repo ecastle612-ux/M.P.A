@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
+import { resolvePostAuthHome } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import { resolveAuthenticatedShellContext } from "../../../../lib/auth/get-shell-context";
-import { defaultHomeForSku } from "../../../../lib/commercial/server";
+import { isPlatformOperatorUser } from "../../../../lib/commercial/server";
 
-/** P0 IA: manager portal consolidates into the commercial operating system home. */
 export default async function ManagerPortalPage() {
   const supabase = await createAuthServerClient();
   const {
@@ -16,5 +16,14 @@ export default async function ManagerPortalPage() {
 
   const shell = await resolveAuthenticatedShellContext(user);
   const active = shell.organizations.find((organization) => organization.id === shell.defaultOrganizationId);
-  redirect(defaultHomeForSku(active?.productSku ?? null));
+  const isPlatformOperator = await isPlatformOperatorUser(user);
+
+  redirect(
+    resolvePostAuthHome({
+      roles: shell.availableRoles,
+      productSku: active?.productSku ?? null,
+      setupComplete: active?.setupComplete ?? false,
+      isPlatformOperator
+    })
+  );
 }

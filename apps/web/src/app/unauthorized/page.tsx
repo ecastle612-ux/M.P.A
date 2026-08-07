@@ -14,7 +14,9 @@ export default async function UnauthorizedPage({ searchParams }: PageProps) {
       ? "This workspace is outside your organization's purchased subscription."
       : reason === "admin"
         ? "Master Admin is available only to authorized platform operators."
-        : "You do not have access to this area.";
+        : reason === "role"
+          ? "Your account does not have a recognized role for this organization. Ask your administrator to re-invite you with the correct role, then sign in again."
+          : "You do not have access to this area.";
 
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 p-6">
@@ -28,11 +30,17 @@ export default async function UnauthorizedPage({ searchParams }: PageProps) {
         <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/dashboard">
           Go to your workspace
         </Link>
-        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/launcher">
-          Workspace Launcher
+        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/login">
+          Sign in again
         </Link>
-        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/billing">
-          Billing & Plan
+        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/portal/tenant">
+          Resident Portal
+        </Link>
+        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/portal/vendor">
+          Vendor Portal
+        </Link>
+        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/portal/owner">
+          Owner Portal
         </Link>
       </div>
     </main>

@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { USER_ROLES, type UserRole } from "@mpa/shared";
+import { primaryRole, type UserRole } from "@mpa/shared";
 import type { User } from "@supabase/supabase-js";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../organization/contracts";
 import { getOrganizationsForUser } from "../organization/server";
@@ -36,9 +36,10 @@ export async function resolveAuthenticatedShellContext(user: User): Promise<Auth
         }
   );
 
-  const fallbackRole = USER_ROLES[0] ?? "property_manager";
-  const availableRoles = context.roles.length ? context.roles : [fallbackRole];
-  const defaultRole = context.activeRole ?? availableRoles[0] ?? fallbackRole;
+  // Never invent Organization Admin (or any role) when membership roles are empty.
+  const availableRoles = context.roles;
+  const resolvedPrimary = context.activeRole ?? primaryRole(availableRoles);
+  const defaultRole: UserRole = resolvedPrimary ?? "property_manager";
 
   return {
     user,

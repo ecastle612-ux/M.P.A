@@ -85,7 +85,7 @@ export function LoginForm() {
         {nextPath
           ? "Sign in with the invited email, then continue to accept your invitation."
           : mode === "sign_in"
-            ? "After sign-in you continue Guided Setup or land in Mission Control."
+            ? "After sign-in you continue Guided Setup or land in your role workspace."
             : "Verify your email, then sign in to create your organization."}
       </p>
       <div className="mt-4 grid grid-cols-2 gap-2">

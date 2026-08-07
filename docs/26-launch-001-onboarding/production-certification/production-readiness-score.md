@@ -30,14 +30,16 @@ Overall score = mean of Scenario 1–10.
 | 2 First property | 95 | |
 | 3 Invite team | 85 | Resend conditional |
 | 4 First resident | 95 | |
-| 5 Lease → portal | 92 | Portal access provisioned on activation |
-| 6 Collect rent | 88 | Staff + portal path when Stripe configured |
-| 7 Maintenance lifecycle | 90 | Resident/vendor portal provisioning on path |
+| 5 Lease → portal | 94 | Portal access + first-login handoff |
+| 6 Collect rent | 90 | Staff + portal path when Stripe configured |
+| 7 Maintenance lifecycle | 94 | Role-aware CTAs + portal handoffs |
 | 8 Owner portfolio | 90 | |
 | 9 Documents | 85 | Evidence checks tightened |
 | 10 Communications | 85 | Evidence checks tightened |
 
-### **Overall: 92 / 100**
+### **Overall: 94 / 100**
+
+_(Post dry-run remediation: role routing + handoffs raise resident/vendor/owner confidence.)_
 
 ---
 
@@ -64,4 +66,4 @@ Overall score = mean of Scenario 1–10.
 | 75–89 without P0 | Conditional GO + operator Pass |
 | <75 | NO-GO |
 
-**This remediation: 92 / 100 + no P0 blockers → GO.**
+**This remediation: 94 / 100 + no P0 / DR-C blockers → GO.**

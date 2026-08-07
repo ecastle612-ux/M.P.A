@@ -25,6 +25,17 @@ export async function GET() {
         ? (organization as { name: string }).name
         : null;
 
+    const { data: membership } = await authz.supabase
+      .from("organization_memberships")
+      .select("roles")
+      .eq("organization_id", authz.organizationId)
+      .eq("user_id", authz.user.id)
+      .eq("status", "active")
+      .maybeSingle();
+
+    const { isUserRole } = await import("@mpa/shared");
+    const roles = ((membership?.roles as unknown[]) ?? []).filter(isUserRole);
+
     const state = await getMissionControlState(
       authz.supabase,
       authz.organizationId,
@@ -32,7 +43,8 @@ export async function GET() {
       {
         userId: authz.user.id,
         displayName: profileRow?.display_name ?? profileRow?.contact_email ?? authz.user.email ?? null,
-        organizationName
+        organizationName,
+        roles
       }
     );
     return NextResponse.json({

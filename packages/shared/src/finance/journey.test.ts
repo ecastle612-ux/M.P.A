@@ -27,9 +27,9 @@ describe("LAUNCH-001 J5 rent collection journey", () => {
       rentReady: true,
       maintenanceReady: false
     });
-    expect(after.id).toBe("submit_first_maintenance");
+    expect(after.id).toBe("review_maintenance_queue");
     expect(after.href).toBe("/pm/maintenance");
-    expect(after.assistantRecommendation).toBe("Submit your first maintenance request.");
+    expect(after.assistantRecommendation).toBe("Review your maintenance queue.");
     expect(buildRentReadyAssistantCopy()).toContain("My first rent has been collected");
   });
 });

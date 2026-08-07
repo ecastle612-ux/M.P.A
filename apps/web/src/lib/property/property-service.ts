@@ -7,7 +7,8 @@ import {
   buildPropertyReadyAssistantCopy,
   buildRentReadyAssistantCopy,
   unitLabelsForCount,
-  type CreatePortfolioPropertyInput
+  type CreatePortfolioPropertyInput,
+  type UserRole
 } from "@mpa/shared";
 import { emitPropertyEvent, writePropertyAudit } from "./events-audit";
 import {
@@ -202,7 +203,12 @@ export async function getMissionControlState(
   supabase: Db,
   organizationId: string,
   setupComplete: boolean,
-  actor?: { userId: string; displayName?: string | null; organizationName?: string | null }
+  actor?: {
+    userId: string;
+    displayName?: string | null;
+    organizationName?: string | null;
+    roles?: UserRole[];
+  }
 ) {
   const properties = await listPortfolioProperties(supabase, organizationId);
   const first = properties[0] ?? null;
@@ -211,6 +217,7 @@ export async function getMissionControlState(
   const { getLeaseReadiness } = await import("../leasing/lease-service");
   const { getRentReadiness } = await import("../finance/billing-service");
   const { getMaintenanceReadiness } = await import("../maintenance/maintenance-service");
+  const { primaryRole } = await import("@mpa/shared");
   const team = await getTeamReadiness(supabase, organizationId);
   const residents = await getResidentReadiness(supabase, organizationId);
   const leases = await getLeaseReadiness(supabase, organizationId);
@@ -229,6 +236,7 @@ export async function getMissionControlState(
   }
 
   const ownerPortfolio = await getOwnerPortfolioReadiness(supabase, organizationId);
+  const actorRole = primaryRole(actor?.roles ?? []) ?? "property_manager";
 
   const nextAction = buildMissionControlNextAction({
     setupComplete,
@@ -240,7 +248,8 @@ export async function getMissionControlState(
     rentReady: rent.rentReady,
     maintenanceReady: maintenance.maintenanceReady,
     dailyOpsReady: dailyOps.dailyOpsReady,
-    ownerPortfolioReady: ownerPortfolio.ownerPortfolioReady
+    ownerPortfolioReady: ownerPortfolio.ownerPortfolioReady,
+    actorRole
   });
 
   const dailyOperations =
@@ -482,9 +491,9 @@ export async function getPropertyCommandCenter(
           }
         : hasCollectedRent
           ? {
-              title: "Submit your first maintenance request",
+              title: "Review your maintenance queue",
               href: "/pm/maintenance",
-              detail: "Continue operations with your first maintenance request."
+              detail: "Open Maintenance to triage resident requests from the portal."
             }
           : hasActiveLease
             ? {

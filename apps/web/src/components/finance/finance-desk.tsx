@@ -308,7 +308,7 @@ export function FinanceDesk() {
                 ? `Focus collections on ${snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length} overdue resident(s). Assess late fees after grace, send a reminder, or record a payment arrangement.`
                 : (snapshot?.outstandingBalance ?? 0) > 0
                   ? "Balances are open but not delinquent yet. Confirm residents can reach Billing → Pay now, or record a manual payment."
-                  : "My first rent has been collected. Submit your first maintenance request next."}
+                  : "My first rent has been collected. Review your maintenance queue next."}
         </p>
       </section>
 

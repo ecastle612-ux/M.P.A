@@ -12,7 +12,7 @@
 ### **GO** for Customer #1 onboarding
 
 Feature delivery for advertised Property Manager is complete (J0–J8 + Documents/Communications remediation).  
-P0 portal-access blockers cleared under production remediation; MA evidence scripts complete (J0–J8 + Docs/Comms).
+P0 portal-access blockers cleared; Customer #1 dry-run criticals (DR-C1…DR-C5) remediated — role-aware login, membership resolution, staff CTAs, portal handoffs.
 
 Success rule:
 
