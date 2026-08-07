@@ -24,10 +24,10 @@
 
 | Check | Result |
 |-------|--------|
-| `pnpm typecheck` | Recorded on branch |
-| `pnpm lint` | Recorded on branch |
-| `pnpm test` | Recorded on branch |
-| `pnpm check:boundaries` | Recorded on branch |
+| `pnpm typecheck` | **Pass** |
+| `pnpm lint` | **Pass** |
+| `pnpm test` | **Pass** (79) |
+| `pnpm check:boundaries` | **Pass** |
 
 ---
 
