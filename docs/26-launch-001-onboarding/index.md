@@ -95,6 +95,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE PROPERTY MANAGER PRODUCTION CERTIFICATION` | Production audit of advertised PM | **Authorized + complete** — initial **NO-GO** (P0 portal access) |
 | `AUTHORIZE LAUNCH-001 – P0 PRODUCTION REMEDIATION` | Clear LB-001/002/003 only | **Authorized + delivered** — **GO** (92/100; no open P0) |
 | `AUTHORIZE LAUNCH STABILIZATION – WORLD-CLASS UX & PRODUCTION AUDIT` | Defects/friction/polish only | **Authorized + delivered** — audit package + surgical polish; **STOP** |
+| `AUTHORIZE CUSTOMER #1 DRY RUN` | Zero-knowledge operational simulation | **Authorized + complete** — [Dry Run Report](./customer-1-dry-run/customer-1-dry-run-report.md); **no code changes**; **STOP** |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
