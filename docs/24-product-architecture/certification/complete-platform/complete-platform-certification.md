@@ -26,7 +26,7 @@ Complete Platform is **not** a third product copy. It is Property Manager and Fa
 | Promise | Status on production candidate | Notes |
 |---------|--------------------------------|-------|
 | Every Property Manager capability | **Pass** | PM Production GO |
-| Every Facility Operations capability (E.1–E.6) | **Pass (candidate)** | FO P1 remediation GO; Capital excluded |
+| Every Facility Operations capability (E.1–E.6) | **Pass** | On main-line tip; Capital excluded |
 | Shared Documents / Communications | **Pass** | Single vault / inbox surfaces |
 | Workspace Launcher as Complete home | **Pass** | `defaultHomeForSku` → `/launcher` |
 | Both Mission Controls | **Pass** | `/pm/mission-control` + `/facility/mission-control` |
@@ -56,7 +56,7 @@ Complete Platform is **not** a third product copy. It is Property Manager and Fa
 | Unified navigation | Home + PM group + FO group + Shared; Capital filtered from entitled nav | **Pass** structure |
 | Mission Control | Two homes by design — not merged | **Pass** (composition law) |
 | Cross-module workflows | Property→Site→Asset→PM→WO→Inventory→Inspection→Compliance→Owner | See [workflow audit](./cross-module-workflow-audit.md) |
-| Shared search | SKU-union catalog + FO search APIs on candidate | **Conditional** — terminology collision (Financial Ops “FO ·”) |
+| Shared search | SKU-union catalog + Facility Operations search APIs | **Pass** — Financial Operations labels disambiguated (P1-3) |
 | Assistant | Rule-based recommendations per product desk | **Pass** (design-satisfied) |
 | Notifications | Unified inbox merges facility notifications on candidate | **Pass (candidate)** |
 | Timeline | Per-entity / per-MC — not one mega-timeline | **Pass** (by design) |
@@ -64,13 +64,13 @@ Complete Platform is **not** a third product copy. It is Property Manager and Fa
 | Documents | One Document Vault; FO entity types attach in-place | **Pass (candidate)** |
 | Communications | Shared `/shared/communications` | **Pass** |
 | Subscription entitlements | `entitlementsForSku(complete)` = PLATFORM ∪ PM ∪ FO (no capital) | **Pass** |
-| Master Admin | Product page + Launch Readiness PM/FO panels; Complete dual-SKU witness | **Conditional** |
+| Master Admin | Product page + Launch Readiness PM/FO panels; Complete dual-SKU witness | **Pass** — see [p1-remediation/master-admin-certification.md](./p1-remediation/master-admin-certification.md) |
 
 ---
 
 ## Honesty rule
 
-This certification **does not invent** FO features on `main`. Where FO Production GO is cited, evidence is the authorized FAC-OPS-001 candidate branch. Remaining P1 issues gate flipping Complete Platform from **CONDITIONAL GO** to unconditional Production GO.
+P1 remediation merged Facility Operations onto the authoritative main-line tip and recorded three-product Master Admin Pass. Capital and post-FAC-OPS remain **NO-GO**.
 
 ---
 

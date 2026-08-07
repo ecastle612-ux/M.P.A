@@ -8,11 +8,11 @@
 
 | Gate | Command | Result |
 |------|---------|--------|
-| Tests | `pnpm test` | Recorded at CI run in this remediation |
-| Typecheck | `pnpm typecheck` | Recorded at CI run in this remediation |
-| Lint | `pnpm lint` | Recorded at CI run in this remediation |
-| Build | `pnpm build` | Recorded at CI run in this remediation |
-| Boundaries | `pnpm check:boundaries` | Recorded at CI run in this remediation |
+| Tests | `pnpm test` | **Pass** — 115 tests |
+| Typecheck | `pnpm typecheck` | **Pass** |
+| Lint | `pnpm lint` | **Pass** |
+| Build | `pnpm build` | **Pass** |
+| Boundaries | `pnpm check:boundaries` | **Pass** — 525 modules, 0 violations |
 
 ---
 
