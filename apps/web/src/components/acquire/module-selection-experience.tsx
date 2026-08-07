@@ -47,7 +47,7 @@ export function ModuleSelectionExperience() {
                 {option.subtitle}
               </p>
               <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">{option.bestFor}</p>
-              <p className="mt-2 text-xs font-medium uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+              <p className="mt-2 text-sm font-medium text-[var(--mpa-color-brand-primary)]">
                 {option.packageHint}
               </p>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
