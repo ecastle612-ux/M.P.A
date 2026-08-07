@@ -73,4 +73,5 @@ PRODUCTION VERIFICATION:
 | Date | Sev | Summary | PR / commit | Prod verified? |
 |------|-----|---------|-------------|----------------|
 | 2026-08-07 | 2 | **BUG-001** — `/` redirected anonymous visitors to Property Manager sign-in instead of public marketing landing | [PR #44](https://github.com/ecastle612-ux/M.P.A/pull/44) · merge `79ade03` · Production `m-p-a-web` deploy `5800950830` | ☑ Pass — [closeout](../../29-bug-001-public-homepage-routing/closeout-report.md) |
+| 2026-08-07 | 3 | **BUG-003 / BUG-004** — incomplete enterprise landing; Choose Modules skipped to auth | `cursor/bug-003-004-landing-acquisition-f5dd` — public `/modules` → `/pricing` → `/checkout` (plan confirm) → account; no invented SaaS Stripe | ☐ Pending prod deploy — [docs](../../31-bug-003-004-landing-acquisition/index.md) |
 | | | | | ☐ |

@@ -3,12 +3,30 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input } from "@mpa/ui";
-import { SKU_SUMMARIES } from "@mpa/shared";
+import {
+  ACQUISITION_SKU_COOKIE,
+  SKU_SUMMARIES,
+  parseAcquisitionSku,
+  type ProductSku
+} from "@mpa/shared";
 import { useOrganizationContext } from "../shell/organization-context";
 import { useCommercialContext } from "../shell/commercial-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 
 const PROPERTY_MANAGER_HOME = "/pm/mission-control";
+
+function readAcquisitionSkuCookie(): ProductSku | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+  const match = document.cookie
+    .split("; ")
+    .find((part) => part.startsWith(`${ACQUISITION_SKU_COOKIE}=`));
+  if (!match) {
+    return null;
+  }
+  return parseAcquisitionSku(decodeURIComponent(match.split("=").slice(1).join("=")));
+}
 
 export function GuidedSetupPage() {
   const router = useRouter();
@@ -21,6 +39,7 @@ export function GuidedSetupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [acquisitionSku] = useState<ProductSku | null>(() => readAcquisitionSkuCookie());
 
   useEffect(() => {
     if (!activeOrganization) {
@@ -197,8 +216,20 @@ export function GuidedSetupPage() {
           Confirm your organization and plan, then enter Mission Control with one clear next step.
           You do not shop SKUs here — Property Manager is already assigned.
         </p>
+        {acquisitionSku ? (
+          <p className="mt-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+            Checkout preference:{" "}
+            <span className="font-semibold text-[var(--mpa-color-text-primary)]">
+              {SKU_SUMMARIES[acquisitionSku].label}
+            </span>
+            . Paid subscription confirmation remains with commercial operations; org create still
+            provisions Property Manager until ops upgrades the SKU.
+          </p>
+        ) : null}
         {setupComplete ? (
-          <p className="mt-2 text-sm text-[#0F6B56]">Setup already completed for this organization.</p>
+          <p className="mt-2 text-sm text-[var(--mpa-color-status-success,#0F6B56)]">
+            Setup already completed for this organization.
+          </p>
         ) : null}
       </section>
 

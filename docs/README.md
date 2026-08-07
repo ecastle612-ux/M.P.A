@@ -58,6 +58,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 25 | [FIN-OPS-001 Financial Operations](./25-fin-ops-001/index.md) | Operational finance (Approved; S0–S3 delivered; paused) |
 | 26 | [LAUNCH-001 Customer Promise Roadmap](./26-launch-001-onboarding/index.md) | Approved; journey-gated launch (J0–J2 delivered; J3+ blocked) |
 | 29 | [BUG-001 Public Homepage Routing](./29-bug-001-public-homepage-routing/index.md) | **CLOSED** — public marketing at `/`; prod SHA `79ade03` |
+| 31 | [BUG-003/004 Landing & Acquisition](./31-bug-003-004-landing-acquisition/index.md) | Enterprise landing + public plan funnel; no invented SaaS Stripe |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

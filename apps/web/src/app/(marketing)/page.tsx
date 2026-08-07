@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 /**
  * Public homepage. Never redirects to authentication.
- * Auth begins only when the visitor chooses Sign In, Get Started, Choose Modules, or a protected route.
+ * Acquisition: Choose Modules → Pricing → Checkout (plan confirm) → account creation.
  */
 export default async function MarketingHomePage() {
   const supabase = await createAuthServerClient();

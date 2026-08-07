@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { SKU_SUMMARIES, parseAcquisitionSku } from "@mpa/shared";
 import { Button, Card, Input } from "@mpa/ui";
 import { createAuthClient } from "../../lib/auth/client";
 
@@ -20,6 +21,8 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const nextPath = safeNextPath(searchParams.get("next"));
   const initialMode: AuthMode = searchParams.get("mode") === "sign_up" ? "sign_up" : "sign_in";
+  const selectedSku = parseAcquisitionSku(searchParams.get("intent"));
+  const selectedPlanLabel = selectedSku ? SKU_SUMMARIES[selectedSku].label : null;
   const supabase = createAuthClient();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
@@ -89,6 +92,13 @@ export function LoginForm() {
             ? "After sign-in you continue Guided Setup or land in your role workspace."
             : "Verify your email, then sign in to create your organization."}
       </p>
+      {selectedPlanLabel && mode === "sign_up" ? (
+        <p className="mt-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+          Selected plan from checkout:{" "}
+          <span className="font-semibold text-[var(--mpa-color-text-primary)]">{selectedPlanLabel}</span>
+          . Commercial operations confirms paid subscription during onboarding.
+        </p>
+      ) : null}
       <div className="mt-4 grid grid-cols-2 gap-2">
         <Button
           type="button"
