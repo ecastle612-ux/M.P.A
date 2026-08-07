@@ -10,3 +10,5 @@ export * from "./operations-schemas";
 export * from "./operations-events";
 export * from "./pm-schemas";
 export * from "./pm-events";
+export * from "./inventory-schemas";
+export * from "./inventory-events";

@@ -220,9 +220,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.inventory",
     href: "/facility/inventory",
-    readiness: "planned",
-    description: "Storerooms and counts.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "Storeroom locations, stock quantities, receive/issue/adjust/return movements."
   },
   {
     id: "parts",
@@ -230,9 +229,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.parts",
     href: "/facility/parts",
-    readiness: "planned",
-    description: "Parts catalog and usage.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "Parts catalog with categories, suppliers, and asset/system compatibility."
   },
   {
     id: "preventive_maintenance",
@@ -405,8 +403,8 @@ export function navigationGroupsForSku(
           readiness: "aligned",
           entitlement: "facility.building_systems"
         },
-        { href: "/facility/inventory", label: "Inventory", readiness: "planned", entitlement: "facility.inventory" },
-        { href: "/facility/parts", label: "Parts", readiness: "planned", entitlement: "facility.parts" },
+        { href: "/facility/inventory", label: "Inventory", readiness: "aligned", entitlement: "facility.inventory" },
+        { href: "/facility/parts", label: "Parts", readiness: "aligned", entitlement: "facility.parts" },
         {
           href: "/facility/preventive-maintenance",
           label: "Preventive Maintenance",
@@ -580,6 +578,22 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
         title: "Preventive Maintenance",
         description: "PM programs that generate shared facility work orders.",
         href: "/facility/preventive-maintenance",
+        product: "facility_operations",
+        readiness: "aligned"
+      },
+      {
+        id: "fac_inventory",
+        title: "Inventory",
+        description: "Storeroom stock, receive/issue movements, and stockout attention.",
+        href: "/facility/inventory",
+        product: "facility_operations",
+        readiness: "aligned"
+      },
+      {
+        id: "fac_parts",
+        title: "Parts Catalog",
+        description: "Facility parts catalog used by inventory and work orders.",
+        href: "/facility/parts",
         product: "facility_operations",
         readiness: "aligned"
       },

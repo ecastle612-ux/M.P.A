@@ -18,6 +18,10 @@ export function CommandPalette() {
   const [facilitySystemItems, setFacilitySystemItems] = useState<Array<{ id: string; label: string }>>([]);
   const [facilityWorkItems, setFacilityWorkItems] = useState<Array<{ id: string; label: string }>>([]);
   const [facilityPmItems, setFacilityPmItems] = useState<Array<{ id: string; label: string }>>([]);
+  const [facilityPartItems, setFacilityPartItems] = useState<Array<{ id: string; label: string }>>([]);
+  const [facilityInventoryItems, setFacilityInventoryItems] = useState<
+    Array<{ id: string; label: string }>
+  >([]);
 
   useEffect(() => {
     function handler(event: KeyboardEvent) {
@@ -50,7 +54,9 @@ export function CommandPalette() {
           assetResponse,
           systemResponse,
           workResponse,
-          pmResponse
+          pmResponse,
+          partsResponse,
+          inventoryResponse
         ] = await Promise.all([
           fetch(`/api/pm/properties/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/pm/residents/search?q=${encodeURIComponent(query.trim())}`),
@@ -58,7 +64,9 @@ export function CommandPalette() {
           fetch(`/api/facility/assets/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/facility/systems/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/facility/operations/search?q=${encodeURIComponent(query.trim())}`),
-          fetch(`/api/facility/preventive/search?q=${encodeURIComponent(query.trim())}`)
+          fetch(`/api/facility/preventive/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/facility/parts/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/facility/inventory/search?q=${encodeURIComponent(query.trim())}`)
         ]);
         if (!cancelled && propertyResponse.ok) {
           const payload = (await propertyResponse.json()) as {
@@ -137,6 +145,28 @@ export function CommandPalette() {
             }))
           );
         }
+        if (!cancelled && partsResponse.ok) {
+          const payload = (await partsResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setFacilityPartItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
+        if (!cancelled && inventoryResponse.ok) {
+          const payload = (await inventoryResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setFacilityInventoryItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
       } catch {
         if (!cancelled) {
           setPropertyItems([]);
@@ -146,6 +176,8 @@ export function CommandPalette() {
           setFacilitySystemItems([]);
           setFacilityWorkItems([]);
           setFacilityPmItems([]);
+          setFacilityPartItems([]);
+          setFacilityInventoryItems([]);
         }
       }
     })();
@@ -204,6 +236,18 @@ export function CommandPalette() {
         facilityPmItems.map((item) => ({ id: item.id, label: item.label }))
       );
     }
+    if (facilityPartItems.length > 0) {
+      byGroup.set(
+        "Parts",
+        facilityPartItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
+    if (facilityInventoryItems.length > 0) {
+      byGroup.set(
+        "Inventory",
+        facilityInventoryItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
 
     const navSections = [...byGroup.entries()].map(([title, items]) => ({ title, items }));
     const entitled = searchCatalogForSku(productSku, "");
@@ -217,6 +261,7 @@ export function CommandPalette() {
         { id: "/facility/assets?new=1", label: "Register asset", shortcut: "A A" },
         { id: "/facility/operations?new=1", label: "Create facility work", shortcut: "A W" },
         { id: "/facility/preventive-maintenance?new=1", label: "Create PM program", shortcut: "A M" },
+        { id: "/facility/parts?new=1", label: "Create part", shortcut: "A C" },
         { id: "/pm/properties", label: "Open Properties", shortcut: "G P" },
         { id: "/pm/residents", label: "Open Residents", shortcut: "G R" },
         { id: "/pm/leasing", label: "Open Leasing", shortcut: "G L" },
@@ -229,12 +274,14 @@ export function CommandPalette() {
           label: "Open Preventive Maintenance",
           shortcut: "G V"
         },
+        { id: "/facility/inventory", label: "Open Inventory", shortcut: "G I" },
+        { id: "/facility/parts", label: "Open Parts", shortcut: "G T" },
         { id: "/facility/assets", label: "Open Assets", shortcut: "G A" },
         { id: "/facility/building-systems", label: "Open Building Systems", shortcut: "G Y" },
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
         { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
         { id: "/settings/team", label: "Invite your team", shortcut: "I T" },
-        { id: "/settings/facility-sites", label: "Facility site settings", shortcut: "G T" }
+        { id: "/settings/facility-sites", label: "Facility site settings", shortcut: "G Z" }
       ].filter(
         (item) =>
           item.id.startsWith("/pm/properties") ||
@@ -249,9 +296,11 @@ export function CommandPalette() {
     return [...navSections, actions].filter((section) => section.items.length > 0);
   }, [
     facilityAssetItems,
+    facilityInventoryItems,
+    facilityPartItems,
+    facilityPmItems,
     facilitySiteItems,
     facilitySystemItems,
-    facilityPmItems,
     facilityWorkItems,
     productLabel,
     productSku,
@@ -267,7 +316,7 @@ export function CommandPalette() {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-gray-50"
+        className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-app)]"
       >
         Quick Actions <kbd className="ml-2 text-xs">⌘K</kbd>
       </button>

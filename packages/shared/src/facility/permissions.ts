@@ -22,12 +22,23 @@ export const FACILITY_PREVENTIVE_CAPABILITIES = [
 ] as const;
 export type FacilityPreventiveCapability = (typeof FACILITY_PREVENTIVE_CAPABILITIES)[number];
 
+export const FACILITY_PARTS_CAPABILITIES = ["facility.parts:read", "facility.parts:write"] as const;
+export type FacilityPartsCapability = (typeof FACILITY_PARTS_CAPABILITIES)[number];
+
+export const FACILITY_INVENTORY_CAPABILITIES = [
+  "facility.inventory:read",
+  "facility.inventory:write"
+] as const;
+export type FacilityInventoryCapability = (typeof FACILITY_INVENTORY_CAPABILITIES)[number];
+
 export const FACILITY_CAPABILITIES = [
   ...FACILITY_SITE_CAPABILITIES,
   ...FACILITY_ASSET_CAPABILITIES,
   ...FACILITY_SYSTEM_CAPABILITIES,
   ...FACILITY_OPERATIONS_CAPABILITIES,
-  ...FACILITY_PREVENTIVE_CAPABILITIES
+  ...FACILITY_PREVENTIVE_CAPABILITIES,
+  ...FACILITY_PARTS_CAPABILITIES,
+  ...FACILITY_INVENTORY_CAPABILITIES
 ] as const;
 export type FacilityCapability = (typeof FACILITY_CAPABILITIES)[number];
 
@@ -61,6 +72,19 @@ export const FACILITY_PREVENTIVE_CAPABILITY_DESCRIPTIONS: Record<
 > = {
   "facility.preventive:read": "Read preventive maintenance programs and schedules",
   "facility.preventive:write": "Create and manage preventive maintenance programs"
+};
+
+export const FACILITY_PARTS_CAPABILITY_DESCRIPTIONS: Record<FacilityPartsCapability, string> = {
+  "facility.parts:read": "Read parts catalog and compatibility",
+  "facility.parts:write": "Create and manage parts catalog"
+};
+
+export const FACILITY_INVENTORY_CAPABILITY_DESCRIPTIONS: Record<
+  FacilityInventoryCapability,
+  string
+> = {
+  "facility.inventory:read": "Read inventory locations, stock, and movements",
+  "facility.inventory:write": "Receive, issue, adjust, and return inventory"
 };
 
 export function hasFacilityCapability(

@@ -21,6 +21,8 @@ export function GlobalSearch() {
   const [facilitySystemResults, setFacilitySystemResults] = useState<SearchResultItem[]>([]);
   const [facilityWorkResults, setFacilityWorkResults] = useState<SearchResultItem[]>([]);
   const [facilityPmResults, setFacilityPmResults] = useState<SearchResultItem[]>([]);
+  const [facilityPartResults, setFacilityPartResults] = useState<SearchResultItem[]>([]);
+  const [facilityInventoryResults, setFacilityInventoryResults] = useState<SearchResultItem[]>([]);
 
   const catalogResults = useMemo(() => searchCatalogForSku(productSku, query), [productSku, query]);
   const results = useMemo(() => {
@@ -35,11 +37,15 @@ export function GlobalSearch() {
       ...facilitySystemResults,
       ...facilityWorkResults,
       ...facilityPmResults,
+      ...facilityPartResults,
+      ...facilityInventoryResults,
       ...catalogResults
     ];
   }, [
     catalogResults,
     facilityAssetResults,
+    facilityInventoryResults,
+    facilityPartResults,
     facilityPmResults,
     facilitySiteResults,
     facilitySystemResults,
@@ -49,6 +55,18 @@ export function GlobalSearch() {
     residentResults
   ]);
   const safeActiveIndex = results.length === 0 ? 0 : Math.min(activeIndex, results.length - 1);
+
+  function clearLiveResults() {
+    setPropertyResults([]);
+    setResidentResults([]);
+    setFacilitySiteResults([]);
+    setFacilityAssetResults([]);
+    setFacilitySystemResults([]);
+    setFacilityWorkResults([]);
+    setFacilityPmResults([]);
+    setFacilityPartResults([]);
+    setFacilityInventoryResults([]);
+  }
 
   useEffect(() => {
     function onPointerDown(event: MouseEvent) {
@@ -76,7 +94,9 @@ export function GlobalSearch() {
             assetResponse,
             systemResponse,
             workResponse,
-            pmResponse
+            pmResponse,
+            partsResponse,
+            inventoryResponse
           ] = await Promise.all([
             fetch(`/api/pm/properties/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/pm/residents/search?q=${encodeURIComponent(normalized)}`),
@@ -84,7 +104,9 @@ export function GlobalSearch() {
             fetch(`/api/facility/assets/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/facility/systems/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/facility/operations/search?q=${encodeURIComponent(normalized)}`),
-            fetch(`/api/facility/preventive/search?q=${encodeURIComponent(normalized)}`)
+            fetch(`/api/facility/preventive/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/facility/parts/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/facility/inventory/search?q=${encodeURIComponent(normalized)}`)
           ]);
           if (cancelled) {
             return;
@@ -187,6 +209,34 @@ export function GlobalSearch() {
               }))
             );
           }
+          if (partsResponse.ok) {
+            const payload = (await partsResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setFacilityPartResults(
+              (payload.results ?? []).map((item) => ({
+                id: `facility-part:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "facility.parts"
+              }))
+            );
+          }
+          if (inventoryResponse.ok) {
+            const payload = (await inventoryResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setFacilityInventoryResults(
+              (payload.results ?? []).map((item) => ({
+                id: `facility-inventory:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "facility.inventory"
+              }))
+            );
+          }
         } catch {
           // Keep last successful live results; catalog still works.
         }
@@ -201,13 +251,7 @@ export function GlobalSearch() {
   function navigateTo(href: string) {
     setOpen(false);
     setQuery("");
-    setPropertyResults([]);
-    setResidentResults([]);
-    setFacilitySiteResults([]);
-    setFacilityAssetResults([]);
-    setFacilitySystemResults([]);
-    setFacilityWorkResults([]);
-    setFacilityPmResults([]);
+    clearLiveResults();
     router.push(href);
   }
 
@@ -226,13 +270,7 @@ export function GlobalSearch() {
           const next = event.target.value;
           setQuery(next);
           if (!next.trim()) {
-            setPropertyResults([]);
-            setResidentResults([]);
-            setFacilitySiteResults([]);
-            setFacilityAssetResults([]);
-            setFacilitySystemResults([]);
-            setFacilityWorkResults([]);
-            setFacilityPmResults([]);
+            clearLiveResults();
           }
           setActiveIndex(0);
           setOpen(true);

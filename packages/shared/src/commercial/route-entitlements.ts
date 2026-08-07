@@ -281,8 +281,16 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
         "facility.building_systems"
       )
     );
-    push(decisionPath("/facility/inventory", "Inventory (Planned)", "Facility Operations", "facility.inventory"));
-    push(decisionPath("/facility/parts", "Parts (Planned)", "Facility Operations", "facility.parts"));
+    push(decisionPath("/facility/inventory", "Inventory", "Facility Operations", "facility.inventory"));
+    push(decisionPath("/facility/parts", "Parts", "Facility Operations", "facility.parts"));
+    push(
+      decisionPath(
+        "/facility/parts?new=1",
+        "Create part",
+        "Facility Operations",
+        "facility.parts"
+      )
+    );
     push(
       decisionPath(
         "/facility/preventive-maintenance",

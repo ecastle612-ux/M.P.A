@@ -1,5 +1,5 @@
 /**
- * Facility Mission Control attention — E.1–E.4 signals.
+ * Facility Mission Control attention — E.1–E.5 signals.
  * Later slices populate remaining severities.
  */
 
@@ -303,6 +303,49 @@ export function buildFacilityPmOverdueAttention(
     });
 }
 
+export function buildFacilityStockoutAttention(
+  stockLines: readonly {
+    id: string;
+    partName: string;
+    locationName: string;
+    siteId: string;
+    quantityOnHand: number;
+    reorderThreshold: number;
+    minimumStock: number;
+    criticalPart: boolean;
+  }[]
+): FacilityAttentionItem[] {
+  return stockLines
+    .filter((line) => {
+      const health =
+        line.quantityOnHand <= 0 || line.quantityOnHand < line.minimumStock
+          ? "stockout"
+          : line.quantityOnHand <= line.reorderThreshold
+            ? "low"
+            : "in_stock";
+      return health === "stockout" || (health === "low" && line.criticalPart);
+    })
+    .map((line) => {
+      const isStockout = line.quantityOnHand <= 0 || line.quantityOnHand < line.minimumStock;
+      return {
+        id: `stockout:${line.id}`,
+        severity: "stockout" as const,
+        priority: Math.min(
+          5,
+          priorityForFacilitySeverity("stockout") + (line.criticalPart ? 1 : 0)
+        ),
+        title: isStockout
+          ? `Stockout: ${line.partName}`
+          : `Low stock: ${line.partName}`,
+        detail: `${line.locationName} · on hand ${line.quantityOnHand}`,
+        href: `/facility/inventory?stockId=${line.id}`,
+        aggregateType: "facility_inventory_stock",
+        aggregateId: line.id,
+        siteId: line.siteId
+      };
+    });
+}
+
 export function buildFacilityMissionControlNextAction(input: {
   setupComplete: boolean;
   activeSiteCount: number;
@@ -317,6 +360,8 @@ export function buildFacilityMissionControlNextAction(input: {
   overduePmCount?: number;
   duePmCount?: number;
   firstPmScheduleId?: string | null;
+  stockoutCount?: number;
+  firstStockId?: string | null;
 }): {
   id: string;
   title: string;
@@ -387,6 +432,18 @@ export function buildFacilityMissionControlNextAction(input: {
     };
   }
 
+  if ((input.stockoutCount ?? 0) > 0) {
+    return {
+      id: "replenish_stock",
+      title: "Replenish inventory stockouts",
+      detail: "Critical or zero-quantity stock lines need receiving.",
+      href: input.firstStockId
+        ? `/facility/inventory?stockId=${input.firstStockId}`
+        : "/facility/inventory",
+      assistantRecommendation: "Receive inventory for stocked-out or critically low parts."
+    };
+  }
+
   if ((input.openFacilityWorkCount ?? 0) > 0) {
     return {
       id: "advance_facility_work",
@@ -424,9 +481,9 @@ export function buildFacilityMissionControlNextAction(input: {
   return {
     id: "programs_ready",
     title: "Facility programs are ready",
-    detail: "Create preventive schedules and open corrective work when issues arise.",
-    href: "/facility/preventive-maintenance",
+    detail: "Inventory, preventive schedules, and corrective work are ready for daily operations.",
+    href: "/facility/inventory",
     assistantRecommendation:
-      "Preventive Maintenance is ready. Activate schedules so due work generates into Maintenance."
+      "Facility inventory is ready. Keep storeroom counts accurate and issue parts to work orders."
   };
 }

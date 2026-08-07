@@ -6,12 +6,13 @@ import {
   buildFacilityPmDueAttention,
   buildFacilityPmOverdueAttention,
   buildFacilitySetupIncompleteAttention,
+  buildFacilityStockoutAttention,
   buildFacilitySystemDownAttention,
   buildFacilityWorkOrderEmergencyAttention,
   rankFacilityAttention
 } from "./attention";
 
-describe("facility mission control attention (E.1–E.4)", () => {
+describe("facility mission control attention (E.1–E.5)", () => {
   it("surfaces setup_incomplete when no sites exist", () => {
     const items = buildFacilitySetupIncompleteAttention({
       activeSiteCount: 0,
@@ -199,5 +200,41 @@ describe("facility mission control attention (E.1–E.4)", () => {
     });
     expect(next.id).toBe("catch_up_pm");
     expect(next.href).toContain("pm-9");
+  });
+
+  it("surfaces stockout attention", () => {
+    const items = buildFacilityStockoutAttention([
+      {
+        id: "st1",
+        partName: "Filter",
+        locationName: "Main storeroom",
+        siteId: "site-1",
+        quantityOnHand: 0,
+        reorderThreshold: 5,
+        minimumStock: 0,
+        criticalPart: true
+      }
+    ]);
+    expect(items).toHaveLength(1);
+    expect(items[0]?.severity).toBe("stockout");
+    expect(items[0]?.href).toContain("/facility/inventory");
+  });
+
+  it("recommends replenishing stockouts", () => {
+    const next = buildFacilityMissionControlNextAction({
+      setupComplete: true,
+      activeSiteCount: 1,
+      draftSiteCount: 0,
+      activeAssetCount: 1,
+      downSystemCount: 0,
+      openFacilityWorkCount: 0,
+      emergencyFacilityWorkCount: 0,
+      overduePmCount: 0,
+      duePmCount: 0,
+      stockoutCount: 2,
+      firstStockId: "stock-9"
+    });
+    expect(next.id).toBe("replenish_stock");
+    expect(next.href).toContain("stock-9");
   });
 });
