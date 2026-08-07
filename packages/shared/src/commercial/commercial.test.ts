@@ -82,6 +82,38 @@ describe("navigation and launcher awareness", () => {
     expect(groups.some((group) => group.id === "facility_operations")).toBe(true);
   });
 
+  it("exposes aligned Facility Overview and Sites for FO SKU", () => {
+    const groups = navigationGroupsForSku("mpa_facility_operations");
+    const facility = groups.find((group) => group.id === "facility_operations");
+    const hrefs = facility?.items.map((item) => item.href) ?? [];
+    expect(hrefs).toContain("/facility/mission-control");
+    expect(hrefs).toContain("/facility/overview");
+    expect(hrefs).toContain("/facility/sites");
+    expect(facility?.items.find((item) => item.href === "/facility/overview")?.readiness).toBe(
+      "aligned"
+    );
+    expect(groups.some((group) => group.id === "property_manager")).toBe(false);
+  });
+
+  it("exposes aligned Assets and Building Systems for FO SKU", () => {
+    const groups = navigationGroupsForSku("mpa_facility_operations");
+    const facility = groups.find((group) => group.id === "facility_operations");
+    expect(facility?.items.find((item) => item.href === "/facility/assets")?.readiness).toBe(
+      "aligned"
+    );
+    expect(
+      facility?.items.find((item) => item.href === "/facility/building-systems")?.readiness
+    ).toBe("aligned");
+  });
+
+  it("exposes aligned Facility Operations queue for FO SKU", () => {
+    const groups = navigationGroupsForSku("mpa_facility_operations");
+    const facility = groups.find((group) => group.id === "facility_operations");
+    expect(facility?.items.find((item) => item.href === "/facility/operations")?.readiness).toBe(
+      "aligned"
+    );
+  });
+
   it("organizes launcher workspaces by commercial product", () => {
     const items = workspaceLauncherItemsForSku("mpa_complete_platform");
     expect(items.some((item) => item.product === "property_manager")).toBe(true);
@@ -172,7 +204,10 @@ describe("master admin catalog", () => {
     expect(
       workspaces.some((item) => item.label.includes("Financial Operations") && item.status === "aligned")
     ).toBe(true);
-    expect(workspaces.some((item) => item.label.includes("Assets") && item.status === "planned")).toBe(true);
+    expect(workspaces.some((item) => item.label.includes("Assets") && item.status === "aligned")).toBe(true);
+    expect(workspaces.some((item) => item.label.includes("Inventory") && item.status === "planned")).toBe(
+      true
+    );
     expect(workspaces.some((item) => item.label.includes("Capital Projects"))).toBe(true);
   });
 

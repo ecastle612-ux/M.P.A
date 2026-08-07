@@ -7,7 +7,10 @@ import {
   type CreateWorkOrderInput,
   type ProgressWorkOrderInput,
   type TriageWorkOrderInput,
+  type WorkOrderKind,
   type WorkOrderPriority,
+  type WorkOrderProductContext,
+  type WorkOrderSource,
   type WorkOrderStatus
 } from "@mpa/shared";
 import { provisionVendorPortalAccess } from "../portal/portal-access-service";
@@ -19,10 +22,16 @@ type Db = SupabaseClient<any>;
 export type WorkOrderRow = {
   id: string;
   organization_id: string;
-  property_id: string;
+  property_id: string | null;
   unit_id: string | null;
   resident_id: string | null;
   requested_by_user_id: string | null;
+  product_context: WorkOrderProductContext;
+  work_kind: WorkOrderKind;
+  source: WorkOrderSource;
+  site_id: string | null;
+  asset_id: string | null;
+  system_id: string | null;
   title: string;
   description: string;
   category: string;
@@ -43,6 +52,9 @@ export type WorkOrderRow = {
   property_units?: { id: string; unit_label: string } | null;
   pm_residents?: { id: string; display_name: string; email: string; user_id: string | null } | null;
   vendor_vendors?: { id: string; name: string; email: string | null; user_id: string | null } | null;
+  facility_sites?: { id: string; name: string } | null;
+  facility_assets?: { id: string; name: string; criticality: string } | null;
+  facility_systems?: { id: string; name: string; criticality: string } | null;
 };
 
 async function record(args: {
@@ -54,6 +66,9 @@ async function record(args: {
   payload?: Record<string, unknown>;
   alsoPropertyId?: string | null;
   alsoResidentId?: string | null;
+  alsoSiteId?: string | null;
+  alsoAssetId?: string | null;
+  alsoSystemId?: string | null;
 }) {
   const payload = args.payload ?? {};
   await emitMaintenanceEvent({
@@ -87,6 +102,39 @@ async function record(args: {
       payload: { ...payload, workOrderId: args.workOrderId }
     });
   }
+  if (args.alsoSiteId) {
+    await emitMaintenanceEvent({
+      supabase: args.supabase,
+      organizationId: args.organizationId,
+      actorId: args.actorId,
+      eventType: args.eventType,
+      aggregateType: "facility_sites",
+      aggregateId: args.alsoSiteId,
+      payload: { ...payload, workOrderId: args.workOrderId }
+    });
+  }
+  if (args.alsoAssetId) {
+    await emitMaintenanceEvent({
+      supabase: args.supabase,
+      organizationId: args.organizationId,
+      actorId: args.actorId,
+      eventType: args.eventType,
+      aggregateType: "facility_assets",
+      aggregateId: args.alsoAssetId,
+      payload: { ...payload, workOrderId: args.workOrderId }
+    });
+  }
+  if (args.alsoSystemId) {
+    await emitMaintenanceEvent({
+      supabase: args.supabase,
+      organizationId: args.organizationId,
+      actorId: args.actorId,
+      eventType: args.eventType,
+      aggregateType: "facility_systems",
+      aggregateId: args.alsoSystemId,
+      payload: { ...payload, workOrderId: args.workOrderId }
+    });
+  }
   await writeMaintenanceAudit({
     supabase: args.supabase,
     organizationId: args.organizationId,
@@ -96,6 +144,28 @@ async function record(args: {
     entityId: args.workOrderId,
     payload
   });
+}
+
+function contextPayload(workOrder: WorkOrderRow, extra: Record<string, unknown> = {}) {
+  return {
+    product_context: workOrder.product_context,
+    work_kind: workOrder.work_kind,
+    source: workOrder.source,
+    site_id: workOrder.site_id,
+    asset_id: workOrder.asset_id,
+    system_id: workOrder.system_id,
+    ...extra
+  };
+}
+
+function facilityFanout(workOrder: WorkOrderRow) {
+  return {
+    alsoPropertyId: workOrder.property_id,
+    alsoResidentId: workOrder.resident_id,
+    alsoSiteId: workOrder.site_id,
+    alsoAssetId: workOrder.asset_id,
+    alsoSystemId: workOrder.system_id
+  };
 }
 
 async function addUpdate(
@@ -155,7 +225,10 @@ const SELECT_WO = `
   property_properties ( id, name ),
   property_units ( id, unit_label ),
   pm_residents ( id, display_name, email, user_id ),
-  vendor_vendors ( id, name, email, user_id )
+  vendor_vendors ( id, name, email, user_id ),
+  facility_sites ( id, name ),
+  facility_assets ( id, name, criticality ),
+  facility_systems ( id, name, criticality )
 `;
 
 export async function getMaintenanceReadiness(supabase: Db, organizationId: string) {
@@ -174,12 +247,20 @@ export async function getMaintenanceReadiness(supabase: Db, organizationId: stri
   };
 }
 
-export async function listWorkOrders(supabase: Db, organizationId: string) {
-  const { data, error } = await supabase
+export async function listWorkOrders(
+  supabase: Db,
+  organizationId: string,
+  options?: { productContext?: WorkOrderProductContext }
+) {
+  let query = supabase
     .from("maintenance_work_orders")
     .select(SELECT_WO)
     .eq("organization_id", organizationId)
     .order("submitted_at", { ascending: false });
+  if (options?.productContext) {
+    query = query.eq("product_context", options.productContext);
+  }
+  const { data, error } = await query;
   if (error) {
     throw new Error(error.message);
   }
@@ -321,6 +402,9 @@ export async function createResidentWorkOrder(
       unit_id: resident.unit_id,
       resident_id: resident.id,
       requested_by_user_id: actorUserId,
+      product_context: "property_manager",
+      work_kind: "resident_request",
+      source: "portal_tenant",
       title: input.title,
       description: input.description,
       category: input.category,
@@ -343,23 +427,23 @@ export async function createResidentWorkOrder(
     statusFrom: null,
     statusTo: "submitted"
   });
+  const row = workOrder as WorkOrderRow;
   await record({
     supabase,
     organizationId,
     actorId: actorUserId,
     workOrderId: workOrder.id,
     eventType: "work_order.created",
-    alsoPropertyId: resident.property_id,
-    alsoResidentId: resident.id,
-    payload: {
+    ...facilityFanout(row),
+    payload: contextPayload(row, {
       title: input.title,
       priority: input.priority,
       category: input.category,
       residentName: resident.display_name
-    }
+    })
   });
 
-  return workOrder as WorkOrderRow;
+  return row;
 }
 
 export async function triageWorkOrder(
@@ -404,15 +488,15 @@ export async function triageWorkOrder(
     statusFrom: existing.status,
     statusTo: nextStatus
   });
+  const triaged = data as WorkOrderRow;
   await record({
     supabase,
     organizationId,
     actorId: actorUserId,
     workOrderId: input.workOrderId,
     eventType: "work_order.triaged",
-    alsoPropertyId: existing.property_id,
-    alsoResidentId: existing.resident_id,
-    payload: { priority: input.priority, status: nextStatus }
+    ...facilityFanout(triaged),
+    payload: contextPayload(triaged, { priority: input.priority, status: nextStatus })
   });
 
   const residentUserId =
@@ -492,19 +576,19 @@ export async function assignWorkOrder(
     statusFrom: existing.status,
     statusTo: "assigned"
   });
+  const assigned = data as WorkOrderRow;
   await record({
     supabase,
     organizationId,
     actorId: actorUserId,
     workOrderId: input.workOrderId,
     eventType,
-    alsoPropertyId: existing.property_id,
-    alsoResidentId: existing.resident_id,
-    payload: {
+    ...facilityFanout(assigned),
+    payload: contextPayload(assigned, {
       assigneeType: input.assigneeType,
       technicianUserId,
       vendorId
-    }
+    })
   });
 
   if (technicianUserId) {
@@ -653,15 +737,19 @@ export async function progressWorkOrder(
     statusFrom: existing.status,
     statusTo: nextStatus
   });
+  const progressed = data as WorkOrderRow;
   await record({
     supabase,
     organizationId,
     actorId: actorUserId,
     workOrderId: input.workOrderId,
     eventType,
-    alsoPropertyId: existing.property_id,
-    alsoResidentId: existing.resident_id,
-    payload: { note: input.note, status: nextStatus, action: input.action }
+    ...facilityFanout(progressed),
+    payload: contextPayload(progressed, {
+      note: input.note,
+      status: nextStatus,
+      action: input.action
+    })
   });
 
   const residentUserId =
@@ -731,15 +819,15 @@ export async function confirmWorkOrderResolution(
     statusFrom: "completed",
     statusTo: "closed"
   });
+  const closed = data as WorkOrderRow;
   await record({
     supabase,
     organizationId,
     actorId: actorUserId,
     workOrderId: input.workOrderId,
     eventType: "work_order.resident_confirmed",
-    alsoPropertyId: existing.property_id,
-    alsoResidentId: existing.resident_id,
-    payload: { note }
+    ...facilityFanout(closed),
+    payload: contextPayload(closed, { note })
   });
   await record({
     supabase,
@@ -747,12 +835,70 @@ export async function confirmWorkOrderResolution(
     actorId: actorUserId,
     workOrderId: input.workOrderId,
     eventType: "work_order.closed",
-    alsoPropertyId: existing.property_id,
-    alsoResidentId: existing.resident_id,
-    payload: { note }
+    ...facilityFanout(closed),
+    payload: contextPayload(closed, { note })
   });
 
-  return data as WorkOrderRow;
+  return closed;
+}
+
+/** Facility corrective work closes without resident confirmation (shared WO domain). */
+export async function closeFacilityWorkOrder(
+  supabase: Db,
+  organizationId: string,
+  actorUserId: string,
+  workOrderId: string,
+  note?: string
+) {
+  const existing = await getWorkOrder(supabase, organizationId, workOrderId);
+  if (!existing) {
+    throw new Error("Work order not found");
+  }
+  if (existing.product_context !== "facility") {
+    throw new Error("Only facility work orders can be closed through Facility Operations");
+  }
+  if (!["completed", "in_progress", "assigned"].includes(existing.status)) {
+    throw new Error("Work order must be assigned, in progress, or completed before close");
+  }
+
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("maintenance_work_orders")
+    .update({
+      status: "closed",
+      completed_at: existing.completed_at ?? now,
+      closed_at: now,
+      updated_at: now
+    })
+    .eq("id", workOrderId)
+    .eq("organization_id", organizationId)
+    .select(SELECT_WO)
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const body = note?.trim() || "Facility corrective work closed with resolution.";
+  await addUpdate(supabase, {
+    organizationId,
+    workOrderId,
+    actorUserId,
+    actorRole: "manager",
+    body,
+    statusFrom: existing.status,
+    statusTo: "closed"
+  });
+  const closed = data as WorkOrderRow;
+  await record({
+    supabase,
+    organizationId,
+    actorId: actorUserId,
+    workOrderId,
+    eventType: "work_order.closed",
+    ...facilityFanout(closed),
+    payload: contextPayload(closed, { note: body })
+  });
+  return closed;
 }
 
 export async function listResidentWorkOrders(supabase: Db, organizationId: string, userId: string) {

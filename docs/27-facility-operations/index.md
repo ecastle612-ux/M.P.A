@@ -1,63 +1,49 @@
-# 27 — Facility Operations Gate Response
+# 27 — Facility Operations
 
-**Authorization received:** `AUTHORIZE FACILITY OPERATIONS IMPLEMENTATION`  
-**Date:** 2026-08-07  
-**Decision:** **Implementation refused** — Design → Document → Approve incomplete for FO features  
+**Commercial ownership:** Approved ([module map](../24-product-architecture/facility-operations-module-map.md))  
+**Feature design package:** [FAC-OPS-001 Design Package](./design-package/index.md) — **Approved**  
+**ADR:** [ADR-018 Accepted](../18-decision-log/adr-018-facility-operations-design-package.md)  
+**Feature Implement:** Phases **E.1–E.3 complete**; E.4+ **NO-GO** until slice authorize  
 **Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)
 
 ---
 
-## Verdict
+## Current verdict
 
-### NO IMPLEMENTATION of Facility Operations features under this authorize
-
-Commercial ownership, SKUs, entitlements, and nav shells for Facility Operations are **Approved**.  
-Facility **workflows** and **schema** are **Not designed** in the approved module map.
-
-Approved order ([implementation-order-after-reset.md](../24-product-architecture/implementation-order-after-reset.md)):
-
-> Phase E — Facility Operations Vertical (Entitled)  
-> **Only after Facility workflows + schema design Approved**
-
-Implementing FO modules now would violate the permanent Implementation Gate and invent workflows not present in approved documentation.
+| Layer | Status |
+|-------|--------|
+| SKU / entitlements / nav shells (Phase 1 commercial alignment) | **Shipped** — [baseline](./baseline-already-shipped.md) |
+| FAC-OPS-001 design package | **Approved** |
+| ADR-018 | **Accepted** |
+| Phase E.1 (Site profile + FO Mission Control) | **Complete / certified** |
+| Phase E.2 (Assets + Building Systems) | **Complete / certified** |
+| Phase E.3 (Corrective facility work) | **Complete / certified** |
+| Phase E.4–E.6 / Capital | **Blocked** pending authorize |
 
 ---
 
-## What this authorize asked for
+## Package map
 
-| Request | Response |
-|---------|----------|
-| Resume FO implementation | **Blocked** — missing design package |
-| Next approved FO scope | **None for Implement** — Phase E gated |
-| No redesign / no new roadmap | Honored — used existing Approved docs only |
-| PM feature freeze | Honored — no PM product changes |
-| Reports + STOP | This package |
+### Design package (authoritative)
 
----
+→ **[FAC-OPS-001 Design Package](./design-package/index.md)**
 
-## Package contents
+### Certification
+
+→ **[certification/e1/](./design-package/certification/e1/)** · **[e2/](./design-package/certification/e2/)** · **[e3/](./design-package/certification/e3/)**
+
+### Gate history
 
 | Document | Purpose |
 |----------|---------|
-| [Gate Refusal Report](./gate-refusal-report.md) | Why Implement is blocked |
-| [Missing Design Package](./missing-design-package.md) | Exact Design → Document → Approve work required |
-| [Master Admin / Nav baseline](./baseline-already-shipped.md) | What Phase 1 already delivered (shells only) |
-| [Certification](./certification.md) | Formal NO-GO for FO feature code |
+| [Gate Refusal Report](./gate-refusal-report.md) | Prior Implement authorizes refused |
+| [Missing Design Package](./missing-design-package.md) | Debt checklist — closed by FAC-OPS-001 |
+| [Phase 1 Implementation Report](./phase-1-implementation-report.md) | Shells vs features naming |
+| [Certification (historical)](./certification.md) | Pre-approve NO-GO records |
 
 ---
 
-## Next authorize that would unblock Implement
+## STOP discipline
 
-After a Facility Operations **design package** (workflows + schema + Mission Control attention rules) is **Approved**, a subsequent authorize may open **Phase E.1 only**:
-
-1. Facility site profile + Facility Mission Control attention rules  
-
-Then STOP again for the next slice.
-
----
-
-## STOP
-
-No Facility Operations application code, migrations, or new UI modules under this authorize.  
-Property Manager remains production-ready under feature freeze.  
-Wait for the next authorization.
+After each Phase E slice: certify → STOP → wait for next slice authorize.  
+Do not expand into Assets, Inventory, Parts, PM programs, Inspections, Safety, Compliance, Building Systems, or Capital without authorize.
