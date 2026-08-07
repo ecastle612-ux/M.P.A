@@ -179,6 +179,24 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     description: "Facility Operations attention home."
   },
   {
+    id: "facility_overview",
+    label: "Facility Overview",
+    owner: "facility_operations",
+    entitlement: "facility.mission_control",
+    href: "/facility/overview",
+    readiness: "aligned",
+    description: "Organization-wide facility site identity overview (Phase E.1)."
+  },
+  {
+    id: "facility_sites",
+    label: "Facility Sites",
+    owner: "facility_operations",
+    entitlement: "facility.mission_control",
+    href: "/facility/sites",
+    readiness: "aligned",
+    description: "Site profiles — create, activate, and manage facility identity."
+  },
+  {
     id: "facility_operations",
     label: "Facility Operations",
     owner: "facility_operations",
@@ -194,9 +212,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.assets",
     href: "/facility/assets",
-    readiness: "planned",
-    description: "Asset registry.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "Asset registry, categories, hierarchy, and lifecycle (Phase E.2)."
   },
   {
     id: "inventory",
@@ -264,9 +281,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.building_systems",
     href: "/facility/building-systems",
-    readiness: "planned",
-    description: "HVAC, electrical, fire, and related systems.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "HVAC, electrical, fire, and related systems with status attention (Phase E.2)."
   },
   {
     id: "capital_projects",
@@ -366,8 +382,26 @@ export function navigationGroupsForSku(
           readiness: "aligned",
           entitlement: "facility.mission_control"
         },
+        {
+          href: "/facility/overview",
+          label: "Facility Overview",
+          readiness: "aligned",
+          entitlement: "facility.mission_control"
+        },
+        {
+          href: "/facility/sites",
+          label: "Facility Sites",
+          readiness: "aligned",
+          entitlement: "facility.mission_control"
+        },
         { href: "/facility/operations", label: "Facility Operations", readiness: "planned", entitlement: "facility.operations" },
-        { href: "/facility/assets", label: "Assets", readiness: "planned", entitlement: "facility.assets" },
+        { href: "/facility/assets", label: "Assets", readiness: "aligned", entitlement: "facility.assets" },
+        {
+          href: "/facility/building-systems",
+          label: "Building Systems",
+          readiness: "aligned",
+          entitlement: "facility.building_systems"
+        },
         { href: "/facility/inventory", label: "Inventory", readiness: "planned", entitlement: "facility.inventory" },
         { href: "/facility/parts", label: "Parts", readiness: "planned", entitlement: "facility.parts" },
         {
@@ -378,13 +412,7 @@ export function navigationGroupsForSku(
         },
         { href: "/facility/inspections", label: "Inspections", readiness: "planned", entitlement: "facility.inspections" },
         { href: "/facility/safety", label: "Safety", readiness: "planned", entitlement: "facility.safety" },
-        { href: "/facility/compliance", label: "Compliance", readiness: "planned", entitlement: "facility.compliance" },
-        {
-          href: "/facility/building-systems",
-          label: "Building Systems",
-          readiness: "planned",
-          entitlement: "facility.building_systems"
-        }
+        { href: "/facility/compliance", label: "Compliance", readiness: "planned", entitlement: "facility.compliance" }
         // Capital Projects: future entitlement — Master Admin + Billing only until enabled
       ]
     });
@@ -404,7 +432,17 @@ export function navigationGroupsForSku(
       },
       { href: "/billing", label: "Billing & Plan", readiness: "aligned", entitlement: "platform.billing_self" },
       { href: "/settings/organization", label: "Organization", readiness: "aligned", entitlement: "platform.org" },
-      { href: "/settings/team", label: "Team", readiness: "aligned", entitlement: "platform.org" }
+      { href: "/settings/team", label: "Team", readiness: "aligned", entitlement: "platform.org" },
+      ...(sku && skuIncludesFacilityOperations(sku)
+        ? [
+            {
+              href: "/settings/facility-sites",
+              label: "Facility Sites",
+              readiness: "aligned" as const,
+              entitlement: "facility.mission_control" as const
+            }
+          ]
+        : [])
     ]
   });
 
@@ -505,18 +543,42 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
       {
         id: "fac_mc",
         title: "Facility Operations · Mission Control",
-        description: "Attention home for facility, assets, and building operations.",
+        description: "Attention home for facility site identity and operational signals.",
         href: "/facility/mission-control",
+        product: "facility_operations",
+        readiness: "aligned"
+      },
+      {
+        id: "fac_overview",
+        title: "Facility Overview",
+        description: "Organization-wide facility site identity overview.",
+        href: "/facility/overview",
+        product: "facility_operations",
+        readiness: "aligned"
+      },
+      {
+        id: "fac_sites",
+        title: "Facility Sites",
+        description: "Create and activate facility site profiles.",
+        href: "/facility/sites",
         product: "facility_operations",
         readiness: "aligned"
       },
       {
         id: "fac_assets",
         title: "Asset Registry",
-        description: "Facility workspace (planned capability).",
+        description: "Facility asset registry, categories, hierarchy, and lifecycle.",
         href: "/facility/assets",
         product: "facility_operations",
-        readiness: "planned"
+        readiness: "aligned"
+      },
+      {
+        id: "fac_systems",
+        title: "Building Systems",
+        description: "Register systems and raise Mission Control attention when down.",
+        href: "/facility/building-systems",
+        product: "facility_operations",
+        readiness: "aligned"
       }
     );
   }

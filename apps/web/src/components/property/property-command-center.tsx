@@ -67,6 +67,7 @@ type CommandCenter = {
   assistantRecommendation: string;
   readyMessage: string;
   nextJourney: { title: string; href: string; detail: string };
+  facilitySite?: { id: string; name: string; status: string; href: string } | null;
 };
 
 function formatWhen(iso: string): string {
@@ -189,6 +190,15 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         >
           {data.nextJourney.title}
         </Link>
+        {data.facilitySite ? (
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Facility site:{" "}
+            <Link href={data.facilitySite.href} className="underline">
+              {data.facilitySite.name}
+            </Link>{" "}
+            ({data.facilitySite.status})
+          </p>
+        ) : null}
       </section>
 
       <section className="grid max-w-5xl gap-4 lg:grid-cols-3">

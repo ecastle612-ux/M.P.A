@@ -38,7 +38,7 @@ export async function listUnifiedNotifications(
   organizationId: string,
   userId: string
 ): Promise<UnifiedNotificationRecord[]> {
-  const [finance, maintenance, comms] = await Promise.all([
+  const [finance, maintenance, comms, facility] = await Promise.all([
     supabase
       .from("financial_notifications")
       .select("id, title, body, href, read_at, created_at, notification_key")
@@ -55,6 +55,13 @@ export async function listUnifiedNotifications(
       .limit(40),
     supabase
       .from("comms_notifications")
+      .select("id, title, body, href, read_at, created_at, notification_key")
+      .eq("organization_id", organizationId)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(40),
+    supabase
+      .from("facility_notifications")
       .select("id, title, body, href, read_at, created_at, notification_key")
       .eq("organization_id", organizationId)
       .eq("user_id", userId)
@@ -89,6 +96,16 @@ export async function listUnifiedNotifications(
       title: row.title as string,
       body: row.body as string,
       href: (row.href as string | null) ?? "/shared/communications",
+      readAt: (row.read_at as string | null) ?? null,
+      createdAt: row.created_at as string,
+      notificationKey: row.notification_key as string
+    })),
+    ...(facility.data ?? []).map((row) => ({
+      id: `facility:${row.id}`,
+      source: "facility" as const,
+      title: row.title as string,
+      body: row.body as string,
+      href: (row.href as string | null) ?? "/facility/mission-control",
       readAt: (row.read_at as string | null) ?? null,
       createdAt: row.created_at as string,
       notificationKey: row.notification_key as string
@@ -135,6 +152,19 @@ export async function markNotificationRead(
     const id = notificationId.slice("comms:".length);
     const { error } = await supabase
       .from("comms_notifications")
+      .update({ read_at: now })
+      .eq("organization_id", organizationId)
+      .eq("user_id", userId)
+      .eq("id", id);
+    if (error) {
+      throw new Error(error.message);
+    }
+    return { ok: true };
+  }
+  if (notificationId.startsWith("facility:")) {
+    const id = notificationId.slice("facility:".length);
+    const { error } = await supabase
+      .from("facility_notifications")
       .update({ read_at: now })
       .eq("organization_id", organizationId)
       .eq("user_id", userId)
