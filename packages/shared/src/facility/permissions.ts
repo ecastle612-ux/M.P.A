@@ -9,10 +9,18 @@ export type FacilityAssetCapability = (typeof FACILITY_ASSET_CAPABILITIES)[numbe
 export const FACILITY_SYSTEM_CAPABILITIES = ["facility.systems:read", "facility.systems:write"] as const;
 export type FacilitySystemCapability = (typeof FACILITY_SYSTEM_CAPABILITIES)[number];
 
+export const FACILITY_OPERATIONS_CAPABILITIES = [
+  "facility.operations:read",
+  "facility.operations:write",
+  "facility.operations:assign"
+] as const;
+export type FacilityOperationsCapability = (typeof FACILITY_OPERATIONS_CAPABILITIES)[number];
+
 export const FACILITY_CAPABILITIES = [
   ...FACILITY_SITE_CAPABILITIES,
   ...FACILITY_ASSET_CAPABILITIES,
-  ...FACILITY_SYSTEM_CAPABILITIES
+  ...FACILITY_SYSTEM_CAPABILITIES,
+  ...FACILITY_OPERATIONS_CAPABILITIES
 ] as const;
 export type FacilityCapability = (typeof FACILITY_CAPABILITIES)[number];
 
@@ -29,6 +37,15 @@ export const FACILITY_ASSET_CAPABILITY_DESCRIPTIONS: Record<FacilityAssetCapabil
 export const FACILITY_SYSTEM_CAPABILITY_DESCRIPTIONS: Record<FacilitySystemCapability, string> = {
   "facility.systems:read": "Read building systems and system command centers",
   "facility.systems:write": "Create and manage building systems and asset links"
+};
+
+export const FACILITY_OPERATIONS_CAPABILITY_DESCRIPTIONS: Record<
+  FacilityOperationsCapability,
+  string
+> = {
+  "facility.operations:read": "Read Facility Operations corrective work queue",
+  "facility.operations:write": "Create facility corrective work and record progress",
+  "facility.operations:assign": "Prioritize and assign facility corrective work"
 };
 
 export function hasFacilityCapability(

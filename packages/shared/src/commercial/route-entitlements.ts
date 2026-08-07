@@ -260,7 +260,15 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
         "facility.mission_control"
       )
     );
-    push(decisionPath("/facility/operations", "Facility Operations (Planned)", "Facility Operations", "facility.operations"));
+    push(decisionPath("/facility/operations", "Facility Operations", "Facility Operations", "facility.operations"));
+    push(
+      decisionPath(
+        "/facility/operations?new=1",
+        "Create facility work",
+        "Facility Operations",
+        "facility.operations"
+      )
+    );
     push(decisionPath("/facility/assets", "Assets", "Facility Operations", "facility.assets"));
     push(
       decisionPath("/facility/assets?new=1", "Register asset", "Facility Operations", "facility.assets")

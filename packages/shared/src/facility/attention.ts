@@ -1,7 +1,15 @@
 /**
- * Facility Mission Control attention — E.1 + E.2 signals.
+ * Facility Mission Control attention — E.1–E.3 signals.
  * Later slices populate remaining severities.
  */
+
+const OPEN_WO_STATUSES = new Set([
+  "submitted",
+  "triaged",
+  "assigned",
+  "in_progress",
+  "completed"
+]);
 
 export const FACILITY_ATTENTION_SEVERITIES = [
   "system_down",
@@ -143,6 +151,68 @@ export function buildFacilityCriticalAssetAttention(
     }));
 }
 
+export function buildFacilityWorkOrderEmergencyAttention(
+  workOrders: readonly {
+    id: string;
+    title: string;
+    siteId: string | null;
+    priority: string;
+    status: string;
+    productContext: string;
+  }[]
+): FacilityAttentionItem[] {
+  return workOrders
+    .filter(
+      (wo) =>
+        wo.productContext === "facility" &&
+        wo.priority === "emergency" &&
+        OPEN_WO_STATUSES.has(wo.status)
+    )
+    .map((wo) => ({
+      id: `wo_emergency:${wo.id}`,
+      severity: "wo_emergency" as const,
+      priority: priorityForFacilitySeverity("wo_emergency"),
+      title: `Emergency work: ${wo.title}`,
+      detail: "Facility corrective work marked emergency — assign and restore.",
+      href: `/facility/operations?workOrderId=${wo.id}`,
+      aggregateType: "maintenance_work_orders",
+      aggregateId: wo.id,
+      siteId: wo.siteId
+    }));
+}
+
+export function buildFacilityOpenCriticalWorkAttention(
+  workOrders: readonly {
+    id: string;
+    title: string;
+    siteId: string | null;
+    priority: string;
+    status: string;
+    productContext: string;
+    assetCriticality?: string | null;
+  }[]
+): FacilityAttentionItem[] {
+  return workOrders
+    .filter(
+      (wo) =>
+        wo.productContext === "facility" &&
+        OPEN_WO_STATUSES.has(wo.status) &&
+        wo.priority !== "emergency" &&
+        (wo.priority === "high" || wo.assetCriticality === "critical")
+    )
+    .map((wo) => ({
+      id: `wo_open_critical:${wo.id}`,
+      severity: "wo_open_critical" as const,
+      priority: priorityForFacilitySeverity("wo_open_critical"),
+      title: `Open critical work: ${wo.title}`,
+      detail: "High-priority or critical-asset facility work is still open.",
+      href: `/facility/operations?workOrderId=${wo.id}`,
+      aggregateType: "maintenance_work_orders",
+      aggregateId: wo.id,
+      siteId: wo.siteId
+    }));
+}
+
 export function buildFacilityMissionControlNextAction(input: {
   setupComplete: boolean;
   activeSiteCount: number;
@@ -151,6 +221,9 @@ export function buildFacilityMissionControlNextAction(input: {
   activeAssetCount?: number;
   downSystemCount?: number;
   firstAssetId?: string | null;
+  openFacilityWorkCount?: number;
+  emergencyFacilityWorkCount?: number;
+  firstOpenWorkOrderId?: string | null;
 }): {
   id: string;
   title: string;
@@ -197,6 +270,30 @@ export function buildFacilityMissionControlNextAction(input: {
     };
   }
 
+  if ((input.emergencyFacilityWorkCount ?? 0) > 0) {
+    return {
+      id: "resolve_emergency_work",
+      title: "Resolve emergency facility work",
+      detail: "Emergency corrective work is open in Facility Operations.",
+      href: input.firstOpenWorkOrderId
+        ? `/facility/operations?workOrderId=${input.firstOpenWorkOrderId}`
+        : "/facility/operations",
+      assistantRecommendation: "Assign and resolve emergency facility work orders."
+    };
+  }
+
+  if ((input.openFacilityWorkCount ?? 0) > 0) {
+    return {
+      id: "advance_facility_work",
+      title: "Advance open facility work",
+      detail: "Facility Operations has open corrective work waiting on execution.",
+      href: input.firstOpenWorkOrderId
+        ? `/facility/operations?workOrderId=${input.firstOpenWorkOrderId}`
+        : "/facility/operations",
+      assistantRecommendation: "Review the Facility Operations queue and hand off to Maintenance."
+    };
+  }
+
   if ((input.activeAssetCount ?? 0) <= 0) {
     return {
       id: "register_first_asset",
@@ -208,10 +305,11 @@ export function buildFacilityMissionControlNextAction(input: {
   }
 
   return {
-    id: "assets_ready",
-    title: "Asset registry is active",
-    detail: "Review assets and building systems. Later slices add work programs.",
-    href: input.firstAssetId ? `/facility/assets/${input.firstAssetId}` : "/facility/assets",
-    assistantRecommendation: "Your asset registry is ready. Review critical assets and systems."
+    id: "operations_ready",
+    title: "Facility Operations is ready",
+    detail: "Create corrective work from the Facility Operations queue when issues arise.",
+    href: "/facility/operations",
+    assistantRecommendation:
+      "Facility Operations is ready. Open corrective work when assets or systems need attention."
   };
 }

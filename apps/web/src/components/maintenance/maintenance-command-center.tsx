@@ -37,6 +37,9 @@ export function MaintenanceCommandCenter() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [assistantRecommendation, setAssistantRecommendation] = useState("");
   const [maintenanceReady, setMaintenanceReady] = useState(false);
+  const [productContext, setProductContext] = useState<"property_manager" | "facility">(
+    "property_manager"
+  );
   const [selectedId, setSelectedId] = useState<string>("");
   const [updates, setUpdates] = useState<Array<{ id: string; body: string; created_at: string; actor_role: string }>>(
     []
@@ -74,8 +77,10 @@ export function MaintenanceCommandCenter() {
     }
   }, []);
 
-  const refresh = useCallback(async (preferredId?: string) => {
-    const response = await fetch("/api/pm/maintenance");
+  const refresh = useCallback(async (preferredId?: string, context = productContext) => {
+    const response = await fetch(
+      `/api/pm/maintenance?productContext=${encodeURIComponent(context)}`
+    );
     const body = await response.json();
     if (!response.ok) {
       throw new Error(body.error ?? "Failed to load maintenance");
@@ -86,6 +91,9 @@ export function MaintenanceCommandCenter() {
     setVendors(body.vendors ?? []);
     setAssistantRecommendation(body.assistantRecommendation ?? "");
     setMaintenanceReady(Boolean(body.readiness?.maintenanceReady));
+    setProductContext(
+      body.productContext === "facility" ? "facility" : "property_manager"
+    );
     const nextId = preferredId || selectedId || rows[0]?.id || "";
     setSelectedId(nextId);
     if (nextId) {
@@ -93,13 +101,15 @@ export function MaintenanceCommandCenter() {
     } else {
       setUpdates([]);
     }
-  }, [loadDetail, selectedId]);
+  }, [loadDetail, productContext, selectedId]);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        const response = await fetch("/api/pm/maintenance");
+        const response = await fetch(
+          `/api/pm/maintenance?productContext=${encodeURIComponent(productContext)}`
+        );
         const body = await response.json();
         if (!response.ok) {
           throw new Error(body.error ?? "Failed to load maintenance");
@@ -138,7 +148,7 @@ export function MaintenanceCommandCenter() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [productContext]);
 
   async function selectWorkOrder(workOrderId: string) {
     setSelectedId(workOrderId);
@@ -250,11 +260,40 @@ export function MaintenanceCommandCenter() {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h2 className="text-sm font-semibold">Request queue</h2>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <h2 className="text-sm font-semibold">Request queue</h2>
+            <label className="space-y-1 text-xs">
+              <span className="text-[var(--mpa-color-text-secondary)]">Product context</span>
+              <Select
+                value={productContext}
+                onChange={(event) => {
+                  setLoading(true);
+                  setSelectedId("");
+                  setProductContext(
+                    event.target.value === "facility" ? "facility" : "property_manager"
+                  );
+                }}
+              >
+                <option value="property_manager">Property Manager</option>
+                <option value="facility">Facility Operations</option>
+              </Select>
+            </label>
+          </div>
+          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+            Queues never silently mix contexts. Facility work is labeled and filtered explicitly.
+          </p>
           {workOrders.length === 0 ? (
             <EmptyState
-              title="No maintenance requests yet"
-              description="When a resident submits a request, it appears here automatically."
+              title={
+                productContext === "facility"
+                  ? "No facility work orders in this filter"
+                  : "No maintenance requests yet"
+              }
+              description={
+                productContext === "facility"
+                  ? "Create facility corrective work from Facility Operations, then execute here."
+                  : "When a resident submits a request, it appears here automatically."
+              }
             />
           ) : (
             <ul className="space-y-2">

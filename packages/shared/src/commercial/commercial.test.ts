@@ -106,6 +106,14 @@ describe("navigation and launcher awareness", () => {
     ).toBe("aligned");
   });
 
+  it("exposes aligned Facility Operations queue for FO SKU", () => {
+    const groups = navigationGroupsForSku("mpa_facility_operations");
+    const facility = groups.find((group) => group.id === "facility_operations");
+    expect(facility?.items.find((item) => item.href === "/facility/operations")?.readiness).toBe(
+      "aligned"
+    );
+  });
+
   it("organizes launcher workspaces by commercial product", () => {
     const items = workspaceLauncherItemsForSku("mpa_complete_platform");
     expect(items.some((item) => item.product === "property_manager")).toBe(true);

@@ -3,7 +3,7 @@
 **Commercial ownership:** Approved ([module map](../24-product-architecture/facility-operations-module-map.md))  
 **Feature design package:** [FAC-OPS-001 Design Package](./design-package/index.md) — **Approved**  
 **ADR:** [ADR-018 Accepted](../18-decision-log/adr-018-facility-operations-design-package.md)  
-**Feature Implement:** Phase **E.1 authorized**; E.2+ **NO-GO** until slice authorize  
+**Feature Implement:** Phases **E.1–E.3 complete**; E.4+ **NO-GO** until slice authorize  
 **Policy:** [Implementation Gate](../00-governance/implementation-gate.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md)
 
 ---
@@ -16,8 +16,9 @@
 | FAC-OPS-001 design package | **Approved** |
 | ADR-018 | **Accepted** |
 | Phase E.1 (Site profile + FO Mission Control) | **Complete / certified** |
-| Phase E.2 (Assets + Building Systems) | **Authorized** |
-| Phase E.3–E.6 / Capital | **Blocked** pending authorize |
+| Phase E.2 (Assets + Building Systems) | **Complete / certified** |
+| Phase E.3 (Corrective facility work) | **Complete / certified** |
+| Phase E.4–E.6 / Capital | **Blocked** pending authorize |
 
 ---
 
@@ -27,9 +28,9 @@
 
 → **[FAC-OPS-001 Design Package](./design-package/index.md)**
 
-### E.1 certification
+### Certification
 
-→ **[certification/e1/](./design-package/certification/e1/)**
+→ **[certification/e1/](./design-package/certification/e1/)** · **[e2/](./design-package/certification/e2/)** · **[e3/](./design-package/certification/e3/)**
 
 ### Gate history
 

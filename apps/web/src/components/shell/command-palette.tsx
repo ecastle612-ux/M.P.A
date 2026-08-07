@@ -16,6 +16,7 @@ export function CommandPalette() {
   const [facilitySiteItems, setFacilitySiteItems] = useState<Array<{ id: string; label: string }>>([]);
   const [facilityAssetItems, setFacilityAssetItems] = useState<Array<{ id: string; label: string }>>([]);
   const [facilitySystemItems, setFacilitySystemItems] = useState<Array<{ id: string; label: string }>>([]);
+  const [facilityWorkItems, setFacilityWorkItems] = useState<Array<{ id: string; label: string }>>([]);
 
   useEffect(() => {
     function handler(event: KeyboardEvent) {
@@ -46,13 +47,15 @@ export function CommandPalette() {
           residentResponse,
           facilityResponse,
           assetResponse,
-          systemResponse
+          systemResponse,
+          workResponse
         ] = await Promise.all([
           fetch(`/api/pm/properties/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/pm/residents/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/facility/sites/search?q=${encodeURIComponent(query.trim())}`),
           fetch(`/api/facility/assets/search?q=${encodeURIComponent(query.trim())}`),
-          fetch(`/api/facility/systems/search?q=${encodeURIComponent(query.trim())}`)
+          fetch(`/api/facility/systems/search?q=${encodeURIComponent(query.trim())}`),
+          fetch(`/api/facility/operations/search?q=${encodeURIComponent(query.trim())}`)
         ]);
         if (!cancelled && propertyResponse.ok) {
           const payload = (await propertyResponse.json()) as {
@@ -109,6 +112,17 @@ export function CommandPalette() {
             }))
           );
         }
+        if (!cancelled && workResponse.ok) {
+          const payload = (await workResponse.json()) as {
+            results?: Array<{ id: string; label: string; href: string }>;
+          };
+          setFacilityWorkItems(
+            (payload.results ?? []).map((item) => ({
+              id: item.href,
+              label: item.label
+            }))
+          );
+        }
       } catch {
         if (!cancelled) {
           setPropertyItems([]);
@@ -116,6 +130,7 @@ export function CommandPalette() {
           setFacilitySiteItems([]);
           setFacilityAssetItems([]);
           setFacilitySystemItems([]);
+          setFacilityWorkItems([]);
         }
       }
     })();
@@ -162,6 +177,12 @@ export function CommandPalette() {
         facilitySystemItems.map((item) => ({ id: item.id, label: item.label }))
       );
     }
+    if (facilityWorkItems.length > 0) {
+      byGroup.set(
+        "Facility Operations",
+        facilityWorkItems.map((item) => ({ id: item.id, label: item.label }))
+      );
+    }
 
     const navSections = [...byGroup.entries()].map(([title, items]) => ({ title, items }));
     const entitled = searchCatalogForSku(productSku, "");
@@ -173,12 +194,14 @@ export function CommandPalette() {
         { id: "/pm/leasing?new=1", label: "Create lease", shortcut: "A L" },
         { id: "/facility/sites?new=1", label: "Add facility site", shortcut: "A S" },
         { id: "/facility/assets?new=1", label: "Register asset", shortcut: "A A" },
+        { id: "/facility/operations?new=1", label: "Create facility work", shortcut: "A W" },
         { id: "/pm/properties", label: "Open Properties", shortcut: "G P" },
         { id: "/pm/residents", label: "Open Residents", shortcut: "G R" },
         { id: "/pm/leasing", label: "Open Leasing", shortcut: "G L" },
         { id: "/pm/mission-control", label: "Open Mission Control", shortcut: "G M" },
         { id: "/facility/mission-control", label: "Open Facility Mission Control", shortcut: "G F" },
         { id: "/facility/overview", label: "Open Facility Overview", shortcut: "G O" },
+        { id: "/facility/operations", label: "Open Facility Operations", shortcut: "G Q" },
         { id: "/facility/assets", label: "Open Assets", shortcut: "G A" },
         { id: "/facility/building-systems", label: "Open Building Systems", shortcut: "G Y" },
         { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
@@ -201,6 +224,7 @@ export function CommandPalette() {
     facilityAssetItems,
     facilitySiteItems,
     facilitySystemItems,
+    facilityWorkItems,
     productLabel,
     productSku,
     propertyItems,

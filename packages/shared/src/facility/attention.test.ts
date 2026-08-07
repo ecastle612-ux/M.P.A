@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   buildFacilityCriticalAssetAttention,
   buildFacilityMissionControlNextAction,
+  buildFacilityOpenCriticalWorkAttention,
   buildFacilitySetupIncompleteAttention,
   buildFacilitySystemDownAttention,
+  buildFacilityWorkOrderEmergencyAttention,
   rankFacilityAttention
 } from "./attention";
 
-describe("facility mission control attention (E.1–E.2)", () => {
+describe("facility mission control attention (E.1–E.3)", () => {
   it("surfaces setup_incomplete when no sites exist", () => {
     const items = buildFacilitySetupIncompleteAttention({
       activeSiteCount: 0,
@@ -94,5 +96,58 @@ describe("facility mission control attention (E.1–E.2)", () => {
       }
     ]);
     expect(ranked[0]?.id).toBe("b");
+  });
+
+  it("surfaces emergency facility work orders", () => {
+    const items = buildFacilityWorkOrderEmergencyAttention([
+      {
+        id: "wo1",
+        title: "Chiller failure",
+        siteId: "site-1",
+        priority: "emergency",
+        status: "submitted",
+        productContext: "facility"
+      },
+      {
+        id: "wo2",
+        title: "Resident leak",
+        siteId: null,
+        priority: "emergency",
+        status: "submitted",
+        productContext: "property_manager"
+      }
+    ]);
+    expect(items).toHaveLength(1);
+    expect(items[0]?.severity).toBe("wo_emergency");
+    expect(items[0]?.href).toContain("/facility/operations");
+  });
+
+  it("surfaces open critical facility work", () => {
+    const items = buildFacilityOpenCriticalWorkAttention([
+      {
+        id: "wo3",
+        title: "Boiler valve",
+        siteId: "site-1",
+        priority: "normal",
+        status: "assigned",
+        productContext: "facility",
+        assetCriticality: "critical"
+      }
+    ]);
+    expect(items).toHaveLength(1);
+    expect(items[0]?.severity).toBe("wo_open_critical");
+  });
+
+  it("recommends advancing open facility work", () => {
+    const next = buildFacilityMissionControlNextAction({
+      setupComplete: true,
+      activeSiteCount: 1,
+      draftSiteCount: 0,
+      activeAssetCount: 2,
+      openFacilityWorkCount: 3,
+      firstOpenWorkOrderId: "wo-9"
+    });
+    expect(next.id).toBe("advance_facility_work");
+    expect(next.href).toContain("wo-9");
   });
 });

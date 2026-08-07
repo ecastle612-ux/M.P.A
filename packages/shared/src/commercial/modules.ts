@@ -202,9 +202,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.operations",
     href: "/facility/operations",
-    readiness: "planned",
-    description: "Facility corrective operations.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
+    readiness: "aligned",
+    description: "Facility corrective operations queue — create and monitor shared work orders."
   },
   {
     id: "assets",
@@ -394,7 +393,12 @@ export function navigationGroupsForSku(
           readiness: "aligned",
           entitlement: "facility.mission_control"
         },
-        { href: "/facility/operations", label: "Facility Operations", readiness: "planned", entitlement: "facility.operations" },
+        {
+          href: "/facility/operations",
+          label: "Facility Operations",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
         { href: "/facility/assets", label: "Assets", readiness: "aligned", entitlement: "facility.assets" },
         {
           href: "/facility/building-systems",
@@ -561,6 +565,14 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
         title: "Facility Sites",
         description: "Create and activate facility site profiles.",
         href: "/facility/sites",
+        product: "facility_operations",
+        readiness: "aligned"
+      },
+      {
+        id: "fac_operations",
+        title: "Facility Operations",
+        description: "Corrective facility work queue with shared Maintenance execution.",
+        href: "/facility/operations",
         product: "facility_operations",
         readiness: "aligned"
       },

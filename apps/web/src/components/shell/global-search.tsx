@@ -19,6 +19,7 @@ export function GlobalSearch() {
   const [facilitySiteResults, setFacilitySiteResults] = useState<SearchResultItem[]>([]);
   const [facilityAssetResults, setFacilityAssetResults] = useState<SearchResultItem[]>([]);
   const [facilitySystemResults, setFacilitySystemResults] = useState<SearchResultItem[]>([]);
+  const [facilityWorkResults, setFacilityWorkResults] = useState<SearchResultItem[]>([]);
 
   const catalogResults = useMemo(() => searchCatalogForSku(productSku, query), [productSku, query]);
   const results = useMemo(() => {
@@ -31,6 +32,7 @@ export function GlobalSearch() {
       ...facilitySiteResults,
       ...facilityAssetResults,
       ...facilitySystemResults,
+      ...facilityWorkResults,
       ...catalogResults
     ];
   }, [
@@ -38,6 +40,7 @@ export function GlobalSearch() {
     facilityAssetResults,
     facilitySiteResults,
     facilitySystemResults,
+    facilityWorkResults,
     propertyResults,
     query,
     residentResults
@@ -68,13 +71,15 @@ export function GlobalSearch() {
             residentResponse,
             facilityResponse,
             assetResponse,
-            systemResponse
+            systemResponse,
+            workResponse
           ] = await Promise.all([
             fetch(`/api/pm/properties/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/pm/residents/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/facility/sites/search?q=${encodeURIComponent(normalized)}`),
             fetch(`/api/facility/assets/search?q=${encodeURIComponent(normalized)}`),
-            fetch(`/api/facility/systems/search?q=${encodeURIComponent(normalized)}`)
+            fetch(`/api/facility/systems/search?q=${encodeURIComponent(normalized)}`),
+            fetch(`/api/facility/operations/search?q=${encodeURIComponent(normalized)}`)
           ]);
           if (cancelled) {
             return;
@@ -149,6 +154,20 @@ export function GlobalSearch() {
               }))
             );
           }
+          if (workResponse.ok) {
+            const payload = (await workResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string; group: string }>;
+            };
+            setFacilityWorkResults(
+              (payload.results ?? []).map((item) => ({
+                id: `facility-work:${item.id}`,
+                label: item.label,
+                href: item.href,
+                group: item.group,
+                entitlement: "facility.operations"
+              }))
+            );
+          }
         } catch {
           // Keep last successful live results; catalog still works.
         }
@@ -168,6 +187,7 @@ export function GlobalSearch() {
     setFacilitySiteResults([]);
     setFacilityAssetResults([]);
     setFacilitySystemResults([]);
+    setFacilityWorkResults([]);
     router.push(href);
   }
 
@@ -191,6 +211,7 @@ export function GlobalSearch() {
             setFacilitySiteResults([]);
             setFacilityAssetResults([]);
             setFacilitySystemResults([]);
+            setFacilityWorkResults([]);
           }
           setActiveIndex(0);
           setOpen(true);

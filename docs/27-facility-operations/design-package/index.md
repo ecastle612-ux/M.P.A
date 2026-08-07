@@ -87,11 +87,12 @@ Mission Control pattern · Universal Dashboard Framework · Assistant · Notific
 | Slice | Status |
 |-------|--------|
 | E.1 Site profile + FO Mission Control attention | **Complete / certified** |
-| E.2 Assets + Building Systems | **Authorized / implementing** |
-| E.3–E.6 | **NO-GO** until slice authorize |
+| E.2 Assets + Building Systems | **Complete / certified** |
+| E.3 Corrective facility work | **Complete / certified** |
+| E.4–E.6 | **NO-GO** until slice authorize |
 | E.7 Capital | Future gate |
 
-Certification artifacts: [certification/e1/](./certification/e1/) · [certification/e2/](./certification/e2/)
+Certification artifacts: [certification/e1/](./certification/e1/) · [certification/e2/](./certification/e2/) · [certification/e3/](./certification/e3/)
 
 ---
 
