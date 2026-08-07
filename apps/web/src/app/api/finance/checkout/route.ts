@@ -66,7 +66,10 @@ export async function POST(request: Request) {
       .maybeSingle()
   ]);
 
-  const isManager = Boolean(membership?.roles?.includes("property_manager"));
+  const membershipRoles = (membership?.roles as string[] | null) ?? [];
+  const isManager =
+    membershipRoles.includes("property_manager") ||
+    membershipRoles.includes("organization_admin");
   if (!residentLink && !isManager) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

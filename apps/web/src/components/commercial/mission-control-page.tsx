@@ -128,10 +128,12 @@ export function MissionControlPage() {
           throw new Error(body.error ?? "Failed to load Mission Control");
         }
         if (!cancelled) {
+          setError(null);
           setState(body as MissionControlState);
         }
       } catch (err) {
         if (!cancelled) {
+          setState(null);
           setError(err instanceof Error ? err.message : "Failed to load Mission Control");
         }
       } finally {
@@ -143,11 +145,13 @@ export function MissionControlPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [activeOrganization?.id]);
 
   const nextAction =
     state?.nextAction ??
-    (!setupComplete
+    (error
+      ? null
+      : !setupComplete
       ? {
           id: "complete_setup",
           title: "Finish Guided Setup",
@@ -216,7 +220,11 @@ export function MissionControlPage() {
         ) : (
           <>
             <p className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-              {state?.assistantRecommendation ?? nextAction.assistantRecommendation}
+              {state?.assistantRecommendation ??
+                nextAction?.assistantRecommendation ??
+                (error
+                  ? "Mission Control could not load recommendations for this organization."
+                  : "Review your workspace.")}
             </p>
             {daily ? (
               <p className="text-sm text-[var(--mpa-color-text-secondary)]">{daily.briefing.summary}</p>
@@ -234,22 +242,26 @@ export function MissionControlPage() {
         )}
       </section>
 
-      <section
-        aria-label="Today's mission"
-        className="max-w-4xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
-      >
-        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          Today&apos;s mission
-        </p>
-        <h2 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">{nextAction.title}</h2>
-        <p className="text-sm text-[var(--mpa-color-text-secondary)]">{nextAction.detail}</p>
-        <Link
-          href={nextAction.href}
-          className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48]"
+      {nextAction ? (
+        <section
+          aria-label="Today's mission"
+          className="max-w-4xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
         >
-          {nextAction.title}
-        </Link>
-      </section>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+            Today&apos;s mission
+          </p>
+          <h2 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">
+            {nextAction.title}
+          </h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">{nextAction.detail}</p>
+          <Link
+            href={nextAction.href}
+            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48]"
+          >
+            {nextAction.title}
+          </Link>
+        </section>
+      ) : null}
 
       {loading ? (
         <Skeleton className="h-64 w-full" />

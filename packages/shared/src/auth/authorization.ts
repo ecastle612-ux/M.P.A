@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { USER_ROLES, isUserRole, type UserRole } from "../types/roles";
+import { USER_ROLES, isUserRole, primaryRole, type UserRole } from "../types/roles";
 
 const roleArraySchema = z.array(z.enum(USER_ROLES)).default([]);
 
@@ -24,7 +24,7 @@ export function resolveActiveRole(
   if (isUserRole(preferredRole) && roles.includes(preferredRole)) {
     return preferredRole;
   }
-  return roles[0] ?? null;
+  return primaryRole(roles);
 }
 
 export function canAccessRole(

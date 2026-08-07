@@ -8,9 +8,11 @@
 
 ## Decision
 
-# **GO**
+# **GO WITH OBSERVATIONS**
 
 Onboard Customer #1 against the advertised Property Manager lifecycle after staging Master Admin Pass is recorded.
+
+Post Validation Sprint 1 score: **96 / 100** — see [Production Validation Sprint 1](../production-validation-sprint-1/index.md).
 
 ---
 

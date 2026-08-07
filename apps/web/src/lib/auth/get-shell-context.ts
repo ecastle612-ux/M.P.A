@@ -8,7 +8,8 @@ import { buildAuthorizationContext } from "./session";
 export type AuthenticatedShellContext = {
   user: User;
   availableRoles: UserRole[];
-  defaultRole: UserRole;
+  /** Primary membership role — null when membership has no recognized roles. Never invent a staff role. */
+  defaultRole: UserRole | null;
   defaultOrganizationId: string | null;
   organizations: Awaited<ReturnType<typeof getOrganizationsForUser>>;
 };
@@ -36,10 +37,8 @@ export async function resolveAuthenticatedShellContext(user: User): Promise<Auth
         }
   );
 
-  // Never invent Organization Admin (or any role) when membership roles are empty.
   const availableRoles = context.roles;
-  const resolvedPrimary = context.activeRole ?? primaryRole(availableRoles);
-  const defaultRole: UserRole = resolvedPrimary ?? "property_manager";
+  const defaultRole = context.activeRole ?? primaryRole(availableRoles);
 
   return {
     user,

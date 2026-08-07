@@ -22,8 +22,8 @@ describe("authorization helpers", () => {
     expect(active).toBe("vendor");
   });
 
-  it("falls back to first role when preferred is invalid", () => {
-    const active = resolveActiveRole(["property_manager", "vendor"], "tenant");
+  it("falls back to primaryRole when preferred is invalid", () => {
+    const active = resolveActiveRole(["vendor", "property_manager"], "tenant");
     expect(active).toBe("property_manager");
   });
 

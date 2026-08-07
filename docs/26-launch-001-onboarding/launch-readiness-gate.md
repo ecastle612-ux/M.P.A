@@ -30,8 +30,8 @@ Success rule:
 | Communications | Pass | Conditional (email optional) |
 
 North-star feature journeys: **delivered**.  
-Production readiness score: **94 / 100**.  
-Onboarding decision: **GO** — see [GO / NO-GO](./production-certification/go-no-go.md) · [Production Deployment Support](./production-deployment/index.md).
+Production readiness score: **96 / 100**.  
+Onboarding decision: **GO WITH OBSERVATIONS** — see [GO / NO-GO](./production-certification/go-no-go.md) · [Validation Sprint 1](./production-validation-sprint-1/index.md).
 
 ---
 

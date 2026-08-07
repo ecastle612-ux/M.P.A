@@ -57,17 +57,29 @@ export function TeamInvitePanel() {
       if (cancelled) {
         return;
       }
-      if (invitationResponse.ok) {
-        const payload = (await invitationResponse.json()) as { invitations?: InvitationRow[] };
-        if (!cancelled) {
-          setInvitations(payload.invitations ?? []);
-        }
+      if (!invitationResponse.ok || !membershipResponse.ok) {
+        setInvitations([]);
+        setMemberships([]);
+        const status = !invitationResponse.ok
+          ? invitationResponse.status
+          : membershipResponse.status;
+        setError(
+          status === 403
+            ? "You do not have permission to view team invitations for this organization."
+            : "Unable to load team. Try Refresh team, or ask an Organization Admin."
+        );
+        return;
       }
-      if (membershipResponse.ok) {
-        const payload = (await membershipResponse.json()) as { memberships?: MembershipRow[] };
-        if (!cancelled) {
-          setMemberships(payload.memberships ?? []);
-        }
+      const invitationPayload = (await invitationResponse.json()) as {
+        invitations?: InvitationRow[];
+      };
+      const membershipPayload = (await membershipResponse.json()) as {
+        memberships?: MembershipRow[];
+      };
+      if (!cancelled) {
+        setError(null);
+        setInvitations(invitationPayload.invitations ?? []);
+        setMemberships(membershipPayload.memberships ?? []);
       }
     })();
     return () => {
@@ -83,14 +95,28 @@ export function TeamInvitePanel() {
       fetch(`/api/organizations/${activeOrganization.id}/invitations`),
       fetch(`/api/organizations/${activeOrganization.id}/memberships`)
     ]);
-    if (invitationResponse.ok) {
-      const payload = (await invitationResponse.json()) as { invitations?: InvitationRow[] };
-      setInvitations(payload.invitations ?? []);
+    if (!invitationResponse.ok || !membershipResponse.ok) {
+      setInvitations([]);
+      setMemberships([]);
+      const status = !invitationResponse.ok
+        ? invitationResponse.status
+        : membershipResponse.status;
+      setError(
+        status === 403
+          ? "You do not have permission to view team invitations for this organization."
+          : "Unable to load team. Try again, or ask an Organization Admin."
+      );
+      return;
     }
-    if (membershipResponse.ok) {
-      const payload = (await membershipResponse.json()) as { memberships?: MembershipRow[] };
-      setMemberships(payload.memberships ?? []);
-    }
+    const invitationPayload = (await invitationResponse.json()) as {
+      invitations?: InvitationRow[];
+    };
+    const membershipPayload = (await membershipResponse.json()) as {
+      memberships?: MembershipRow[];
+    };
+    setError(null);
+    setInvitations(invitationPayload.invitations ?? []);
+    setMemberships(membershipPayload.memberships ?? []);
   }
 
   async function onInvite(event: FormEvent) {
@@ -218,9 +244,7 @@ export function TeamInvitePanel() {
             Pending invitations
           </h3>
           {!loaded ? (
-            <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              Click Refresh team to load invitations.
-            </p>
+            <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">Loading invitations…</p>
           ) : invitations.filter((row) => row.status === "pending").length === 0 ? (
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">None pending.</p>
           ) : (
@@ -257,9 +281,7 @@ export function TeamInvitePanel() {
             Organization team
           </h3>
           {!loaded ? (
-            <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              Click Refresh team to load memberships.
-            </p>
+            <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">Loading memberships…</p>
           ) : memberships.length === 0 ? (
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No memberships loaded.</p>
           ) : (

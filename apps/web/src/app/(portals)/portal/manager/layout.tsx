@@ -19,14 +19,21 @@ export default async function ManagerPortalLayout({ children }: { children: Reac
   if (!shellContext.defaultOrganizationId) {
     redirect("/dashboard");
   }
-  if (!shellContext.availableRoles.includes("property_manager")) {
-    redirect("/unauthorized");
+  const isManager =
+    shellContext.availableRoles.includes("property_manager") ||
+    shellContext.availableRoles.includes("organization_admin");
+  if (!isManager) {
+    redirect("/unauthorized?reason=role");
   }
 
   return (
     <RolePortalFrame
       availableRoles={shellContext.availableRoles}
-      defaultRole="property_manager"
+      defaultRole={
+        shellContext.availableRoles.includes("organization_admin")
+          ? "organization_admin"
+          : "property_manager"
+      }
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       title="Property Manager Portal"

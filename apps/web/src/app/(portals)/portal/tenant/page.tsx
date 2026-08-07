@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { formatMoney } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
-import { getActiveOrganizationIdFromCookie } from "../../../../lib/organization/server";
+import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/resolve-active-organization";
 
 type AnyRow = Record<string, unknown>;
 
@@ -10,7 +10,9 @@ export default async function TenantPortalPage() {
   const {
     data: { user }
   } = await supabase.auth.getUser();
-  const organizationId = await getActiveOrganizationIdFromCookie();
+  const organizationId = user
+    ? await resolveActiveOrganizationIdForUser(supabase, user.id)
+    : null;
 
   let residentName = "Resident";
   let leaseSummary: {

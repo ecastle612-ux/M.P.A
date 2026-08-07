@@ -225,7 +225,16 @@ export async function getMissionControlState(
   const maintenance = await getMaintenanceReadiness(supabase, organizationId);
 
   let dailyOps = await getDailyOpsReadiness(supabase, organizationId);
-  if (actor?.userId && maintenance.maintenanceReady && !dailyOps.dailyOpsReady) {
+  const actorRole = primaryRole(actor?.roles ?? []);
+  const canMarkDailyOps =
+    actorRole === "organization_admin" || actorRole === "property_manager";
+  // Only managers advance J7 by reviewing Mission Control — never leasing/tech GET side-effects.
+  if (
+    canMarkDailyOps &&
+    actor?.userId &&
+    maintenance.maintenanceReady &&
+    !dailyOps.dailyOpsReady
+  ) {
     await markDailyOpsReviewed(
       supabase,
       organizationId,
@@ -236,7 +245,7 @@ export async function getMissionControlState(
   }
 
   const ownerPortfolio = await getOwnerPortfolioReadiness(supabase, organizationId);
-  const actorRole = primaryRole(actor?.roles ?? []) ?? "property_manager";
+  const recommendationRole = actorRole ?? "property_manager";
 
   const nextAction = buildMissionControlNextAction({
     setupComplete,
@@ -249,7 +258,7 @@ export async function getMissionControlState(
     maintenanceReady: maintenance.maintenanceReady,
     dailyOpsReady: dailyOps.dailyOpsReady,
     ownerPortfolioReady: ownerPortfolio.ownerPortfolioReady,
-    actorRole
+    actorRole: recommendationRole
   });
 
   const dailyOperations =

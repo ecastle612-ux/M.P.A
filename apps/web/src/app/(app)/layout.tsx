@@ -18,10 +18,15 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const shellContext = await resolveAuthenticatedShellContext(user);
   const isPlatformOperator = await isPlatformOperatorUser(user);
 
+  // Membership without a recognized role must not inherit a fake Property Manager shell.
+  if (shellContext.defaultOrganizationId && !shellContext.defaultRole) {
+    redirect("/unauthorized?reason=role");
+  }
+
   return (
     <ApplicationShell
       availableRoles={shellContext.availableRoles}
-      defaultRole={shellContext.defaultRole}
+      defaultRole={shellContext.defaultRole ?? "property_manager"}
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       isPlatformOperator={isPlatformOperator}

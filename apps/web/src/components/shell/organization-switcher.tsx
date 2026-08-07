@@ -14,7 +14,9 @@ export function OrganizationSwitcher() {
         className="w-64"
         value={activeOrganizationId ?? ""}
         onChange={(event) => {
-          void setActiveOrganization(event.target.value);
+          void setActiveOrganization(event.target.value).catch(() => {
+            // Keep prior selection; server cookie unchanged on failure.
+          });
         }}
         disabled={organizations.length === 0}
       >

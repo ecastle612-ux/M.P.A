@@ -4,10 +4,24 @@ import type { ReactNode } from "react";
 import type { UserRole } from "@mpa/shared";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
 import { AuthenticatedContextProviders } from "./authenticated-context-providers";
+import { useOrganizationContext } from "./organization-context";
 import { Sidebar } from "./sidebar";
 import { TopNavigation } from "./top-navigation";
 import { ResponsiveNavigation } from "./responsive-navigation";
 import { SkipToContent } from "./skip-to-content";
+
+function OrgScopedMain({ children }: { children: ReactNode }) {
+  const { activeOrganizationId } = useOrganizationContext();
+  return (
+    <div
+      id="main-content"
+      key={activeOrganizationId ?? "no-org"}
+      className="flex min-h-0 flex-1 flex-col"
+    >
+      {children}
+    </div>
+  );
+}
 
 export function ApplicationShell({
   children,
@@ -41,9 +55,7 @@ export function ApplicationShell({
             <ResponsiveNavigation />
           </div>
           <TopNavigation />
-          <div id="main-content" className="flex min-h-0 flex-1 flex-col">
-            {children}
-          </div>
+          <OrgScopedMain>{children}</OrgScopedMain>
         </div>
       </div>
     </AuthenticatedContextProviders>

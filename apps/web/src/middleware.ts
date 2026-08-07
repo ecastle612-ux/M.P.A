@@ -55,9 +55,15 @@ export async function middleware(request: NextRequest) {
   }
 
   if ((isLoginRoute || isForgotPasswordRoute) && user) {
+    // Preserve safe post-login handoff targets (portal magic links, invite accepts).
+    const nextRaw = request.nextUrl.searchParams.get("next");
+    if (nextRaw && nextRaw.startsWith("/") && !nextRaw.startsWith("//")) {
+      return NextResponse.redirect(new URL(nextRaw, request.url));
+    }
     // J0: first login goes through /dashboard → Setup or product home (not launcher theater).
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
+    url.search = "";
     return NextResponse.redirect(url);
   }
 
@@ -83,10 +89,35 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Bootstrap active-org cookie from first membership when missing (portal first login).
+  let organizationId = request.cookies.get(ACTIVE_ORGANIZATION_COOKIE)?.value ?? null;
+  if (user && isProtected && !organizationId) {
+    const { data: membership } = await supabase
+      .from("organization_memberships")
+      .select("organization_id")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle();
+    const membershipOrg =
+      membership && typeof membership.organization_id === "string"
+        ? membership.organization_id
+        : null;
+    if (membershipOrg) {
+      organizationId = membershipOrg;
+      response.cookies.set(ACTIVE_ORGANIZATION_COOKIE, membershipOrg, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env["NODE_ENV"] === "production",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30
+      });
+    }
+  }
+
   // P0-1: Customer routes fail closed on entitlements.
   // Platform operators may preview customer surfaces for support.
   if (user && isProtected && !pathname.startsWith("/admin") && !isOperator) {
-    const organizationId = request.cookies.get(ACTIVE_ORGANIZATION_COOKIE)?.value ?? null;
     let sku: ProductSku | null = null;
 
     if (organizationId) {

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { confirmWorkOrderInputSchema, createWorkOrderInputSchema } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
-import { getActiveOrganizationIdFromCookie } from "../../../../../lib/organization/server";
+import { resolveActiveOrganizationIdForUser } from "../../../../../lib/organization/resolve-active-organization";
 import {
   confirmWorkOrderResolution,
   createResidentWorkOrder,
@@ -18,19 +18,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
-  let organizationId = await getActiveOrganizationIdFromCookie();
-  if (!organizationId) {
-    const { data: resident } = await supabase
-      .from("pm_residents")
-      .select("organization_id")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle();
-    organizationId =
-      resident && typeof (resident as { organization_id?: string }).organization_id === "string"
-        ? (resident as { organization_id: string }).organization_id
-        : null;
-  }
+  const organizationId = await resolveActiveOrganizationIdForUser(supabase, user.id);
   if (!organizationId) {
     return NextResponse.json({ error: "Organization required" }, { status: 400 });
   }
@@ -63,19 +51,7 @@ export async function POST(request: Request) {
   const payload = await request.json().catch(() => null);
   const action = (payload as { action?: string } | null)?.action ?? "create";
 
-  let organizationId = await getActiveOrganizationIdFromCookie();
-  if (!organizationId) {
-    const { data: resident } = await supabase
-      .from("pm_residents")
-      .select("organization_id")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle();
-    organizationId =
-      resident && typeof (resident as { organization_id?: string }).organization_id === "string"
-        ? (resident as { organization_id: string }).organization_id
-        : null;
-  }
+  const organizationId = await resolveActiveOrganizationIdForUser(supabase, user.id);
   if (!organizationId) {
     return NextResponse.json({ error: "Organization required" }, { status: 400 });
   }

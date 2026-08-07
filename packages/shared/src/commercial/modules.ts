@@ -1,7 +1,64 @@
 import type { EntitlementKey } from "./entitlements";
 import type { ProductSku } from "./skus";
+import type { UserRole } from "../types/roles";
 import { entitlementsForSku } from "./entitlements";
 import { skuIncludesFacilityOperations, skuIncludesPropertyManager } from "./skus";
+
+/** Staff nav hrefs a role may see. Managers see every SKU-entitled item. */
+const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
+  organization_admin: "all",
+  property_manager: "all",
+  leasing_agent: [
+    "/launcher",
+    "/setup",
+    "/pm/mission-control",
+    "/pm/properties",
+    "/pm/residents",
+    "/pm/leasing",
+    "/shared/documents",
+    "/shared/communications",
+    "/settings/organization"
+  ],
+  maintenance_technician: [
+    "/launcher",
+    "/setup",
+    "/pm/mission-control",
+    "/pm/properties",
+    "/pm/maintenance",
+    "/shared/documents",
+    "/shared/communications",
+    "/settings/organization"
+  ],
+  property_owner: [],
+  tenant: [],
+  vendor: []
+};
+
+function roleAllowsNavHref(roles: readonly UserRole[], href: string): boolean {
+  if (roles.length === 0) {
+    return true;
+  }
+  let allowAll = false;
+  const allowed = new Set<string>();
+  for (const role of roles) {
+    const entry = STAFF_NAV_HREFS_BY_ROLE[role];
+    if (entry === "all") {
+      allowAll = true;
+      break;
+    }
+    for (const item of entry) {
+      allowed.add(item);
+    }
+  }
+  if (allowAll) {
+    return true;
+  }
+  // Portal-only memberships should not be in the staff shell; keep SKU nav rather than blank.
+  if (allowed.size === 0) {
+    return true;
+  }
+  return allowed.has(href);
+}
 
 export type ModuleOwner = "property_manager" | "facility_operations" | "shared_platform" | "master_admin";
 
@@ -253,7 +310,10 @@ export function modulesForSku(sku: ProductSku | null): CommercialModule[] {
   });
 }
 
-export function navigationGroupsForSku(sku: ProductSku | null): NavGroup[] {
+export function navigationGroupsForSku(
+  sku: ProductSku | null,
+  roles: readonly UserRole[] = []
+): NavGroup[] {
   const entitlements = new Set(
     sku
       ? entitlementsForSku(sku)
@@ -352,10 +412,10 @@ export function navigationGroupsForSku(sku: ProductSku | null): NavGroup[] {
     .map((group) => ({
       ...group,
       items: group.items.filter((item) => {
-        if (!item.entitlement) {
-          return true;
+        if (item.entitlement && !entitlements.has(item.entitlement)) {
+          return false;
         }
-        return entitlements.has(item.entitlement);
+        return roleAllowsNavHref(roles, item.href);
       })
     }))
     .filter((group) => group.items.length > 0);

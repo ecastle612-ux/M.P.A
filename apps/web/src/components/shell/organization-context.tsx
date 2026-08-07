@@ -28,20 +28,11 @@ export function OrganizationProvider({
   onRefreshOrganizations: () => Promise<void>;
 }) {
   const router = useRouter();
-  const [activeOrganizationId, setActiveOrganizationId] = useState<string | null>(() => {
-    if (typeof window === "undefined") {
-      return defaultOrganizationId;
-    }
-    try {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (stored && organizations.some((organization) => organization.id === stored)) {
-        return stored;
-      }
-    } catch {
-      // Ignore localStorage failures and fall back to server default.
-    }
-    return defaultOrganizationId;
-  });
+  // Server cookie / membership resolution is canonical. localStorage is a preference cache only
+  // after a successful switch — never override the server default on first paint.
+  const [activeOrganizationId, setActiveOrganizationId] = useState<string | null>(
+    () => defaultOrganizationId
+  );
 
   const activeOrganization =
     organizations.find((organization) => organization.id === activeOrganizationId) ?? null;
@@ -58,7 +49,7 @@ export function OrganizationProvider({
           body: JSON.stringify({ organizationId })
         });
         if (!response.ok) {
-          return;
+          throw new Error("Unable to switch organization");
         }
         setActiveOrganizationId(organizationId);
         try {

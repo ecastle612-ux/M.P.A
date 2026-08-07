@@ -17,5 +17,8 @@ export default async function PortalIndexPage() {
   if (!shellContext.defaultOrganizationId) {
     redirect("/dashboard");
   }
+  if (!shellContext.defaultRole) {
+    redirect("/unauthorized?reason=role");
+  }
   redirect(toPortalPath(shellContext.defaultRole));
 }

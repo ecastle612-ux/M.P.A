@@ -2,7 +2,7 @@
 
 **Parent:** [Production Certification](./index.md)  
 **Date:** 2026-08-06  
-**Revision:** Post P0 production remediation  
+**Revision:** Post Validation Sprint 1 (PV-C / PV-P1 fixes)  
 
 ---
 
@@ -47,13 +47,13 @@ _(Post dry-run remediation: role routing + handoffs raise resident/vendor/owner 
 
 | Dimension | Score | Notes |
 |-----------|------:|-------|
-| Staff PM operations | 92 | Unchanged strength |
-| Resident-facing operations | 90 | LB-001 cleared |
-| Vendor-facing operations | 90 | LB-002 cleared |
+| Staff PM operations | 95 | Role nav + MC integrity |
+| Resident-facing operations | 95 | PV-C1 cleared |
+| Vendor-facing operations | 92 | LB-002 + handoff |
 | Integrations (configured) | 80 | Honesty paths remain |
-| Master Admin observability | 95 | J0–J8 + Docs/Comms; portal checks on J4/J6 |
+| Master Admin observability | 95 | J0–J8 + Docs/Comms |
 | Accessibility / mobile polish | 70 | P2 polish debt |
-| Documentation honesty | 90 | Remediation report + GO update |
+| Documentation honesty | 92 | Validation sprint package |
 
 ---
 

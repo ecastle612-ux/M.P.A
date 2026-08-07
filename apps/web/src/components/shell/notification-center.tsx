@@ -22,7 +22,11 @@ export function NotificationCenter() {
       if (!response.ok) {
         setItems([]);
         setUnreadCount(0);
-        setError(null);
+        setError(
+          response.status === 403
+            ? "Notifications are not available for this role."
+            : "Unable to load notifications"
+        );
         return;
       }
       setItems((body.notifications as UnifiedNotificationRecord[]).slice(0, 12));
@@ -49,13 +53,19 @@ export function NotificationCenter() {
         if (!response.ok) {
           setItems([]);
           setUnreadCount(0);
+          setError(
+            response.status === 403
+              ? "Notifications are not available for this role."
+              : "Unable to load notifications"
+          );
           return;
         }
         setItems((body.notifications as UnifiedNotificationRecord[]).slice(0, 12));
         setUnreadCount(Number(body.unreadCount ?? 0));
+        setError(null);
       } catch {
         if (!cancelled) {
-          // Badge stays at 0; panel load will surface errors.
+          setError("Unable to load notifications");
         }
       }
     })();

@@ -57,6 +57,25 @@ describe("navigation and launcher awareness", () => {
     expect(hrefs).toContain("/settings/team");
   });
 
+  it("hides staff modules leasing agents cannot execute", () => {
+    const groups = navigationGroupsForSku("mpa_property_manager", ["leasing_agent"]);
+    const hrefs = groups.flatMap((group) => group.items.map((item) => item.href));
+    expect(hrefs).toContain("/pm/leasing");
+    expect(hrefs).toContain("/pm/residents");
+    expect(hrefs).not.toContain("/pm/financial-operations");
+    expect(hrefs).not.toContain("/pm/vendors");
+    expect(hrefs).not.toContain("/settings/team");
+  });
+
+  it("hides staff modules technicians cannot execute", () => {
+    const groups = navigationGroupsForSku("mpa_property_manager", ["maintenance_technician"]);
+    const hrefs = groups.flatMap((group) => group.items.map((item) => item.href));
+    expect(hrefs).toContain("/pm/maintenance");
+    expect(hrefs).not.toContain("/pm/leasing");
+    expect(hrefs).not.toContain("/pm/financial-operations");
+    expect(hrefs).not.toContain("/settings/team");
+  });
+
   it("shows both product groups for Complete Platform", () => {
     const groups = navigationGroupsForSku("mpa_complete_platform");
     expect(groups.some((group) => group.id === "property_manager")).toBe(true);

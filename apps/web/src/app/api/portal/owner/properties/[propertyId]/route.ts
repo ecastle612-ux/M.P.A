@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../../../../lib/auth/server";
 import { resolveAuthorizationContext, evaluatePermission } from "../../../../../../lib/auth/authorization";
-import { getActiveOrganizationIdFromCookie } from "../../../../../../lib/organization/server";
+import { resolveActiveOrganizationIdForUser } from "../../../../../../lib/organization/resolve-active-organization";
 import { buildOwnerPropertyDrillDown } from "../../../../../../lib/property/owner-portfolio-service";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,9 @@ export async function GET(_request: Request, context: Params) {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
-  const organizationId = await getActiveOrganizationIdFromCookie();
+  const organizationId = await resolveActiveOrganizationIdForUser(supabase, user.id, {
+    allowResidentFallback: false
+  });
   if (!organizationId) {
     return NextResponse.json({ error: "Organization required" }, { status: 400 });
   }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { resolveAuthorizationContext, evaluatePermission } from "../../../../../lib/auth/authorization";
-import { getActiveOrganizationIdFromCookie } from "../../../../../lib/organization/server";
+import { resolveActiveOrganizationIdForUser } from "../../../../../lib/organization/resolve-active-organization";
 import { getDailyOpsReadiness } from "../../../../../lib/property/daily-ops-service";
 import { buildOwnerPortfolioHome } from "../../../../../lib/property/owner-portfolio-service";
 
@@ -17,7 +17,9 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
-  const organizationId = await getActiveOrganizationIdFromCookie();
+  const organizationId = await resolveActiveOrganizationIdForUser(supabase, user.id, {
+    allowResidentFallback: false
+  });
   if (!organizationId) {
     return NextResponse.json({ error: "Organization required" }, { status: 400 });
   }

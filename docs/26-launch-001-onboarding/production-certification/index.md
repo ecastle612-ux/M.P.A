@@ -13,8 +13,9 @@
 
 P0 portal-access blockers are remediated. Lease activation and vendor assignment provision authenticated portal memberships. Master Admin evidence surfaces cover J0–J8 + Documents + Communications with portal-access checks.
 
-**Production readiness score: 94 / 100**  
-**Open P0 / DR-C blockers: none**
+**Production readiness score: 96 / 100**  
+**Open P0 / DR-C / PV-C blockers: none**  
+**Decision:** **GO WITH OBSERVATIONS** — [Validation Sprint 1](../production-validation-sprint-1/index.md)
 
 ---
 

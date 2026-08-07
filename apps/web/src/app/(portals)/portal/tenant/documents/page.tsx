@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
-import { getActiveOrganizationIdFromCookie } from "../../../../../lib/organization/server";
+import { resolveActiveOrganizationIdForUser } from "../../../../../lib/organization/resolve-active-organization";
 
 type AnyRow = Record<string, unknown>;
 
@@ -9,7 +9,9 @@ export default async function TenantDocumentsPage() {
   const {
     data: { user }
   } = await supabase.auth.getUser();
-  const organizationId = await getActiveOrganizationIdFromCookie();
+  const organizationId = user
+    ? await resolveActiveOrganizationIdForUser(supabase, user.id)
+    : null;
 
   let documentName: string | null = null;
   let documentBody: string | null = null;

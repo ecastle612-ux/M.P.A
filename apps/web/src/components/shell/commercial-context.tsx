@@ -36,7 +36,7 @@ export function CommercialProvider({ children }: { children: ReactNode }) {
       productLabel: activeOrganization?.productLabel ?? null,
       setupComplete: activeOrganization?.setupComplete ?? false,
       entitlements,
-      navigationGroups: navigationGroupsForSku(productSku),
+      navigationGroups: navigationGroupsForSku(productSku, activeOrganization?.roles ?? []),
       canAccess: (entitlement) => hasEntitlement(entitlements, entitlement)
     };
   }, [activeOrganization]);

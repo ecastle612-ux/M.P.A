@@ -33,15 +33,19 @@ export default async function UnauthorizedPage({ searchParams }: PageProps) {
         <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/login">
           Sign in again
         </Link>
-        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/portal/tenant">
-          Resident Portal
-        </Link>
-        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/portal/vendor">
-          Vendor Portal
-        </Link>
-        <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/portal/owner">
-          Owner Portal
-        </Link>
+        {reason === "role" || reason === "entitlement" || reason === "admin" ? null : (
+          <>
+            <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/portal/tenant">
+              Resident Portal
+            </Link>
+            <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/portal/vendor">
+              Vendor Portal
+            </Link>
+            <Link className="text-[var(--mpa-color-brand-primary)] underline" href="/portal/owner">
+              Owner Portal
+            </Link>
+          </>
+        )}
       </div>
     </main>
   );

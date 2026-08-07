@@ -36,13 +36,14 @@ export default async function OwnerPortalLayout({ children }: { children: ReactN
     redirect("/unauthorized");
   }
 
-  const defaultRole = shellContext.availableRoles.includes("property_owner")
-    ? "property_owner"
-    : shellContext.availableRoles.includes("property_manager")
-      ? "property_manager"
-      : shellContext.availableRoles.includes("organization_admin")
-        ? "organization_admin"
-        : shellContext.defaultRole;
+  const defaultRole =
+    shellContext.availableRoles.includes("property_owner")
+      ? "property_owner"
+      : shellContext.availableRoles.includes("property_manager")
+        ? "property_manager"
+        : shellContext.availableRoles.includes("organization_admin")
+          ? "organization_admin"
+          : (shellContext.defaultRole ?? "property_owner");
 
   return (
     <RolePortalFrame
