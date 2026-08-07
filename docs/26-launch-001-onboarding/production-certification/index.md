@@ -53,11 +53,12 @@ P0 portal-access blockers are remediated. Lease activation and vendor assignment
 2. [Remaining production defects](./remaining-production-defects.md) (P1+)  
 3. [Launch blocker list](./launch-blockers.md) (cleared)  
 4. [Production readiness score](./production-readiness-score.md)  
-5. [GO / NO-GO](./go-no-go.md)
+5. [GO / NO-GO](./go-no-go.md)  
+6. [Production Deployment Support](../production-deployment/index.md)
 
 ---
 
 ## STOP
 
 No new Property Manager feature work is authorized.  
-Prepare production deployment and Customer #1 onboarding only.
+Execute [Production Deployment Support](../production-deployment/index.md) for deploy + Customer #1 onboarding.

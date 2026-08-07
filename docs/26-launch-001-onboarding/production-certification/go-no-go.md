@@ -36,6 +36,12 @@ Onboard Customer #1 against the advertised Property Manager lifecycle after stag
 
 ---
 
+## Next
+
+Execute [Production Deployment Support](../production-deployment/index.md) (runbook → validate → onboard).
+
+---
+
 ## STOP
 
 No Facility Operations.  

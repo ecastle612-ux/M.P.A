@@ -19,7 +19,7 @@
 ## Status
 
 **DR-C criticals cleared.** Launch decision **GO**.  
-Record staging Master Admin Pass, then production deploy + Customer #1 onboarding.
+Record staging Master Admin Pass, then follow [Production Deployment Support](../production-deployment/index.md).
 
 ---
 

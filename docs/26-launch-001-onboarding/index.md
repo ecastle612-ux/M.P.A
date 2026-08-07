@@ -71,6 +71,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | [Property Manager Customer Promise Certification](./property-manager-customer-promise-certification.md) | Final GO / NO-GO for Customer #1 |
 | [Promise Remediation](./promise-remediation/index.md) | Documents + Communications completion design |
 | [Production Certification](./production-certification/index.md) | Customer #1 production audit · GO / NO-GO |
+| [Production Deployment Support](./production-deployment/index.md) | Deploy + monitor + Customer #1 onboarding ops |
 | [Master Admin Certification Console](./master-admin-certification-console.md) | How operators certify every promise |
 | [Launch Readiness Gate](./launch-readiness-gate.md) | GO only when every journey completes unaided |
 | [Appendix — Prior audit](./appendix-prior-audit.md) | Earlier blockers/improvements retained for reference |
@@ -97,6 +98,7 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE LAUNCH STABILIZATION – WORLD-CLASS UX & PRODUCTION AUDIT` | Defects/friction/polish only | **Authorized + delivered** — audit package + surgical polish; **STOP** |
 | `AUTHORIZE CUSTOMER #1 DRY RUN` | Zero-knowledge operational simulation | **Authorized + complete** — criticals found |
 | `AUTHORIZE CUSTOMER #1 DRY RUN REMEDIATION` | Clear DR-C1…DR-C5 only | **Authorized + delivered** — **GO**; [Remediation Report](./customer-1-dry-run/dry-run-remediation-report.md); **STOP** |
+| `AUTHORIZE PRODUCTION DEPLOYMENT SUPPORT` | Deploy ops + Customer #1 onboarding support (no features) | **Authorized + delivered** — [Production Deployment Support](./production-deployment/index.md); **STOP** |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 
@@ -124,9 +126,9 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 
 | Instruction |
 |-------------|
-| **STOP** — Dry-run criticals remediated; recommend production deployment + Customer #1 onboarding |
+| **STOP** — Production deployment support pack delivered; execute runbook + onboarding; no new features |
 | **Do not** begin new feature development |
-| **Do not** add Property Manager features — polish/defects only when explicitly authorized |
+| **Do not** add Property Manager features — production bug fixes only per [Bug-Fix Protocol](./production-deployment/production-bugfix-protocol.md) |
 | **Do not** resume engineering slices L0–L6 as the primary plan — use [Customer Journeys](./customer-journeys.md) |
 | **Do not authorize FIN-OPS-001 S4** from this package |
 | **Do not begin Facility Operations features** |
@@ -141,6 +143,7 @@ Detail: [Capability Promises](./capability-promises.md) · Final: [PM Customer P
 |---------|------|
 | [Launch Stabilization](./launch-stabilization/index.md) | World-class UX / production polish audit |
 | [Customer #1 Dry Run](./customer-1-dry-run/index.md) | Zero-knowledge operational simulation report |
+| [Production Deployment Support](./production-deployment/index.md) | Environment, deploy, monitor, onboard, hotfix protocol |
 | [24 Property Manager Module Map](../24-product-architecture/property-manager-module-map.md) | What we advertise |
 | [24 Subscription Matrix](../24-product-architecture/subscription-matrix.md) | SKU inclusion |
 | [25 FIN-OPS-001](../25-fin-ops-001/index.md) | Money capability (partial promise met) |
