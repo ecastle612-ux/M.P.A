@@ -1,15 +1,12 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { Suspense } from "react";
+import { PmProgramsDirectory } from "../../../../components/facility/pm-programs-directory";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
-      title="Preventive Maintenance"
-      description="Preventive schedules. Feature work not in Phase 1."
-      readiness="planned"
-      entitlement="facility.preventive"
-      includedIn={["Facility Operations", "Complete Platform"]}
-      requiresComplete="Property Manager-only customers"
-    />
+    <Suspense
+      fallback={<main className="flex-1 p-6 text-sm">Loading Preventive Maintenance…</main>}
+    >
+      <PmProgramsDirectory />
+    </Suspense>
   );
 }

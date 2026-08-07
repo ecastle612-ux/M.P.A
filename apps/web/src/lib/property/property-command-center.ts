@@ -74,6 +74,13 @@ export async function getPropertyCommandCenter(
     (row) => row.status === "closed"
   );
 
+  const { getFacilitySiteForProperty } = await import("../facility/site-service");
+  const linkedFacilitySite = await getFacilitySiteForProperty(
+    supabase,
+    organizationId,
+    propertyId
+  );
+
   return {
     property: {
       id: property.id,
@@ -88,6 +95,14 @@ export async function getPropertyCommandCenter(
       residentsAssigned: residents.length,
       unitsAssigned: assignedUnitIds.size
     },
+    facilitySite: linkedFacilitySite
+      ? {
+          id: linkedFacilitySite.id,
+          name: linkedFacilitySite.name,
+          status: linkedFacilitySite.status,
+          href: `/facility/sites/${linkedFacilitySite.id}`
+        }
+      : null,
     units: units.map((unit) => ({
       ...unit,
       assignedResident:
