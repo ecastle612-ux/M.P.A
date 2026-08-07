@@ -11,20 +11,20 @@ import { ACQ_FUNNEL_EVENTS, emitAcqFunnelEvent } from "../../lib/acquire/funnel"
 
 function CheckIcon() {
   return (
-    <svg
+    <span
       aria-hidden="true"
-      viewBox="0 0 16 16"
-      className="mt-0.5 size-4 shrink-0 text-[var(--mpa-color-brand-primary)]"
-      fill="none"
+      className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center text-[var(--mpa-color-brand-primary)]"
     >
-      <path
-        d="M3.5 8.5 6.5 11.5 12.5 4.5"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+      <svg width="14" height="14" viewBox="0 0 16 16" className="block overflow-visible" fill="none">
+        <path
+          d="M3.5 8.5 6.5 11.5 12.5 4.5"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
   );
 }
 
@@ -43,7 +43,7 @@ function CapabilityGroup({ group }: { group: AcqCapabilityGroup }) {
             ) : (
               <span
                 aria-hidden="true"
-                className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--mpa-color-text-muted)]"
+                className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--mpa-color-text-muted)]"
               />
             )}
             <span>{item}</span>
