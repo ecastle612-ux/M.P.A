@@ -31,5 +31,7 @@ Design → Document → Approve → Implement
 
 - Canopy (Phase 1.5) is approved.
 - Experience Architecture (Phase 1.6) is approved.
-- LAUNCH-001 Customer Promise Roadmap is approved (ADR-017); implement only authorized journeys (J0–J2 delivered; J3–J8 blocked).
+- Customer #1 / LAUNCH-001 certified lineage is on `main` (PM feature freeze for new scope).
+- Facility Operations FAC-OPS-001 is **Approved**; ADR-018 is **Accepted**.
+- Phase **E.1** complete; Phase **E.2** authorized; **E.3+ remain NO-GO** until slice authorize.
 - New material changes to approved packages require Design → Document → Approve again.
