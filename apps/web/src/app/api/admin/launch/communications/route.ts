@@ -53,16 +53,17 @@ export async function GET(request: Request) {
       .limit(20)
   ]);
 
+  const hasMessages = readiness.messageCount > 0;
   const checks = {
-    communicationsRoute: true,
-    sendResidentOwnerVendor: true,
-    unifiedInbox: true,
-    reusesFinanceNotifications: (financeNotifications ?? 0) >= 0,
-    reusesMaintenanceNotifications: (maintenanceNotifications ?? 0) >= 0,
-    historyAvailable: readiness.messageCount >= 0,
+    communicationsRoute: hasMessages || readiness.communicationsReady,
+    sendResidentOwnerVendor: hasMessages,
+    unifiedInbox: readiness.notificationCount > 0 || hasMessages,
+    reusesFinanceNotifications: (financeNotifications ?? 0) > 0 || hasMessages,
+    reusesMaintenanceNotifications: (maintenanceNotifications ?? 0) > 0 || hasMessages,
+    historyAvailable: hasMessages,
     timelineEvent: (eventsData ?? []).length > 0,
     auditEvent: (auditsData ?? []).length > 0,
-    communicationsReady: readiness.communicationsReady
+    communicationsReady: readiness.communicationsReady && hasMessages
   };
 
   return NextResponse.json({

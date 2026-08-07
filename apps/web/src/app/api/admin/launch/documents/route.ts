@@ -46,15 +46,22 @@ export async function GET(request: Request) {
         .limit(20)
     ]);
 
+  const hasLibrary = readiness.uploadCount > 0 || readiness.leaseDocumentCount > 0;
   const checks = {
-    documentsRoute: true,
-    uploadSupported: true,
-    entityCoverage: true,
+    documentsRoute: hasLibrary || readiness.documentsReady,
+    uploadSupported: readiness.uploadCount > 0 || readiness.leaseDocumentCount > 0,
+    entityCoverage: hasLibrary,
     leaseDocumentsReuse: readiness.leaseDocumentCount > 0 || readiness.uploadCount > 0,
-    signwellAccess: (signwellLeases ?? []).length > 0 || readiness.leaseDocumentCount >= 0,
-    timelineEvent: (eventsData ?? []).length > 0 || readiness.leaseDocumentCount > 0,
-    auditEvent: (auditsData ?? []).length > 0 || readiness.uploadCount === 0,
-    documentsReady: readiness.documentsReady
+    signwellAccess:
+      (signwellLeases ?? []).length > 0 ||
+      readiness.leaseDocumentCount > 0 ||
+      readiness.uploadCount > 0,
+    timelineEvent:
+      (eventsData ?? []).length > 0 ||
+      readiness.leaseDocumentCount > 0 ||
+      readiness.uploadCount > 0,
+    auditEvent: (auditsData ?? []).length > 0 || readiness.uploadCount > 0,
+    documentsReady: readiness.documentsReady && hasLibrary
   };
 
   return NextResponse.json({

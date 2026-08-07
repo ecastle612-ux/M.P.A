@@ -27,7 +27,8 @@ export async function GET(request: Request) {
     { data: schedulesData },
     { data: eventsData },
     { data: auditsData },
-    { data: unitsData }
+    { data: unitsData },
+    { data: membershipsData }
   ] = await Promise.all([
     supabase
       .from("lease_agreements")
@@ -38,7 +39,7 @@ export async function GET(request: Request) {
       .order("created_at", { ascending: false }),
     supabase
       .from("pm_residents")
-      .select("id, display_name, status, portal_status, lease_id")
+      .select("id, display_name, status, portal_status, lease_id, user_id, email")
       .eq("organization_id", organizationId),
     supabase
       .from("financial_charge_schedules")
@@ -56,7 +57,8 @@ export async function GET(request: Request) {
         "lease.sent_for_signature",
         "lease.signed",
         "lease.activated",
-        "lease.signature_failed"
+        "lease.signature_failed",
+        "resident.portal_access_provisioned"
       ])
       .order("created_at", { ascending: false })
       .limit(40),
@@ -70,14 +72,20 @@ export async function GET(request: Request) {
         "lease.sent_for_signature",
         "lease.signed",
         "lease.activated",
-        "lease.signature_failed"
+        "lease.signature_failed",
+        "resident.portal_access_provisioned"
       ])
       .order("created_at", { ascending: false })
       .limit(40),
     supabase
       .from("property_units")
       .select("id, status")
+      .eq("organization_id", organizationId),
+    supabase
+      .from("organization_memberships")
+      .select("user_id, roles, status")
       .eq("organization_id", organizationId)
+      .eq("status", "active")
   ]);
 
   type AnyRow = Record<string, unknown>;
@@ -87,11 +95,23 @@ export async function GET(request: Request) {
   const events = (eventsData ?? []) as AnyRow[];
   const audits = (auditsData ?? []) as AnyRow[];
   const units = (unitsData ?? []) as AnyRow[];
+  const memberships = (membershipsData ?? []) as AnyRow[];
 
   const activeLease = leases.find((row) => row["status"] === "active") ?? null;
   const leaseReady = leases.some((row) => row["status"] === "signed" || row["status"] === "active");
   const activatedResident = residents.some(
     (row) => row["status"] === "active" && row["portal_status"] === "active" && row["lease_id"]
+  );
+  const tenantMembershipUserIds = new Set(
+    memberships
+      .filter((row) => Array.isArray(row["roles"]) && (row["roles"] as string[]).includes("tenant"))
+      .map((row) => row["user_id"] as string)
+  );
+  const portalAccessProvisioned = residents.some(
+    (row) =>
+      row["portal_status"] === "active" &&
+      Boolean(row["user_id"]) &&
+      tenantMembershipUserIds.has(row["user_id"] as string)
   );
 
   return NextResponse.json({
@@ -117,6 +137,10 @@ export async function GET(request: Request) {
         Boolean(activeLease?.["activated_at"]) || leases.some((row) => row["status"] === "active"),
       residentActivated: activatedResident,
       portalActivated: residents.some((row) => row["portal_status"] === "active"),
+      portalAccessProvisioned,
+      portalAccessEvidence:
+        events.some((event) => event["event_type"] === "resident.portal_access_provisioned") ||
+        audits.some((event) => event["action"] === "resident.portal_access_provisioned"),
       recurringRentScheduled: schedules.length > 0,
       occupancyUpdated: units.some((unit) => unit["status"] === "occupied"),
       timelineEvent: events.some(
@@ -130,6 +154,6 @@ export async function GET(request: Request) {
     },
     assistantRecommendation: leaseReady ? "Collect your first rent." : "Create your first lease.",
     signWellNote:
-      "Pass on signWellSent requires SIGNWELL_API_KEY. Offline signed path remains valid launch honesty when SignWell is not provisioned."
+      "Pass on signWellSent requires SIGNWELL_API_KEY. Offline signed path remains valid launch honesty when SignWell is not provisioned. portalAccessProvisioned requires linked pm_residents.user_id + tenant membership."
   });
 }

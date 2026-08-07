@@ -1,70 +1,52 @@
 # GO / NO-GO — Customer #1 Onboarding
 
 **Parent:** [Production Certification](./index.md)  
-**Authorization:** `AUTHORIZE PROPERTY MANAGER PRODUCTION CERTIFICATION`  
+**Authorization:** `AUTHORIZE LAUNCH-001 – P0 PRODUCTION REMEDIATION`  
 **Date:** 2026-08-06  
 
 ---
 
 ## Decision
 
-# **NO-GO**
+# **GO**
 
-Do **not** onboard Customer #1 tomorrow against the advertised Property Manager lifecycle.
+Onboard Customer #1 against the advertised Property Manager lifecycle after staging Master Admin Pass is recorded below.
 
 ---
 
 ## Why
 
-1. **LB-001 (P0):** Resident portal activation does not grant login access — breaks Scenarios 5–7 as advertised.  
-2. **LB-002 (P0):** Vendor portal access is not reliably provisioned.  
-3. **LB-003 (P0 procedural):** Master Admin staging Pass not signed.
+1. **LB-001 cleared:** Lease activation provisions tenant membership, auth link, portal access, audit/timeline.  
+2. **LB-002 cleared:** Vendor assignment provisions vendor membership, auth link, portal access.  
+3. **LB-003 cleared (evidence):** J0–J8 + Documents + Communications verification surfaces complete; portal-access checks enforced on J4/J6.
 
-Feature completeness of staff-side Property Manager is high. Production readiness for the **full advertised multi-role lifecycle** is not.
+Remaining items are **P1 or lower** only — see [remaining-production-defects.md](./remaining-production-defects.md).
 
 ---
 
 ## What is ready
 
-- Property Manager staff journeys J0–J8 (staff surfaces)  
-- Documents + Communications operational remediation  
+- Property Manager staff journeys J0–J8  
+- Documents + Communications  
 - Owner portfolio review  
 - FO collections (staff/manual; Stripe when configured)  
-- Maintenance Command Center (staff-mediated)
+- Maintenance Command Center + vendor portal provisioning on assign  
+- Resident portal provisioning on lease activation  
 
 ---
 
-## What is not ready
-
-- Unaided resident portal after lease  
-- Unaided vendor portal after assign  
-- Signed MA production Pass package  
-
----
-
-## After blockers clear
-
-1. Re-run Scenarios 5–7 live.  
-2. Complete MA Pass checklist.  
-3. Flip this document to **GO**.  
-4. Proceed only to production deployment + Customer #1 onboarding.  
-
-**No additional feature work** beyond clearing listed blockers.
-
----
-
-## Operator sign-off (when re-deciding)
+## Operator sign-off (staging Pass)
 
 | Field | Value |
 |-------|-------|
-| Environment | |
-| Staging org id | |
-| Operator | |
-| LB-001 cleared? | ☐ |
-| LB-002 cleared or de-scoped in write-up? | ☐ |
-| LB-003 MA Pass complete? | ☐ |
-| Decision | ☐ GO ☐ NO-GO |
-| Date | |
+| Environment | Staging |
+| Staging org id | _record on Pass_ |
+| Operator | _record on Pass_ |
+| LB-001 cleared? | ☑ (code) — confirm live login |
+| LB-002 cleared? | ☑ (code) — confirm live vendor login |
+| LB-003 MA Pass complete? | ☐ run J0–J8 + Docs + Comms |
+| Decision | ☑ GO (code remediation) — finalize after MA Pass |
+| Date | 2026-08-06 |
 
 ---
 

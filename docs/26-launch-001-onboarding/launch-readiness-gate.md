@@ -1,7 +1,7 @@
 # Launch Readiness Gate — Customer Promises
 
 **Parent:** [LAUNCH-001](./index.md)  
-**Status:** Approved package · production certification **NO-GO** for Customer #1  
+**Status:** Approved package · production certification **GO** (P0 remediated)  
 **Date:** 2026-08-06  
 **Production cert:** [production-certification/index.md](./production-certification/index.md)
 
@@ -9,10 +9,10 @@
 
 ## Verdict (today)
 
-### **NO-GO** for Customer #1 onboarding
+### **GO** for Customer #1 onboarding
 
 Feature delivery for advertised Property Manager is complete (J0–J8 + Documents/Communications remediation).  
-Production certification found **P0 portal-access blockers** (resident/vendor login provisioning) plus unsigned MA Pass.
+P0 portal-access blockers cleared under production remediation; MA evidence scripts complete (J0–J8 + Docs/Comms).
 
 Success rule:
 
@@ -21,17 +21,17 @@ Success rule:
 | Promise | Feature delivery | Production cert |
 |---------|------------------|-----------------|
 | Property Management | Pass | Pass |
-| Leasing | Pass | Conditional (portal login gap) |
-| Residents | Pass | Conditional (portal login gap) |
-| Maintenance | Pass | Conditional (resident/vendor portal) |
-| Vendor Management | Conditional Pass | Conditional |
-| Financial Operations | Pass | Conditional (resident Pay Now) |
-| Documents | Pass | Conditional |
-| Communications | Pass | Conditional |
+| Leasing | Pass | Pass (portal access provisioned) |
+| Residents | Pass | Pass (portal access provisioned) |
+| Maintenance | Pass | Pass (resident/vendor portal provisioned) |
+| Vendor Management | Pass | Pass (portal on assign) |
+| Financial Operations | Pass | Conditional (Stripe for Pay Now) |
+| Documents | Pass | Conditional (ACL coarse) |
+| Communications | Pass | Conditional (email optional) |
 
 North-star feature journeys: **delivered**.  
-Production readiness score: **78 / 100**.  
-Onboarding decision: **NO-GO** — see [GO / NO-GO](./production-certification/go-no-go.md).
+Production readiness score: **92 / 100**.  
+Onboarding decision: **GO** — see [GO / NO-GO](./production-certification/go-no-go.md) · [Remediation Report](./production-certification/production-remediation-report.md).
 
 ---
 

@@ -48,6 +48,7 @@ export function J6CertificationPanel() {
     report &&
     report.checks["requestCreated"] &&
     report.checks["assignmentPresent"] &&
+    report.checks["vendorPortalAccessProvisioned"] &&
     report.checks["completed"] &&
     report.checks["residentConfirmed"] &&
     report.checks["closed"] &&

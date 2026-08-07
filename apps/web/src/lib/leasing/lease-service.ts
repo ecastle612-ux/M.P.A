@@ -15,6 +15,7 @@ import {
   isSignWellConfigured
 } from "../signwell/client";
 import { buildLeaseDocumentText, leaseDocumentToBase64 } from "./document";
+import { provisionResidentPortalAccess } from "../portal/portal-access-service";
 import { emitLeaseEvent, writeLeaseAudit } from "./events-audit";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -449,6 +450,22 @@ export async function activateSignedLease(
     throw new Error("Lease not found.");
   }
   if (lease.status === "active" && lease.activated_at) {
+    // Idempotent remediation: activation may have set portal_status without membership.
+    if (lease.resident_id && lease.pm_residents?.email) {
+      const { data: residentLink } = await supabase
+        .from("pm_residents")
+        .select("user_id, email")
+        .eq("id", lease.resident_id)
+        .maybeSingle();
+      await provisionResidentPortalAccess({
+        supabase,
+        organizationId,
+        actorId,
+        residentId: lease.resident_id,
+        email: (residentLink?.email as string | undefined) ?? lease.pm_residents.email,
+        existingUserId: (residentLink?.user_id as string | null | undefined) ?? null
+      });
+    }
     return {
       lease,
       alreadyActive: true,
@@ -532,7 +549,23 @@ export async function activateSignedLease(
         .eq("id", lease.resident_id)
         .maybeSingle()
     : { data: null };
-  const linkedUserId = (pmResidentRow?.user_id as string | null | undefined) ?? null;
+
+  let linkedUserId = (pmResidentRow?.user_id as string | null | undefined) ?? null;
+  if (lease.resident_id && residentEmail) {
+    const portalAccess = await provisionResidentPortalAccess({
+      supabase,
+      organizationId,
+      actorId,
+      residentId: lease.resident_id,
+      email: residentEmail,
+      existingUserId: linkedUserId
+    });
+    linkedUserId = portalAccess.userId;
+  } else if (lease.resident_id && !residentEmail) {
+    throw new Error(
+      "Resident email is required to provision portal access during lease activation."
+    );
+  }
 
   if (!existingBilling) {
     const { error: billingError } = await supabase.from("lease_residents").insert({
@@ -592,6 +625,8 @@ export async function activateSignedLease(
       channel: options.channel,
       residentStatus: "active",
       portalStatus: "active",
+      portalAccessRole: "tenant",
+      portalUserId: linkedUserId,
       unitStatus: "occupied",
       recurringRent: true,
       displayName: residentName

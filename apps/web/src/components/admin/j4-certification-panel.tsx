@@ -53,6 +53,7 @@ export function J4CertificationPanel() {
     report.checks["leaseActivated"] &&
     report.checks["residentActivated"] &&
     report.checks["portalActivated"] &&
+    report.checks["portalAccessProvisioned"] &&
     report.checks["recurringRentScheduled"] &&
     report.checks["occupancyUpdated"] &&
     report.checks["timelineEvent"] &&
@@ -66,8 +67,9 @@ export function J4CertificationPanel() {
           LAUNCH-001 · J4 certification
         </h2>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Verify lease create, SignWell (or offline honesty), resident/portal activation, recurring
-          rent, occupancy, timeline, audit, and Mission Control → Collect your first rent.
+          Verify lease create, SignWell (or offline honesty), resident/portal activation, tenant
+          membership provisioning, recurring rent, occupancy, timeline, audit, and Mission Control →
+          Collect your first rent.
         </p>
       </div>
       <div className="flex flex-wrap items-end gap-2">

@@ -1,3 +1,4 @@
+import { J0CertificationPanel } from "../../../../components/admin/j0-certification-panel";
 import { J1CertificationPanel } from "../../../../components/admin/j1-certification-panel";
 import { J2CertificationPanel } from "../../../../components/admin/j2-certification-panel";
 import { J3CertificationPanel } from "../../../../components/admin/j3-certification-panel";
@@ -17,13 +18,14 @@ export default function Page() {
           Launch Readiness
         </h1>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Customer Promise launch evidence. J0–J8 delivered. Documents and Communications remediation
-          evidence closes the remaining advertised Property Manager promises for full GO.
+          Customer Promise launch evidence. J0–J8 verification scripts plus Documents and
+          Communications remediation. Portal access provisioning is required for J4/J6 Pass.
         </p>
         <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Status: aligned
         </p>
       </section>
+      <J0CertificationPanel />
       <J1CertificationPanel />
       <J2CertificationPanel />
       <J3CertificationPanel />

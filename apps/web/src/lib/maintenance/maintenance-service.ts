@@ -10,6 +10,7 @@ import {
   type WorkOrderPriority,
   type WorkOrderStatus
 } from "@mpa/shared";
+import { provisionVendorPortalAccess } from "../portal/portal-access-service";
 import { emitMaintenanceEvent, writeMaintenanceAudit } from "./events-audit";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -520,12 +521,30 @@ export async function assignWorkOrder(
   if (vendorId) {
     const { data: vendor } = await supabase
       .from("vendor_vendors")
-      .select("user_id, name")
+      .select("user_id, name, email")
       .eq("id", vendorId)
       .maybeSingle();
+
+    let vendorUserId = (vendor?.user_id as string | null | undefined) ?? null;
+    const vendorEmail = (vendor?.email as string | null | undefined) ?? null;
+    if (!vendorEmail) {
+      throw new Error(
+        "Vendor email is required to provision vendor portal access on assignment."
+      );
+    }
+    const portalAccess = await provisionVendorPortalAccess({
+      supabase,
+      organizationId,
+      actorId: actorUserId,
+      vendorId,
+      email: vendorEmail,
+      existingUserId: vendorUserId
+    });
+    vendorUserId = portalAccess.userId;
+
     await notify(supabase, {
       organizationId,
-      userId: vendor?.user_id,
+      userId: vendorUserId,
       workOrderId: input.workOrderId,
       key: "vendor.assigned",
       title: "Vendor work assigned",

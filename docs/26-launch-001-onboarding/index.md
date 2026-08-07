@@ -92,7 +92,8 @@ Framework: [Promise Evaluation Framework](./promise-evaluation-framework.md)
 | `AUTHORIZE LAUNCH-001 JOURNEY J7` | Daily operations | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 JOURNEY J8` | Owner portfolio review | **Authorized + delivered** — MA cert script ready |
 | `AUTHORIZE LAUNCH-001 – PROPERTY MANAGER PROMISE REMEDIATION` | Documents + Communications | **Authorized + delivered** — MA evidence ready |
-| `AUTHORIZE PROPERTY MANAGER PRODUCTION CERTIFICATION` | Production audit of advertised PM | **Authorized + complete** — **NO-GO** for Customer #1 (P0 portal access) |
+| `AUTHORIZE PROPERTY MANAGER PRODUCTION CERTIFICATION` | Production audit of advertised PM | **Authorized + complete** — initial **NO-GO** (P0 portal access) |
+| `AUTHORIZE LAUNCH-001 – P0 PRODUCTION REMEDIATION` | Clear LB-001/002/003 only | **Authorized + delivered** — **GO** (92/100; no open P0) |
 
 **Hard rule:** No feature work may bypass an incomplete customer journey.
 

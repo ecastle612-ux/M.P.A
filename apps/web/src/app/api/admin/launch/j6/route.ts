@@ -27,7 +27,8 @@ export async function GET(request: Request) {
     { data: updatesData },
     { data: vendorsData },
     { data: eventsData },
-    { data: auditsData }
+    { data: auditsData },
+    { data: membershipsData }
   ] = await Promise.all([
     getMaintenanceReadiness(supabase, organizationId),
     supabase
@@ -57,6 +58,7 @@ export async function GET(request: Request) {
         "work_order.triaged",
         "work_order.assigned",
         "vendor.assigned",
+        "vendor.portal_access_provisioned",
         "work_order.started",
         "work_order.progressed",
         "work_order.completed",
@@ -74,6 +76,7 @@ export async function GET(request: Request) {
         "work_order.triaged",
         "work_order.assigned",
         "vendor.assigned",
+        "vendor.portal_access_provisioned",
         "work_order.started",
         "work_order.progressed",
         "work_order.completed",
@@ -81,7 +84,12 @@ export async function GET(request: Request) {
         "work_order.closed"
       ])
       .order("created_at", { ascending: false })
-      .limit(80)
+      .limit(80),
+    supabase
+      .from("organization_memberships")
+      .select("user_id, roles, status")
+      .eq("organization_id", organizationId)
+      .eq("status", "active")
   ]);
 
   type AnyRow = Record<string, unknown>;
@@ -90,6 +98,7 @@ export async function GET(request: Request) {
   const vendors = (vendorsData ?? []) as AnyRow[];
   const events = (eventsData ?? []) as AnyRow[];
   const audits = (auditsData ?? []) as AnyRow[];
+  const memberships = (membershipsData ?? []) as AnyRow[];
 
   const hasTechnicianAssignment = workOrders.some(
     (row) => row["assignee_type"] === "technician" && Boolean(row["technician_user_id"])
@@ -102,6 +111,24 @@ export async function GET(request: Request) {
   );
   const hasResidentConfirm = workOrders.some((row) => Boolean(row["resident_confirmed_at"]));
   const hasClosed = workOrders.some((row) => row["status"] === "closed");
+  const vendorMembershipUserIds = new Set(
+    memberships
+      .filter((row) => Array.isArray(row["roles"]) && (row["roles"] as string[]).includes("vendor"))
+      .map((row) => row["user_id"] as string)
+  );
+  const assignedVendorIds = new Set(
+    workOrders
+      .filter((row) => row["assignee_type"] === "vendor" && Boolean(row["vendor_id"]))
+      .map((row) => row["vendor_id"] as string)
+  );
+  const vendorPortalAccessProvisioned =
+    !hasVendorAssignment ||
+    vendors.some(
+      (row) =>
+        assignedVendorIds.has(row["id"] as string) &&
+        Boolean(row["user_id"]) &&
+        vendorMembershipUserIds.has(row["user_id"] as string)
+    );
 
   const checks = {
     requestCreated: workOrders.length > 0,
@@ -111,6 +138,7 @@ export async function GET(request: Request) {
     technicianAssigned: hasTechnicianAssignment,
     vendorAssigned: hasVendorAssignment,
     assignmentPresent: hasTechnicianAssignment || hasVendorAssignment,
+    vendorPortalAccessProvisioned,
     progressUpdated:
       updates.some((row) => ["technician", "vendor", "manager"].includes(String(row["actor_role"]))) ||
       events.some((event) =>
@@ -142,6 +170,6 @@ export async function GET(request: Request) {
       ? "Review your daily operations."
       : "Submit your first maintenance request.",
     vendorNote:
-      "Vendor assignment reuses vendor_vendors. technicianAssigned and vendorAssigned can both pass if both paths are exercised; Pass requires at least one assignment path plus closed lifecycle."
+      "Vendor assignment reuses vendor_vendors and auto-provisions vendor portal membership. When vendorAssigned is exercised, vendorPortalAccessProvisioned requires linked user_id + vendor role."
   });
 }

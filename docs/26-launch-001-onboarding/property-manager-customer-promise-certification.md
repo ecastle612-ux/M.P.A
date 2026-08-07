@@ -9,22 +9,22 @@
 
 ## Verdict
 
-### Feature delivery: **GO** · Production onboarding: **NO-GO**
+### Feature delivery: **GO** · Production onboarding: **GO**
 
 Feature delivery for the advertised Property Manager subscription is complete (J0–J8 + Documents/Communications remediation).
 
-**Production Certification** (`AUTHORIZE PROPERTY MANAGER PRODUCTION CERTIFICATION`) found P0 portal-access blockers.  
-Do **not** onboard Customer #1 until [production-certification/go-no-go.md](./production-certification/go-no-go.md) flips to GO.
+**P0 Production Remediation** cleared resident/vendor portal provisioning and completed Master Admin evidence surfaces (J0–J8 + Docs/Comms).  
+See [production-certification/go-no-go.md](./production-certification/go-no-go.md) and [production-remediation-report.md](./production-certification/production-remediation-report.md).
 
-- Customer Promise journeys **J0–J8** delivered (staff surfaces)  
+- Customer Promise journeys **J0–J8** delivered  
 - **Documents** and **Communications** remediation delivered  
+- Portal access provisioned on lease activation / vendor assignment  
 - Facility Operations, CORE-004, and FIN-OPS S4+ remain out of scope  
 
-**Must clear before Customer #1:**
+**Before Customer #1 dry run:**
 
-1. Resident (and vendor, if advertised) portal login provisioning after activation/assign  
-2. Master Admin Pass scripts for J2–J8 + Documents + Communications on staging  
-3. Confirm SignWell / Resend / Stripe for any live channels claimed in the dry run  
+1. Record Master Admin staging Pass on J0–J8 + Documents + Communications  
+2. Confirm SignWell / Resend / Stripe / `SUPABASE_SERVICE_ROLE_KEY` for any live channels claimed  
 
 ---
 
@@ -32,7 +32,7 @@ Do **not** onboard Customer #1 until [production-certification/go-no-go.md](./pr
 
 | Journey | Promise | Delivery | MA evidence | Status |
 |---------|---------|----------|-------------|--------|
-| J0 | Trusted home | Delivered | Cert + console | Pass / certified |
+| J0 | Trusted home | Delivered | `/api/admin/launch/j0` | Pass / certified |
 | J1 | First property | Delivered | `/api/admin/launch/j1` | Pass / certified |
 | J2 | Invite team | Delivered | `/api/admin/launch/j2` | Ready for MA Pass |
 | J3 | First resident | Delivered | `/api/admin/launch/j3` | Ready for MA Pass |
