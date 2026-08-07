@@ -1,7 +1,7 @@
 # 02 — Operational Philosophy
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed
+**Status:** Approved
 
 ---
 

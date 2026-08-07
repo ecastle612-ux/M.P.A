@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed — 2026-08-07
+Accepted — 2026-08-07
 
 ## Context
 
@@ -16,8 +16,10 @@ Property Manager Customer #1 path is certified and frozen. FO Implement must not
 2. FO remains a first-class SKU; Maintenance executes shared work orders; FO owns programs/assets/systems/inventory/inspections/safety/facility compliance.  
 3. Work orders stay a **Shared Platform** domain with mandatory `product_context`.  
 4. Implement order is Phase E slices **E.1 → E.6** (Capital E.7 future), matching Approved implementation-order-after-reset.  
-5. **No FO application code** until this ADR is **Accepted** (or equivalent package Approve) **and** a slice authorize is issued.  
+5. FO application code requires this ADR **Accepted** (package Approved) **and** an explicit Phase E.x slice authorize.  
 6. Property Manager product behavior is not redesigned by this ADR.
+
+**Acceptance note (2026-08-07):** Stakeholders Approved FAC-OPS-001 and Accepted this ADR. Phase E.1 Implement was authorized separately.
 
 ## Consequences
 

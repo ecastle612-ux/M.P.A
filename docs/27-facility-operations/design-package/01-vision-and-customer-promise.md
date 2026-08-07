@@ -1,7 +1,7 @@
 # 01 — Vision & Customer Promise
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed
+**Status:** Approved
 
 ---
 

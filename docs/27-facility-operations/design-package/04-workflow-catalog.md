@@ -1,7 +1,7 @@
 # 04 — Workflow Catalog
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed  
+**Status:** Approved  
 **Peer to:** [05 Business Workflows](../../05-business-workflows/index.md) (PM lifecycle) — this catalog is Facility-only
 
 Every workflow below is an implementation contract. Engineers must not invent alternate states.

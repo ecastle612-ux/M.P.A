@@ -32,5 +32,6 @@ Design → Document → Approve → Implement
 - Canopy (Phase 1.5) is approved.
 - Experience Architecture (Phase 1.6) is approved.
 - Customer #1 / LAUNCH-001 certified lineage is on `main` (PM feature freeze for new scope).
-- Facility Operations FAC-OPS-001 design package is **Proposed**; **Implement NO-GO** until Approve + Phase E.x authorize.
+- Facility Operations FAC-OPS-001 is **Approved**; ADR-018 is **Accepted**.
+- Phase **E.1** is authorized; **E.2+ remain NO-GO** until slice authorize.
 - New material changes to approved packages require Design → Document → Approve again.

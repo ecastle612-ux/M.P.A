@@ -1,7 +1,7 @@
 # 09 — Master Admin Testing Plan
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed  
+**Status:** Approved  
 **Rule:** No FO capability may ship without Master Admin testability.
 
 ---

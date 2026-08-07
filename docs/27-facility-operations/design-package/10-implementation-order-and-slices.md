@@ -1,7 +1,7 @@
 # 10 — Implementation Order & Slices
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed  
+**Status:** Approved  
 **Binding sequence:** Matches Approved Phase E in [implementation-order-after-reset.md](../../24-product-architecture/implementation-order-after-reset.md)  
 **Rule:** Do not invent a parallel roadmap. Each slice requires Approve (package) + **slice authorize** before code.
 

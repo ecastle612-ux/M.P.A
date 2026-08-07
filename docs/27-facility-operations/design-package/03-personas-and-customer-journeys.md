@@ -1,7 +1,7 @@
 # 03 — Personas & Customer Journeys
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed  
+**Status:** Approved  
 **Extends:** [03 User Personas](../../03-user-personas/index.md) (Facility-specific; does not rewrite PM personas)
 
 ---

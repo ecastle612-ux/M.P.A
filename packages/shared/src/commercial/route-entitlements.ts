@@ -40,6 +40,9 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
   if (path === "/billing" || path.startsWith("/billing/")) {
     return "platform.billing_self";
   }
+  if (path === "/settings/facility-sites" || path.startsWith("/settings/facility-sites/")) {
+    return "facility.mission_control";
+  }
   if (path.startsWith("/settings")) {
     return "platform.org";
   }
@@ -83,6 +86,8 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
 
   const facilityRoutes: Array<[string, EntitlementKey]> = [
     ["/facility/mission-control", "facility.mission_control"],
+    ["/facility/overview", "facility.mission_control"],
+    ["/facility/sites", "facility.mission_control"],
     ["/facility/operations", "facility.operations"],
     ["/facility/assets", "facility.assets"],
     ["/facility/inventory", "facility.inventory"],
@@ -234,6 +239,26 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
 
     push(
       decisionPath("/facility/mission-control", "Facility Operations · Mission Control", "Facility Operations", "facility.mission_control")
+    );
+    push(
+      decisionPath("/facility/overview", "Facility Overview", "Facility Operations", "facility.mission_control")
+    );
+    push(decisionPath("/facility/sites", "Facility Sites", "Facility Operations", "facility.mission_control"));
+    push(
+      decisionPath(
+        "/facility/sites?new=1",
+        "Add facility site",
+        "Facility Operations",
+        "facility.mission_control"
+      )
+    );
+    push(
+      decisionPath(
+        "/settings/facility-sites",
+        "Settings · Facility Sites",
+        "Facility Operations",
+        "facility.mission_control"
+      )
     );
     push(decisionPath("/facility/operations", "Facility Operations (Planned)", "Facility Operations", "facility.operations"));
     push(decisionPath("/facility/assets", "Assets (Planned)", "Facility Operations", "facility.assets"));

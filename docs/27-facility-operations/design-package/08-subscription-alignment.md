@@ -1,7 +1,7 @@
 # 08 — Subscription Alignment
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed  
+**Status:** Approved  
 **Does not change** Approved SKUs or entitlement keys — maps capabilities only  
 **Sources:** [Subscription Matrix](../../24-product-architecture/subscription-matrix.md), [Entitlement Matrix](../../24-product-architecture/entitlement-matrix.md), [Module Ownership](../../24-product-architecture/module-ownership-matrix.md)
 

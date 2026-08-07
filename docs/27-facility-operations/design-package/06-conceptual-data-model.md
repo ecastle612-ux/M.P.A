@@ -1,7 +1,7 @@
 # 06 — Conceptual Data Model
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed  
+**Status:** Approved  
 **Constraint:** Conceptual entities only — **no SQL**, no migrations in this package  
 **Commercial owner:** Facility Operations  
 **Tenancy:** All entities org-scoped; RLS required at Implement

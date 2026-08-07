@@ -1,7 +1,7 @@
 # 05 — Information Architecture
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed  
+**Status:** Approved  
 **Aligns with:** [Facility module map nav](../../24-product-architecture/facility-operations-module-map.md), [Navigation map](../../24-product-architecture/navigation-map.md)
 
 ---

@@ -1,7 +1,7 @@
 # 11 — Acceptance Criteria & Certification Plan
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed
+**Status:** Approved
 
 ---
 

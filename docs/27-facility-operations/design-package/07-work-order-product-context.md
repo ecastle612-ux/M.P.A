@@ -1,7 +1,7 @@
 # 07 — Work Order Product Context
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed  
+**Status:** Approved  
 **Resolves:** Module map Design Debt — shared work-order domain; Maintenance executes
 
 ---

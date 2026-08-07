@@ -1,7 +1,7 @@
 # 12 — Risk Assessment
 
 **Parent:** [FAC-OPS-001](./index.md)  
-**Status:** Proposed
+**Status:** Approved
 
 ---
 

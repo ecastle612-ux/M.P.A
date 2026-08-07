@@ -8,9 +8,9 @@ This blueprint defines how M.P.A. is designed, built, and evolved. Every enginee
 Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0–
 S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Promise Roadmap
 **Approved** (ADR-017); Customer #1 certified lineage on `main` under PM feature freeze.
-CORE-004 remains stopped. Facility Operations FAC-OPS-001 **design package Proposed**
-([27/design-package](./27-facility-operations/design-package/index.md)); feature
-**Implement NO-GO** until Approve + Phase E.x authorize. Implementation Gate in force.
+CORE-004 remains stopped. Facility Operations FAC-OPS-001 **Approved** (ADR-018
+Accepted); Phase **E.1 authorized** ([27/design-package](./27-facility-operations/design-package/index.md));
+E.2+ **NO-GO**. Implementation Gate in force.
 
 ---
 
@@ -130,6 +130,16 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Customer Journeys](./26-launch-001-onboarding/customer-journeys.md) | Outcome order (replaces eng slices) |
 | [Master Admin Certification Console](./26-launch-001-onboarding/master-admin-certification-console.md) | How operators certify each promise |
 | [Launch Readiness Gate](./26-launch-001-onboarding/launch-readiness-gate.md) | GO only when journeys work unaided |
+
+### 27 Facility Operations (FAC-OPS-001)
+
+| Document | Purpose |
+|----------|---------|
+| [Package Index](./27-facility-operations/index.md) | FO status; links to design package |
+| [FAC-OPS-001 Design Package](./27-facility-operations/design-package/index.md) | **Approved** authoritative FO implementation contract |
+| [ADR-018](./18-decision-log/adr-018-facility-operations-design-package.md) | Accepted — FO design package decision |
+| [Phase E.1 certification](./27-facility-operations/design-package/certification/e1/) | E.1 implementation & MA verification artifacts |
+| [Design debt status](./27-facility-operations/missing-design-package.md) | Checklist closed at Document stage |
 
 ### Governance & gates
 

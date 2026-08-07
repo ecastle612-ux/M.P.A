@@ -1,15 +1,15 @@
 # FAC-OPS-001 — Facility Operations Design Package
 
-**Status:** Proposed (Document complete — awaiting Approve)  
-**Authorization:** `AUTHORIZE FACILITY OPERATIONS DESIGN PACKAGE`  
+**Status:** Approved  
+**Authorization:** `APPROVE FAC-OPS-001` · ADR-018 **Accepted** · Phase E.1 Implement authorized  
 **Date:** 2026-08-07  
-**Gate:** Design → Document → **Approve** → Implement (slice-authorized)  
-**Code under this authorize:** **None** — documentation only  
+**Gate:** Design → Document → Approve → Implement (slice-authorized)  
+**Code under this approve:** Phase E.1 only when slice-authorized  
 **Parent commercial map:** [Facility Operations Module Map](../../24-product-architecture/facility-operations-module-map.md) (Approved ownership)  
 **Implementation order (binding):** [implementation-order-after-reset.md](../../24-product-architecture/implementation-order-after-reset.md) Phase E
 
 This package is the **authoritative implementation contract** for Facility Operations features.  
-Until **Approved** and a slice is explicitly authorized, agents must refuse FO feature code.
+Implement only against explicitly authorized Phase E slices. Do not redesign this package in code.
 
 ---
 
@@ -65,8 +65,8 @@ Capital Projects: conceptual presence only; **future gate** — not in first Imp
 
 | Workstream | Instruction |
 |------------|-------------|
-| FO application code / migrations / APIs / UI | **Do not implement** until Approve + slice authorize |
-| Property Manager product changes | **Feature freeze** — do not modify |
+| FO slices beyond authorized Phase E.x | **Do not implement** until slice authorize |
+| Property Manager product changes | **Feature freeze** — cross-links only where documented |
 | Redesign of subscriptions / ADR-015 commercial model | **Forbidden** |
 | Duplicate Maintenance homes | **Forbidden** |
 | Full ERP / trust accounting / SaaS billing | **Out of FO scope** |
@@ -82,12 +82,15 @@ Mission Control pattern · Universal Dashboard Framework · Assistant · Notific
 
 ---
 
-## Next gate steps
+## Implementation status
 
-1. Stakeholder **Approve** this package (status → Approved)  
-2. Optionally accept a binding ADR (Proposed companion if filed)  
-3. Authorize **Phase E.1 Implement only** (site profile + FO Mission Control attention)  
-4. STOP after each slice for certification  
+| Slice | Status |
+|-------|--------|
+| E.1 Site profile + FO Mission Control attention | **Authorized / implementing** |
+| E.2–E.6 | **NO-GO** until slice authorize |
+| E.7 Capital | Future gate |
+
+Certification artifacts: [certification/e1/](./certification/e1/)
 
 ---
 
@@ -96,5 +99,5 @@ Mission Control pattern · Universal Dashboard Framework · Assistant · Notific
 | Field | Value |
 |-------|-------|
 | Package ID | FAC-OPS-001 |
-| Status | Proposed |
+| Status | Approved |
 | Last updated | 2026-08-07 |
