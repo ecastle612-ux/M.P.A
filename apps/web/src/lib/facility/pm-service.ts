@@ -384,7 +384,7 @@ export async function transitionPmSchedule(
     updated_at: new Date().toISOString()
   };
   if ((input.action === "activate" || input.action === "resume") && !existing.next_due_on) {
-    patch.next_due_on = todayUtcDate();
+    patch["next_due_on"] = todayUtcDate();
   }
 
   const { data, error } = await supabase
@@ -681,11 +681,11 @@ export async function acknowledgePmRunForWorkOrder(
   };
 
   if (schedule.is_one_shot) {
-    patch.status = "retired";
-    patch.next_due_on = null;
+    patch["status"] = "retired";
+    patch["next_due_on"] = null;
   } else {
     const baseDue = (run.due_on as string) || completedAt;
-    patch.next_due_on = advancePmDueDate(
+    patch["next_due_on"] = advancePmDueDate(
       baseDue,
       schedule.cadence_unit,
       schedule.cadence_interval
