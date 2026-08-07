@@ -15,8 +15,8 @@
 
 ### Design
 
-- [ ] COM-002 Approved (after A1–A7)  
-- [ ] ADR-018 Accepted  
+- [x] COM-002 Approved (after A1–A7)  
+- [x] ADR-018 Accepted  
 - [ ] Public PM prices published before live Checkout  
 
 ### Self-serve PM
