@@ -22,11 +22,33 @@ type WorkOrder = {
   technician_user_id: string | null;
   vendor_id: string | null;
   submitted_at: string;
+  product_context?: "property_manager" | "facility";
   property_properties?: { name: string } | null;
   property_units?: { unit_label: string } | null;
   pm_residents?: { display_name: string; email: string } | null;
   vendor_vendors?: { name: string } | null;
+  facility_sites?: { id: string; name: string } | null;
+  facility_assets?: { id: string; name: string; criticality: string } | null;
+  facility_systems?: { id: string; name: string; criticality: string } | null;
 };
+
+function workOrderContextLine(row: WorkOrder, viewingFacility: boolean) {
+  if (viewingFacility || row.product_context === "facility") {
+    const parts = [
+      row.facility_sites?.name ? `Site ${row.facility_sites.name}` : "Facility site",
+      row.facility_assets?.name ? `Asset ${row.facility_assets.name}` : null,
+      row.facility_systems?.name ? `System ${row.facility_systems.name}` : null
+    ].filter(Boolean);
+    return parts.join(" · ");
+  }
+  return [
+    row.pm_residents?.display_name ?? "Resident",
+    row.property_properties?.name ?? "Property",
+    row.property_units?.unit_label ? `Unit ${row.property_units.unit_label}` : null
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
 
 type Technician = { userId: string; displayName: string; email: string | null };
 type Vendor = { id: string; name: string; email: string | null; user_id?: string | null };
@@ -37,6 +59,9 @@ export function MaintenanceCommandCenter() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [assistantRecommendation, setAssistantRecommendation] = useState("");
   const [maintenanceReady, setMaintenanceReady] = useState(false);
+  const [productContext, setProductContext] = useState<"property_manager" | "facility">(
+    "property_manager"
+  );
   const [selectedId, setSelectedId] = useState<string>("");
   const [updates, setUpdates] = useState<Array<{ id: string; body: string; created_at: string; actor_role: string }>>(
     []
@@ -74,8 +99,10 @@ export function MaintenanceCommandCenter() {
     }
   }, []);
 
-  const refresh = useCallback(async (preferredId?: string) => {
-    const response = await fetch("/api/pm/maintenance");
+  const refresh = useCallback(async (preferredId?: string, context = productContext) => {
+    const response = await fetch(
+      `/api/pm/maintenance?productContext=${encodeURIComponent(context)}`
+    );
     const body = await response.json();
     if (!response.ok) {
       throw new Error(body.error ?? "Failed to load maintenance");
@@ -86,6 +113,9 @@ export function MaintenanceCommandCenter() {
     setVendors(body.vendors ?? []);
     setAssistantRecommendation(body.assistantRecommendation ?? "");
     setMaintenanceReady(Boolean(body.readiness?.maintenanceReady));
+    setProductContext(
+      body.productContext === "facility" ? "facility" : "property_manager"
+    );
     const nextId = preferredId || selectedId || rows[0]?.id || "";
     setSelectedId(nextId);
     if (nextId) {
@@ -93,13 +123,15 @@ export function MaintenanceCommandCenter() {
     } else {
       setUpdates([]);
     }
-  }, [loadDetail, selectedId]);
+  }, [loadDetail, productContext, selectedId]);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        const response = await fetch("/api/pm/maintenance");
+        const response = await fetch(
+          `/api/pm/maintenance?productContext=${encodeURIComponent(productContext)}`
+        );
         const body = await response.json();
         if (!response.ok) {
           throw new Error(body.error ?? "Failed to load maintenance");
@@ -138,7 +170,7 @@ export function MaintenanceCommandCenter() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [productContext]);
 
   async function selectWorkOrder(workOrderId: string) {
     setSelectedId(workOrderId);
@@ -250,11 +282,40 @@ export function MaintenanceCommandCenter() {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h2 className="text-sm font-semibold">Request queue</h2>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <h2 className="text-sm font-semibold">Request queue</h2>
+            <label className="space-y-1 text-xs">
+              <span className="text-[var(--mpa-color-text-secondary)]">Product context</span>
+              <Select
+                value={productContext}
+                onChange={(event) => {
+                  setLoading(true);
+                  setSelectedId("");
+                  setProductContext(
+                    event.target.value === "facility" ? "facility" : "property_manager"
+                  );
+                }}
+              >
+                <option value="property_manager">Property Manager</option>
+                <option value="facility">Facility Operations</option>
+              </Select>
+            </label>
+          </div>
+          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+            Queues never silently mix contexts. Facility work is labeled and filtered explicitly.
+          </p>
           {workOrders.length === 0 ? (
             <EmptyState
-              title="No maintenance requests yet"
-              description="When a resident submits a request, it appears here automatically."
+              title={
+                productContext === "facility"
+                  ? "No facility work orders in this filter"
+                  : "No maintenance requests yet"
+              }
+              description={
+                productContext === "facility"
+                  ? "Create facility corrective work from Facility Operations, then execute here."
+                  : "When a resident submits a request, it appears here automatically."
+              }
             />
           ) : (
             <ul className="space-y-2">
@@ -284,12 +345,8 @@ export function MaintenanceCommandCenter() {
                       </Badge>
                     </div>
                     <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                      {row.pm_residents?.display_name ?? "Resident"} ·{" "}
-                      {row.property_properties?.name ?? "Property"}
-                      {row.property_units?.unit_label
-                        ? ` · Unit ${row.property_units.unit_label}`
-                        : ""}{" "}
-                      · {WORK_ORDER_PRIORITY_LABELS[row.priority]}
+                      {workOrderContextLine(row, productContext === "facility")} ·{" "}
+                      {WORK_ORDER_PRIORITY_LABELS[row.priority]}
                     </p>
                   </button>
                 </li>
@@ -314,15 +371,47 @@ export function MaintenanceCommandCenter() {
                     {WORK_ORDER_PRIORITY_LABELS[selected.priority]}
                   </Badge>
                   <Badge variant="neutral">{selected.category}</Badge>
+                  {productContext === "facility" || selected.product_context === "facility" ? (
+                    <Badge variant="info">Facility context</Badge>
+                  ) : null}
                 </div>
+                {productContext === "facility" || selected.product_context === "facility" ? (
+                  <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        Facility site
+                      </dt>
+                      <dd>{selected.facility_sites?.name ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Asset</dt>
+                      <dd>{selected.facility_assets?.name ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        Building system
+                      </dt>
+                      <dd>{selected.facility_systems?.name ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-[var(--mpa-color-text-secondary)]">
+                        Facility context
+                      </dt>
+                      <dd>Facility Operations</dd>
+                    </div>
+                  </dl>
+                ) : (
+                  <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                    Resident: {selected.pm_residents?.display_name ?? "—"} · Property:{" "}
+                    {selected.property_properties?.name ?? "—"}
+                  </p>
+                )}
                 <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-                  Resident: {selected.pm_residents?.display_name ?? "—"} · Property:{" "}
-                  {selected.property_properties?.name ?? "—"}
                   {selected.assignee_type === "vendor" && selected.vendor_vendors?.name
-                    ? ` · Vendor: ${selected.vendor_vendors.name}`
+                    ? `Vendor: ${selected.vendor_vendors.name}`
                     : null}
                   {selected.assignee_type === "technician" && selected.technician_user_id
-                    ? ` · Technician assigned`
+                    ? `Technician assigned`
                     : null}
                 </p>
               </div>

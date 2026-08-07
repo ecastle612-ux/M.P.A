@@ -3,12 +3,17 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input } from "@mpa/ui";
-import { SKU_SUMMARIES } from "@mpa/shared";
+import {
+  SKU_SUMMARIES,
+  skuIncludesFacilityOperations,
+  skuIncludesPropertyManager
+} from "@mpa/shared";
 import { useOrganizationContext } from "../shell/organization-context";
 import { useCommercialContext } from "../shell/commercial-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 
 const PROPERTY_MANAGER_HOME = "/pm/mission-control";
+const FACILITY_HOME = "/facility/mission-control";
 
 export function GuidedSetupPage() {
   const router = useRouter();
@@ -21,6 +26,21 @@ export function GuidedSetupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  const includesPm = Boolean(productSku && skuIncludesPropertyManager(productSku));
+  const includesFo = Boolean(productSku && skuIncludesFacilityOperations(productSku));
+  const setupHome =
+    includesFo && !includesPm ? FACILITY_HOME : includesFo && includesPm ? "/launcher" : PROPERTY_MANAGER_HOME;
+  const nextStepLabel = includesFo && !includesPm
+    ? "I understand the next step is activating my first facility site"
+    : includesFo && includesPm
+      ? "I understand the next steps include property and facility site activation"
+      : "I understand the next step is adding my first property";
+  const nextStepDetail = includesFo && !includesPm
+    ? "Facility Mission Control will ask you to add and activate your first site."
+    : includesFo && includesPm
+      ? "Use the launcher for PM or Facility Mission Control; activate property and site identity."
+      : "Mission Control will ask you to add your first property.";
 
   useEffect(() => {
     if (!activeOrganization) {
@@ -57,29 +77,29 @@ export function GuidedSetupPage() {
       },
       {
         id: "product",
-        label: "Property Manager confirmed",
+        label: includesFo && !includesPm ? "Facility Operations confirmed" : "Product confirmed",
         done: hasProduct,
         detail: hasProduct
           ? `Purchased: ${lockedLabel} — not a SKU shopping step`
-          : "Create the organization to lock Property Manager."
+          : "Create the organization to lock your purchased product."
       },
       {
         id: "billing",
         label: "Billing inclusions reviewed",
         done: billingAcknowledged,
-        detail: "Open Billing & Plan and confirm what Property Manager includes."
+        detail: "Open Billing & Plan and confirm what your product includes."
       },
       {
         id: "home",
-        label: "Mission Control is your home",
+        label: includesFo && !includesPm ? "Facility Mission Control is your home" : "Mission Control is your home",
         done: homeSelected,
-        detail: `After setup you land at ${PROPERTY_MANAGER_HOME}.`
+        detail: `After setup you land at ${setupHome}.`
       },
       {
         id: "next",
         label: "Next action understood",
         done: nextStepAcknowledged,
-        detail: "Mission Control will ask you to add your first property."
+        detail: nextStepDetail
       }
     ],
     [
@@ -88,8 +108,12 @@ export function GuidedSetupPage() {
       hasOrg,
       hasProduct,
       homeSelected,
+      includesFo,
+      includesPm,
       lockedLabel,
-      nextStepAcknowledged
+      nextStepAcknowledged,
+      nextStepDetail,
+      setupHome
     ]
   );
 
@@ -179,8 +203,8 @@ export function GuidedSetupPage() {
       home: true,
       nextStep: true
     });
-    setNotice("You're in. Opening Mission Control…");
-    router.push(PROPERTY_MANAGER_HOME);
+    setNotice("You're in. Opening your product home…");
+    router.push(setupHome);
   }
 
   return (
@@ -288,7 +312,11 @@ export function GuidedSetupPage() {
               You&apos;re in
             </h2>
             <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-              Your product home is Mission Control. The first action there is to add a property.
+              {includesFo && !includesPm
+                ? "Your product home is Facility Mission Control. The first action is to activate a facility site."
+                : includesFo && includesPm
+                  ? "Complete Platform uses the launcher. Activate property and facility site identity from each Mission Control."
+                  : "Your product home is Mission Control. The first action there is to add a property."}
             </p>
             <label className="flex items-start gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
               <input
@@ -300,7 +328,7 @@ export function GuidedSetupPage() {
                   void persistChecklist({ home: event.target.checked });
                 }}
               />
-              Confirm Mission Control as my home
+              Confirm {includesFo && !includesPm ? "Facility Mission Control" : includesFo ? "launcher / Mission Control" : "Mission Control"} as my home
             </label>
             <label className="flex items-start gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
               <input
@@ -312,10 +340,10 @@ export function GuidedSetupPage() {
                   void persistChecklist({ nextStep: event.target.checked });
                 }}
               />
-              I understand the next step is adding my first property
+              {nextStepLabel}
             </label>
             <Button type="button" disabled={!canFinish || loading} onClick={() => void finishSetup()}>
-              Finish setup — go to Mission Control
+              Finish setup — enter product home
             </Button>
           </div>
         </div>

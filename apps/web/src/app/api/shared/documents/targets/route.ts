@@ -9,7 +9,7 @@ export async function GET() {
     return authz.error;
   }
 
-  const [properties, residents, leases, workOrders, vendors] = await Promise.all([
+  const [properties, residents, leases, workOrders, vendors, inspectionRuns] = await Promise.all([
     authz.supabase
       .from("property_properties")
       .select("id, name")
@@ -39,6 +39,12 @@ export async function GET() {
       .select("id, name")
       .eq("organization_id", authz.organizationId)
       .order("name")
+      .limit(100),
+    authz.supabase
+      .from("facility_inspection_runs")
+      .select("id, status, due_on, facility_inspection_programs(name), facility_sites(property_id)")
+      .eq("organization_id", authz.organizationId)
+      .order("created_at", { ascending: false })
       .limit(100)
   ]);
 
@@ -68,7 +74,23 @@ export async function GET() {
         id: row.id as string,
         label: row.name as string,
         propertyId: null
-      }))
+      })),
+      facility_inspection_run: (inspectionRuns.data ?? []).map((row) => {
+        const program = Array.isArray(row.facility_inspection_programs)
+          ? row.facility_inspection_programs[0]
+          : row.facility_inspection_programs;
+        const site = Array.isArray(row.facility_sites)
+          ? row.facility_sites[0]
+          : row.facility_sites;
+        return {
+          id: row.id as string,
+          label:
+            (program as { name?: string } | null)?.name
+              ? `Inspection: ${(program as { name: string }).name} (${row.status})`
+              : `Inspection run (${row.status})`,
+          propertyId: (site as { property_id?: string | null } | null)?.property_id ?? null
+        };
+      })
     }
   });
 }

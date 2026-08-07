@@ -4,7 +4,10 @@ export const DOCUMENT_ENTITY_TYPES = [
   "lease",
   "maintenance",
   "vendor",
-  "organization"
+  "organization",
+  "facility_inspection_run",
+  "facility_safety_incident",
+  "facility_compliance_obligation"
 ] as const;
 
 export type DocumentEntityType = (typeof DOCUMENT_ENTITY_TYPES)[number];
