@@ -72,4 +72,5 @@ PRODUCTION VERIFICATION:
 
 | Date | Sev | Summary | PR / commit | Prod verified? |
 |------|-----|---------|-------------|----------------|
+| 2026-08-07 | 2 | **BUG-001** — `/` redirected anonymous visitors to Property Manager sign-in instead of public marketing landing | [PR #44](https://github.com/ecastle612-ux/M.P.A/pull/44) · merge `79ade03` · Production `m-p-a-web` deploy `5800950830` | ☑ Pass — [closeout](../../29-bug-001-public-homepage-routing/closeout-report.md) |
 | | | | | ☐ |
