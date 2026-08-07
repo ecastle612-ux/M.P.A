@@ -5,62 +5,15 @@ import {
   buildOwnerPortfolioReadyAssistantCopy,
   formatMoney
 } from "@mpa/shared";
-import { emitPropertyEvent, writePropertyAudit } from "./events-audit";
+import {
+  getOwnerPortfolioReadiness,
+  markOwnerPortfolioReviewed
+} from "./journey-readiness";
+
+export { getOwnerPortfolioReadiness, markOwnerPortfolioReviewed } from "./journey-readiness";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
-
-export async function getOwnerPortfolioReadiness(supabase: Db, organizationId: string) {
-  const { count, error } = await supabase
-    .from("event_domain_events")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", organizationId)
-    .eq("event_type", "owner_portfolio.reviewed");
-  if (error) {
-    throw new Error(error.message);
-  }
-  const reviewCount = count ?? 0;
-  return {
-    reviewCount,
-    ownerPortfolioReady: reviewCount > 0
-  };
-}
-
-export async function markOwnerPortfolioReviewed(
-  supabase: Db,
-  organizationId: string,
-  actorId: string,
-  dailyOpsReady: boolean
-) {
-  if (!dailyOpsReady) {
-    return { marked: false };
-  }
-  const existing = await getOwnerPortfolioReadiness(supabase, organizationId);
-  if (existing.ownerPortfolioReady) {
-    return { marked: false, ...existing };
-  }
-
-  await emitPropertyEvent({
-    supabase,
-    organizationId,
-    actorId,
-    eventType: "owner_portfolio.reviewed",
-    aggregateType: "organizations",
-    aggregateId: organizationId,
-    payload: { source: "owner_portfolio_home" }
-  });
-  await writePropertyAudit({
-    supabase,
-    organizationId,
-    actorId,
-    action: "owner_portfolio.reviewed",
-    entityType: "organizations",
-    entityId: organizationId,
-    payload: { source: "owner_portfolio_home" }
-  });
-
-  return { marked: true, ownerPortfolioReady: true, reviewCount: 1 };
-}
 
 export async function buildOwnerPortfolioHome(
   supabase: Db,
@@ -264,7 +217,7 @@ export async function buildOwnerPropertyDrillDown(
   organizationId: string,
   propertyId: string
 ) {
-  const { getPropertyCommandCenter } = await import("./property-service");
+  const { getPropertyCommandCenter } = await import("./property-command-center");
   const { getPropertyFinancialSnapshot, getRecentFinancialActivity } = await import(
     "../finance/reporting-service"
   );

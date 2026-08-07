@@ -18,6 +18,8 @@ import { buildLeaseDocumentText, leaseDocumentToBase64 } from "./document";
 import { provisionResidentPortalAccess } from "../portal/portal-access-service";
 import { emitLeaseEvent, writeLeaseAudit } from "./events-audit";
 
+export { getLeaseReadiness } from "./lease-readiness";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
 
@@ -106,19 +108,6 @@ async function record(args: {
       payload
     });
   }
-}
-
-export async function getLeaseReadiness(supabase: Db, organizationId: string) {
-  const { count, error } = await supabase
-    .from("lease_agreements")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", organizationId)
-    .in("status", ["signed", "active"]);
-  if (error) {
-    throw new Error(error.message);
-  }
-  const leaseCount = count ?? 0;
-  return { leaseCount, leaseReady: leaseCount > 0 };
 }
 
 export async function listLeases(supabase: Db, organizationId: string) {

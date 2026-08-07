@@ -15,6 +15,7 @@ import {
   type RecordManualPaymentInput
 } from "@mpa/shared";
 import { emitFinanceEvent, writeFinanceAudit, writeFinanceNotification } from "./events-audit";
+export { getRentReadiness } from "./rent-readiness";
 
 // Finance tables are ahead of generated Database typings; use a permissive client.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,22 +70,6 @@ async function resolveResidentNotifyUserId(
   return (data?.user_id as string | null | undefined) ?? null;
 }
 
-export async function getRentReadiness(supabase: Db, organizationId: string) {
-  const { count, error } = await supabase
-    .from("financial_payments")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", organizationId)
-    .eq("status", "succeeded");
-  if (error) {
-    throw new Error(error.message);
-  }
-  const paymentCount = count ?? 0;
-  return {
-    paymentCount,
-    rentReady: paymentCount > 0
-  };
-}
-
 async function insertLedgerEntry(
   supabase: Db,
   row: {
@@ -120,7 +105,7 @@ export async function createBillingProperty(
   actorId: string,
   input: CreatePropertyInput
 ) {
-  const { createPortfolioProperty } = await import("../property/property-service");
+  const { createPortfolioProperty } = await import("../property/property-catalog");
   const result = await createPortfolioProperty(supabase, organizationId, actorId, {
     name: input.name,
     unitCount: 1

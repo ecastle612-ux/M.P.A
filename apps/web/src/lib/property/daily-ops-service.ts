@@ -6,62 +6,11 @@ import {
   formatMoney,
   type DailyOpsAttentionItem
 } from "@mpa/shared";
-import { emitPropertyEvent, writePropertyAudit } from "./events-audit";
+
+export { getDailyOpsReadiness, markDailyOpsReviewed } from "./journey-readiness";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
-
-export async function getDailyOpsReadiness(supabase: Db, organizationId: string) {
-  const { count, error } = await supabase
-    .from("event_domain_events")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", organizationId)
-    .eq("event_type", "mission_control.daily_ops_reviewed");
-  if (error) {
-    throw new Error(error.message);
-  }
-  const reviewCount = count ?? 0;
-  return {
-    reviewCount,
-    dailyOpsReady: reviewCount > 0
-  };
-}
-
-export async function markDailyOpsReviewed(
-  supabase: Db,
-  organizationId: string,
-  actorId: string,
-  maintenanceReady: boolean
-) {
-  if (!maintenanceReady) {
-    return { marked: false };
-  }
-  const existing = await getDailyOpsReadiness(supabase, organizationId);
-  if (existing.dailyOpsReady) {
-    return { marked: false, ...existing };
-  }
-
-  await emitPropertyEvent({
-    supabase,
-    organizationId,
-    actorId,
-    eventType: "mission_control.daily_ops_reviewed",
-    aggregateType: "organizations",
-    aggregateId: organizationId,
-    payload: { source: "mission_control" }
-  });
-  await writePropertyAudit({
-    supabase,
-    organizationId,
-    actorId,
-    action: "mission_control.daily_ops_reviewed",
-    entityType: "organizations",
-    entityId: organizationId,
-    payload: { source: "mission_control" }
-  });
-
-  return { marked: true, dailyOpsReady: true, reviewCount: 1 };
-}
 
 export async function buildDailyOperationsBriefing(
   supabase: Db,
