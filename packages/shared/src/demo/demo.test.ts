@@ -66,11 +66,12 @@ describe("COM-002 Slice B demo foundation", () => {
 
   it("routes conversion into Slice A commercial funnel", () => {
     expect(primaryDemoConversionCta("mpa_property_manager")).toBe("start_subscription");
+    expect(primaryDemoConversionCta("mpa_facility_operations")).toBe("start_subscription");
     expect(demoConversionHref("mpa_property_manager", "start_subscription", "demo_x")).toContain(
       "/checkout?intent=mpa_property_manager"
     );
     expect(demoConversionHref("mpa_facility_operations", "start_subscription")).toContain(
-      "/enterprise?intent=mpa_facility_operations"
+      "/checkout?intent=mpa_facility_operations"
     );
     expect(demoConversionHref("mpa_complete_platform", "request_enterprise")).toContain(
       "/enterprise?intent=mpa_complete_platform"

@@ -97,6 +97,7 @@ export async function GET(request: Request) {
     sessionId: purchase.stripeCheckoutSessionId,
     status: purchase.status,
     offerId: purchase.catalogOfferId,
+    productSku: purchase.productSku,
     planTier: purchase.planTier,
     billingCycle: purchase.billingCycle,
     provisioned: purchase.provisioned,

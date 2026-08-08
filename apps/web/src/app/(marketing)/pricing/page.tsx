@@ -5,7 +5,7 @@ import { createAuthServerClient } from "../../../lib/auth/server";
 export const metadata: Metadata = {
   title: "Pricing — My Property Assistant",
   description:
-    "Property Manager Professional and Business self-serve pricing. Facility Operations and Complete Platform are Enterprise."
+    "Property Manager, Facility Operations, and Complete Platform pricing — monthly or annual."
 };
 
 type Search = {

@@ -60,12 +60,12 @@ export const SKU_SUMMARIES: Record<
     id: "facility_operations",
     label: "Facility Operations",
     description:
-      "Facility product for building teams — available through Enterprise. Our team activates Facility capabilities with your organization during implementation."
+      "Facility product for building teams — work orders, assets, inventory, preventive maintenance, safety, compliance, and building systems."
   },
   mpa_complete_platform: {
     id: "complete_platform",
     label: "Complete Platform",
     description:
-      "Property Manager and Facility Operations together — available through Enterprise. Implementation activates both product homes for your organization."
+      "Property Manager and Facility Operations together — one organization with both product homes and the shared platform foundation."
   }
 };
