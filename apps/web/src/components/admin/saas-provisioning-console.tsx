@@ -4,12 +4,12 @@ import {
   operatorStepStatuses
 } from "@mpa/shared";
 import { listSaasCustomers } from "../../lib/saas-provisioning/customers-store";
-import { listProvisioningJobs } from "../../lib/saas-provisioning/jobs-store";
+import { listProvisioningJobsFromDb } from "../../lib/saas-provisioning/jobs-store";
 import { listSaasPurchases } from "../../lib/saas-stripe/purchase-store";
 import { RetryProvisioningButton } from "./retry-provisioning-button";
 
-export function SaasProvisioningConsole() {
-  const jobs = listProvisioningJobs();
+export async function SaasProvisioningConsole() {
+  const jobs = await listProvisioningJobsFromDb(40);
   const purchases = listSaasPurchases();
   const customers = listSaasCustomers();
 

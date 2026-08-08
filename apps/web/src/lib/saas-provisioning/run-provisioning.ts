@@ -17,8 +17,15 @@ import {
 } from "../saas-stripe/purchase-store";
 import { upsertSaasCustomer } from "./customers-store";
 import { sendProvisioningEmail } from "./emails";
-import { createProvisioningJob, getProvisioningJob, saveProvisioningJob } from "./jobs-store";
+import {
+  createProvisioningJob,
+  getProvisioningJob,
+  loadProvisioningJobFromDb,
+  saveProvisioningJob
+} from "./jobs-store";
+import { recordOnboardingLifecycleEvent } from "./lifecycle-events";
 import { issueBindToken } from "./tokens";
+import { ensurePurchaseFromStripeSession } from "../saas-stripe/ensure-purchase-from-stripe";
 
 function continueUrl(sessionId: string, token?: string): string {
   const base = `${serverEnv.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/commerce/continue?session_id=${encodeURIComponent(sessionId)}`;
@@ -215,10 +222,14 @@ async function persistJobRow(job: ProvisioningJob): Promise<void> {
   );
 }
 
-function saveJob(job: ProvisioningJob): ProvisioningJob {
+async function saveJob(job: ProvisioningJob): Promise<ProvisioningJob> {
   const saved = saveProvisioningJob(job);
-  void persistJobRow(saved);
+  await persistJobRow(saved);
   return saved;
+}
+
+async function resolveJob(checkoutSessionId: string): Promise<ProvisioningJob | null> {
+  return getProvisioningJob(checkoutSessionId) ?? (await loadProvisioningJobFromDb(checkoutSessionId));
 }
 
 /**
@@ -246,11 +257,11 @@ export async function startOrAdvanceProvisioningFromPurchase(
       billingCycle: purchase.billingCycle,
       ownerEmail: "unknown@invalid"
     });
-    return saveJob(transitionProvisioning(job, "failed_dead", "missing_customer_email"));
+    return await saveJob(transitionProvisioning(job, "failed_dead", "missing_customer_email"));
   }
 
   let job =
-    getProvisioningJob(purchase.stripeCheckoutSessionId) ??
+    (await resolveJob(purchase.stripeCheckoutSessionId)) ??
     createProvisioningJob({
       checkoutSessionId: purchase.stripeCheckoutSessionId,
       stripeCustomerId: purchase.stripeCustomerId,
@@ -262,14 +273,23 @@ export async function startOrAdvanceProvisioningFromPurchase(
       ownerEmail: email,
       organizationName: defaultOrganizationName(email)
     });
+  job = await saveJob(job);
 
   if (job.checkpoint === "failed_retryable") {
     job = resumeFromRetryable(job);
-    saveJob(job);
+    job = await saveJob(job);
   }
   if (job.checkpoint === "ready" || job.checkpoint === "failed_dead") {
     return job;
   }
+
+  await recordOnboardingLifecycleEvent({
+    checkoutSessionId: purchase.stripeCheckoutSessionId,
+    eventType: "purchase_completed",
+    stripeSubscriptionId: purchase.stripeSubscriptionId,
+    organizationId: job.organizationId,
+    summary: "Stripe Checkout payment completed"
+  });
 
   // Advance automatically through owner_pending (identity bind waits for user).
   while (isProvisioningCheckpoint(job.checkpoint) && job.checkpoint !== "owner_pending") {
@@ -282,6 +302,13 @@ export async function startOrAdvanceProvisioningFromPurchase(
 
   if (job.checkpoint === "owner_pending") {
     await ensureClaimEmail(job);
+    await recordOnboardingLifecycleEvent({
+      checkoutSessionId: job.checkoutSessionId,
+      eventType: "owner_pending",
+      stripeSubscriptionId: job.stripeSubscriptionId,
+      organizationId: job.organizationId,
+      summary: "Awaiting owner claim / email verification"
+    });
   }
 
   if (job.checkpoint === "failed_retryable") {
@@ -304,7 +331,7 @@ async function ensureClaimEmail(job: ProvisioningJob): Promise<void> {
   if (!job.bindTokenHash) {
     const issued = issueBindToken();
     token = issued.token;
-    saveJob({
+    await saveJob({
       ...job,
       bindTokenHash: issued.hash,
       bindExpiresAt: issued.expiresAt,
@@ -319,7 +346,7 @@ async function ensureClaimEmail(job: ProvisioningJob): Promise<void> {
     organizationName: latest.organizationName
   });
   if (sent.ok) {
-    saveJob({
+    await saveJob({
       ...latest,
       emailsSent: [...latest.emailsSent, "verification"],
       updatedAt: new Date().toISOString()
@@ -338,7 +365,7 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
         // Validate purchase + create/link identity + saas_customers → customer_linked
         const identity = await ensureAuthUser(job.ownerEmail);
         if ("error" in identity) {
-          return saveJob(markProvisioningRetry(job, identity.error));
+          return await saveJob(markProvisioningRetry(job, identity.error));
         }
         await linkSaasCustomer({
           stripeCustomerId: job.stripeCustomerId,
@@ -347,7 +374,7 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
           userId: identity.userId
         });
         const named = job.organizationName ?? defaultOrganizationName(job.ownerEmail);
-        return saveJob(
+        return await saveJob(
           transitionProvisioning(
             {
               ...job,
@@ -361,7 +388,7 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
       }
       case "customer_linked": {
         if (!job.ownerUserId) {
-          return saveJob(markProvisioningRetry(job, "missing_owner_user"));
+          return await saveJob(markProvisioningRetry(job, "missing_owner_user"));
         }
         const named = job.organizationName ?? defaultOrganizationName(job.ownerEmail);
         const org = await ensureOrganization({
@@ -371,7 +398,7 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
         });
         if ("error" in org) {
           // Compensation: keep identity, do not create a second org — retry safely.
-          return saveJob(markProvisioningRetry(job, org.error));
+          return await saveJob(markProvisioningRetry(job, org.error));
         }
         upsertSaasCustomer({
           stripeCustomerId:
@@ -399,11 +426,19 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
           organizationName: named,
           checkpoint: "org_created"
         });
-        return saveJob(next);
+        const savedOrg = await saveJob(next);
+        await recordOnboardingLifecycleEvent({
+          checkoutSessionId: savedOrg.checkoutSessionId,
+          eventType: "provisioned",
+          stripeSubscriptionId: savedOrg.stripeSubscriptionId,
+          organizationId: savedOrg.organizationId,
+          summary: "Organization provisioned"
+        });
+        return savedOrg;
       }
       case "org_created": {
         if (!job.organizationId || !job.ownerUserId) {
-          return saveJob(markProvisioningRetry(job, "missing_org_or_user"));
+          return await saveJob(markProvisioningRetry(job, "missing_org_or_user"));
         }
         const activated = await activateSubscription({
           organizationId: job.organizationId,
@@ -412,9 +447,9 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
         });
         if (activated.error) {
           // Compensation: keep org; retry entitle — never second org/subscription invent.
-          return saveJob(markProvisioningRetry(job, activated.error));
+          return await saveJob(markProvisioningRetry(job, activated.error));
         }
-        return saveJob(transitionProvisioning(job, "entitled", "product_activated"));
+        return await saveJob(transitionProvisioning(job, "entitled", "product_activated"));
       }
       case "entitled": {
         const issued = issueBindToken();
@@ -427,7 +462,7 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
           "owner_pending",
           "awaiting_email_claim"
         );
-        return saveJob(next);
+        return await saveJob(next);
       }
       case "owner_pending":
         return job;
@@ -443,7 +478,7 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
           "welcome_sent",
           "welcome_email"
         );
-        return saveJob(welcomed);
+        return await saveJob(welcomed);
       }
       case "welcome_sent": {
         const ready = transitionProvisioning(job, "ready", "guided_setup_prepared");
@@ -458,7 +493,7 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
           continueUrl: `${serverEnv.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/setup`,
           organizationName: job.organizationName
         });
-        return saveJob({
+        return await saveJob({
           ...ready,
           emailsSent: [...ready.emailsSent, "continue_setup"]
         });
@@ -468,11 +503,11 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
       default: {
         const next = nextProvisioningCheckpoint(current);
         if (!next) return job;
-        return saveJob(transitionProvisioning(job, next));
+        return await saveJob(transitionProvisioning(job, next));
       }
     }
   } catch (error) {
-    return saveJob(
+    return await saveJob(
       markProvisioningRetry(job, error instanceof Error ? error.message : "checkpoint_exception")
     );
   }
@@ -487,9 +522,11 @@ export async function claimProvisioningOwner(input: {
   userEmail: string;
   bindToken?: string | null;
 }): Promise<{ ok: true; job: ProvisioningJob } | { ok: false; error: string }> {
-  let job = getProvisioningJob(input.checkoutSessionId);
+  let job = await resolveJob(input.checkoutSessionId);
   if (!job) {
-    const purchase = getSaasPurchaseBySessionId(input.checkoutSessionId);
+    const purchase =
+      getSaasPurchaseBySessionId(input.checkoutSessionId) ??
+      (await ensurePurchaseFromStripeSession(input.checkoutSessionId));
     if (purchase) {
       job = await startOrAdvanceProvisioningFromPurchase(purchase);
     }
@@ -510,18 +547,22 @@ export async function claimProvisioningOwner(input: {
   if (job.checkpoint !== "owner_pending" && job.checkpoint !== "failed_retryable") {
     if (isProvisioningCheckpoint(job.checkpoint)) {
       if (["entitled", "org_created", "customer_linked", "received"].includes(job.checkpoint)) {
-        const purchase = getSaasPurchaseBySessionId(input.checkoutSessionId);
+        const purchase =
+          getSaasPurchaseBySessionId(input.checkoutSessionId) ??
+          (await ensurePurchaseFromStripeSession(input.checkoutSessionId));
         if (purchase) {
           job = (await startOrAdvanceProvisioningFromPurchase(purchase))!;
         }
       }
     }
   }
-  job = getProvisioningJob(input.checkoutSessionId)!;
+  job = (await resolveJob(input.checkoutSessionId))!;
   if (job.checkpoint === "failed_retryable") {
     job = resumeFromRetryable(job);
-    saveJob(job);
-    const purchase = getSaasPurchaseBySessionId(input.checkoutSessionId);
+    await saveJob(job);
+    const purchase =
+      getSaasPurchaseBySessionId(input.checkoutSessionId) ??
+      (await ensurePurchaseFromStripeSession(input.checkoutSessionId));
     if (purchase) {
       job = (await startOrAdvanceProvisioningFromPurchase(purchase))!;
     }
@@ -559,11 +600,29 @@ export async function claimProvisioningOwner(input: {
     "owner_bound",
     "owner_claimed"
   );
+  next = await saveJob(next);
+  await recordOnboardingLifecycleEvent({
+    checkoutSessionId: next.checkoutSessionId,
+    eventType: "owner_claimed",
+    stripeSubscriptionId: next.stripeSubscriptionId,
+    organizationId: next.organizationId,
+    summary: "Owner claimed workspace"
+  });
   next = await advanceOneCheckpoint(next);
   if (next.checkpoint === "welcome_sent") {
     next = await advanceOneCheckpoint(next);
   }
-  return { ok: true, job: getProvisioningJob(input.checkoutSessionId)! };
+  const ready = (await resolveJob(input.checkoutSessionId))!;
+  if (ready.checkpoint === "ready") {
+    await recordOnboardingLifecycleEvent({
+      checkoutSessionId: ready.checkoutSessionId,
+      eventType: "activated",
+      stripeSubscriptionId: ready.stripeSubscriptionId,
+      organizationId: ready.organizationId,
+      summary: "Workspace activated — Guided Setup ready"
+    });
+  }
+  return { ok: true, job: ready };
 }
 
 export async function retryProvisioningJob(

@@ -1,5 +1,5 @@
 import { SaasProvisioningConsole } from "../../../../../components/admin/saas-provisioning-console";
 
-export default function Page() {
+export default async function Page() {
   return <SaasProvisioningConsole />;
 }

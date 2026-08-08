@@ -1,5 +1,5 @@
 import { SaasLifecycleConsole } from "../../../../../components/admin/saas-lifecycle-console";
 
-export default function Page() {
+export default async function Page() {
   return <SaasLifecycleConsole />;
 }
