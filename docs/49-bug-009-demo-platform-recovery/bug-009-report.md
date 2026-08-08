@@ -40,33 +40,62 @@ Confirmed for:
 
 | Area | Expected | Status |
 |------|----------|--------|
-| Landing | Unchanged | Pass (not modified) |
-| Pricing | Unchanged | Pass (not modified) |
-| Confirm Plan / Checkout | Unchanged | Pass (not modified) |
-| Enterprise | Unchanged | Pass (not modified) |
-| Commercial / Provisioning / Lifecycle | Unchanged | Pass (not modified) |
-| Product Constitution (ADR-019) | Unchanged | Pass (not modified) |
-| Demo architecture | Shared snapshot + session overlay | Pass (retained; cookie carries overlay) |
-| Master Admin demo console | Reset / persona / analytics / snapshot integrity | Pass (APIs persist durable state; integrity helpers unchanged) |
+| Landing (`/`) | Unchanged | **Pass** (HTTP 200 smoke; not modified) |
+| Pricing (`/pricing`) | Unchanged | **Pass** (HTTP 200 smoke; not modified) |
+| Confirm Plan / Checkout | Unchanged | **Pass** (not modified) |
+| Enterprise (`/enterprise`) | Unchanged | **Pass** (HTTP 200 smoke; not modified) |
+| Commercial / Provisioning / Lifecycle | Unchanged | **Pass** (not modified) |
+| Product Constitution (ADR-019) | Unchanged | **Pass** (not modified) |
+| Demo architecture | Shared snapshot + session overlay | **Pass** (retained; cookie carries overlay) |
+| Master Admin demo console | Reset / persona / analytics / snapshot integrity | **Pass** (APIs hydrate+persist; integrity helpers unchanged; console page unchanged functionally) |
+| Persona switch API | Works across isolates | **Pass** (local cold-isolate verified) |
+| Reset demo API | Works across isolates | **Pass** (local cold-isolate verified) |
+| Analytics API | Works across isolates | **Pass** (local cold-isolate verified) |
 
 ## 4. Production deployment
 
-_Filled after merge + Production deploy._
+| Item | Value |
+|------|-------|
+| PR | [#63](https://github.com/ecastle612-ux/M.P.A/pull/63) merged |
+| Production SHA | `3af2916e04bf1755b95b692b2aaca5642943f58b` |
+| GitHub Production deploy | `5805353032` · **success** |
+| Serving project | Vercel `m-p-a-web` → `https://www.my-property-assistant.com` |
 
 ## 5. Live URL verification
 
-_Filled after Production deploy._
+| URL | Result |
+|-----|--------|
+| `/api/demo/start?product=mpa_property_manager&surface=mission-control` | **Pass** — 307 → surface HTTP 200 · 1 redirect · sets `mpa_demo_session` + `mpa_demo_state` |
+| `/demo/mpa_property_manager/mission-control` | **Pass** — Demo Environment · Mission Control · Harborline · SYNTHETIC |
+| `/api/demo/start?product=mpa_facility_operations&surface=fo-mission-control` | **Pass** — 307 → surface HTTP 200 · 1 redirect |
+| `/demo/mpa_facility_operations/fo-mission-control` | **Pass** — Facility Mission Control · Northbridge |
+| `/api/demo/start?product=mpa_complete_platform&surface=mission-control` | **Pass** — 307 → surface HTTP 200 · 1 redirect |
+| `/demo/mpa_complete_platform/mission-control` | **Pass** — Mission Control · Summit Portfolio · SYNTHETIC |
+| Cold surface with cookies only (no create) | **Pass** — Mission Control still renders (durable hydrate) |
+
+No redirect loop. No blank page.
 
 ## 6. Screenshot evidence
 
-_Filled after live capture under `/opt/cursor/artifacts/bug-009/`._
+Artifacts under `/opt/cursor/artifacts/bug-009/`:
+
+| File | Source |
+|------|--------|
+| `live-property-manager-mission-control.webp` | Production browser |
+| `live-facility-operations-mission-control.webp` | Production browser |
+| `live-complete-platform-mission-control.webp` | Production browser |
+| `property-manager-mission-control.webp` | Local verification |
+| `facility-operations-mission-control.webp` | Local verification |
+| `complete-platform-mission-control.webp` | Local verification |
 
 ## 7. Demo certification
 
 | Demo | Launch | Mission Control content | No account / payment |
 |------|--------|-------------------------|----------------------|
-| Property Manager | _pending_ | _pending_ | Required |
-| Facility Operations | _pending_ | _pending_ | Required |
-| Complete Platform | _pending_ | _pending_ | Required |
+| Property Manager | **PASS** | **PASS** (Harborline attention queue) | **PASS** |
+| Facility Operations | **PASS** | **PASS** (Northbridge FO queue) | **PASS** |
+| Complete Platform | **PASS** | **PASS** (Summit Portfolio queue) | **PASS** |
 
-**STOP** — wait for Owner Acceptance before roadmap work.
+**UX:** Loading bootstrap shown when session missing; recovery screen if boot fails; never blank.
+
+**STOP** — wait for Owner Acceptance before roadmap work (COM-002 Slice F, Capital Projects, etc.).
