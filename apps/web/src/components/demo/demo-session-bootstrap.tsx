@@ -1,10 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { toDemoProductLabel, type DemoProductId } from "@mpa/shared";
 
-type Phase = "loading" | "failed";
+function bootStorageKey(product: DemoProductId, surface: string): string {
+  return `mpa_demo_boot:${product}:${surface}`;
+}
+
+function subscribeNoop(): () => void {
+  return () => undefined;
+}
+
+function readBootFailed(product: DemoProductId, surface: string): boolean {
+  try {
+    return sessionStorage.getItem(bootStorageKey(product, surface)) === "1";
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Client bootstrap when the RSC surface cannot resolve a durable demo session.
@@ -17,21 +31,24 @@ export function DemoSessionBootstrap({
   product: DemoProductId;
   surface: string;
 }) {
-  const [phase, setPhase] = useState<Phase>("loading");
+  const failed = useSyncExternalStore(
+    subscribeNoop,
+    () => readBootFailed(product, surface),
+    () => false
+  );
 
   useEffect(() => {
-    const key = `mpa_demo_boot:${product}:${surface}`;
-    const prior = sessionStorage.getItem(key);
-    if (prior === "1") {
-      setPhase("failed");
-      return;
+    if (failed) return;
+    try {
+      sessionStorage.setItem(bootStorageKey(product, surface), "1");
+    } catch {
+      // ignore storage failures
     }
-    sessionStorage.setItem(key, "1");
     const target = `/api/demo/start?product=${encodeURIComponent(product)}&surface=${encodeURIComponent(surface)}`;
     window.location.replace(target);
-  }, [product, surface]);
+  }, [failed, product, surface]);
 
-  if (phase === "failed") {
+  if (failed) {
     return (
       <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 px-4 py-16">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
@@ -47,7 +64,11 @@ export function DemoSessionBootstrap({
             type="button"
             className="rounded-md bg-[var(--mpa-color-brand-primary)] px-4 py-2 text-sm font-semibold text-white"
             onClick={() => {
-              sessionStorage.removeItem(`mpa_demo_boot:${product}:${surface}`);
+              try {
+                sessionStorage.removeItem(bootStorageKey(product, surface));
+              } catch {
+                // ignore
+              }
               window.location.replace(
                 `/api/demo/start?product=${encodeURIComponent(product)}&surface=${encodeURIComponent(surface)}`
               );
