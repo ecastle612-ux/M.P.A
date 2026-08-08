@@ -19,7 +19,6 @@ const publicNav = [
   {
     href: acquisitionHref("checkout", {
       sku: "mpa_property_manager",
-      planTier: "professional",
       billingCycle: "monthly"
     }),
     label: "Confirm Plan"
@@ -108,7 +107,6 @@ export function MarketingChrome({
             <Link
               href={acquisitionHref("checkout", {
                 sku: "mpa_property_manager",
-                planTier: "professional",
                 billingCycle: "monthly"
               })}
               className="hover:text-[var(--mpa-color-text-primary)]"

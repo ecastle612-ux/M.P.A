@@ -86,15 +86,18 @@ export function acquisitionHref(
   }
 }
 
-/** Next href after pricing selection — Confirm Plan for the chosen platform. */
+/**
+ * Next href after pricing selection — Confirm Plan for the chosen platform.
+ * Customer URLs carry product + billing cycle only (no historical plan-tier names).
+ * Internal Stripe offer mapping stays in Confirm Plan / checkout API.
+ */
 export function commercialContinueHref(input: {
   productSku: ProductSku;
-  planTier: PlanTier;
+  planTier?: PlanTier;
   billingCycle: BillingCycle;
 }): string {
   return acquisitionHref("checkout", {
     sku: input.productSku,
-    planTier: input.planTier,
     billingCycle: input.billingCycle
   });
 }
