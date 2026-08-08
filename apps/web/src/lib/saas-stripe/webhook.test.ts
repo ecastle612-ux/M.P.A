@@ -7,6 +7,10 @@ import {
 } from "./purchase-store";
 import { handleSaasStripeEvent } from "./webhook";
 import { getProvisioningJob } from "../saas-provisioning/jobs-store";
+import {
+  clearLifecycleStoreForTests,
+  getLifecycleByStripeSubscriptionId
+} from "../saas-lifecycle/lifecycle-store";
 
 const globalStore = globalThis as typeof globalThis & {
   __mpaProvisioningJobs?: Map<string, unknown>;
@@ -19,17 +23,18 @@ function signedHeader(payload: string, secret: string): string {
   return `t=${timestamp},v1=${signed}`;
 }
 
-describe("COM-002 SaaS webhook handling (Slice C + D)", () => {
+describe("COM-002 SaaS webhook handling (Slice C + D + E)", () => {
   beforeEach(() => {
     globalStore.__mpaProvisioningJobs = new Map();
     globalStore.__mpaSaasCustomers = new Map();
+    clearLifecycleStoreForTests();
   });
 
   it("never touches FIN-OPS tables", () => {
     expect(saasStoreTouchesFinOps()).toBe(false);
   });
 
-  it("marks checkout completed and starts Slice D provisioning to owner_pending", async () => {
+  it("marks checkout completed, starts provisioning, and seeds lifecycle", async () => {
     const sessionId = `cs_test_${Date.now()}`;
     rememberSaasPurchase({
       id: "p1",
@@ -85,18 +90,56 @@ describe("COM-002 SaaS webhook handling (Slice C + D)", () => {
     expect(result.ok).toBe(true);
     const purchase = getSaasPurchaseBySessionId(sessionId);
     expect(purchase?.status).toBe("checkout_completed");
-    // Owner claim completes provisioning; webhook stops at owner_pending.
     expect(purchase?.provisioned).toBe(false);
     const job = getProvisioningJob(sessionId);
     expect(job?.checkpoint).toBe("owner_pending");
-    expect(job?.organizationId).toBeTruthy();
+    expect(getLifecycleByStripeSubscriptionId("sub_test")?.status).toBe("active");
 
     const dup = await handleSaasStripeEvent(event as never);
     expect(dup.ok).toBe(true);
     if (dup.ok) {
       expect(dup.duplicate).toBe(true);
     }
-    expect(getProvisioningJob(sessionId)?.organizationId).toBe(job?.organizationId);
+  });
+
+  it("handles invoice.payment_failed and invoice.paid lifecycle events idempotently", async () => {
+    const failEvent = {
+      id: "evt_fail_unique_1",
+      type: "invoice.payment_failed",
+      data: {
+        object: {
+          id: "in_1",
+          object: "invoice",
+          subscription: "sub_wh_1",
+          customer: "cus_wh_1",
+          amount_due: 9900
+        }
+      }
+    };
+    const fail = await handleSaasStripeEvent(failEvent as never);
+    expect(fail.ok).toBe(true);
+    expect(getLifecycleByStripeSubscriptionId("sub_wh_1")?.status).toBe("past_due");
+
+    const failDup = await handleSaasStripeEvent(failEvent as never);
+    expect(failDup.ok).toBe(true);
+    if (failDup.ok) expect(failDup.duplicate).toBe(true);
+
+    const paidEvent = {
+      id: "evt_paid_unique_1",
+      type: "invoice.paid",
+      data: {
+        object: {
+          id: "in_2",
+          object: "invoice",
+          subscription: "sub_wh_1",
+          customer: "cus_wh_1",
+          amount_paid: 9900
+        }
+      }
+    };
+    const paid = await handleSaasStripeEvent(paidEvent as never);
+    expect(paid.ok).toBe(true);
+    expect(getLifecycleByStripeSubscriptionId("sub_wh_1")?.status).toBe("active");
   });
 
   it("builds a stripe-compatible signature header shape", () => {

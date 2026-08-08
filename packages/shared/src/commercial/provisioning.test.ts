@@ -41,9 +41,8 @@ function job(partial: Partial<ProvisioningJob> = {}): ProvisioningJob {
 }
 
 describe("COM-002 Slice D provisioning machine", () => {
-  it("enables Slice D and keeps lifecycle slices off", () => {
+  it("enables Slice D while portal remains off", () => {
     expect(COM_002_FLAGS.sliceD_automaticProvisioning).toBe(true);
-    expect(COM_002_FLAGS.sliceE_subscriptionLifecycle).toBe(false);
     expect(COM_002_FLAGS.sliceF_customerPortal).toBe(false);
   });
 

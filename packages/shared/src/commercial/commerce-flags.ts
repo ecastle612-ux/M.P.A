@@ -12,7 +12,7 @@ export const COM_002_FLAGS = {
   sliceB_demoPlatform: true,
   sliceC_stripeCheckout: true,
   sliceD_automaticProvisioning: true,
-  sliceE_subscriptionLifecycle: false,
+  sliceE_subscriptionLifecycle: true,
   sliceF_customerPortal: false,
   sliceG_commercialCertification: false,
   foReady: FO_READY,

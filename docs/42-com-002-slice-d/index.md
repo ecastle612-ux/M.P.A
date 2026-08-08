@@ -26,9 +26,6 @@ Payment succeeds → Automatic Provisioning → Email verification → Create pa
 | Regression | [regression-report.md](./regression-report.md) |
 | Master Admin | [master-admin-verification.md](./master-admin-verification.md) |
 
-## STOP
+## Follow-on
 
-```
-STOP
-Wait for AUTHORIZE COM-002 SLICE E before subscription lifecycle implementation.
-```
+Slice E (Subscription Lifecycle) is authorized/implemented — see [43](../43-com-002-slice-e/index.md).

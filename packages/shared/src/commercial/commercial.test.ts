@@ -169,6 +169,7 @@ describe("master admin catalog", () => {
     const commercialHrefs =
       MASTER_ADMIN_NAV.find((group) => group.id === "commercial")?.items.map((item) => item.href) ?? [];
     expect(commercialHrefs).toContain("/admin/commercial/provisioning");
+    expect(commercialHrefs).toContain("/admin/commercial/lifecycle");
   });
 
   it("does not hide planned capabilities from Master Admin", () => {

@@ -92,6 +92,14 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         status: "aligned"
       },
       {
+        href: "/admin/commercial/lifecycle",
+        label: "Lifecycle",
+        description:
+          "COM-002 Slice E subscription lifecycle — renewals, grace, failures, cancel, reactivate.",
+        status: "aligned"
+      },
+
+      {
         href: "/admin/commercial/billing",
         label: "Billing",
         description: "Platform billing operations.",

@@ -11,7 +11,17 @@ import { createAuthServerClient } from "../auth/server";
 export type OrganizationCommercialState = {
   sku: ProductSku | null;
   skuLabel: string | null;
-  subscriptionStatus: "active" | "trialing" | "past_due" | "canceled" | null;
+  subscriptionStatus:
+    | "pending"
+    | "active"
+    | "past_due"
+    | "canceled"
+    | "expired"
+    | "unpaid"
+    | "incomplete"
+    | "dispute_hold"
+    | "trialing"
+    | null;
   entitlements: EntitlementKey[];
   productConfirmed: boolean;
   setupComplete: boolean;

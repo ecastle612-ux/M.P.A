@@ -1,9 +1,10 @@
 import type Stripe from "stripe";
-import { isSaasCheckoutMetadata } from "@mpa/shared";
+import { COM_002_FLAGS, isSaasCheckoutMetadata } from "@mpa/shared";
 import { serverEnv } from "../env/server-env";
 import { getSaasStripeClient } from "./client";
 import {
   getSaasPurchaseBySessionId,
+  listSaasPurchases,
   markSaasWebhookProcessed,
   rememberSaasPurchase,
   rememberSaasWebhookEvent,
@@ -17,6 +18,14 @@ export type SaasWebhookResult =
 function metaFromSession(session: Stripe.Checkout.Session): Record<string, string> {
   return Object.fromEntries(
     Object.entries(session.metadata ?? {}).filter(
+      (entry): entry is [string, string] => typeof entry[1] === "string"
+    )
+  );
+}
+
+function metaRecord(metadata: Stripe.Metadata | null | undefined): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(metadata ?? {}).filter(
       (entry): entry is [string, string] => typeof entry[1] === "string"
     )
   );
@@ -54,6 +63,26 @@ function ensurePurchaseFromSession(session: Stripe.Checkout.Session) {
   });
 }
 
+function planTierFromMeta(meta: Record<string, string>): "professional" | "business" | undefined {
+  if (meta["mpa_plan_tier"] === "business") return "business";
+  if (meta["mpa_plan_tier"] === "professional") return "professional";
+  return undefined;
+}
+
+function billingCycleFromMeta(meta: Record<string, string>): "monthly" | "annual" | undefined {
+  if (meta["mpa_billing_cycle"] === "annual") return "annual";
+  if (meta["mpa_billing_cycle"] === "monthly") return "monthly";
+  return undefined;
+}
+
+function customerIdFromDispute(dispute: Stripe.Dispute): string | null {
+  const charge = dispute.charge;
+  if (charge && typeof charge === "object" && "customer" in charge) {
+    return typeof charge.customer === "string" ? charge.customer : null;
+  }
+  return null;
+}
+
 export function verifySaasStripeWebhook(
   body: string,
   signature: string | null
@@ -78,6 +107,139 @@ export function verifySaasStripeWebhook(
       status: 400,
       error: error instanceof Error ? error.message : "invalid_signature"
     };
+  }
+}
+
+async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
+  if (!COM_002_FLAGS.sliceE_subscriptionLifecycle) {
+    return;
+  }
+  const {
+    applyChargeRefunded,
+    applyDisputeClosed,
+    applyDisputeCreated,
+    applyInvoicePaid,
+    applyInvoicePaymentActionRequired,
+    applyInvoicePaymentFailed,
+    applySubscriptionCreatedOrUpdated,
+    seedLifecycleFromPurchase
+  } = await import("../saas-lifecycle/apply-lifecycle");
+
+  switch (event.type) {
+    case "customer.subscription.created":
+    case "customer.subscription.updated":
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription & {
+        current_period_end?: number;
+      };
+      const meta = metaRecord(subscription.metadata);
+      const periodEndUnix = subscription.current_period_end;
+      const periodEnd =
+        typeof periodEndUnix === "number"
+          ? new Date(periodEndUnix * 1000).toISOString()
+          : null;
+      const planTier = planTierFromMeta(meta);
+      const billingCycle = billingCycleFromMeta(meta);
+      await applySubscriptionCreatedOrUpdated({
+        stripeSubscriptionId: subscription.id,
+        stripeCustomerId:
+          typeof subscription.customer === "string" ? subscription.customer : null,
+        stripeStatus: event.type === "customer.subscription.deleted" ? "canceled" : subscription.status,
+        cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end),
+        currentPeriodEnd: periodEnd,
+        ...(planTier ? { planTier } : {}),
+        ...(billingCycle ? { billingCycle } : {}),
+        eventId: event.id,
+        eventType: event.type
+      });
+      return;
+    }
+    case "invoice.paid": {
+      const invoice = event.data.object as Stripe.Invoice & {
+        subscription?: string | Stripe.Subscription | null;
+      };
+      const subId =
+        typeof invoice.subscription === "string" ? invoice.subscription : null;
+      if (subId) {
+        const purchase = listSaasPurchases().find((p) => p.stripeSubscriptionId === subId);
+        if (purchase?.stripeCheckoutSessionId) {
+          seedLifecycleFromPurchase(purchase.stripeCheckoutSessionId);
+        }
+      }
+      await applyInvoicePaid({
+        stripeSubscriptionId: subId,
+        stripeCustomerId: typeof invoice.customer === "string" ? invoice.customer : null,
+        ...(typeof invoice.amount_paid === "number" ? { amountCents: invoice.amount_paid } : {}),
+        eventId: event.id
+      });
+      return;
+    }
+    case "invoice.payment_failed": {
+      const invoice = event.data.object as Stripe.Invoice & {
+        subscription?: string | Stripe.Subscription | null;
+      };
+      await applyInvoicePaymentFailed({
+        stripeSubscriptionId:
+          typeof invoice.subscription === "string" ? invoice.subscription : null,
+        stripeCustomerId: typeof invoice.customer === "string" ? invoice.customer : null,
+        ...(typeof invoice.amount_due === "number" ? { amountCents: invoice.amount_due } : {}),
+        eventId: event.id
+      });
+      return;
+    }
+    case "invoice.payment_action_required": {
+      const invoice = event.data.object as Stripe.Invoice & {
+        subscription?: string | Stripe.Subscription | null;
+      };
+      await applyInvoicePaymentActionRequired({
+        stripeSubscriptionId:
+          typeof invoice.subscription === "string" ? invoice.subscription : null,
+        stripeCustomerId: typeof invoice.customer === "string" ? invoice.customer : null,
+        eventId: event.id
+      });
+      return;
+    }
+    case "charge.refunded": {
+      const charge = event.data.object as Stripe.Charge;
+      await applyChargeRefunded({
+        stripeSubscriptionId: null,
+        stripeCustomerId: typeof charge.customer === "string" ? charge.customer : null,
+        ...(typeof charge.amount_refunded === "number"
+          ? { amountCents: charge.amount_refunded }
+          : {}),
+        eventId: event.id
+      });
+      return;
+    }
+    case "charge.dispute.created": {
+      const dispute = event.data.object as Stripe.Dispute;
+      const customerId = customerIdFromDispute(dispute);
+      const linked = customerId
+        ? listSaasPurchases().find((p) => p.stripeCustomerId === customerId) ?? null
+        : null;
+      await applyDisputeCreated({
+        stripeSubscriptionId: linked?.stripeSubscriptionId ?? null,
+        stripeCustomerId: customerId,
+        eventId: event.id
+      });
+      return;
+    }
+    case "charge.dispute.closed": {
+      const dispute = event.data.object as Stripe.Dispute;
+      const customerId = customerIdFromDispute(dispute);
+      const linked = customerId
+        ? listSaasPurchases().find((p) => p.stripeCustomerId === customerId) ?? null
+        : null;
+      await applyDisputeClosed({
+        stripeSubscriptionId: linked?.stripeSubscriptionId ?? null,
+        stripeCustomerId: customerId,
+        won: dispute.status === "won",
+        eventId: event.id
+      });
+      return;
+    }
+    default:
+      return;
   }
 }
 
@@ -111,7 +273,6 @@ export async function handleSaasStripeEvent(event: Stripe.Event): Promise<SaasWe
         customerEmail: session.customer_details?.email ?? session.customer_email ?? null
       });
       try {
-        const { COM_002_FLAGS } = await import("@mpa/shared");
         if (COM_002_FLAGS.sliceD_automaticProvisioning) {
           const { startOrAdvanceProvisioningFromCheckoutSession } = await import(
             "../saas-provisioning/run-provisioning"
@@ -125,8 +286,12 @@ export async function handleSaasStripeEvent(event: Stripe.Event): Promise<SaasWe
             metadata: meta
           });
         }
+        if (COM_002_FLAGS.sliceE_subscriptionLifecycle && typeof session.subscription === "string") {
+          const { seedLifecycleFromPurchase } = await import("../saas-lifecycle/apply-lifecycle");
+          seedLifecycleFromPurchase(session.id);
+        }
       } catch {
-        // Provisioning failures are tracked on the job; webhook still acks to allow retry/reconcile.
+        // Provisioning/lifecycle failures are tracked on stores; webhook still acks.
       }
       markSaasWebhookProcessed(event.id, session.id);
       return { ok: true, handled: event.type };
@@ -150,7 +315,11 @@ export async function handleSaasStripeEvent(event: Stripe.Event): Promise<SaasWe
     case "charge.refunded":
     case "charge.dispute.created":
     case "charge.dispute.closed": {
-      // Persist/ack only — subscription lifecycle & provisioning are later slices.
+      try {
+        await handleLifecycleEvent(event);
+      } catch {
+        // Persist ack; sweeper/reconcile can repair.
+      }
       markSaasWebhookProcessed(event.id, null);
       return { ok: true, handled: event.type };
     }

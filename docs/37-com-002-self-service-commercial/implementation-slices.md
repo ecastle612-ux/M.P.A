@@ -62,7 +62,10 @@
 
 ## Slice E — Subscription lifecycle
 
-**Includes:** Upgrade/downgrade UX, proration, cancel-at-period-end, reactivate, past_due grace enforcement, trial ending emails.  
+**Authorize status:** **AUTHORIZED / IMPLEMENTED** (2026-08-08) — see [43 Slice E](../43-com-002-slice-e/index.md).  
+
+**Includes:** Upgrade/downgrade UX, proration, cancel-at-period-end, reactivate, past_due grace enforcement.  
+**Excludes:** Self-serve trials (A7 none); Customer Portal (Slice F).  
 **Exit:** Matrix tests for status transitions; entitlement fail closed verified.
 
 ---
