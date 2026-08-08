@@ -22,7 +22,7 @@ Implementation Gate in force.
 Design → Document → Approve → Implement
 ```
 
-Full policy: [00 Governance — Implementation Gate](./00-governance/implementation-gate.md) · [Infrastructure Verification](./00-governance/infrastructure-verification-policy.md) · [ADR-012](./18-decision-log/adr-012-design-document-approve-implement.md)
+Full policy: [00 Governance — Implementation Gate](./00-governance/implementation-gate.md) · [Product Constitution](./00-governance/product-constitution.md) · [Infrastructure Verification](./00-governance/infrastructure-verification-policy.md) · [ADR-012](./18-decision-log/adr-012-design-document-approve-implement.md) · [ADR-019](./18-decision-log/adr-019-product-constitution.md)
 
 ---
 
@@ -152,6 +152,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | Document | Purpose |
 |----------|---------|
 | [Implementation Gate](./00-governance/implementation-gate.md) | Design → Document → Approve → Implement (permanent) |
+| [Product Constitution](./00-governance/product-constitution.md) | Three products; Enterprise sales motion only; binding commercial flow (ADR-019) |
 | [Infrastructure Verification](./00-governance/infrastructure-verification-policy.md) | Do not re-request configured secrets; stop only for new vars/migrations/proven gaps |
 
 ### 06 Design Language — Canopy (Phase 1.5)

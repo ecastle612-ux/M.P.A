@@ -1,0 +1,44 @@
+---
+description: M.P.A. Product Constitution — products, Enterprise sales motion, binding commercial flow
+alwaysApply: true
+---
+
+# M.P.A. Product Constitution
+
+## Products (only these)
+
+- Property Manager
+- Facility Operations
+- Complete Platform
+
+Capital Projects are not a commercial product.
+
+## Enterprise
+
+- Sales motion only
+- Not a product
+- Not a pricing tier
+- Must not replace platform products in landing, pricing, or Confirm Plan
+
+## Binding commercial flow
+
+```
+Landing → Choose Product → Choose Monthly / Annual → Stripe Checkout
+→ Create Account → Guided Setup → Mission Control
+```
+
+## Agent rule
+
+**Do not alter this flow without explicit Product Owner approval.**
+
+Forbidden without Product Owner approval:
+
+1. Customer-facing SaaS tiers (Professional, Business, Starter, Pro, Teams, etc.)
+2. Presenting Enterprise as a product or pricing tier
+3. Enterprise-first funnels that substitute for Facility Operations or Complete Platform
+4. Reordering payment → account → Guided Setup → Mission Control
+
+## Authoritative docs
+
+- `docs/00-governance/product-constitution.md`
+- `docs/18-decision-log/adr-019-product-constitution.md`
