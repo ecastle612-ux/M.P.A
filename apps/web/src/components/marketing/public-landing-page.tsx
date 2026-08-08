@@ -3,9 +3,12 @@ import type { ReactNode } from "react";
 import {
   SKU_SUMMARIES,
   PRODUCT_SKUS,
+  PROPERTY_LIMITS,
+  SEAT_LIMITS,
   acquisitionHref,
   marketingModulesForOwner,
   marketingModulesForSku,
+  requiresEnterpriseMotion,
   skuComparisonRows
 } from "@mpa/shared";
 import {
@@ -145,8 +148,8 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               <Link href="/demo" className={marketingHeroSecondaryCtaClass}>
                 Live Demo
               </Link>
-              <Link href={acquisitionHref("modules")} className={marketingHeroSecondaryCtaClass}>
-                Choose Modules
+              <Link href="/enterprise" className={marketingHeroSecondaryCtaClass}>
+                Request Enterprise
               </Link>
               {!isAuthenticated ? (
                 <Link href="/login" className={marketingHeroSecondaryCtaClass}>
@@ -370,13 +373,14 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
       <Section
         id="pricing"
         eyebrow="Pricing preview"
-        title="Plans by inclusion — enterprise pricing finalized in onboarding"
-        description="Compare what each plan includes. Enterprise pricing and subscription billing are finalized with our commercial team after you create your account."
+        title="Property Manager self-serve. Facility and Complete via Enterprise."
+        description="Choose Professional or Business for Property Manager, then confirm and pay securely with Stripe. Facility Operations and Complete Platform follow the Enterprise path — not self-service checkout."
       >
         <ul className="grid gap-4 md:grid-cols-3">
           {PRODUCT_SKUS.map((sku) => {
             const summary = SKU_SUMMARIES[sku];
             const count = marketingModulesForSku(sku).length;
+            const enterprise = requiresEnterpriseMotion(sku);
             return (
               <li
                 key={sku}
@@ -387,12 +391,49 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                 <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
                   {count} included modules
                 </p>
-                <p className="mt-1 text-lg font-semibold text-[var(--mpa-color-text-primary)]">
-                  Enterprise pricing
-                </p>
-                <Link href={acquisitionHref("checkout", sku)} className={`${marketingPrimaryCtaClass} mt-4`}>
-                  Confirm this plan
-                </Link>
+                {enterprise ? (
+                  <>
+                    <p className="mt-1 text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+                      Enterprise path
+                    </p>
+                    <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                      Sales-led implementation — no public Stripe Checkout.
+                    </p>
+                    <Link
+                      href={acquisitionHref("enterprise", sku)}
+                      className={`${marketingPrimaryCtaClass} mt-4`}
+                    >
+                      Request Enterprise
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <p className="mt-1 text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+                      Professional · Business
+                    </p>
+                    <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                      {SEAT_LIMITS.professional}–{SEAT_LIMITS.business} seats ·{" "}
+                      {PROPERTY_LIMITS.professional}–{PROPERTY_LIMITS.business} properties · Stripe
+                      Checkout
+                    </p>
+                    <Link
+                      href={acquisitionHref("pricing", sku)}
+                      className={`${marketingPrimaryCtaClass} mt-4`}
+                    >
+                      Compare plans
+                    </Link>
+                    <Link
+                      href={acquisitionHref("checkout", {
+                        sku,
+                        planTier: "professional",
+                        billingCycle: "monthly"
+                      })}
+                      className={`${marketingSecondaryCtaClass} mt-2`}
+                    >
+                      Confirm Plan
+                    </Link>
+                  </>
+                )}
               </li>
             );
           })}
@@ -400,16 +441,62 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
       </Section>
 
       <Section
+        id="demo"
+        eyebrow="Demo CTA"
+        title="Try the Live Demo before you subscribe"
+        description="Explore Property Manager, Facility Operations, and Complete Platform with demonstration data — no account and no payment."
+      >
+        <div className="flex flex-wrap gap-3">
+          <Link href="/demo" className={marketingPrimaryCtaClass}>
+            Open Live Demo
+          </Link>
+          <Link
+            href={acquisitionHref("pricing", "mpa_property_manager")}
+            className={marketingSecondaryCtaClass}
+          >
+            Subscribe to Property Manager
+          </Link>
+        </div>
+      </Section>
+
+      <Section
+        id="enterprise"
+        eyebrow="Enterprise CTA"
+        title="Facility Operations and Complete Platform"
+        description="High-touch Enterprise path: consultation, proposal, contract, then implementation. Never uses public self-serve Checkout."
+      >
+        <div className="flex flex-wrap gap-3">
+          <Link href="/enterprise" className={marketingPrimaryCtaClass}>
+            Request Enterprise
+          </Link>
+          <Link
+            href={acquisitionHref("enterprise", "mpa_facility_operations")}
+            className={marketingSecondaryCtaClass}
+          >
+            Facility Operations
+          </Link>
+          <Link
+            href={acquisitionHref("enterprise", "mpa_complete_platform")}
+            className={marketingSecondaryCtaClass}
+          >
+            Complete Platform
+          </Link>
+        </div>
+      </Section>
+
+      <Section
         id="journey"
         eyebrow="Customer journey"
         title="From landing to Mission Control"
-        description="A clear path from plan selection to your working home."
+        description="Self-serve Property Manager path — or fork to Enterprise when Facility or Complete is required."
       >
-        <ol className="grid gap-3 md:grid-cols-4">
+        <ol className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
           {[
             "Choose modules",
-            "Compare & confirm plan",
-            "Create account",
+            "Compare Professional / Business",
+            "Confirm Plan",
+            "Stripe Checkout",
+            "Claim workspace",
             "Guided Setup → Mission Control"
           ].map((step, index) => (
             <li
@@ -427,8 +514,11 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           <Link href={acquisitionHref("modules")} className={marketingPrimaryCtaClass}>
             Get started
           </Link>
-          <Link href="/login" className={marketingSecondaryCtaClass}>
-            Sign In
+          <Link href="/demo" className={marketingSecondaryCtaClass}>
+            Live Demo
+          </Link>
+          <Link href="/enterprise" className={marketingSecondaryCtaClass}>
+            Request Enterprise
           </Link>
         </div>
       </Section>
@@ -467,11 +557,11 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             },
             {
               q: "Can I buy online with a credit card today?",
-              a: "You can select a plan and create your account online. Enterprise subscription pricing and billing are completed with our commercial team during onboarding."
+              a: "Yes for Property Manager Professional and Business — Confirm Plan opens secure Stripe Checkout, then automatic workspace provisioning. Facility Operations and Complete Platform use Request Enterprise, not public Checkout."
             },
             {
-              q: "What happens after I create an account?",
-              a: "You complete Guided Setup to create your organization, confirm your plan, receive the right role access, and enter Mission Control. If you selected Facility Operations or Complete Platform, our team activates that plan with your organization during onboarding."
+              q: "What happens after payment?",
+              a: "Stripe confirms the subscription, provisioning prepares your organization, you claim ownership with the checkout email, complete Guided Setup, and enter Mission Control."
             },
             {
               q: "Is Master Admin something customers buy?",
@@ -494,18 +584,18 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           <div>
             <h2 className="font-display text-2xl font-semibold">Ready when you are.</h2>
             <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              Choose modules, confirm your plan, create your account.
+              Modules → Pricing → Confirm Plan → Stripe Checkout — or try the Live Demo first.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link href={acquisitionHref("modules")} className={marketingPrimaryCtaClass}>
               Choose Modules
             </Link>
-            <Link href={acquisitionHref("pricing")} className={marketingSecondaryCtaClass}>
-              View pricing
+            <Link href="/demo" className={marketingSecondaryCtaClass}>
+              Live Demo
             </Link>
-            <Link href="/login" className={marketingSecondaryCtaClass}>
-              Sign In
+            <Link href="/enterprise" className={marketingSecondaryCtaClass}>
+              Request Enterprise
             </Link>
           </div>
         </div>
