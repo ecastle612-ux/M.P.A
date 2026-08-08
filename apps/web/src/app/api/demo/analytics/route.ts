@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { COM_002_FLAGS, DEMO_ANALYTICS_EVENTS } from "@mpa/shared";
-import { trackDemoAnalytics } from "../../../../lib/demo/session-store";
+import { readDemoCookiePair } from "../../../../lib/demo/cookie";
+import { applyDemoCookies } from "../../../../lib/demo/durable-state";
+import {
+  resolveDemoSessionRecord,
+  trackDemoAnalytics
+} from "../../../../lib/demo/session-store";
 
 const ALLOWED = new Set<string>(Object.values(DEMO_ANALYTICS_EVENTS));
 
@@ -25,6 +30,20 @@ export async function POST(request: Request) {
       }
     }
   }
-  trackDemoAnalytics(body.sessionId, body.event, safeMeta);
-  return NextResponse.json({ ok: true });
+
+  const cookies = await readDemoCookiePair();
+  const existing = resolveDemoSessionRecord({
+    sessionId: body.sessionId,
+    stateToken: cookies.stateToken
+  });
+  if (!existing) {
+    return NextResponse.json({ ok: true, skipped: "session_missing" });
+  }
+
+  const row = trackDemoAnalytics(body.sessionId, body.event, safeMeta);
+  const response = NextResponse.json({ ok: true });
+  if (row) {
+    applyDemoCookies(response, row);
+  }
+  return response;
 }

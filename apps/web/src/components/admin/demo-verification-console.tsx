@@ -99,9 +99,11 @@ export function DemoVerificationConsole() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-display text-lg font-semibold">Active in-memory sessions</h2>
+        <h2 className="font-display text-lg font-semibold">Active sessions (this instance)</h2>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Overlay store is process-local (shared snapshot + session overlay). Count: {sessions.length}
+          Shared snapshot + session overlay. Sessions hydrate from a signed cookie across
+          serverless isolates; this list shows only what is loaded on this instance. Count:{" "}
+          {sessions.length}
         </p>
         {sessions.length === 0 ? (
           <p className="text-sm text-[var(--mpa-color-text-muted)]">No active demo sessions on this instance.</p>

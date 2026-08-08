@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   DEMO_ANALYTICS_EVENTS,
   demoConversionHref,
@@ -36,6 +36,19 @@ export function DemoChrome({
   const nav = demoNavFor(product, persona);
   const honesty = demoHonestyBanner(product);
   const primaryCta = primaryDemoConversionCta(product);
+
+  // Refresh durable cookies / idle clock on this isolate after hydration.
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(`mpa_demo_boot:${product}:${surface}`);
+    } catch {
+      // ignore storage failures
+    }
+    void fetch(`/api/demo/session?id=${encodeURIComponent(session.id)}`, {
+      method: "GET",
+      credentials: "same-origin"
+    }).catch(() => undefined);
+  }, [session.id, product, surface]);
 
   async function track(event: string, meta?: Record<string, string>) {
     await fetch("/api/demo/analytics", {

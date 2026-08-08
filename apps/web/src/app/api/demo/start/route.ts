@@ -5,7 +5,7 @@ import {
   defaultPersonaForProduct,
   parseDemoProduct
 } from "@mpa/shared";
-import { demoSessionCookieOptions } from "../../../../lib/demo/cookie";
+import { applyDemoCookies } from "../../../../lib/demo/durable-state";
 import { createDemoSessionRecord } from "../../../../lib/demo/session-store";
 
 export async function GET(request: Request) {
@@ -21,7 +21,6 @@ export async function GET(request: Request) {
   const surface = url.searchParams.get("surface") || defaultDemoSurface(product, persona);
   const row = createDemoSessionRecord({ product, persona });
   const response = NextResponse.redirect(new URL(`/demo/${product}/${surface}`, request.url));
-  const cookie = demoSessionCookieOptions();
-  response.cookies.set(cookie.name, row.session.id, cookie);
+  applyDemoCookies(response, row);
   return response;
 }
