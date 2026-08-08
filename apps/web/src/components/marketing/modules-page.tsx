@@ -7,9 +7,6 @@ import {
 } from "@mpa/shared";
 import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
 
-/** Internal Stripe offer mapping — not shown as a customer-facing tier. */
-const CHECKOUT_PLAN = "professional" as const;
-
 export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
@@ -59,7 +56,6 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                   <Link
                     href={acquisitionHref("checkout", {
                       sku,
-                      planTier: CHECKOUT_PLAN,
                       billingCycle: "monthly"
                     })}
                     className={marketingSecondaryCtaClass}

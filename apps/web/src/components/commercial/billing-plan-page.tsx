@@ -80,7 +80,7 @@ export function BillingPlanPage() {
           Billing & Plan
         </h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Property Manager Professional and Business renew, recover, and cancel automatically — no
+          Your Property Manager subscription renews, recovers, and cancels automatically — no
           employee involvement.
         </p>
       </section>
@@ -138,7 +138,7 @@ export function BillingPlanPage() {
             ) : null}
             {data.pendingPlanTier ? (
               <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                Plan change to {data.pendingPlanTier} is scheduled for the end of this billing period.
+                A capacity change is scheduled for the end of this billing period.
               </p>
             ) : null}
           </>
@@ -177,30 +177,6 @@ export function BillingPlanPage() {
             className="rounded-md border border-[var(--mpa-color-border-default)] px-4 py-2 text-sm font-semibold"
           >
             {busy ? "Working…" : "Cancel at period end"}
-          </button>
-        ) : null}
-        {data?.planTier === "professional" ? (
-          <button
-            type="button"
-            disabled={busy !== null}
-            onClick={() =>
-              void post("/api/commerce/subscription/change-plan", { planTier: "business" })
-            }
-            className="rounded-md border border-[var(--mpa-color-border-default)] px-4 py-2 text-sm font-semibold"
-          >
-            Upgrade to Business
-          </button>
-        ) : null}
-        {data?.planTier === "business" ? (
-          <button
-            type="button"
-            disabled={busy !== null}
-            onClick={() =>
-              void post("/api/commerce/subscription/change-plan", { planTier: "professional" })
-            }
-            className="rounded-md border border-[var(--mpa-color-border-default)] px-4 py-2 text-sm font-semibold"
-          >
-            Schedule Professional (period end)
           </button>
         ) : null}
         <Link

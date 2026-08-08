@@ -21,8 +21,8 @@ export function SaasCheckoutConsole() {
       <header className="space-y-2">
         <h1 className="font-display text-2xl font-semibold">Commercial Checkout</h1>
         <p className="max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
-          COM-002 Slice C verification — Stripe SaaS Checkout for Property Manager Professional /
-          Business only. Automatic provisioning is Slice D (see Commercial → Provisioning).
+          COM-002 Slice C verification — Stripe SaaS Checkout for Property Manager self-serve
+          (Monthly / Annual). Automatic provisioning is Slice D (see Commercial → Provisioning).
         </p>
         <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Status: aligned · dedicated webhook /api/commerce/webhooks/stripe

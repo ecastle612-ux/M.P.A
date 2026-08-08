@@ -123,10 +123,9 @@ export function LoginForm() {
       ) : null}
       {selectedPlanLabel && mode === "sign_up" && !commerceNext ? (
         <p className="mt-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          Your selected plan,{" "}
+          Your selected platform,{" "}
           <span className="font-semibold text-[var(--mpa-color-text-primary)]">{selectedPlanLabel}</span>
-          , is saved. Create your account to continue Guided Setup. Enterprise pricing and billing are
-          finalized during onboarding.
+          , is saved. Create your account to continue Guided Setup.
         </p>
       ) : null}
       <div className="mt-4 grid grid-cols-2 gap-2">
