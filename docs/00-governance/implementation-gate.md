@@ -100,6 +100,21 @@ Otherwise continue and mark: **Previously configured — not re-requested.**
 
 Authoritative detail: [infrastructure-verification-policy.md](./infrastructure-verification-policy.md).
 
+## Product Constitution (Binding — 2026-08-08)
+
+Products: **Property Manager**, **Facility Operations**, **Complete Platform** only.
+
+Enterprise is a **sales motion only** — not a product, not a pricing tier.
+
+Commercial flow (do not alter without Product Owner approval):
+
+```
+Landing → Choose Product → Choose Monthly / Annual → Stripe Checkout
+→ Create Account → Guided Setup → Mission Control
+```
+
+Authoritative detail: [product-constitution.md](./product-constitution.md) · [ADR-019](../18-decision-log/adr-019-product-constitution.md).
+
 ---
 
 ## Current Gates (Do Not Skip)
@@ -119,6 +134,7 @@ Authoritative detail: [infrastructure-verification-policy.md](./infrastructure-v
 | LAUNCH-001 Customer Promise Roadmap | **Approved** ([ADR-017](../18-decision-log/adr-017-launch-001-customer-promise-journeys.md)) · journey-gated · **J0–J2 delivered**; J3–J8 **NO-GO** until authorized |
 | Facility Operations features | **Stopped / deferred** — `AUTHORIZE FACILITY OPERATIONS IMPLEMENTATION` (2026-08-07) **refused**: workflows + schema design package missing ([docs/27-facility-operations](../27-facility-operations/index.md)) |
 | CORE-004 / UX-016 | **Stopped** unless separately re-authorized |
+| Product Constitution (ADR-019) | **Accepted** — three products; Enterprise sales motion only; binding commercial flow |
 
 ---
 
@@ -127,12 +143,15 @@ Authoritative detail: [infrastructure-verification-policy.md](./infrastructure-v
 - Agents and engineers **must refuse** to write application/UI code for unapproved work.
 - Documentation-only updates are always allowed.
 - If asked to “just build it,” respond with the missing Design / Document / Approve step.
+- Agents **must refuse** commercial-flow changes that conflict with the [Product Constitution](./product-constitution.md) unless the Product Owner explicitly approves an amendment.
 
 ---
 
 ## Related
 
+- [Product Constitution](./product-constitution.md)
 - [Product Principles](../product-principles/index.md)
 - [06 Design Language](../06-design-language/index.md)
 - [18 Decision Log](../18-decision-log/index.md)
 - ADR-012 — Design → Document → Approve → Implement
+- ADR-019 — Product Constitution

@@ -24,12 +24,15 @@ Design → Document → Approve → Implement
 ## Authoritative docs
 
 - `docs/00-governance/implementation-gate.md`
+- `docs/00-governance/product-constitution.md`
 - `docs/18-decision-log/adr-012-design-document-approve-implement.md`
+- `docs/18-decision-log/adr-019-product-constitution.md`
 - Design language: `docs/06-design-language/` (Canopy must be approved before UI)
 
 ## Current reminder
 
 - Canopy (Phase 1.5) is approved.
 - Experience Architecture (Phase 1.6) is approved.
+- Product Constitution (ADR-019) is accepted — three products; Enterprise sales motion only; commercial flow is binding.
 - LAUNCH-001 Customer Promise Roadmap is approved (ADR-017); implement only authorized journeys (J0–J2 delivered; J3–J8 blocked).
 - New material changes to approved packages require Design → Document → Approve again.

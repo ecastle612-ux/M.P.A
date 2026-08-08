@@ -53,7 +53,8 @@ What other options were evaluated and why were they rejected?
 | [ADR-015](./adr-015-three-commercial-products-master-admin.md) | Three Commercial Products + Master Admin OS | Accepted | 2026-08-06 |
 | [ADR-016](./adr-016-financial-operations-operational-finance.md) | Financial Operations as Operational Finance (PM) | Accepted | 2026-08-06 |
 | [ADR-017](./adr-017-launch-001-customer-promise-journeys.md) | LAUNCH-001 Customer Promise Journeys | Accepted | 2026-08-06 |
-| [ADR-018](./adr-018-self-service-commercial-platform.md) | Self-Service Commercial Platform (COM-002) | Accepted | 2026-08-07 |
+| [ADR-018](./adr-018-self-service-commercial-platform.md) | Self-Service Commercial Platform (COM-002) | Accepted (packaging amended by ADR-019) | 2026-08-07 |
+| [ADR-019](./adr-019-product-constitution.md) | M.P.A. Product Constitution | Accepted | 2026-08-08 |
 
 ---
 
