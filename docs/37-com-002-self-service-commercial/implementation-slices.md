@@ -32,6 +32,8 @@
 
 ## Slice B — Demo platform
 
+**Authorize status:** **AUTHORIZED / IMPLEMENTED** (2026-08-07) — see [40 Slice B](../40-com-002-slice-b/index.md).  
+
 **Includes:** Demo session service, snapshots, role switch, reset, expiry, analytics events, conversion deep links.  
 **Excludes:** Paid Checkout.  
 **Exit:** Manual + automated demo smoke per product; isolation test proves no production DB access.

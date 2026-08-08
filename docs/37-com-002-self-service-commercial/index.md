@@ -72,6 +72,7 @@ Details: [Commercial Defaults](./commercial-defaults.md).
 | [Risk Assessment](./risk-assessment.md) | Risks |
 | [Approval Recommendation](./approval-recommendation.md) | Approve / ADR / Slice A |
 | [39 Slice A Implementation](../39-com-002-slice-a/index.md) | Slice A implement + verification |
+| [40 Slice B Implementation](../40-com-002-slice-b/index.md) | Live Demo Platform |
 
 ---
 

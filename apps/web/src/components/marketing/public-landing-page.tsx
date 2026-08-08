@@ -142,6 +142,9 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                   Get Started
                 </Link>
               )}
+              <Link href="/demo" className={marketingHeroSecondaryCtaClass}>
+                Live Demo
+              </Link>
               <Link href={acquisitionHref("modules")} className={marketingHeroSecondaryCtaClass}>
                 Choose Modules
               </Link>

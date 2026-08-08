@@ -127,6 +127,12 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         status: "aligned"
       },
       {
+        href: "/admin/testing/demo",
+        label: "Live Demo",
+        description: "COM-002 Slice B demo verification — products, roles, reset, conversion.",
+        status: "aligned"
+      },
+      {
         href: "/admin/testing/impersonation",
         label: "Impersonation",
         description: "Audited support impersonation (planned controls).",

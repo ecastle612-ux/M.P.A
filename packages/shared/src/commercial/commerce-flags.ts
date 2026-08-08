@@ -9,7 +9,7 @@ export const FO_READY = false;
 /** Slice delivery markers — informational for Master Admin / diagnostics. */
 export const COM_002_FLAGS = {
   sliceA_commercialFoundation: true,
-  sliceB_demoPlatform: false,
+  sliceB_demoPlatform: true,
   sliceC_stripeCheckout: false,
   sliceD_automaticProvisioning: false,
   sliceE_subscriptionLifecycle: false,
