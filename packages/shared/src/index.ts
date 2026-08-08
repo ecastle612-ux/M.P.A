@@ -4,6 +4,7 @@ export * from "./auth/authorization";
 export * from "./auth/permissions";
 export * from "./auth/post-auth-home";
 export * from "./commercial";
+export * from "./demo";
 export * from "./finance";
 export * from "./property";
 export * from "./resident";

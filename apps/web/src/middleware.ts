@@ -1,6 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { evaluatePathEntitlement, isProductSku, type ProductSku } from "@mpa/shared";
+import {
+  COM_002_FLAGS,
+  evaluatePathEntitlement,
+  hasLifecycleModuleAccess,
+  isProductSku,
+  isSubscriptionPlatformStatus,
+  type ProductSku,
+  type SubscriptionPlatformStatus
+} from "@mpa/shared";
 import { clientEnv } from "./lib/env/client-env";
 
 const ACTIVE_ORGANIZATION_COOKIE = "mpa_active_organization_id";
@@ -116,21 +124,46 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // P0-1: Customer routes fail closed on entitlements.
+  // P0-1: Customer routes fail closed on entitlements + Slice E lifecycle access.
   // Platform operators may preview customer surfaces for support.
+  // Billing remains reachable so customers can recover payment / reactivate.
   if (user && isProtected && !pathname.startsWith("/admin") && !isOperator) {
     let sku: ProductSku | null = null;
+    let moduleAccess = true;
 
     if (organizationId) {
       const { data: subscription } = await supabase
         .from("organization_subscriptions")
-        .select("sku_code, status")
+        .select("sku_code, status, grace_started_at, cancel_at_period_end")
         .eq("organization_id", organizationId)
         .maybeSingle();
 
-      if (subscription && subscription.status !== "canceled" && isProductSku(subscription.sku_code)) {
-        sku = subscription.sku_code;
+      if (subscription && isProductSku(subscription.sku_code)) {
+        const status = subscription.status;
+        if (COM_002_FLAGS.sliceE_subscriptionLifecycle && isSubscriptionPlatformStatus(status)) {
+          moduleAccess = hasLifecycleModuleAccess({
+            status: status as SubscriptionPlatformStatus,
+            graceStartedAt:
+              typeof subscription.grace_started_at === "string" ? subscription.grace_started_at : null,
+            cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end)
+          });
+          if (moduleAccess || pathname.startsWith("/billing") || pathname.startsWith("/setup")) {
+            sku = subscription.sku_code;
+          }
+        } else if (status !== "canceled") {
+          sku = subscription.sku_code;
+        }
       }
+    }
+
+    const billingOrSetup =
+      pathname.startsWith("/billing") || pathname.startsWith("/setup");
+
+    if (COM_002_FLAGS.sliceE_subscriptionLifecycle && !moduleAccess && !billingOrSetup && sku) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/billing";
+      url.search = "?reason=subscription";
+      return NextResponse.redirect(url);
     }
 
     const decision = evaluatePathEntitlement({ pathname, sku });

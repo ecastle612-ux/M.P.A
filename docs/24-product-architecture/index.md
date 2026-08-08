@@ -87,6 +87,8 @@ They may share platform primitives (work orders, vendors, documents, communicati
 
 **ADR:** [ADR-015 — Three Commercial Products + Master Admin OS](../18-decision-log/adr-015-three-commercial-products-master-admin.md) (Accepted)
 
+**Related (Draft):** [COM-002 Self-Service Commercial Platform](../37-com-002-self-service-commercial/index.md) / [ADR-018 Proposed](../18-decision-log/adr-018-self-service-commercial-platform.md) — future Professional/Business automation + Live Demo; Enterprise high-touch. **Docs only until Approve.** Does not change ADR-015 product SKUs.
+
 ---
 
 ## Approval Checklist

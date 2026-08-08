@@ -1,9 +1,14 @@
+import { requiresEnterpriseMotion, validateCommercialSelection } from "./catalog";
+import { isBillingCycle, isPlanTier, type BillingCycle, type PlanTier } from "./plans";
 import { isProductSku, SKU_SUMMARIES, type ProductSku } from "./skus";
 import { COMMERCIAL_MODULES, modulesForSku, type CommercialModule } from "./modules";
 
 /** Cookie / query key for pre-auth plan selection (acquisition funnel). */
 export const ACQUISITION_SKU_PARAM = "intent";
+export const ACQUISITION_PLAN_PARAM = "plan";
+export const ACQUISITION_CYCLE_PARAM = "cycle";
 export const ACQUISITION_SKU_COOKIE = "mpa_acquisition_sku";
+export const ACQUISITION_OFFER_COOKIE = "mpa_acquisition_offer";
 
 export function parseAcquisitionSku(value: string | null | undefined): ProductSku | null {
   if (!value || !isProductSku(value)) {
@@ -12,8 +17,74 @@ export function parseAcquisitionSku(value: string | null | undefined): ProductSk
   return value;
 }
 
-export function acquisitionHref(step: "modules" | "pricing" | "checkout" | "signup", sku?: ProductSku | null): string {
-  const q = sku ? `?${ACQUISITION_SKU_PARAM}=${encodeURIComponent(sku)}` : "";
+export function parseAcquisitionPlan(value: string | null | undefined): PlanTier | null {
+  return isPlanTier(value) ? value : null;
+}
+
+export function parseAcquisitionCycle(value: string | null | undefined): BillingCycle | null {
+  return isBillingCycle(value) ? value : null;
+}
+
+export type AcquisitionQuery = {
+  sku?: ProductSku | null;
+  planTier?: PlanTier | null;
+  billingCycle?: BillingCycle | null;
+};
+
+function buildQuery(parts: AcquisitionQuery): string {
+  const params = new URLSearchParams();
+  if (parts.sku) {
+    params.set(ACQUISITION_SKU_PARAM, parts.sku);
+  }
+  if (parts.planTier) {
+    params.set(ACQUISITION_PLAN_PARAM, parts.planTier);
+  }
+  if (parts.billingCycle) {
+    params.set(ACQUISITION_CYCLE_PARAM, parts.billingCycle);
+  }
+  const q = params.toString();
+  return q ? `?${q}` : "";
+}
+
+export type AcquisitionStep =
+  | "modules"
+  | "pricing"
+  | "checkout"
+  | "signup"
+  | "enterprise";
+
+/**
+ * Builds public funnel hrefs. FO/Complete (pre–FO-READY) resolve to Enterprise.
+ */
+export function acquisitionHref(
+  step: AcquisitionStep,
+  skuOrQuery?: ProductSku | null | AcquisitionQuery
+): string {
+  const query: AcquisitionQuery =
+    typeof skuOrQuery === "string" || skuOrQuery === null || skuOrQuery === undefined
+      ? { sku: skuOrQuery ?? null }
+      : skuOrQuery;
+
+  if (step === "enterprise") {
+    return `/enterprise${buildQuery({ sku: query.sku ?? null })}`;
+  }
+
+  if (query.sku && requiresEnterpriseMotion(query.sku) && (step === "checkout" || step === "signup")) {
+    return `/enterprise${buildQuery({ sku: query.sku })}`;
+  }
+
+  if (query.sku && step === "checkout") {
+    const validation = validateCommercialSelection({
+      productSku: query.sku,
+      planTier: query.planTier ?? "professional",
+      billingCycle: query.billingCycle ?? "monthly"
+    });
+    if (validation.route === "enterprise") {
+      return `/enterprise${buildQuery({ sku: query.sku })}`;
+    }
+  }
+
+  const q = buildQuery(query);
   switch (step) {
     case "modules":
       return `/modules${q}`;
@@ -22,12 +93,29 @@ export function acquisitionHref(step: "modules" | "pricing" | "checkout" | "sign
     case "checkout":
       return `/checkout${q}`;
     case "signup":
-      return sku
-        ? `/login?mode=sign_up&${ACQUISITION_SKU_PARAM}=${encodeURIComponent(sku)}`
+      return query.sku
+        ? `/login?mode=sign_up&${ACQUISITION_SKU_PARAM}=${encodeURIComponent(query.sku)}`
         : "/login?mode=sign_up";
     default:
       return "/";
   }
+}
+
+/** Next href after pricing/confirm selection — Confirm Plan or Enterprise. */
+export function commercialContinueHref(input: {
+  productSku: ProductSku;
+  planTier: PlanTier;
+  billingCycle: BillingCycle;
+}): string {
+  const result = validateCommercialSelection(input);
+  if (result.route === "enterprise") {
+    return acquisitionHref("enterprise", { sku: input.productSku });
+  }
+  return acquisitionHref("checkout", {
+    sku: input.productSku,
+    planTier: input.planTier,
+    billingCycle: input.billingCycle
+  });
 }
 
 /** Marketing catalog: never advertise Capital Projects. */

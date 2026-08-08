@@ -63,6 +63,13 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 34 | [PR #46 Blocking Remediation](./34-pr-46-blocking-remediation/index.md) | B1–B5 commercial honesty |
 | 35 | [PR #46 R1 Remediation](./35-pr-46-r1-remediation/index.md) | Account creation copy |
 | 36 | [PR #46 Merge Closeout](./36-pr-46-merge-closeout/index.md) | Merged; Production `3d081ad`; BUG-003/004 CLOSED |
+| 37 | [COM-002 Self-Service Commercial](./37-com-002-self-service-commercial/index.md) | **Approved** · ADR-018 Accepted · Slice A authorized |
+| 38 | [COM-002 Architecture Review](./38-com-002-architecture-review/index.md) | Review complete; amendments incorporated in 37 |
+| 39 | [COM-002 Slice A](./39-com-002-slice-a/index.md) | Commercial foundation implementation + verification |
+| 40 | [COM-002 Slice B](./40-com-002-slice-b/index.md) | Live Demo Platform implementation + verification |
+| 41 | [COM-002 Slice C](./41-com-002-slice-c/index.md) | Stripe SaaS Checkout implementation + verification |
+| 42 | [COM-002 Slice D](./42-com-002-slice-d/index.md) | Automatic Provisioning implementation + verification |
+| 43 | [COM-002 Slice E](./43-com-002-slice-e/index.md) | Subscription Lifecycle implementation + verification |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

@@ -67,11 +67,38 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
     title: "Commercial",
     items: [
       {
+        href: "/admin/commercial/catalog",
+        label: "Catalog",
+        description: "COM-002 offer catalog, motions, limits, and commercial flags.",
+        status: "aligned"
+      },
+      {
+        href: "/admin/commercial/checkout",
+        label: "Checkout",
+        description: "COM-002 Slice C SaaS Checkout verification — payments, webhooks, duplicates.",
+        status: "aligned"
+      },
+      {
+        href: "/admin/commercial/provisioning",
+        label: "Provisioning",
+        description:
+          "COM-002 Slice D automatic provisioning — checkpoints, retries, compensation, audit.",
+        status: "aligned"
+      },
+      {
         href: "/admin/commercial/subscriptions",
         label: "Subscriptions",
         description: "Assign and inspect organization SKUs.",
         status: "aligned"
       },
+      {
+        href: "/admin/commercial/lifecycle",
+        label: "Lifecycle",
+        description:
+          "COM-002 Slice E subscription lifecycle — renewals, grace, failures, cancel, reactivate.",
+        status: "aligned"
+      },
+
       {
         href: "/admin/commercial/billing",
         label: "Billing",
@@ -118,6 +145,12 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         href: "/admin/testing/product-matrix",
         label: "Product Matrix",
         description: "Verify SKU → module → entitlement mapping.",
+        status: "aligned"
+      },
+      {
+        href: "/admin/testing/demo",
+        label: "Live Demo",
+        description: "COM-002 Slice B demo verification — products, roles, reset, conversion.",
         status: "aligned"
       },
       {

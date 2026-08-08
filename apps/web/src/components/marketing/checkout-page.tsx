@@ -1,36 +1,128 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
+  ACQUISITION_OFFER_COOKIE,
   ACQUISITION_SKU_COOKIE,
+  COM_002_FLAGS,
   SKU_SUMMARIES,
   acquisitionHref,
   marketingModulesForSku,
+  parseAcquisitionCycle,
+  parseAcquisitionPlan,
   parseAcquisitionSku,
-  skuIncludesFacilityOperations,
-  type ProductSku
+  requiresEnterpriseMotion,
+  resolveCatalogOffer,
+  toBillingCycleLabel,
+  toPlanTierLabel,
+  type PlanTier
 } from "@mpa/shared";
 import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
 
 /**
- * Pre-auth plan confirmation for the public commercial funnel.
- * URL remains /checkout; customer-facing copy uses "Confirm Plan".
+ * Confirm Plan → Stripe Checkout (Slice C).
+ * No account / org provisioning here.
  */
 export function CheckoutPage({
   isAuthenticated = false,
-  selectedSkuRaw
+  selectedSkuRaw,
+  selectedPlanRaw,
+  selectedCycleRaw
 }: {
   isAuthenticated?: boolean;
   selectedSkuRaw?: string | null;
+  selectedPlanRaw?: string | null;
+  selectedCycleRaw?: string | null;
 }) {
+  const router = useRouter();
   const sku = parseAcquisitionSku(selectedSkuRaw) ?? "mpa_property_manager";
+  const parsedPlan = parseAcquisitionPlan(selectedPlanRaw) ?? "professional";
+  const billingCycle = parseAcquisitionCycle(selectedCycleRaw) ?? "monthly";
+  const enterpriseSelection = requiresEnterpriseMotion(sku) || parsedPlan === "enterprise";
+  const planTier: PlanTier = parsedPlan === "enterprise" ? "professional" : parsedPlan;
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (enterpriseSelection) {
+      router.replace(acquisitionHref("enterprise", sku));
+    }
+  }, [sku, enterpriseSelection, router]);
+
+  const offer =
+    resolveCatalogOffer({
+      productSku: sku,
+      planTier,
+      billingCycle
+    }) ?? null;
   const summary = SKU_SUMMARIES[sku];
   const modules = marketingModulesForSku(sku);
 
   useEffect(() => {
+    if (enterpriseSelection) {
+      return;
+    }
     document.cookie = `${ACQUISITION_SKU_COOKIE}=${encodeURIComponent(sku)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
-  }, [sku]);
+    if (offer) {
+      document.cookie = `${ACQUISITION_OFFER_COOKIE}=${encodeURIComponent(offer.id)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+    }
+  }, [sku, offer, enterpriseSelection]);
+
+  async function startStripeCheckout() {
+    if (!COM_002_FLAGS.sliceC_stripeCheckout) {
+      setError("Checkout is not enabled.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    const idempotencyKey = `ui_${crypto.randomUUID()}`;
+    const res = await fetch("/api/commerce/checkout", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        productSku: sku,
+        planTier,
+        billingCycle,
+        customerEmail: email.trim() || undefined,
+        idempotencyKey
+      })
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      url?: string;
+      error?: string;
+      redirectTo?: string;
+      message?: string;
+    };
+    setBusy(false);
+    if (res.status === 409 && data.redirectTo) {
+      router.push(data.redirectTo);
+      return;
+    }
+    if (!res.ok || !data.url) {
+      setError(data.message ?? data.error ?? "Could not start Stripe Checkout. Please retry.");
+      return;
+    }
+    window.location.assign(data.url);
+  }
+
+  if (enterpriseSelection) {
+    return (
+      <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
+        <main className="mx-auto max-w-3xl space-y-6 px-4 pb-16 pt-10 md:px-6">
+          <h1 className="font-display text-3xl font-semibold">Enterprise</h1>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Redirecting to Request Enterprise…
+          </p>
+          <Link href={acquisitionHref("enterprise", sku)} className={marketingPrimaryCtaClass}>
+            Continue to Request Enterprise
+          </Link>
+        </main>
+      </MarketingChrome>
+    );
+  }
 
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
@@ -41,9 +133,8 @@ export function CheckoutPage({
           </p>
           <h1 className="font-display text-3xl font-semibold">Confirm Plan</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Review your selected plan, then continue to account creation. Enterprise pricing and
-            subscription billing are finalized with our commercial team during onboarding — no card
-            payment is collected on this page.
+            Review your Property Manager plan, then continue to secure Stripe Checkout. Payment
+            succeeds before account creation — no organization is provisioned on this step.
           </p>
         </header>
 
@@ -53,7 +144,7 @@ export function CheckoutPage({
           <li className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-2 py-1 text-[var(--mpa-color-brand-primary)]">
             3 · Confirm Plan
           </li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Account</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
         </ol>
 
         <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
@@ -62,12 +153,15 @@ export function CheckoutPage({
               Selected plan
             </p>
             <h2 className="mt-1 font-display text-2xl font-semibold">{summary.label}</h2>
+            <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+              {toPlanTierLabel(planTier)} · {toBillingCycleLabel(billingCycle)}
+            </p>
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{summary.description}</p>
           </div>
           <div>
-            <p className="text-sm font-semibold">Pricing</p>
+            <p className="text-sm font-semibold">Limits</p>
             <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-              Enterprise pricing — confirmed with our commercial team during onboarding.
+              {offer?.seatLimit ?? "—"} seats · {offer?.propertyLimit ?? "—"} properties
             </p>
           </div>
           <div>
@@ -78,50 +172,41 @@ export function CheckoutPage({
               ))}
             </ul>
           </div>
+          <label className="block space-y-1 text-sm">
+            <span className="font-semibold">Checkout email (optional)</span>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@company.com"
+              className="w-full rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2"
+            />
+          </label>
         </section>
 
-        <WhatHappensNext sku={sku} />
+        {error ? (
+          <p className="text-sm text-red-700" role="alert">
+            {error}
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap gap-3">
-          <Link href={acquisitionHref("pricing", sku)} className={marketingSecondaryCtaClass}>
+          <Link
+            href={acquisitionHref("pricing", { sku, planTier, billingCycle })}
+            className={marketingSecondaryCtaClass}
+          >
             Back to pricing
           </Link>
-          {isAuthenticated ? (
-            <Link href="/setup" className={marketingPrimaryCtaClass}>
-              Continue to Guided Setup
-            </Link>
-          ) : (
-            <Link href={acquisitionHref("signup", sku)} className={marketingPrimaryCtaClass}>
-              Create account
-            </Link>
-          )}
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void startStripeCheckout()}
+            className={marketingPrimaryCtaClass}
+          >
+            {busy ? "Starting Checkout…" : "Continue to secure checkout"}
+          </button>
         </div>
       </main>
     </MarketingChrome>
-  );
-}
-
-function WhatHappensNext({ sku }: { sku: ProductSku }) {
-  const includesFacility = skuIncludesFacilityOperations(sku);
-
-  return (
-    <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-4 text-sm text-[var(--mpa-color-text-secondary)]">
-      <p className="font-semibold text-[var(--mpa-color-text-primary)]">What happens next</p>
-      <ol className="list-decimal space-y-1 pl-5">
-        <li>Create your account (no sign-in required before this step).</li>
-        <li>Complete Guided Setup to create your organization.</li>
-        <li>Confirm your plan and receive your working role access.</li>
-        {includesFacility ? (
-          <li>
-            Your organization begins with Property Manager access. Our commercial team activates{" "}
-            {SKU_SUMMARIES[sku].label} with your organization during onboarding so Facility areas
-            become available under your plan.
-          </li>
-        ) : (
-          <li>Enter Mission Control to begin portfolio operations.</li>
-        )}
-        {includesFacility ? <li>Enter Mission Control once setup is complete.</li> : null}
-      </ol>
-    </section>
   );
 }

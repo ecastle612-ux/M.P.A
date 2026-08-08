@@ -36,6 +36,16 @@ export function MarketingChrome({
           </Link>
           <nav aria-label="Public" className="flex flex-wrap items-center gap-1 md:gap-2">
             <Link
+              href="/demo"
+              className={
+                denseNav
+                  ? ghostCtaClass
+                  : "rounded-md px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white"
+              }
+            >
+              Live Demo
+            </Link>
+            <Link
               href="/modules"
               className={
                 denseNav
