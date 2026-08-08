@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | Project | `https://vahnmcrpnuggxkivynvo.supabase.co` |
-| Status | **In progress** — awaiting `SUPABASE_DB_URL` to apply approved migrations |
+| Status | **FAIL (BUG-011.1)** — authorized but blocked; see `bug-011-1-production-migration-authorization.md` |
 | Constraint | Use only approved migrations; do not modify migration files; do not hand-patch |
 
 ## Approved migration order (binding)
@@ -61,3 +61,5 @@ Method: `psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f <file>` in order, or `sup
 ## Blocker
 
 `SUPABASE_DB_URL` (direct Postgres) required to apply migrations and confirm `supabase_migrations.schema_migrations` / indexes / RLS. REST anon probe is insufficient for policies/indexes.
+
+BUG-011.1 (2026-08-08): authorization granted; agent env still lacked `SUPABASE_DB_URL`; **zero** approved migrations applied; Production schema unchanged.
