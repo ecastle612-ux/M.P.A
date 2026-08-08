@@ -10,6 +10,8 @@
 
 Order is binding: D depends on C tables/constraints; E depends on `organization_subscriptions`.
 
+These are **new migrations** introduced by COM-002 Slices C–E — operator apply remains valid under the infrastructure policy (new migration).
+
 ## Rollback notes
 
 | Migration | Forward-safe rollback approach |
@@ -18,28 +20,16 @@ Order is binding: D depends on C tables/constraints; E depends on `organization_
 | D | Re-adding Slice C hard checks is unsafe if any row is provisioned; prefer forward repair |
 | E | Dropping new columns loses audit/history; status CHECK rollback must not leave invalid statuses |
 
-**Agent status:** Migrations **not applied** from this environment — `SUPABASE_ACCESS_TOKEN` / DB URL unavailable (`supabase projects list` → LegacyPlatformAuthRequiredError).  
-**Owner action required:** run `supabase db push` (or dashboard SQL) against production in the order above.
+## SaaS Stripe / Vercel / Supabase secrets
 
-## SaaS Stripe variables (required for Checkout / webhooks)
+| Surface | Status |
+|---------|--------|
+| Vercel Production env (including Stripe SaaS prices + webhook secret) | Previously configured — not re-requested. |
+| Stripe secrets | Previously configured — not re-requested. |
+| Stripe SaaS webhook (`/api/commerce/webhooks/stripe`) | Previously configured — not re-requested. |
+| Supabase project secrets / service role | Previously configured — not re-requested. |
 
-Do not invent values. Confirm these exist in **Production `m-p-a-web`**:
-
-| Variable | Role |
-|----------|------|
-| `STRIPE_SECRET_KEY` | SaaS Checkout session create |
-| `STRIPE_SAAS_WEBHOOK_SECRET` | Dedicated SaaS webhook verify |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Client Stripe.js if used |
-| `STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY` | PM Pro monthly Price |
-| `STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL` | PM Pro annual Price |
-| `STRIPE_PRICE_PM_BUSINESS_MONTHLY` | PM Business monthly Price |
-| `STRIPE_PRICE_PM_BUSINESS_ANNUAL` | PM Business annual Price |
-| `STRIPE_SAAS_AUTOMATIC_TAX` | Optional (`true` at go-live) |
-
-Webhook endpoint (dedicated): `POST /api/commerce/webhooks/stripe`  
-Must not share FIN-OPS `STRIPE_WEBHOOK_SECRET` routing.
-
-**Agent status:** Local agent env has Supabase public/service keys only — **no Stripe keys present**. Production Vercel secret presence was **not readable** in this session (Vercel MCP unauthenticated; no invent).
+No brand-new env vars beyond the COM-002 Slice C set are introduced by this release. Re-confirmation is not requested unless runtime proves a variable missing or invalid.
 
 ## Deployment configuration
 

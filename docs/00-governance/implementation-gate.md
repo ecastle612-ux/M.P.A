@@ -86,6 +86,20 @@ No new slice may begin until the previous authorized slice is:
 
 Authoritative detail: [45 COM-002 Production Integration — slice-release-workflow](../45-com-002-production-integration/slice-release-workflow.md).
 
+## Infrastructure Verification (Binding — 2026-08-08)
+
+Do not repeatedly request confirmation for already-configured Vercel env vars, Supabase secrets, Stripe secrets, or Stripe webhooks.
+
+Stop for operator action only when:
+
+1. A brand-new environment variable is introduced  
+2. A new database migration must be applied  
+3. Existing infrastructure is proven missing or invalid  
+
+Otherwise continue and mark: **Previously configured — not re-requested.**
+
+Authoritative detail: [infrastructure-verification-policy.md](./infrastructure-verification-policy.md).
+
 ---
 
 ## Current Gates (Do Not Skip)

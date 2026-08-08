@@ -39,4 +39,7 @@ www now reflects COM-002 landing, demo, acquisition funnel, enterprise routing, 
 
 ## Remaining non-UI gaps
 
-See [migration-and-environment.md](./migration-and-environment.md): production DB migrations and SaaS Stripe Production env could not be applied/verified from this agent (no Supabase access token / no Vercel secret read). These may still block **paid Checkout completion** and durable provisioning/lifecycle persistence even though routes are live.
+See [migration-and-environment.md](./migration-and-environment.md):
+
+- SaaS Stripe / Vercel / Supabase secrets: **Previously configured — not re-requested.**  
+- COM-002 C/D/E SQL migrations: **new migrations** — apply in order when not yet applied to production DB.
