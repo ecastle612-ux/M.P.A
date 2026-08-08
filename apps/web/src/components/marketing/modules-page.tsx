@@ -3,10 +3,12 @@ import {
   PRODUCT_SKUS,
   SKU_SUMMARIES,
   acquisitionHref,
-  marketingModulesForSku,
-  requiresEnterpriseMotion
+  marketingModulesForSku
 } from "@mpa/shared";
 import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
+
+/** Internal Stripe offer mapping — not shown as a customer-facing tier. */
+const CHECKOUT_PLAN = "professional" as const;
 
 export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   return (
@@ -17,11 +19,11 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
             Get started · Step 1
           </p>
           <h1 className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
-            Choose Modules
+            Choose Your Platform
           </h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Select Property Manager to continue self-service. Facility Operations and Complete
-            Platform are available through Enterprise.
+            Select Property Manager, Facility Operations, or Complete Platform. Next you will choose
+            monthly or annual billing.
           </p>
         </header>
 
@@ -38,24 +40,12 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
           {PRODUCT_SKUS.map((sku) => {
             const summary = SKU_SUMMARIES[sku];
             const modules = marketingModulesForSku(sku);
-            const enterprise = requiresEnterpriseMotion(sku);
             return (
               <li
                 key={sku}
                 className="flex flex-col rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="font-display text-xl font-semibold">{summary.label}</h2>
-                  {enterprise ? (
-                    <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-                      Enterprise
-                    </span>
-                  ) : (
-                    <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
-                      Self-service
-                    </span>
-                  )}
-                </div>
+                <h2 className="font-display text-xl font-semibold">{summary.label}</h2>
                 <p className="mt-2 flex-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                   {summary.description}
                 </p>
@@ -63,30 +53,19 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                   {modules.length} modules · Capital Projects excluded
                 </p>
                 <div className="mt-4 flex flex-col gap-2">
-                  {enterprise ? (
-                    <Link
-                      href={acquisitionHref("enterprise", sku)}
-                      className={marketingPrimaryCtaClass}
-                    >
-                      Request Enterprise
-                    </Link>
-                  ) : (
-                    <>
-                      <Link href={acquisitionHref("pricing", sku)} className={marketingPrimaryCtaClass}>
-                        Compare & continue
-                      </Link>
-                      <Link
-                        href={acquisitionHref("checkout", {
-                          sku,
-                          planTier: "professional",
-                          billingCycle: "monthly"
-                        })}
-                        className={marketingSecondaryCtaClass}
-                      >
-                        Skip to confirm plan
-                      </Link>
-                    </>
-                  )}
+                  <Link href={acquisitionHref("pricing", sku)} className={marketingPrimaryCtaClass}>
+                    View pricing
+                  </Link>
+                  <Link
+                    href={acquisitionHref("checkout", {
+                      sku,
+                      planTier: CHECKOUT_PLAN,
+                      billingCycle: "monthly"
+                    })}
+                    className={marketingSecondaryCtaClass}
+                  >
+                    Confirm Plan
+                  </Link>
                 </div>
               </li>
             );

@@ -31,15 +31,15 @@ describe("commercial acquisition helpers", () => {
     );
   });
 
-  it("routes FO and Complete confirm/signup attempts to Enterprise", () => {
+  it("keeps FO and Complete on the platform confirm funnel (Enterprise is optional)", () => {
     expect(acquisitionHref("checkout", "mpa_facility_operations")).toBe(
-      "/enterprise?intent=mpa_facility_operations"
+      "/checkout?intent=mpa_facility_operations"
     );
     expect(acquisitionHref("checkout", "mpa_complete_platform")).toBe(
-      "/enterprise?intent=mpa_complete_platform"
+      "/checkout?intent=mpa_complete_platform"
     );
     expect(acquisitionHref("signup", "mpa_facility_operations")).toBe(
-      "/enterprise?intent=mpa_facility_operations"
+      "/login?mode=sign_up&intent=mpa_facility_operations"
     );
     expect(
       commercialContinueHref({
@@ -47,7 +47,12 @@ describe("commercial acquisition helpers", () => {
         planTier: "professional",
         billingCycle: "monthly"
       })
-    ).toBe("/enterprise?intent=mpa_complete_platform");
+    ).toBe(
+      "/checkout?intent=mpa_complete_platform&plan=professional&cycle=monthly"
+    );
+    expect(acquisitionHref("enterprise", "mpa_facility_operations")).toBe(
+      "/enterprise?intent=mpa_facility_operations"
+    );
   });
 
   it("excludes Capital Projects from marketing catalogs", () => {

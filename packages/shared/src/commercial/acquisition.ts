@@ -1,4 +1,3 @@
-import { requiresEnterpriseMotion, validateCommercialSelection } from "./catalog";
 import { isBillingCycle, isPlanTier, type BillingCycle, type PlanTier } from "./plans";
 import { isProductSku, SKU_SUMMARIES, type ProductSku } from "./skus";
 import { COMMERCIAL_MODULES, modulesForSku, type CommercialModule } from "./modules";
@@ -54,7 +53,8 @@ export type AcquisitionStep =
   | "enterprise";
 
 /**
- * Builds public funnel hrefs. FO/Complete (pre–FO-READY) resolve to Enterprise.
+ * Builds public funnel hrefs for the three platform products.
+ * Enterprise is a dedicated optional path (`step: "enterprise"`), not a product substitute.
  */
 export function acquisitionHref(
   step: AcquisitionStep,
@@ -67,21 +67,6 @@ export function acquisitionHref(
 
   if (step === "enterprise") {
     return `/enterprise${buildQuery({ sku: query.sku ?? null })}`;
-  }
-
-  if (query.sku && requiresEnterpriseMotion(query.sku) && (step === "checkout" || step === "signup")) {
-    return `/enterprise${buildQuery({ sku: query.sku })}`;
-  }
-
-  if (query.sku && step === "checkout") {
-    const validation = validateCommercialSelection({
-      productSku: query.sku,
-      planTier: query.planTier ?? "professional",
-      billingCycle: query.billingCycle ?? "monthly"
-    });
-    if (validation.route === "enterprise") {
-      return `/enterprise${buildQuery({ sku: query.sku })}`;
-    }
   }
 
   const q = buildQuery(query);
@@ -101,16 +86,12 @@ export function acquisitionHref(
   }
 }
 
-/** Next href after pricing/confirm selection — Confirm Plan or Enterprise. */
+/** Next href after pricing selection — Confirm Plan for the chosen platform. */
 export function commercialContinueHref(input: {
   productSku: ProductSku;
   planTier: PlanTier;
   billingCycle: BillingCycle;
 }): string {
-  const result = validateCommercialSelection(input);
-  if (result.route === "enterprise") {
-    return acquisitionHref("enterprise", { sku: input.productSku });
-  }
   return acquisitionHref("checkout", {
     sku: input.productSku,
     planTier: input.planTier,

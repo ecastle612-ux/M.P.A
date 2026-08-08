@@ -3,8 +3,9 @@ import { EnterprisePage } from "../../../components/marketing/enterprise-page";
 import { createAuthServerClient } from "../../../lib/auth/server";
 
 export const metadata: Metadata = {
-  title: "Request Enterprise — M.P.A.",
-  description: "Request M.P.A. Enterprise for Facility Operations, Complete Platform, and custom terms."
+  title: "Enterprise Solutions — M.P.A.",
+  description:
+    "Optional Enterprise path for custom contracts, SSO, integrations, and dedicated onboarding."
 };
 
 export default async function Page({

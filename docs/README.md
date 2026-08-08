@@ -71,6 +71,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 42 | [COM-002 Slice D](./42-com-002-slice-d/index.md) | Automatic Provisioning implementation + verification |
 | 43 | [COM-002 Slice E](./43-com-002-slice-e/index.md) | Subscription Lifecycle implementation + verification |
 | 45 | [COM-002 Production Integration](./45-com-002-production-integration/index.md) | **Merged + deployed** · Production SHA `097a1a7` · live routes Pass |
+| 46 | [BUG-005 COM-002 Public Experience](./46-bug-005-com-002-public-experience/index.md) | **Closed** · Production `71bc62f` · www commercial experience Pass |
+| 47 | [BUG-006 Restore Commercial Experience](./47-bug-006-restore-commercial-experience/index.md) | **Authorized** · three platforms · Enterprise optional path |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

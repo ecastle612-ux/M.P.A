@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  SKU_SUMMARIES,
   toBillingCycleLabel,
-  toPlanTierLabel,
   type BillingCycle,
-  type PlanTier
+  type PlanTier,
+  type ProductSku
 } from "@mpa/shared";
 import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
 
@@ -14,6 +15,7 @@ type SessionStatus = {
   sessionId: string;
   status: string;
   offerId: string;
+  productSku?: ProductSku;
   planTier: PlanTier;
   billingCycle: BillingCycle;
   provisioned: boolean;
@@ -95,8 +97,9 @@ export function CheckoutSuccessPage({
         {status ? (
           <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5 text-sm">
             <p>
-              <span className="font-semibold">Plan:</span>{" "}
-              {toPlanTierLabel(status.planTier)} · {toBillingCycleLabel(status.billingCycle)}
+              <span className="font-semibold">Platform:</span>{" "}
+              {SKU_SUMMARIES[status.productSku ?? "mpa_property_manager"].label} ·{" "}
+              {toBillingCycleLabel(status.billingCycle)} billing
             </p>
             <p>
               <span className="font-semibold">Status:</span> {status.status}

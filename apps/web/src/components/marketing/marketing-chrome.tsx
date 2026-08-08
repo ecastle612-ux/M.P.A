@@ -12,10 +12,18 @@ const heroNavLinkClass =
   "rounded-md px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white";
 
 const publicNav = [
+  { href: "/", label: "Home" },
   { href: "/demo", label: "Live Demo" },
   { href: "/modules", label: "Modules" },
   { href: "/pricing", label: "Pricing" },
-  { href: acquisitionHref("checkout", "mpa_property_manager"), label: "Confirm Plan" },
+  {
+    href: acquisitionHref("checkout", {
+      sku: "mpa_property_manager",
+      planTier: "professional",
+      billingCycle: "monthly"
+    }),
+    label: "Confirm Plan"
+  },
   { href: "/enterprise", label: "Enterprise" }
 ] as const;
 
@@ -49,7 +57,7 @@ export function MarketingChrome({
           <nav aria-label="Public" className="flex flex-wrap items-center gap-1 md:gap-2">
             {publicNav.map((item) => (
               <Link
-                key={item.href}
+                key={`${item.label}-${item.href}`}
                 href={item.href}
                 className={denseNav ? ghostCtaClass : heroNavLinkClass}
               >
@@ -85,6 +93,9 @@ export function MarketingChrome({
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-sm text-[var(--mpa-color-text-secondary)] md:px-6">
           <p>© {new Date().getFullYear()} My Property Assistant</p>
           <div className="flex flex-wrap gap-4">
+            <Link href="/" className="hover:text-[var(--mpa-color-text-primary)]">
+              Home
+            </Link>
             <Link href="/demo" className="hover:text-[var(--mpa-color-text-primary)]">
               Live Demo
             </Link>
@@ -95,7 +106,11 @@ export function MarketingChrome({
               Pricing
             </Link>
             <Link
-              href={acquisitionHref("checkout", "mpa_property_manager")}
+              href={acquisitionHref("checkout", {
+                sku: "mpa_property_manager",
+                planTier: "professional",
+                billingCycle: "monthly"
+              })}
               className="hover:text-[var(--mpa-color-text-primary)]"
             >
               Confirm Plan

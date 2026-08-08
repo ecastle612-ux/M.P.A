@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import {
-  acquisitionHref,
-  parseAcquisitionSku,
-  requiresEnterpriseMotion
-} from "@mpa/shared";
 import { CheckoutPage } from "../../../components/marketing/checkout-page";
 import { createAuthServerClient } from "../../../lib/auth/server";
 
 export const metadata: Metadata = {
   title: "Confirm Plan — My Property Assistant",
   description:
-    "Confirm your Property Manager plan before creating your account. No payment on this step."
+    "Confirm your platform and billing cycle, then continue to secure Stripe Checkout where self-service is supported."
 };
 
 type Search = {
@@ -26,11 +20,6 @@ export default async function CheckoutRoute({
   searchParams: Promise<Search>;
 }) {
   const params = await searchParams;
-  const sku = parseAcquisitionSku(params.intent);
-  if (sku && requiresEnterpriseMotion(sku)) {
-    redirect(acquisitionHref("enterprise", sku));
-  }
-
   const supabase = await createAuthServerClient();
   const {
     data: { user }

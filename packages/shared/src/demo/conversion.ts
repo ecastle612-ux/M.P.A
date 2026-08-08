@@ -1,5 +1,4 @@
 import { acquisitionHref } from "../commercial/acquisition";
-import { requiresEnterpriseMotion } from "../commercial/catalog";
 import type { DemoProductId } from "./products";
 
 export type DemoConversionCta = "start_subscription" | "request_enterprise" | "schedule_consultation";
@@ -25,11 +24,6 @@ export function demoConversionHref(
     return withDemoAttribution(acquisitionHref("enterprise", product), demoSessionId);
   }
 
-  // Start Subscription — PM → Confirm Plan; FO/Complete → Enterprise while FO_READY false
-  if (requiresEnterpriseMotion(product)) {
-    return withDemoAttribution(acquisitionHref("enterprise", product), demoSessionId);
-  }
-
   return withDemoAttribution(
     acquisitionHref("checkout", {
       sku: product,
@@ -40,16 +34,16 @@ export function demoConversionHref(
   );
 }
 
-export function demoConversionLabel(product: DemoProductId, cta: DemoConversionCta): string {
+export function demoConversionLabel(_product: DemoProductId, cta: DemoConversionCta): string {
   if (cta === "schedule_consultation") {
     return "Schedule Consultation";
   }
-  if (cta === "request_enterprise" || requiresEnterpriseMotion(product)) {
-    return "Request Enterprise";
+  if (cta === "request_enterprise") {
+    return "Enterprise Solutions";
   }
   return "Start Subscription";
 }
 
-export function primaryDemoConversionCta(product: DemoProductId): DemoConversionCta {
-  return requiresEnterpriseMotion(product) ? "request_enterprise" : "start_subscription";
+export function primaryDemoConversionCta(_product: DemoProductId): DemoConversionCta {
+  return "start_subscription";
 }
