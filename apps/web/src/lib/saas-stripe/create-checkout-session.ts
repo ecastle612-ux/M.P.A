@@ -85,7 +85,7 @@ export async function createSaasCheckoutSession(
 
   const metadata = buildSaasCheckoutMetadata({
     offer,
-    demoSessionId: input.demoSessionId
+    ...(input.demoSessionId ? { demoSessionId: input.demoSessionId } : {})
   });
   const appUrl = serverEnv.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
   const idempotencyKey =

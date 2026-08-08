@@ -56,9 +56,9 @@ export async function POST(request: Request) {
     productSku: body.productSku,
     planTier: body.planTier,
     billingCycle: body.billingCycle,
-    customerEmail: body.customerEmail,
-    demoSessionId: body.demoSessionId,
-    idempotencyKey: body.idempotencyKey
+    ...(body.customerEmail ? { customerEmail: body.customerEmail } : {}),
+    ...(body.demoSessionId ? { demoSessionId: body.demoSessionId } : {}),
+    ...(body.idempotencyKey ? { idempotencyKey: body.idempotencyKey } : {})
   });
 
   if (!result.ok) {

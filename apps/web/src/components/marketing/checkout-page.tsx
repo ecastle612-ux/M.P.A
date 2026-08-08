@@ -78,10 +78,7 @@ export function CheckoutPage({
     }
     setBusy(true);
     setError(null);
-    const idempotencyKey =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? `ui_${crypto.randomUUID()}`
-        : `ui_${Date.now()}`;
+    const idempotencyKey = `ui_${crypto.randomUUID()}`;
     const res = await fetch("/api/commerce/checkout", {
       method: "POST",
       headers: { "content-type": "application/json" },

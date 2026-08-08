@@ -32,11 +32,11 @@ export function CheckoutSuccessPage({
   isAuthenticated?: boolean;
 }) {
   const [status, setStatus] = useState<SessionStatus | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const missingSessionError = sessionId ? null : "Missing checkout session.";
 
   useEffect(() => {
     if (!sessionId) {
-      setError("Missing checkout session.");
       return;
     }
     let cancelled = false;
@@ -45,11 +45,14 @@ export function CheckoutSuccessPage({
         `/api/commerce/checkout/session?session_id=${encodeURIComponent(sessionId!)}`
       );
       if (!res.ok) {
-        if (!cancelled) setError("Could not verify purchase. Refresh to retry.");
+        if (!cancelled) setLoadError("Could not verify purchase. Refresh to retry.");
         return;
       }
       const data = (await res.json()) as SessionStatus;
-      if (!cancelled) setStatus(data);
+      if (!cancelled) {
+        setLoadError(null);
+        setStatus(data);
+      }
     }
     void load();
     const timer = window.setInterval(() => void load(), 2500);
@@ -60,6 +63,7 @@ export function CheckoutSuccessPage({
   }, [sessionId]);
 
   const paid = status?.status === "checkout_completed";
+  const error = missingSessionError ?? loadError;
 
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
@@ -111,7 +115,6 @@ export function CheckoutSuccessPage({
                 : "/login?mode=sign_up"
             }
             className={marketingPrimaryCtaClass}
-            aria-disabled={!paid}
           >
             Continue
           </Link>
