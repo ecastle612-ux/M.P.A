@@ -1,16 +1,31 @@
 # Mandatory Slice Release Workflow
 
 **Effective:** 2026-08-08  
-**Authority:** Product owner — COM-002 Production Integration authorize  
+**Authority:** Product owner — AUTHORIZE COM-002 RELEASE TO MAIN  
 
 ## Rule
 
-No new slice may begin until the previous authorized slice is:
+Every completed slice must follow this workflow:
 
-1. **Merged** to `main`  
-2. **Deployed** to Production (`m-p-a-web` for www)  
-3. **Verified live** on `https://www.my-property-assistant.com`  
-4. **Approved** by the product owner  
+```
+Implement
+↓
+Merge to main
+↓
+Deploy
+↓
+Live verification
+↓
+Bug fixes
+↓
+Deploy
+↓
+Product Owner approval
+↓
+Next slice
+```
+
+No future slice may begin until the previous slice is **visible in production** and **approved** by the product owner.
 
 ## Applies to
 

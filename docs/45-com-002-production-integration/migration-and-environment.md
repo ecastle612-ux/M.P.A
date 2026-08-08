@@ -10,7 +10,16 @@
 
 Order is binding: D depends on C tables/constraints; E depends on `organization_subscriptions`.
 
-These are **new migrations** introduced by COM-002 Slices C–E — operator apply remains valid under the infrastructure policy (new migration).
+These are **new migrations** introduced by COM-002 Slices C–E.
+
+## Operator action required
+
+| Action | Status |
+|--------|--------|
+| Apply C → D → E migrations to production Supabase | **Required** if not already applied (`supabase db push` or dashboard SQL in that order) |
+| Agent apply from this environment | **Blocked** — `SUPABASE_ACCESS_TOKEN` unavailable (`LegacyPlatformAuthRequiredError`) |
+
+Do not recreate migrations. Apply the existing files only.
 
 ## Rollback notes
 
@@ -29,12 +38,12 @@ These are **new migrations** introduced by COM-002 Slices C–E — operator app
 | Stripe SaaS webhook (`/api/commerce/webhooks/stripe`) | Previously configured — not re-requested. |
 | Supabase project secrets / service role | Previously configured — not re-requested. |
 
-No brand-new env vars beyond the COM-002 Slice C set are introduced by this release. Re-confirmation is not requested unless runtime proves a variable missing or invalid.
+No brand-new env vars beyond the COM-002 Slice C set are introduced by this release authorize. Re-confirmation is not requested unless runtime proves a variable missing or invalid.
 
 ## Deployment configuration
 
 | Item | Status |
 |------|--------|
-| Auto-deploy `main` → Production `m-p-a-web` | Confirmed working (deployed `097a1a7`) |
+| Auto-deploy `main` → Production `m-p-a-web` | Confirmed (statuses success for `097a1a7` and `92233ae`) |
 | www domain on `m-p-a-web` | Confirmed |
 | Sibling `mpa` project | Not the www serving project |
