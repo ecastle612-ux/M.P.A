@@ -13,7 +13,10 @@ async function sendHtmlEmail(input: {
   subject: string;
   html: string;
   text: string;
-}): Promise<{ ok: true; providerId: string } | { ok: false; error: string; stubbed?: boolean }> {
+}): Promise<
+  | { ok: true; providerId: string; stubbed?: boolean }
+  | { ok: false; error: string }
+> {
   if (!serverEnv.RESEND_API_KEY || !serverEnv.RESEND_FROM_EMAIL) {
     return { ok: true, providerId: `stub_${Date.now()}`, stubbed: true };
   }

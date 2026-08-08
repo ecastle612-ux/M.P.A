@@ -169,26 +169,26 @@ export function operatorStepStatuses(job: ProvisioningJob): Array<{
   current: boolean;
 }> {
   const order = PROVISIONING_CHECKPOINTS;
-  const idx = isProvisioningCheckpoint(job.checkpoint)
-    ? order.indexOf(job.checkpoint)
-    : job.checkpoint === "ready"
-      ? order.length - 1
-      : -1;
+  const complete = isProvisioningComplete(job.checkpoint);
+  const idx = isProvisioningCheckpoint(job.checkpoint) ? order.indexOf(job.checkpoint) : -1;
 
   return OPERATOR_PROVISIONING_STEPS.map((step) => {
     const stepIdx = order.indexOf(step.checkpoint);
-    const done =
-      job.checkpoint === "ready" ||
-      (idx >= 0 && stepIdx >= 0 && stepIdx < idx) ||
-      (idx >= 0 && step.checkpoint === job.checkpoint && step.key !== "route_mission_control");
+    const isRouteStep = step.id === 9;
     const current =
-      isProvisioningCheckpoint(job.checkpoint) && step.checkpoint === job.checkpoint;
+      !complete &&
+      isProvisioningCheckpoint(job.checkpoint) &&
+      step.checkpoint === job.checkpoint;
+    const done = complete
+      ? true
+      : (idx >= 0 && stepIdx >= 0 && stepIdx < idx) ||
+        (idx >= 0 && step.checkpoint === job.checkpoint && !isRouteStep && !current);
     return {
       id: step.id,
       key: step.key,
       label: step.label,
-      done: job.checkpoint === "ready" ? true : done && !current,
-      current: job.checkpoint === "ready" ? step.key === "route_mission_control" : current
+      done: complete ? true : done && !current,
+      current: complete ? isRouteStep : current
     };
   });
 }
