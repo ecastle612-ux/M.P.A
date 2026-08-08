@@ -22,7 +22,7 @@ export function SaasCheckoutConsole() {
         <h1 className="font-display text-2xl font-semibold">Commercial Checkout</h1>
         <p className="max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
           COM-002 Slice C verification — Stripe SaaS Checkout for Property Manager Professional /
-          Business only. No organization or account provisioning on this slice.
+          Business only. Automatic provisioning is Slice D (see Commercial → Provisioning).
         </p>
         <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Status: aligned · dedicated webhook /api/commerce/webhooks/stripe
@@ -79,7 +79,7 @@ export function SaasCheckoutConsole() {
       <section className="space-y-3">
         <h2 className="font-display text-lg font-semibold">Purchase records (this instance)</h2>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Count: {purchases.length}. All rows keep provisioned=false / organizationId=null.
+          Count: {purchases.length}. Slice D sets provisioned=true when the job reaches ready.
         </p>
         {purchases.length === 0 ? (
           <p className="text-sm text-[var(--mpa-color-text-muted)]">No in-memory purchases yet.</p>
@@ -123,7 +123,7 @@ export function SaasCheckoutConsole() {
           Checklist
         </h2>
         <ul className="list-disc space-y-1 pl-5">
-          <li>Successful payment → checkout_completed, provisioned false</li>
+          <li>Successful payment → checkout_completed; Slice D provisions afterward</li>
           <li>Canceled payment → cancel page / no purchase activation</li>
           <li>Webhook delivery on dedicated SaaS endpoint</li>
           <li>Duplicate prevention via event id + Stripe idempotency keys</li>

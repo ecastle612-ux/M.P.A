@@ -52,6 +52,8 @@
 
 ## Slice D — Automatic provisioning
 
+**Authorize status:** **AUTHORIZED / IMPLEMENTED** (2026-08-08) — see [42 Slice D](../42-com-002-slice-d/index.md).  
+
 **Includes:** Provisioning orchestrator, org create, entitlement grant matching offer, account bind, welcome email, Guided Setup handoff copy.  
 **Excludes:** Lifecycle upgrades (basic active/trialing only).  
 **Exit:** Test mode pay → Mission Control path without Master Admin SKU assign.

@@ -79,6 +79,13 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         status: "aligned"
       },
       {
+        href: "/admin/commercial/provisioning",
+        label: "Provisioning",
+        description:
+          "COM-002 Slice D automatic provisioning — checkpoints, retries, compensation, audit.",
+        status: "aligned"
+      },
+      {
         href: "/admin/commercial/subscriptions",
         label: "Subscriptions",
         description: "Assign and inspect organization SKUs.",

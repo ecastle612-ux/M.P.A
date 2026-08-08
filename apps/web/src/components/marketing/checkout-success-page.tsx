@@ -16,13 +16,14 @@ type SessionStatus = {
   offerId: string;
   planTier: PlanTier;
   billingCycle: BillingCycle;
-  provisioned: false;
-  organizationId: null;
-  userId: null;
+  provisioned: boolean;
+  organizationId: string | null;
+  userId: string | null;
+  continuePath: string | null;
 };
 
 /**
- * Purchase successful — payment secured, no account/org yet (Slice D).
+ * Purchase successful — hand off to automatic provisioning continue page.
  */
 export function CheckoutSuccessPage({
   sessionId,
@@ -64,6 +65,9 @@ export function CheckoutSuccessPage({
 
   const paid = status?.status === "checkout_completed";
   const error = missingSessionError ?? loadError;
+  const continueHref =
+    status?.continuePath ??
+    (sessionId ? `/commerce/continue?session_id=${encodeURIComponent(sessionId)}` : "/commerce/continue");
 
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
@@ -77,7 +81,7 @@ export function CheckoutSuccessPage({
           </h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             {paid
-              ? "Your subscription has been secured. Continue to create your M.P.A. account. No organization exists yet — provisioning ships next."
+              ? "Your subscription is secured. Continue to automatic workspace provisioning — no employee involvement required."
               : "Waiting for Stripe confirmation. If you just finished paying, this updates automatically."}
           </p>
         </header>
@@ -98,33 +102,24 @@ export function CheckoutSuccessPage({
               <span className="font-semibold">Status:</span> {status.status}
             </p>
             <p>
-              <span className="font-semibold">Organization:</span> none yet
-            </p>
-            <p>
-              <span className="font-semibold">Account:</span> none yet
+              <span className="font-semibold">Provisioning:</span>{" "}
+              {status.provisioned ? "complete" : "automatic — in progress after continue"}
             </p>
             <p className="font-mono text-xs text-[var(--mpa-color-text-muted)]">{status.sessionId}</p>
           </section>
         ) : null}
 
         <div className="flex flex-wrap gap-3">
-          <Link
-            href={
-              sessionId
-                ? `/login?mode=sign_up&saas_checkout_session=${encodeURIComponent(sessionId)}`
-                : "/login?mode=sign_up"
-            }
-            className={marketingPrimaryCtaClass}
-          >
-            Continue
+          <Link href={continueHref} className={marketingPrimaryCtaClass}>
+            Continue to workspace setup
           </Link>
           <Link href="/pricing" className={marketingSecondaryCtaClass}>
             Back to pricing
           </Link>
         </div>
         <p className="text-xs text-[var(--mpa-color-text-muted)]">
-          Continue opens account creation. Automatic organization provisioning is Slice D and is not
-          performed here.
+          Next: verify email, create your password, claim your organization, then Guided Setup →
+          Mission Control.
         </p>
       </main>
     </MarketingChrome>

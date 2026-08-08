@@ -5,7 +5,7 @@ import { getSaasPurchaseBySessionId } from "../../../../../lib/saas-stripe/purch
 
 export const runtime = "nodejs";
 
-/** Read-only purchase status for success page polling — no provisioning. */
+/** Purchase status for success page polling. Soft-mark may kick off Slice D provisioning. */
 export async function GET(request: Request) {
   if (!COM_002_FLAGS.sliceC_stripeCheckout) {
     return NextResponse.json({ error: "slice_disabled" }, { status: 404 });
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     try {
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       if (session.payment_status === "paid" || session.status === "complete") {
-        // Soft-mark from redirect race if webhook is delayed — still no provision.
+        // Soft-mark from redirect race if webhook is delayed.
         const { updateSaasPurchase, rememberSaasPurchase } = await import(
           "../../../../../lib/saas-stripe/purchase-store"
         );
@@ -62,6 +62,18 @@ export async function GET(request: Request) {
             updatedAt: now
           });
         }
+        // Payment confirmation path may start provisioning (status poll itself stays read-only).
+        if (COM_002_FLAGS.sliceD_automaticProvisioning && purchase?.status === "checkout_completed") {
+          try {
+            const { startOrAdvanceProvisioningFromPurchase } = await import(
+              "../../../../../lib/saas-provisioning/run-provisioning"
+            );
+            await startOrAdvanceProvisioningFromPurchase(purchase);
+            purchase = getSaasPurchaseBySessionId(sessionId) ?? purchase;
+          } catch {
+            // Job records failures; purchase status still returned.
+          }
+        }
       } else if (session.status === "expired") {
         const { updateSaasPurchase } = await import("../../../../../lib/saas-stripe/purchase-store");
         purchase = updateSaasPurchase(sessionId, { status: "checkout_expired" }) ?? purchase;
@@ -75,14 +87,35 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
+  // Payment-confirmation path (not the read-only provision status poll) may start Slice D.
+  if (COM_002_FLAGS.sliceD_automaticProvisioning && purchase.status === "checkout_completed") {
+    try {
+      const { getProvisioningJob } = await import(
+        "../../../../../lib/saas-provisioning/jobs-store"
+      );
+      if (!getProvisioningJob(sessionId)) {
+        const { startOrAdvanceProvisioningFromPurchase } = await import(
+          "../../../../../lib/saas-provisioning/run-provisioning"
+        );
+        await startOrAdvanceProvisioningFromPurchase(purchase);
+        purchase = getSaasPurchaseBySessionId(sessionId) ?? purchase;
+      }
+    } catch {
+      // Job records failures; purchase status still returned.
+    }
+  }
+
   return NextResponse.json({
     sessionId: purchase.stripeCheckoutSessionId,
     status: purchase.status,
     offerId: purchase.catalogOfferId,
     planTier: purchase.planTier,
     billingCycle: purchase.billingCycle,
-    provisioned: false,
-    organizationId: null,
-    userId: null
+    provisioned: purchase.provisioned,
+    organizationId: purchase.organizationId,
+    userId: purchase.userId,
+    continuePath: purchase.status === "checkout_completed"
+      ? `/commerce/continue?session_id=${encodeURIComponent(purchase.stripeCheckoutSessionId)}`
+      : null
   });
 }

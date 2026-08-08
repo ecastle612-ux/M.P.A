@@ -1,6 +1,6 @@
 # 37 — COM-002 Self-Service Commercial Platform
 
-**Status:** Approved — Slice A authorized 2026-08-07  
+**Status:** Approved — Slices A–D authorized/implemented (pending merge)  
 **Gate:** Design → Document → **Approve** → Implement  
 **Package id:** COM-002  
 **ADR:** [ADR-018 Accepted](../18-decision-log/adr-018-self-service-commercial-platform.md)  
@@ -14,7 +14,7 @@
 
 Authoritative commercial blueprint: automate **Professional / Business** Property Manager self-serve; keep **Enterprise** high-touch; scalable Live Demo; SaaS Stripe separated from FIN-OPS.
 
-**COM-002 Approved. ADR-018 Accepted. Slice A authorized.** Slices B–G require separate authorize.
+**COM-002 Approved. ADR-018 Accepted. Slices A–D authorized/implemented.** Slices E–G require separate authorize.
 
 ---
 
@@ -38,9 +38,10 @@ Details: [Commercial Defaults](./commercial-defaults.md).
 
 | Workstream | Instruction |
 |------------|-------------|
-| Application code / UI / migrations / APIs | **Slice A only** authorized; B–G require separate authorize |
+| Application code / UI / migrations / APIs | Slices **A–D** authorized/implemented; E–G require separate authorize |
 | Stripe SaaS Checkout | **Slice C authorized/implemented** — see [41](../41-com-002-slice-c/index.md) |
-| Live Demo platform | **Do not implement** until Slice B authorize |
+| Automatic provisioning | **Slice D authorized/implemented** — see [42](../42-com-002-slice-d/index.md) |
+| Subscription lifecycle | **Do not implement** until Slice E authorize |
 | Capital Projects | **Do not begin** |
 | FO feature depth | Separate FO gate / FO-READY |
 | FIN-OPS resident Stripe | Do not conflate |
@@ -74,6 +75,7 @@ Details: [Commercial Defaults](./commercial-defaults.md).
 | [39 Slice A Implementation](../39-com-002-slice-a/index.md) | Slice A implement + verification |
 | [40 Slice B Implementation](../40-com-002-slice-b/index.md) | Live Demo Platform |
 | [41 Slice C Implementation](../41-com-002-slice-c/index.md) | Stripe SaaS Checkout |
+| [42 Slice D Implementation](../42-com-002-slice-d/index.md) | Automatic Provisioning |
 
 ---
 

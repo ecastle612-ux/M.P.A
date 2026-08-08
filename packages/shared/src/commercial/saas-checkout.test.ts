@@ -11,7 +11,7 @@ describe("COM-002 Slice C SaaS checkout validation", () => {
   it("enables Slice C while FO_READY stays false", () => {
     expect(COM_002_FLAGS.sliceC_stripeCheckout).toBe(true);
     expect(COM_002_FLAGS.foReady).toBe(false);
-    expect(COM_002_FLAGS.sliceD_automaticProvisioning).toBe(false);
+    expect(COM_002_FLAGS.sliceD_automaticProvisioning).toBe(true);
   });
 
   it("allows PM professional/business when price is configured", () => {

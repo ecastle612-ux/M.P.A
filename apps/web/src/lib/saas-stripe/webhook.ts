@@ -108,11 +108,26 @@ export async function handleSaasStripeEvent(event: Stripe.Event): Promise<SaasWe
         stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
         stripeSubscriptionId:
           typeof session.subscription === "string" ? session.subscription : null,
-        customerEmail: session.customer_details?.email ?? session.customer_email ?? null,
-        provisioned: false,
-        organizationId: null,
-        userId: null
+        customerEmail: session.customer_details?.email ?? session.customer_email ?? null
       });
+      try {
+        const { COM_002_FLAGS } = await import("@mpa/shared");
+        if (COM_002_FLAGS.sliceD_automaticProvisioning) {
+          const { startOrAdvanceProvisioningFromCheckoutSession } = await import(
+            "../saas-provisioning/run-provisioning"
+          );
+          await startOrAdvanceProvisioningFromCheckoutSession({
+            id: session.id,
+            customer: typeof session.customer === "string" ? session.customer : null,
+            subscription: typeof session.subscription === "string" ? session.subscription : null,
+            customer_email: session.customer_email,
+            customer_details: session.customer_details,
+            metadata: meta
+          });
+        }
+      } catch {
+        // Provisioning failures are tracked on the job; webhook still acks to allow retry/reconcile.
+      }
       markSaasWebhookProcessed(event.id, session.id);
       return { ok: true, handled: event.type };
     }

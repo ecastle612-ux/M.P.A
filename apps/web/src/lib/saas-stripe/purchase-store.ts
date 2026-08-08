@@ -25,9 +25,9 @@ export type StoredSaasPurchase = {
   idempotencyKey: string | null;
   demoSessionId: string | null;
   metadata: Record<string, string>;
-  provisioned: false;
-  organizationId: null;
-  userId: null;
+  provisioned: boolean;
+  organizationId: string | null;
+  userId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -87,9 +87,6 @@ export function updateSaasPurchase(
   const next: StoredSaasPurchase = {
     ...current,
     ...patch,
-    provisioned: false,
-    organizationId: null,
-    userId: null,
     updatedAt: new Date().toISOString()
   };
   purchases().set(sessionId, next);

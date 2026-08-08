@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { createHmac } from "node:crypto";
 import {
   getSaasPurchaseBySessionId,
@@ -6,6 +6,12 @@ import {
   saasStoreTouchesFinOps
 } from "./purchase-store";
 import { handleSaasStripeEvent } from "./webhook";
+import { getProvisioningJob } from "../saas-provisioning/jobs-store";
+
+const globalStore = globalThis as typeof globalThis & {
+  __mpaProvisioningJobs?: Map<string, unknown>;
+  __mpaSaasCustomers?: Map<string, unknown>;
+};
 
 function signedHeader(payload: string, secret: string): string {
   const timestamp = Math.floor(Date.now() / 1000);
@@ -13,12 +19,17 @@ function signedHeader(payload: string, secret: string): string {
   return `t=${timestamp},v1=${signed}`;
 }
 
-describe("COM-002 Slice C SaaS webhook handling", () => {
+describe("COM-002 SaaS webhook handling (Slice C + D)", () => {
+  beforeEach(() => {
+    globalStore.__mpaProvisioningJobs = new Map();
+    globalStore.__mpaSaasCustomers = new Map();
+  });
+
   it("never touches FIN-OPS tables", () => {
     expect(saasStoreTouchesFinOps()).toBe(false);
   });
 
-  it("marks checkout completed without provisioning", async () => {
+  it("marks checkout completed and starts Slice D provisioning to owner_pending", async () => {
     const sessionId = `cs_test_${Date.now()}`;
     rememberSaasPurchase({
       id: "p1",
@@ -74,15 +85,18 @@ describe("COM-002 Slice C SaaS webhook handling", () => {
     expect(result.ok).toBe(true);
     const purchase = getSaasPurchaseBySessionId(sessionId);
     expect(purchase?.status).toBe("checkout_completed");
+    // Owner claim completes provisioning; webhook stops at owner_pending.
     expect(purchase?.provisioned).toBe(false);
-    expect(purchase?.organizationId).toBeNull();
-    expect(purchase?.userId).toBeNull();
+    const job = getProvisioningJob(sessionId);
+    expect(job?.checkpoint).toBe("owner_pending");
+    expect(job?.organizationId).toBeTruthy();
 
     const dup = await handleSaasStripeEvent(event as never);
     expect(dup.ok).toBe(true);
     if (dup.ok) {
       expect(dup.duplicate).toBe(true);
     }
+    expect(getProvisioningJob(sessionId)?.organizationId).toBe(job?.organizationId);
   });
 
   it("builds a stripe-compatible signature header shape", () => {

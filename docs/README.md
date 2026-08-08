@@ -68,6 +68,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 39 | [COM-002 Slice A](./39-com-002-slice-a/index.md) | Commercial foundation implementation + verification |
 | 40 | [COM-002 Slice B](./40-com-002-slice-b/index.md) | Live Demo Platform implementation + verification |
 | 41 | [COM-002 Slice C](./41-com-002-slice-c/index.md) | Stripe SaaS Checkout implementation + verification |
+| 42 | [COM-002 Slice D](./42-com-002-slice-d/index.md) | Automatic Provisioning implementation + verification |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

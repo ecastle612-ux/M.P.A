@@ -165,6 +165,10 @@ describe("master admin catalog", () => {
 
     const productLabels = MASTER_ADMIN_NAV.find((group) => group.id === "products")?.items.map((item) => item.label) ?? [];
     expect(productLabels).toEqual(["Property Manager", "Facility Operations", "Complete Platform"]);
+
+    const commercialHrefs =
+      MASTER_ADMIN_NAV.find((group) => group.id === "commercial")?.items.map((item) => item.href) ?? [];
+    expect(commercialHrefs).toContain("/admin/commercial/provisioning");
   });
 
   it("does not hide planned capabilities from Master Admin", () => {

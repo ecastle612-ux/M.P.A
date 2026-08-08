@@ -25,9 +25,6 @@ Payment succeeds → success page → Continue (account creation handoff).
 | Regression | [regression-report.md](./regression-report.md) |
 | Master Admin | [master-admin-verification.md](./master-admin-verification.md) |
 
-## STOP
+## Follow-on
 
-```
-STOP
-Wait for AUTHORIZE COM-002 SLICE D before automatic provisioning.
-```
+Slice D (Automatic Provisioning) is authorized/implemented — see [42](../42-com-002-slice-d/index.md).
