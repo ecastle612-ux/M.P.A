@@ -73,7 +73,7 @@ export function PricingPage({
             2 · Pricing
           </li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Confirm Plan</li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Account</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
         </ol>
 
         {enterpriseProduct ? (
@@ -112,9 +112,9 @@ export function PricingPage({
                   <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
                     {SEAT_LIMITS[tier]} seats · {PROPERTY_LIMITS[tier]} properties
                   </p>
-                  <p className="mt-3 text-lg font-semibold">Enterprise pricing</p>
+                  <p className="mt-3 text-lg font-semibold">Self-serve subscription</p>
                   <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                    Finalized during onboarding — no card charge on Confirm Plan.
+                    Confirm Plan continues to secure Stripe Checkout — payment before account creation.
                   </p>
                 </button>
               ))}

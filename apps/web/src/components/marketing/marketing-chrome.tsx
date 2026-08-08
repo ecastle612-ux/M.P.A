@@ -1,11 +1,23 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { acquisitionHref } from "@mpa/shared";
 
 const primaryCtaClass =
   "inline-flex h-10 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--mpa-color-brand-primary-hover,#0C5A48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]";
 
 const ghostCtaClass =
   "inline-flex h-10 items-center justify-center rounded-md px-3 text-sm font-medium text-[var(--mpa-color-text-secondary)] transition-colors hover:bg-[var(--mpa-color-bg-subtle,#F7F8FA)] hover:text-[var(--mpa-color-text-primary)]";
+
+const heroNavLinkClass =
+  "rounded-md px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white";
+
+const publicNav = [
+  { href: "/demo", label: "Live Demo" },
+  { href: "/modules", label: "Modules" },
+  { href: "/pricing", label: "Pricing" },
+  { href: acquisitionHref("checkout", "mpa_property_manager"), label: "Confirm Plan" },
+  { href: "/enterprise", label: "Enterprise" }
+] as const;
 
 export function MarketingChrome({
   children,
@@ -35,46 +47,15 @@ export function MarketingChrome({
             My Property Assistant
           </Link>
           <nav aria-label="Public" className="flex flex-wrap items-center gap-1 md:gap-2">
-            <Link
-              href="/demo"
-              className={
-                denseNav
-                  ? ghostCtaClass
-                  : "rounded-md px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white"
-              }
-            >
-              Live Demo
-            </Link>
-            <Link
-              href="/modules"
-              className={
-                denseNav
-                  ? ghostCtaClass
-                  : "rounded-md px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white"
-              }
-            >
-              Choose Modules
-            </Link>
-            <Link
-              href="/pricing"
-              className={
-                denseNav
-                  ? ghostCtaClass
-                  : "rounded-md px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white"
-              }
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/portal"
-              className={
-                denseNav
-                  ? ghostCtaClass
-                  : "rounded-md px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white"
-              }
-            >
-              Customer Portal
-            </Link>
+            {publicNav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={denseNav ? ghostCtaClass : heroNavLinkClass}
+              >
+                {item.label}
+              </Link>
+            ))}
             {isAuthenticated ? (
               <Link href="/dashboard" className={primaryCtaClass}>
                 Open workspace
@@ -104,17 +85,26 @@ export function MarketingChrome({
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-sm text-[var(--mpa-color-text-secondary)] md:px-6">
           <p>© {new Date().getFullYear()} My Property Assistant</p>
           <div className="flex flex-wrap gap-4">
+            <Link href="/demo" className="hover:text-[var(--mpa-color-text-primary)]">
+              Live Demo
+            </Link>
             <Link href="/modules" className="hover:text-[var(--mpa-color-text-primary)]">
-              Choose Modules
+              Modules
             </Link>
             <Link href="/pricing" className="hover:text-[var(--mpa-color-text-primary)]">
               Pricing
             </Link>
+            <Link
+              href={acquisitionHref("checkout", "mpa_property_manager")}
+              className="hover:text-[var(--mpa-color-text-primary)]"
+            >
+              Confirm Plan
+            </Link>
+            <Link href="/enterprise" className="hover:text-[var(--mpa-color-text-primary)]">
+              Enterprise
+            </Link>
             <Link href="/login" className="hover:text-[var(--mpa-color-text-primary)]">
               Sign In
-            </Link>
-            <Link href="/portal" className="hover:text-[var(--mpa-color-text-primary)]">
-              Customer Portal
             </Link>
           </div>
         </div>

@@ -31,7 +31,7 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
           </li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">2 · Pricing</li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Confirm Plan</li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Account</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
         </ol>
 
         <ul className="grid gap-4 md:grid-cols-3">
