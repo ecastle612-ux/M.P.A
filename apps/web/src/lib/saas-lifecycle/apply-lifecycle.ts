@@ -6,7 +6,7 @@ import {
   hasLifecycleModuleAccess,
   limitsForPlanTier,
   mapStripeSubscriptionStatus,
-  toPlanTierLabel,
+  toSkuLabel,
   transitionLifecycle,
   type LifecycleSubscription,
   type SubscriptionPlatformStatus
@@ -26,7 +26,8 @@ function billingUrl(): string {
 }
 
 function planLabel(sub: LifecycleSubscription): string {
-  return `Property Manager ${toPlanTierLabel(sub.planTier)}`;
+  // Customer emails: Product Constitution name only (internal planTier stays in metadata).
+  return toSkuLabel(sub.productSku);
 }
 
 async function tryServiceRole() {
