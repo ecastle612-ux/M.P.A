@@ -34,7 +34,8 @@ export function demoConversionHref(
   );
 }
 
-export function demoConversionLabel(_product: DemoProductId, cta: DemoConversionCta): string {
+export function demoConversionLabel(product: DemoProductId, cta: DemoConversionCta): string {
+  void product;
   if (cta === "schedule_consultation") {
     return "Schedule Consultation";
   }
@@ -44,6 +45,7 @@ export function demoConversionLabel(_product: DemoProductId, cta: DemoConversion
   return "Start Subscription";
 }
 
-export function primaryDemoConversionCta(_product: DemoProductId): DemoConversionCta {
+export function primaryDemoConversionCta(product: DemoProductId): DemoConversionCta {
+  void product;
   return "start_subscription";
 }
