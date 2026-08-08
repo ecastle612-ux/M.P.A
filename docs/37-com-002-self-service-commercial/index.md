@@ -39,7 +39,7 @@ Details: [Commercial Defaults](./commercial-defaults.md).
 | Workstream | Instruction |
 |------------|-------------|
 | Application code / UI / migrations / APIs | **Slice A only** authorized; B–G require separate authorize |
-| Stripe SaaS Checkout | **Do not implement** until Slice C authorize |
+| Stripe SaaS Checkout | **Slice C authorized/implemented** — see [41](../41-com-002-slice-c/index.md) |
 | Live Demo platform | **Do not implement** until Slice B authorize |
 | Capital Projects | **Do not begin** |
 | FO feature depth | Separate FO gate / FO-READY |
@@ -73,6 +73,7 @@ Details: [Commercial Defaults](./commercial-defaults.md).
 | [Approval Recommendation](./approval-recommendation.md) | Approve / ADR / Slice A |
 | [39 Slice A Implementation](../39-com-002-slice-a/index.md) | Slice A implement + verification |
 | [40 Slice B Implementation](../40-com-002-slice-b/index.md) | Live Demo Platform |
+| [41 Slice C Implementation](../41-com-002-slice-c/index.md) | Stripe SaaS Checkout |
 
 ---
 

@@ -80,7 +80,8 @@ describe("commerce funnel state machine", () => {
   it("transitions modules → pricing → confirm_plan", () => {
     expect(transitionCommerceFunnel("modules", "CONTINUE")).toBe("pricing");
     expect(transitionCommerceFunnel("pricing", "CONTINUE")).toBe("confirm_plan");
-    expect(transitionCommerceFunnel("confirm_plan", "CONFIRM_PLAN")).toBe("account_interim");
+    expect(transitionCommerceFunnel("confirm_plan", "CONFIRM_PLAN")).toBe("checkout_payment");
+    expect(transitionCommerceFunnel("checkout_payment", "CONTINUE")).toBe("account_interim");
     expect(transitionCommerceFunnel("pricing", "REQUEST_ENTERPRISE")).toBe("enterprise_request");
   });
 });

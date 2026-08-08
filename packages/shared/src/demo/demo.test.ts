@@ -22,7 +22,7 @@ describe("COM-002 Slice B demo foundation", () => {
   it("enables slice B flag and keeps FO_READY false", () => {
     expect(COM_002_FLAGS.sliceB_demoPlatform).toBe(true);
     expect(COM_002_FLAGS.foReady).toBe(false);
-    expect(COM_002_FLAGS.sliceC_stripeCheckout).toBe(false);
+    expect(COM_002_FLAGS.sliceC_stripeCheckout).toBe(true);
   });
 
   it("builds isolated sessions with overlay refs", () => {

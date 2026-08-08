@@ -42,6 +42,8 @@
 
 ## Slice C — Stripe Checkout
 
+**Authorize status:** **AUTHORIZED / IMPLEMENTED** (2026-08-08) — see [41 Slice C](../41-com-002-slice-c/index.md).  
+
 **Includes:** Stripe Products/Prices setup runbook, Checkout Session API, success/cancel pages, webhook skeleton (persist events).  
 **Excludes:** Full org provisioning (may create pending subscription row only).  
 **Exit:** Test mode Checkout completes; webhook signature verified; FIN-OPS webhooks still green.

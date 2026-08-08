@@ -10,7 +10,7 @@ export const FO_READY = false;
 export const COM_002_FLAGS = {
   sliceA_commercialFoundation: true,
   sliceB_demoPlatform: true,
-  sliceC_stripeCheckout: false,
+  sliceC_stripeCheckout: true,
   sliceD_automaticProvisioning: false,
   sliceE_subscriptionLifecycle: false,
   sliceF_customerPortal: false,

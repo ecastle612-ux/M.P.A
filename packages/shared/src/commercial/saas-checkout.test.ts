@@ -1,0 +1,79 @@
+import { describe, expect, it } from "vitest";
+import { COM_002_FLAGS } from "./commerce-flags";
+import {
+  SAAS_MONEY_DOMAIN,
+  buildSaasCheckoutMetadata,
+  isSaasCheckoutMetadata,
+  validateSaasCheckoutRequest
+} from "./saas-checkout";
+
+describe("COM-002 Slice C SaaS checkout validation", () => {
+  it("enables Slice C while FO_READY stays false", () => {
+    expect(COM_002_FLAGS.sliceC_stripeCheckout).toBe(true);
+    expect(COM_002_FLAGS.foReady).toBe(false);
+    expect(COM_002_FLAGS.sliceD_automaticProvisioning).toBe(false);
+  });
+
+  it("allows PM professional/business when price is configured", () => {
+    const result = validateSaasCheckoutRequest(
+      {
+        productSku: "mpa_property_manager",
+        planTier: "professional",
+        billingCycle: "monthly"
+      },
+      () => "price_test_pm_pro_monthly"
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.offer.stripePriceId).toBe("price_test_pm_pro_monthly");
+    }
+  });
+
+  it("rejects FO and Complete self-serve checkout", () => {
+    const fo = validateSaasCheckoutRequest(
+      {
+        productSku: "mpa_facility_operations",
+        planTier: "professional",
+        billingCycle: "monthly"
+      },
+      () => "price_should_not_matter"
+    );
+    expect(fo.ok).toBe(false);
+    if (!fo.ok) {
+      expect(fo.reason).toBe("enterprise_required");
+      expect(fo.route).toBe("enterprise");
+    }
+  });
+
+  it("rejects unconfigured prices", () => {
+    const result = validateSaasCheckoutRequest(
+      {
+        productSku: "mpa_property_manager",
+        planTier: "business",
+        billingCycle: "annual"
+      },
+      () => null
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toBe("price_unconfigured");
+    }
+  });
+
+  it("tags metadata with saas_billing money domain", () => {
+    const result = validateSaasCheckoutRequest(
+      {
+        productSku: "mpa_property_manager",
+        planTier: "professional",
+        billingCycle: "annual"
+      },
+      () => "price_x"
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const meta = buildSaasCheckoutMetadata({ offer: result.offer, demoSessionId: "demo_1" });
+    expect(meta.mpa_money_domain).toBe(SAAS_MONEY_DOMAIN);
+    expect(isSaasCheckoutMetadata(meta)).toBe(true);
+    expect(meta.mpa_demo_session_id).toBe("demo_1");
+  });
+});

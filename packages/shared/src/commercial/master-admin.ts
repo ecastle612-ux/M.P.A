@@ -73,6 +73,12 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         status: "aligned"
       },
       {
+        href: "/admin/commercial/checkout",
+        label: "Checkout",
+        description: "COM-002 Slice C SaaS Checkout verification — payments, webhooks, duplicates.",
+        status: "aligned"
+      },
+      {
         href: "/admin/commercial/subscriptions",
         label: "Subscriptions",
         description: "Assign and inspect organization SKUs.",

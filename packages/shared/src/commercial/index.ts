@@ -9,3 +9,4 @@ export * from "./commerce-flags";
 export * from "./catalog";
 export * from "./commerce-state";
 export * from "./commerce-events";
+export * from "./saas-checkout";

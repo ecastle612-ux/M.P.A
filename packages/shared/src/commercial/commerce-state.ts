@@ -51,7 +51,7 @@ const TRANSITIONS: Record<
     BACK: "modules"
   },
   confirm_plan: {
-    CONFIRM_PLAN: "account_interim",
+    CONFIRM_PLAN: "checkout_payment",
     REQUEST_ENTERPRISE: "enterprise_request",
     BACK: "pricing"
   },
@@ -61,7 +61,12 @@ const TRANSITIONS: Record<
   account_interim: {
     BACK: "confirm_plan"
   },
-  checkout_payment: {},
+  checkout_payment: {
+    CONTINUE: "account_interim",
+    BACK: "confirm_plan",
+    REQUEST_ENTERPRISE: "enterprise_request"
+  },
+  /** Reserved — Slice D+. */
   provisioning: {},
   guided_setup: {},
   mission_control: {}
