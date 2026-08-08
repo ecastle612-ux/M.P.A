@@ -19,6 +19,7 @@ Landing → Choose Product → Choose Monthly / Annual → Confirm Plan → Stri
 
 | Report | Path |
 |--------|------|
+| BUG-010.1 Config Recovery (diagnosis) | [bug-010-1-production-config-recovery.md](./bug-010-1-production-config-recovery.md) |
 | BUG-010 Report | [bug-010-report.md](./bug-010-report.md) |
 | Stripe Verification | [stripe-verification.md](./stripe-verification.md) |
 | Checkout Verification | [checkout-verification.md](./checkout-verification.md) |

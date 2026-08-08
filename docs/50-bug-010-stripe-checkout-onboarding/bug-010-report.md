@@ -65,6 +65,16 @@ See [price-mapping.md](./price-mapping.md). Confirm Plan maps to historical Stri
 
 Set Production env vars (see price-mapping) and redeploy, then re-run paid E2E.
 
+## Final verification (2026-08-08)
+
+| Item | Value |
+|------|--------|
+| Production dpl | `dpl_8fzmKBqmDhumLWieQcaW8QapwAMz` |
+| `main` SHA probed | `cd9a9fb33b45ed6b112427beaa3ef3ddb989e07d` |
+| Browser Confirm Plan | Error — prices/keys not configured |
+| Promo for $0 live pay | `BUG010E2E` (coupon `bug010_e2e_100_once`) |
+| Detail | [final-verification.md](./final-verification.md) |
+
 ## Pass/Fail
 
-**FAIL** against BUG-010 success criteria until Production Checkout returns a live session URL and provisioning completes without operator involvement.
+**FAIL** against BUG-010 success criteria until Production serves a Checkout `url` (after PR #65 deploy) and provisioning completes without operator involvement.
