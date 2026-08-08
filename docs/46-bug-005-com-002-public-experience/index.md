@@ -1,7 +1,8 @@
 # BUG-005 — COM-002 Public Experience Integration
 
-**Status:** Authorized · Implementing  
+**Status:** Closed · Production verified  
 **Domain:** `https://www.my-property-assistant.com`  
+**Merge SHA:** `71bc62f` · Deploy `5804357901`  
 **Scope:** Wire existing COM-002 commercial surfaces into the canonical public marketing experience. No new features. No new architecture. No Capital Projects.
 
 ---

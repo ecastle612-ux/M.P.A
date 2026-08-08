@@ -1,7 +1,9 @@
 # BUG-005 Report — COM-002 Public Experience Integration
 
 **Authorized:** 2026-08-08  
-**Branch:** `cursor/bug-005-landing-com002-integration-c9e8`
+**Closed:** 2026-08-08  
+**PR:** [#56](https://github.com/ecastle612-ux/M.P.A/pull/56) · merge `71bc62f`  
+**Production:** `m-p-a-web` deploy `5804357901` — success
 
 ## Audit findings
 
