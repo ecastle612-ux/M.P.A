@@ -62,18 +62,6 @@ export async function GET(request: Request) {
             updatedAt: now
           });
         }
-        // Payment confirmation path may start provisioning (status poll itself stays read-only).
-        if (COM_002_FLAGS.sliceD_automaticProvisioning && purchase?.status === "checkout_completed") {
-          try {
-            const { startOrAdvanceProvisioningFromPurchase } = await import(
-              "../../../../../lib/saas-provisioning/run-provisioning"
-            );
-            await startOrAdvanceProvisioningFromPurchase(purchase);
-            purchase = getSaasPurchaseBySessionId(sessionId) ?? purchase;
-          } catch {
-            // Job records failures; purchase status still returned.
-          }
-        }
       } else if (session.status === "expired") {
         const { updateSaasPurchase } = await import("../../../../../lib/saas-stripe/purchase-store");
         purchase = updateSaasPurchase(sessionId, { status: "checkout_expired" }) ?? purchase;
