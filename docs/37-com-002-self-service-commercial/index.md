@@ -78,6 +78,7 @@ Details: [Commercial Defaults](./commercial-defaults.md).
 | [41 Slice C Implementation](../41-com-002-slice-c/index.md) | Stripe SaaS Checkout |
 | [42 Slice D Implementation](../42-com-002-slice-d/index.md) | Automatic Provisioning |
 | [43 Slice E Implementation](../43-com-002-slice-e/index.md) | Subscription Lifecycle |
+| [45 Production Integration](../45-com-002-production-integration/index.md) | Merged to main · Production SHA `097a1a7` |
 
 ---
 

@@ -75,6 +75,17 @@ Silence is not approval. “Looks good” in chat should be recorded as status c
 3. Material deviation from approved design requires a new Design → Document → Approve cycle (or superseding ADR).
 4. Bug fixes that do not change product/architecture behavior may proceed without a new design doc; if a fix implies a new pattern, document it.
 
+## Slice Release Workflow (Mandatory — 2026-08-08)
+
+No new slice may begin until the previous authorized slice is:
+
+1. **Merged** to `main`  
+2. **Deployed** to Production (serving project for www: `m-p-a-web`)  
+3. **Verified live** on the production domain  
+4. **Approved** by the product owner  
+
+Authoritative detail: [45 COM-002 Production Integration — slice-release-workflow](../45-com-002-production-integration/slice-release-workflow.md).
+
 ---
 
 ## Current Gates (Do Not Skip)
