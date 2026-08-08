@@ -2,7 +2,7 @@
 
 ## Verdict
 
-**NOT READY** for a brand-new self-serve customer until Vercel Production has `STRIPE_PRICE_PM_*` and a paid Checkout → provisioning path is re-verified.
+**NOT READY (FAIL).** Final verification on Production `dpl_8fzm…` / `main@cd9a9fb` still cannot launch Checkout. Merge+deploy PR #65, then complete promo Checkout (`BUG010E2E`) through Mission Control.
 
 ## Checklist
 

@@ -4,11 +4,15 @@
 
 | Check | Result |
 |-------|--------|
-| `POST https://www.my-property-assistant.com/api/commerce/checkout` | **503** |
-| Body | `{"error":"saas_checkout_not_configured","message":"Stripe SaaS prices/keys not configured."}` |
+| `POST https://www.my-property-assistant.com/api/commerce/checkout` | **503** (reconfirmed 2026-08-08 final verify) |
+| Body | `{"error":"saas_checkout_not_configured",…}` |
+| UI | Confirm Plan shows “Stripe SaaS prices/keys not configured.” |
 | Payload tested | `productSku=mpa_property_manager`, `planTier=professional`, `billingCycle=monthly` (and annual) |
+| Production dpl | `dpl_8fzmKBqmDhumLWieQcaW8QapwAMz` |
 
-**Root cause:** `isSaasCheckoutReady()` requires `STRIPE_SECRET_KEY` **and** all four `STRIPE_PRICE_PM_*` env vars. Production is missing the price IDs.
+**Root cause:** Running Production does not resolve PM price IDs (env not applied to this deployment and/or redeploy skipped). `STRIPE_SECRET_KEY` is present.
+
+**Fix in PR #65:** code-side live Price ID defaults (env overrides) + readiness gate only requires resolvable professional monthly/annual prices.
 
 ## Direct Stripe API proof (agent, live key)
 

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | Opened | 2026-08-08 |
-| Status | **Open** — Production Checkout blocked on missing price env vars |
+| Status | **FAIL (final verify)** — Production Checkout still 503; PR #65 must merge+deploy |
 | Constitution | ADR-019 binding |
 | Related | COM-002 Slices C–E · BUG-008 constitution pass on marketing |
 

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| Status | **In progress** — production Checkout blocked on missing `STRIPE_PRICE_PM_*` env |
+| Status | **FAIL (final verify)** — Production tip still 503; PR #65 must merge+deploy (price defaults + cleanup) |
 | Scope | COM-002 Slice C–E + Product Constitution (ADR-019) |
 | Branch | `cursor/bug-010-stripe-checkout-onboarding-cf8a` |
 | Products (customer) | Property Manager · Facility Operations · Complete Platform |
@@ -43,4 +43,6 @@ A brand-new customer can:
 
 ## Current blocker
 
-Production `POST /api/commerce/checkout` returns **503** `saas_checkout_not_configured` because Vercel Production is missing the four `STRIPE_PRICE_PM_*` price IDs. Stripe API session creation with the mapped prices succeeds when called directly.
+Production `POST /api/commerce/checkout` still returns **503** `saas_checkout_not_configured` on deployment `dpl_8fzmKBqmDhumLWieQcaW8QapwAMz` (`main` @ `cd9a9fb`). Secret key is live; price IDs are not available to the running process.
+
+See [final-verification.md](./final-verification.md). Fix ships in PR #65 (live price defaults + readiness gate). Merge + deploy, then re-run E2E with promo `BUG010E2E`.

@@ -2,18 +2,33 @@ import Stripe from "stripe";
 import { saasPriceEnvKeyForOfferId } from "@mpa/shared";
 import { serverEnv } from "../env/server-env";
 
+/**
+ * Live Stripe Price IDs for acct_1Tv5Lj8jGrZYUXDt (M.P.A.).
+ * Env vars always win; these defaults unblock Confirm Plan when Production
+ * has STRIPE_SECRET_KEY but price envs were not yet injected/redeployed.
+ * Do not rename Stripe Products — mapping only (BUG-010 / ADR-019).
+ */
+const LIVE_PM_PRICE_DEFAULTS: Record<string, string> = {
+  STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY: "price_1Tw3Cb8jGrZYUXDtQwHvaXFW",
+  STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL: "price_1Tw3Cc8jGrZYUXDtoMZ4ypxU",
+  STRIPE_PRICE_PM_BUSINESS_MONTHLY: "price_1Tw3Cd8jGrZYUXDtQTEZdC4G",
+  STRIPE_PRICE_PM_BUSINESS_ANNUAL: "price_1Tw3Cd8jGrZYUXDt8nQgBomF"
+};
+
 /** SaaS Stripe client — same account key OK; webhook secret is dedicated. */
 export function isSaasStripeConfigured(): boolean {
   return Boolean(serverEnv.STRIPE_SECRET_KEY && serverEnv.STRIPE_SAAS_WEBHOOK_SECRET);
 }
 
+/**
+ * Confirm Plan readiness: secret key + resolvable Property Manager self-serve prices.
+ * Business price envs remain optional at the gate; per-offer resolve still applies.
+ */
 export function isSaasCheckoutReady(): boolean {
   return Boolean(
     serverEnv.STRIPE_SECRET_KEY &&
-      serverEnv.STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY &&
-      serverEnv.STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL &&
-      serverEnv.STRIPE_PRICE_PM_BUSINESS_MONTHLY &&
-      serverEnv.STRIPE_PRICE_PM_BUSINESS_ANNUAL
+      resolveSaasPriceId("mpa_property_manager__professional__monthly") &&
+      resolveSaasPriceId("mpa_property_manager__professional__annual")
   );
 }
 
@@ -29,8 +44,12 @@ export function resolveSaasPriceId(offerId: string): string | null {
   if (!envKey) {
     return null;
   }
-  const value = serverEnv[envKey as keyof typeof serverEnv];
-  return typeof value === "string" && value.length > 0 ? value : null;
+  const fromEnv = serverEnv[envKey as keyof typeof serverEnv];
+  if (typeof fromEnv === "string" && fromEnv.length > 0) {
+    return fromEnv;
+  }
+  const fallback = LIVE_PM_PRICE_DEFAULTS[envKey];
+  return fallback && fallback.length > 0 ? fallback : null;
 }
 
 export function saasAutomaticTaxEnabled(): boolean {

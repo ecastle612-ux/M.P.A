@@ -75,7 +75,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 47 | [BUG-006 Restore Commercial Experience](./47-bug-006-restore-commercial-experience/index.md) | **Merged** · Production synchronized (see BUG-008) |
 | 48 | [BUG-008 Production Sync & Constitution](./48-bug-008-production-sync/index.md) | **Audited** · Constitution PASS · Demos FAIL |
 | 49 | [BUG-009 Demo Platform Recovery](./49-bug-009-demo-platform-recovery/index.md) | **Fixed** · Production `3af2916` · all three demos Pass |
-| 50 | [BUG-010 Stripe Checkout & Onboarding](./50-bug-010-stripe-checkout-onboarding/index.md) | **In progress** · Checkout 503 missing `STRIPE_PRICE_PM_*` · webhooks fixed |
+| 50 | [BUG-010 Stripe Checkout & Onboarding](./50-bug-010-stripe-checkout-onboarding/index.md) | **FAIL (verify)** · Checkout 503 on Production · PR #65 awaiting merge+deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
