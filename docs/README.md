@@ -70,7 +70,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 41 | [COM-002 Slice C](./41-com-002-slice-c/index.md) | Stripe SaaS Checkout implementation + verification |
 | 42 | [COM-002 Slice D](./42-com-002-slice-d/index.md) | Automatic Provisioning implementation + verification |
 | 43 | [COM-002 Slice E](./43-com-002-slice-e/index.md) | Subscription Lifecycle implementation + verification |
-| 45 | [COM-002 Production Integration](./45-com-002-production-integration/index.md) | **Merged + deployed** · Production SHA `097a1a7` · live routes Pass |
+| 45 | [COM-002 Production Integration](./45-com-002-production-integration/index.md) | **Merged + deployed** · Merge `097a1a7` · Prod tip `92233ae` · live routes Pass |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

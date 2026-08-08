@@ -119,6 +119,8 @@ Authoritative detail: [infrastructure-verification-policy.md](./infrastructure-v
 | LAUNCH-001 Customer Promise Roadmap | **Approved** ([ADR-017](../18-decision-log/adr-017-launch-001-customer-promise-journeys.md)) · journey-gated · **J0–J2 delivered**; J3–J8 **NO-GO** until authorized |
 | Facility Operations features | **Stopped / deferred** — `AUTHORIZE FACILITY OPERATIONS IMPLEMENTATION` (2026-08-07) **refused**: workflows + schema design package missing ([docs/27-facility-operations](../27-facility-operations/index.md)) |
 | CORE-004 / UX-016 | **Stopped** unless separately re-authorized |
+| COM-002 Self-Service Commercial | **Approved** · ADR-018 Accepted · Slices A–E **merged + deployed** · Slice F/G **NO-GO** until authorized after owner approval of E-in-production |
+| Capital Projects | **Stopped** — not authorized |
 
 ---
 
