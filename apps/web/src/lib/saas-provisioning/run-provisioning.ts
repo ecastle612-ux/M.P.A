@@ -27,6 +27,8 @@ function continueUrl(sessionId: string, token?: string): string {
 
 async function tryServiceRole() {
   try {
+    // Unit/integration tests use in-memory synthetic identity/org paths.
+    if (process.env["VITEST"]) return null;
     if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) return null;
     const { createServiceRoleClient } = await import("../supabase/service-role");
     return createServiceRoleClient();
