@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCommercialContext } from "../shell/commercial-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
@@ -26,24 +27,32 @@ type BillingPayload = {
 };
 
 export function BillingPlanPage() {
+  const router = useRouter();
   const { productLabel } = useCommercialContext();
   const [data, setData] = useState<BillingPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-
-  async function load() {
-    const res = await fetch("/api/commerce/subscription");
-    if (!res.ok) {
-      setError("Could not load subscription status.");
-      return;
-    }
-    setError(null);
-    setData((await res.json()) as BillingPayload);
-  }
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
-    void load();
-  }, []);
+    const controller = new AbortController();
+    fetch("/api/commerce/subscription", { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error("Could not load subscription status.");
+        }
+        return (await res.json()) as BillingPayload;
+      })
+      .then((payload) => {
+        setError(null);
+        setData(payload);
+      })
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return;
+        setError(err instanceof Error ? err.message : "Could not load subscription status.");
+      });
+    return () => controller.abort();
+  }, [reloadToken]);
 
   async function post(path: string, body?: Record<string, string>) {
     setBusy(path);
@@ -59,7 +68,8 @@ export function BillingPlanPage() {
       setError(payload.error ?? "Request failed.");
       return;
     }
-    await load();
+    setReloadToken((value) => value + 1);
+    router.refresh();
   }
 
   return (
