@@ -292,10 +292,21 @@ export async function startOrAdvanceProvisioningFromPurchase(
   });
 
   // Advance automatically through owner_pending (identity bind waits for user).
-  while (isProvisioningCheckpoint(job.checkpoint) && job.checkpoint !== "owner_pending") {
+  while (
+    isProvisioningCheckpoint(job.checkpoint) &&
+    job.checkpoint !== "owner_pending" &&
+    job.checkpoint !== "failed_retryable" &&
+    job.checkpoint !== "failed_dead" &&
+    job.checkpoint !== "ready"
+  ) {
+    const before = job.checkpoint;
     const advanced = await advanceOneCheckpoint(job);
     job = advanced;
-    if (!isProvisioningCheckpoint(job.checkpoint) || job.checkpoint === "owner_pending") {
+    if (
+      !isProvisioningCheckpoint(job.checkpoint) ||
+      job.checkpoint === "owner_pending" ||
+      job.checkpoint === before
+    ) {
       break;
     }
   }
@@ -327,28 +338,25 @@ async function ensureClaimEmail(job: ProvisioningJob): Promise<void> {
   if (job.emailsSent.includes("verification")) {
     return;
   }
-  let token = "";
-  if (!job.bindTokenHash) {
-    const issued = issueBindToken();
-    token = issued.token;
-    await saveJob({
-      ...job,
-      bindTokenHash: issued.hash,
-      bindExpiresAt: issued.expiresAt,
-      updatedAt: new Date().toISOString()
-    });
-  }
-  const latest = getProvisioningJob(job.checkoutSessionId) ?? job;
+  // Always mint a fresh bind token for the claim email so the continue link includes it.
+  // (entitled → owner_pending already hashes a token, but the plaintext is not retained.)
+  const issued = issueBindToken();
+  const withToken = await saveJob({
+    ...job,
+    bindTokenHash: issued.hash,
+    bindExpiresAt: issued.expiresAt,
+    updatedAt: new Date().toISOString()
+  });
   const sent = await sendProvisioningEmail({
     kind: "verification",
-    to: latest.ownerEmail,
-    continueUrl: continueUrl(latest.checkoutSessionId, token || undefined),
-    organizationName: latest.organizationName
+    to: withToken.ownerEmail,
+    continueUrl: continueUrl(withToken.checkoutSessionId, issued.token),
+    organizationName: withToken.organizationName
   });
   if (sent.ok) {
     await saveJob({
-      ...latest,
-      emailsSent: [...latest.emailsSent, "verification"],
+      ...withToken,
+      emailsSent: [...withToken.emailsSent, "verification"],
       updatedAt: new Date().toISOString()
     });
   }
