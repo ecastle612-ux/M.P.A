@@ -1,7 +1,8 @@
 # BUG-006 Report — Restore Commercial Experience
 
 **Authorized:** 2026-08-08  
-**Branch:** `cursor/bug-006-restore-commercial-experience-c9e8`
+**Merged:** PR [#58](https://github.com/ecastle612-ux/M.P.A/pull/58) (`677d024`) + lint hotfix PR [#59](https://github.com/ecastle612-ux/M.P.A/pull/59)  
+**Production:** Deploy blocked — Vercel `Deployment rate limited — retry in 24 hours.`
 
 ## Defect
 
