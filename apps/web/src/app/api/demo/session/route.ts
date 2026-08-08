@@ -6,10 +6,11 @@ import {
   isDemoPersona,
   parseDemoProduct
 } from "@mpa/shared";
-import { demoSessionCookieOptions } from "../../../../lib/demo/cookie";
+import { readDemoCookiePair } from "../../../../lib/demo/cookie";
+import { applyDemoCookies } from "../../../../lib/demo/durable-state";
 import {
   createDemoSessionRecord,
-  getDemoSessionRecord
+  resolveDemoSessionRecord
 } from "../../../../lib/demo/session-store";
 
 export async function GET(request: Request) {
@@ -17,18 +18,21 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "demo_disabled" }, { status: 404 });
   }
   const id = new URL(request.url).searchParams.get("id");
-  if (!id) {
-    return NextResponse.json({ error: "missing_id" }, { status: 400 });
-  }
-  const row = getDemoSessionRecord(id);
+  const cookies = await readDemoCookiePair();
+  const row = resolveDemoSessionRecord({
+    sessionId: id ?? cookies.sessionId,
+    stateToken: cookies.stateToken
+  });
   if (!row) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
-  return NextResponse.json({
+  const response = NextResponse.json({
     session: row.session,
     overlayOps: row.overlay.ops.length,
     isolation: { productionDbAccess: false }
   });
+  applyDemoCookies(response, row);
+  return response;
 }
 
 export async function POST(request: Request) {
@@ -57,7 +61,6 @@ export async function POST(request: Request) {
 
   const row = createDemoSessionRecord({ product, persona });
   const response = NextResponse.json({ session: row.session });
-  const cookie = demoSessionCookieOptions();
-  response.cookies.set(cookie.name, row.session.id, cookie);
+  applyDemoCookies(response, row);
   return response;
 }

@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { COM_002_FLAGS, parseDemoProduct } from "@mpa/shared";
 import { DemoChrome } from "../../../../../components/demo/demo-chrome";
+import { DemoSessionBootstrap } from "../../../../../components/demo/demo-session-bootstrap";
 import { DemoSurfaceView } from "../../../../../components/demo/demo-surfaces";
-import { DEMO_SESSION_COOKIE } from "../../../../../lib/demo/cookie";
-import { getDemoSessionRecord } from "../../../../../lib/demo/session-store";
-import { cookies } from "next/headers";
+import { readDemoCookiePair } from "../../../../../lib/demo/cookie";
+import { resolveDemoSessionRecord } from "../../../../../lib/demo/session-store";
 
 export default async function DemoSurfacePage({
   params
@@ -20,13 +20,15 @@ export default async function DemoSurfacePage({
     redirect("/demo");
   }
 
-  const jar = await cookies();
-  const existingId = jar.get(DEMO_SESSION_COOKIE)?.value;
-  const row = existingId ? getDemoSessionRecord(existingId) : null;
+  const cookies = await readDemoCookiePair();
+  const row = resolveDemoSessionRecord({
+    sessionId: cookies.sessionId,
+    stateToken: cookies.stateToken
+  });
+
   if (!row || row.session.product !== product) {
-    redirect(
-      `/api/demo/start?product=${encodeURIComponent(product)}&surface=${encodeURIComponent(surface)}`
-    );
+    // Never blank: client bootstrap → /api/demo/start (durable cookies) → surface.
+    return <DemoSessionBootstrap product={product} surface={surface} />;
   }
 
   return (

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   DEMO_PRODUCTS,
@@ -14,26 +13,17 @@ import {
 import { MarketingChrome, marketingPrimaryCtaClass } from "../marketing/marketing-chrome";
 
 export function DemoProductPicker({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
-  const router = useRouter();
   const [busyProduct, setBusyProduct] = useState<DemoProductId | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  async function startDemo(product: DemoProductId) {
+  function startDemo(product: DemoProductId) {
     setBusyProduct(product);
-    setError(null);
     const persona = defaultPersonaForProduct(product);
-    const res = await fetch("/api/demo/session", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ product, persona })
-    });
-    setBusyProduct(null);
-    if (!res.ok) {
-      setError("Could not start demo session. Please try again.");
-      return;
-    }
     const surface = defaultDemoSurface(product, persona);
-    router.push(`/demo/${product}/${surface}`);
+    // Full navigation through start route so durable session cookies are set
+    // before the surface RSC runs (avoids blank pages on serverless).
+    window.location.assign(
+      `/api/demo/start?product=${encodeURIComponent(product)}&surface=${encodeURIComponent(surface)}`
+    );
   }
 
   return (
@@ -49,12 +39,6 @@ export function DemoProductPicker({ isAuthenticated = false }: { isAuthenticated
             session overlay. Not a trial — no payment, no real organization.
           </p>
         </header>
-
-        {error ? (
-          <p className="text-sm text-red-700" role="alert">
-            {error}
-          </p>
-        ) : null}
 
         <ul className="grid gap-4 md:grid-cols-3">
           {DEMO_PRODUCTS.map((product) => {

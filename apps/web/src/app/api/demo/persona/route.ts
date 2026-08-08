@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { COM_002_FLAGS, isDemoPersona, personasForDemoProduct } from "@mpa/shared";
-import { getDemoSessionRecord, switchDemoPersona } from "../../../../lib/demo/session-store";
+import { readDemoCookiePair } from "../../../../lib/demo/cookie";
+import { applyDemoCookies } from "../../../../lib/demo/durable-state";
+import {
+  resolveDemoSessionRecord,
+  switchDemoPersona
+} from "../../../../lib/demo/session-store";
 
 export async function POST(request: Request) {
   if (!COM_002_FLAGS.sliceB_demoPlatform) {
@@ -13,7 +18,12 @@ export async function POST(request: Request) {
   if (!body.sessionId || !body.persona || !isDemoPersona(body.persona)) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
-  const current = getDemoSessionRecord(body.sessionId);
+
+  const cookies = await readDemoCookiePair();
+  const current = resolveDemoSessionRecord({
+    sessionId: body.sessionId,
+    stateToken: cookies.stateToken
+  });
   if (!current) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
@@ -24,5 +34,7 @@ export async function POST(request: Request) {
   if (!next) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
-  return NextResponse.json({ session: next.session });
+  const response = NextResponse.json({ session: next.session });
+  applyDemoCookies(response, next);
+  return response;
 }

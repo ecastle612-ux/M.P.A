@@ -13,8 +13,9 @@ import {
   type DemoProductId,
   type DemoSession
 } from "@mpa/shared";
+import { decodeDemoSessionState } from "./durable-state";
 
-type Stored = {
+export type Stored = {
   session: DemoSession;
   overlay: DemoOverlayStore;
   analytics: Array<{ event: string; at: string; meta?: Record<string, string> }>;
@@ -50,6 +51,11 @@ function ensureSweeper(): void {
 
 ensureSweeper();
 
+function remember(row: Stored): Stored {
+  store().set(row.session.id, row);
+  return row;
+}
+
 export function createDemoSessionRecord(input: {
   product: DemoProductId;
   persona: DemoPersona;
@@ -61,10 +67,10 @@ export function createDemoSessionRecord(input: {
     overlay: emptyOverlay(session.id),
     analytics: [{ event: "demo.started", at: session.createdAt, meta: { product: input.product } }]
   };
-  store().set(session.id, row);
-  return row;
+  return remember(row);
 }
 
+/** Memory-only lookup (same isolate). Prefer resolveDemoSessionRecord across serverless. */
 export function getDemoSessionRecord(id: string): Stored | null {
   const row = store().get(id);
   if (!row) {
@@ -75,8 +81,38 @@ export function getDemoSessionRecord(id: string): Stored | null {
     return null;
   }
   const touched = { ...row, session: touchDemoSession(row.session) };
-  store().set(id, touched);
-  return touched;
+  return remember(touched);
+}
+
+/**
+ * Resolve a demo session from in-memory store or the signed durable cookie.
+ * Required on Vercel: create and surface requests often hit different isolates.
+ */
+export function resolveDemoSessionRecord(input: {
+  sessionId?: string | null;
+  stateToken?: string | null;
+}): Stored | null {
+  const sessionId = input.sessionId ?? undefined;
+
+  if (sessionId) {
+    const cached = getDemoSessionRecord(sessionId);
+    if (cached) return cached;
+  }
+
+  const durable = decodeDemoSessionState(input.stateToken);
+  if (!durable) return null;
+  if (sessionId && durable.session.id !== sessionId) {
+    return null;
+  }
+  if (isDemoSessionExpired(durable.session)) {
+    return null;
+  }
+
+  const hydrated: Stored = {
+    ...durable,
+    session: touchDemoSession(durable.session)
+  };
+  return remember(hydrated);
 }
 
 export function switchDemoPersona(id: string, persona: DemoPersona): Stored | null {
@@ -92,11 +128,12 @@ export function switchDemoPersona(id: string, persona: DemoPersona): Stored | nu
       { event: "demo.role_switched", at: new Date().toISOString(), meta: { persona } }
     ]
   };
-  store().set(id, next);
-  return next;
+  return remember(next);
 }
 
-export function resetDemoSessionRecord(id: string): { ok: true; row: Stored } | { ok: false; reason: string } {
+export function resetDemoSessionRecord(
+  id: string
+): { ok: true; row: Stored } | { ok: false; reason: string } {
   const row = store().get(id);
   if (!row || isDemoSessionExpired(row.session)) {
     if (row) store().delete(id);
@@ -114,7 +151,7 @@ export function resetDemoSessionRecord(id: string): { ok: true; row: Stored } | 
     overlay: resetOverlay(id, now),
     analytics: [...row.analytics, { event: "demo.reset", at: now.toISOString() }]
   };
-  store().set(id, next);
+  remember(next);
   return { ok: true, row: next };
 }
 
@@ -127,21 +164,20 @@ export function appendDemoOverlay(id: string, op: DemoOverlayOp): Stored | null 
     ...row,
     overlay: applyOverlayOp(row.overlay, op)
   };
-  store().set(id, next);
-  return next;
+  return remember(next);
 }
 
 export function trackDemoAnalytics(
   id: string,
   event: string,
   meta?: Record<string, string>
-): void {
+): Stored | null {
   const row = getDemoSessionRecord(id);
   if (!row) {
-    return;
+    return null;
   }
   row.analytics.push({ event, at: new Date().toISOString(), ...(meta ? { meta } : {}) });
-  store().set(id, row);
+  return remember(row);
 }
 
 export function listDemoSessionDiagnostics(): Array<{
