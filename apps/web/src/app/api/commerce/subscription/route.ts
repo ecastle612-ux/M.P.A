@@ -3,7 +3,7 @@ import {
   COM_002_FLAGS,
   customerStatusCopy,
   toBillingCycleLabel,
-  toPlanTierLabel
+  toSkuLabel
 } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../../../../lib/organization/contracts";
@@ -53,7 +53,8 @@ export async function GET(request: Request) {
     phase: view.phase,
     moduleAccess: view.moduleAccess,
     planTier: view.planTier,
-    planLabel: toPlanTierLabel(view.planTier),
+    // Customer-facing: Product Constitution product name only (no Professional/Business tiers).
+    planLabel: toSkuLabel(view.productSku),
     billingCycle: view.billingCycle,
     billingCycleLabel: toBillingCycleLabel(view.billingCycle),
     seatLimit: view.seatLimit,

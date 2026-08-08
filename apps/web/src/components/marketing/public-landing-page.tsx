@@ -17,9 +17,6 @@ import {
 } from "./marketing-chrome";
 import { marketingModuleDescription } from "./marketing-module-copy";
 
-/** Internal Stripe offer mapping — not shown as a customer-facing tier. */
-const CHECKOUT_PLAN = "professional" as const;
-
 function Section({
   id,
   eyebrow,
@@ -80,7 +77,6 @@ function CapabilityList({
 function productCheckoutHref(sku: ProductSku) {
   return acquisitionHref("checkout", {
     sku,
-    planTier: CHECKOUT_PLAN,
     billingCycle: "monthly"
   });
 }

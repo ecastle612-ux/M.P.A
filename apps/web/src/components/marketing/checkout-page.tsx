@@ -193,7 +193,6 @@ export function CheckoutPage({
               <Link
                 href={acquisitionHref("checkout", {
                   sku: "mpa_property_manager",
-                  planTier: CHECKOUT_PLAN,
                   billingCycle
                 })}
                 className={marketingPrimaryCtaClass}

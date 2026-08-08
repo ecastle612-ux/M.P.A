@@ -17,7 +17,10 @@ export async function POST(request: Request) {
   }
   if (!isSaasCheckoutReady()) {
     return NextResponse.json(
-      { error: "saas_checkout_not_configured", message: "Stripe SaaS prices/keys not configured." },
+      {
+        error: "saas_checkout_not_configured",
+        message: "Checkout is temporarily unavailable. Please try again shortly."
+      },
       { status: 503 }
     );
   }
