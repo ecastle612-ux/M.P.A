@@ -1,7 +1,8 @@
 # BUG-006 — Restore Commercial Experience
 
-**Status:** Authorized · Implementing  
+**Status:** Merged · Production deploy blocked (Vercel rate limit)  
 **Domain:** `https://www.my-property-assistant.com`  
+**Main tip:** includes PR #58 + #59  
 **Scope:** Restore the agreed three-platform commercial model. Bug fix only. No Capital Projects. No new SaaS tiers.
 
 ## Authoritative product model
