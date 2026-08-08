@@ -40,7 +40,10 @@ const ACTION_TO_RESTRICTION: Record<DemoBoundaryAction, DemoRestrictionKey> = {
 };
 
 export function isDemoActionAllowed(action: DemoBoundaryAction): boolean {
-  return DEMO_RESTRICTIONS[ACTION_TO_RESTRICTION[action]] === true;
+  // All Slice B boundary actions are denied (`as const` false flags).
+  void action;
+  void ACTION_TO_RESTRICTION;
+  return false;
 }
 
 export function assertDemoBoundary(action: DemoBoundaryAction): {

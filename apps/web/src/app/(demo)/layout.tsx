@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { DEMO_ROUTE_METADATA } from "../../lib/demo/meta";
 
-export const metadata: Metadata = {
-  title: "Live Demo — My Property Assistant",
-  description:
-    "Experience M.P.A. Property Manager, Facility Operations, or Complete Platform without creating an account.",
-  robots: { index: false, follow: false }
-};
+export const metadata = DEMO_ROUTE_METADATA;
 
 export default function DemoGroupLayout({ children }: { children: ReactNode }) {
   return children;
