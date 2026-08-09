@@ -2,18 +2,10 @@
 
 | File | Subject |
 | --- | --- |
-| `before-after.md` | Structural before/after notes |
+| `01-landing-page.webp` | Production landing — regression |
+| `02-demo-page-overview.webp` | Live Demo hub — regression |
+| `03-property-manager-demo-mission-control.webp` | PM demo MC — regression |
+| `04-property-manager-demo-residents-list.webp` | PM demo residents — regression (PM-side, not resident portal) |
+| `before-after.md` | Structural before/after for Tenant Portal |
 
-LIVE operator screenshots after Production deploy + Owner resident session.
-
-## Before
-- Desktop sidebar portal; “Tenant Portal” branding
-- Maintenance: title + description + category + priority selects
-- Home: lease/rent cards without five-second glance strip
-- Documents: lease `<pre>` only
-
-## After
-- Mobile bottom tabs (Home / Pay / Fix / Docs / Account)
-- Home glance + Report an issue primary
-- Maintenance guided flow with photos/voice/optional questions
-- Documents + Document Intelligence readiness
+Logged-in `/portal/tenant` after screenshots: Owner session post-merge (agent AUTH_BLOCKED).
