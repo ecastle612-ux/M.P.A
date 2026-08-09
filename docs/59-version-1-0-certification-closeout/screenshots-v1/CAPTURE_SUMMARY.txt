@@ -1,0 +1,100 @@
+M.P.A. PRODUCTION VERIFICATION - SPRINT 7 (Reporting & Analytics)
+Date: Sunday, Aug 9, 2026, 9:22 PM UTC
+URL: https://www.my-property-assistant.com
+Expected Deployment: dpl_518EzQjYgpTdJxHSAeeyiqSdqrk3
+
+═══════════════════════════════════════════════════════════════════
+
+CAPTURE RESULTS:
+
+1. 01-landing.webp - PASS ✓
+   Route: /
+   Status: Landing page loads correctly
+   Shows: M.P.A. branding, hero section with "Property operations, calm and complete"
+   CTAs: Get Started, Live Demo, View Pricing buttons visible
+
+2. 02-pricing.webp - PASS ✓
+   Route: /pricing
+   Status: Pricing page loads correctly (Step 2 - PRICING)
+   Shows: Platform pricing for Property Manager
+   Details: Monthly pricing $99/month, "Available Online Today"
+   Navigation: Proper flow through pricing wizard steps
+
+3. 03-shared-reports-auth-blocked.webp - PASS ✓
+   Route: /shared/reports
+   Status: Authentication protection working correctly
+   Shows: "Sign in to M.P.A." modal/page
+   Behavior: Correctly redirected to login - protected route blocks unauthenticated access
+   Fields: Email, Password, Sign in button, "Forgot your password?" link
+
+4. 04-demo-reports.webp - PASS ✓ [CRITICAL - SPRINT 7 VALIDATION]
+   Route: /demo/mpa_property_manager/reports
+   Status: REPORTING & ANALYTICS module displaying correctly
+   Content Type: Shows "Reporting & Analytics" heading (NOT Mission Control)
+   Insights: Displays HONEST demo insights from snapshot:
+     • "Occupancy averages 94%" (Property Operations)
+       Decision: prioritize leasing where occupancy is soft
+     • "1 open work orders - 1 urgent" (Maintenance)
+       Decision: clear urgent backlog before new PM work
+     • "Outstanding balance $1,970" (Financial)
+       Decision: review collections for past-due residents
+   Demo Notice: "Live Demo sample insights derived from the demo snapshot only — not live tenant analytics. Exports disabled."
+   Note: "Demo metrics come from snapshot fields only. No fabricated satisfaction scores."
+   
+   ✓ CORRECT: Shows Reporting & Analytics insights
+   ✓ NOT showing generic "Mission Control" view
+   ✓ Demonstrates Sprint 7 merge successfully deployed
+
+5. 05-demo-pm-documents.webp - PASS ✓
+   Route: /demo/mpa_property_manager/documents (via module dropdown)
+   Status: Documents module loads correctly
+   Shows: Demo documents list
+   Documents visible:
+     • "Lease — Maya Chen 204.pdf" (Leasing, Updated 2025-09-01)
+     • "C01 — Summit Plumbing.pdf" (Vendors, Updated 2026-06-12)
+     • "Owner summary — June 2026.csv" (Financial, Updated 2026-07-02)
+   Demo Notice: "Exports disabled in Live Demos."
+
+6. 06-checkout.webp - PASS ✓
+   Route: /checkout
+   Status: Checkout flow loads correctly (Step 3 - CONFIRM PLAN)
+   Shows: Complete Platform details
+   Pricing: $149/month, billed monthly, renews automatically
+   Platform: "CONSULTATION - NOT ONLINE YET"
+   Details: Property Manager and Facility Operations together
+   Modules: Shows included modules (21 total):
+     • Organizations, Documents, Reporting & Analytics, Communications, 
+       Mission Control, Properties, Residents, etc.
+   Notice: "Request Consultation — online checkout not available yet"
+   Note: Online purchasing will become available after Facility Operations reaches production readiness
+
+7. 07-modules.webp - PASS ✓
+   Route: /modules
+   Status: Module selection page loads correctly (Step 1 - MODULES)
+   Shows: "Choose Your Platform" with Property Manager module details
+   Content: Portfolio operations description, includes 11 modules
+   Modules Listed:
+     • Organizations, Documents, Reporting & Analytics, Communications,
+       Mission Control, Properties, Residents, Leasing
+   Note: Capital Projects excluded from Property Manager
+
+═══════════════════════════════════════════════════════════════════
+
+SPRINT 7 VALIDATION SUMMARY:
+
+✓ PASS: Demo Reports (/demo/mpa_property_manager/reports) correctly displays 
+        "Reporting & Analytics" with honest insights derived from demo snapshot
+✓ NOT showing generic Mission Control view
+✓ Sprint 7 (Reporting & Analytics) functionality confirmed in Production
+
+═══════════════════════════════════════════════════════════════════
+
+OVERALL RESULT: ALL CHECKS PASSED (7/7) ✓
+
+All critical routes functional.
+Authentication protection working correctly.
+Demo reporting displays Sprint 7 Reporting & Analytics features.
+Checkout and module selection flows operational.
+Production deployment verified successfully.
+
+═══════════════════════════════════════════════════════════════════
