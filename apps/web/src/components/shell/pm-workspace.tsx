@@ -129,7 +129,7 @@ export function PmDirectoryToolbar({
 export function PmDocumentsStrip({
   entityType,
   title = "Documents",
-  detail = "Property files, leases, inspections, invoices, and work-order attachments live in Documents — ready for Document Intelligence later."
+  detail = "Property files, leases, inspections, invoices, and work-order attachments live in Document Intelligence — one library, many relationships."
 }: {
   entityType?: string;
   title?: string;

@@ -125,7 +125,7 @@ export function FoQuickActions({
 
 export function FoDocumentsStrip({
   title = "Facility documents",
-  detail = "Manuals, certificates, inspection reports, vendor contracts, warranties, and photos live in Documents — ready for Document Intelligence.",
+  detail = "Manuals, certificates, inspection reports, vendor contracts, warranties, and photos live in Document Intelligence — one library, many relationships.",
   entityType,
   query
 }: {

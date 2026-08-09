@@ -129,7 +129,7 @@ export function ResidentSection({
 
 export function ResidentDocumentsStrip({
   title = "Your documents",
-  detail = "Lease, renewals, move-in packets, policies, and notices will live here — ready for Document Intelligence."
+  detail = "Lease, renewals, move-in packets, policies, and notices live in your Documents area — organized by Document Intelligence."
 }: {
   title?: string;
   detail?: string;

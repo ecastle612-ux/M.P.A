@@ -1,14 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { DOCUMENT_ENTITY_TYPES, isDocumentEntityType, isDocumentCategory } from "./schemas";
+import {
+  DOCUMENT_ENTITY_TYPES,
+  DOCUMENT_CATEGORIES,
+  inferMimeKind,
+  isDocumentEntityType,
+  isDocumentCategory,
+  isPdfExportTemplate
+} from "./schemas";
 import { hasDocumentCapability } from "./permissions";
 
-describe("Documents remediation helpers", () => {
-  it("covers property/resident/lease/maintenance/vendor entities", () => {
-    for (const entity of ["property", "resident", "lease", "maintenance", "vendor"]) {
+describe("Document Intelligence helpers", () => {
+  it("covers core and extended entity types", () => {
+    for (const entity of ["property", "resident", "lease", "maintenance", "vendor", "asset", "unit"]) {
       expect(isDocumentEntityType(entity)).toBe(true);
     }
-    expect(DOCUMENT_ENTITY_TYPES).toContain("lease");
+    expect(DOCUMENT_ENTITY_TYPES).toContain("inspection");
+    expect(DOCUMENT_ENTITY_TYPES).toContain("compliance");
     expect(isDocumentCategory("evidence")).toBe(true);
+    expect(isDocumentCategory("warranty")).toBe(true);
+    expect(DOCUMENT_CATEGORIES).toContain("invoice");
   });
 
   it("evaluates document capabilities", () => {
@@ -20,5 +30,15 @@ describe("Documents remediation helpers", () => {
         "platform.documents:write"
       )
     ).toBe(true);
+  });
+
+  it("infers mime kinds and PDF templates", () => {
+    expect(inferMimeKind("application/pdf")).toBe("pdf");
+    expect(inferMimeKind("image/png")).toBe("image");
+    expect(inferMimeKind("text/plain")).toBe("text");
+    expect(inferMimeKind("video/mp4")).toBe("video");
+    expect(isPdfExportTemplate("lease")).toBe(true);
+    expect(isPdfExportTemplate("work_order")).toBe(true);
+    expect(isPdfExportTemplate("nope")).toBe(false);
   });
 });

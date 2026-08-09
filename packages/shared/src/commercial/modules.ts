@@ -94,7 +94,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     entitlement: "platform.documents",
     href: "/shared/documents",
     readiness: "aligned",
-    description: "Shared document library — upload, organize, and retrieve property records."
+    description:
+      "Document Intelligence Center — one library, many relationships, search, preview, versions, and professional PDF export."
   },
   {
     id: "communications",
