@@ -159,7 +159,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="choose-platform"
         eyebrow="Choose Your Platform"
         title="Three platforms. One operating system."
-        description="Start with the product that matches your team. Capital Projects are not offered today."
+        description="Start with the product that matches your team."
       >
         <ul className="grid gap-4 md:grid-cols-3">
           {PRODUCT_SKUS.map((sku) => {
@@ -214,7 +214,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="facility-operations"
         eyebrow="Facility Operations"
         title="Facility product for building teams"
-        description="Work coverage, assets, inventory, preventive maintenance, safety, compliance, and building systems — Capital Projects excluded."
+        description="Work coverage, assets, inventory, preventive maintenance, safety, compliance, and building systems."
       >
         <CapabilityList modules={foModules} />
         <div className="flex flex-wrap gap-3 pt-2">
@@ -234,8 +234,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         description="Property Manager and Facility Operations together with shared documents, communications, search, and identity."
       >
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Complete Platform includes every module from Property Manager and Facility Operations —
-          without Capital Projects.
+          Complete Platform includes every module from Property Manager and Facility Operations.
         </p>
         <div className="flex flex-wrap gap-3 pt-2">
           <Link
@@ -329,10 +328,6 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             {
               q: "What can I buy?",
               a: "Property Manager, Facility Operations, or Complete Platform — each with monthly or annual billing."
-            },
-            {
-              q: "Is Capital Projects available?",
-              a: "No. Capital Projects are not part of current customer offers."
             },
             {
               q: "How does checkout work?",

@@ -114,7 +114,7 @@ export function AdminCatalogPage() {
         Nothing disappears because it is unimplemented. Planned capabilities remain visible.
       </p>
       <ul className="space-y-2">
-        {COMMERCIAL_MODULES.map((module) => (
+        {COMMERCIAL_MODULES.filter((module) => module.id !== "capital_projects").map((module) => (
           <li key={module.id} className="rounded border border-[var(--mpa-color-border-default)] bg-white p-3 text-sm">
             <div className="flex items-center justify-between gap-3">
               <span className="font-medium">
@@ -170,7 +170,7 @@ export function AdminSimplePage({
               </tr>
             </thead>
             <tbody>
-              {COMMERCIAL_MODULES.map((module) => {
+              {COMMERCIAL_MODULES.filter((module) => module.id !== "capital_projects").map((module) => {
                 const pm = modulesForSku("mpa_property_manager").some((item) => item.id === module.id);
                 const facility = modulesForSku("mpa_facility_operations").some((item) => item.id === module.id);
                 const complete = modulesForSku("mpa_complete_platform").some((item) => item.id === module.id);
@@ -180,7 +180,7 @@ export function AdminSimplePage({
                     <td className="py-2 pr-4">{module.owner}</td>
                     <td className="py-2 pr-4">{pm ? "●" : "—"}</td>
                     <td className="py-2 pr-4">{facility ? "●" : "—"}</td>
-                    <td className="py-2 pr-4">{complete || module.id === "capital_projects" ? "●/future" : "—"}</td>
+                    <td className="py-2 pr-4">{complete ? "●" : "—"}</td>
                     <td className="py-2">{module.readiness}</td>
                   </tr>
                 );
@@ -194,6 +194,15 @@ export function AdminSimplePage({
 }
 
 export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
+  // Version 1.0: Capital Projects is not an exposed workspace surface.
+  if (moduleId === "capital_projects") {
+    return (
+      <main className="p-6">
+        <h1 className="font-display text-2xl font-semibold">Unknown workspace</h1>
+      </main>
+    );
+  }
+
   const commercialModule = COMMERCIAL_MODULES.find((item) => item.id === moduleId);
   if (!commercialModule) {
     return (

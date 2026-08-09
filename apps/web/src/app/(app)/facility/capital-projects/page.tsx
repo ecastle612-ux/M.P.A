@@ -1,15 +1,9 @@
-import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
+import { redirect } from "next/navigation";
 
+/**
+ * Route retained for architecture / future entitlement wiring.
+ * Version 1.0 does not expose Capital Projects to customers — no UI, no copy.
+ */
 export default function Page() {
-  return (
-    <FacilityModulePage
-      title="Capital Projects"
-      description="Capital projects remain deferred commercially — this route stays honest and document-ready."
-      readiness="planned"
-      entitlement="facility.capital_projects"
-      includedIn={["Facility Operations", "Complete Platform"]}
-      requiresComplete="Property Manager-only customers"
-      domain="capital"
-    />
-  );
+  redirect("/facility/mission-control");
 }

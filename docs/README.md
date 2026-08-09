@@ -83,6 +83,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 55 | [Phase 4 Resident Dashboard](./55-phase-4-resident-dashboard/index.md) | Sprint 5 Resident UX · LIVE |
 | 56 | [Phase 4 Document Intelligence](./56-phase-4-document-intelligence/index.md) | Sprint 6 Document Intelligence Center · LIVE |
 | 57 | [Phase 4 Reporting & Analytics](./57-phase-4-reporting-analytics/index.md) | Sprint 7 Reporting & Analytics Center · implementing |
+| 58 | [V1 Capital Projects CF cleanup](./58-v1-capital-projects-cf-cleanup/index.md) | Remove customer-facing Capital Projects references · awaiting Owner acceptance |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

@@ -52,7 +52,7 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                   {summary.description}
                 </p>
                 <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-                  Includes ({modules.length}) · Capital Projects excluded
+                  Includes ({modules.length})
                 </p>
                 <ul className="mt-2 flex-1 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
                   {modules.map((module) => (

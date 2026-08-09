@@ -182,7 +182,8 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
   {
     id: "workspaces",
     title: "Operational Workspaces",
-    items: COMMERCIAL_MODULES.map((module) => ({
+    // Version 1.0: omit Capital Projects from operator-facing workspace lists.
+    items: COMMERCIAL_MODULES.filter((module) => module.id !== "capital_projects").map((module) => ({
       href: `/admin/workspaces/${module.id}`,
       label: `${ownerPrefix(module.owner)} · ${module.label}`,
       description: module.plannedLabel ?? module.description,

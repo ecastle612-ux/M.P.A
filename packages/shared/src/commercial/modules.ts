@@ -398,7 +398,6 @@ export function navigationGroupsForSku(
           readiness: "planned",
           entitlement: "facility.building_systems"
         }
-        // Capital Projects: future entitlement — Master Admin + Billing only until enabled
       ]
     });
   }
@@ -596,13 +595,8 @@ export function upgradeCuesForSku(sku: ProductSku | null): UpgradeCue[] {
   }
 
   if (sku === "mpa_complete_platform") {
-    return [
-      {
-        moduleLabel: "Capital Projects",
-        requires: "Complete Platform",
-        reason: "Included later as a deferred Facility capability — intentionally planned."
-      }
-    ];
+    // Version 1.0: no upgrade cues that advertise unavailable modules.
+    return [];
   }
 
   if (sku === "mpa_property_manager") {
