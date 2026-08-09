@@ -169,6 +169,12 @@ export function MissionControlPage() {
 
   const daily = state?.dailyOperations;
   const showDailyOps = Boolean(daily);
+  const isFirstRun =
+    Boolean(setupComplete || state?.setupComplete) && (state?.propertyCount ?? 0) === 0 && !showDailyOps;
+  const eyebrow =
+    isFirstRun || (!setupComplete && !showDailyOps)
+      ? "Getting started"
+      : "Daily operations";
 
   return (
     <main className="flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
@@ -181,7 +187,7 @@ export function MissionControlPage() {
 
       <header className="max-w-3xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          {productLabel ?? "Property Manager"} · Daily operations
+          {productLabel ?? "Property Manager"} · {eyebrow}
         </p>
         <h1 className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
           Mission Control
@@ -189,7 +195,9 @@ export function MissionControlPage() {
         <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
           {loading
             ? "Loading your attention home…"
-            : (daily?.greeting ?? "Your attention home — start the day here.")}
+            : isFirstRun
+              ? "Congratulations. Your organization is now operational."
+              : (daily?.greeting ?? "Your attention home — start the day here.")}
         </p>
         <div className="flex flex-wrap gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
           <span>{activeOrganization?.name ?? "Organization"}</span>
@@ -202,8 +210,30 @@ export function MissionControlPage() {
         </div>
       </header>
 
+      {isFirstRun ? (
+        <section
+          aria-label="Welcome"
+          className="max-w-4xl space-y-2 rounded-md border border-[var(--mpa-color-brand-primary)]/30 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] p-5"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+            Welcome
+          </p>
+          <p className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
+            Congratulations. Your organization is now operational.
+          </p>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Guided Setup is complete. Begin with one clear task: add your first property. After that,
+            Mission Control will guide inviting your team, residents, leasing, and daily operations —
+            using the same workflows you already have.
+          </p>
+        </section>
+      ) : null}
+
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
+        <p
+          className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}
@@ -229,6 +259,9 @@ export function MissionControlPage() {
             {daily ? (
               <p className="text-sm text-[var(--mpa-color-text-secondary)]">{daily.briefing.summary}</p>
             ) : null}
+            {daily?.successCopy ? (
+              <p className="text-sm text-emerald-800">{daily.successCopy}</p>
+            ) : null}
             {state?.ownerPortfolioReady ? (
               <p className="text-sm text-emerald-800">
                 I can confidently monitor my investment portfolio using M.P.A.
@@ -248,15 +281,22 @@ export function MissionControlPage() {
           className="max-w-4xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Today&apos;s mission
+            {isFirstRun ? "Where to begin" : "Today's mission"}
           </p>
           <h2 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">
             {nextAction.title}
           </h2>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">{nextAction.detail}</p>
+          {isFirstRun ? (
+            <ol className="list-decimal space-y-1 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
+              <li>Add your first property (name and units are enough to start).</li>
+              <li>Invite teammates when you are ready.</li>
+              <li>Add residents and create leases from Mission Control guidance.</li>
+            </ol>
+          ) : null}
           <Link
             href={nextAction.href}
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48]"
+            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2"
           >
             {nextAction.title}
           </Link>
@@ -517,10 +557,15 @@ export function MissionControlPage() {
             </div>
           }
         />
+      ) : isFirstRun ? (
+        <EmptyState
+          title="Add your first property to unlock daily operations"
+          description="Mission Control becomes your daily attention home after you create a property. Use the button above to begin — name and units are enough."
+        />
       ) : (
         <EmptyState
-          title="Complete earlier journeys to unlock daily operations"
-          description="Add a property, team, resident, lease, rent, and maintenance — then Mission Control becomes your daily attention home."
+          title="Daily operations unlock as you configure your portfolio"
+          description="When you have a property (and continue setup), Mission Control shows attention queues, financial snapshots, and recommended actions."
         />
       )}
 
