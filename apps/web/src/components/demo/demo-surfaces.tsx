@@ -412,8 +412,7 @@ export function DemoSurfaceView({
           />
         </Panel>
       );
-    case "mission-control":
-    default: {
+    case "mission-control": {
       if (product === "mpa_complete_platform" && fo && surface === "mission-control") {
         return (
           <CompleteMissionControlShowcase
@@ -435,5 +434,16 @@ export function DemoSurfaceView({
         />
       );
     }
+    default:
+      return (
+        <Panel
+          title="Demo surface unavailable"
+          description={`“${surface}” is not part of this Live Demo build. Open Mission Control or another listed demo module — no fabricated workspace.`}
+        >
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Exports, payments, and provisioning remain disabled in Live Demo.
+          </p>
+        </Panel>
+      );
   }
 }
