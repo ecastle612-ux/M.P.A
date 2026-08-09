@@ -1,0 +1,31 @@
+M.P.A. PHASE 4 SPRINT 5 - SCREENSHOT INDEX
+==========================================
+Date: August 9, 2026
+Location: /workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/
+
+ABSOLUTE PATHS:
+---------------
+
+REGRESSION - LANDING PAGE:
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/01-landing-page.webp
+
+DEMO PAGES:
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/02-demo-page-overview.webp
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/03-property-manager-demo-mission-control.webp
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/04-property-manager-demo-residents-list.webp
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/05-complete-platform-demo-executive-mission-control.webp
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/06-complete-platform-demo-residents-list.webp
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/07-facility-operations-demo-mission-control.webp
+
+PORTAL AUTHENTICATION (AUTH_BLOCKED):
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/08-portal-tenant-login-wall-AUTH_BLOCKED.webp
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/09-portal-resident-login-wall-AUTH_BLOCKED.webp
+
+MARKETING/FEATURES:
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/10-landing-page-three-platforms.webp
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/11-landing-page-property-manager-features.webp
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/12-modules-page-residents-included.webp
+
+DOCUMENTATION:
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/SUMMARY.md
+/workspace/docs/55-phase-4-resident-dashboard/screenshots-sprint-5/INDEX.txt
