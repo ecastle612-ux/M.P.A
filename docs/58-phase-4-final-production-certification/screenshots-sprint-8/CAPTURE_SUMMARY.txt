@@ -1,0 +1,144 @@
+M.P.A. PHASE 4 SPRINT 8 - PRODUCTION CERTIFICATION CAPTURE SUMMARY
+===================================================================
+Date: Sunday, August 9, 2026
+Target: https://www.my-property-assistant.com
+Environment: Live Production
+
+CAPTURE RESULTS:
+----------------
+
+01-landing.webp — / (Landing Page)
+   STATUS: PASS
+   - Hero section displays correctly with M.P.A. branding
+   - Tagline visible: "Property operations, calm and complete."
+   - Three CTA buttons present: Get Started, Live Demo, View Pricing
+   - Navigation menu functional
+   - No visible UI defects
+
+02-pricing.webp — /pricing (Platform Pricing)
+   STATUS: PASS
+   - Three platform tiers displayed: Property Manager ($99), Facility Operations ($99), Complete Platform ($149)
+   - Pricing step indicator shows correctly (1-MODULES, 2-PRICING, 3-CONFIRM PLAN, 4-CHECKOUT)
+   - Module lists visible for each platform
+   - Monthly/Annual pricing toggle present
+   - No visible UI defects
+
+03-checkout-confirm-plan.webp — /checkout (Confirm Plan)
+   STATUS: PASS
+   - Complete Platform selected with $149/month pricing
+   - "CONSULTATION - NOT ONLINE YET" badge displayed correctly
+   - Module count shown: INCLUDES (20)
+   - Request consultation CTA present (online checkout not available message)
+   - Step progression indicator correct (Step 3 - CONFIRM PLAN)
+   - No visible UI defects
+
+04-demo-hub.webp — /demo (Live Demo Hub)
+   STATUS: PASS
+   - Three demo cards displayed: Property Manager, Facility Operations, Complete Platform
+   - "Experience M.P.A. without an account" heading clear
+   - Each demo has "Enter demo" button
+   - Controlled demonstration environment notice present
+   - No visible UI defects
+
+05-demo-pm-mission-control.webp — PM Demo Mission Control
+   STATUS: PASS
+   - Mission Control dashboard loads successfully
+   - "AT A GLANCE" metrics displayed (2 Immediate, 2 Can Wait, etc.)
+   - Assistant briefing section functional
+   - Today's priorities list populated with demo data
+   - Portfolio metrics visible at bottom (3 Properties, 94% Occupancy, etc.)
+   - Demo environment banner present
+   - No visible UI defects
+
+06-demo-pm-documents.webp — PM Demo Documents
+   STATUS: PASS
+   - Documents list displays with demo files
+   - Three documents shown: lease PDF, vendor invoice PDF, owner summary CSV
+   - "Exports disabled in Live Demo" notice present
+   - Download blocked appropriately for demo
+   - Left navigation functional
+   - No visible UI defects
+
+07-demo-fo-mission-control.webp — FO Demo Mission Control
+   STATUS: PASS
+   - Facility Operations Mission Control loads correctly
+   - AT A GLANCE section shows metrics (1 Immediate, 2 Can Wait, etc.)
+   - Assistant briefing displays facility-specific content
+   - Today's priorities populated with facility items
+   - Bottom metrics show: 2 Sites, 210 Assets Tracked, 2 Corrective Open, etc.
+   - Demo environment banner present
+   - No visible UI defects
+
+08-login.webp — /login (Sign In Page)
+   STATUS: PASS
+   - Login form displays with Email and Password fields
+   - Sign In / Sign up tab toggle present
+   - "Sign in to M.P.A." heading visible
+   - "Forgot your password?" link present
+   - Diagonal split design renders correctly
+   - No visible UI defects
+
+09-shared-documents-auth-blocked.webp — /shared/documents (Auth Protection)
+   STATUS: PASS
+   - Route correctly redirects to /login
+   - Authentication protection working as expected
+   - No unauthorized access granted
+   - Login page displays correctly after redirect
+
+10-portal-tenant-auth-blocked.webp — /portal/tenant (Auth Protection)
+   STATUS: PASS
+   - Route correctly redirects to /login
+   - Tenant portal properly protected
+   - Authentication gate working correctly
+   - No unauthorized access granted
+
+11-modules.webp — /modules (Choose Your Platform)
+   STATUS: PASS
+   - Platform selection page displays all three options
+   - Property Manager: 10 modules, Capital Projects Excluded
+   - Facility Operations: 13 modules, Capital Projects Excluded
+   - Complete Platform: 20 modules, Capital Projects Excluded
+   - Each platform shows detailed module list
+   - "View pricing" buttons present for each
+   - Step indicator shows "1 - MODULES"
+   - No visible UI defects
+
+12-mobile-landing.webp — / at ~390px width (Mobile Landing)
+   STATUS: PASS
+   - Responsive mobile layout renders correctly
+   - Hamburger menu button ("Menu") visible in header
+   - Hero content stacks vertically as expected
+   - M.P.A. branding and tagline visible
+   - CTA buttons displayed in mobile layout
+   - No horizontal scrolling or layout breaks
+   - No visible UI defects
+
+CONSOLE OBSERVATIONS:
+---------------------
+- Link preload warnings observed for media resources (fonts, images)
+  These are performance optimization hints, not errors
+  Impact: None - resources load successfully
+  Note: Common Next.js behavior for preloaded assets
+
+OVERALL ASSESSMENT:
+-------------------
+STATUS: PASS - All 12 captures successful
+
+All public routes render correctly
+All authentication-protected routes properly redirect to login
+Demo environments functional with appropriate restrictions
+Responsive design working (desktop and mobile)
+No critical UI defects observed
+No blocking console errors
+
+DEFECTS FOUND: None
+
+NOTES:
+------
+- FO_READY purchase gate messaging displays correctly on pricing/checkout pages
+- Demo data populated appropriately in all demo environments
+- Auth middleware functioning as expected for protected routes
+- Mobile responsive layout adapts correctly at narrow viewport widths
+
+CERTIFICATION RECOMMENDATION: APPROVED FOR SPRINT 8
+===================================================================
