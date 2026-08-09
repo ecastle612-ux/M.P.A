@@ -21,6 +21,27 @@ function commerceContinuePath(sessionId: string, bindToken: string | null): stri
   return bindToken ? `${base}&bind_token=${encodeURIComponent(bindToken)}` : base;
 }
 
+/** Presentation-only — does not change claim-password API contracts. */
+function friendlyCommerceClaimError(raw: string): string {
+  const lower = raw.toLowerCase();
+  if (lower.includes("email_mismatch") || (lower.includes("email") && lower.includes("mismatch"))) {
+    return "Use the same email address from your Stripe purchase receipt, then try again.";
+  }
+  if (lower.includes("expired") || lower.includes("invalid") || lower.includes("used")) {
+    return "This claim link is no longer valid. Open your purchase email again, or recover access from Sign in.";
+  }
+  if (lower.includes("password") && (lower.includes("weak") || lower.includes("short") || lower.includes("least"))) {
+    return "Choose a stronger password (at least 8 characters), then try again.";
+  }
+  if (lower.includes("already") && (lower.includes("claim") || lower.includes("bound"))) {
+    return "This workspace may already be claimed. Sign in with your purchase email and password.";
+  }
+  if (lower.includes("session") && (lower.includes("not found") || lower.includes("missing"))) {
+    return "We could not find this purchase session. Open the link from your confirmation email.";
+  }
+  return raw;
+}
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,7 +76,7 @@ export function LoginForm() {
     });
     const data = (await res.json().catch(() => ({}))) as { error?: string; nextPath?: string };
     if (!res.ok) {
-      return data.error ?? "Could not claim workspace.";
+      return friendlyCommerceClaimError(data.error ?? "Could not claim workspace.");
     }
     window.location.assign(data.nextPath ?? "/setup");
     return null;
@@ -88,7 +109,9 @@ export function LoginForm() {
         const claimData = (await claimRes.json().catch(() => ({}))) as { error?: string };
         if (!claimRes.ok) {
           setLoading(false);
-          setError(claimData.error ?? "Could not verify purchase email.");
+          setError(
+            friendlyCommerceClaimError(claimData.error ?? "Could not verify purchase email.")
+          );
           return;
         }
         const { error: signInAfterClaim } = await supabase.auth.signInWithPassword({
@@ -97,12 +120,12 @@ export function LoginForm() {
         });
         if (signInAfterClaim) {
           setLoading(false);
-          setError(signInAfterClaim.message);
+          setError(friendlyCommerceClaimError(signInAfterClaim.message));
           return;
         }
         const claimError = await claimCommerceWorkspace(saasCheckoutSession);
         setLoading(false);
-        if (claimError) setError(claimError);
+        if (claimError) setError(friendlyCommerceClaimError(claimError));
         return;
       }
 
@@ -151,11 +174,17 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-        {mode === "sign_in" ? "Sign in to M.P.A." : "Create your account"}
+        {commerceNext
+          ? mode === "sign_up"
+            ? "Set your password"
+            : "Sign in to claim your workspace"
+          : mode === "sign_in"
+            ? "Sign in to M.P.A."
+            : "Create your account"}
       </h1>
       <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
         {commerceNext
-          ? "Use the same email from your Stripe purchase to claim your workspace."
+          ? "Use the same email from your Stripe purchase. Set a password to claim admin access, then continue Guided Setup."
           : nextPath
             ? "Sign in with the invited email, then continue to accept your invitation."
             : mode === "sign_in"
@@ -164,8 +193,8 @@ export function LoginForm() {
       </p>
       {commerceNext ? (
         <p className="mt-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          Automatic provisioning is preparing your organization. After you create a password and sign
-          in, you will claim admin access and continue Guided Setup.
+          Next: set password → claim workspace → Guided Setup → Mission Control. Your organization is
+          prepared automatically from checkout.
         </p>
       ) : null}
       {selectedPlanLabel && mode === "sign_up" && !commerceNext ? (
@@ -240,23 +269,39 @@ export function LoginForm() {
           </div>
         ) : null}
         {error ? (
-          <p className="text-sm text-[#C0392B]" role="alert">
+          <p
+            className="rounded-md border border-[#C0392B]/40 bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]"
+            role="alert"
+            aria-live="assertive"
+          >
             {error}
           </p>
         ) : null}
         {notice ? (
-          <p className="text-sm text-[#0F6B56]" role="status">
+          <p
+            className="rounded-md border border-[#0F6B56]/30 bg-[#E6F4EF] px-3 py-2 text-sm text-[#0F6B56]"
+            role="status"
+            aria-live="polite"
+          >
             {notice}
           </p>
         ) : null}
         <Button className="w-full" disabled={loading} aria-busy={loading} type="submit">
           {loading
-            ? mode === "sign_in"
-              ? "Signing in..."
-              : "Creating account..."
-            : mode === "sign_in"
-              ? "Sign in"
-              : "Create account"}
+            ? commerceNext
+              ? mode === "sign_up"
+                ? "Setting password…"
+                : "Claiming workspace…"
+              : mode === "sign_in"
+                ? "Signing in…"
+                : "Creating account…"
+            : commerceNext
+              ? mode === "sign_up"
+                ? "Set password & continue"
+                : "Sign in & claim workspace"
+              : mode === "sign_in"
+                ? "Sign in"
+                : "Create account"}
         </Button>
         {mode === "sign_in" ? (
           <p className="text-center text-sm text-[var(--mpa-color-text-secondary)]">
