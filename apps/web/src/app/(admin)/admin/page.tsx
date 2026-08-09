@@ -1,5 +1,7 @@
-import { AdminHomePage } from "../../../components/admin/master-admin-pages";
+import { CommandCenterPage } from "../../../components/admin/command-center-page";
+import { loadCommandCenterSnapshot } from "../../../lib/admin/load-command-center";
 
-export default function Page() {
-  return <AdminHomePage />;
+export default async function Page() {
+  const snapshot = await loadCommandCenterSnapshot();
+  return <CommandCenterPage snapshot={snapshot} />;
 }
