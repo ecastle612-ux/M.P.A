@@ -12,6 +12,7 @@ export * from "./leasing";
 export * from "./maintenance";
 export * from "./team";
 export * from "./documents";
+export * from "./reports";
 export * from "./communications";
 export * from "./portal/access";
 export * from "./env/base-env";

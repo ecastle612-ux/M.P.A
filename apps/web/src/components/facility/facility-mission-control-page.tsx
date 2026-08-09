@@ -78,6 +78,7 @@ export function FacilityMissionControlPage() {
 
   const quickActions = [
     { href: "/shared/documents", label: "Documents", primary: true },
+    { href: "/shared/reports", label: "Reporting", primary: false },
     { href: "/shared/communications", label: "Communications" },
     { href: "/launcher", label: "Launcher" },
     ...(hasPmMaintenance

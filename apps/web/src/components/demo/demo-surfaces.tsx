@@ -364,6 +364,44 @@ export function DemoSurfaceView({
           />
         </Panel>
       );
+    case "reports": {
+      const showcase = buildPmDemoShowcase(pm);
+      return (
+        <Panel
+          title="Reporting & Analytics"
+          description="Live Demo sample insights derived from the demo snapshot only — not live tenant analytics. Exports disabled."
+        >
+          <div className="space-y-4">
+            <p className="text-sm font-medium">What should I pay attention to today?</p>
+            <CardList
+              items={[
+                {
+                  id: "occ",
+                  title: `Occupancy averages ${showcase.kpis.find((k) => k.id === "occupancy")?.value ?? "—"}`,
+                  meta: "Property Operations",
+                  detail: "Decision: prioritize leasing where occupancy is soft."
+                },
+                {
+                  id: "maint",
+                  title: `${showcase.maintenance.open} open work orders · ${showcase.maintenance.urgent} urgent`,
+                  meta: "Maintenance",
+                  detail: "Decision: clear urgent backlog before new PM work."
+                },
+                {
+                  id: "fin",
+                  title: `Outstanding balance ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(showcase.financial.outstandingBalance)}`,
+                  meta: "Financial",
+                  detail: "Decision: review collections for past-due residents."
+                }
+              ]}
+            />
+            <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+              Demo metrics come from snapshot fields only. No fabricated satisfaction scores.
+            </p>
+          </div>
+        </Panel>
+      );
+    }
     case "communications":
       return (
         <Panel title="Communications" description="Outbound email/SMS stubbed — nothing leaves the demo.">

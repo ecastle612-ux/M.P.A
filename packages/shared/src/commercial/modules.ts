@@ -16,6 +16,7 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/pm/residents",
     "/pm/leasing",
     "/shared/documents",
+    "/shared/reports",
     "/shared/communications",
     "/settings/organization"
   ],
@@ -26,6 +27,7 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/pm/properties",
     "/pm/maintenance",
     "/shared/documents",
+    "/shared/reports",
     "/shared/communications",
     "/settings/organization"
   ],
@@ -96,6 +98,16 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     readiness: "aligned",
     description:
       "Document Intelligence Center — one library, many relationships, search, preview, versions, and professional PDF export."
+  },
+  {
+    id: "reports",
+    label: "Reporting & Analytics",
+    owner: "shared_platform",
+    entitlement: "platform.reports",
+    href: "/shared/reports",
+    readiness: "aligned",
+    description:
+      "Executive intelligence layer — insights first, decision-ready reports across property, facility, finance, documents, and commercial."
   },
   {
     id: "communications",
@@ -398,6 +410,12 @@ export function navigationGroupsForSku(
     items: [
       { href: "/shared/documents", label: "Documents", readiness: "aligned", entitlement: "platform.documents" },
       {
+        href: "/shared/reports",
+        label: "Reporting & Analytics",
+        readiness: "aligned",
+        entitlement: "platform.reports"
+      },
+      {
         href: "/shared/communications",
         label: "Communications",
         readiness: "aligned",
@@ -528,6 +546,14 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
       title: "Documents",
       description: "Shared platform documents.",
       href: "/shared/documents",
+      product: "shared",
+      readiness: "aligned"
+    },
+    {
+      id: "reports",
+      title: "Reporting & Analytics",
+      description: "Executive insights and decision-ready reports.",
+      href: "/shared/reports",
       product: "shared",
       readiness: "aligned"
     },
