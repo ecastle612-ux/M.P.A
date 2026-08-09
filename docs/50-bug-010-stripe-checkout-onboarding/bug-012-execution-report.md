@@ -5,7 +5,7 @@
 | Result | **FAIL** |
 | Date | 2026-08-09 |
 | Branch / PR | `cursor/bug-012-complete-automated-onboarding-cf8a` / [#68](https://github.com/ecastle612-ux/M.P.A/pull/68) |
-| Tip SHA (fixes) | `4930019` (see branch; may advance) |
+| Tip SHA (fixes) | `fb8c71d5280b6ea8bd1601fea391297ecbb28253` |
 | Production deployment SHA | `cd9a9fb33b45ed6b112427beaa3ef3ddb989e07d` (pre-fix `main`) |
 | Production deploy id | `dpl_7jHkUnv6YjVsgd8SqxhpNMabCorz` |
 | Production DB schema version | `20260808230241` (`com_002_slice_e_lifecycle`) |
