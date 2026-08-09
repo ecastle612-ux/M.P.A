@@ -1,8 +1,9 @@
 # 51 — Phase 3 Production Polish
 
-**Status:** Sprints 1 → 1.1 → 2 on Production · **Option B Pricing Transparency ready for Owner acceptance**  
+**Status:** Option B **deployed to Production** — **STOP for Owner LIVE acceptance**  
+**Production SHA:** `ba4c98725743bba828770c4ff0312b93c2b9b626` · deploy `3h1UCpiY37jkEsxTZV1Ro7sgKDEM`  
 **Gate:** Bug-fix / polish / commercial UX only — no ADR-019, Checkout architecture, or FO_READY changes  
-**Authorization:** Phase 3 Production Polish · Sprint 1 → 1.1 → 2 · **OPTION B commercial pricing transparency**
+**Authorization:** Phase 3 · OPTION B commercial pricing transparency · Production deploy authorized
 
 ## Sequence
 
@@ -10,7 +11,7 @@
 Design → Document → Approve → Implement
 ```
 
-Option B: await Owner acceptance before merge/deploy. Sprint 3 must not begin until Owner accepts.
+**STOP:** Do not begin Sprint 3 or Sprint 4 until Owner confirms the live Production experience.
 
 ## Sprint 2 — Guided Setup Experience
 
@@ -44,6 +45,7 @@ Option B: await Owner acceptance before merge/deploy. Sprint 3 must not begin un
 | [Sprint 2 Accessibility Report](./sprint-2-accessibility-report.md) | A11y notes |
 | [Commercial Pricing Transparency Report](./commercial-pricing-transparency-report.md) | Option B — display all three; FO_READY gate |
 | [Pricing Transparency Regression](./commercial-pricing-transparency-regression.md) | Option B regression |
+| [Option B Production Verification](./option-b-production-verification.md) | LIVE deploy verify · PASS WITH OBSERVATIONS |
 
 ## Constraints (binding)
 
