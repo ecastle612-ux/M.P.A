@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button, EmptyState, Skeleton } from "@mpa/ui";
 import { PropertyCreateWizard } from "./property-create-wizard";
@@ -32,29 +32,35 @@ export function PropertiesDirectory() {
   const [query, setQuery] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/pm/properties");
-      const body = (await response.json()) as {
-        properties?: PortfolioProperty[];
-        error?: string;
-      };
-      if (!response.ok) {
-        throw new Error(body.error ?? "Failed to load properties");
-      }
-      setProperties(body.properties ?? []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load properties");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    void load();
-  }, [load, reloadKey]);
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch("/api/pm/properties");
+        const body = (await response.json()) as {
+          properties?: PortfolioProperty[];
+          error?: string;
+        };
+        if (!response.ok) {
+          throw new Error(body.error ?? "Failed to load properties");
+        }
+        if (!cancelled) {
+          setProperties(body.properties ?? []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Failed to load properties");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -122,7 +128,11 @@ export function PropertiesDirectory() {
         <PmErrorRetry
           title="Unable to load properties"
           description={error}
-          onRetry={() => setReloadKey((k) => k + 1)}
+          onRetry={() => {
+            setLoading(true);
+            setError(null);
+            setReloadKey((k) => k + 1);
+          }}
         />
       ) : null}
 

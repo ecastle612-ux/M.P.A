@@ -50,10 +50,15 @@ export function DocumentsWorkspace() {
   const [uploadBase64, setUploadBase64] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    setEntityType(initialEntityType(searchParams.get("entityType")));
-    setQuery(searchParams.get("q") ?? "");
-  }, [searchParams]);
+  const urlEntityType = initialEntityType(searchParams.get("entityType"));
+  const urlQuery = searchParams.get("q") ?? "";
+  const urlKey = `${urlEntityType}|${urlQuery}`;
+  const [seenUrlKey, setSeenUrlKey] = useState(urlKey);
+  if (urlKey !== seenUrlKey) {
+    setSeenUrlKey(urlKey);
+    setEntityType(urlEntityType);
+    setQuery(urlQuery);
+  }
 
   useEffect(() => {
     let cancelled = false;

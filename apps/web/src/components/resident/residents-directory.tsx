@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Badge, Button, EmptyState, Skeleton } from "@mpa/ui";
 import { RESIDENT_STATUS_LABELS, type ResidentStatus } from "@mpa/shared";
@@ -43,29 +43,35 @@ export function ResidentsDirectory() {
   const [query, setQuery] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/pm/residents");
-      const body = (await response.json()) as {
-        residents?: DirectoryResident[];
-        error?: string;
-      };
-      if (!response.ok) {
-        throw new Error(body.error ?? "Failed to load residents");
-      }
-      setResidents(body.residents ?? []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load residents");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    void load();
-  }, [load, reloadKey]);
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch("/api/pm/residents");
+        const body = (await response.json()) as {
+          residents?: DirectoryResident[];
+          error?: string;
+        };
+        if (!response.ok) {
+          throw new Error(body.error ?? "Failed to load residents");
+        }
+        if (!cancelled) {
+          setResidents(body.residents ?? []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Failed to load residents");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button, EmptyState, Skeleton } from "@mpa/ui";
 import { LEASE_STATUS_LABELS, type LeaseStatus } from "@mpa/shared";
@@ -55,26 +55,32 @@ export function LeasingDirectory() {
   const [query, setQuery] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/pm/leasing");
-      const body = (await response.json()) as { leases?: DirectoryLease[]; error?: string };
-      if (!response.ok) {
-        throw new Error(body.error ?? "Failed to load leases");
-      }
-      setLeases(body.leases ?? []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load leases");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    void load();
-  }, [load, reloadKey]);
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch("/api/pm/leasing");
+        const body = (await response.json()) as { leases?: DirectoryLease[]; error?: string };
+        if (!response.ok) {
+          throw new Error(body.error ?? "Failed to load leases");
+        }
+        if (!cancelled) {
+          setLeases(body.leases ?? []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Failed to load leases");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
