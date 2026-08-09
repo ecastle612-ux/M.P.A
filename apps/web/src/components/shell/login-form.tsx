@@ -239,9 +239,17 @@ export function LoginForm() {
             />
           </div>
         ) : null}
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
-        <Button className="w-full" disabled={loading} type="submit">
+        {error ? (
+          <p className="text-sm text-[#C0392B]" role="alert">
+            {error}
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="text-sm text-[#0F6B56]" role="status">
+            {notice}
+          </p>
+        ) : null}
+        <Button className="w-full" disabled={loading} aria-busy={loading} type="submit">
           {loading
             ? mode === "sign_in"
               ? "Signing in..."
@@ -256,7 +264,14 @@ export function LoginForm() {
               Forgot your password?
             </Link>
           </p>
-        ) : null}
+        ) : (
+          <p className="text-center text-sm text-[var(--mpa-color-text-secondary)]">
+            Prefer self-service purchase first?{" "}
+            <Link className="underline" href="/modules">
+              Choose Your Platform
+            </Link>
+          </p>
+        )}
       </form>
     </Card>
   );

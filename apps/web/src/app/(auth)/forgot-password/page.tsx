@@ -1,9 +1,10 @@
+import { AuthChrome } from "../../../components/auth/auth-chrome";
 import { ForgotPasswordForm } from "../../../components/auth/forgot-password-form";
 
 export default function ForgotPasswordPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
+    <AuthChrome>
       <ForgotPasswordForm />
-    </main>
+    </AuthChrome>
   );
 }

@@ -8,15 +8,22 @@ import {
   SKU_SUMMARIES,
   acquisitionHref,
   commercialContinueHref,
+  isSelfServeCheckoutAllowed,
   marketingModulesForSku,
   parseAcquisitionCycle,
   parseAcquisitionSku,
+  resolveCatalogOffer,
   skuComparisonRows,
   toBillingCycleLabel,
   type BillingCycle,
   type ProductSku
 } from "@mpa/shared";
-import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
+import {
+  MarketingChrome,
+  marketingPageMainClass,
+  marketingPrimaryCtaClass,
+  marketingSecondaryCtaClass
+} from "./marketing-chrome";
 
 /** Internal Stripe offer mapping — not shown as a customer-facing tier. */
 const CHECKOUT_PLAN = "professional" as const;
@@ -38,7 +45,7 @@ export function PricingPage({
 
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
-      <main className="mx-auto max-w-6xl space-y-8 px-4 pb-16 pt-10 md:px-6">
+      <main className={marketingPageMainClass}>
         <header className="max-w-2xl space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
             Get started · Step 2
@@ -46,8 +53,7 @@ export function PricingPage({
           <h1 className="font-display text-3xl font-semibold">Platform pricing</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             Choose Property Manager, Facility Operations, or Complete Platform. Select monthly or
-            annual billing, then confirm your plan. Final amounts appear in Stripe Checkout where
-            self-service is supported.
+            annual billing, then confirm your plan.
           </p>
         </header>
 
@@ -60,13 +66,14 @@ export function PricingPage({
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
         </ol>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Billing cycle">
           {BILLING_CYCLES.map((cycle) => (
             <button
               key={cycle}
               type="button"
+              aria-pressed={billingCycle === cycle}
               onClick={() => setBillingCycle(cycle)}
-              className={`rounded-md px-4 py-2 text-sm font-semibold ${
+              className={`rounded-md px-4 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] ${
                 billingCycle === cycle
                   ? "bg-[var(--mpa-color-brand-primary)] text-white"
                   : "bg-[var(--mpa-color-bg-subtle)] text-[var(--mpa-color-text-secondary)]"
@@ -94,19 +101,65 @@ export function PricingPage({
             <table className="w-full min-w-[40rem] border-collapse text-sm">
               <thead className="bg-[var(--mpa-color-bg-subtle,#F7F8FA)]">
                 <tr>
-                  <th className="px-3 py-2 text-left">Capability</th>
-                  <th className="px-3 py-2 text-left">Property Manager</th>
-                  <th className="px-3 py-2 text-left">Facility Operations</th>
-                  <th className="px-3 py-2 text-left">Complete</th>
+                  <th scope="col" className="px-3 py-2 text-left font-semibold">
+                    Capability
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-left font-semibold">
+                    Property Manager
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-left font-semibold">
+                    Facility Operations
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-left font-semibold">
+                    Complete
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.id} className="border-t border-[var(--mpa-color-border-subtle)]">
-                    <td className="px-3 py-2">{row.label}</td>
-                    <td className="px-3 py-2">{row.pm ? "●" : "—"}</td>
-                    <td className="px-3 py-2">{row.fo ? "●" : "—"}</td>
-                    <td className="px-3 py-2">{row.complete ? "●" : "—"}</td>
+                    <th scope="row" className="px-3 py-2 text-left font-normal">
+                      {row.label}
+                    </th>
+                    <td className="px-3 py-2">
+                      {row.pm ? (
+                        <>
+                          <span aria-hidden>●</span>
+                          <span className="sr-only">Included</span>
+                        </>
+                      ) : (
+                        <>
+                          <span aria-hidden>—</span>
+                          <span className="sr-only">Not included</span>
+                        </>
+                      )}
+                    </td>
+                    <td className="px-3 py-2">
+                      {row.fo ? (
+                        <>
+                          <span aria-hidden>●</span>
+                          <span className="sr-only">Included</span>
+                        </>
+                      ) : (
+                        <>
+                          <span aria-hidden>—</span>
+                          <span className="sr-only">Not included</span>
+                        </>
+                      )}
+                    </td>
+                    <td className="px-3 py-2">
+                      {row.complete ? (
+                        <>
+                          <span aria-hidden>●</span>
+                          <span className="sr-only">Included</span>
+                        </>
+                      ) : (
+                        <>
+                          <span aria-hidden>—</span>
+                          <span className="sr-only">Not included</span>
+                        </>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -145,6 +198,13 @@ function PlatformPriceCard({
 }) {
   const summary = SKU_SUMMARIES[sku];
   const modules = marketingModulesForSku(sku);
+  const offer =
+    resolveCatalogOffer({
+      productSku: sku,
+      planTier: CHECKOUT_PLAN,
+      billingCycle
+    }) ?? null;
+  const selfServeReady = offer ? isSelfServeCheckoutAllowed(offer) : false;
   const href = commercialContinueHref({
     productSku: sku,
     planTier: CHECKOUT_PLAN,
@@ -164,15 +224,15 @@ function PlatformPriceCard({
       <p className="mt-4 text-lg font-semibold text-[var(--mpa-color-text-primary)]">
         {toBillingCycleLabel(billingCycle)} pricing
       </p>
-      <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-        {billingCycle === "monthly"
-          ? "Billed every month. Amount confirmed in Stripe Checkout when self-service is supported."
-          : "Billed every year. Amount confirmed in Stripe Checkout when self-service is supported."}
+      <p className="mt-1 text-xs leading-5 text-[var(--mpa-color-text-secondary)]">
+        {selfServeReady
+          ? "Final amount appears in Stripe Checkout after you confirm this plan."
+          : "Self-service Stripe Checkout is not available for this platform yet. Confirm Plan explains Property Manager checkout or Enterprise Solutions."}
       </p>
       <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
         Includes ({modules.length})
       </p>
-      <ul className="mt-2 max-h-48 flex-1 space-y-1 overflow-y-auto text-sm text-[var(--mpa-color-text-secondary)]">
+      <ul className="mt-2 flex-1 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
         {modules.map((module) => (
           <li key={module.id}>• {module.label}</li>
         ))}

@@ -17,9 +17,6 @@ import {
 } from "./marketing-chrome";
 import { marketingModuleDescription } from "./marketing-module-copy";
 
-/** Internal Stripe offer mapping — not shown as a customer-facing tier. */
-const CHECKOUT_PLAN = "professional" as const;
-
 function Section({
   id,
   eyebrow,
@@ -80,7 +77,6 @@ function CapabilityList({
 function productCheckoutHref(sku: ProductSku) {
   return acquisitionHref("checkout", {
     sku,
-    planTier: CHECKOUT_PLAN,
     billingCycle: "monthly"
   });
 }
@@ -261,19 +257,65 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           <table className="w-full min-w-[40rem] border-collapse text-sm">
             <thead className="bg-[var(--mpa-color-bg-subtle,#F7F8FA)]">
               <tr>
-                <th className="px-3 py-2 text-left font-semibold">Capability</th>
-                <th className="px-3 py-2 text-left font-semibold">Property Manager</th>
-                <th className="px-3 py-2 text-left font-semibold">Facility Operations</th>
-                <th className="px-3 py-2 text-left font-semibold">Complete</th>
+                <th scope="col" className="px-3 py-2 text-left font-semibold">
+                  Capability
+                </th>
+                <th scope="col" className="px-3 py-2 text-left font-semibold">
+                  Property Manager
+                </th>
+                <th scope="col" className="px-3 py-2 text-left font-semibold">
+                  Facility Operations
+                </th>
+                <th scope="col" className="px-3 py-2 text-left font-semibold">
+                  Complete
+                </th>
               </tr>
             </thead>
             <tbody>
               {comparison.map((row) => (
                 <tr key={row.id} className="border-t border-[var(--mpa-color-border-subtle)]">
-                  <td className="px-3 py-2">{row.label}</td>
-                  <td className="px-3 py-2">{row.pm ? "●" : "—"}</td>
-                  <td className="px-3 py-2">{row.fo ? "●" : "—"}</td>
-                  <td className="px-3 py-2">{row.complete ? "●" : "—"}</td>
+                  <th scope="row" className="px-3 py-2 text-left font-normal">
+                    {row.label}
+                  </th>
+                  <td className="px-3 py-2">
+                    {row.pm ? (
+                      <>
+                        <span aria-hidden>●</span>
+                        <span className="sr-only">Included</span>
+                      </>
+                    ) : (
+                      <>
+                        <span aria-hidden>—</span>
+                        <span className="sr-only">Not included</span>
+                      </>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    {row.fo ? (
+                      <>
+                        <span aria-hidden>●</span>
+                        <span className="sr-only">Included</span>
+                      </>
+                    ) : (
+                      <>
+                        <span aria-hidden>—</span>
+                        <span className="sr-only">Not included</span>
+                      </>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    {row.complete ? (
+                      <>
+                        <span aria-hidden>●</span>
+                        <span className="sr-only">Included</span>
+                      </>
+                    ) : (
+                      <>
+                        <span aria-hidden>—</span>
+                        <span className="sr-only">Not included</span>
+                      </>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
