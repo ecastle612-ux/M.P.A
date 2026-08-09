@@ -1,11 +1,19 @@
 import type { ReactNode } from "react";
 import {
+  buildCompleteDemoShowcase,
+  buildFoDemoShowcase,
+  buildPmDemoShowcase,
   getDemoSnapshot,
   toDemoPersonaLabel,
   type DemoPersona,
   type DemoProductId,
   type DemoSession
 } from "@mpa/shared";
+import {
+  CompleteMissionControlShowcase,
+  FoMissionControlShowcase,
+  PmMissionControlShowcase
+} from "./demo-mission-control";
 
 function Panel({
   title,
@@ -140,28 +148,28 @@ export function DemoSurfaceView({
     if (!fo) {
       return <Panel title="Facility" description="Facility snapshot unavailable for this demo."><p /></Panel>;
     }
-    if (surface === "fo-mission-control" || surface === "sites") {
+    if (surface === "fo-mission-control") {
+      return (
+        <FoMissionControlShowcase
+          showcase={buildFoDemoShowcase(fo)}
+          personaLabel={toDemoPersonaLabel(persona)}
+          watermark={snapshot.watermark}
+        />
+      );
+    }
+    if (surface === "sites") {
       return (
         <Panel
-          title={surface === "sites" ? "Sites & Locations" : "Facility Mission Control"}
+          title="Sites & Locations"
           description={`${fo.organizationName} · viewing as ${toDemoPersonaLabel(persona)}`}
         >
           <CardList
-            items={
-              surface === "sites"
-                ? fo.sites.map((site) => ({
-                    id: site.id,
-                    title: site.name,
-                    meta: site.city,
-                    detail: `${site.locations} locations · ${site.assets} assets`
-                  }))
-                : fo.attention.map((item) => ({
-                    id: item.id,
-                    title: item.title,
-                    meta: item.severity,
-                    detail: `${item.module} · ${item.detail}`
-                  }))
-            }
+            items={fo.sites.map((site) => ({
+              id: site.id,
+              title: site.name,
+              meta: site.city,
+              detail: `${site.locations} locations · ${site.assets} assets`
+            }))}
           />
         </Panel>
       );
@@ -405,22 +413,27 @@ export function DemoSurfaceView({
         </Panel>
       );
     case "mission-control":
-    default:
-      return (
-        <Panel
-          title="Mission Control"
-          description={`${pm.organizationName} · ${toDemoPersonaLabel(persona)}`}
-        >
-          <CardList
-            items={pm.attention.map((item) => ({
-              id: item.id,
-              title: item.title,
-              meta: item.severity,
-              detail: `${item.module} · ${item.detail}`
-            }))}
+    default: {
+      if (product === "mpa_complete_platform" && fo && surface === "mission-control") {
+        return (
+          <CompleteMissionControlShowcase
+            showcase={buildCompleteDemoShowcase(
+              pm.organizationName,
+              pm,
+              fo
+            )}
+            personaLabel={toDemoPersonaLabel(persona)}
+            watermark={snapshot.watermark}
           />
-          <p className="pt-2 text-xs text-[var(--mpa-color-text-muted)]">{snapshot.watermark}</p>
-        </Panel>
+        );
+      }
+      return (
+        <PmMissionControlShowcase
+          showcase={buildPmDemoShowcase(pm)}
+          personaLabel={toDemoPersonaLabel(persona)}
+          watermark={snapshot.watermark}
+        />
       );
+    }
   }
 }
