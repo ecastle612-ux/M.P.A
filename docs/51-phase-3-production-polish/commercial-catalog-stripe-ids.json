@@ -1,0 +1,64 @@
+{
+  "products": {
+    "mpa_facility_operations": {
+      "id": "prod_V2T5R4aelXunHp",
+      "name": "Facility Operations"
+    },
+    "mpa_complete_platform": {
+      "id": "prod_V2T5DGZOhygqiH",
+      "name": "Complete Platform"
+    }
+  },
+  "prices": {
+    "mpa_facility_operations__monthly": {
+      "id": "price_1U2O9M8jGrZYUXDtuoUU9jVQ",
+      "unit_amount": 9900,
+      "interval": "month",
+      "nickname": "Facility Operations Monthly",
+      "product": "prod_V2T5R4aelXunHp"
+    },
+    "mpa_facility_operations__annual": {
+      "id": "price_1U2O9N8jGrZYUXDt28S1FwxK",
+      "unit_amount": 99000,
+      "interval": "year",
+      "nickname": "Facility Operations Annual (10\u00d7 monthly)",
+      "product": "prod_V2T5R4aelXunHp"
+    },
+    "mpa_complete_platform__monthly": {
+      "id": "price_1U2O9N8jGrZYUXDtqwDqgobS",
+      "unit_amount": 14900,
+      "interval": "month",
+      "nickname": "Complete Platform Monthly",
+      "product": "prod_V2T5DGZOhygqiH"
+    },
+    "mpa_complete_platform__annual": {
+      "id": "price_1U2O9N8jGrZYUXDtsAhAkcTD",
+      "unit_amount": 149000,
+      "interval": "year",
+      "nickname": "Complete Platform Annual (10\u00d7 monthly)",
+      "product": "prod_V2T5DGZOhygqiH"
+    }
+  },
+  "vercel_env": {
+    "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY": "price_1U2O9M8jGrZYUXDtuoUU9jVQ",
+    "STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL": "price_1U2O9N8jGrZYUXDt28S1FwxK",
+    "STRIPE_PRICE_COMPLETE_PROFESSIONAL_MONTHLY": "price_1U2O9N8jGrZYUXDtqwDqgobS",
+    "STRIPE_PRICE_COMPLETE_PROFESSIONAL_ANNUAL": "price_1U2O9N8jGrZYUXDtsAhAkcTD"
+  },
+  "property_manager_unchanged": {
+    "note": "Do not change Property Manager mappings; existing Professional $99/$990 remain in use",
+    "product_id_in_use": "prod_Uvv2MKES5pzHva",
+    "prices": [
+      {
+        "id": "price_1Tw3Cc8jGrZYUXDtoMZ4ypxU",
+        "unit_amount": 99000,
+        "interval": "year"
+      },
+      {
+        "id": "price_1Tw3Cb8jGrZYUXDtQwHvaXFW",
+        "unit_amount": 9900,
+        "interval": "month"
+      }
+    ]
+  }
+}
