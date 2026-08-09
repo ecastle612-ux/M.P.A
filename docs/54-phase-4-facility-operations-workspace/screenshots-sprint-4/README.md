@@ -2,22 +2,26 @@
 
 | File | Subject |
 | --- | --- |
-| `before-facility-module-stub.md` | Prior ModuleAlignmentPage commercial stub pattern (described) |
-| `after-facility-mission-control.md` | Glance strip, priority legend, capability map, documents |
-| `after-facility-assets.md` | Assets shell — operational intent + documents readiness |
+| `01-landing-page-hero.webp` | Production landing — regression reference (unaffected) |
+| `02-live-demo-page.webp` | Live Demo hub — regression reference |
+| `03-facility-mission-control.webp` | Production **demo** FO Mission Control (unchanged this sprint) |
+| `04-facility-mission-control-lower.webp` | Demo FO MC lower sections |
+| `05-facility-operations-assets.webp` | Production **demo** Assets list (unchanged this sprint) |
+| `before-facility-module-stub.md` | Prior commercial `ModuleAlignmentPage` stub pattern |
+| `after-facility-mission-control.md` | Target composition for logged-in FO MC (this PR) |
+| `after-facility-assets.md` | Target composition for logged-in Assets shell (this PR) |
 
-LIVE operator screenshots captured after Production deploy + Owner Facility Operations session.
+## Notes
 
-## Before (structural)
+- Demo FO surfaces were **not** redesigned (regression: Demo remains unaffected).
+- Logged-in `/facility/*` **after** PNGs require Owner session on Preview/Production after merge (agent AUTH_BLOCKED for operator login).
+- Structural before/after for commercial FO shells is documented in the `.md` fixtures above.
 
-Facility module pages rendered a generic commercial alignment card (title, readiness badge, entitlement metadata) without:
+## Before (commercial FO module — structural)
 
-- Priority language (Emergency / High / Scheduled / Waiting / Completed)
-- Five-second glance strip
-- Domain-specific “what this makes obvious”
-- Documents deep-links for manuals, certificates, inspections, warranties
+Facility module pages rendered a generic commercial alignment card without priority legend, glance strip, domain operational intent, or Documents deep-links.
 
-## After (structural)
+## After (commercial FO — this PR)
 
 - **Mission Control:** attention home with glance cards, priority legend, what-to-do-next, capability map, document library strip; Complete Platform bridges to live PM Maintenance / Vendors.
 - **Module shells:** shared FO chrome, quick actions, domain watch-for lists, commercial honesty, Documents strip with entityType/`q` deep-links.
