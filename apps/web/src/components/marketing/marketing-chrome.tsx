@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { acquisitionHref } from "@mpa/shared";
+import { SiteLogo } from "../branding/site-logo";
 
 const primaryCtaClass =
   "inline-flex h-10 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--mpa-color-brand-primary-hover,#0C5A48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
@@ -109,14 +110,7 @@ export function MarketingChrome({
         }
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-6">
-          <Link
-            href="/"
-            className={`font-display text-sm font-semibold tracking-wide ${
-              denseNav ? "text-[var(--mpa-color-text-primary)]" : "text-white/90"
-            }`}
-          >
-            My Property Assistant
-          </Link>
+          <SiteLogo surface={denseNav ? "light" : "dark"} />
 
           {/* Desktop / large tablet — single row */}
           <nav
