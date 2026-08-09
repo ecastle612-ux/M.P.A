@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  FINANCIAL_DOMAIN_REGISTRATION,
   FINANCIAL_WORKSPACE_SECTIONS,
   FINANCE_FEATURE_FLAGS,
   FINANCE_INTEGRATION_POINTS,
@@ -40,29 +39,46 @@ export function FinancialOperationsCommandCenter() {
 
       <header className="max-w-4xl">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          Property Manager · {FINANCIAL_DOMAIN_REGISTRATION.entitlement}
+          Property Manager · Financial Operations
         </p>
         <h1 className="mt-1 font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
           Financial Operations
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Collect rent, track payment status, and know your property&apos;s financial position —
-          charges due, paid, outstanding balances, recent payments, delinquency, and alerts.
+          Know what is due, what is paid, and what needs action — then collect, approve invoices, or
+          open reports without leaving this workspace.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Badge variant="success">S3 Command Center live</Badge>
-          <Badge variant="info">LAUNCH-001 J5 collect</Badge>
-          <Badge variant="neutral">PM + Complete only</Badge>
-          {FINANCE_FEATURE_FLAGS["finance.reports"] ? <Badge variant="info">Reports on</Badge> : null}
-        </div>
-        <p className="mt-3 text-sm">
           <a
             href="#collect"
-            className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+            className="inline-flex h-9 items-center rounded-md bg-[var(--mpa-color-brand-primary)] px-3 text-sm font-medium text-white hover:bg-[#0C5A48]"
           >
-            Collect your first rent
+            Collect rent
           </a>
-        </p>
+          <a
+            href="#vendor-invoices"
+            className="inline-flex h-9 items-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 text-sm font-medium"
+          >
+            Vendor invoices
+          </a>
+          <a
+            href="#reports"
+            className="inline-flex h-9 items-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 text-sm font-medium"
+          >
+            Snapshot & reports
+          </a>
+          <Link
+            href="/shared/documents?entityType=vendor"
+            className="inline-flex h-9 items-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 text-sm font-medium text-[var(--mpa-color-brand-primary)]"
+          >
+            Invoice documents
+          </Link>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Badge variant="success">Collections live</Badge>
+          {FINANCE_FEATURE_FLAGS["finance.reports"] ? <Badge variant="info">Reports on</Badge> : null}
+          <Badge variant="neutral">PM + Complete</Badge>
+        </div>
       </header>
 
       <nav

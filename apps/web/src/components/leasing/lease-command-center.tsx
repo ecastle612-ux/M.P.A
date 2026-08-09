@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Badge, Button, EmptyState, Skeleton, TimelineView } from "@mpa/ui";
 import { formatMoney } from "@mpa/shared";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 
 type CommandCenter = {
   lease: {
@@ -181,7 +182,22 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
           {data.lease.propertyName} · Unit {data.lease.unitLabel} ·{" "}
           {formatMoney(data.lease.rentAmount, data.lease.currency)} / month
         </p>
+        <PmQuickActions
+          actions={[
+            ...(data.lease.residentId
+              ? [{ href: `/pm/residents/${data.lease.residentId}`, label: "Resident" }]
+              : []),
+            { href: documentsHref("lease", data.lease.residentName), label: "Lease documents" },
+            { href: "/pm/financial-operations", label: "Collect rent" }
+          ]}
+        />
       </header>
+
+      <PmDocumentsStrip
+        entityType="lease"
+        title="Lease agreements"
+        detail="Generated agreements and SignWell records stay in Documents with this lease — ready for Document Intelligence."
+      />
 
       {justCreated || data.readyMessage ? (
         <section

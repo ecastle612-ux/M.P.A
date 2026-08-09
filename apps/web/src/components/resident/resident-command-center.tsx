@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Badge, EmptyState, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 
 type CommandCenter = {
   resident: {
@@ -130,7 +131,21 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
           {data.resident.propertyName} · Unit {data.resident.unitLabel} · {data.resident.email}
         </p>
+        <PmQuickActions
+          actions={[
+            { href: `/pm/properties/${data.resident.propertyId}`, label: "Property" },
+            { href: "/pm/leasing", label: "Leasing" },
+            { href: "/shared/communications", label: "Communications" },
+            { href: documentsHref("resident", data.resident.displayName), label: "Files" }
+          ]}
+        />
       </header>
+
+      <PmDocumentsStrip
+        entityType="resident"
+        title="Resident files"
+        detail="Identity, notices, and resident paperwork attach in Documents — ready for Document Intelligence."
+      />
 
       {justCreated ? (
         <section

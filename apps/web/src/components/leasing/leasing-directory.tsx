@@ -1,12 +1,19 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Badge, Button, EmptyState, Skeleton } from "@mpa/ui";
+import { Button, EmptyState, Skeleton } from "@mpa/ui";
 import { LEASE_STATUS_LABELS, type LeaseStatus } from "@mpa/shared";
-import { Breadcrumbs } from "../shell/breadcrumbs";
 import { LeaseCreateWizard } from "./lease-create-wizard";
+import {
+  PmDirectoryToolbar,
+  PmDocumentsStrip,
+  PmEntityCard,
+  PmErrorRetry,
+  PmPageChrome,
+  PmQuickActions,
+  documentsHref
+} from "../shell/pm-workspace";
 
 type DirectoryLease = {
   id: string;
@@ -25,6 +32,18 @@ function statusLabel(status: string): string {
   return status;
 }
 
+function formatRent(amount: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency || "USD",
+      maximumFractionDigits: 0
+    }).format(amount);
+  } catch {
+    return `${amount} ${currency}`;
+  }
+}
+
 export function LeasingDirectory() {
   const searchParams = useSearchParams();
   const startWithWizard = searchParams.get("new") === "1";
@@ -33,56 +52,54 @@ export function LeasingDirectory() {
   const [error, setError] = useState<string | null>(null);
   const [wizardDismissed, setWizardDismissed] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/pm/leasing");
+      const body = (await response.json()) as { leases?: DirectoryLease[]; error?: string };
+      if (!response.ok) {
+        throw new Error(body.error ?? "Failed to load leases");
+      }
+      setLeases(body.leases ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load leases");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const response = await fetch("/api/pm/leasing");
-        const body = (await response.json()) as { leases?: DirectoryLease[]; error?: string };
-        if (!response.ok) {
-          throw new Error(body.error ?? "Failed to load leases");
-        }
-        if (!cancelled) {
-          setLeases(body.leases ?? []);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load leases");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void load();
+  }, [load, reloadKey]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return leases;
+    return leases.filter((lease) =>
+      `${lease.pm_residents?.display_name ?? ""} ${lease.pm_residents?.email ?? ""} ${lease.status} ${lease.property_properties?.name ?? ""} ${lease.property_units?.unit_label ?? ""}`
+        .toLowerCase()
+        .includes(q)
+    );
+  }, [leases, query]);
 
   const empty = !loading && !error && leases.length === 0;
   const showWizard = manualOpen || ((startWithWizard || empty) && !wizardDismissed);
+  const activeCount = leases.filter((l) => l.status === "active").length;
 
   return (
-    <main className="flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
-      <Breadcrumbs
-        items={[
-          { href: "/pm/mission-control", label: "Mission Control" },
-          { label: "Leasing" }
-        ]}
-      />
-
-      <header className="flex max-w-3xl flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-            Leasing
-          </h1>
-          <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-            One lease creation path. Create, send through SignWell, activate, and manage the resident
-            lifecycle.
-          </p>
-        </div>
+    <PmPageChrome
+      crumbs={[
+        { href: "/pm/mission-control", label: "Mission Control" },
+        { label: "Leasing" }
+      ]}
+      eyebrow="Property Manager · Occupancy"
+      title="Leasing"
+      description="Create, send for signature, activate, and manage leases. Lease agreements stay with the lease and Documents."
+      actions={
         <Button
           type="button"
           onClick={() => {
@@ -92,7 +109,21 @@ export function LeasingDirectory() {
         >
           Create lease
         </Button>
-      </header>
+      }
+    >
+      <PmQuickActions
+        actions={[
+          { href: "/pm/residents", label: "Residents" },
+          { href: documentsHref("lease"), label: "Lease agreements" },
+          { href: "/pm/mission-control", label: "Mission Control" }
+        ]}
+      />
+
+      {!loading && !error && leases.length > 0 ? (
+        <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+          {leases.length} leases · {activeCount} active
+        </p>
+      ) : null}
 
       {showWizard ? (
         <LeaseCreateWizard
@@ -108,47 +139,62 @@ export function LeasingDirectory() {
       ) : null}
 
       {loading ? (
-        <div className="space-y-3">
+        <div className="space-y-3" aria-busy="true">
+          <Skeleton className="h-12 w-full" />
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
         </div>
       ) : null}
 
-      {error ? <EmptyState title="Unable to load leases" description={error} /> : null}
+      {error ? (
+        <PmErrorRetry
+          title="Unable to load leases"
+          description={error}
+          onRetry={() => setReloadKey((k) => k + 1)}
+        />
+      ) : null}
 
       {!loading && !error && leases.length > 0 ? (
-        <ul className="grid gap-3 lg:grid-cols-2">
-          {leases.map((lease) => (
-            <li
-              key={lease.id}
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h2 className="text-base font-semibold">
-                    <Link
-                      href={`/pm/leasing/${lease.id}`}
-                      className="text-[var(--mpa-color-brand-primary)] underline"
+        <>
+          <PmDirectoryToolbar
+            id="pm-leasing-search"
+            value={query}
+            onChange={setQuery}
+            placeholder="Search resident, property, unit, or status…"
+            showing={filtered.length}
+            total={leases.length}
+          />
+          {filtered.length === 0 ? (
+            <EmptyState title="No matching leases" description="Try a different search." />
+          ) : (
+            <ul className="grid gap-3 lg:grid-cols-2">
+              {filtered.map((lease) => (
+                <PmEntityCard
+                  key={lease.id}
+                  title={lease.pm_residents?.display_name ?? "Lease"}
+                  href={`/pm/leasing/${lease.id}`}
+                  meta={`${lease.property_properties?.name ?? "Property"} · Unit ${lease.property_units?.unit_label ?? "—"} · ${formatRent(lease.rent_amount, lease.currency)}`}
+                  status={statusLabel(lease.status)}
+                  footer="Open lease to review, send for signature, or activate."
+                >
+                  <div className="mt-3">
+                    <a
+                      href={documentsHref("lease", lease.pm_residents?.display_name)}
+                      className="text-xs text-[var(--mpa-color-brand-primary)] underline"
                     >
-                      {lease.pm_residents?.display_name ?? "Lease"}
-                    </Link>
-                  </h2>
-                  <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                    {lease.property_properties?.name ?? "Property"} · Unit{" "}
-                    {lease.property_units?.unit_label ?? "—"}
-                  </p>
-                </div>
-                <Badge variant={lease.status === "active" ? "success" : "neutral"}>
-                  {statusLabel(lease.status)}
-                </Badge>
-              </div>
-              <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">
-                Open lease to review, send for signature, or activate.
-              </p>
-            </li>
-          ))}
-        </ul>
+                      Lease documents
+                    </a>
+                  </div>
+                </PmEntityCard>
+              ))}
+            </ul>
+          )}
+        </>
       ) : null}
-    </main>
+
+      {!loading && !error ? (
+        <PmDocumentsStrip entityType="lease" title="Lease agreements" />
+      ) : null}
+    </PmPageChrome>
   );
 }
