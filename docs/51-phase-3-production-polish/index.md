@@ -53,6 +53,9 @@ Sprint 3: await Owner acceptance → merge → Production deploy → LIVE verify
 | [Sprint 3 Accessibility Report](./sprint-3-accessibility-report.md) | A11y notes |
 | [Sprint 3 Performance Report](./sprint-3-performance-report.md) | Loading / render |
 | [Dashboard Quality Score](./sprint-3-dashboard-quality-score.md) | Scored dimensions |
+| [Commercial Catalog Completion](./commercial-catalog-completion.md) | Official FO/Complete Stripe Products + Prices; Vercel env unblock |
+| [Catalog Completion Regression](./commercial-catalog-completion-regression.md) | Partial LIVE checks + blocker |
+| [Stripe IDs (JSON)](./commercial-catalog-stripe-ids.json) | Product/Price IDs for env mapping |
 
 ## Constraints (binding)
 
