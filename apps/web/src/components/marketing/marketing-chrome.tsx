@@ -109,8 +109,11 @@ export function MarketingChrome({
             : "absolute inset-x-0 top-0 z-20"
         }
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-6">
-          <SiteLogo surface={denseNav ? "light" : "dark"} />
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-6 md:py-4">
+          <SiteLogo
+            surface={denseNav ? "light" : "dark"}
+            size={denseNav ? "nav" : "hero"}
+          />
 
           {/* Desktop / large tablet — single row */}
           <nav
