@@ -2,6 +2,15 @@ import Link from "next/link";
 import { formatMoney } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/resolve-active-organization";
+import { listResidentWorkOrders } from "../../../../lib/maintenance/maintenance-service";
+import {
+  ResidentDocumentsStrip,
+  ResidentGlanceCard,
+  ResidentPageIntro,
+  ResidentQuickActions,
+  ResidentSection,
+  ResidentStatusBadge
+} from "../../../../components/shell/resident-workspace";
 
 type AnyRow = Record<string, unknown>;
 
@@ -14,7 +23,7 @@ export default async function TenantPortalPage() {
     ? await resolveActiveOrganizationIdForUser(supabase, user.id)
     : null;
 
-  let residentName = "Resident";
+  let residentName = "there";
   let leaseSummary: {
     propertyName: string;
     unitLabel: string;
@@ -24,6 +33,8 @@ export default async function TenantPortalPage() {
     nextDue: string | null;
     openBalance: number;
   } | null = null;
+  let openMaintenance = 0;
+  let needsConfirm = 0;
 
   if (user && organizationId) {
     const { data: pmResidentRaw } = await supabase
@@ -37,7 +48,7 @@ export default async function TenantPortalPage() {
     const pmResident = pmResidentRaw as AnyRow | null;
 
     if (pmResident) {
-      residentName = String(pmResident["display_name"] ?? "Resident");
+      residentName = String(pmResident["display_name"] ?? "there");
       const propertyId = String(pmResident["property_id"] ?? "");
       const unitId = String(pmResident["unit_id"] ?? "");
       const leaseId = (pmResident["lease_id"] as string | null) ?? null;
@@ -84,7 +95,7 @@ export default async function TenantPortalPage() {
       }
 
       leaseSummary = {
-        propertyName: String(property?.["name"] ?? "Property"),
+        propertyName: String(property?.["name"] ?? "Your home"),
         unitLabel: String(unit?.["unit_label"] ?? "—"),
         rentAmount: Number(lease?.["rent_amount"] ?? 0),
         currency: String(lease?.["currency"] ?? "USD"),
@@ -93,103 +104,145 @@ export default async function TenantPortalPage() {
         openBalance
       };
     }
+
+    try {
+      const workOrders = await listResidentWorkOrders(supabase, organizationId, user.id);
+      openMaintenance = workOrders.filter(
+        (wo) => !["closed", "cancelled", "completed"].includes(wo.status)
+      ).length;
+      needsConfirm = workOrders.filter((wo) => wo.status === "completed").length;
+    } catch {
+      openMaintenance = 0;
+      needsConfirm = 0;
+    }
   }
 
+  const balance = leaseSummary?.openBalance ?? 0;
+  const rentTone = balance > 0 ? "watch" : "ok";
+  const rentValue =
+    leaseSummary == null
+      ? "—"
+      : balance > 0
+        ? formatMoney(balance, leaseSummary.currency)
+        : "Paid up";
+  const maintenanceTone = openMaintenance > 0 || needsConfirm > 0 ? "watch" : "ok";
+
   return (
-    <div className="space-y-4">
-      <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          Welcome
-        </p>
-        <h2 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Welcome, {residentName}
-        </h2>
+    <div className="mx-auto max-w-2xl space-y-4">
+      <ResidentPageIntro
+        title={`Hi, ${residentName}`}
+        description={
+          leaseSummary
+            ? `${leaseSummary.propertyName} · Unit ${leaseSummary.unitLabel}`
+            : "Your home portal is ready when your lease is linked."
+        }
+      />
+
+      <ResidentQuickActions
+        actions={[
+          { href: "/portal/tenant/maintenance", label: "Report an issue", primary: true },
+          { href: "/portal/tenant/billing", label: balance > 0 ? "Pay rent" : "View payments" },
+          { href: "/portal/tenant/documents", label: "Lease & documents" }
+        ]}
+      />
+
+      <section aria-label="At a glance" className="grid gap-3 sm:grid-cols-2">
+        <ResidentGlanceCard
+          label="Rent status"
+          value={rentValue}
+          hint={
+            leaseSummary?.nextDue
+              ? `Next rent date ${leaseSummary.nextDue}`
+              : leaseSummary
+                ? "No upcoming date on file"
+                : "Appears after lease activation"
+          }
+          href="/portal/tenant/billing"
+          tone={rentTone}
+        />
+        <ResidentGlanceCard
+          label="Maintenance"
+          value={
+            needsConfirm > 0
+              ? `${needsConfirm} to confirm`
+              : openMaintenance > 0
+                ? `${openMaintenance} open`
+                : "All clear"
+          }
+          hint={needsConfirm > 0 ? "A request was marked complete — please confirm." : "Track or report an issue"}
+          href="/portal/tenant/maintenance"
+          tone={maintenanceTone}
+        />
+        <ResidentGlanceCard
+          label="Announcements"
+          value="None yet"
+          hint="Community notices from your property will show here."
+          tone="neutral"
+        />
+        <ResidentGlanceCard
+          label="Packages"
+          value="Coming soon"
+          hint="Package alerts will appear here when ready."
+          tone="neutral"
+        />
+      </section>
+
+      <ResidentSection
+        title="Important notices"
+        description="Urgent property notes will land here. Nothing urgent right now."
+      >
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Your Resident Portal is ready. Review lease details, rent, maintenance, and documents
-          below.
+          You’re all set — no urgent notices.
         </p>
-      </section>
+      </ResidentSection>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h3 className="text-base font-semibold">Lease information</h3>
-          {leaseSummary ? (
-            <dl className="space-y-1 text-sm">
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--mpa-color-text-secondary)]">Property</dt>
-                <dd>{leaseSummary.propertyName}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--mpa-color-text-secondary)]">Unit</dt>
-                <dd>{leaseSummary.unitLabel}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--mpa-color-text-secondary)]">Status</dt>
-                <dd>{leaseSummary.status}</dd>
-              </div>
-            </dl>
-          ) : (
-            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-              Lease details appear after your lease is activated.
-            </p>
-          )}
-        </div>
+      <ResidentSection
+        title="Community"
+        description="Announcements, events, amenities, and neighborhood resources — when your property shares them."
+      >
+        <ul className="space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
+          <li className="flex items-center justify-between gap-2 border-b border-[var(--mpa-color-border-default)] py-2">
+            <span>Events</span>
+            <ResidentStatusBadge tone="neutral">Soon</ResidentStatusBadge>
+          </li>
+          <li className="flex items-center justify-between gap-2 border-b border-[var(--mpa-color-border-default)] py-2">
+            <span>Property & emergency contacts</span>
+            <ResidentStatusBadge tone="neutral">Soon</ResidentStatusBadge>
+          </li>
+          <li className="flex items-center justify-between gap-2 py-2">
+            <span>Amenities</span>
+            <ResidentStatusBadge tone="neutral">Soon</ResidentStatusBadge>
+          </li>
+        </ul>
+        <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">
+          No unfinished community modules here — this space stays honest until community publishing ships.
+        </p>
+      </ResidentSection>
 
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h3 className="text-base font-semibold">Rent summary</h3>
-          {leaseSummary ? (
-            <dl className="space-y-1 text-sm">
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--mpa-color-text-secondary)]">Monthly rent</dt>
-                <dd>{formatMoney(leaseSummary.rentAmount, leaseSummary.currency)}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--mpa-color-text-secondary)]">Payment due</dt>
-                <dd>{formatMoney(leaseSummary.openBalance, leaseSummary.currency)}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--mpa-color-text-secondary)]">Next rent date</dt>
-                <dd>{leaseSummary.nextDue ?? "—"}</dd>
-              </div>
-            </dl>
-          ) : (
-            <p className="text-sm text-[var(--mpa-color-text-secondary)]">No rent schedule yet.</p>
-          )}
-          <Link
-            href="/portal/tenant/billing"
-            className="inline-flex h-9 items-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white"
-          >
-            Go to Billing
-          </Link>
-        </div>
-      </section>
+      <ResidentDocumentsStrip />
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h3 className="text-base font-semibold">Maintenance request</h3>
-          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Submit and track maintenance requests for your home from this portal.
-          </p>
-          <Link
-            href="/portal/tenant/maintenance"
-            className="text-sm text-[var(--mpa-color-brand-primary)] underline"
-          >
-            Open maintenance
-          </Link>
-        </div>
-        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h3 className="text-base font-semibold">Documents</h3>
-          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Your signed lease and related documents are available here once activated.
-          </p>
+      {leaseSummary ? (
+        <ResidentSection title="Your lease" description="Status only — full document is in Documents.">
+          <dl className="space-y-2 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-[var(--mpa-color-text-secondary)]">Status</dt>
+              <dd className="font-medium capitalize">{leaseSummary.status}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-[var(--mpa-color-text-secondary)]">Monthly rent</dt>
+              <dd className="font-medium">
+                {formatMoney(leaseSummary.rentAmount, leaseSummary.currency)}
+              </dd>
+            </div>
+          </dl>
           <Link
             href="/portal/tenant/documents"
-            className="text-sm text-[var(--mpa-color-brand-primary)] underline"
+            className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-[var(--mpa-color-brand-primary)] underline"
           >
-            Open documents
+            View lease document
           </Link>
-        </div>
-      </section>
+        </ResidentSection>
+      ) : null}
     </div>
   );
 }

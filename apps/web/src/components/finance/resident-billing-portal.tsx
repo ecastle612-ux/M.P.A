@@ -163,7 +163,7 @@ export function ResidentBillingPortal() {
         return (
           <section
             key={account.resident.id}
-            className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+            className="space-y-4 rounded-2xl border border-[var(--mpa-color-border-default)] bg-white p-4 sm:p-5"
           >
             <header className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -171,7 +171,7 @@ export function ResidentBillingPortal() {
                   Your balance
                 </h2>
                 <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                  Hi {account.resident.display_name} — keep it simple. Pay what’s due when you’re ready.
+                  Hi {account.resident.display_name} — pay what’s due when you’re ready.
                 </p>
               </div>
               <Badge variant={status === "delinquent" ? "danger" : status === "current" ? "success" : "info"}>
@@ -179,20 +179,21 @@ export function ResidentBillingPortal() {
               </Badge>
             </header>
 
-            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#fafafa)] px-4 py-5">
+            <div className="rounded-2xl border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#fafafa)] px-4 py-5">
               <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">Current balance</p>
-              <p className="mt-1 font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
+              <p className="mt-1 font-display text-4xl font-semibold text-[var(--mpa-color-text-primary)]">
                 {formatMoney(account.balance.openBalance)}
               </p>
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                 <Button
                   onClick={() => void payNow(account.resident.lease_id)}
                   disabled={!onlinePaymentsEnabled || account.balance.openBalance <= 0 || payingLeaseId === account.resident.lease_id}
+                  className="min-h-12 w-full sm:w-auto"
                 >
                   {payingLeaseId === account.resident.lease_id ? "Starting checkout…" : "Pay now"}
                 </Button>
                 {!onlinePaymentsEnabled ? (
-                  <p className="self-center text-xs text-[var(--mpa-color-text-secondary)]">
+                  <p className="text-xs text-[var(--mpa-color-text-secondary)]">
                     Online pay isn’t configured yet — your manager can record a payment for you.
                   </p>
                 ) : null}
