@@ -1,6 +1,7 @@
 # PR #99 LIVE Regression Report
 
 **Result:** PASS  
+**Owner LIVE acceptance:** ACCEPTED (2026-08-09)  
 **Merge SHA:** `078137a88f22f5048858f39e5801864fd4fd0ec5`  
 **Production SHA:** `078137a`  
 **GitHub Deployment ID:** `5823065951`  
@@ -56,8 +57,10 @@
 
 ## Screenshots
 
-- `01-landing-hero.png`
-- `02-landing-comparison-future.png`
-- `03-landing-faq.png`
-- `04-pricing-matrix.png`
-- `05-modules-cards.png`
+- [screenshots-live/01-landing-hero.png](./screenshots-live/01-landing-hero.png)
+- [screenshots-live/02-landing-comparison-future.png](./screenshots-live/02-landing-comparison-future.png)
+- [screenshots-live/03-landing-faq.png](./screenshots-live/03-landing-faq.png)
+- [screenshots-live/04-pricing-matrix.png](./screenshots-live/04-pricing-matrix.png)
+- [screenshots-live/05-modules-cards.png](./screenshots-live/05-modules-cards.png)
+
+See also [owner-live-acceptance.md](./owner-live-acceptance.md).
