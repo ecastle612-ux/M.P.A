@@ -290,7 +290,7 @@ export function MissionControlPage() {
           {loading
             ? "Loading your attention home…"
             : isFirstRun
-              ? "Congratulations. Your organization is now operational."
+              ? "Your attention home after Guided Setup — start with one clear next step."
               : (daily?.greeting ?? "Your operational heartbeat — start and end the day here.")}
         </p>
         <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">

@@ -26,7 +26,7 @@ Mission Control should feel like the operational heartbeat of M.P.A. Within five
 
 ## Issue resolution
 
-MC-001–MC-018 addressed per issue register (presentation only).
+MC-001–MC-018 addressed per issue register (presentation only). First-run header subtitle de-duplicated so Welcome banner owns the congratulations line.
 
 ## Explicit non-changes
 
