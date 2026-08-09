@@ -22,7 +22,7 @@ export const SAAS_METADATA_KEYS = {
   demoSessionId: "mpa_demo_session_id"
 } as const;
 
-/** Env var names holding Stripe Price ids for self-serve PM offers. */
+/** Env var names holding Stripe Price ids for self-serve PM offers (Checkout allowlist). */
 export const SAAS_PRICE_ENV_KEYS = {
   "mpa_property_manager__professional__monthly": "STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY",
   "mpa_property_manager__professional__annual": "STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL",
@@ -30,11 +30,33 @@ export const SAAS_PRICE_ENV_KEYS = {
   "mpa_property_manager__business__annual": "STRIPE_PRICE_PM_BUSINESS_ANNUAL"
 } as const;
 
+/**
+ * Display-only Price env keys for public Pricing / Confirm Plan.
+ * Includes FO/Complete professional Prices so list amounts can load without enabling Checkout
+ * (FO_READY gate + validateSaasCheckoutRequest still block self-serve purchase).
+ */
+export const SAAS_DISPLAY_PRICE_ENV_KEYS = {
+  "mpa_property_manager__professional__monthly": "STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY",
+  "mpa_property_manager__professional__annual": "STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL",
+  "mpa_facility_operations__professional__monthly": "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY",
+  "mpa_facility_operations__professional__annual": "STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL",
+  "mpa_complete_platform__professional__monthly": "STRIPE_PRICE_COMPLETE_PROFESSIONAL_MONTHLY",
+  "mpa_complete_platform__professional__annual": "STRIPE_PRICE_COMPLETE_PROFESSIONAL_ANNUAL"
+} as const;
+
 export type SaasPriceOfferId = keyof typeof SAAS_PRICE_ENV_KEYS;
+export type SaasDisplayPriceOfferId = keyof typeof SAAS_DISPLAY_PRICE_ENV_KEYS;
 
 export function saasPriceEnvKeyForOfferId(offerId: string): string | null {
   if (offerId in SAAS_PRICE_ENV_KEYS) {
     return SAAS_PRICE_ENV_KEYS[offerId as SaasPriceOfferId];
+  }
+  return null;
+}
+
+export function saasDisplayPriceEnvKeyForOfferId(offerId: string): string | null {
+  if (offerId in SAAS_DISPLAY_PRICE_ENV_KEYS) {
+    return SAAS_DISPLAY_PRICE_ENV_KEYS[offerId as SaasDisplayPriceOfferId];
   }
   return null;
 }

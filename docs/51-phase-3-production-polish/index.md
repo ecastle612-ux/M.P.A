@@ -1,8 +1,8 @@
 # 51 — Phase 3 Production Polish
 
-**Status:** Sprint 2 complete — **STOP** awaiting Owner acceptance before Sprint 3  
-**Gate:** Bug-fix / polish only — no workflow, pricing, product, or ADR-019 changes  
-**Authorization:** Phase 3 Production Polish · Sprint 1 → 1.1 → 2 (Guided Setup)
+**Status:** Sprints 1 → 1.1 → 2 on Production · **Option B Pricing Transparency ready for Owner acceptance**  
+**Gate:** Bug-fix / polish / commercial UX only — no ADR-019, Checkout architecture, or FO_READY changes  
+**Authorization:** Phase 3 Production Polish · Sprint 1 → 1.1 → 2 · **OPTION B commercial pricing transparency**
 
 ## Sequence
 
@@ -10,7 +10,7 @@
 Design → Document → Approve → Implement
 ```
 
-Sprint 3 (Mission Control polish program) must not begin until Owner accepts Sprint 2.
+Option B: await Owner acceptance before merge/deploy. Sprint 3 must not begin until Owner accepts.
 
 ## Sprint 2 — Guided Setup Experience
 
@@ -42,11 +42,13 @@ Sprint 3 (Mission Control polish program) must not begin until Owner accepts Spr
 | [First Run Experience Report](./sprint-2-first-run-experience-report.md) | MC handoff |
 | [Sprint 2 Regression Report](./sprint-2-regression-report.md) | Verification |
 | [Sprint 2 Accessibility Report](./sprint-2-accessibility-report.md) | A11y notes |
+| [Commercial Pricing Transparency Report](./commercial-pricing-transparency-report.md) | Option B — display all three; FO_READY gate |
+| [Pricing Transparency Regression](./commercial-pricing-transparency-regression.md) | Option B regression |
 
 ## Constraints (binding)
 
 1. Do not redesign workflows.
 2. Do not modify ADR-019 / Product Constitution.
-3. Do not change pricing or products.
-4. Do not implement new features.
-5. Fix only polish issues.
+3. Do not change products or invent prices.
+4. Do not implement new features beyond authorized commercial UX.
+5. Preserve FO_READY purchase gate.

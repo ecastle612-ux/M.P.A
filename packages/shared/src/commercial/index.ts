@@ -10,5 +10,6 @@ export * from "./catalog";
 export * from "./commerce-state";
 export * from "./commerce-events";
 export * from "./saas-checkout";
+export * from "./public-purchase-motion";
 export * from "./provisioning";
 export * from "./subscription-lifecycle";

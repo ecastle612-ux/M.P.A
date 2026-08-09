@@ -22,6 +22,14 @@ export const serverEnvSchema = clientEnvSchema.extend({
   STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL: z.string().min(1).optional(),
   STRIPE_PRICE_PM_BUSINESS_MONTHLY: z.string().min(1).optional(),
   STRIPE_PRICE_PM_BUSINESS_ANNUAL: z.string().min(1).optional(),
+  /**
+   * Optional display-only FO/Complete professional Price ids for public Pricing transparency.
+   * Do not enable Checkout — FO_READY + checkout validation still gate purchase.
+   */
+  STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL: z.string().min(1).optional(),
+  STRIPE_PRICE_COMPLETE_PROFESSIONAL_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_COMPLETE_PROFESSIONAL_ANNUAL: z.string().min(1).optional(),
   /** When "true", enable Stripe Tax on SaaS Checkout (requires active Tax registration). */
   STRIPE_SAAS_AUTOMATIC_TAX: z.string().optional(),
   /** Optional until Resend is provisioned; invites still create + expose accept link. */

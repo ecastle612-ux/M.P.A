@@ -12,13 +12,17 @@ import {
   marketingModulesForSku,
   parseAcquisitionCycle,
   parseAcquisitionSku,
+  publicPurchaseMotionForSku,
   resolveCatalogOffer,
   skuComparisonRows,
   toBillingCycleLabel,
   type BillingCycle,
   type ProductSku
 } from "@mpa/shared";
-import type { PublicCatalogPriceCatalog } from "../../lib/saas-stripe/public-prices";
+import {
+  priceForSkuCycle,
+  type PublicCatalogPriceCatalog
+} from "../../lib/saas-stripe/public-prices";
 import {
   MarketingChrome,
   marketingPageMainClass,
@@ -55,9 +59,9 @@ export function PricingPage({
           </p>
           <h1 className="font-display text-3xl font-semibold">Platform pricing</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Choose Property Manager, Facility Operations, or Complete Platform. Select monthly or
-            annual billing, then confirm your plan. Property Manager amounts come from live Stripe
-            Prices.
+            Monthly and Annual list prices for Property Manager, Facility Operations, and Complete
+            Platform. Only Property Manager can be purchased online today — Facility Operations and
+            Complete Platform use early access or consultation until FO_READY certification.
           </p>
         </header>
 
@@ -187,14 +191,20 @@ export function PricingPage({
             Back to modules
           </Link>
           <Link
-            href={commercialContinueHref({
-              productSku: selectedSku,
-              planTier: CHECKOUT_PLAN,
-              billingCycle
-            })}
+            href={
+              publicPurchaseMotionForSku(selectedSku).kind === "self_serve"
+                ? commercialContinueHref({
+                    productSku: selectedSku,
+                    planTier: CHECKOUT_PLAN,
+                    billingCycle
+                  })
+                : acquisitionHref("enterprise", selectedSku)
+            }
             className={marketingPrimaryCtaClass}
           >
-            Continue to confirm plan
+            {publicPurchaseMotionForSku(selectedSku).kind === "self_serve"
+              ? "Continue to confirm plan"
+              : publicPurchaseMotionForSku(selectedSku).ctaLabel}
           </Link>
         </div>
       </main>
@@ -222,12 +232,16 @@ function PlatformPriceCard({
       billingCycle
     }) ?? null;
   const selfServeReady = offer ? isSelfServeCheckoutAllowed(offer) : false;
-  const livePrice = selfServeReady ? priceCatalog.byCycle[billingCycle] : undefined;
-  const href = commercialContinueHref({
-    productSku: sku,
-    planTier: CHECKOUT_PLAN,
-    billingCycle
-  });
+  const motion = publicPurchaseMotionForSku(sku);
+  const livePrice = priceForSkuCycle(priceCatalog, sku, billingCycle);
+  const href =
+    motion.kind === "self_serve"
+      ? commercialContinueHref({
+          productSku: sku,
+          planTier: CHECKOUT_PLAN,
+          billingCycle
+        })
+      : acquisitionHref("enterprise", sku);
 
   return (
     <li
@@ -239,41 +253,37 @@ function PlatformPriceCard({
     >
       <h2 className="font-display text-xl font-semibold">{summary.label}</h2>
       <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{summary.description}</p>
+      <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+        {motion.availabilityLabel}
+      </p>
       <p className="mt-4 text-lg font-semibold text-[var(--mpa-color-text-primary)]">
         {toBillingCycleLabel(billingCycle)} pricing
       </p>
-      {selfServeReady ? (
-        livePrice ? (
-          <div className="mt-1 space-y-1">
-            <p className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
-              {livePrice.formatted}
-              <span className="ml-1 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
-                / {billingCycle === "annual" ? "year" : "month"}
-              </span>
-            </p>
-            <p className="text-xs text-[var(--mpa-color-text-secondary)]">{livePrice.cadenceLabel}</p>
-            <p className="text-xs text-[var(--mpa-color-text-muted)]">
-              Amount from live Stripe Price · confirmed again in Checkout
-            </p>
-          </div>
-        ) : (
-          <p
-            className="mt-1 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-950"
-            role="status"
-          >
-            Live Stripe price for this billing cycle could not be retrieved. Checkout remains
-            available when configured; amounts will appear in Stripe Checkout.
+      {livePrice ? (
+        <div className="mt-1 space-y-1">
+          <p className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
+            {livePrice.formatted}
+            <span className="ml-1 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
+              / {billingCycle === "annual" ? "year" : "month"}
+            </span>
           </p>
-        )
+          <p className="text-xs text-[var(--mpa-color-text-secondary)]">{livePrice.cadenceLabel}</p>
+          <p className="text-xs text-[var(--mpa-color-text-muted)]">
+            {selfServeReady
+              ? "Amount from live Stripe Price · confirmed again in Checkout"
+              : "List amount from live Stripe Price · online checkout not enabled for this platform yet"}
+          </p>
+        </div>
       ) : (
         <p
-          className="mt-1 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-xs text-[var(--mpa-color-text-secondary)]"
+          className="mt-1 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-950"
           role="status"
         >
-          Self-service Stripe pricing is not configured for this platform. Confirm Plan explains
-          Property Manager checkout or Enterprise Solutions — no amount is invented here.
+          Live Stripe price for this platform and billing cycle could not be retrieved. No amount is
+          invented here.
         </p>
       )}
+      <p className="mt-3 text-xs leading-5 text-[var(--mpa-color-text-secondary)]">{motion.explanation}</p>
       <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
         Includes ({modules.length})
       </p>
@@ -283,7 +293,7 @@ function PlatformPriceCard({
         ))}
       </ul>
       <Link href={href} className={`${marketingPrimaryCtaClass} mt-5`}>
-        Confirm {summary.label}
+        {motion.ctaLabel}
       </Link>
     </li>
   );

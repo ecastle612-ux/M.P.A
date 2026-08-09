@@ -12,12 +12,16 @@ import {
   marketingModulesForSku,
   parseAcquisitionCycle,
   parseAcquisitionSku,
+  publicPurchaseMotionForSku,
   resolveCatalogOffer,
   toBillingCycleLabel,
   type BillingCycle,
   type ProductSku
 } from "@mpa/shared";
-import type { PublicCatalogPriceCatalog } from "../../lib/saas-stripe/public-prices";
+import {
+  priceForSkuCycle,
+  type PublicCatalogPriceCatalog
+} from "../../lib/saas-stripe/public-prices";
 import {
   MarketingChrome,
   marketingNarrowMainClass,
@@ -29,8 +33,8 @@ import {
 const CHECKOUT_PLAN = "professional" as const;
 
 /**
- * Confirm Plan → Stripe Checkout (payment before account).
- * Customer-facing language is platform + billing cycle + live amount when available.
+ * Confirm Plan → Stripe Checkout (payment before account) for Property Manager only.
+ * FO / Complete show list pricing + Request Early Access / Request Consultation (FO_READY gate).
  */
 export function CheckoutPage({
   isAuthenticated = false,
@@ -57,9 +61,10 @@ export function CheckoutPage({
       billingCycle
     }) ?? null;
   const selfServeReady = offer ? isSelfServeCheckoutAllowed(offer) : false;
+  const motion = publicPurchaseMotionForSku(sku);
   const summary = SKU_SUMMARIES[sku];
   const modules = marketingModulesForSku(sku);
-  const livePrice = selfServeReady ? priceCatalog.byCycle[billingCycle] : undefined;
+  const livePrice = priceForSkuCycle(priceCatalog, sku, billingCycle);
 
   useEffect(() => {
     document.cookie = `${ACQUISITION_SKU_COOKIE}=${encodeURIComponent(sku)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
@@ -75,7 +80,7 @@ export function CheckoutPage({
     }
     if (!selfServeReady) {
       setError(
-        "Self-service checkout for this platform is not available yet. Use Enterprise Solutions for custom contracts, or choose Property Manager."
+        "Self-service checkout for this platform is not available yet. Use Request Early Access or Request Consultation, or choose Property Manager."
       );
       return;
     }
@@ -102,7 +107,7 @@ export function CheckoutPage({
     setBusy(false);
     if (res.status === 409 && data.redirectTo) {
       setError(
-        "Self-service checkout for this platform is not available yet. Use Enterprise Solutions for custom contracts, or choose Property Manager."
+        "Self-service checkout for this platform is not available yet. Use Request Early Access or Request Consultation, or choose Property Manager."
       );
       return;
     }
@@ -122,12 +127,13 @@ export function CheckoutPage({
           </p>
           <h1 className="font-display text-3xl font-semibold">Confirm Plan</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Confirm your platform, billing cycle, and amount. Payment succeeds before account
-            creation — no organization is provisioned on this step.
+            Confirm your platform, billing cycle, and amount. Property Manager continues to secure
+            Stripe Checkout. Facility Operations and Complete Platform keep the FO_READY purchase
+            gate — request early access or consultation instead of online checkout.
           </p>
         </header>
 
-        {priceCatalog.warning && selfServeReady ? (
+        {priceCatalog.warning ? (
           <p
             className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
             role="status"
@@ -155,49 +161,50 @@ export function CheckoutPage({
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
               {toBillingCycleLabel(billingCycle)} billing
             </p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+              {motion.availabilityLabel}
+            </p>
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{summary.description}</p>
           </div>
 
-          {selfServeReady ? (
-            livePrice ? (
-              <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-                  Amount
-                </p>
-                <p className="mt-1 font-display text-3xl font-semibold">
-                  {livePrice.formatted}
-                  <span className="ml-2 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
-                    / {billingCycle === "annual" ? "year" : "month"}
-                  </span>
-                </p>
-                <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                  {livePrice.cadenceLabel}
-                </p>
-                <p className="mt-2 text-xs text-[var(--mpa-color-text-muted)]">
-                  From live Stripe Price · you will confirm again in Stripe Checkout
-                </p>
-              </div>
-            ) : (
-              <p
-                className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950"
-                role="status"
-              >
-                Live Stripe amount could not be retrieved for this selection. Continue only if you
-                accept that the authoritative amount will appear in Stripe Checkout.
+          {livePrice ? (
+            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+                Amount
               </p>
-            )
-          ) : (
-            <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">
-              <p className="font-semibold text-[var(--mpa-color-text-primary)]">
-                Self-service checkout not available for {summary.label}
+              <p className="mt-1 font-display text-3xl font-semibold">
+                {livePrice.formatted}
+                <span className="ml-2 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
+                  / {billingCycle === "annual" ? "year" : "month"}
+                </span>
               </p>
-              <p>
-                Stripe Checkout currently supports Property Manager with live configured Prices.
-                Choose Property Manager to pay online, or continue with Enterprise Solutions for
-                custom contracts — no amount is invented for this platform.
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                {livePrice.cadenceLabel}
+              </p>
+              <p className="mt-2 text-xs text-[var(--mpa-color-text-muted)]">
+                {selfServeReady
+                  ? "From live Stripe Price · you will confirm again in Stripe Checkout"
+                  : "List amount from live Stripe Price · online checkout is not enabled for this platform yet"}
               </p>
             </div>
+          ) : (
+            <p
+              className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950"
+              role="status"
+            >
+              Live Stripe amount could not be retrieved for this selection. No amount is invented
+              here.
+            </p>
           )}
+
+          {!selfServeReady ? (
+            <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">
+              <p className="font-semibold text-[var(--mpa-color-text-primary)]">
+                {motion.ctaLabel} — online checkout not available yet
+              </p>
+              <p>{motion.explanation}</p>
+            </div>
+          ) : null}
 
           <div>
             <p className="text-sm font-semibold">Included modules ({modules.length})</p>
@@ -247,20 +254,17 @@ export function CheckoutPage({
             </button>
           ) : (
             <>
+              <Link href={acquisitionHref("enterprise", sku)} className={marketingPrimaryCtaClass}>
+                {motion.ctaLabel}
+              </Link>
               <Link
                 href={acquisitionHref("checkout", {
                   sku: "mpa_property_manager",
                   billingCycle
                 })}
-                className={marketingPrimaryCtaClass}
-              >
-                Choose Property Manager
-              </Link>
-              <Link
-                href={acquisitionHref("enterprise", sku)}
                 className={marketingSecondaryCtaClass}
               >
-                Enterprise Solutions
+                Choose Property Manager (online)
               </Link>
             </>
           )}
