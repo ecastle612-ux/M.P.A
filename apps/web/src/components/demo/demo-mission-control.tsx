@@ -74,13 +74,72 @@ function SeverityBadge({ severity }: { severity: DemoQueueItem["badge"] }) {
   return <Badge variant="info">Info</Badge>;
 }
 
+function GlanceStrip({
+  immediate,
+  waiting,
+  changed,
+  next,
+  health
+}: {
+  immediate: number;
+  waiting: number;
+  changed: string;
+  next: string;
+  health: string;
+}) {
+  return (
+    <section
+      aria-label="At a glance"
+      className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
+    >
+      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+        At a glance
+      </p>
+      <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <li className="rounded-md border border-red-200 bg-red-50/40 px-3 py-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#C0392B]">Immediate</p>
+          <p className="mt-1 font-display text-2xl font-semibold tabular-nums">{immediate}</p>
+        </li>
+        <li className="rounded-md border border-amber-200 bg-amber-50/40 px-3 py-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#B45309]">Can wait</p>
+          <p className="mt-1 font-display text-2xl font-semibold tabular-nums">{waiting}</p>
+        </li>
+        <li className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 sm:col-span-2 xl:col-span-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+            Changed today
+          </p>
+          <p className="mt-2 text-sm font-medium leading-5">{changed}</p>
+        </li>
+        <li className="rounded-md border border-[var(--mpa-color-brand-primary)]/25 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-3 py-2 sm:col-span-2 xl:col-span-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+            Do next
+          </p>
+          <p className="mt-2 text-sm font-medium leading-5">{next}</p>
+        </li>
+        <li className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+            Health
+          </p>
+          <p className="mt-2 text-sm font-medium leading-5">{health}</p>
+        </li>
+      </ul>
+    </section>
+  );
+}
+
 function AttentionQueue({ items }: { items: DemoQueueItem[] }) {
   return (
     <ul className="space-y-2">
       {items.map((item) => (
         <li
           key={item.id}
-          className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-[var(--mpa-color-border-subtle)] px-3 py-2"
+          className={`flex flex-wrap items-start justify-between gap-3 rounded-md border border-[var(--mpa-color-border-subtle)] px-3 py-2 ${
+            item.badge === "immediate"
+              ? "border-l-[3px] border-l-[#C0392B]"
+              : item.badge === "waiting"
+                ? "border-l-[3px] border-l-[#B45309]"
+                : "border-l-[3px] border-l-[var(--mpa-color-border-default)]"
+          }`}
         >
           <div className="min-w-0 space-y-1">
             <p className="font-medium text-[var(--mpa-color-text-primary)]">{item.title}</p>
@@ -164,6 +223,12 @@ export function PmMissionControlShowcase({
   personaLabel: string;
   watermark?: string;
 }) {
+  const immediate = showcase.queue.filter((item) => item.badge === "immediate").length;
+  const waiting = showcase.queue.filter((item) => item.badge === "waiting").length;
+  const next = showcase.queue[0]?.title ?? "Review portfolio health";
+  const health =
+    immediate > 0 ? "Needs attention" : waiting > 0 ? "Watch" : "Healthy";
+
   return (
     <section className="space-y-5">
       <header className="space-y-1">
@@ -175,6 +240,22 @@ export function PmMissionControlShowcase({
           {showcase.organizationName} · viewing as {personaLabel}
         </p>
       </header>
+
+      <GlanceStrip
+        immediate={immediate}
+        waiting={waiting}
+        changed={`${showcase.maintenance.open} open work orders · ${showcase.financial.pendingApprovals} approvals pending`}
+        next={next}
+        health={health}
+      />
+
+      <SectionCard title="Assistant briefing">
+        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{showcase.assistantBrief}</p>
+      </SectionCard>
+
+      <SectionCard title="Today’s priorities" description="Attention queue from demo signals.">
+        <AttentionQueue items={showcase.queue} />
+      </SectionCard>
 
       <KpiStrip items={showcase.kpis} />
 
@@ -218,29 +299,21 @@ export function PmMissionControlShowcase({
             </div>
           </dl>
         </SectionCard>
-        <SectionCard title="Today’s priorities" description="Attention queue from demo signals.">
-          <AttentionQueue items={showcase.queue} />
+        <SectionCard title="Recent activity" description="Messages and work orders from the snapshot.">
+          <ul className="space-y-2">
+            {showcase.recentActivity.map((item) => (
+              <li
+                key={item.id}
+                className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--mpa-color-border-subtle)] pb-2 text-sm last:border-0"
+              >
+                <span className="font-medium">{item.title}</span>
+                <span className="text-xs text-[var(--mpa-color-text-muted)]">{item.meta}</span>
+                <span className="w-full text-[var(--mpa-color-text-secondary)]">{item.detail}</span>
+              </li>
+            ))}
+          </ul>
         </SectionCard>
       </div>
-
-      <SectionCard title="Recent activity" description="Messages and work orders from the snapshot.">
-        <ul className="space-y-2">
-          {showcase.recentActivity.map((item) => (
-            <li
-              key={item.id}
-              className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--mpa-color-border-subtle)] pb-2 text-sm last:border-0"
-            >
-              <span className="font-medium">{item.title}</span>
-              <span className="text-xs text-[var(--mpa-color-text-muted)]">{item.meta}</span>
-              <span className="w-full text-[var(--mpa-color-text-secondary)]">{item.detail}</span>
-            </li>
-          ))}
-        </ul>
-      </SectionCard>
-
-      <SectionCard title="Assistant briefing">
-        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{showcase.assistantBrief}</p>
-      </SectionCard>
 
       {watermark ? (
         <p className="text-xs text-[var(--mpa-color-text-muted)]">{watermark}</p>
@@ -258,6 +331,12 @@ export function FoMissionControlShowcase({
   personaLabel: string;
   watermark?: string;
 }) {
+  const immediate = showcase.queue.filter((item) => item.badge === "immediate").length;
+  const waiting = showcase.queue.filter((item) => item.badge === "waiting").length;
+  const next = showcase.queue[0]?.title ?? "Review asset health";
+  const health =
+    immediate > 0 ? "Needs attention" : waiting > 0 ? "Watch" : "Healthy";
+
   return (
     <section className="space-y-5">
       <header className="space-y-1">
@@ -269,6 +348,22 @@ export function FoMissionControlShowcase({
           {showcase.organizationName} · viewing as {personaLabel}
         </p>
       </header>
+
+      <GlanceStrip
+        immediate={immediate}
+        waiting={waiting}
+        changed={`${showcase.corrective.length} corrective tickets · ${showcase.compliance.length} compliance dues`}
+        next={next}
+        health={health}
+      />
+
+      <SectionCard title="Assistant briefing">
+        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{showcase.assistantBrief}</p>
+      </SectionCard>
+
+      <SectionCard title="Today’s priorities" description="Facility attention queue.">
+        <AttentionQueue items={showcase.queue} />
+      </SectionCard>
 
       <KpiStrip items={showcase.kpis} />
 
@@ -321,14 +416,7 @@ export function FoMissionControlShowcase({
             {showcase.preventiveDue.map((task) => `${task.title} (${task.due})`).join(" · ")}
           </p>
         </SectionCard>
-        <SectionCard title="Today’s priorities" description="Facility attention queue.">
-          <AttentionQueue items={showcase.queue} />
-        </SectionCard>
       </div>
-
-      <SectionCard title="Assistant briefing">
-        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{showcase.assistantBrief}</p>
-      </SectionCard>
 
       {watermark ? (
         <p className="text-xs text-[var(--mpa-color-text-muted)]">{watermark}</p>
@@ -346,6 +434,15 @@ export function CompleteMissionControlShowcase({
   personaLabel: string;
   watermark?: string;
 }) {
+  const pmNext = showcase.pm.queue[0]?.title ?? "Open Property Manager Mission Control";
+  const foNext = showcase.fo.queue[0]?.title ?? "Open Facility Mission Control";
+  const immediate =
+    showcase.pm.queue.filter((item) => item.badge === "immediate").length +
+    showcase.fo.queue.filter((item) => item.badge === "immediate").length;
+  const waiting =
+    showcase.pm.queue.filter((item) => item.badge === "waiting").length +
+    showcase.fo.queue.filter((item) => item.badge === "waiting").length;
+
   return (
     <section className="space-y-6">
       <header className="space-y-1">
@@ -357,6 +454,30 @@ export function CompleteMissionControlShowcase({
           {showcase.organizationName} · viewing as {personaLabel}
         </p>
       </header>
+
+      <GlanceStrip
+        immediate={immediate}
+        waiting={waiting}
+        changed="Both product homes report live demo snapshot signals"
+        next={`PM: ${pmNext}`}
+        health={immediate > 0 ? "Needs attention across homes" : "Dual-home healthy"}
+      />
+
+      <SectionCard
+        title="What should I work on next"
+        description="Executive next steps from existing PM and FO attention queues."
+      >
+        <ol className="list-decimal space-y-2 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
+          <li>
+            <span className="font-medium text-[var(--mpa-color-text-primary)]">Property Manager:</span>{" "}
+            {pmNext}
+          </li>
+          <li>
+            <span className="font-medium text-[var(--mpa-color-text-primary)]">Facility Operations:</span>{" "}
+            {foNext}
+          </li>
+        </ol>
+      </SectionCard>
 
       <SectionCard
         title="Executive summary"
