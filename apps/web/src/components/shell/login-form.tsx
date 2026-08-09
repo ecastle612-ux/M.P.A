@@ -43,6 +43,24 @@ export function LoginForm() {
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  /** After commerce auth, bind owner immediately — avoids SSR cookie race on /commerce/continue. */
+  async function claimCommerceWorkspace(sessionId: string): Promise<string | null> {
+    const res = await fetch("/api/commerce/provision/claim", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        sessionId,
+        ...(bindToken ? { bindToken } : {})
+      })
+    });
+    const data = (await res.json().catch(() => ({}))) as { error?: string; nextPath?: string };
+    if (!res.ok) {
+      return data.error ?? "Could not claim workspace.";
+    }
+    window.location.assign(data.nextPath ?? "/setup");
+    return null;
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -77,12 +95,14 @@ export function LoginForm() {
           email,
           password
         });
-        setLoading(false);
         if (signInAfterClaim) {
+          setLoading(false);
           setError(signInAfterClaim.message);
           return;
         }
-        router.replace(commerceNext ?? "/commerce/continue");
+        const claimError = await claimCommerceWorkspace(saasCheckoutSession);
+        setLoading(false);
+        if (claimError) setError(claimError);
         return;
       }
 
@@ -111,14 +131,21 @@ export function LoginForm() {
 
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
-    setLoading(false);
-
     if (signInError) {
+      setLoading(false);
       setError(signInError.message);
       return;
     }
 
-    router.replace(commerceNext ?? nextPath ?? "/dashboard");
+    if (saasCheckoutSession) {
+      const claimError = await claimCommerceWorkspace(saasCheckoutSession);
+      setLoading(false);
+      if (claimError) setError(claimError);
+      return;
+    }
+
+    setLoading(false);
+    router.replace(nextPath ?? "/dashboard");
   }
 
   return (
