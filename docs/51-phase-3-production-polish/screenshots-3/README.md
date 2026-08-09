@@ -1,14 +1,10 @@
-# Sprint 3 screenshots
+# Sprint 3 screenshots — Mission Control
 
-## Demo Mission Control (live)
+| Set | Location |
+|-----|----------|
+| Before (Production demo PM) | `before/desktop-demo-pm-mc.png`, `before/prod-demo-*` under artifacts |
+| After (demo polish) | `after/desktop-demo-*.png`, `after/mobile-demo-*.png`, `after/local-demo-*.png` |
 
-| Shot | Notes |
-|------|-------|
-| `after/desktop-demo-pm-mc.png` | PM demo with At a glance + priorities |
-| `after/desktop-demo-fo-mc.png` | FO demo glance hierarchy |
-| `after/desktop-demo-complete-mc.png` | Complete executive glance |
-| `before/desktop-demo-pm-mc.png` | Pre-polish PM demo (KPI-first) |
+Artifacts: `/opt/cursor/artifacts/phase3-sprint3-mc/{before,after}/`
 
-Mobile variants included under `after/`.
-
-Production `/pm/mission-control` and `/facility/mission-control` are auth-gated in this environment; polish verified via code review, typecheck, and demo parity.
+Authenticated customer MC requires org login — polish verified in code review + demo surfaces (same presentation patterns).
