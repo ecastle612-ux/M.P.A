@@ -1,8 +1,9 @@
 # 52 — Phase 4 Master Admin
 
-**Status:** Sprint 1 Command Center **implemented** — awaiting Owner acceptance → merge → Production → LIVE  
-**Authority:** Owner Phase 4 Sprint 1 authorization  
-**Rule:** Do **not** begin Sprint 2 until Sprint 1 is LIVE and Owner-accepted.
+**Status:** Sprint 1 Command Center **shipped to Production** — awaiting Owner LIVE acceptance (operator session)  
+**Authority:** Owner Phase 4 Sprint 1 authorization + Production deploy authorization  
+**Rule:** Do **not** begin Sprint 2 until Sprint 1 is LIVE and Owner-accepted.  
+**Production tip:** `c2c45f9e6e5de8c9ea194ec28cdc858f463bab4f` · Deploy `dpl_FAZRretb6TLtMZd48WRHXFTdbj9o`
 
 ## Documents
 
@@ -15,6 +16,9 @@
 | [Performance Report](./sprint-1-performance-report.md) | Perf |
 | [Regression Report](./sprint-1-regression-report.md) | Customer surfaces |
 | [Screenshots](./screenshots-sprint-1/) | Fixture / evidence |
+| [Production LIVE Verification](./sprint-1-production-live-verification.md) | Deploy IDs + LIVE checks |
+| [Production Regression](./sprint-1-production-regression.md) | Post-deploy regression |
+| [Operator Walkthrough](./sprint-1-operator-walkthrough.md) | Owner LIVE checklist |
 
 ## Sprint 1 summary
 
