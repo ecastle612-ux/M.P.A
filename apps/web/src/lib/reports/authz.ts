@@ -38,8 +38,8 @@ export async function requireReportPermission(
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- match documents authz Db client typing
     supabase: supabase as SupabaseClient<any>,
     user,
     organizationId: orgId,

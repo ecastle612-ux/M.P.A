@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   EXECUTIVE_PERSONA_LABELS,
   EXECUTIVE_PERSONAS,
@@ -61,27 +61,34 @@ export function ReportsWorkspace() {
     return params.toString();
   }, [persona, area, propertyId, category, status, dateFrom, dateTo]);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/shared/reports${queryString ? `?${queryString}` : ""}`);
-      const body = await response.json();
-      if (!response.ok) {
-        throw new Error(body.error ?? "Failed to load reporting snapshot");
-      }
-      setSnapshot(body.snapshot as ReportingSnapshot);
-    } catch (err) {
-      setSnapshot(null);
-      setError(err instanceof Error ? err.message : "Failed to load reports");
-    } finally {
-      setLoading(false);
-    }
-  }, [queryString]);
-
   useEffect(() => {
-    void load();
-  }, [load]);
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch(`/api/shared/reports${queryString ? `?${queryString}` : ""}`);
+        const body = await response.json();
+        if (!response.ok) {
+          throw new Error(body.error ?? "Failed to load reporting snapshot");
+        }
+        if (!cancelled) {
+          setSnapshot(body.snapshot as ReportingSnapshot);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setSnapshot(null);
+          setError(err instanceof Error ? err.message : "Failed to load reports");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [queryString]);
 
   async function download(format: "pdf" | "csv") {
     setExporting(format);
