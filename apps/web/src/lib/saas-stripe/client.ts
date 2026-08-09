@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { saasPriceEnvKeyForOfferId } from "@mpa/shared";
+import { saasDisplayPriceEnvKeyForOfferId, saasPriceEnvKeyForOfferId } from "@mpa/shared";
 import { serverEnv } from "../env/server-env";
 
 /** SaaS Stripe client — same account key OK; webhook secret is dedicated. */
@@ -26,6 +26,16 @@ export function getSaasStripeClient(): Stripe | null {
 
 export function resolveSaasPriceId(offerId: string): string | null {
   const envKey = saasPriceEnvKeyForOfferId(offerId);
+  if (!envKey) {
+    return null;
+  }
+  const value = serverEnv[envKey as keyof typeof serverEnv];
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+/** Display Price IDs for public Pricing transparency (may include FO/Complete). */
+export function resolveSaasDisplayPriceId(offerId: string): string | null {
+  const envKey = saasDisplayPriceEnvKeyForOfferId(offerId);
   if (!envKey) {
     return null;
   }

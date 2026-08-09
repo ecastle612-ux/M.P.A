@@ -1,6 +1,6 @@
 import type { BillingCycle, ProductSku } from "@mpa/shared";
 
-/** Public display shape for a configured self-serve Stripe Price. */
+/** Public display shape for a configured Stripe Price (checkout or display-only). */
 export type PublicCatalogPrice = {
   offerId: string;
   productSku: ProductSku;
@@ -14,9 +14,16 @@ export type PublicCatalogPrice = {
 };
 
 export type PublicCatalogPriceCatalog = {
-  status: "ready" | "unavailable";
+  status: "ready" | "partial" | "unavailable";
   warning: string | null;
-  /** Self-serve Property Manager professional prices keyed by billing cycle. */
+  /**
+   * Live amounts keyed by product SKU then billing cycle.
+   * Property Manager uses Checkout Price IDs; FO/Complete use display Price IDs when configured.
+   */
+  bySku: Partial<Record<ProductSku, Partial<Record<BillingCycle, PublicCatalogPrice>>>>;
+  /**
+   * @deprecated Prefer bySku[mpa_property_manager] — kept for Confirm Plan PM convenience.
+   */
   byCycle: Partial<Record<BillingCycle, PublicCatalogPrice>>;
   prices: PublicCatalogPrice[];
 };
@@ -35,4 +42,12 @@ export function cadenceLabelForInterval(interval: string, billingCycle: BillingC
     return "Billed annually · renews automatically";
   }
   return "Billed monthly · renews automatically";
+}
+
+export function priceForSkuCycle(
+  catalog: PublicCatalogPriceCatalog,
+  sku: ProductSku,
+  billingCycle: BillingCycle
+): PublicCatalogPrice | undefined {
+  return catalog.bySku[sku]?.[billingCycle];
 }
