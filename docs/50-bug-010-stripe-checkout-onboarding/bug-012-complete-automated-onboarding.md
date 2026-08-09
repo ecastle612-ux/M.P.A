@@ -25,7 +25,11 @@
 | Continue page auto-claim | Authenticated owner → claim → `/setup` |
 | `recordOnboardingLifecycleEvent` | purchase_completed / provisioned / owner_pending / owner_claimed / activated |
 | Admin consoles | Read jobs + lifecycle events from DB |
+| Claim email bind token | Always mint plaintext token into continue URL |
+| `saas_customers.organization_id` | Persist org link on provision + claim |
 
 ## Certification gate
 
 Requires this branch deployed to Production (`www.my-property-assistant.com`), then full walkthrough as a new customer.
+
+See `bug-012-execution-report.md` for the Production FAIL certificate (pre-deploy).
