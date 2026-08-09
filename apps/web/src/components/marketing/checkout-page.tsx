@@ -17,6 +17,7 @@ import {
   type BillingCycle,
   type ProductSku
 } from "@mpa/shared";
+import type { PublicCatalogPriceCatalog } from "../../lib/saas-stripe/public-prices";
 import {
   MarketingChrome,
   marketingNarrowMainClass,
@@ -29,17 +30,19 @@ const CHECKOUT_PLAN = "professional" as const;
 
 /**
  * Confirm Plan → Stripe Checkout (payment before account).
- * Customer-facing language is platform + billing cycle only.
+ * Customer-facing language is platform + billing cycle + live amount when available.
  */
 export function CheckoutPage({
   isAuthenticated = false,
   selectedSkuRaw,
-  selectedCycleRaw
+  selectedCycleRaw,
+  priceCatalog
 }: {
   isAuthenticated?: boolean;
   selectedSkuRaw?: string | null;
   selectedPlanRaw?: string | null;
   selectedCycleRaw?: string | null;
+  priceCatalog: PublicCatalogPriceCatalog;
 }) {
   const sku: ProductSku = parseAcquisitionSku(selectedSkuRaw) ?? "mpa_property_manager";
   const billingCycle: BillingCycle = parseAcquisitionCycle(selectedCycleRaw) ?? "monthly";
@@ -56,6 +59,7 @@ export function CheckoutPage({
   const selfServeReady = offer ? isSelfServeCheckoutAllowed(offer) : false;
   const summary = SKU_SUMMARIES[sku];
   const modules = marketingModulesForSku(sku);
+  const livePrice = selfServeReady ? priceCatalog.byCycle[billingCycle] : undefined;
 
   useEffect(() => {
     document.cookie = `${ACQUISITION_SKU_COOKIE}=${encodeURIComponent(sku)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
@@ -118,10 +122,20 @@ export function CheckoutPage({
           </p>
           <h1 className="font-display text-3xl font-semibold">Confirm Plan</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Confirm your platform and billing cycle. Payment succeeds before account creation — no
-            organization is provisioned on this step.
+            Confirm your platform, billing cycle, and amount. Payment succeeds before account
+            creation — no organization is provisioned on this step.
           </p>
         </header>
+
+        {priceCatalog.warning && selfServeReady ? (
+          <p
+            className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+            role="status"
+          >
+            <span className="font-semibold">Pricing system warning: </span>
+            {priceCatalog.warning}
+          </p>
+        ) : null}
 
         <ol className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">1 · Modules</li>
@@ -143,6 +157,48 @@ export function CheckoutPage({
             </p>
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{summary.description}</p>
           </div>
+
+          {selfServeReady ? (
+            livePrice ? (
+              <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+                  Amount
+                </p>
+                <p className="mt-1 font-display text-3xl font-semibold">
+                  {livePrice.formatted}
+                  <span className="ml-2 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
+                    / {billingCycle === "annual" ? "year" : "month"}
+                  </span>
+                </p>
+                <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                  {livePrice.cadenceLabel}
+                </p>
+                <p className="mt-2 text-xs text-[var(--mpa-color-text-muted)]">
+                  From live Stripe Price · you will confirm again in Stripe Checkout
+                </p>
+              </div>
+            ) : (
+              <p
+                className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950"
+                role="status"
+              >
+                Live Stripe amount could not be retrieved for this selection. Continue only if you
+                accept that the authoritative amount will appear in Stripe Checkout.
+              </p>
+            )
+          ) : (
+            <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">
+              <p className="font-semibold text-[var(--mpa-color-text-primary)]">
+                Self-service checkout not available for {summary.label}
+              </p>
+              <p>
+                Stripe Checkout currently supports Property Manager with live configured Prices.
+                Choose Property Manager to pay online, or continue with Enterprise Solutions for
+                custom contracts — no amount is invented for this platform.
+              </p>
+            </div>
+          )}
+
           <div>
             <p className="text-sm font-semibold">Included modules ({modules.length})</p>
             <ul className="mt-2 grid gap-1 text-sm text-[var(--mpa-color-text-secondary)] sm:grid-cols-2">
@@ -163,18 +219,7 @@ export function CheckoutPage({
                 className="w-full rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]"
               />
             </label>
-          ) : (
-            <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">
-              <p className="font-semibold text-[var(--mpa-color-text-primary)]">
-                Self-service checkout not available for {summary.label}
-              </p>
-              <p>
-                Stripe Checkout currently supports Property Manager. Choose Property Manager to pay
-                online, or continue with Enterprise Solutions for custom contracts and dedicated
-                onboarding.
-              </p>
-            </div>
-          )}
+          ) : null}
         </section>
 
         {error ? (

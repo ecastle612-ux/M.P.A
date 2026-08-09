@@ -29,10 +29,16 @@ Owner authorization covers Sprint 1 public polish only. Sprint 2 does not begin 
 
 | Doc | Purpose |
 |-----|---------|
-| [Authorization](./sprint-1-authorization.md) | Scope, constraints, approval |
-| [Issue Register](./sprint-1-issue-register.md) | Every finding with P0–P3 |
-| [Production Polish Report](./sprint-1-production-polish-report.md) | Fixes shipped + screenshots |
-| [Regression Report](./sprint-1-regression-report.md) | Desktop / tablet / mobile verification |
+| [Authorization](./sprint-1-authorization.md) | Sprint 1 scope |
+| [Issue Register](./sprint-1-issue-register.md) | Sprint 1 findings |
+| [Production Polish Report](./sprint-1-production-polish-report.md) | Sprint 1 fixes |
+| [Regression Report](./sprint-1-regression-report.md) | Sprint 1 verification |
+| [Sprint 1.1 Authorization](./sprint-1-1-authorization.md) | Commercial conversion polish |
+| [Sprint 1.1 Issue Register](./sprint-1-1-issue-register.md) | Demo + pricing findings |
+| [Sprint 1.1 Commercial Polish Report](./sprint-1-1-commercial-polish-report.md) | Combined delivery |
+| [Demo Improvement Report](./sprint-1-1-demo-improvement-report.md) | Live Demo MC |
+| [Pricing Transparency Report](./sprint-1-1-pricing-transparency-report.md) | Live Stripe amounts |
+| [Sprint 1.1 Regression Report](./sprint-1-1-regression-report.md) | Verification |
 
 ## Constraints (binding)
 

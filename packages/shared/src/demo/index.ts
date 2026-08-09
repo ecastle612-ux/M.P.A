@@ -7,3 +7,4 @@ export * from "./conversion";
 export * from "./overlay";
 export * from "./nav";
 export * from "./snapshots";
+export * from "./snapshot-metrics";
