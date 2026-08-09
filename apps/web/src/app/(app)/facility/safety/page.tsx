@@ -1,15 +1,15 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
+    <FacilityModulePage
       title="Safety"
-      description="Safety incidents and protocols. Feature work not in Phase 1."
+      description="Safety programs, procedures, and incident documentation for facility teams."
       readiness="planned"
       entitlement="facility.safety"
       includedIn={["Facility Operations", "Complete Platform"]}
       requiresComplete="Property Manager-only customers"
+      domain="safety"
     />
   );
 }

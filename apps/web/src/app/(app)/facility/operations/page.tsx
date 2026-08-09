@@ -1,15 +1,15 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
+    <FacilityModulePage
       title="Facility Operations"
-      description="Facility corrective operations home. Feature work not in Phase 1."
+      description="Corrective work-order operations — emergency, high priority, scheduled, waiting, and completed work."
       readiness="planned"
       entitlement="facility.operations"
       includedIn={["Facility Operations", "Complete Platform"]}
       requiresComplete="Property Manager-only customers"
+      domain="operations"
     />
   );
 }

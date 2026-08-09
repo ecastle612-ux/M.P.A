@@ -1,15 +1,15 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
+    <FacilityModulePage
       title="Assets"
-      description="Asset registry. Feature work not in Phase 1."
+      description="Asset registry for health, warranty, service history, upcoming maintenance, open work, inspections, and related documents."
       readiness="planned"
       entitlement="facility.assets"
       includedIn={["Facility Operations", "Complete Platform"]}
       requiresComplete="Property Manager-only customers"
+      domain="assets"
     />
   );
 }

@@ -1,15 +1,15 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
+    <FacilityModulePage
       title="Inspections"
-      description="Facility inspection programs — not lease move-in/out inspections."
+      description="Facility and building inspection programs with evidence, failures, and corrective follow-through."
       readiness="planned"
       entitlement="facility.inspections"
       includedIn={["Facility Operations", "Complete Platform"]}
       requiresComplete="Property Manager-only customers"
+      domain="inspections"
     />
   );
 }

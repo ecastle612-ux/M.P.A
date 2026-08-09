@@ -1,15 +1,15 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
+    <FacilityModulePage
       title="Capital Projects"
-      description="Future capital planning — intentionally deferred."
+      description="Capital projects remain deferred commercially — this route stays honest and document-ready."
       readiness="planned"
       entitlement="facility.capital_projects"
-      includedIn={["Facility Operations (future)", "Complete Platform (future)"]}
-      requiresComplete="All current SKUs until future enablement"
+      includedIn={["Facility Operations", "Complete Platform"]}
+      requiresComplete="Property Manager-only customers"
+      domain="capital"
     />
   );
 }
