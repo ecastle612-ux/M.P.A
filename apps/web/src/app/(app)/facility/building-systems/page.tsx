@@ -1,15 +1,15 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
+    <FacilityModulePage
       title="Building Systems"
-      description="Building systems model. Feature work not in Phase 1."
+      description="HVAC, electrical, and life-safety systems context for assets, work, and vendors."
       readiness="planned"
       entitlement="facility.building_systems"
       includedIn={["Facility Operations", "Complete Platform"]}
       requiresComplete="Property Manager-only customers"
+      domain="building_systems"
     />
   );
 }

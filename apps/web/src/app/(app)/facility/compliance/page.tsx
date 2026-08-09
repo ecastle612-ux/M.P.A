@@ -1,15 +1,15 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
+    <FacilityModulePage
       title="Compliance"
-      description="Building and facility compliance. Feature work not in Phase 1."
+      description="Building and facility compliance programs — certificates, deadlines, and audit-ready evidence."
       readiness="planned"
       entitlement="facility.compliance"
       includedIn={["Facility Operations", "Complete Platform"]}
       requiresComplete="Property Manager-only customers"
+      domain="compliance"
     />
   );
 }

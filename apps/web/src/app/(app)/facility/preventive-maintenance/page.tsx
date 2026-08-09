@@ -1,15 +1,15 @@
-import { ModuleAlignmentPage } from "../../../../components/commercial/module-alignment-page";
+import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
 
 export default function Page() {
   return (
-    <ModuleAlignmentPage
-      product="Facility Operations"
+    <FacilityModulePage
       title="Preventive Maintenance"
-      description="Preventive schedules. Feature work not in Phase 1."
+      description="Preventive schedules and due windows so facility teams act before equipment fails."
       readiness="planned"
       entitlement="facility.preventive"
       includedIn={["Facility Operations", "Complete Platform"]}
       requiresComplete="Property Manager-only customers"
+      domain="preventive"
     />
   );
 }
