@@ -82,7 +82,9 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 54 | [Phase 4 Facility Operations Workspace](./54-phase-4-facility-operations-workspace/index.md) | Sprint 4 FO UX · LIVE |
 | 55 | [Phase 4 Resident Dashboard](./55-phase-4-resident-dashboard/index.md) | Sprint 5 Resident UX · LIVE |
 | 56 | [Phase 4 Document Intelligence](./56-phase-4-document-intelligence/index.md) | Sprint 6 Document Intelligence Center · LIVE |
-| 57 | [Phase 4 Reporting & Analytics](./57-phase-4-reporting-analytics/index.md) | Sprint 7 Reporting & Analytics Center · implementing |
+| 57 | [Phase 4 Reporting & Analytics](./57-phase-4-reporting-analytics/index.md) | Sprint 7 Reporting & Analytics Center · LIVE |
+| 58 | [Phase 4 Final Production Certification](./58-phase-4-final-production-certification/index.md) | Sprint 8 · see PR #97 / V1.0 closeout |
+| 59 | [Version 1.0 Certification Closeout](./59-version-1-0-certification-closeout/index.md) | V1.0 gates · GATE-S7 closed · Owner checklist |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
