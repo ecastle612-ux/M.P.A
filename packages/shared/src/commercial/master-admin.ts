@@ -31,6 +31,18 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         status: "aligned"
       },
       {
+        href: "/admin/support",
+        label: "Support",
+        description: "Customer/org lookup, failure timeline, and support notes placeholder.",
+        status: "aligned"
+      },
+      {
+        href: "/admin/system",
+        label: "System",
+        description: "Platform health for Stripe, Supabase, email, jobs, demo, and auth.",
+        status: "aligned"
+      },
+      {
         href: "/admin/launch-readiness",
         label: "Launch Readiness",
         description: "Customer clarity and commercial readiness checks.",
@@ -102,7 +114,7 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
       {
         href: "/admin/commercial/billing",
         label: "Billing",
-        description: "Platform billing operations.",
+        description: "Read-only commercial directory — subscriptions, MRR/ARR, purchases, Stripe links.",
         status: "aligned"
       },
       {
@@ -121,6 +133,12 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         href: "/admin/platform/organizations",
         label: "Organizations",
         description: "Customer organization directory.",
+        status: "aligned"
+      },
+      {
+        href: "/admin/platform/customers",
+        label: "Customers",
+        description: "Memberships, invitations, roles, and setup state.",
         status: "aligned"
       },
       {

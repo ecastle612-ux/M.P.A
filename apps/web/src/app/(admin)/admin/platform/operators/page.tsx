@@ -1,11 +1,7 @@
-import { AdminSimplePage } from "../../../../../components/admin/master-admin-pages";
+import { OperatorsOpsWorkspace } from "../../../../../components/admin/ops-workspaces";
+import { loadOpsDirectories } from "../../../../../lib/admin/load-ops-directories";
 
-export default function Page() {
-  return (
-    <AdminSimplePage
-      title="Operators"
-      description="Master Admin operator access. Bootstrap via app_metadata.platform_operator or platform_operators table."
-      status="aligned"
-    />
-  );
+export default async function Page() {
+  const data = await loadOpsDirectories();
+  return <OperatorsOpsWorkspace operators={data.operators} />;
 }

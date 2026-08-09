@@ -170,6 +170,17 @@ describe("master admin catalog", () => {
       MASTER_ADMIN_NAV.find((group) => group.id === "commercial")?.items.map((item) => item.href) ?? [];
     expect(commercialHrefs).toContain("/admin/commercial/provisioning");
     expect(commercialHrefs).toContain("/admin/commercial/lifecycle");
+
+    const missionHrefs =
+      MASTER_ADMIN_NAV.find((group) => group.id === "mission_control")?.items.map((item) => item.href) ??
+      [];
+    expect(missionHrefs).toContain("/admin/support");
+    expect(missionHrefs).toContain("/admin/system");
+
+    const platformHrefs =
+      MASTER_ADMIN_NAV.find((group) => group.id === "platform_admin")?.items.map((item) => item.href) ??
+      [];
+    expect(platformHrefs).toContain("/admin/platform/customers");
   });
 
   it("does not hide planned capabilities from Master Admin", () => {
