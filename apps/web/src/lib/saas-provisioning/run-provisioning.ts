@@ -78,16 +78,23 @@ async function linkSaasCustomer(input: {
   email: string;
   checkoutSessionId: string;
   userId: string;
+  organizationId?: string | null;
 }): Promise<void> {
   const stripeCustomerId =
     input.stripeCustomerId && input.stripeCustomerId.length > 0
       ? input.stripeCustomerId
       : `pending_${input.checkoutSessionId}`;
+  const userId = input.userId.startsWith("pending_user_") ? null : input.userId;
+  const organizationId =
+    input.organizationId && !input.organizationId.startsWith("org_")
+      ? input.organizationId
+      : null;
   upsertSaasCustomer({
     stripeCustomerId,
     email: input.email,
     checkoutSessionId: input.checkoutSessionId,
-    userId: input.userId.startsWith("pending_user_") ? null : input.userId
+    userId,
+    organizationId
   });
   const supabase = await tryServiceRole();
   if (!supabase) return;
@@ -96,7 +103,8 @@ async function linkSaasCustomer(input: {
       stripe_customer_id: stripeCustomerId,
       email: input.email.toLowerCase(),
       checkout_session_id: input.checkoutSessionId,
-      user_id: input.userId.startsWith("pending_user_") ? null : input.userId,
+      user_id: userId,
+      organization_id: organizationId,
       updated_at: new Date().toISOString()
     },
     { onConflict: "stripe_customer_id" }
@@ -408,15 +416,12 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
           // Compensation: keep identity, do not create a second org — retry safely.
           return await saveJob(markProvisioningRetry(job, org.error));
         }
-        upsertSaasCustomer({
-          stripeCustomerId:
-            job.stripeCustomerId && job.stripeCustomerId.length > 0
-              ? job.stripeCustomerId
-              : `pending_${job.checkoutSessionId}`,
+        await linkSaasCustomer({
+          stripeCustomerId: job.stripeCustomerId,
           email: job.ownerEmail,
           checkoutSessionId: job.checkoutSessionId,
-          organizationId: org.organizationId,
-          userId: job.ownerUserId.startsWith("pending_user_") ? null : job.ownerUserId
+          userId: job.ownerUserId,
+          organizationId: org.organizationId
         });
         const next = transitionProvisioning(
           {
@@ -597,6 +602,14 @@ export async function claimProvisioningOwner(input: {
   if (membership.error) {
     return { ok: false, error: membership.error };
   }
+
+  await linkSaasCustomer({
+    stripeCustomerId: job.stripeCustomerId,
+    email: job.ownerEmail,
+    checkoutSessionId: job.checkoutSessionId,
+    userId: input.userId,
+    organizationId: job.organizationId
+  });
 
   let next = transitionProvisioning(
     {
