@@ -5,15 +5,17 @@ import {
   acquisitionHref,
   marketingModulesForSku
 } from "@mpa/shared";
-import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
-
-/** Internal Stripe offer mapping — not shown as a customer-facing tier. */
-const CHECKOUT_PLAN = "professional" as const;
+import {
+  MarketingChrome,
+  marketingPageMainClass,
+  marketingPrimaryCtaClass,
+  marketingSecondaryCtaClass
+} from "./marketing-chrome";
 
 export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
-      <main className="mx-auto max-w-6xl space-y-8 px-4 pb-16 pt-10 md:px-6">
+      <main className={marketingPageMainClass}>
         <header className="max-w-2xl space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
             Get started · Step 1
@@ -46,12 +48,17 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                 className="flex flex-col rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
               >
                 <h2 className="font-display text-xl font-semibold">{summary.label}</h2>
-                <p className="mt-2 flex-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                <p className="mt-2 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                   {summary.description}
                 </p>
-                <p className="mt-4 text-xs text-[var(--mpa-color-text-muted)]">
-                  {modules.length} modules · Capital Projects excluded
+                <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+                  Includes ({modules.length}) · Capital Projects excluded
                 </p>
+                <ul className="mt-2 flex-1 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                  {modules.map((module) => (
+                    <li key={module.id}>• {module.label}</li>
+                  ))}
+                </ul>
                 <div className="mt-4 flex flex-col gap-2">
                   <Link href={acquisitionHref("pricing", sku)} className={marketingPrimaryCtaClass}>
                     View pricing
@@ -59,7 +66,6 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                   <Link
                     href={acquisitionHref("checkout", {
                       sku,
-                      planTier: CHECKOUT_PLAN,
                       billingCycle: "monthly"
                     })}
                     className={marketingSecondaryCtaClass}

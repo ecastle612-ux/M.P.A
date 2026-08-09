@@ -8,15 +8,23 @@ import {
   SKU_SUMMARIES,
   acquisitionHref,
   commercialContinueHref,
+  isSelfServeCheckoutAllowed,
   marketingModulesForSku,
   parseAcquisitionCycle,
   parseAcquisitionSku,
+  resolveCatalogOffer,
   skuComparisonRows,
   toBillingCycleLabel,
   type BillingCycle,
   type ProductSku
 } from "@mpa/shared";
-import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
+import type { PublicCatalogPriceCatalog } from "../../lib/saas-stripe/public-prices";
+import {
+  MarketingChrome,
+  marketingPageMainClass,
+  marketingPrimaryCtaClass,
+  marketingSecondaryCtaClass
+} from "./marketing-chrome";
 
 /** Internal Stripe offer mapping — not shown as a customer-facing tier. */
 const CHECKOUT_PLAN = "professional" as const;
@@ -24,12 +32,14 @@ const CHECKOUT_PLAN = "professional" as const;
 export function PricingPage({
   isAuthenticated = false,
   selectedSkuRaw,
-  selectedCycleRaw
+  selectedCycleRaw,
+  priceCatalog
 }: {
   isAuthenticated?: boolean;
   selectedSkuRaw?: string | null;
   selectedPlanRaw?: string | null;
   selectedCycleRaw?: string | null;
+  priceCatalog: PublicCatalogPriceCatalog;
 }) {
   const selectedSku = parseAcquisitionSku(selectedSkuRaw) ?? "mpa_property_manager";
   const initialCycle = parseAcquisitionCycle(selectedCycleRaw) ?? "monthly";
@@ -38,7 +48,7 @@ export function PricingPage({
 
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
-      <main className="mx-auto max-w-6xl space-y-8 px-4 pb-16 pt-10 md:px-6">
+      <main className={marketingPageMainClass}>
         <header className="max-w-2xl space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
             Get started · Step 2
@@ -46,10 +56,20 @@ export function PricingPage({
           <h1 className="font-display text-3xl font-semibold">Platform pricing</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             Choose Property Manager, Facility Operations, or Complete Platform. Select monthly or
-            annual billing, then confirm your plan. Final amounts appear in Stripe Checkout where
-            self-service is supported.
+            annual billing, then confirm your plan. Property Manager amounts come from live Stripe
+            Prices.
           </p>
         </header>
+
+        {priceCatalog.warning ? (
+          <p
+            className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+            role="status"
+          >
+            <span className="font-semibold">Pricing system warning: </span>
+            {priceCatalog.warning}
+          </p>
+        ) : null}
 
         <ol className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">1 · Modules</li>
@@ -60,13 +80,14 @@ export function PricingPage({
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
         </ol>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Billing cycle">
           {BILLING_CYCLES.map((cycle) => (
             <button
               key={cycle}
               type="button"
+              aria-pressed={billingCycle === cycle}
               onClick={() => setBillingCycle(cycle)}
-              className={`rounded-md px-4 py-2 text-sm font-semibold ${
+              className={`rounded-md px-4 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] ${
                 billingCycle === cycle
                   ? "bg-[var(--mpa-color-brand-primary)] text-white"
                   : "bg-[var(--mpa-color-bg-subtle)] text-[var(--mpa-color-text-secondary)]"
@@ -84,6 +105,7 @@ export function PricingPage({
               sku={sku}
               billingCycle={billingCycle}
               highlighted={sku === selectedSku}
+              priceCatalog={priceCatalog}
             />
           ))}
         </ul>
@@ -94,19 +116,65 @@ export function PricingPage({
             <table className="w-full min-w-[40rem] border-collapse text-sm">
               <thead className="bg-[var(--mpa-color-bg-subtle,#F7F8FA)]">
                 <tr>
-                  <th className="px-3 py-2 text-left">Capability</th>
-                  <th className="px-3 py-2 text-left">Property Manager</th>
-                  <th className="px-3 py-2 text-left">Facility Operations</th>
-                  <th className="px-3 py-2 text-left">Complete</th>
+                  <th scope="col" className="px-3 py-2 text-left font-semibold">
+                    Capability
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-left font-semibold">
+                    Property Manager
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-left font-semibold">
+                    Facility Operations
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-left font-semibold">
+                    Complete
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.id} className="border-t border-[var(--mpa-color-border-subtle)]">
-                    <td className="px-3 py-2">{row.label}</td>
-                    <td className="px-3 py-2">{row.pm ? "●" : "—"}</td>
-                    <td className="px-3 py-2">{row.fo ? "●" : "—"}</td>
-                    <td className="px-3 py-2">{row.complete ? "●" : "—"}</td>
+                    <th scope="row" className="px-3 py-2 text-left font-normal">
+                      {row.label}
+                    </th>
+                    <td className="px-3 py-2">
+                      {row.pm ? (
+                        <>
+                          <span aria-hidden>●</span>
+                          <span className="sr-only">Included</span>
+                        </>
+                      ) : (
+                        <>
+                          <span aria-hidden>—</span>
+                          <span className="sr-only">Not included</span>
+                        </>
+                      )}
+                    </td>
+                    <td className="px-3 py-2">
+                      {row.fo ? (
+                        <>
+                          <span aria-hidden>●</span>
+                          <span className="sr-only">Included</span>
+                        </>
+                      ) : (
+                        <>
+                          <span aria-hidden>—</span>
+                          <span className="sr-only">Not included</span>
+                        </>
+                      )}
+                    </td>
+                    <td className="px-3 py-2">
+                      {row.complete ? (
+                        <>
+                          <span aria-hidden>●</span>
+                          <span className="sr-only">Included</span>
+                        </>
+                      ) : (
+                        <>
+                          <span aria-hidden>—</span>
+                          <span className="sr-only">Not included</span>
+                        </>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -137,14 +205,24 @@ export function PricingPage({
 function PlatformPriceCard({
   sku,
   billingCycle,
-  highlighted
+  highlighted,
+  priceCatalog
 }: {
   sku: ProductSku;
   billingCycle: BillingCycle;
   highlighted: boolean;
+  priceCatalog: PublicCatalogPriceCatalog;
 }) {
   const summary = SKU_SUMMARIES[sku];
   const modules = marketingModulesForSku(sku);
+  const offer =
+    resolveCatalogOffer({
+      productSku: sku,
+      planTier: CHECKOUT_PLAN,
+      billingCycle
+    }) ?? null;
+  const selfServeReady = offer ? isSelfServeCheckoutAllowed(offer) : false;
+  const livePrice = selfServeReady ? priceCatalog.byCycle[billingCycle] : undefined;
   const href = commercialContinueHref({
     productSku: sku,
     planTier: CHECKOUT_PLAN,
@@ -164,15 +242,42 @@ function PlatformPriceCard({
       <p className="mt-4 text-lg font-semibold text-[var(--mpa-color-text-primary)]">
         {toBillingCycleLabel(billingCycle)} pricing
       </p>
-      <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-        {billingCycle === "monthly"
-          ? "Billed every month. Amount confirmed in Stripe Checkout when self-service is supported."
-          : "Billed every year. Amount confirmed in Stripe Checkout when self-service is supported."}
-      </p>
+      {selfServeReady ? (
+        livePrice ? (
+          <div className="mt-1 space-y-1">
+            <p className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
+              {livePrice.formatted}
+              <span className="ml-1 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
+                / {billingCycle === "annual" ? "year" : "month"}
+              </span>
+            </p>
+            <p className="text-xs text-[var(--mpa-color-text-secondary)]">{livePrice.cadenceLabel}</p>
+            <p className="text-xs text-[var(--mpa-color-text-muted)]">
+              Amount from live Stripe Price · confirmed again in Checkout
+            </p>
+          </div>
+        ) : (
+          <p
+            className="mt-1 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-950"
+            role="status"
+          >
+            Live Stripe price for this billing cycle could not be retrieved. Checkout remains
+            available when configured; amounts will appear in Stripe Checkout.
+          </p>
+        )
+      ) : (
+        <p
+          className="mt-1 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-xs text-[var(--mpa-color-text-secondary)]"
+          role="status"
+        >
+          Self-service Stripe pricing is not configured for this platform. Confirm Plan explains
+          Property Manager checkout or Enterprise Solutions — no amount is invented here.
+        </p>
+      )}
       <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
         Includes ({modules.length})
       </p>
-      <ul className="mt-2 max-h-48 flex-1 space-y-1 overflow-y-auto text-sm text-[var(--mpa-color-text-secondary)]">
+      <ul className="mt-2 flex-1 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
         {modules.map((module) => (
           <li key={module.id}>• {module.label}</li>
         ))}

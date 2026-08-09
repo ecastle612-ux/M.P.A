@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { CheckoutPage } from "../../../components/marketing/checkout-page";
 import { createAuthServerClient } from "../../../lib/auth/server";
+import { getPublicCatalogPrices } from "../../../lib/saas-stripe/public-prices-server";
 
 export const metadata: Metadata = {
   title: "Confirm Plan — My Property Assistant",
   description:
-    "Confirm your platform and billing cycle, then continue to secure Stripe Checkout where self-service is supported."
+    "Confirm your platform, billing cycle, and amount, then continue to secure Stripe Checkout where self-service is supported."
 };
 
 type Search = {
@@ -24,6 +25,7 @@ export default async function CheckoutRoute({
   const {
     data: { user }
   } = await supabase.auth.getUser();
+  const priceCatalog = await getPublicCatalogPrices();
 
   return (
     <CheckoutPage
@@ -31,6 +33,7 @@ export default async function CheckoutRoute({
       selectedSkuRaw={params.intent ?? null}
       selectedPlanRaw={params.plan ?? null}
       selectedCycleRaw={params.cycle ?? null}
+      priceCatalog={priceCatalog}
     />
   );
 }

@@ -5,7 +5,12 @@ import {
   parseAcquisitionSku,
   type ProductSku
 } from "@mpa/shared";
-import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
+import {
+  MarketingChrome,
+  marketingNarrowMainClass,
+  marketingPrimaryCtaClass,
+  marketingSecondaryCtaClass
+} from "./marketing-chrome";
 
 /**
  * Enterprise Solutions — optional purchasing/onboarding path for very large organizations.
@@ -23,10 +28,10 @@ export function EnterprisePage({
 
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
-      <main className="mx-auto max-w-3xl space-y-8 px-4 pb-16 pt-10 md:px-6">
+      <main className={marketingNarrowMainClass}>
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Enterprise Solutions
+            Optional sales path
           </p>
           <h1 className="font-display text-3xl font-semibold">Enterprise Solutions</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">

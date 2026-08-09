@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PricingPage } from "../../../components/marketing/pricing-page";
 import { createAuthServerClient } from "../../../lib/auth/server";
+import { getPublicCatalogPrices } from "../../../lib/saas-stripe/public-prices-server";
 
 export const metadata: Metadata = {
   title: "Pricing — My Property Assistant",
@@ -24,6 +25,7 @@ export default async function PricingRoute({
   const {
     data: { user }
   } = await supabase.auth.getUser();
+  const priceCatalog = await getPublicCatalogPrices();
 
   return (
     <PricingPage
@@ -31,6 +33,7 @@ export default async function PricingRoute({
       selectedSkuRaw={params.intent ?? null}
       selectedPlanRaw={params.plan ?? null}
       selectedCycleRaw={params.cycle ?? null}
+      priceCatalog={priceCatalog}
     />
   );
 }

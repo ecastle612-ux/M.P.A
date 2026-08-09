@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { formatMoney } from "@mpa/shared";
 import { Badge, EmptyState, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
@@ -74,41 +74,127 @@ type MissionControlState = {
   } | null;
 };
 
+const linkFocus =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
+
+function urgencyEdge(urgency: string): string {
+  if (urgency === "immediate") return "border-l-[3px] border-l-[#C0392B]";
+  if (urgency === "waiting_on_me") return "border-l-[3px] border-l-[#B45309]";
+  return "border-l-[3px] border-l-[var(--mpa-color-border-default)]";
+}
+
+function UrgencyBadge({ urgency }: { urgency: string }) {
+  if (urgency === "immediate") return <Badge variant="danger">Immediate</Badge>;
+  if (urgency === "waiting_on_me") return <Badge variant="warning">Waiting on me</Badge>;
+  return <Badge variant="neutral">Waiting on others</Badge>;
+}
+
+function priorityBadgeVariant(priority: string): "danger" | "warning" | "neutral" {
+  const p = priority.toLowerCase();
+  if (p.includes("urgent") || p.includes("critical") || p === "p0" || p === "high") return "danger";
+  if (p.includes("medium") || p === "p1" || p === "p2") return "warning";
+  return "neutral";
+}
+
 function AttentionList({
   title,
   items,
-  empty
+  empty,
+  defaultUrgency
 }: {
   title: string;
   items: AttentionItem[];
   empty: string;
+  defaultUrgency: string;
 }) {
   return (
     <div className="space-y-2">
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-        {title}
-      </h3>
+      <div className="flex items-baseline justify-between gap-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+          {title}
+        </h3>
+        <span className="text-xs tabular-nums text-[var(--mpa-color-text-muted)]">{items.length}</span>
+      </div>
       {items.length === 0 ? (
-        <p className="text-sm text-[var(--mpa-color-text-secondary)]">{empty}</p>
+        <p className="rounded-md border border-dashed border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+          {empty}
+        </p>
       ) : (
         <ul className="space-y-2">
-          {items.map((item) => (
-            <li key={item.id}>
-              <Link
-                href={item.href}
-                className="block rounded-md border border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm hover:bg-[var(--mpa-color-bg-subtle,#f7faf9)]"
-              >
-                <span className="font-medium text-[var(--mpa-color-text-primary)]">{item.title}</span>
-                <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-secondary)]">
-                  {item.detail} · {item.domain}
-                </span>
-              </Link>
-            </li>
-          ))}
+          {items.map((item) => {
+            const urgency = item.urgency || defaultUrgency;
+            return (
+              <li key={item.id}>
+                <Link
+                  href={item.href}
+                  className={`block rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2 text-sm transition-colors hover:bg-[var(--mpa-color-bg-subtle,#f7faf9)] ${urgencyEdge(urgency)} ${linkFocus}`}
+                >
+                  <span className="flex flex-wrap items-start justify-between gap-2">
+                    <span className="font-medium text-[var(--mpa-color-text-primary)]">{item.title}</span>
+                    <UrgencyBadge urgency={urgency} />
+                  </span>
+                  <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-secondary)]">
+                    {item.detail} · {item.domain}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
   );
+}
+
+function WorkSection({
+  title,
+  description,
+  children
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <div>
+        <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">{title}</h2>
+        {description ? (
+          <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">{description}</p>
+        ) : null}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function healthFromDaily(daily: NonNullable<MissionControlState["dailyOperations"]>): {
+  label: string;
+  detail: string;
+  variant: "success" | "warning" | "danger";
+} {
+  const immediate = daily.briefing.immediateCount;
+  const waiting = daily.briefing.waitingOnMeCount;
+  const delinquent = daily.financialSnapshot?.delinquencyCount ?? 0;
+  if (immediate > 0 || delinquent > 2) {
+    return {
+      label: "Needs attention",
+      detail: immediate > 0 ? `${immediate} immediate item${immediate === 1 ? "" : "s"}` : "Financial risk signals",
+      variant: "danger"
+    };
+  }
+  if (waiting > 0 || delinquent > 0) {
+    return {
+      label: "Watch",
+      detail: waiting > 0 ? `${waiting} waiting on you` : "Outstanding rent to review",
+      variant: "warning"
+    };
+  }
+  return {
+    label: "Healthy",
+    detail: "No immediate blockers in your attention queues",
+    variant: "success"
+  };
 }
 
 export function MissionControlPage() {
@@ -117,6 +203,13 @@ export function MissionControlPage() {
   const [state, setState] = useState<MissionControlState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const reload = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    setReloadKey((value) => value + 1);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -145,30 +238,37 @@ export function MissionControlPage() {
     return () => {
       cancelled = true;
     };
-  }, [activeOrganization?.id]);
+  }, [activeOrganization?.id, reloadKey]);
 
   const nextAction =
     state?.nextAction ??
     (error
       ? null
       : !setupComplete
-      ? {
-          id: "complete_setup",
-          title: "Finish Guided Setup",
-          detail: "Complete setup before daily operations begin.",
-          href: "/setup",
-          assistantRecommendation: "Finish Guided Setup."
-        }
-      : {
-          id: "add_first_property",
-          title: "Add your first property",
-          detail: "Create and activate a property to begin managing your portfolio.",
-          href: "/pm/properties?new=1",
-          assistantRecommendation: "Add your first property."
-        });
+        ? {
+            id: "complete_setup",
+            title: "Finish Guided Setup",
+            detail: "Complete setup before daily operations begin.",
+            href: "/setup",
+            assistantRecommendation: "Finish Guided Setup."
+          }
+        : {
+            id: "add_first_property",
+            title: "Add your first property",
+            detail: "Create and activate a property to begin managing your portfolio.",
+            href: "/pm/properties?new=1",
+            assistantRecommendation: "Add your first property."
+          });
 
   const daily = state?.dailyOperations;
   const showDailyOps = Boolean(daily);
+  const isFirstRun =
+    Boolean(setupComplete || state?.setupComplete) && (state?.propertyCount ?? 0) === 0 && !showDailyOps;
+  const eyebrow =
+    isFirstRun || (!setupComplete && !showDailyOps)
+      ? "Getting started"
+      : "Daily operations";
+  const health = daily ? healthFromDaily(daily) : null;
 
   return (
     <main className="flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
@@ -179,9 +279,9 @@ export function MissionControlPage() {
         ]}
       />
 
-      <header className="max-w-3xl space-y-2">
+      <header className="max-w-4xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          {productLabel ?? "Property Manager"} · Daily operations
+          {productLabel ?? "Property Manager"} · {eyebrow}
         </p>
         <h1 className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
           Mission Control
@@ -189,12 +289,15 @@ export function MissionControlPage() {
         <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
           {loading
             ? "Loading your attention home…"
-            : (daily?.greeting ?? "Your attention home — start the day here.")}
+            : isFirstRun
+              ? "Congratulations. Your organization is now operational."
+              : (daily?.greeting ?? "Your operational heartbeat — start and end the day here.")}
         </p>
-        <div className="flex flex-wrap gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
           <span>{activeOrganization?.name ?? "Organization"}</span>
-          <span>·</span>
+          <span aria-hidden>·</span>
           <span>{loading ? "…" : `${state?.propertyCount ?? 0} properties`}</span>
+          {health ? <Badge variant={health.variant}>{health.label}</Badge> : null}
           {state?.dailyOpsReady ? <Badge variant="success">Daily ops ready</Badge> : null}
           {state?.ownerPortfolioReady ? (
             <Badge variant="success">Customer promise complete</Badge>
@@ -202,73 +305,184 @@ export function MissionControlPage() {
         </div>
       </header>
 
-      {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
+      {isFirstRun ? (
+        <section
+          aria-label="Welcome"
+          className="max-w-4xl space-y-2 rounded-md border border-[var(--mpa-color-brand-primary)]/30 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] p-5"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+            Welcome
+          </p>
+          <p className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
+            Congratulations. Your organization is now operational.
+          </p>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Guided Setup is complete. Begin with one clear task: add your first property. After that,
+            Mission Control will guide inviting your team, residents, leasing, and daily operations —
+            using the same workflows you already have.
+          </p>
+        </section>
       ) : null}
 
-      <section
-        aria-label="M.P.A. Assistant briefing"
-        className="max-w-4xl space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
-      >
-        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          M.P.A. Assistant
-        </p>
-        {loading ? (
-          <Skeleton className="h-16 w-full" />
-        ) : (
-          <>
-            <p className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-              {state?.assistantRecommendation ??
-                nextAction?.assistantRecommendation ??
-                (error
-                  ? "Mission Control could not load recommendations for this organization."
-                  : "Review your workspace.")}
-            </p>
-            {daily ? (
-              <p className="text-sm text-[var(--mpa-color-text-secondary)]">{daily.briefing.summary}</p>
-            ) : null}
-            {state?.ownerPortfolioReady ? (
-              <p className="text-sm text-emerald-800">
-                I can confidently monitor my investment portfolio using M.P.A.
-              </p>
-            ) : state?.dailyOpsReady ? (
-              <p className="text-sm text-emerald-800">
-                I can run my property management business from this dashboard.
-              </p>
-            ) : null}
-          </>
-        )}
-      </section>
+      {error ? (
+        <div
+          className="flex max-w-4xl flex-wrap items-center justify-between gap-3 rounded-md border border-[#C0392B]/40 bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]"
+          role="alert"
+        >
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={reload}
+            className={`rounded-md border border-[#C0392B]/50 bg-white px-3 py-1.5 text-sm font-medium text-[#C0392B] hover:bg-[#FCE8E6] ${linkFocus}`}
+          >
+            Retry
+          </button>
+        </div>
+      ) : null}
 
-      {nextAction ? (
+      {loading ? (
+        <div className="max-w-5xl space-y-3" aria-busy="true" aria-label="Loading Mission Control">
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      ) : null}
+
+      {!loading && showDailyOps && daily ? (
         <section
-          aria-label="Today's mission"
-          className="max-w-4xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
+          aria-label="At a glance"
+          className="max-w-5xl rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+              At a glance
+            </p>
+            {health ? (
+              <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                Organization: <span className="font-medium text-[var(--mpa-color-text-primary)]">{health.label}</span>
+                {" — "}
+                {health.detail}
+              </p>
+            ) : null}
+          </div>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <li className="rounded-md border border-[#C0392B]/25 bg-[#FCE8E6]/40 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#C0392B]">
+                Immediate attention
+              </p>
+              <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">
+                {daily.briefing.immediateCount}
+              </p>
+              <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                {daily.immediateAttention[0]?.title ?? "Nothing urgent"}
+              </p>
+            </li>
+            <li className="rounded-md border border-amber-200 bg-amber-50/50 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#B45309]">Can wait</p>
+              <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">
+                {daily.briefing.waitingOnOthersCount}
+              </p>
+              <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                Waiting on others · {daily.briefing.waitingOnMeCount} on you
+              </p>
+            </li>
+            <li className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 sm:col-span-2 xl:col-span-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+                Changed today
+              </p>
+              <p className="mt-2 text-sm font-medium leading-5 text-[var(--mpa-color-text-primary)]">
+                {daily.briefing.changedSinceLastLogin}
+              </p>
+            </li>
+            <li className="rounded-md border border-[var(--mpa-color-brand-primary)]/25 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-3 py-2 sm:col-span-2 xl:col-span-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+                Do next
+              </p>
+              <p className="mt-2 text-sm font-medium leading-5 text-[var(--mpa-color-text-primary)]">
+                {daily.briefing.firstTask}
+              </p>
+            </li>
+            <li className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+                Health
+              </p>
+              <p className="mt-1 font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+                {health?.label ?? "—"}
+              </p>
+              <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{health?.detail}</p>
+            </li>
+          </ul>
+        </section>
+      ) : null}
+
+      {!loading ? (
+        <section
+          aria-label="M.P.A. Assistant briefing"
+          className="max-w-4xl space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:p-5"
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Today&apos;s mission
+            M.P.A. Assistant
           </p>
-          <h2 className="text-xl font-semibold text-[var(--mpa-color-text-primary)]">
+          <p className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
+            {state?.assistantRecommendation ??
+              nextAction?.assistantRecommendation ??
+              (error
+                ? "Mission Control could not load recommendations for this organization."
+                : "Review your workspace.")}
+          </p>
+          {daily ? (
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">{daily.briefing.summary}</p>
+          ) : null}
+          {daily?.successCopy ? (
+            <p className="text-sm text-[var(--mpa-color-status-success,#0F6B56)]">{daily.successCopy}</p>
+          ) : null}
+          {state?.ownerPortfolioReady ? (
+            <p className="text-sm text-[var(--mpa-color-status-success,#0F6B56)]">
+              I can confidently monitor my investment portfolio using M.P.A.
+            </p>
+          ) : state?.dailyOpsReady ? (
+            <p className="text-sm text-[var(--mpa-color-status-success,#0F6B56)]">
+              I can run my property management business from this dashboard.
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
+      {!loading && nextAction ? (
+        <section
+          aria-label="Today's mission"
+          className="max-w-4xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:p-5"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+            {isFirstRun ? "Where to begin" : "What should I work on next"}
+          </p>
+          <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
             {nextAction.title}
           </h2>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">{nextAction.detail}</p>
+          {isFirstRun ? (
+            <ol className="list-decimal space-y-1 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
+              <li>Add your first property (name and units are enough to start).</li>
+              <li>Invite teammates when you are ready.</li>
+              <li>Add residents and create leases from Mission Control guidance.</li>
+            </ol>
+          ) : null}
           <Link
             href={nextAction.href}
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48]"
+            className={`inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48] ${linkFocus}`}
           >
             {nextAction.title}
           </Link>
         </section>
       ) : null}
 
-      {loading ? (
-        <Skeleton className="h-64 w-full" />
-      ) : showDailyOps && daily ? (
+      {!loading && showDailyOps && daily ? (
         <OperationsConsoleShell
           context={
-            <div className="flex flex-wrap gap-2 text-sm">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+                Attention bands
+              </span>
               <Badge variant="danger">{daily.briefing.immediateCount} immediate</Badge>
               <Badge variant="warning">{daily.briefing.waitingOnMeCount} waiting on me</Badge>
               <Badge variant="neutral">{daily.briefing.waitingOnOthersCount} waiting on others</Badge>
@@ -281,23 +495,26 @@ export function MissionControlPage() {
                   Attention queue
                 </h2>
                 <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
-                  Existing platform signals — not a second dashboard.
+                  Prioritized platform signals — act from here.
                 </p>
               </div>
               <AttentionList
                 title="Immediate attention"
                 items={daily.immediateAttention}
-                empty="Nothing urgent right now."
+                empty="Nothing urgent right now — organization looks clear on P0."
+                defaultUrgency="immediate"
               />
               <AttentionList
                 title="Waiting on me"
                 items={daily.waitingOnMe}
                 empty="Nothing waiting on you."
+                defaultUrgency="waiting_on_me"
               />
               <AttentionList
                 title="Waiting on others"
                 items={daily.waitingOnOthers}
                 empty="Nothing waiting on others."
+                defaultUrgency="waiting_on_others"
               />
               <div className="space-y-2">
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
@@ -309,7 +526,7 @@ export function MissionControlPage() {
                   <ul className="space-y-1 text-sm">
                     {daily.notifications.map((item) => (
                       <li key={item.id}>
-                        <Link href={item.href} className="underline">
+                        <Link href={item.href} className={`underline ${linkFocus}`}>
                           {item.title}
                         </Link>
                       </li>
@@ -320,23 +537,28 @@ export function MissionControlPage() {
             </div>
           }
           workPlane={
-            <div className="space-y-6 p-4">
-              <div>
-                <h2 className="text-sm font-semibold">Recommended actions</h2>
+            <div className="space-y-8 p-4">
+              <WorkSection
+                title="Do next"
+                description="Recommended actions and shortcuts into existing workflows."
+              >
                 {daily.recommendedActions.length === 0 ? (
-                  <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                  <p className="text-sm text-[var(--mpa-color-text-secondary)]">
                     Portfolio looks clear — use Quick Actions to continue.
                   </p>
                 ) : (
-                  <ul className="mt-2 space-y-2">
+                  <ul className="space-y-2">
                     {daily.recommendedActions.map((item, index) => (
                       <li key={item.id}>
                         <Link
                           href={item.href}
-                          className="flex items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 text-sm"
+                          className={`flex items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 text-sm hover:bg-[var(--mpa-color-bg-subtle,#f7faf9)] ${linkFocus}`}
                         >
                           <span>
-                            {index + 1}. {item.title}
+                            <span className="tabular-nums text-[var(--mpa-color-text-muted)]">
+                              {index + 1}.
+                            </span>{" "}
+                            {item.title}
                           </span>
                           <span className="text-xs text-[var(--mpa-color-text-secondary)]">
                             {item.domain}
@@ -346,147 +568,182 @@ export function MissionControlPage() {
                     ))}
                   </ul>
                 )}
-              </div>
-
-              <div>
-                <h2 className="text-sm font-semibold">Quick actions</h2>
-                <p className="mt-0.5 text-xs text-[var(--mpa-color-text-secondary)]">
-                  Launch existing workflows only.
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {daily.quickActions.map((action) => (
-                    <Link
-                      key={action.id}
-                      href={action.href}
-                      className="rounded-md border border-[var(--mpa-color-brand-primary)] bg-white px-3 py-1.5 text-sm font-medium"
-                    >
-                      {action.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid gap-4 lg:grid-cols-2">
-                <div>
-                  <h2 className="text-sm font-semibold">Property financial snapshot</h2>
-                  {daily.financialSnapshot ? (
-                    <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Collected</dt>
-                        <dd>{formatMoney(daily.financialSnapshot.rentCollectedThisMonth)}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Outstanding</dt>
-                        <dd>{formatMoney(daily.financialSnapshot.outstandingRent)}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Delinquent</dt>
-                        <dd>{daily.financialSnapshot.delinquencyCount}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Vendor approvals</dt>
-                        <dd>{daily.financialSnapshot.vendorInvoicesAwaitingApproval}</dd>
-                      </div>
-                    </dl>
-                  ) : (
-                    <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-                      Open{" "}
-                      <Link href="/pm/financial-operations" className="underline">
-                        Financial Operations
-                      </Link>{" "}
-                      for money detail.
-                    </p>
-                  )}
-                  {daily.financeAlerts.length > 0 ? (
-                    <ul className="mt-2 space-y-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                      {daily.financeAlerts.slice(0, 3).map((alert) => (
-                        <li key={alert}>• {alert}</li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </div>
-
-                <div>
-                  <h2 className="text-sm font-semibold">Open maintenance</h2>
-                  {daily.openMaintenance.length === 0 ? (
-                    <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No open work orders.</p>
-                  ) : (
-                    <ul className="mt-2 space-y-1 text-sm">
-                      {daily.openMaintenance.map((row) => (
-                        <li key={row.id}>
-                          <Link href={row.href} className="underline">
-                            {row.title}
-                          </Link>{" "}
-                          <span className="text-xs text-[var(--mpa-color-text-secondary)]">
-                            · {row.status} · {row.priority}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                <div>
-                  <h2 className="text-sm font-semibold">Upcoming leases</h2>
-                  {daily.upcomingLeases.length === 0 ? (
-                    <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-                      No leases awaiting signature/activation.
-                    </p>
-                  ) : (
-                    <ul className="mt-2 space-y-1 text-sm">
-                      {daily.upcomingLeases.map((lease) => (
-                        <li key={lease.id}>
-                          <Link href={lease.href} className="underline">
-                            {lease.residentName}
-                          </Link>{" "}
-                          <span className="text-xs text-[var(--mpa-color-text-secondary)]">
-                            · {lease.propertyName} · {lease.status}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                <div>
-                  <h2 className="text-sm font-semibold">Resident & vendor alerts</h2>
-                  <ul className="mt-2 space-y-1 text-sm">
-                    {daily.residentAlerts.map((item) => (
-                      <li key={item.id}>
-                        <Link href={item.href} className="underline">
-                          {item.title}
-                        </Link>{" "}
-                        <span className="text-xs text-[var(--mpa-color-text-secondary)]">
-                          · {item.detail}
-                        </span>
-                      </li>
+                <div className="mt-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+                    Quick actions
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {daily.quickActions.map((action) => (
+                      <Link
+                        key={action.id}
+                        href={action.href}
+                        className={`rounded-md border border-[var(--mpa-color-brand-primary)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-text-primary)] hover:bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] ${linkFocus}`}
+                      >
+                        {action.label}
+                      </Link>
                     ))}
-                    {daily.vendorAlerts.map((item) => (
-                      <li key={item.id}>
-                        <Link href={item.href} className="underline">
-                          {item.title}
+                  </div>
+                </div>
+              </WorkSection>
+
+              <WorkSection
+                title="Portfolio signals"
+                description="Healthy vs at-risk signals from finance, maintenance, leases, and people."
+              >
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                      Financial snapshot
+                    </h3>
+                    {daily.financialSnapshot ? (
+                      <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Collected</dt>
+                          <dd className="font-medium">
+                            {formatMoney(daily.financialSnapshot.rentCollectedThisMonth)}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Outstanding</dt>
+                          <dd
+                            className={
+                              daily.financialSnapshot.outstandingRent > 0
+                                ? "font-medium text-[#B45309]"
+                                : "font-medium"
+                            }
+                          >
+                            {formatMoney(daily.financialSnapshot.outstandingRent)}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Delinquent</dt>
+                          <dd
+                            className={
+                              daily.financialSnapshot.delinquencyCount > 0
+                                ? "font-medium text-[#C0392B]"
+                                : "font-medium"
+                            }
+                          >
+                            {daily.financialSnapshot.delinquencyCount}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-[var(--mpa-color-text-secondary)]">Vendor approvals</dt>
+                          <dd className="font-medium">
+                            {daily.financialSnapshot.vendorInvoicesAwaitingApproval}
+                          </dd>
+                        </div>
+                      </dl>
+                    ) : (
+                      <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                        Open{" "}
+                        <Link href="/pm/financial-operations" className={`underline ${linkFocus}`}>
+                          Financial Operations
                         </Link>{" "}
-                        <span className="text-xs text-[var(--mpa-color-text-secondary)]">
-                          · {item.detail}
-                        </span>
-                      </li>
-                    ))}
-                    {daily.residentAlerts.length === 0 && daily.vendorAlerts.length === 0 ? (
-                      <li className="text-[var(--mpa-color-text-secondary)]">No resident/vendor alerts.</li>
+                        for money detail.
+                      </p>
+                    )}
+                    {daily.financeAlerts.length > 0 ? (
+                      <ul className="mt-2 space-y-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                        {daily.financeAlerts.slice(0, 3).map((alert) => (
+                          <li key={alert}>• {alert}</li>
+                        ))}
+                      </ul>
                     ) : null}
-                  </ul>
-                </div>
-              </div>
+                  </div>
 
-              <div>
-                <h2 className="text-sm font-semibold">Recent activity</h2>
+                  <div className="rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                      Open maintenance
+                    </h3>
+                    {daily.openMaintenance.length === 0 ? (
+                      <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                        No open work orders — maintenance looks healthy.
+                      </p>
+                    ) : (
+                      <ul className="mt-2 space-y-2 text-sm">
+                        {daily.openMaintenance.map((row) => (
+                          <li key={row.id} className="flex flex-wrap items-center justify-between gap-2">
+                            <Link href={row.href} className={`font-medium underline ${linkFocus}`}>
+                              {row.title}
+                            </Link>
+                            <span className="flex flex-wrap gap-1">
+                              <Badge variant="neutral">{row.status}</Badge>
+                              <Badge variant={priorityBadgeVariant(row.priority)}>{row.priority}</Badge>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div className="rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                      Upcoming leases
+                    </h3>
+                    {daily.upcomingLeases.length === 0 ? (
+                      <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                        No leases awaiting signature/activation.
+                      </p>
+                    ) : (
+                      <ul className="mt-2 space-y-1 text-sm">
+                        {daily.upcomingLeases.map((lease) => (
+                          <li key={lease.id}>
+                            <Link href={lease.href} className={`underline ${linkFocus}`}>
+                              {lease.residentName}
+                            </Link>{" "}
+                            <span className="text-xs text-[var(--mpa-color-text-secondary)]">
+                              · {lease.propertyName} · {lease.status}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div className="rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                      Resident & vendor alerts
+                    </h3>
+                    <ul className="mt-2 space-y-1 text-sm">
+                      {daily.residentAlerts.map((item) => (
+                        <li key={item.id}>
+                          <Link href={item.href} className={`underline ${linkFocus}`}>
+                            {item.title}
+                          </Link>{" "}
+                          <span className="text-xs text-[var(--mpa-color-text-secondary)]">
+                            · {item.detail}
+                          </span>
+                        </li>
+                      ))}
+                      {daily.vendorAlerts.map((item) => (
+                        <li key={item.id}>
+                          <Link href={item.href} className={`underline ${linkFocus}`}>
+                            {item.title}
+                          </Link>{" "}
+                          <span className="text-xs text-[var(--mpa-color-text-secondary)]">
+                            · {item.detail}
+                          </span>
+                        </li>
+                      ))}
+                      {daily.residentAlerts.length === 0 && daily.vendorAlerts.length === 0 ? (
+                        <li className="text-[var(--mpa-color-text-secondary)]">
+                          No resident/vendor alerts.
+                        </li>
+                      ) : null}
+                    </ul>
+                  </div>
+                </div>
+              </WorkSection>
+
+              <WorkSection title="Recent activity" description="What moved recently across your portfolio.">
                 {daily.recentActivity.length === 0 ? (
-                  <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No recent finance activity.</p>
+                  <p className="text-sm text-[var(--mpa-color-text-secondary)]">No recent finance activity.</p>
                 ) : (
-                  <ul className="mt-2 space-y-2 text-sm">
+                  <ul className="space-y-2 text-sm">
                     {daily.recentActivity.map((item) => (
                       <li key={item.id} className="border-b border-[var(--mpa-color-border-subtle)] py-1">
-                        <Link href={item.href} className="font-medium underline">
+                        <Link href={item.href} className={`font-medium underline ${linkFocus}`}>
                           {item.title}
                         </Link>
                         <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-secondary)]">
@@ -496,49 +753,57 @@ export function MissionControlPage() {
                     ))}
                   </ul>
                 )}
-              </div>
-
-              <div>
-                <h2 className="text-sm font-semibold">Timeline</h2>
-                <div className="mt-2">
-                  <TimelineView
-                    items={daily.timeline.map((item) => ({
-                      id: item.id,
-                      title: item.title,
-                      detail: item.detail,
-                      occurredAtLabel: item.occurredAt
-                    }))}
-                    empty={
-                      <p className="text-sm text-[var(--mpa-color-text-secondary)]">No recent timeline events.</p>
-                    }
-                  />
+                <div className="mt-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                    Timeline
+                  </h3>
+                  <div className="mt-2">
+                    <TimelineView
+                      items={daily.timeline.map((item) => ({
+                        id: item.id,
+                        title: item.title,
+                        detail: item.detail,
+                        occurredAtLabel: item.occurredAt
+                      }))}
+                      empty={
+                        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                          No recent timeline events.
+                        </p>
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
+              </WorkSection>
             </div>
           }
         />
-      ) : (
-        <EmptyState
-          title="Complete earlier journeys to unlock daily operations"
-          description="Add a property, team, resident, lease, rent, and maintenance — then Mission Control becomes your daily attention home."
-        />
-      )}
+      ) : null}
+
+      {!loading && !showDailyOps ? (
+        isFirstRun ? (
+          <EmptyState
+            title="Add your first property to unlock daily operations"
+            description="Mission Control becomes your daily attention home after you create a property. Use the button above to begin — name and units are enough."
+          />
+        ) : (
+          <EmptyState
+            title="Daily operations unlock as you configure your portfolio"
+            description="When you have a property (and continue setup), Mission Control shows attention queues, financial snapshots, and recommended actions."
+          />
+        )
+      ) : null}
 
       {state && state.properties.length > 0 ? (
         <section className="max-w-4xl space-y-3">
-          <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-            Your properties
-          </h2>
+          <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Your properties</h2>
           <ul className="grid gap-2 md:grid-cols-2">
             {state.properties.map((property) => (
               <li key={property.id}>
                 <Link
                   href={`/pm/properties/${property.id}`}
-                  className="flex items-center justify-between rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3 text-sm hover:bg-gray-50"
+                  className={`flex items-center justify-between rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3 text-sm hover:bg-[var(--mpa-color-bg-subtle,#f7faf9)] ${linkFocus}`}
                 >
-                  <span className="font-medium text-[var(--mpa-color-text-primary)]">
-                    {property.name}
-                  </span>
+                  <span className="font-medium text-[var(--mpa-color-text-primary)]">{property.name}</span>
                   <span className="text-xs text-[var(--mpa-color-text-secondary)]">
                     {property.status} · {property.unitCount} units
                   </span>

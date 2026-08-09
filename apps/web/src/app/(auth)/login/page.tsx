@@ -1,12 +1,13 @@
 import { Suspense } from "react";
+import { AuthChrome, AuthLoadingCard } from "../../../components/auth/auth-chrome";
 import { LoginForm } from "../../../components/shell/login-form";
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <Suspense fallback={<p className="text-sm">Loading…</p>}>
+    <AuthChrome>
+      <Suspense fallback={<AuthLoadingCard label="Preparing sign-in…" />}>
         <LoginForm />
       </Suspense>
-    </main>
+    </AuthChrome>
   );
 }

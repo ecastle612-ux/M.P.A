@@ -86,7 +86,11 @@ export function acquisitionHref(
   }
 }
 
-/** Next href after pricing selection — Confirm Plan for the chosen platform. */
+/**
+ * Next href after pricing selection — Confirm Plan for the chosen platform.
+ * Public URLs omit internal Stripe plan-tier mapping (`professional`); Confirm Plan
+ * defaults the offer mapping. `planTier` remains on the input for callers that resolve offers.
+ */
 export function commercialContinueHref(input: {
   productSku: ProductSku;
   planTier: PlanTier;
@@ -94,7 +98,6 @@ export function commercialContinueHref(input: {
 }): string {
   return acquisitionHref("checkout", {
     sku: input.productSku,
-    planTier: input.planTier,
     billingCycle: input.billingCycle
   });
 }
