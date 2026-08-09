@@ -1,8 +1,9 @@
 # 51 — Phase 3 Production Polish
 
-**Status:** Sprint 2 complete — **STOP** awaiting Owner acceptance before Sprint 3  
+**Status:** Sprints 1 → 1.1 → 2 **merged + Production verified** — **STOP** before Sprint 3  
+**Production SHA:** `0ea36a18ab8bb9fb8e4975082898b8ac5a829091` · deploy `285YZbYBhngEqKHd4bEL6LiaZbDk`  
 **Gate:** Bug-fix / polish only — no workflow, pricing, product, or ADR-019 changes  
-**Authorization:** Phase 3 Production Polish · Sprint 1 → 1.1 → 2 (Guided Setup)
+**Authorization:** Phase 3 Production Polish · Sprint 1 → 1.1 → 2 (Guided Setup) · Deploy authorized
 
 ## Sequence
 
@@ -10,7 +11,7 @@
 Design → Document → Approve → Implement
 ```
 
-Sprint 3 (Mission Control polish program) must not begin until Owner accepts Sprint 2.
+Sprint 3 (Mission Control polish program) must not begin until Owner accepts Production Verification.
 
 ## Sprint 2 — Guided Setup Experience
 
@@ -42,6 +43,9 @@ Sprint 3 (Mission Control polish program) must not begin until Owner accepts Spr
 | [First Run Experience Report](./sprint-2-first-run-experience-report.md) | MC handoff |
 | [Sprint 2 Regression Report](./sprint-2-regression-report.md) | Verification |
 | [Sprint 2 Accessibility Report](./sprint-2-accessibility-report.md) | A11y notes |
+| [Deployment Report](./deployment-report.md) | Preview diagnosis · merge · Production deploy |
+| [Post-Deploy Regression Report](./post-deploy-regression-report.md) | www regression after merge |
+| [Production Verification](./production-verification.md) | Live confirm S1 / S1.1 / S2 |
 
 ## Constraints (binding)
 

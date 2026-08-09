@@ -76,7 +76,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 48 | [BUG-008 Production Sync & Constitution](./48-bug-008-production-sync/index.md) | **Audited** · Constitution PASS · Demos FAIL |
 | 49 | [BUG-009 Demo Platform Recovery](./49-bug-009-demo-platform-recovery/index.md) | **Fixed** · Production `3af2916` · all three demos Pass |
 | 50 | [BUG-010 / BUG-012 Checkout Onboarding](./50-bug-010-stripe-checkout-onboarding/bug-012-execution-report.md) | Onboarding certification · see BUG-012 report |
-| 51 | [Phase 3 Production Polish](./51-phase-3-production-polish/index.md) | Sprint 1 Public Experience — Authorized · polish only |
+| 51 | [Phase 3 Production Polish](./51-phase-3-production-polish/index.md) | Sprints 1–2 merged · Production `0ea36a1` · STOP before Sprint 3 |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
