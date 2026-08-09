@@ -12,3 +12,18 @@ Lease · Work Order · Inspection · Maintenance · Move-in · Move-out · Vendo
 - Body from `contentText` with wrapping
 - Suitable for print/share with customers, vendors, auditors, owners
 - Binary-only docs still export a branded cover + honesty note when text is empty
+
+## LIVE smoke (2026-08-09)
+
+`buildProfessionalPdf` executed against Production code SHA `1bf28c697a99f901243793d7b4de07b555b43be6`:
+
+| Required template | Result |
+| --- | --- |
+| Lease Agreement | **PASS** |
+| Work Order | **PASS** |
+| Inspection Report | **PASS** |
+| Vendor Invoice | **PASS** |
+| Property Report | **PASS** |
+| Asset Report | **PASS** |
+
+Artifacts: `/opt/cursor/artifacts/sprint6-pdf-smoke/`. Authenticated browser download remains Owner LIVE.

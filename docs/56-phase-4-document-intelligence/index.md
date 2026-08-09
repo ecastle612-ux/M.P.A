@@ -1,8 +1,8 @@
 # 56 — Phase 4 Document Intelligence Center
 
-**Status:** Sprint 6 **implemented** — awaiting Owner acceptance → merge → Production → LIVE  
-**Authority:** Owner Phase 4 Sprint 6 authorization  
-**Rule:** Do **not** begin Sprint 7 until Sprint 6 is LIVE and Owner-accepted.
+**Status:** Sprint 6 **LIVE** — awaiting Owner LIVE acceptance  
+**Authority:** Owner Phase 4 Sprint 6 authorization · PR #93 merged  
+**Rule:** Do **not** begin Sprint 7 until Owner LIVE acceptance.
 
 ## Documents
 
@@ -18,8 +18,10 @@
 | [Accessibility](./sprint-6-accessibility-report.md) | A11y |
 | [Performance](./sprint-6-performance-report.md) | Perf |
 | [Regression](./sprint-6-regression-report.md) | Non-DIC |
+| [LIVE Verification](./sprint-6-live-verification.md) | Production deploy closeout |
 | [Quality Score](./sprint-6-quality-score.md) | Scorecard |
 | [Screenshots](./screenshots-sprint-6/) | Fixtures |
+| [LIVE Screenshots](./screenshots-sprint-6-live/) | Production captures |
 
 ## Summary
 
