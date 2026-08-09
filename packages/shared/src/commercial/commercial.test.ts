@@ -49,6 +49,15 @@ describe("navigation and launcher awareness", () => {
     expect(groups.some((group) => group.id === "facility_operations")).toBe(false);
   });
 
+  it("surfaces Reporting beside Documents in Shared Platform nav", () => {
+    const groups = navigationGroupsForSku("mpa_property_manager");
+    const shared = groups.find((group) => group.id === "shared");
+    const hrefs = shared?.items.map((item) => item.href) ?? [];
+    expect(hrefs).toContain("/shared/documents");
+    expect(hrefs).toContain("/shared/reports");
+    expect(hasEntitlement(entitlementsForSku("mpa_property_manager"), "platform.reports")).toBe(true);
+  });
+
   it("surfaces Team beside Organization in Shared Platform nav", () => {
     const groups = navigationGroupsForSku("mpa_property_manager");
     const shared = groups.find((group) => group.id === "shared");

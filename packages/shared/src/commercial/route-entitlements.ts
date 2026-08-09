@@ -56,6 +56,9 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
   if (path.startsWith("/shared/documents")) {
     return "platform.documents";
   }
+  if (path.startsWith("/shared/reports")) {
+    return "platform.reports";
+  }
   if (path.startsWith("/shared/communications")) {
     return "platform.communications";
   }
@@ -260,6 +263,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     );
 
     push(decisionPath("/shared/documents", "Documents", "Shared Platform", "platform.documents"));
+    push(decisionPath("/shared/reports", "Reporting & Analytics", "Shared Platform", "platform.reports"));
     push(decisionPath("/shared/communications", "Communications", "Shared Platform", "platform.communications"));
   }
 

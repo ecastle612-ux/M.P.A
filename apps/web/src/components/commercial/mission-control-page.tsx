@@ -588,6 +588,12 @@ export function MissionControlPage() {
                     >
                       Documents
                     </Link>
+                    <Link
+                      href="/shared/reports"
+                      className={`rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-text-primary)] hover:border-[var(--mpa-color-brand-primary)] ${linkFocus}`}
+                    >
+                      Reporting
+                    </Link>
                   </div>
                 </div>
               </WorkSection>

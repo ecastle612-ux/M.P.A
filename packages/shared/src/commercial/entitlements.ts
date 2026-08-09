@@ -8,6 +8,7 @@ export const PLATFORM_ENTITLEMENTS = [
   "platform.org",
   "platform.documents",
   "platform.communications",
+  "platform.reports",
   "platform.search",
   "platform.quick_actions",
   "platform.launcher",
