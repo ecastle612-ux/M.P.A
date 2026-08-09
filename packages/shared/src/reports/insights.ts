@@ -61,6 +61,14 @@ export type RawReportingFacts = {
     setupComplete: boolean;
   } | null;
   vendors: { id: string; name: string; status?: string | null }[];
+  /** Phase 5 leasing facts — optional so existing callers stay valid. */
+  applications?: {
+    id: string;
+    status: string;
+    submittedAt?: string | null;
+    decidedAt?: string | null;
+    propertyId?: string | null;
+  }[];
 };
 
 function money(n: number): string {
@@ -165,6 +173,27 @@ export function buildReportingInsights(facts: RawReportingFacts, now = new Date(
         href: "/pm/leasing",
         metricLabel: "Expiring ≤30d",
         metricValue: String(expiringLeases.length)
+      })
+    );
+  }
+
+  const applications = facts.applications ?? [];
+  const openApplications = applications.filter((a) =>
+    ["draft", "submitted", "incomplete", "screening_pending"].includes(a.status)
+  );
+  const approvedApplications = applications.filter((a) => a.status === "approved");
+  if (openApplications.length > 0) {
+    insights.push(
+      insight({
+        id: "applications-open",
+        area: "property_operations",
+        tone: "watch",
+        headline: `${openApplications.length} application${openApplications.length === 1 ? "" : "s"} in leasing pipeline`,
+        detail: `${approvedApplications.length} approved · ready for lease when screening completes.`,
+        decision: "Review applications awaiting decision in Leasing.",
+        href: "/pm/leasing#applications",
+        metricLabel: "Open applications",
+        metricValue: String(openApplications.length)
       })
     );
   }
@@ -413,6 +442,18 @@ export function buildReportingAreas(facts: RawReportingFacts, now = new Date()):
     );
   }
   propertyMetrics.push(metric("property_operations", "lease-expire", "Leases ≤60d", String(expiring.length)));
+  const apps = facts.applications ?? [];
+  if (apps.length > 0) {
+    const decided = apps.filter((a) => a.status === "approved" || a.status === "denied");
+    const approved = apps.filter((a) => a.status === "approved").length;
+    const approvalPct = decided.length > 0 ? Math.round((approved / decided.length) * 100) : null;
+    propertyMetrics.push(metric("property_operations", "apps", "Applications", String(apps.length)));
+    if (approvalPct !== null) {
+      propertyMetrics.push(
+        metric("property_operations", "app-approval", "Approval %", `${approvalPct}%`)
+      );
+    }
+  }
 
   const propertyRows: ReportingTableRow[] = expiring.slice(0, 8).map((lease) => {
     const row: ReportingTableRow = {

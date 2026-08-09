@@ -22,12 +22,18 @@ const TEMPLATE_TITLES: Record<PdfExportTemplate, string> = {
   resident_statement: "Resident Statement",
   financial_report: "Financial Report",
   organization_report: "Organization Report",
+  rental_application: "Rental Application",
+  approval_letter: "Approval Letter",
+  denial_letter: "Denial Letter",
+  lease_summary: "Lease Summary",
+  move_in_checklist: "Move-In Checklist",
   generic: "Document"
 };
 
 function inferTemplate(document: DocumentRecord, explicit?: PdfExportTemplate): PdfExportTemplate {
   if (explicit) return explicit;
   if (document.category === "lease" || document.entityType === "lease") return "lease";
+  if (document.entityType === "application") return "rental_application";
   if (document.category === "invoice") return "invoice";
   if (document.category === "inspection" || document.entityType === "inspection") return "inspection";
   if (document.category === "compliance" || document.entityType === "compliance") return "compliance";

@@ -1,0 +1,6 @@
+Phase 5 Sprint 1 — screenshot capture summary
+
+Before: Leasing was lease-list + create wizard only.
+After: Same /pm/leasing route with Prospects → Move-outs pipeline; MC daily-ops extended; DIC application entity; PDF template ids; notification catalog.
+
+Auth-gated UI captures deferred to Owner LIVE acceptance when credentials are available.

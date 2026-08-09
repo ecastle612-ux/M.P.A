@@ -1,22 +1,46 @@
 import { z } from "zod";
 
-/** Launch lifecycle statuses — driven by workflow, not free-form labels. */
+/**
+ * Person lifecycle statuses — one pm_residents record; status changes only.
+ * Phase 5 Sprint 1 extends J3 statuses with applicant / screening / approved / archived.
+ */
 export const RESIDENT_STATUSES = [
   "prospect",
+  "applicant",
+  "screening_pending",
+  "approved",
   "pending_lease",
   "pending_move_in",
   "active",
-  "former"
+  "former",
+  "archived"
 ] as const;
 export type ResidentStatus = (typeof RESIDENT_STATUSES)[number];
 
 export const RESIDENT_STATUS_LABELS: Record<ResidentStatus, string> = {
   prospect: "Prospect",
-  pending_lease: "Pending Lease",
+  applicant: "Applicant",
+  screening_pending: "Screening Pending",
+  approved: "Approved",
+  pending_lease: "Lease Pending",
   pending_move_in: "Pending Move-In",
-  active: "Active Resident",
-  former: "Former Resident"
+  active: "Resident",
+  former: "Former Resident",
+  archived: "Archived"
 };
+
+/** Canonical leasing person path (status-only progression). */
+export const PERSON_LIFECYCLE_PATH: readonly ResidentStatus[] = [
+  "prospect",
+  "applicant",
+  "screening_pending",
+  "approved",
+  "pending_lease",
+  "pending_move_in",
+  "active",
+  "former",
+  "archived"
+];
 
 /** Portal provisioning before a signed lease stays Pending Activation. */
 export const RESIDENT_PORTAL_STATUSES = ["pending_activation", "active", "disabled"] as const;

@@ -10,7 +10,8 @@ export const DOCUMENT_ENTITY_TYPES = [
   "inspection",
   "compliance",
   "financial",
-  "building"
+  "building",
+  "application"
 ] as const;
 
 export type DocumentEntityType = (typeof DOCUMENT_ENTITY_TYPES)[number];
@@ -27,7 +28,8 @@ export const DOCUMENT_ENTITY_LABELS: Record<DocumentEntityType, string> = {
   inspection: "Inspection",
   compliance: "Compliance",
   financial: "Financial Record",
-  building: "Building"
+  building: "Building",
+  application: "Application"
 };
 
 export const DOCUMENT_CATEGORIES = [
@@ -92,6 +94,11 @@ export const PDF_EXPORT_TEMPLATES = [
   "resident_statement",
   "financial_report",
   "organization_report",
+  "rental_application",
+  "approval_letter",
+  "denial_letter",
+  "lease_summary",
+  "move_in_checklist",
   "generic"
 ] as const;
 
