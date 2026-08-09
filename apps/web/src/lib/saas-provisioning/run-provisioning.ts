@@ -6,6 +6,7 @@ import {
   nextProvisioningCheckpoint,
   resumeFromRetryable,
   transitionProvisioning,
+  type ProvisioningCheckpoint,
   type ProvisioningJob
 } from "@mpa/shared";
 import { createOrganizationSlugFromName } from "../organization/contracts";
@@ -300,20 +301,15 @@ export async function startOrAdvanceProvisioningFromPurchase(
   });
 
   // Advance automatically through owner_pending (identity bind waits for user).
-  while (
-    isProvisioningCheckpoint(job.checkpoint) &&
-    job.checkpoint !== "owner_pending" &&
-    job.checkpoint !== "failed_retryable" &&
-    job.checkpoint !== "failed_dead" &&
-    job.checkpoint !== "ready"
-  ) {
-    const before = job.checkpoint;
+  while (isProvisioningCheckpoint(job.checkpoint) && job.checkpoint !== "owner_pending") {
+    const before: ProvisioningCheckpoint = job.checkpoint;
     const advanced = await advanceOneCheckpoint(job);
     job = advanced;
+    // Stop on claim wait, terminal/non-checkpoint statuses, or a no-op stall.
     if (
-      !isProvisioningCheckpoint(job.checkpoint) ||
       job.checkpoint === "owner_pending" ||
-      job.checkpoint === before
+      job.checkpoint === before ||
+      !isProvisioningCheckpoint(job.checkpoint)
     ) {
       break;
     }
