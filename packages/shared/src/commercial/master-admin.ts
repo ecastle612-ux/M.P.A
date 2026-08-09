@@ -26,8 +26,8 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
     items: [
       {
         href: "/admin",
-        label: "Platform Operating System",
-        description: "Operator headquarters across all products.",
+        label: "Command Center",
+        description: "Platform health, commercial pulse, and recent operator activity.",
         status: "aligned"
       },
       {
