@@ -1,11 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Badge, Button, EmptyState, Skeleton } from "@mpa/ui";
-import { Breadcrumbs } from "../shell/breadcrumbs";
+import { Button, EmptyState, Skeleton } from "@mpa/ui";
 import { PropertyCreateWizard } from "./property-create-wizard";
+import {
+  PmDirectoryToolbar,
+  PmDocumentsStrip,
+  PmEntityCard,
+  PmErrorRetry,
+  PmPageChrome,
+  PmQuickActions,
+  documentsHref
+} from "../shell/pm-workspace";
 
 type PortfolioProperty = {
   id: string;
@@ -22,6 +29,8 @@ export function PropertiesDirectory() {
   const [error, setError] = useState<string | null>(null);
   const [wizardDismissed, setWizardDismissed] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,30 +60,30 @@ export function PropertiesDirectory() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return properties;
+    return properties.filter((property) => {
+      const units = (property.property_units ?? []).map((u) => u.unit_label).join(" ");
+      return `${property.name} ${property.status} ${units}`.toLowerCase().includes(q);
+    });
+  }, [properties, query]);
 
   const empty = !loading && !error && properties.length === 0;
   const showWizard = manualOpen || ((startWithWizard || empty) && !wizardDismissed);
 
   return (
-    <main className="flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
-      <Breadcrumbs
-        items={[
-          { href: "/pm/mission-control", label: "Mission Control" },
-          { label: "Properties" }
-        ]}
-      />
-
-      <header className="flex max-w-3xl flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
-            Properties
-          </h1>
-          <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-            Your portfolio directory. Create a property once — it appears across Mission Control,
-            search, and operations.
-          </p>
-        </div>
+    <PmPageChrome
+      crumbs={[
+        { href: "/pm/mission-control", label: "Mission Control" },
+        { label: "Properties" }
+      ]}
+      eyebrow="Property Manager · Portfolio"
+      title="Properties"
+      description="Your portfolio directory. Open a property for units, residents, maintenance, and documents — then act from Mission Control."
+      actions={
         <Button
           type="button"
           onClick={() => {
@@ -84,7 +93,15 @@ export function PropertiesDirectory() {
         >
           Add property
         </Button>
-      </header>
+      }
+    >
+      <PmQuickActions
+        actions={[
+          { href: "/pm/mission-control", label: "Mission Control" },
+          { href: "/pm/maintenance", label: "Maintenance" },
+          { href: documentsHref("property"), label: "Property documents" }
+        ]}
+      />
 
       {showWizard ? (
         <PropertyCreateWizard
@@ -100,49 +117,78 @@ export function PropertiesDirectory() {
       ) : null}
 
       {loading ? (
-        <div className="space-y-3">
+        <div className="space-y-3" aria-busy="true">
+          <Skeleton className="h-12 w-full" />
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
         </div>
       ) : null}
 
-      {error ? <EmptyState title="Unable to load properties" description={error} /> : null}
+      {error ? (
+        <PmErrorRetry
+          title="Unable to load properties"
+          description={error}
+          onRetry={() => {
+            setLoading(true);
+            setError(null);
+            setReloadKey((k) => k + 1);
+          }}
+        />
+      ) : null}
 
       {!loading && !error && properties.length > 0 ? (
-        <ul className="grid gap-3 lg:grid-cols-2">
-          {properties.map((property) => {
-            const unitCount = property.property_units?.length ?? 0;
-            return (
-              <li
-                key={property.id}
-                className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <h2 className="text-base font-semibold">
-                      <Link
-                        href={`/pm/properties/${property.id}`}
+        <>
+          <PmDirectoryToolbar
+            id="pm-properties-search"
+            value={query}
+            onChange={setQuery}
+            placeholder="Search properties or units…"
+            showing={filtered.length}
+            total={properties.length}
+          />
+          {filtered.length === 0 ? (
+            <EmptyState
+              title="No matching properties"
+              description="Try a different name or clear the search."
+            />
+          ) : (
+            <ul className="grid gap-3 lg:grid-cols-2">
+              {filtered.map((property) => {
+                const unitCount = property.property_units?.length ?? 0;
+                const available =
+                  property.property_units?.filter((u) => u.status === "available").length ?? 0;
+                return (
+                  <PmEntityCard
+                    key={property.id}
+                    title={property.name}
+                    href={`/pm/properties/${property.id}`}
+                    meta={`${unitCount} unit${unitCount === 1 ? "" : "s"} · ${available} available`}
+                    status={property.status}
+                    footer="Open Property Command Center for units, residents, maintenance, and documents."
+                  >
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                      <a
+                        href={documentsHref("property", property.name)}
                         className="text-[var(--mpa-color-brand-primary)] underline"
                       >
-                        {property.name}
-                      </Link>
-                    </h2>
-                    <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                      {unitCount} unit{unitCount === 1 ? "" : "s"}
-                    </p>
-                  </div>
-                  <Badge variant={property.status === "active" ? "success" : "neutral"}>
-                    {property.status}
-                  </Badge>
-                </div>
-                <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">
-                  Open Property Command Center to continue.
-                </p>
-              </li>
-            );
-          })}
-        </ul>
+                        Documents
+                      </a>
+                      <a
+                        href={`/pm/properties/${property.id}/money`}
+                        className="text-[var(--mpa-color-brand-primary)] underline"
+                      >
+                        Money
+                      </a>
+                    </div>
+                  </PmEntityCard>
+                );
+              })}
+            </ul>
+          )}
+        </>
       ) : null}
-    </main>
+
+      {!loading && !error ? <PmDocumentsStrip entityType="property" title="Property documents" /> : null}
+    </PmPageChrome>
   );
 }

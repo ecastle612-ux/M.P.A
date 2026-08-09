@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Badge, EmptyState, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 
 type CommandCenter = {
   property: {
@@ -158,7 +159,21 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
           {data.property.unitsOccupied} occupied · {data.property.residentsAssigned} residents
           assigned ({data.property.unitsAssigned} units)
         </p>
+        <PmQuickActions
+          actions={[
+            { href: data.nextJourney.href, label: data.nextJourney.title, primary: true },
+            { href: `/pm/properties/${propertyId}/money`, label: "Money" },
+            { href: "/pm/maintenance", label: "Maintenance" },
+            { href: documentsHref("property", data.property.name), label: "Documents" }
+          ]}
+        />
       </header>
+
+      <PmDocumentsStrip
+        entityType="property"
+        title="Property documents"
+        detail="Insurance, permits, manuals, and property files attach here via Documents — ready for Document Intelligence."
+      />
 
       {justCreated || data.property.status === "active" ? (
         <section

@@ -582,6 +582,12 @@ export function MissionControlPage() {
                         {action.label}
                       </Link>
                     ))}
+                    <Link
+                      href="/shared/documents"
+                      className={`rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-text-primary)] hover:border-[var(--mpa-color-brand-primary)] ${linkFocus}`}
+                    >
+                      Documents
+                    </Link>
                   </div>
                 </div>
               </WorkSection>

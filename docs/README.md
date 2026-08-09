@@ -77,7 +77,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 49 | [BUG-009 Demo Platform Recovery](./49-bug-009-demo-platform-recovery/index.md) | **Fixed** · Production `3af2916` · all three demos Pass |
 | 50 | [BUG-010 / BUG-012 Checkout Onboarding](./50-bug-010-stripe-checkout-onboarding/bug-012-execution-report.md) | Onboarding certification · see BUG-012 report |
 | 51 | [Phase 3 Production Polish](./51-phase-3-production-polish/index.md) | Sprint 1 Public Experience — Authorized · polish only |
-| 52 | [Phase 4 Master Admin](./52-phase-4-master-admin/index.md) | Sprint 1 Command Center — visibility only · awaiting acceptance |
+| 52 | [Phase 4 Master Admin](./52-phase-4-master-admin/index.md) |
+| 53 | [Phase 4 Property Manager Workspace](./53-phase-4-property-manager-workspace/index.md) | Sprint 3 PM UX refinement · awaiting acceptance | Sprint 1 Command Center — visibility only · awaiting acceptance |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

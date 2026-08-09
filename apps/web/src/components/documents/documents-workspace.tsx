@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DOCUMENT_CATEGORIES, DOCUMENT_ENTITY_TYPES, type DocumentRecord } from "@mpa/shared";
+import { useSearchParams } from "next/navigation";
+import {
+  DOCUMENT_CATEGORIES,
+  DOCUMENT_ENTITY_TYPES,
+  type DocumentRecord
+} from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
 
 type Target = { id: string; label: string; propertyId?: string | null };
@@ -15,9 +20,19 @@ type Detail = {
 
 const FILTERS = ["all", ...DOCUMENT_ENTITY_TYPES.filter((type) => type !== "organization")] as const;
 
+function initialEntityType(raw: string | null): (typeof FILTERS)[number] {
+  if (raw && (FILTERS as readonly string[]).includes(raw)) {
+    return raw as (typeof FILTERS)[number];
+  }
+  return "all";
+}
+
 export function DocumentsWorkspace() {
-  const [entityType, setEntityType] = useState<(typeof FILTERS)[number]>("all");
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const [entityType, setEntityType] = useState<(typeof FILTERS)[number]>(() =>
+    initialEntityType(searchParams.get("entityType"))
+  );
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [targets, setTargets] = useState<Record<string, Target[]>>({});
   const [loading, setLoading] = useState(true);
@@ -34,6 +49,16 @@ export function DocumentsWorkspace() {
   const [uploadFileName, setUploadFileName] = useState("");
   const [uploadBase64, setUploadBase64] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  const urlEntityType = initialEntityType(searchParams.get("entityType"));
+  const urlQuery = searchParams.get("q") ?? "";
+  const urlKey = `${urlEntityType}|${urlQuery}`;
+  const [seenUrlKey, setSeenUrlKey] = useState(urlKey);
+  if (urlKey !== seenUrlKey) {
+    setSeenUrlKey(urlKey);
+    setEntityType(urlEntityType);
+    setQuery(urlQuery);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -169,7 +194,8 @@ export function DocumentsWorkspace() {
         </h1>
         <p className="max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
           View and organize property, resident, lease, maintenance, and vendor documents. Lease and
-          SignWell agreements reuse the existing leasing records — one library, no duplicate vault.
+          SignWell agreements reuse the existing leasing records — one library, ready for Document
+          Intelligence without a second vault.
         </p>
       </header>
 

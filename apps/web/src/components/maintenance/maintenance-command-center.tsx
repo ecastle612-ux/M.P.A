@@ -10,6 +10,7 @@ import {
 } from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Select, Skeleton, Textarea } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 
 type WorkOrder = {
   id: string;
@@ -52,11 +53,22 @@ export function MaintenanceCommandCenter() {
   const [progressNote, setProgressNote] = useState("");
   const [vendorName, setVendorName] = useState("");
   const [vendorEmail, setVendorEmail] = useState("");
+  const [queueQuery, setQueueQuery] = useState("");
 
   const selected = useMemo(
     () => workOrders.find((row) => row.id === selectedId) ?? null,
     [workOrders, selectedId]
   );
+
+  const filteredQueue = useMemo(() => {
+    const q = queueQuery.trim().toLowerCase();
+    if (!q) return workOrders;
+    return workOrders.filter((row) =>
+      `${row.title} ${row.status} ${row.priority} ${row.property_properties?.name ?? ""} ${row.property_units?.unit_label ?? ""} ${row.pm_residents?.display_name ?? ""} ${row.vendor_vendors?.name ?? ""}`
+        .toLowerCase()
+        .includes(q)
+    );
+  }, [workOrders, queueQuery]);
 
   const loadDetail = useCallback(async (workOrderId: string) => {
     if (!workOrderId) {
@@ -188,12 +200,14 @@ export function MaintenanceCommandCenter() {
       />
 
       <header className="max-w-3xl space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+          Property Manager · Maintenance
+        </p>
         <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
           Maintenance Command Center
         </h1>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          One work-order workflow: review resident requests, prioritize, assign a technician or
-          vendor, monitor progress, and close after resident confirmation.
+          One work-order workflow: review requests, prioritize, assign, monitor progress, and close.
         </p>
         <div className="flex flex-wrap gap-2">
           <Badge variant="info">{openCount} open</Badge>
@@ -201,10 +215,23 @@ export function MaintenanceCommandCenter() {
             {emergencyCount} emergency
           </Badge>
           <Badge variant={maintenanceReady ? "success" : "neutral"}>
-            {maintenanceReady ? "First lifecycle complete" : "Awaiting first closed request"}
+            {maintenanceReady ? "Lifecycle ready" : "Awaiting first close"}
           </Badge>
         </div>
+        <PmQuickActions
+          actions={[
+            { href: "/pm/mission-control", label: "Mission Control" },
+            { href: "/pm/vendors", label: "Vendors" },
+            { href: documentsHref("maintenance"), label: "Attachments" }
+          ]}
+        />
       </header>
+
+      <PmDocumentsStrip
+        entityType="maintenance"
+        title="Work order attachments"
+        detail="Photos, permits, and vendor evidence attach in Documents — ready for Document Intelligence."
+      />
 
       <section
         aria-label="Assistant recommendation"
@@ -250,20 +277,39 @@ export function MaintenanceCommandCenter() {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h2 className="text-sm font-semibold">Request queue</h2>
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <h2 className="text-sm font-semibold">Request queue</h2>
+            <label className="min-w-[12rem] flex-1 text-xs">
+              <span className="sr-only">Search work orders</span>
+              <Input
+                value={queueQuery}
+                onChange={(e) => setQueueQuery(e.target.value)}
+                placeholder="Search queue…"
+                aria-label="Search work orders"
+              />
+            </label>
+          </div>
           {workOrders.length === 0 ? (
             <EmptyState
               title="No maintenance requests yet"
               description="When a resident submits a request, it appears here automatically."
             />
+          ) : filteredQueue.length === 0 ? (
+            <EmptyState title="No matching requests" description="Try a different search." />
           ) : (
             <ul className="space-y-2">
-              {workOrders.map((row) => (
+              {filteredQueue.map((row) => (
                 <li key={row.id}>
                   <button
                     type="button"
                     onClick={() => void selectWorkOrder(row.id)}
-                    className={`w-full rounded-md border px-3 py-2 text-left text-sm ${
+                    className={`w-full rounded-md border border-l-[3px] px-3 py-2 text-left text-sm ${
+                      row.priority === "emergency"
+                        ? "border-l-[#C0392B]"
+                        : row.priority === "high"
+                          ? "border-l-[#B45309]"
+                          : "border-l-[var(--mpa-color-border-default)]"
+                    } ${
                       selectedId === row.id
                         ? "border-[var(--mpa-color-brand-primary)] bg-[var(--mpa-color-bg-subtle,#f7faf9)]"
                         : "border-[var(--mpa-color-border-default)] bg-white"
