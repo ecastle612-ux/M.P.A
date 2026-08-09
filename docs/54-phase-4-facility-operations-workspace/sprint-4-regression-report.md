@@ -19,6 +19,13 @@
 | Demo | No | |
 | Landing / marketing | No | |
 
+## CI (pre-merge)
+
+| Check | Result |
+| --- | --- |
+| GitHub Actions `verify` | **PASS** (`31327227426`) |
+| Vercel Preview | **FAIL** — known preview-env failure pattern (same class as prior Phase 4 sprints); not a FO app regression. Production deploy path remains Owner merge → Production |
+
 ## Expected regression result (pre-merge)
 
 | Surface | Expectation |
