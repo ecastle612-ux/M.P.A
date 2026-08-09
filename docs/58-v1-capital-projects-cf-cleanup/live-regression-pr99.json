@@ -1,0 +1,151 @@
+{
+  "result": "PASS",
+  "merge_sha": "078137a88f22f5048858f39e5801864fd4fd0ec5",
+  "production_sha": "078137a",
+  "deployment_id": "5823065951",
+  "vercel_deployment": "8VtAD9TSMJA9Ke7qjJCAaD6jRQGH",
+  "checks": [
+    {
+      "label": "landing: Background Screening",
+      "ok": true
+    },
+    {
+      "label": "landing: Integration Planned OR Planned cell",
+      "ok": true
+    },
+    {
+      "label": "landing: Future integrations",
+      "ok": true
+    },
+    {
+      "label": "landing: ecosystem copy",
+      "ok": true
+    },
+    {
+      "label": "landing: no Capital Projects",
+      "ok": true
+    },
+    {
+      "label": "landing: no Available Now near screening",
+      "ok": true
+    },
+    {
+      "label": "landing: no Included for screening line",
+      "ok": true
+    },
+    {
+      "label": "landing: no date promise",
+      "ok": true
+    },
+    {
+      "label": "pricing: Background Screening",
+      "ok": true
+    },
+    {
+      "label": "pricing: Integration Planned OR Planned cell",
+      "ok": true
+    },
+    {
+      "label": "pricing: Future integrations",
+      "ok": true
+    },
+    {
+      "label": "pricing: ecosystem copy",
+      "ok": true
+    },
+    {
+      "label": "pricing: no Capital Projects",
+      "ok": true
+    },
+    {
+      "label": "pricing: no Available Now near screening",
+      "ok": true
+    },
+    {
+      "label": "pricing: no Included for screening line",
+      "ok": true
+    },
+    {
+      "label": "pricing: no date promise",
+      "ok": true
+    },
+    {
+      "label": "modules: Background Screening",
+      "ok": true
+    },
+    {
+      "label": "modules: Integration Planned OR Planned cell",
+      "ok": true
+    },
+    {
+      "label": "modules: Future integrations",
+      "ok": true
+    },
+    {
+      "label": "modules: ecosystem copy",
+      "ok": true
+    },
+    {
+      "label": "modules: no Capital Projects",
+      "ok": true
+    },
+    {
+      "label": "modules: no Available Now near screening",
+      "ok": true
+    },
+    {
+      "label": "modules: no Included for screening line",
+      "ok": true
+    },
+    {
+      "label": "modules: no date promise",
+      "ok": true
+    },
+    {
+      "label": "landing FAQ screening",
+      "ok": true
+    },
+    {
+      "label": "landing comparison Planned cells",
+      "ok": true
+    },
+    {
+      "label": "pricing inclusion Planned",
+      "ok": true
+    },
+    {
+      "label": "modules card line",
+      "ok": true
+    },
+    {
+      "label": "pricing card line",
+      "ok": true
+    },
+    {
+      "label": "pricing PM/FO/Complete",
+      "ok": true
+    },
+    {
+      "label": "landing platforms",
+      "ok": true
+    },
+    {
+      "label": "checkout Confirm Plan or checkout",
+      "ok": true
+    },
+    {
+      "label": "landing nav Live Demo + Pricing",
+      "ok": true
+    },
+    {
+      "label": "modules Get started step",
+      "ok": true
+    }
+  ],
+  "failures": [],
+  "snippets": {
+    "landing": "Background Screening</th><td class=\"px-3 py-2\"><span class=\"text-xs font-medium text-[var(--mpa-color-text-secondary)]\" aria-hidden=\"true\">P",
+    "pricing": "Background Screening (Integration Planned)</li></ul><a class=\"inline-flex h-11 items-center justify-center rounded-md bg-[var(--mpa-color-br",
+    "modules": "Background Screening (Integration Planned)</li></ul><div class=\"mt-4 flex flex-col gap-2\"><a class=\"inline-flex h-11 items-center justify-ce"
+  }
+}
