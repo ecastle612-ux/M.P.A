@@ -1,4 +1,4 @@
-const CACHE_NAME = "mpa-foundation-v1";
+const CACHE_NAME = "mpa-foundation-v2-brand-icons";
 const STATIC_ASSETS = ["/", "/offline.html", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
