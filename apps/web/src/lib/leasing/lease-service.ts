@@ -146,7 +146,7 @@ export async function listPendingLeaseResidents(supabase: Db, organizationId: st
       "id, display_name, email, status, portal_status, property_id, unit_id, property_properties(id, name), property_units(id, unit_label)"
     )
     .eq("organization_id", organizationId)
-    .eq("status", "pending_lease")
+    .in("status", ["approved", "pending_lease", "prospect"])
     .is("lease_id", null)
     .order("display_name");
   if (error) {
@@ -178,8 +178,8 @@ export async function createLeaseFromResident(
   if (resident.lease_id) {
     throw new Error("This resident already has a lease.");
   }
-  if (resident.status !== "pending_lease" && resident.status !== "prospect") {
-    throw new Error("Select a resident with Pending Lease status.");
+  if (!["pending_lease", "prospect", "approved"].includes(resident.status as string)) {
+    throw new Error("Select an approved or lease-pending person to create a lease.");
   }
   if (input.requireManagerSignature && (!input.managerName || !input.managerEmail)) {
     throw new Error("Manager name and email are required when manager signature is required.");
@@ -233,15 +233,28 @@ export async function createLeaseFromResident(
 
   const typed = lease as PortfolioLease;
 
+  // Approved / Prospect → Lease Pending on the same person; SignWell path unchanged.
   await supabase
     .from("pm_residents")
     .update({
       lease_id: typed.id,
-      status: "pending_move_in",
+      status: "pending_lease",
       updated_at: new Date().toISOString()
     })
     .eq("id", resident.id)
     .eq("organization_id", organizationId);
+
+  // Link approved application to this lease when present.
+  await supabase
+    .from("lease_applications")
+    .update({
+      lease_id: typed.id,
+      updated_at: new Date().toISOString()
+    })
+    .eq("organization_id", organizationId)
+    .eq("resident_id", resident.id)
+    .eq("status", "approved")
+    .is("lease_id", null);
 
   await record({
     supabase,
@@ -395,6 +408,15 @@ export async function sendLeaseForSignature(
       alsoPropertyId: lease.property_id,
       alsoResidentId: resident.id
     });
+
+    await supabase
+      .from("pm_residents")
+      .update({
+        status: "pending_move_in",
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", resident.id)
+      .eq("organization_id", organizationId);
 
     return {
       lease: updated as PortfolioLease,

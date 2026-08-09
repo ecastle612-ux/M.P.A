@@ -27,7 +27,10 @@ export async function buildDailyOperationsBriefing(
     { data: openWorkOrders },
     { data: pendingLeases },
     { data: pendingResidents },
-    { data: recentEvents }
+    { data: recentEvents },
+    { data: openApplications },
+    { data: upcomingMoveIns },
+    { data: upcomingRenewals }
   ] = await Promise.all([
     import("../finance/reporting-service").then((mod) =>
       mod.getCommandCenterReport(supabase, organizationId).catch(() => null)
@@ -57,7 +60,33 @@ export async function buildDailyOperationsBriefing(
       .select("id, event_type, created_at, payload")
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: false })
-      .limit(12)
+      .limit(12),
+    supabase
+      .from("lease_applications")
+      .select("id, status, pm_residents(display_name)")
+      .eq("organization_id", organizationId)
+      .in("status", ["submitted", "incomplete", "screening_pending"])
+      .order("updated_at", { ascending: false })
+      .limit(20),
+    supabase
+      .from("pm_residents")
+      .select("id, display_name, status, lease_id")
+      .eq("organization_id", organizationId)
+      .eq("status", "pending_move_in")
+      .limit(20),
+    supabase
+      .from("lease_agreements")
+      .select("id, end_date, status, pm_residents(display_name)")
+      .eq("organization_id", organizationId)
+      .eq("status", "active")
+      .not("end_date", "is", null)
+      .gte("end_date", new Date().toISOString().slice(0, 10))
+      .lte(
+        "end_date",
+        new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+      )
+      .order("end_date", { ascending: true })
+      .limit(20)
   ]);
 
   const workOrders = openWorkOrders ?? [];
@@ -154,6 +183,67 @@ export async function buildDailyOperationsBriefing(
       urgency: "waiting_on_me"
     });
   }
+
+  const applicationsAwaitingReview = (openApplications ?? []).filter((row) =>
+    ["submitted", "incomplete"].includes(row.status as string)
+  );
+  const screeningPendingApps = (openApplications ?? []).filter(
+    (row) => row.status === "screening_pending"
+  );
+  if (applicationsAwaitingReview.length > 0) {
+    waitingOnMe.push({
+      id: "applications-awaiting-review",
+      domain: "leasing",
+      title: `${applicationsAwaitingReview.length} application(s) awaiting review`,
+      detail: "Review completeness and continue the leasing pipeline",
+      href: "/pm/leasing#applications",
+      urgency: "waiting_on_me"
+    });
+  }
+  if (screeningPendingApps.length > 0) {
+    waitingOnOthers.push({
+      id: "screening-pending",
+      domain: "leasing",
+      title: `${screeningPendingApps.length} pending screening result(s)`,
+      detail: "Background Screening (Integration Planned)",
+      href: "/pm/leasing#applications",
+      urgency: "waiting_on_others"
+    });
+  }
+  const readyToSign = (pendingLeases ?? []).filter((row) =>
+    ["draft", "pending_signature"].includes(row.status as string)
+  );
+  if (readyToSign.length > 0) {
+    waitingOnMe.push({
+      id: "leases-ready-to-sign",
+      domain: "leasing",
+      title: `${readyToSign.length} lease(s) ready to sign`,
+      detail: "Send or complete signature in Leasing",
+      href: "/pm/leasing#lease-signing",
+      urgency: "waiting_on_me"
+    });
+  }
+  if ((upcomingMoveIns ?? []).length > 0) {
+    waitingOnMe.push({
+      id: "upcoming-move-ins",
+      domain: "leasing",
+      title: `${(upcomingMoveIns ?? []).length} upcoming move-in(s)`,
+      detail: "Pending move-in person status",
+      href: "/pm/leasing#move-ins",
+      urgency: "waiting_on_me"
+    });
+  }
+  if ((upcomingRenewals ?? []).length > 0) {
+    waitingOnMe.push({
+      id: "upcoming-renewals",
+      domain: "leasing",
+      title: `${(upcomingRenewals ?? []).length} upcoming renewal(s)`,
+      detail: "Active leases ending within 60 days",
+      href: "/pm/leasing#renewals",
+      urgency: "waiting_on_me"
+    });
+  }
+
   if (outstandingRent > 0) {
     waitingOnMe.push({
       id: "outstanding-rent",

@@ -106,7 +106,8 @@ export function LeaseCreateWizard({ onCancel }: LeaseCreateWizardProps) {
           Create your first lease
         </h2>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Add a resident with Pending Lease status before creating a lease.
+          Add a resident with Approved or Lease Pending status before creating a lease — or open an
+          application from this Leasing workspace first.
         </p>
         <Button type="button" onClick={() => router.push("/pm/residents?new=1")}>
           Add resident
@@ -156,7 +157,7 @@ export function LeaseCreateWizard({ onCancel }: LeaseCreateWizardProps) {
         >
           <div className="space-y-1">
             <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="resident-id">
-              Select resident (Pending Lease)
+              Select resident (Approved / Lease Pending)
             </label>
             <Select
               id="resident-id"

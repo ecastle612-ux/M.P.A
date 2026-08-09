@@ -58,7 +58,8 @@ export async function buildOrganizationReportingSnapshot(
     vendors,
     subscription,
     setupState,
-    financeReport
+    financeReport,
+    applications
   ] = await Promise.all([
     safeSelect(
       supabase.from("organizations").select("id, name").eq("id", organizationId).maybeSingle()
@@ -132,7 +133,15 @@ export async function buildOrganizationReportingSnapshot(
     ),
     import("../finance/reporting-service")
       .then((mod) => mod.getCommandCenterReport(supabase, organizationId))
-      .catch(() => null)
+      .catch(() => null),
+    safeSelect(
+      supabase
+        .from("lease_applications")
+        .select("id, status, submitted_at, decided_at, property_id")
+        .eq("organization_id", organizationId)
+        .order("created_at", { ascending: false })
+        .limit(200)
+    )
   ]);
 
   let propertyList = (properties ?? []) as Array<{ id: string; name: string; status?: string | null }>;
@@ -333,7 +342,22 @@ export async function buildOrganizationReportingSnapshot(
       const row: RawReportingFacts["vendors"][number] = { id: v.id, name: v.name };
       if (v.status !== undefined) row.status = v.status;
       return row;
-    })
+    }),
+    applications: (
+      (applications ?? []) as Array<{
+        id: string;
+        status: string;
+        submitted_at?: string | null;
+        decided_at?: string | null;
+        property_id?: string | null;
+      }>
+    ).map((a) => ({
+      id: a.id,
+      status: a.status,
+      submittedAt: a.submitted_at ?? null,
+      decidedAt: a.decided_at ?? null,
+      propertyId: a.property_id ?? null
+    }))
   };
 
   // If property filter removed all properties but ids exist, keep honesty

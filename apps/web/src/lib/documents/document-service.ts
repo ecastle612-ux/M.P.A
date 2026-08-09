@@ -204,6 +204,23 @@ async function resolveEntityLabel(
         "Lease";
       return { label: name, propertyId: (data?.property_id as string | null) ?? null };
     }
+    case "application": {
+      const { data } = await supabase
+        .from("lease_applications")
+        .select("id, property_id, pm_residents(display_name)")
+        .eq("organization_id", organizationId)
+        .eq("id", entityId)
+        .maybeSingle();
+      const resident = Array.isArray(data?.pm_residents)
+        ? data?.pm_residents[0]
+        : data?.pm_residents;
+      return {
+        label: (resident as { display_name?: string } | null)?.display_name
+          ? `Application — ${(resident as { display_name: string }).display_name}`
+          : "Application",
+        propertyId: (data?.property_id as string | null) ?? null
+      };
+    }
     case "maintenance": {
       const { data } = await supabase
         .from("maintenance_work_orders")

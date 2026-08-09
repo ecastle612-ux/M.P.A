@@ -39,6 +39,8 @@ describe("Document Intelligence helpers", () => {
     expect(inferMimeKind("video/mp4")).toBe("video");
     expect(isPdfExportTemplate("lease")).toBe(true);
     expect(isPdfExportTemplate("work_order")).toBe(true);
+    expect(isPdfExportTemplate("rental_application")).toBe(true);
+    expect(isPdfExportTemplate("approval_letter")).toBe(true);
     expect(isPdfExportTemplate("nope")).toBe(false);
   });
 });

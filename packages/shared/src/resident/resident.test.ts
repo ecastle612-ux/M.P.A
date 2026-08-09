@@ -39,7 +39,13 @@ describe("LAUNCH-001 J3 resident domain", () => {
     expect(RESIDENT_AUDIT_CATALOG.some((item) => item.action === "resident.unit_assigned")).toBe(
       true
     );
-    expect(RESIDENT_STATUS_LABELS.pending_lease).toBe("Pending Lease");
+    expect(RESIDENT_STATUS_LABELS.pending_lease).toBe("Lease Pending");
+    expect(RESIDENT_STATUS_LABELS.applicant).toBe("Applicant");
+    expect(RESIDENT_STATUS_LABELS.screening_pending).toBe("Screening Pending");
+    expect(RESIDENT_STATUS_LABELS.approved).toBe("Approved");
+    expect(RESIDENT_STATUS_LABELS.archived).toBe("Archived");
+    expect(RESIDENT_STATUS_LABELS.active).toBe("Resident");
+    expect(RESIDENT_STATUS_LABELS.former).toBe("Former Resident");
   });
 
   it("progresses Mission Control from first resident to create first lease", () => {
