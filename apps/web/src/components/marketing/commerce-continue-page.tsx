@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
 
 type StatusPayload = {
@@ -31,6 +31,7 @@ export function CommerceContinuePage({
   const [status, setStatus] = useState<StatusPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [claimBusy, setClaimBusy] = useState(false);
+  const autoClaimStarted = useRef(false);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -56,6 +57,47 @@ export function CommerceContinuePage({
       window.clearInterval(timer);
     };
   }, [sessionId]);
+
+  // Authenticated owners auto-claim — no operator step.
+  useEffect(() => {
+    if (!sessionId || !isAuthenticated || autoClaimStarted.current) return;
+    if (
+      status?.checkpoint !== "owner_pending" &&
+      status?.checkpoint !== "entitled" &&
+      status?.checkpoint !== "org_created"
+    ) {
+      return;
+    }
+    if (status.ready || status.canAccessModules) return;
+    autoClaimStarted.current = true;
+    void (async () => {
+      setClaimBusy(true);
+      const res = await fetch("/api/commerce/provision/claim", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          ...(bindToken ? { bindToken } : {})
+        })
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; nextPath?: string };
+      setClaimBusy(false);
+      if (!res.ok) {
+        autoClaimStarted.current = false;
+        setError(data.error ?? "Could not claim workspace.");
+        return;
+      }
+      router.push(data.nextPath ?? "/setup");
+    })();
+  }, [
+    sessionId,
+    isAuthenticated,
+    status?.checkpoint,
+    status?.ready,
+    status?.canAccessModules,
+    bindToken,
+    router
+  ]);
 
   async function claim() {
     if (!sessionId) return;

@@ -56,6 +56,36 @@ export function LoginForm() {
     setLoading(true);
 
     if (mode === "sign_up") {
+      // COM-002: provisioning already created the auth user — set password + confirm email, then sign in.
+      if (saasCheckoutSession) {
+        const claimRes = await fetch("/api/commerce/provision/claim-password", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            sessionId: saasCheckoutSession,
+            email,
+            password
+          })
+        });
+        const claimData = (await claimRes.json().catch(() => ({}))) as { error?: string };
+        if (!claimRes.ok) {
+          setLoading(false);
+          setError(claimData.error ?? "Could not verify purchase email.");
+          return;
+        }
+        const { error: signInAfterClaim } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        setLoading(false);
+        if (signInAfterClaim) {
+          setError(signInAfterClaim.message);
+          return;
+        }
+        router.replace(commerceNext ?? "/commerce/continue");
+        return;
+      }
+
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password
@@ -65,16 +95,6 @@ export function LoginForm() {
 
       if (signUpError) {
         setError(signUpError.message);
-        return;
-      }
-
-      if (commerceNext) {
-        setNotice(
-          "Account created. Sign in with this email to claim your provisioned workspace."
-        );
-        setMode("sign_in");
-        setPassword("");
-        setConfirmPassword("");
         return;
       }
 

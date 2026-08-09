@@ -4,11 +4,13 @@ import {
   hasLifecycleModuleAccess
 } from "@mpa/shared";
 import { listLifecycleSubscriptions } from "../../lib/saas-lifecycle/lifecycle-store";
+import { listSaasLifecycleEventsFromDb } from "../../lib/saas-lifecycle/lifecycle-events-store";
 import { listSaasWebhookEvents } from "../../lib/saas-stripe/purchase-store";
 import { EnforceGraceButton } from "./enforce-grace-button";
 
-export function SaasLifecycleConsole() {
+export async function SaasLifecycleConsole() {
   const subs = listLifecycleSubscriptions();
+  const onboardingEvents = await listSaasLifecycleEventsFromDb(40);
   const events = listSaasWebhookEvents().filter((e) =>
     [
       "customer.subscription.created",
@@ -86,6 +88,27 @@ export function SaasLifecycleConsole() {
                 </li>
               );
             })}
+          </ul>
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="font-display text-lg font-semibold">Onboarding lifecycle events</h2>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          Events: {onboardingEvents.length}
+        </p>
+        {onboardingEvents.length === 0 ? (
+          <p className="text-sm text-[var(--mpa-color-text-muted)]">No onboarding lifecycle rows yet.</p>
+        ) : (
+          <ul className="space-y-2 text-xs font-mono">
+            {onboardingEvents.map((event) => (
+              <li
+                key={event.stripeEventId}
+                className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2"
+              >
+                {event.eventType} · org={event.organizationId ?? "—"} · {event.summary ?? ""}
+              </li>
+            ))}
           </ul>
         )}
       </section>

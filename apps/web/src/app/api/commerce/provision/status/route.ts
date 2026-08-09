@@ -5,12 +5,14 @@ import {
   isProvisioningComplete,
   operatorStepStatuses
 } from "@mpa/shared";
-import { getProvisioningJob } from "../../../../../lib/saas-provisioning/jobs-store";
+import { getProvisioningJob, loadProvisioningJobFromDb } from "../../../../../lib/saas-provisioning/jobs-store";
 import { getSaasPurchaseBySessionId } from "../../../../../lib/saas-stripe/purchase-store";
+import { ensurePurchaseFromStripeSession } from "../../../../../lib/saas-stripe/ensure-purchase-from-stripe";
+import { startOrAdvanceProvisioningFromPurchase } from "../../../../../lib/saas-provisioning/run-provisioning";
 
 export const runtime = "nodejs";
 
-/** Read-only provisioning status (identity-binding: poll does not provision). */
+/** Read-only provisioning status; hydrates from Stripe/DB when memory is empty. */
 export async function GET(request: Request) {
   if (!COM_002_FLAGS.sliceD_automaticProvisioning) {
     return NextResponse.json({ error: "slice_disabled" }, { status: 404 });
@@ -20,8 +22,21 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "missing_session_id" }, { status: 400 });
   }
 
-  const job = getProvisioningJob(sessionId);
-  const purchase = getSaasPurchaseBySessionId(sessionId);
+  let job =
+    getProvisioningJob(sessionId) ?? (await loadProvisioningJobFromDb(sessionId));
+  let purchase =
+    getSaasPurchaseBySessionId(sessionId) ?? (await ensurePurchaseFromStripeSession(sessionId));
+
+  // Resume automatic advance when a prior instance left the job before owner_pending.
+  if (
+    purchase?.status === "checkout_completed" &&
+    (!job ||
+      ["received", "customer_linked", "org_created", "entitled"].includes(job.checkpoint))
+  ) {
+    job = (await startOrAdvanceProvisioningFromPurchase(purchase)) ?? job;
+    purchase = getSaasPurchaseBySessionId(sessionId) ?? purchase;
+  }
+
   if (!job) {
     if (purchase?.status === "checkout_completed") {
       return NextResponse.json({

@@ -162,4 +162,24 @@ describe("COM-002 Slice D provisioning runner", () => {
     const job = await startOrAdvanceProvisioningFromPurchase(getSaasPurchaseBySessionId(sessionId)!);
     expect(job?.checkpoint).toBe("failed_dead");
   });
+
+  it("resumes a stuck entitled job to owner_pending and sends verification", async () => {
+    const sessionId = `cs_stuck_${Date.now()}`;
+    seedPurchase(sessionId, "stuck@example.com");
+    const pending = await startOrAdvanceProvisioningFromPurchase(getSaasPurchaseBySessionId(sessionId)!);
+    expect(pending?.checkpoint).toBe("owner_pending");
+    // Simulate Production race: DB/memory left at entitled with no claim email.
+    saveProvisioningJob({
+      ...getProvisioningJob(sessionId)!,
+      checkpoint: "entitled",
+      emailsSent: [],
+      bindTokenHash: null,
+      bindExpiresAt: null,
+      updatedAt: new Date().toISOString()
+    });
+    const resumed = await startOrAdvanceProvisioningFromPurchase(getSaasPurchaseBySessionId(sessionId)!);
+    expect(resumed?.checkpoint).toBe("owner_pending");
+    expect(resumed?.emailsSent).toContain("verification");
+    expect(resumed?.bindTokenHash).toBeTruthy();
+  });
 });
