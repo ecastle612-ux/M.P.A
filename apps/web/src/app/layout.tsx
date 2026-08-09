@@ -38,7 +38,11 @@ export const metadata: Metadata = {
     statusBarStyle: "default"
   },
   icons: {
+    // Prefer house-mark favicons for browser tabs — full lockups are illegible at 16–32px.
     icon: [
+      { url: MPA_FAVICON_32_PATH, sizes: "32x32", type: "image/png" },
+      { url: MPA_FAVICON_16_PATH, sizes: "16x16", type: "image/png" },
+      { url: "/icons/mpa-mark-192.png", sizes: "192x192", type: "image/png" },
       {
         url: MPA_LOGO_DARK_PATH,
         type: "image/png",
@@ -50,9 +54,7 @@ export const metadata: Metadata = {
         type: "image/png",
         sizes: "512x512",
         media: "(prefers-color-scheme: dark)"
-      },
-      { url: MPA_FAVICON_32_PATH, sizes: "32x32", type: "image/png" },
-      { url: MPA_FAVICON_16_PATH, sizes: "16x16", type: "image/png" }
+      }
     ],
     apple: [{ url: MPA_APPLE_TOUCH_ICON_PATH, sizes: "180x180", type: "image/png" }],
     shortcut: MPA_FAVICON_32_PATH
