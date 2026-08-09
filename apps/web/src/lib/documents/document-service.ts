@@ -701,14 +701,21 @@ export async function uploadDocument(
       message.includes("does not exist") ||
       message.includes("schema cache");
     if (missingColumn) {
-      const {
-        tags: _tags,
-        notes: _notes,
-        keywords: _keywords,
-        status: _status,
-        version_number: _versionNumber,
-        ...corePayload
-      } = insertPayload;
+      const corePayload = {
+        organization_id: insertPayload.organization_id,
+        entity_type: insertPayload.entity_type,
+        entity_id: insertPayload.entity_id,
+        title: insertPayload.title,
+        category: insertPayload.category,
+        source: insertPayload.source,
+        mime_type: insertPayload.mime_type,
+        file_name: insertPayload.file_name,
+        content_text: insertPayload.content_text,
+        content_base64: insertPayload.content_base64,
+        byte_size: insertPayload.byte_size,
+        property_id: insertPayload.property_id,
+        uploaded_by: insertPayload.uploaded_by
+      };
       const fallback = await supabase
         .from("document_documents")
         .insert(corePayload)
