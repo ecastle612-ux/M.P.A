@@ -16,6 +16,11 @@ import {
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
 import { marketingModuleDescription } from "./marketing-module-copy";
+import {
+  BACKGROUND_SCREENING_LABEL,
+  FutureIntegrationsNote,
+  PlannedIntegrationCell
+} from "./future-integrations-note";
 
 function Section({
   id,
@@ -317,9 +322,24 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                   </td>
                 </tr>
               ))}
+              <tr className="border-t border-[var(--mpa-color-border-subtle)]">
+                <th scope="row" className="px-3 py-2 text-left font-normal">
+                  {BACKGROUND_SCREENING_LABEL}
+                </th>
+                <td className="px-3 py-2">
+                  <PlannedIntegrationCell />
+                </td>
+                <td className="px-3 py-2">
+                  <PlannedIntegrationCell />
+                </td>
+                <td className="px-3 py-2">
+                  <PlannedIntegrationCell />
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
+        <FutureIntegrationsNote className="mt-4 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-4 py-3" />
       </Section>
 
       <Section id="faq" eyebrow="FAQ" title="Straight answers">
@@ -328,6 +348,10 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             {
               q: "What can I buy?",
               a: "Property Manager, Facility Operations, or Complete Platform — each with monthly or annual billing."
+            },
+            {
+              q: "Are background screening integrations available?",
+              a: "Professional Background Screening integration is planned. M.P.A. continues expanding its connected property operations ecosystem — this is not available in Version 1.0 today."
             },
             {
               q: "How does checkout work?",

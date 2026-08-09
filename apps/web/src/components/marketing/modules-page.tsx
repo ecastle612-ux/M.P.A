@@ -11,6 +11,7 @@ import {
   marketingPrimaryCtaClass,
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
+import { BACKGROUND_SCREENING_LINE, FutureIntegrationsNote } from "./future-integrations-note";
 
 export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   return (
@@ -58,6 +59,7 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                   {modules.map((module) => (
                     <li key={module.id}>• {module.label}</li>
                   ))}
+                  <li className="text-[var(--mpa-color-text-muted)]">• {BACKGROUND_SCREENING_LINE}</li>
                 </ul>
                 <div className="mt-4 flex flex-col gap-2">
                   <Link href={acquisitionHref("pricing", sku)} className={marketingPrimaryCtaClass}>
@@ -77,6 +79,8 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
             );
           })}
         </ul>
+
+        <FutureIntegrationsNote />
       </main>
     </MarketingChrome>
   );

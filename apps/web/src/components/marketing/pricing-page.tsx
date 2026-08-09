@@ -29,6 +29,12 @@ import {
   marketingPrimaryCtaClass,
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
+import {
+  BACKGROUND_SCREENING_LABEL,
+  BACKGROUND_SCREENING_LINE,
+  FutureIntegrationsNote,
+  PlannedIntegrationCell
+} from "./future-integrations-note";
 
 /** Internal Stripe offer mapping — not shown as a customer-facing tier. */
 const CHECKOUT_PLAN = "professional" as const;
@@ -181,9 +187,24 @@ export function PricingPage({
                     </td>
                   </tr>
                 ))}
+                <tr className="border-t border-[var(--mpa-color-border-subtle)]">
+                  <th scope="row" className="px-3 py-2 text-left font-normal">
+                    {BACKGROUND_SCREENING_LABEL}
+                  </th>
+                  <td className="px-3 py-2">
+                    <PlannedIntegrationCell />
+                  </td>
+                  <td className="px-3 py-2">
+                    <PlannedIntegrationCell />
+                  </td>
+                  <td className="px-3 py-2">
+                    <PlannedIntegrationCell />
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
+          <FutureIntegrationsNote />
         </section>
 
         <div className="flex flex-wrap gap-3">
@@ -291,6 +312,7 @@ function PlatformPriceCard({
         {modules.map((module) => (
           <li key={module.id}>• {module.label}</li>
         ))}
+        <li className="text-[var(--mpa-color-text-muted)]">• {BACKGROUND_SCREENING_LINE}</li>
       </ul>
       <Link href={href} className={`${marketingPrimaryCtaClass} mt-5`}>
         {motion.ctaLabel}

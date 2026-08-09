@@ -70,3 +70,7 @@
 6. Owner LIVE acceptance  
 
 Do **not** merge until Owner acceptance.
+
+## Related
+
+- [Background Screening marketing messaging](./messaging-background-screening.md)
