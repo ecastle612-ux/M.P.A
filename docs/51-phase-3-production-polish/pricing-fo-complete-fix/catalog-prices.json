@@ -1,0 +1,72 @@
+{
+    "status": "partial",
+    "warning": "Some live Stripe prices could not be retrieved. mpa_facility_operations/monthly: Stripe Price ID env not set \u00b7 mpa_facility_operations/annual: Stripe Price ID env not set \u00b7 mpa_complete_platform/monthly: Stripe Price ID env not set \u00b7 mpa_complete_platform/annual: Stripe Price ID env not set",
+    "bySku": {
+        "mpa_property_manager": {
+            "monthly": {
+                "offerId": "mpa_property_manager__professional__monthly",
+                "productSku": "mpa_property_manager",
+                "billingCycle": "monthly",
+                "currency": "usd",
+                "unitAmount": 9900,
+                "interval": "month",
+                "formatted": "$99",
+                "cadenceLabel": "Billed monthly \u00b7 renews automatically"
+            },
+            "annual": {
+                "offerId": "mpa_property_manager__professional__annual",
+                "productSku": "mpa_property_manager",
+                "billingCycle": "annual",
+                "currency": "usd",
+                "unitAmount": 99000,
+                "interval": "year",
+                "formatted": "$990",
+                "cadenceLabel": "Billed annually \u00b7 renews automatically"
+            }
+        }
+    },
+    "byCycle": {
+        "monthly": {
+            "offerId": "mpa_property_manager__professional__monthly",
+            "productSku": "mpa_property_manager",
+            "billingCycle": "monthly",
+            "currency": "usd",
+            "unitAmount": 9900,
+            "interval": "month",
+            "formatted": "$99",
+            "cadenceLabel": "Billed monthly \u00b7 renews automatically"
+        },
+        "annual": {
+            "offerId": "mpa_property_manager__professional__annual",
+            "productSku": "mpa_property_manager",
+            "billingCycle": "annual",
+            "currency": "usd",
+            "unitAmount": 99000,
+            "interval": "year",
+            "formatted": "$990",
+            "cadenceLabel": "Billed annually \u00b7 renews automatically"
+        }
+    },
+    "prices": [
+        {
+            "offerId": "mpa_property_manager__professional__monthly",
+            "productSku": "mpa_property_manager",
+            "billingCycle": "monthly",
+            "currency": "usd",
+            "unitAmount": 9900,
+            "interval": "month",
+            "formatted": "$99",
+            "cadenceLabel": "Billed monthly \u00b7 renews automatically"
+        },
+        {
+            "offerId": "mpa_property_manager__professional__annual",
+            "productSku": "mpa_property_manager",
+            "billingCycle": "annual",
+            "currency": "usd",
+            "unitAmount": 99000,
+            "interval": "year",
+            "formatted": "$990",
+            "cadenceLabel": "Billed annually \u00b7 renews automatically"
+        }
+    ]
+}
