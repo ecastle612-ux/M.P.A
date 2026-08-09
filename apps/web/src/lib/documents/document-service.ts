@@ -1,11 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  DOCUMENT_ENTITY_LABELS,
   isDocumentCategory,
   isDocumentEntityType,
+  isDocumentStatus,
   type DocumentCategory,
   type DocumentEntityType,
+  type DocumentLink,
   type DocumentRecord,
-  type DocumentSource
+  type DocumentSource,
+  type DocumentStatus,
+  type DocumentVersion
 } from "@mpa/shared";
 import { emitPropertyEvent, writePropertyAudit } from "../property/events-audit";
 import { getSignWellDocument, isSignWellConfigured } from "../signwell/client";
@@ -15,11 +20,40 @@ type Db = SupabaseClient<any>;
 
 const MAX_UPLOAD_BYTES = 2 * 1024 * 1024;
 
+const CORE_DOCUMENT_COLUMNS =
+  "id, organization_id, entity_type, entity_id, title, category, source, mime_type, file_name, byte_size, signwell_document_id, external_url, property_id, created_at, content_text, content_base64";
+
+const EXTENDED_DOCUMENT_COLUMNS = `${CORE_DOCUMENT_COLUMNS}, tags, notes, status, keywords, version_number`;
+
+export type DocumentActivityItem = {
+  at: string;
+  label: string;
+  detail: string;
+};
+
+export type DocumentDetail = {
+  document: DocumentRecord;
+  contentText: string | null;
+  contentBase64: string | null;
+  signwellStatus: string | null;
+  links: DocumentLink[];
+  versions: DocumentVersion[];
+  activity: DocumentActivityItem[];
+};
+
 function mapRow(row: Record<string, unknown>, entityLabel?: string | null): DocumentRecord {
   const contentText = row["content_text"];
   const contentBase64 = row["content_base64"];
   const externalUrl = (row["external_url"] as string | null) ?? null;
   const signwellDocumentId = (row["signwell_document_id"] as string | null) ?? null;
+  const tagsRaw = row["tags"];
+  const tags = Array.isArray(tagsRaw)
+    ? tagsRaw.filter((tag): tag is string => typeof tag === "string")
+    : [];
+  const statusRaw = row["status"];
+  const status: DocumentStatus =
+    typeof statusRaw === "string" && isDocumentStatus(statusRaw) ? statusRaw : "active";
+  const versionRaw = row["version_number"];
   return {
     id: row["id"] as string,
     organizationId: row["organization_id"] as string,
@@ -36,8 +70,81 @@ function mapRow(row: Record<string, unknown>, entityLabel?: string | null): Docu
     propertyId: (row["property_id"] as string | null) ?? null,
     entityLabel: entityLabel ?? null,
     createdAt: row["created_at"] as string,
-    hasContent: Boolean(contentText || contentBase64 || externalUrl || signwellDocumentId)
+    hasContent: Boolean(contentText || contentBase64 || externalUrl || signwellDocumentId),
+    tags,
+    notes: (row["notes"] as string | null | undefined) ?? null,
+    status,
+    keywords: (row["keywords"] as string | null | undefined) ?? null,
+    versionNumber: typeof versionRaw === "number" ? versionRaw : Number(versionRaw ?? 1) || 1
   };
+}
+
+function mapLinkRow(row: Record<string, unknown>): DocumentLink {
+  return {
+    id: row["id"] as string,
+    entityType: row["entity_type"] as DocumentEntityType,
+    entityId: row["entity_id"] as string,
+    label: (row["label"] as string | null) ?? null,
+    createdAt: row["created_at"] as string
+  };
+}
+
+function mapVersionRow(row: Record<string, unknown>): DocumentVersion {
+  return {
+    id: row["id"] as string,
+    versionNumber: Number(row["version_number"] ?? 1),
+    title: row["title"] as string,
+    mimeType: (row["mime_type"] as string) || "text/plain",
+    fileName: (row["file_name"] as string | null) ?? null,
+    byteSize: Number(row["byte_size"] ?? 0),
+    notes: (row["notes"] as string | null) ?? null,
+    createdAt: row["created_at"] as string,
+    createdBy: (row["created_by"] as string | null) ?? null
+  };
+}
+
+function buildActivity(input: {
+  createdAt: string;
+  title: string;
+  links: DocumentLink[];
+  versions: DocumentVersion[];
+}): DocumentActivityItem[] {
+  const items: DocumentActivityItem[] = [
+    { at: input.createdAt, label: "Created", detail: input.title }
+  ];
+  for (const version of input.versions) {
+    items.push({
+      at: version.createdAt,
+      label: `Version ${version.versionNumber}`,
+      detail: version.notes?.trim() || version.title
+    });
+  }
+  for (const link of input.links) {
+    const entityLabel = DOCUMENT_ENTITY_LABELS[link.entityType] ?? link.entityType;
+    items.push({
+      at: link.createdAt,
+      label: "Linked",
+      detail: link.label?.trim() ? `${entityLabel} · ${link.label}` : entityLabel
+    });
+  }
+  return items.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+}
+
+function matchesQuery(doc: DocumentRecord, needle: string): boolean {
+  const haystack = [
+    doc.title,
+    doc.entityLabel ?? "",
+    doc.category,
+    doc.entityType,
+    doc.fileName ?? "",
+    doc.mimeType,
+    doc.notes ?? "",
+    doc.keywords ?? "",
+    ...(doc.tags ?? [])
+  ]
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(needle);
 }
 
 async function resolveEntityLabel(
@@ -55,6 +162,19 @@ async function resolveEntityLabel(
         .eq("id", entityId)
         .maybeSingle();
       return { label: (data?.name as string) ?? "Property", propertyId: entityId };
+    }
+    case "unit": {
+      const { data } = await supabase
+        .from("property_units")
+        .select("id, unit_label, property_id")
+        .eq("organization_id", organizationId)
+        .eq("id", entityId)
+        .maybeSingle();
+      const unitLabel = data?.unit_label as string | undefined;
+      return {
+        label: unitLabel ? `Unit ${unitLabel}` : "Unit",
+        propertyId: (data?.property_id as string | null) ?? null
+      };
     }
     case "resident": {
       const { data } = await supabase
@@ -105,9 +225,170 @@ async function resolveEntityLabel(
         .maybeSingle();
       return { label: (data?.name as string) ?? "Vendor", propertyId: null };
     }
-    default:
+    case "organization":
       return { label: "Organization", propertyId: null };
+    case "asset":
+    case "inspection":
+    case "compliance":
+    case "financial":
+    case "building":
+      return { label: DOCUMENT_ENTITY_LABELS[entityType], propertyId: null };
+    default:
+      return { label: "Document", propertyId: null };
   }
+}
+
+async function selectDocumentRows(
+  supabase: Db,
+  organizationId: string,
+  filters?: {
+    entityType?: DocumentEntityType | "all";
+    propertyId?: string;
+    category?: DocumentCategory;
+    status?: DocumentStatus;
+  }
+) {
+  let extendedQuery = supabase
+    .from("document_documents")
+    .select(EXTENDED_DOCUMENT_COLUMNS)
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (filters?.entityType && filters.entityType !== "all") {
+    extendedQuery = extendedQuery.eq("entity_type", filters.entityType);
+  }
+  if (filters?.propertyId) {
+    extendedQuery = extendedQuery.eq("property_id", filters.propertyId);
+  }
+  if (filters?.category) {
+    extendedQuery = extendedQuery.eq("category", filters.category);
+  }
+  if (filters?.status) {
+    extendedQuery = extendedQuery.eq("status", filters.status);
+  }
+
+  const extended = await extendedQuery;
+  if (!extended.error) {
+    return extended;
+  }
+
+  const message = extended.error.message.toLowerCase();
+  const missingColumn =
+    message.includes("column") ||
+    message.includes("does not exist") ||
+    message.includes("schema cache");
+  if (!missingColumn) {
+    return extended;
+  }
+
+  // Fall back to core columns when intelligence migration is not applied yet.
+  let coreQuery = supabase
+    .from("document_documents")
+    .select(CORE_DOCUMENT_COLUMNS)
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (filters?.entityType && filters.entityType !== "all") {
+    coreQuery = coreQuery.eq("entity_type", filters.entityType);
+  }
+  if (filters?.propertyId) {
+    coreQuery = coreQuery.eq("property_id", filters.propertyId);
+  }
+  // category/status columns may be missing — skip DB filter; client filter applied later if needed
+  return coreQuery;
+}
+
+export async function listDocumentLinks(
+  supabase: Db,
+  organizationId: string,
+  documentId: string
+): Promise<DocumentLink[]> {
+  const { data, error } = await supabase
+    .from("document_document_links")
+    .select("id, entity_type, entity_id, label, created_at")
+    .eq("organization_id", organizationId)
+    .eq("document_id", documentId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (
+      message.includes("does not exist") ||
+      message.includes("schema cache") ||
+      message.includes("relation")
+    ) {
+      return [];
+    }
+    throw new Error(error.message);
+  }
+
+  return (data ?? []).map((row) => mapLinkRow(row as Record<string, unknown>));
+}
+
+export async function addDocumentLink(
+  supabase: Db,
+  organizationId: string,
+  documentId: string,
+  entityType: string,
+  entityId: string,
+  label?: string
+): Promise<DocumentLink> {
+  if (!isDocumentEntityType(entityType)) {
+    throw new Error("Invalid entity type");
+  }
+  if (!entityId.trim()) {
+    throw new Error("entityId is required");
+  }
+
+  const { data, error } = await supabase
+    .from("document_document_links")
+    .upsert(
+      {
+        organization_id: organizationId,
+        document_id: documentId,
+        entity_type: entityType,
+        entity_id: entityId.trim(),
+        label: label?.trim() || null
+      },
+      { onConflict: "document_id,entity_type,entity_id" }
+    )
+    .select("id, entity_type, entity_id, label, created_at")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapLinkRow(data as Record<string, unknown>);
+}
+
+export async function listDocumentVersions(
+  supabase: Db,
+  organizationId: string,
+  documentId: string
+): Promise<DocumentVersion[]> {
+  const { data, error } = await supabase
+    .from("document_document_versions")
+    .select(
+      "id, version_number, title, mime_type, file_name, byte_size, notes, created_at, created_by"
+    )
+    .eq("organization_id", organizationId)
+    .eq("document_id", documentId)
+    .order("version_number", { ascending: false });
+
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (
+      message.includes("does not exist") ||
+      message.includes("schema cache") ||
+      message.includes("relation")
+    ) {
+      return [];
+    }
+    throw new Error(error.message);
+  }
+
+  return (data ?? []).map((row) => mapVersionRow(row as Record<string, unknown>));
 }
 
 export async function listDocuments(
@@ -117,30 +398,24 @@ export async function listDocuments(
     entityType?: DocumentEntityType | "all";
     query?: string;
     propertyId?: string;
+    category?: DocumentCategory;
+    status?: DocumentStatus;
   }
 ): Promise<DocumentRecord[]> {
-  let query = supabase
-    .from("document_documents")
-    .select(
-      "id, organization_id, entity_type, entity_id, title, category, source, mime_type, file_name, byte_size, signwell_document_id, external_url, property_id, created_at, content_text, content_base64"
-    )
-    .eq("organization_id", organizationId)
-    .order("created_at", { ascending: false })
-    .limit(100);
-
-  if (filters?.entityType && filters.entityType !== "all") {
-    query = query.eq("entity_type", filters.entityType);
-  }
-  if (filters?.propertyId) {
-    query = query.eq("property_id", filters.propertyId);
-  }
-
-  const { data, error } = await query;
+  const { data, error } = await selectDocumentRows(supabase, organizationId, filters);
   if (error) {
     throw new Error(error.message);
   }
 
-  const uploaded = (data ?? []).map((row) => mapRow(row as Record<string, unknown>));
+  let uploaded = (data ?? []).map((row) => mapRow(row as Record<string, unknown>));
+
+  // When falling back to core columns, category/status may not have been filtered in SQL.
+  if (filters?.category) {
+    uploaded = uploaded.filter((doc) => doc.category === filters.category);
+  }
+  if (filters?.status) {
+    uploaded = uploaded.filter((doc) => (doc.status ?? "active") === filters.status);
+  }
 
   // Reuse lease agreement documents (generated / SignWell / offline) in the same library.
   const { data: leases } = await supabase
@@ -161,6 +436,12 @@ export async function listDocuments(
       continue;
     }
     if (filters?.propertyId && lease.property_id !== filters.propertyId) {
+      continue;
+    }
+    if (filters?.category && filters.category !== "lease") {
+      continue;
+    }
+    if (filters?.status && filters.status !== "active") {
       continue;
     }
     const alreadyIndexed = uploaded.some(
@@ -197,7 +478,12 @@ export async function listDocuments(
         (lease.signwell_status as string | null) ??
         "Lease",
       createdAt: (lease.activated_at as string | null) ?? (lease.created_at as string),
-      hasContent: Boolean(lease.document_body || lease.signwell_document_id)
+      hasContent: Boolean(lease.document_body || lease.signwell_document_id),
+      tags: [],
+      notes: null,
+      status: "active",
+      keywords: null,
+      versionNumber: 1
     });
   }
 
@@ -209,20 +495,14 @@ export async function listDocuments(
   if (!needle) {
     return combined;
   }
-  return combined.filter(
-    (doc) =>
-      doc.title.toLowerCase().includes(needle) ||
-      (doc.entityLabel ?? "").toLowerCase().includes(needle) ||
-      doc.category.toLowerCase().includes(needle) ||
-      doc.entityType.toLowerCase().includes(needle)
-  );
+  return combined.filter((doc) => matchesQuery(doc, needle));
 }
 
 export async function getDocumentDetail(
   supabase: Db,
   organizationId: string,
   documentId: string
-) {
+): Promise<DocumentDetail | null> {
   if (documentId.startsWith("lease:")) {
     const leaseId = documentId.slice("lease:".length);
     const { data: lease, error } = await supabase
@@ -253,33 +533,45 @@ export async function getDocumentDetail(
       }
     }
 
+    const createdAt = (lease.activated_at as string | null) ?? (lease.created_at as string);
+    const title = (lease.document_name as string) || "Lease agreement";
+    const document: DocumentRecord = {
+      id: documentId,
+      organizationId,
+      entityType: "lease",
+      entityId: lease.id as string,
+      title,
+      category: "lease",
+      source:
+        lease.signing_channel === "signwell"
+          ? "signwell"
+          : lease.signing_channel === "offline"
+            ? "offline"
+            : "generated",
+      mimeType: "text/plain",
+      fileName: `${(lease.document_name as string) || "lease"}.txt`,
+      byteSize: String(lease.document_body ?? "").length,
+      signwellDocumentId: (lease.signwell_document_id as string | null) ?? null,
+      externalUrl,
+      propertyId: (lease.property_id as string | null) ?? null,
+      entityLabel: signwellStatus,
+      createdAt,
+      hasContent: Boolean(lease.document_body || lease.signwell_document_id),
+      tags: [],
+      notes: null,
+      status: "active",
+      keywords: null,
+      versionNumber: 1
+    };
+
     return {
-      document: {
-        id: documentId,
-        organizationId,
-        entityType: "lease" as const,
-        entityId: lease.id as string,
-        title: (lease.document_name as string) || "Lease agreement",
-        category: "lease" as const,
-        source:
-          lease.signing_channel === "signwell"
-            ? ("signwell" as const)
-            : lease.signing_channel === "offline"
-              ? ("offline" as const)
-              : ("generated" as const),
-        mimeType: "text/plain",
-        fileName: `${(lease.document_name as string) || "lease"}.txt`,
-        byteSize: String(lease.document_body ?? "").length,
-        signwellDocumentId: (lease.signwell_document_id as string | null) ?? null,
-        externalUrl,
-        propertyId: (lease.property_id as string | null) ?? null,
-        entityLabel: signwellStatus,
-        createdAt: (lease.activated_at as string | null) ?? (lease.created_at as string),
-        hasContent: Boolean(lease.document_body || lease.signwell_document_id)
-      },
+      document,
       contentText: (lease.document_body as string | null) ?? null,
-      contentBase64: null as string | null,
-      signwellStatus
+      contentBase64: null,
+      signwellStatus,
+      links: [],
+      versions: [],
+      activity: [{ at: createdAt, label: "Created", detail: title }]
     };
   }
 
@@ -295,11 +587,26 @@ export async function getDocumentDetail(
   if (!data) {
     return null;
   }
+
+  const document = mapRow(data as Record<string, unknown>);
+  const [links, versions] = await Promise.all([
+    listDocumentLinks(supabase, organizationId, documentId),
+    listDocumentVersions(supabase, organizationId, documentId)
+  ]);
+
   return {
-    document: mapRow(data as Record<string, unknown>),
+    document: { ...document, links },
     contentText: (data.content_text as string | null) ?? null,
     contentBase64: (data.content_base64 as string | null) ?? null,
-    signwellStatus: null as string | null
+    signwellStatus: null,
+    links,
+    versions,
+    activity: buildActivity({
+      createdAt: document.createdAt,
+      title: document.title,
+      links,
+      versions
+    })
   };
 }
 
@@ -316,6 +623,10 @@ export async function uploadDocument(
     mimeType?: string;
     contentText?: string;
     contentBase64?: string;
+    tags?: string[];
+    notes?: string;
+    keywords?: string;
+    relatedLinks?: Array<{ entityType: string; entityId: string; label?: string }>;
   }
 ) {
   if (!isDocumentEntityType(input.entityType)) {
@@ -342,29 +653,133 @@ export async function uploadDocument(
     input.entityId
   );
 
-  const { data, error } = await supabase
-    .from("document_documents")
-    .insert({
-      organization_id: organizationId,
-      entity_type: input.entityType,
-      entity_id: input.entityId,
-      title: input.title.trim(),
-      category,
-      source: "upload",
-      mime_type: input.mimeType?.trim() || (contentBase64 ? "application/octet-stream" : "text/plain"),
-      file_name: input.fileName?.trim() || null,
-      content_text: contentText,
-      content_base64: contentBase64,
-      byte_size: byteSize,
-      property_id: resolved.propertyId,
-      uploaded_by: actorId
-    })
-    .select("*")
-    .single();
+  const tags = (input.tags ?? [])
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+    .slice(0, 40);
+  const notes = input.notes?.trim() || null;
+  const keywords = input.keywords?.trim() || null;
+  const mimeType =
+    input.mimeType?.trim() || (contentBase64 ? "application/octet-stream" : "text/plain");
+  const fileName = input.fileName?.trim() || null;
+  const title = input.title.trim();
+
+  const insertPayload: Record<string, unknown> = {
+    organization_id: organizationId,
+    entity_type: input.entityType,
+    entity_id: input.entityId,
+    title,
+    category,
+    source: "upload",
+    mime_type: mimeType,
+    file_name: fileName,
+    content_text: contentText,
+    content_base64: contentBase64,
+    byte_size: byteSize,
+    property_id: resolved.propertyId,
+    uploaded_by: actorId,
+    tags,
+    notes,
+    keywords,
+    status: "active",
+    version_number: 1
+  };
+
+  let data: Record<string, unknown> | null = null;
+  let error: { message: string } | null = null;
+
+  {
+    const result = await supabase.from("document_documents").insert(insertPayload).select("*").single();
+    data = (result.data as Record<string, unknown> | null) ?? null;
+    error = result.error;
+  }
 
   if (error) {
-    throw new Error(error.message);
+    const message = error.message.toLowerCase();
+    const missingColumn =
+      message.includes("column") ||
+      message.includes("does not exist") ||
+      message.includes("schema cache");
+    if (missingColumn) {
+      const corePayload = {
+        organization_id: insertPayload["organization_id"],
+        entity_type: insertPayload["entity_type"],
+        entity_id: insertPayload["entity_id"],
+        title: insertPayload["title"],
+        category: insertPayload["category"],
+        source: insertPayload["source"],
+        mime_type: insertPayload["mime_type"],
+        file_name: insertPayload["file_name"],
+        content_text: insertPayload["content_text"],
+        content_base64: insertPayload["content_base64"],
+        byte_size: insertPayload["byte_size"],
+        property_id: insertPayload["property_id"],
+        uploaded_by: insertPayload["uploaded_by"]
+      };
+      const fallback = await supabase
+        .from("document_documents")
+        .insert(corePayload)
+        .select("*")
+        .single();
+      data = (fallback.data as Record<string, unknown> | null) ?? null;
+      error = fallback.error;
+    }
   }
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Failed to upload document");
+  }
+
+  const documentId = data["id"] as string;
+
+  // Primary link matching the document's entity_type / entity_id.
+  try {
+    await addDocumentLink(
+      supabase,
+      organizationId,
+      documentId,
+      input.entityType,
+      input.entityId,
+      resolved.label
+    );
+  } catch {
+    // Links table may not exist yet — upload still succeeds.
+  }
+
+  for (const related of input.relatedLinks ?? []) {
+    if (!isDocumentEntityType(related.entityType) || !related.entityId?.trim()) {
+      continue;
+    }
+    if (related.entityType === input.entityType && related.entityId === input.entityId) {
+      continue;
+    }
+    try {
+      await addDocumentLink(
+        supabase,
+        organizationId,
+        documentId,
+        related.entityType,
+        related.entityId,
+        related.label
+      );
+    } catch {
+      // Skip related link failures without failing the upload.
+    }
+  }
+
+  await supabase.from("document_document_versions").insert({
+    organization_id: organizationId,
+    document_id: documentId,
+    version_number: 1,
+    title,
+    mime_type: mimeType,
+    file_name: fileName,
+    content_text: contentText,
+    content_base64: contentBase64,
+    byte_size: byteSize,
+    notes,
+    created_by: actorId
+  });
 
   await emitPropertyEvent({
     supabase,
@@ -372,12 +787,12 @@ export async function uploadDocument(
     actorId,
     eventType: "document.uploaded",
     aggregateType: "document_documents",
-    aggregateId: data.id as string,
+    aggregateId: documentId,
     payload: {
-      title: data.title,
-      entityType: data.entity_type,
-      entityId: data.entity_id,
-      category: data.category
+      title: data["title"],
+      entityType: data["entity_type"],
+      entityId: data["entity_id"],
+      category: data["category"]
     }
   });
   await writePropertyAudit({
@@ -386,15 +801,15 @@ export async function uploadDocument(
     actorId,
     action: "document.uploaded",
     entityType: "document_documents",
-    entityId: data.id as string,
+    entityId: documentId,
     payload: {
-      title: data.title,
-      entityType: data.entity_type,
-      entityId: data.entity_id
+      title: data["title"],
+      entityType: data["entity_type"],
+      entityId: data["entity_id"]
     }
   });
 
-  return mapRow(data as Record<string, unknown>, resolved.label);
+  return mapRow(data, resolved.label);
 }
 
 export async function ensureSignWellLeaseDocumentIndexed(

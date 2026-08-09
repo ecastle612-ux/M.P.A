@@ -1,0 +1,161 @@
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import {
+  DOCUMENT_CATEGORY_LABELS,
+  DOCUMENT_ENTITY_LABELS,
+  type DocumentRecord,
+  type PdfExportTemplate
+} from "@mpa/shared";
+
+const TEMPLATE_TITLES: Record<PdfExportTemplate, string> = {
+  lease: "Lease Agreement",
+  work_order: "Work Order",
+  inspection: "Inspection Report",
+  maintenance: "Maintenance Report",
+  move_in: "Move-In Report",
+  move_out: "Move-Out Report",
+  vendor_work_order: "Vendor Work Order",
+  purchase_order: "Purchase Order",
+  invoice: "Invoice",
+  property_report: "Property Report",
+  asset_report: "Asset Report",
+  compliance: "Compliance Report",
+  resident_statement: "Resident Statement",
+  financial_report: "Financial Report",
+  organization_report: "Organization Report",
+  generic: "Document"
+};
+
+function inferTemplate(document: DocumentRecord, explicit?: PdfExportTemplate): PdfExportTemplate {
+  if (explicit) return explicit;
+  if (document.category === "lease" || document.entityType === "lease") return "lease";
+  if (document.category === "invoice") return "invoice";
+  if (document.category === "inspection" || document.entityType === "inspection") return "inspection";
+  if (document.category === "compliance" || document.entityType === "compliance") return "compliance";
+  if (document.category === "maintenance" || document.entityType === "maintenance") return "work_order";
+  if (document.category === "report") return "property_report";
+  if (document.entityType === "financial") return "financial_report";
+  if (document.entityType === "asset") return "asset_report";
+  return "generic";
+}
+
+function wrapLines(text: string, maxChars: number): string[] {
+  const lines: string[] = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const paragraph = raw.trimEnd();
+    if (!paragraph) {
+      lines.push("");
+      continue;
+    }
+    let remaining = paragraph;
+    while (remaining.length > maxChars) {
+      let breakAt = remaining.lastIndexOf(" ", maxChars);
+      if (breakAt < Math.floor(maxChars * 0.5)) breakAt = maxChars;
+      lines.push(remaining.slice(0, breakAt));
+      remaining = remaining.slice(breakAt).trimStart();
+    }
+    lines.push(remaining);
+  }
+  return lines;
+}
+
+export async function buildProfessionalPdf(input: {
+  document: DocumentRecord;
+  contentText: string | null;
+  organizationName?: string | null;
+  template?: PdfExportTemplate;
+}): Promise<{ bytes: Uint8Array; fileName: string; template: PdfExportTemplate }> {
+  const template = inferTemplate(input.document, input.template);
+  const pdf = await PDFDocument.create();
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+
+  let page = pdf.addPage([612, 792]);
+  const margin = 54;
+  let y = 738;
+
+  const drawText = (text: string, size: number, useBold = false, color = rgb(0.08, 0.12, 0.18)) => {
+    const active = useBold ? bold : font;
+    page.drawText(text, { x: margin, y, size, font: active, color });
+    y -= size + 8;
+  };
+
+  const ensureSpace = (needed: number) => {
+    if (y < margin + needed) {
+      page = pdf.addPage([612, 792]);
+      y = 738;
+    }
+  };
+
+  drawText("M.P.A. · Document Intelligence", 10, false, rgb(0.25, 0.45, 0.4));
+  drawText(TEMPLATE_TITLES[template], 20, true);
+  if (input.organizationName) {
+    drawText(input.organizationName, 11, false, rgb(0.3, 0.35, 0.4));
+  }
+
+  y -= 6;
+  page.drawLine({
+    start: { x: margin, y },
+    end: { x: 612 - margin, y },
+    thickness: 1,
+    color: rgb(0.85, 0.88, 0.9)
+  });
+  y -= 18;
+
+  const meta = [
+    `Title: ${input.document.title}`,
+    `Belongs to: ${DOCUMENT_ENTITY_LABELS[input.document.entityType]}${
+      input.document.entityLabel ? ` · ${input.document.entityLabel}` : ""
+    }`,
+    `Category: ${DOCUMENT_CATEGORY_LABELS[input.document.category]}`,
+    `Status: ${input.document.status ?? "active"}`,
+    `Version: ${input.document.versionNumber ?? 1}`,
+    `Created: ${new Date(input.document.createdAt).toLocaleString()}`,
+    ...(input.document.tags?.length ? [`Tags: ${input.document.tags.join(", ")}`] : [])
+  ];
+
+  for (const line of meta) {
+    ensureSpace(20);
+    drawText(line, 10);
+  }
+
+  y -= 8;
+  ensureSpace(40);
+  drawText("Body", 12, true);
+  const body = (input.contentText ?? "").trim() || "No text body available for this document.";
+  for (const line of wrapLines(body, 92)) {
+    ensureSpace(16);
+    if (!line) {
+      y -= 10;
+      continue;
+    }
+    page.drawText(line, {
+      x: margin,
+      y,
+      size: 10,
+      font,
+      color: rgb(0.12, 0.14, 0.18),
+      maxWidth: 612 - margin * 2
+    });
+    y -= 14;
+  }
+
+  ensureSpace(40);
+  y -= 10;
+  page.drawLine({
+    start: { x: margin, y },
+    end: { x: 612 - margin, y },
+    thickness: 0.5,
+    color: rgb(0.85, 0.88, 0.9)
+  });
+  y -= 16;
+  drawText("Generated by My Property Assistant · Document Intelligence Center", 8, false, rgb(0.45, 0.5, 0.55));
+  drawText("Suitable for sharing with customers, vendors, auditors, and owners.", 8, false, rgb(0.45, 0.5, 0.55));
+
+  const bytes = await pdf.save();
+  const safeTitle = input.document.title.replace(/[^a-zA-Z0-9-_ ]+/g, "").trim().replace(/\s+/g, "-") || "document";
+  return {
+    bytes,
+    fileName: `${safeTitle}-${template}.pdf`,
+    template
+  };
+}

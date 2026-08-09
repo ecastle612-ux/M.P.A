@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isDocumentEntityType } from "@mpa/shared";
+import { isDocumentCategory, isDocumentEntityType, isDocumentStatus } from "@mpa/shared";
 import { requireDocumentPermission } from "../../../../lib/documents/authz";
 import { listDocuments, uploadDocument } from "../../../../lib/documents/document-service";
 
@@ -23,13 +23,24 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Invalid entityType" }, { status: 400 });
   }
 
+  const categoryParam = searchParams.get("category");
+  if (categoryParam && !isDocumentCategory(categoryParam)) {
+    return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+  }
+  const statusParam = searchParams.get("status");
+  if (statusParam && !isDocumentStatus(statusParam)) {
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+  }
+
   try {
     const q = searchParams.get("q");
     const propertyId = searchParams.get("propertyId");
     const documents = await listDocuments(authz.supabase, authz.organizationId, {
       entityType,
       ...(q ? { query: q } : {}),
-      ...(propertyId ? { propertyId } : {})
+      ...(propertyId ? { propertyId } : {}),
+      ...(categoryParam && isDocumentCategory(categoryParam) ? { category: categoryParam } : {}),
+      ...(statusParam && isDocumentStatus(statusParam) ? { status: statusParam } : {})
     });
     return NextResponse.json({ documents });
   } catch (error) {
@@ -56,6 +67,10 @@ export async function POST(request: Request) {
       mimeType?: string;
       contentText?: string;
       contentBase64?: string;
+      tags?: string[];
+      notes?: string;
+      keywords?: string;
+      relatedLinks?: Array<{ entityType: string; entityId: string; label?: string }>;
     };
     if (!body.entityType || !body.entityId || !body.title) {
       return NextResponse.json(
@@ -71,7 +86,11 @@ export async function POST(request: Request) {
       ...(body.fileName ? { fileName: body.fileName } : {}),
       ...(body.mimeType ? { mimeType: body.mimeType } : {}),
       ...(body.contentText ? { contentText: body.contentText } : {}),
-      ...(body.contentBase64 ? { contentBase64: body.contentBase64 } : {})
+      ...(body.contentBase64 ? { contentBase64: body.contentBase64 } : {}),
+      ...(body.tags ? { tags: body.tags } : {}),
+      ...(body.notes ? { notes: body.notes } : {}),
+      ...(body.keywords ? { keywords: body.keywords } : {}),
+      ...(body.relatedLinks ? { relatedLinks: body.relatedLinks } : {})
     });
     return NextResponse.json({ document }, { status: 201 });
   } catch (error) {

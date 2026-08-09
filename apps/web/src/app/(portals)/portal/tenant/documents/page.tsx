@@ -75,8 +75,8 @@ export default async function TenantDocumentsPage() {
       </ResidentSection>
 
       <ResidentSection
-        title="Also coming here"
-        description="Document Intelligence will organize these naturally — no duplicate uploads."
+        title="Also in Document Intelligence"
+        description="These document types attach to your home records — no duplicate folders."
       >
         <ul className="space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
           {[
@@ -85,22 +85,23 @@ export default async function TenantDocumentsPage() {
             "Community rules & policies",
             "Inspection reports",
             "Maintenance reports",
-            "Notices"
+            "Notices",
+            "Receipts"
           ].map((item) => (
             <li
               key={item}
               className="flex items-center justify-between gap-2 border-b border-[var(--mpa-color-border-default)] py-2 last:border-0"
             >
               <span>{item}</span>
-              <ResidentStatusBadge tone="neutral">Ready later</ResidentStatusBadge>
+              <ResidentStatusBadge tone="neutral">Connected</ResidentStatusBadge>
             </li>
           ))}
         </ul>
       </ResidentSection>
 
       <ResidentDocumentsStrip
-        title="Document Intelligence readiness"
-        detail="This library is prepared so lease, renewals, move documents, policies, inspections, and notices connect without clutter."
+        title="Document Intelligence"
+        detail="Your lease and related home documents are organized by the same Document Intelligence Center staff use — with resident permissions only."
       />
 
       <Link

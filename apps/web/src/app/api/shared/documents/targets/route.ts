@@ -9,13 +9,19 @@ export async function GET() {
     return authz.error;
   }
 
-  const [properties, residents, leases, workOrders, vendors] = await Promise.all([
+  const [properties, units, residents, leases, workOrders, vendors] = await Promise.all([
     authz.supabase
       .from("property_properties")
       .select("id, name")
       .eq("organization_id", authz.organizationId)
       .order("name")
       .limit(100),
+    authz.supabase
+      .from("property_units")
+      .select("id, unit_label, property_id")
+      .eq("organization_id", authz.organizationId)
+      .order("unit_label")
+      .limit(200),
     authz.supabase
       .from("pm_residents")
       .select("id, display_name, property_id")
@@ -49,6 +55,11 @@ export async function GET() {
         label: row.name as string,
         propertyId: row.id as string
       })),
+      unit: (units.data ?? []).map((row) => ({
+        id: row.id as string,
+        label: (row.unit_label as string) || "Unit",
+        propertyId: (row.property_id as string | null) ?? null
+      })),
       resident: (residents.data ?? []).map((row) => ({
         id: row.id as string,
         label: row.display_name as string,
@@ -68,7 +79,13 @@ export async function GET() {
         id: row.id as string,
         label: row.name as string,
         propertyId: null
-      }))
+      })),
+      // FO / finance entity pickers land when those workflow packages activate.
+      asset: [],
+      inspection: [],
+      compliance: [],
+      financial: [],
+      building: []
     }
   });
 }
