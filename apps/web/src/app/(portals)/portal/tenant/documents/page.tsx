@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { resolveActiveOrganizationIdForUser } from "../../../../../lib/organization/resolve-active-organization";
+import {
+  ResidentDocumentsStrip,
+  ResidentPageIntro,
+  ResidentSection,
+  ResidentStatusBadge
+} from "../../../../../components/shell/resident-workspace";
 
 type AnyRow = Record<string, unknown>;
 
@@ -43,25 +49,66 @@ export default async function TenantDocumentsPage() {
   }
 
   return (
-    <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
-      <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
-        Documents
-      </h2>
-      {documentBody ? (
-        <>
-          <p className="text-sm text-[var(--mpa-color-text-secondary)]">{documentName}</p>
-          <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-md bg-[var(--mpa-color-bg-app)] p-3 text-xs">
-            {documentBody}
-          </pre>
-        </>
-      ) : (
-        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Signed lease documents appear here after activation.
-        </p>
-      )}
-      <Link href="/portal/tenant" className="text-sm text-[var(--mpa-color-brand-primary)] underline">
-        Back to welcome
+    <div className="mx-auto max-w-2xl space-y-4">
+      <ResidentPageIntro
+        eyebrow="Documents"
+        title="Your papers"
+        description="Lease, policies, and notices in one calm place — ready for Document Intelligence later."
+      />
+
+      <ResidentSection title="Lease" description="Your signed agreement when available.">
+        {documentBody ? (
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">{documentName}</p>
+              <ResidentStatusBadge tone="ok">Available</ResidentStatusBadge>
+            </div>
+            <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded-xl bg-[var(--mpa-color-bg-app)] p-3 text-sm leading-6">
+              {documentBody}
+            </pre>
+          </>
+        ) : (
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Signed lease documents appear here after activation.
+          </p>
+        )}
+      </ResidentSection>
+
+      <ResidentSection
+        title="Also coming here"
+        description="Document Intelligence will organize these naturally — no duplicate uploads."
+      >
+        <ul className="space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
+          {[
+            "Renewals",
+            "Move-in / move-out packets",
+            "Community rules & policies",
+            "Inspection reports",
+            "Maintenance reports",
+            "Notices"
+          ].map((item) => (
+            <li
+              key={item}
+              className="flex items-center justify-between gap-2 border-b border-[var(--mpa-color-border-default)] py-2 last:border-0"
+            >
+              <span>{item}</span>
+              <ResidentStatusBadge tone="neutral">Ready later</ResidentStatusBadge>
+            </li>
+          ))}
+        </ul>
+      </ResidentSection>
+
+      <ResidentDocumentsStrip
+        title="Document Intelligence readiness"
+        detail="This library is prepared so lease, renewals, move documents, policies, inspections, and notices connect without clutter."
+      />
+
+      <Link
+        href="/portal/tenant"
+        className="inline-flex min-h-11 items-center text-sm font-medium text-[var(--mpa-color-brand-primary)] underline"
+      >
+        Back home
       </Link>
-    </section>
+    </div>
   );
 }

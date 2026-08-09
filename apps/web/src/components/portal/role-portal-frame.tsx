@@ -9,6 +9,7 @@ import { PortalShell } from "./portal-shell";
 type PortalNavigationItem = {
   href: string;
   label: string;
+  shortLabel?: string;
 };
 
 export function RolePortalFrame({
@@ -20,7 +21,8 @@ export function RolePortalFrame({
   title,
   subtitle,
   roleBadgeLabel,
-  navigation
+  navigation,
+  experience = "default"
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -31,6 +33,7 @@ export function RolePortalFrame({
   subtitle: string;
   roleBadgeLabel: string;
   navigation: readonly PortalNavigationItem[];
+  experience?: "default" | "resident";
 }) {
   return (
     <AuthenticatedContextProviders
@@ -39,7 +42,13 @@ export function RolePortalFrame({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
     >
-      <PortalShell title={title} subtitle={subtitle} roleBadgeLabel={roleBadgeLabel} navigation={navigation}>
+      <PortalShell
+        title={title}
+        subtitle={subtitle}
+        roleBadgeLabel={roleBadgeLabel}
+        navigation={navigation}
+        experience={experience}
+      >
         {children}
       </PortalShell>
     </AuthenticatedContextProviders>

@@ -29,10 +29,11 @@ export default async function TenantPortalLayout({ children }: { children: React
       defaultRole="tenant"
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
-      title="Tenant Portal"
-      subtitle="Billing, maintenance, and documents for your home."
-      roleBadgeLabel="Tenant"
+      title="My Home"
+      subtitle="Pay rent, report issues, and find what you need — fast."
+      roleBadgeLabel="Resident"
       navigation={TENANT_PORTAL_NAVIGATION}
+      experience="resident"
     >
       {children}
     </RolePortalFrame>
