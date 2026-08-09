@@ -13,6 +13,13 @@
 | PM / FO / Master Admin / commercial | No |
 | Demo | No |
 
+## CI (pre-merge)
+
+| Check | Result |
+| --- | --- |
+| GitHub Actions `verify` | **PASS** |
+| Vercel Preview | **FAIL** — known preview-env pattern (same as prior Phase 4 sprints) |
+
 ## Expectation
 
 Landing · Commercial · Pricing · Checkout · Provisioning · Master Admin · Platform Ops · PM · FO · Demo remain unaffected. Other portals keep default shell (no bottom tabs).
