@@ -27,7 +27,6 @@ export function demoConversionHref(
   return withDemoAttribution(
     acquisitionHref("checkout", {
       sku: product,
-      planTier: "professional",
       billingCycle: "monthly"
     }),
     demoSessionId

@@ -172,7 +172,28 @@ export function DemoChrome({
         ) : null}
       </div>
 
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 md:px-6">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 md:flex-row md:gap-6 md:px-6">
+        <div className="md:hidden">
+          <label className="block space-y-1 text-xs text-[var(--mpa-color-text-secondary)]">
+            <span className="font-semibold uppercase tracking-wide">Demo modules</span>
+            <select
+              className="w-full rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm"
+              value={surface}
+              aria-label="Demo modules"
+              onChange={(event) => {
+                const next = event.target.value;
+                void track(DEMO_ANALYTICS_EVENTS.module_visited, { moduleId: next });
+                router.push(demoHref(product, next));
+              }}
+            >
+              {nav.map((item) => (
+                <option key={item.id} value={item.surface}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <aside className="hidden w-56 shrink-0 md:block">
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
             Demonstration roles — not your real team

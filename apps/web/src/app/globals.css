@@ -2,10 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Canopy display face — self-hosted Satoshi (Fontshare FFL). See public/fonts/FFL.txt */
+@font-face {
+  font-family: Satoshi;
+  src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --mpa-font-display: Satoshi, "IBM Plex Sans", system-ui, sans-serif;
-  --mpa-font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --mpa-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --mpa-font-display: Satoshi, var(--font-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
+  --mpa-font-sans: var(--font-plex-sans), "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mpa-font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
 
   --mpa-color-bg-app: #f3f4f6;
   --mpa-color-bg-sidebar: #12151a;
