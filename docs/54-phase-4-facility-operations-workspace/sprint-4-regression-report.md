@@ -41,15 +41,16 @@
 
 ## LIVE verification (post-deploy)
 
-To be filled after Production deploy:
-
 | Check | Result |
 | --- | --- |
-| Landing | Pending |
-| Pricing / Checkout smoke | Pending |
-| Master Admin | Pending |
-| PM Mission Control | Pending |
-| Demo FO | Pending |
-| FO Mission Control (auth) | Pending — Owner session |
+| Landing | **PASS** |
+| Pricing / Modules / Confirm Plan | **PASS** |
+| Checkout / Provisioning | Funnel pages PASS; no Stripe write exercised |
+| Master Admin / Platform Ops | Auth gate intact (307 → login) |
+| PM Mission Control | Auth gate intact (307 → login) |
+| Demo FO | **PASS** |
+| FO Mission Control (auth) | **AUTH_BLOCKED** — Owner session required |
 
-**STOP:** Do not start Sprint 5 until LIVE + Owner acceptance.
+See [sprint-4-live-verification.md](./sprint-4-live-verification.md).
+
+**STOP:** Do not start Sprint 5 until Owner LIVE acceptance.

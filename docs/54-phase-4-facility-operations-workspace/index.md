@@ -1,8 +1,9 @@
 # 54 — Phase 4 Facility Operations Workspace
 
-**Status:** Sprint 4 **implemented** — awaiting Owner acceptance → merge → Production → LIVE  
-**Authority:** Owner Phase 4 Sprint 4 authorization  
-**Rule:** Do **not** begin Sprint 5 until Sprint 4 is LIVE and Owner-accepted.
+**Status:** Sprint 4 **LIVE in Production** — awaiting Owner LIVE acceptance  
+**Merge SHA / Production SHA:** `c56253ba1e7814b8a55c214bf9297020216bb342`  
+**Authority:** Owner Phase 4 Sprint 4 authorization + production deployment authorization  
+**Rule:** Do **not** begin Sprint 5 until Owner LIVE acceptance.
 
 ## Documents
 
@@ -16,8 +17,10 @@
 | [Performance](./sprint-4-performance-report.md) | Perf |
 | [Regression](./sprint-4-regression-report.md) | Non-FO surfaces |
 | [Quality Score](./sprint-4-quality-score.md) | Scorecard |
-| [Screenshots](./screenshots-sprint-4/) | Before/after fixtures |
+| [Screenshots (pre-merge)](./screenshots-sprint-4/) | Demo / structural fixtures |
+| [LIVE Verification](./sprint-4-live-verification.md) | Deploy + LIVE checks |
+| [LIVE Screenshots](./screenshots-sprint-4-live/) | Production captures |
 
 ## Summary
 
-Shared FO chrome, Facility Mission Control attention home (glance strip, priority legend, what-to-do-next, capability map), honest planned-module shells with domain-specific operational intent + Documents deep-links, Complete Platform bridge to live PM Maintenance/Vendors. No nav/auth/commercial/schema changes. No invented FO workflows.
+Shared FO chrome, Facility Mission Control attention home, honest planned-module shells with Documents deep-links, Complete Platform bridge. Merged via PR #89. Commercial FO logged-in walkthrough AUTH_BLOCKED for agent — Owner LIVE session required.
