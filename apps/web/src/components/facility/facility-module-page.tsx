@@ -93,10 +93,10 @@ const DOMAIN_COPY: Record<
     documentQuery: "system"
   },
   capital: {
-    watchFor: ["Deferred capital visibility", "Project documentation", "Budget artifacts"],
-    documentsTitle: "Capital project documents",
+    watchFor: ["Project documentation", "Budget artifacts", "Portfolio visibility"],
+    documentsTitle: "Project documents",
     documentsDetail: "Project files and invoices attach in Documents.",
-    documentQuery: "capital project"
+    documentQuery: "project"
   }
 };
 

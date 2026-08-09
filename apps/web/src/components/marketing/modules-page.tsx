@@ -11,6 +11,7 @@ import {
   marketingPrimaryCtaClass,
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
+import { BACKGROUND_SCREENING_LINE, FutureIntegrationsNote } from "./future-integrations-note";
 
 export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   return (
@@ -52,12 +53,13 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                   {summary.description}
                 </p>
                 <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-                  Includes ({modules.length}) · Capital Projects excluded
+                  Includes ({modules.length})
                 </p>
                 <ul className="mt-2 flex-1 space-y-1 text-sm text-[var(--mpa-color-text-secondary)]">
                   {modules.map((module) => (
                     <li key={module.id}>• {module.label}</li>
                   ))}
+                  <li className="text-[var(--mpa-color-text-muted)]">• {BACKGROUND_SCREENING_LINE}</li>
                 </ul>
                 <div className="mt-4 flex flex-col gap-2">
                   <Link href={acquisitionHref("pricing", sku)} className={marketingPrimaryCtaClass}>
@@ -77,6 +79,8 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
             );
           })}
         </ul>
+
+        <FutureIntegrationsNote />
       </main>
     </MarketingChrome>
   );

@@ -101,6 +101,10 @@ describe("navigation and launcher awareness", () => {
     const cues = upgradeCuesForSku("mpa_property_manager");
     expect(cues[0]?.requires).toBe("Complete Platform");
   });
+
+  it("does not advertise unavailable modules for Complete Platform", () => {
+    expect(upgradeCuesForSku("mpa_complete_platform")).toEqual([]);
+  });
 });
 
 describe("module ownership boundaries", () => {
@@ -192,13 +196,13 @@ describe("master admin catalog", () => {
     expect(platformHrefs).toContain("/admin/platform/customers");
   });
 
-  it("does not hide planned capabilities from Master Admin", () => {
+  it("does not expose Capital Projects in Version 1.0 Master Admin workspaces", () => {
     const workspaces = MASTER_ADMIN_NAV.find((group) => group.id === "workspaces")?.items ?? [];
     expect(
       workspaces.some((item) => item.label.includes("Financial Operations") && item.status === "aligned")
     ).toBe(true);
     expect(workspaces.some((item) => item.label.includes("Assets") && item.status === "planned")).toBe(true);
-    expect(workspaces.some((item) => item.label.includes("Capital Projects"))).toBe(true);
+    expect(workspaces.some((item) => item.label.includes("Capital Projects"))).toBe(false);
   });
 
   it("allows FO routes for PM and Complete, denies Facility-only", () => {

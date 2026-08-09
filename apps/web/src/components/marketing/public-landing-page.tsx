@@ -16,6 +16,11 @@ import {
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
 import { marketingModuleDescription } from "./marketing-module-copy";
+import {
+  BACKGROUND_SCREENING_LABEL,
+  FutureIntegrationsNote,
+  PlannedIntegrationCell
+} from "./future-integrations-note";
 
 function Section({
   id,
@@ -159,7 +164,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="choose-platform"
         eyebrow="Choose Your Platform"
         title="Three platforms. One operating system."
-        description="Start with the product that matches your team. Capital Projects are not offered today."
+        description="Start with the product that matches your team."
       >
         <ul className="grid gap-4 md:grid-cols-3">
           {PRODUCT_SKUS.map((sku) => {
@@ -214,7 +219,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="facility-operations"
         eyebrow="Facility Operations"
         title="Facility product for building teams"
-        description="Work coverage, assets, inventory, preventive maintenance, safety, compliance, and building systems — Capital Projects excluded."
+        description="Work coverage, assets, inventory, preventive maintenance, safety, compliance, and building systems."
       >
         <CapabilityList modules={foModules} />
         <div className="flex flex-wrap gap-3 pt-2">
@@ -234,8 +239,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         description="Property Manager and Facility Operations together with shared documents, communications, search, and identity."
       >
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Complete Platform includes every module from Property Manager and Facility Operations —
-          without Capital Projects.
+          Complete Platform includes every module from Property Manager and Facility Operations.
         </p>
         <div className="flex flex-wrap gap-3 pt-2">
           <Link
@@ -318,9 +322,24 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                   </td>
                 </tr>
               ))}
+              <tr className="border-t border-[var(--mpa-color-border-subtle)]">
+                <th scope="row" className="px-3 py-2 text-left font-normal">
+                  {BACKGROUND_SCREENING_LABEL}
+                </th>
+                <td className="px-3 py-2">
+                  <PlannedIntegrationCell />
+                </td>
+                <td className="px-3 py-2">
+                  <PlannedIntegrationCell />
+                </td>
+                <td className="px-3 py-2">
+                  <PlannedIntegrationCell />
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
+        <FutureIntegrationsNote className="mt-4 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-4 py-3" />
       </Section>
 
       <Section id="faq" eyebrow="FAQ" title="Straight answers">
@@ -331,8 +350,8 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               a: "Property Manager, Facility Operations, or Complete Platform — each with monthly or annual billing."
             },
             {
-              q: "Is Capital Projects available?",
-              a: "No. Capital Projects are not part of current customer offers."
+              q: "Are background screening integrations available?",
+              a: "Professional Background Screening integration is planned. M.P.A. continues expanding its connected property operations ecosystem — this is not available in Version 1.0 today."
             },
             {
               q: "How does checkout work?",
