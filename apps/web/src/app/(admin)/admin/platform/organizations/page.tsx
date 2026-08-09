@@ -1,11 +1,7 @@
-import { AdminSimplePage } from "../../../../../components/admin/master-admin-pages";
+import { OrganizationsOpsWorkspace } from "../../../../../components/admin/ops-workspaces";
+import { loadOpsDirectories } from "../../../../../lib/admin/load-ops-directories";
 
-export default function Page() {
-  return (
-    <AdminSimplePage
-      title="Organizations"
-      description="Customer organization directory for operators."
-      status="aligned"
-    />
-  );
+export default async function Page() {
+  const data = await loadOpsDirectories();
+  return <OrganizationsOpsWorkspace organizations={data.organizations} />;
 }

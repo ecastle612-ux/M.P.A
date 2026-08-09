@@ -1,11 +1,13 @@
-import { AdminSimplePage } from "../../../../../components/admin/master-admin-pages";
+import { CommercialOpsWorkspace } from "../../../../../components/admin/ops-workspaces";
+import { loadOpsDirectories } from "../../../../../lib/admin/load-ops-directories";
 
-export default function Page() {
+export default async function Page() {
+  const data = await loadOpsDirectories();
   return (
-    <AdminSimplePage
-      title="Billing"
-      description="Platform billing operations for commercial products. Not Property Manager Financial Operations."
-      status="aligned"
+    <CommercialOpsWorkspace
+      subscriptions={data.subscriptions}
+      purchases={data.purchases}
+      commercial={data.commercial}
     />
   );
 }
