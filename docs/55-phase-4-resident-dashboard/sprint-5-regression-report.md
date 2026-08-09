@@ -23,3 +23,17 @@
 ## Expectation
 
 Landing · Commercial · Pricing · Checkout · Provisioning · Master Admin · Platform Ops · PM · FO · Demo remain unaffected. Other portals keep default shell (no bottom tabs).
+
+## LIVE verification (post-deploy)
+
+| Check | Result |
+| --- | --- |
+| Landing (desktop + mobile) | **PASS** |
+| Pricing / Modules | **PASS** |
+| Demo FO / PM | **PASS** |
+| `/portal/tenant*` | **AUTH_BLOCKED** — Owner session required |
+| Admin / PM / FO app gates | Intact (307 → login) |
+
+See [sprint-5-live-verification.md](./sprint-5-live-verification.md).
+
+**STOP:** Do not start Sprint 6 until Owner LIVE acceptance.
