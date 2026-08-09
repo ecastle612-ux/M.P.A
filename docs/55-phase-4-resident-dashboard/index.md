@@ -1,8 +1,9 @@
 # 55 — Phase 4 Resident Dashboard & Community
 
-**Status:** Sprint 5 **implemented** — awaiting Owner acceptance → merge → Production → LIVE  
-**Authority:** Owner Phase 4 Sprint 5 authorization  
-**Rule:** Do **not** begin Sprint 6 until Sprint 5 is LIVE and Owner-accepted.
+**Status:** Sprint 5 **LIVE in Production** — awaiting Owner LIVE acceptance  
+**Merge SHA / Production SHA:** `167db472ec5e7a9e77f4200146b87fa1b1e95d4c`  
+**Authority:** Owner Phase 4 Sprint 5 authorization + production deployment authorization  
+**Rule:** Do **not** begin Sprint 6 until Owner LIVE acceptance.
 
 ## Documents
 
@@ -16,8 +17,10 @@
 | [Performance](./sprint-5-performance-report.md) | Perf |
 | [Regression](./sprint-5-regression-report.md) | Non-resident surfaces |
 | [Quality Score](./sprint-5-quality-score.md) | Scorecard |
-| [Screenshots](./screenshots-sprint-5/) | Before/after fixtures |
+| [Screenshots (pre-merge)](./screenshots-sprint-5/) | Regression fixtures |
+| [LIVE Verification](./sprint-5-live-verification.md) | Deploy + LIVE checks |
+| [LIVE Screenshots](./screenshots-sprint-5-live/) | Production captures |
 
 ## Summary
 
-Mobile-first Resident chrome (bottom tabs), Home five-second glance, guided maintenance report flow without resident-facing routing complexity, payments presentation polish, Documents Intelligence readiness. No invented community product modules. No Stripe/schema/auth/nav IA changes.
+Mobile-first Resident chrome, Home glance, guided maintenance, payments presentation polish, Documents readiness. Merged via PR #91. Logged-in Resident walkthrough AUTH_BLOCKED for agent — Owner LIVE session required.
