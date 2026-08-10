@@ -1,12 +1,11 @@
 /**
- * Authorized $40 list-price reduction — preparation only.
+ * Authorized $40 list-price reduction — Stripe Prices created 2026-08-10.
  *
- * Runtime checkout and public Pricing remain Stripe Price–ID driven via env.
- * This module records TARGET unit amounts and migration status. It does NOT
- * invent production Stripe Price IDs and does NOT migrate existing subscriptions.
+ * Runtime checkout and public Pricing remain Stripe Price–ID driven via Vercel env.
+ * NEW Prices exist in production Stripe. Vercel Production env cutover was blocked
+ * in this agent (no VERCEL_TOKEN / Vercel MCP unauthenticated).
  *
- * Activation: Stripe operator creates NEW Prices at these targets, then updates
- * Vercel `STRIPE_PRICE_*` env mappings. Existing customers stay on existing Prices.
+ * Existing customers remain on existing Prices. FO/Complete stay enterprise-gated.
  */
 
 import type { BillingCycle } from "./plans";
@@ -33,30 +32,22 @@ export type PricingMigrationRow = {
   productSku: ProductSku;
   planTier: "professional" | "business";
   billingCycle: BillingCycle;
-  /** Verified live Stripe unit_amount in cents (read-only inventory), when known. */
+  /** Prior live Stripe unit_amount in cents. */
   currentUnitAmountCents: number | null;
   /** Authorized target unit_amount in cents after $40 reduction. */
   targetUnitAmountCents: number;
-  /**
-   * Existing production Stripe Price ID when verified in the Stripe account.
-   * Null when operator must confirm Vercel env mapping.
-   */
+  /** Existing production Stripe Price ID (left intact for existing subscriptions). */
   existingStripePriceId: string | null;
-  /** Always pending until operator creates a NEW Price (never invent). */
-  newStripePriceId: null;
-  newStripePriceStatus: "PENDING_STRIPE_OPERATOR_CREATION";
-  /**
-   * Public self-serve checkout today? FO/Complete remain enterprise-gated until FO_READY.
-   */
+  /** NEW Stripe Price created for future checkout / display after env cutover. */
+  newStripePriceId: string | null;
+  newStripePriceStatus:
+    | "PENDING_STRIPE_OPERATOR_CREATION"
+    | "CREATED_PENDING_VERCEL_ENV"
+    | "LIVE_IN_PRODUCTION";
   selfServeCheckoutToday: boolean;
   notes: string;
 };
 
-/**
- * Authorized TARGET list prices (Owner-authorized preparation).
- * Annual targets are absolute Owner figures ($590 / $1,090), not “live − $40”
- * when live annual differs from the audit’s stated current annual.
- */
 export const AUTHORIZED_TARGET_UNIT_AMOUNTS_CENTS = {
   "mpa_property_manager__professional__monthly": 5900,
   "mpa_property_manager__professional__annual": 59000,
@@ -64,18 +55,11 @@ export const AUTHORIZED_TARGET_UNIT_AMOUNTS_CENTS = {
   "mpa_facility_operations__professional__annual": 59000,
   "mpa_complete_platform__professional__monthly": 10900,
   "mpa_complete_platform__professional__annual": 109000,
-  /** Business: verified live $249 / $2,490 → $40 reduction. */
   "mpa_property_manager__business__monthly": 20900,
   "mpa_property_manager__business__annual": 245000
 } as const satisfies Record<PricingMigrationOfferKey, number>;
 
-/**
- * Read-only Stripe inventory snapshot (2026-08-10) from the production Stripe account.
- * Provisional Professional/Business products are the only PM amounts present;
- * official catalog lookup keys exist for FO/Complete only.
- *
- * Vercel env → Price ID binding still requires operator confirmation.
- */
+/** Prior Prices (still active; existing subscriptions remain attached). */
 export const STRIPE_INVENTORY_VERIFIED_2026_08_10 = {
   pmProfessionalMonthly: {
     id: "price_1Tw3Cb8jGrZYUXDtQwHvaXFW",
@@ -131,7 +115,38 @@ export const STRIPE_INVENTORY_VERIFIED_2026_08_10 = {
   }
 } as const;
 
-/** Migration table — new Price IDs remain pending. */
+/** NEW Prices created 2026-08-10 (production Stripe). Not yet wired in Vercel Production env. */
+export const STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10 = {
+  "mpa_property_manager__professional__monthly": "price_1U31Z48jGrZYUXDteGv4gbSw",
+  "mpa_property_manager__professional__annual": "price_1U31Z58jGrZYUXDt2d9wqG4p",
+  "mpa_property_manager__business__monthly": "price_1U31Z58jGrZYUXDtMKIvMBCo",
+  "mpa_property_manager__business__annual": "price_1U31Z68jGrZYUXDtfHZfdUMI",
+  "mpa_facility_operations__professional__monthly": "price_1U31Z68jGrZYUXDtxN4pEhmQ",
+  "mpa_facility_operations__professional__annual": "price_1U31Z68jGrZYUXDtZbyPva6V",
+  "mpa_complete_platform__professional__monthly": "price_1U31Z78jGrZYUXDtZw1c648L",
+  "mpa_complete_platform__professional__annual": "price_1U31Z78jGrZYUXDtJuCrMN4V"
+} as const satisfies Record<PricingMigrationOfferKey, string>;
+
+/** Required Vercel Production env updates (blocked in this agent — no Vercel credentials). */
+export const VERCEL_PRODUCTION_PRICE_ENV_CUTOVER = {
+  STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY:
+    STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_property_manager__professional__monthly,
+  STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL:
+    STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_property_manager__professional__annual,
+  STRIPE_PRICE_PM_BUSINESS_MONTHLY:
+    STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_property_manager__business__monthly,
+  STRIPE_PRICE_PM_BUSINESS_ANNUAL:
+    STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_property_manager__business__annual,
+  STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY:
+    STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_facility_operations__professional__monthly,
+  STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL:
+    STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_facility_operations__professional__annual,
+  STRIPE_PRICE_COMPLETE_PROFESSIONAL_MONTHLY:
+    STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_complete_platform__professional__monthly,
+  STRIPE_PRICE_COMPLETE_PROFESSIONAL_ANNUAL:
+    STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_complete_platform__professional__annual
+} as const;
+
 export const PRICING_MIGRATION_ROWS: readonly PricingMigrationRow[] = [
   {
     offerKey: "mpa_property_manager__professional__monthly",
@@ -141,11 +156,10 @@ export const PRICING_MIGRATION_ROWS: readonly PricingMigrationRow[] = [
     currentUnitAmountCents: 9900,
     targetUnitAmountCents: 5900,
     existingStripePriceId: STRIPE_INVENTORY_VERIFIED_2026_08_10.pmProfessionalMonthly.id,
-    newStripePriceId: null,
-    newStripePriceStatus: "PENDING_STRIPE_OPERATOR_CREATION",
+    newStripePriceId: STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_property_manager__professional__monthly,
+    newStripePriceStatus: "CREATED_PENDING_VERCEL_ENV",
     selfServeCheckoutToday: true,
-    notes:
-      "Public PM monthly. Live inventory is provisional Professional $99. Confirm Vercel STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY maps to this ID before cutover."
+    notes: "NEW Price created. Wire STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY in Vercel Production."
   },
   {
     offerKey: "mpa_property_manager__professional__annual",
@@ -155,11 +169,10 @@ export const PRICING_MIGRATION_ROWS: readonly PricingMigrationRow[] = [
     currentUnitAmountCents: 99000,
     targetUnitAmountCents: 59000,
     existingStripePriceId: STRIPE_INVENTORY_VERIFIED_2026_08_10.pmProfessionalAnnual.id,
-    newStripePriceId: null,
-    newStripePriceStatus: "PENDING_STRIPE_OPERATOR_CREATION",
+    newStripePriceId: STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_property_manager__professional__annual,
+    newStripePriceStatus: "CREATED_PENDING_VERCEL_ENV",
     selfServeCheckoutToday: true,
-    notes:
-      "Live Stripe annual is $990 (10× monthly), not the audit’s stated $630. Authorized TARGET remains $590/year. Confirm Vercel STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL."
+    notes: "Authorized $590/year (not live−$40). Wire STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL."
   },
   {
     offerKey: "mpa_property_manager__business__monthly",
@@ -169,11 +182,10 @@ export const PRICING_MIGRATION_ROWS: readonly PricingMigrationRow[] = [
     currentUnitAmountCents: 24900,
     targetUnitAmountCents: 20900,
     existingStripePriceId: STRIPE_INVENTORY_VERIFIED_2026_08_10.pmBusinessMonthly.id,
-    newStripePriceId: null,
-    newStripePriceStatus: "PENDING_STRIPE_OPERATOR_CREATION",
+    newStripePriceId: STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_property_manager__business__monthly,
+    newStripePriceStatus: "CREATED_PENDING_VERCEL_ENV",
     selfServeCheckoutToday: true,
-    notes:
-      "Internal PM Business monthly — verified live $249. Target $209 ($40 off). Confirm Vercel STRIPE_PRICE_PM_BUSINESS_MONTHLY."
+    notes: "Wire STRIPE_PRICE_PM_BUSINESS_MONTHLY. Old Price remains for existing subs."
   },
   {
     offerKey: "mpa_property_manager__business__annual",
@@ -183,11 +195,10 @@ export const PRICING_MIGRATION_ROWS: readonly PricingMigrationRow[] = [
     currentUnitAmountCents: 249000,
     targetUnitAmountCents: 245000,
     existingStripePriceId: STRIPE_INVENTORY_VERIFIED_2026_08_10.pmBusinessAnnual.id,
-    newStripePriceId: null,
-    newStripePriceStatus: "PENDING_STRIPE_OPERATOR_CREATION",
+    newStripePriceId: STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_property_manager__business__annual,
+    newStripePriceStatus: "CREATED_PENDING_VERCEL_ENV",
     selfServeCheckoutToday: true,
-    notes:
-      "Internal PM Business annual — verified live $2,490. Target $2,450 ($40 off). Confirm Vercel STRIPE_PRICE_PM_BUSINESS_ANNUAL."
+    notes: "Wire STRIPE_PRICE_PM_BUSINESS_ANNUAL. Old Price remains for existing subs."
   },
   {
     offerKey: "mpa_facility_operations__professional__monthly",
@@ -197,10 +208,11 @@ export const PRICING_MIGRATION_ROWS: readonly PricingMigrationRow[] = [
     currentUnitAmountCents: 9900,
     targetUnitAmountCents: 5900,
     existingStripePriceId: STRIPE_INVENTORY_VERIFIED_2026_08_10.foProfessionalMonthly.id,
-    newStripePriceId: null,
-    newStripePriceStatus: "PENDING_STRIPE_OPERATOR_CREATION",
+    newStripePriceId:
+      STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_facility_operations__professional__monthly,
+    newStripePriceStatus: "CREATED_PENDING_VERCEL_ENV",
     selfServeCheckoutToday: false,
-    notes: "Display-only until FO_READY. Keep EARLY ACCESS · NOT ONLINE YET. Checkout stays enterprise_required."
+    notes: "Display-only after env cutover. Checkout stays enterprise_required."
   },
   {
     offerKey: "mpa_facility_operations__professional__annual",
@@ -210,11 +222,11 @@ export const PRICING_MIGRATION_ROWS: readonly PricingMigrationRow[] = [
     currentUnitAmountCents: 99000,
     targetUnitAmountCents: 59000,
     existingStripePriceId: STRIPE_INVENTORY_VERIFIED_2026_08_10.foProfessionalAnnual.id,
-    newStripePriceId: null,
-    newStripePriceStatus: "PENDING_STRIPE_OPERATOR_CREATION",
+    newStripePriceId:
+      STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_facility_operations__professional__annual,
+    newStripePriceStatus: "CREATED_PENDING_VERCEL_ENV",
     selfServeCheckoutToday: false,
-    notes:
-      "Live annual $990; authorized TARGET $590/year. Display-only; enterprise-gated checkout."
+    notes: "Display-only after env cutover. Checkout stays enterprise_required."
   },
   {
     offerKey: "mpa_complete_platform__professional__monthly",
@@ -224,10 +236,11 @@ export const PRICING_MIGRATION_ROWS: readonly PricingMigrationRow[] = [
     currentUnitAmountCents: 14900,
     targetUnitAmountCents: 10900,
     existingStripePriceId: STRIPE_INVENTORY_VERIFIED_2026_08_10.completeProfessionalMonthly.id,
-    newStripePriceId: null,
-    newStripePriceStatus: "PENDING_STRIPE_OPERATOR_CREATION",
+    newStripePriceId:
+      STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_complete_platform__professional__monthly,
+    newStripePriceStatus: "CREATED_PENDING_VERCEL_ENV",
     selfServeCheckoutToday: false,
-    notes: "Display-only until FO_READY. Keep CONSULTATION · NOT ONLINE YET."
+    notes: "Display-only after env cutover. Checkout stays enterprise_required."
   },
   {
     offerKey: "mpa_complete_platform__professional__annual",
@@ -237,17 +250,15 @@ export const PRICING_MIGRATION_ROWS: readonly PricingMigrationRow[] = [
     currentUnitAmountCents: 149000,
     targetUnitAmountCents: 109000,
     existingStripePriceId: STRIPE_INVENTORY_VERIFIED_2026_08_10.completeProfessionalAnnual.id,
-    newStripePriceId: null,
-    newStripePriceStatus: "PENDING_STRIPE_OPERATOR_CREATION",
+    newStripePriceId:
+      STRIPE_NEW_PRICES_40_REDUCTION_2026_08_10.mpa_complete_platform__professional__annual,
+    newStripePriceStatus: "CREATED_PENDING_VERCEL_ENV",
     selfServeCheckoutToday: false,
-    notes:
-      "Live annual $1,490; authorized TARGET $1,090/year. Display-only; enterprise-gated checkout."
+    notes: "Display-only after env cutover. Checkout stays enterprise_required."
   }
 ] as const;
 
-export function targetUnitAmountCentsForOffer(
-  offerKey: PricingMigrationOfferKey
-): number {
+export function targetUnitAmountCentsForOffer(offerKey: PricingMigrationOfferKey): number {
   return AUTHORIZED_TARGET_UNIT_AMOUNTS_CENTS[offerKey];
 }
 
@@ -263,8 +274,7 @@ export function pricingMigrationRowForOffer(
 
 /**
  * Truth rule: public UI must not show a list amount that Checkout cannot charge.
- * Until new Stripe Prices exist and env mappings point at them, live display stays
- * Stripe-retrieve based (current Prices). Targets are preparation-only.
+ * Until Vercel env points at the NEW Price IDs, live display remains on prior Prices.
  */
 export function publicListPriceMayShowTarget(input: {
   offerKey: PublicPricingOfferKey;

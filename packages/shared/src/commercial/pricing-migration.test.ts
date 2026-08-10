@@ -48,10 +48,20 @@ describe("pricing migration preparation", () => {
     expect(annual?.existingStripePriceId).toMatch(/^price_/);
   });
 
-  it("never invents new Stripe Price IDs", () => {
+  it("records created NEW Stripe Price IDs pending Vercel env cutover", () => {
     for (const row of PRICING_MIGRATION_ROWS) {
-      expect(row.newStripePriceId).toBeNull();
-      expect(row.newStripePriceStatus).toBe("PENDING_STRIPE_OPERATOR_CREATION");
+      expect(row.newStripePriceId).toMatch(/^price_/);
+      expect(row.newStripePriceStatus).toBe("CREATED_PENDING_VERCEL_ENV");
+      expect(row.existingStripePriceId).toMatch(/^price_/);
+      expect(row.newStripePriceId).not.toBe(row.existingStripePriceId);
+    }
+  });
+
+  it("does not invent placeholder Price IDs outside Stripe price_ prefix", () => {
+    for (const row of PRICING_MIGRATION_ROWS) {
+      expect(row.newStripePriceId?.startsWith("price_")).toBe(true);
+      expect(row.newStripePriceId).not.toContain("PENDING");
+      expect(row.newStripePriceId).not.toContain("TODO");
     }
   });
 

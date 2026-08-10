@@ -6,13 +6,9 @@
 
 ## Decision
 
-Prepared repository support for the authorized **$40 list-price reduction**.
+**PARTIAL:** NEW Stripe Prices created in production. Vercel Production env cutover **blocked** (no Vercel credentials in this agent).
 
-- **No** live Stripe Prices created or modified  
-- **No** existing customer subscriptions changed  
-- **No** invented production Stripe Price IDs wired into runtime  
-- **No** FO/Complete self-serve enablement  
-- **No** removal of EARLY ACCESS / CONSULTATION warnings  
+See [cutover-execution-report.md](./cutover-execution-report.md) for Price IDs and exact env values.
 
 ## Migration model
 
