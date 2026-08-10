@@ -54,3 +54,4 @@ PR → Owner acceptance → Merge → Production → LIVE verification → Owner
 - [Before/After Screenshots](./screenshots.md)
 - [Production LIVE Verify](./production-live-verify.md)
 - [Owner LIVE Acceptance Validation](./owner-live-acceptance-validation.md)
+- [Owner Manual LIVE Acceptance Checklist](./owner-manual-live-acceptance-checklist.md)
