@@ -1,6 +1,6 @@
 # Version 2.0.1 — Owner LIVE Acceptance Validation
 
-**Date:** 2026-08-10  
+**Date:** 2026-08-10 (final rerun after domain restore)  
 **Objective:** Complete Owner LIVE acceptance validation only (no v2.0.2, no new features)  
 **Production SHA:** `f72ea4aac6db18164c0bc685506f397d3775c196`  
 **Vercel Deployment:** `dpl_H1i7NSFgBXKsyyMos7YBsUnTURbg`  
@@ -8,10 +8,10 @@
 
 ## Overall result
 
-**BLOCKED — Owner authenticated session required**
+**BLOCKED — OWNER SESSION UNAVAILABLE**
 
-- Deployment / public / gate validation remains **PASS** (unchanged).
-- Authenticated Owner LIVE UI validation could **not** be completed by the agent.
+- Domain health reconfirmed (apex + www PASS). Deployment / public / gate validation remains **PASS**.
+- Authenticated Owner LIVE UI validation could **not** be completed by the agent (no Owner/Admin session in agent browser).
 - This is a **legitimate access block**, not a product regression, and must **not** be treated as FAIL of v2.0.1 code.
 
 **Not claimed:** `v2.0.1 OWNER LIVE ACCEPTANCE READY`  
