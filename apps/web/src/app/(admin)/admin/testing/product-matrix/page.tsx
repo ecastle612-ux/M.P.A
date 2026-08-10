@@ -1,11 +1,6 @@
-import { AdminSimplePage } from "../../../../../components/admin/master-admin-pages";
+import { redirect } from "next/navigation";
 
+/** Reference matrix removed from Owner Operations nav. */
 export default function Page() {
-  return (
-    <AdminSimplePage
-      title="Product Matrix"
-      description="Verify SKU → module → entitlement mapping."
-      status="aligned"
-    />
-  );
+  redirect("/admin");
 }

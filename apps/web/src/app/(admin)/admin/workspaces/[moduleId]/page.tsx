@@ -1,10 +1,11 @@
-import { AdminWorkspacePage } from "../../../../../components/admin/master-admin-pages";
+import { redirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ moduleId: string }>;
 };
 
+/** Workspace mirrors removed from Owner Operations nav — send operators to Command Center. */
 export default async function Page({ params }: PageProps) {
-  const { moduleId } = await params;
-  return <AdminWorkspacePage moduleId={moduleId} />;
+  await params;
+  redirect("/admin");
 }

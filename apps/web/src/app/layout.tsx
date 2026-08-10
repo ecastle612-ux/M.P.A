@@ -4,6 +4,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "./providers";
 import { RegisterServiceWorker } from "../components/pwa/register-service-worker";
+import { ImpersonationBannerHost } from "../components/admin/impersonation-banner-host";
 import {
   MPA_APPLE_TOUCH_ICON_PATH,
   MPA_BRAND_NAME,
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={plexSans.className}>
         <AppProviders>
           <RegisterServiceWorker />
+          <ImpersonationBannerHost />
           {children}
         </AppProviders>
       </body>

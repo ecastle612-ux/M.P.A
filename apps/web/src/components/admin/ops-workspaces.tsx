@@ -35,7 +35,7 @@ export function OrganizationsOpsWorkspace({ organizations }: { organizations: Op
     <OpsWorkspaceChrome
       eyebrow="Platform Operations · Organizations"
       title="Organization directory"
-      description="Search and filter customer organizations by status, product, provisioning, and Guided Setup — visibility only."
+      description="Search and filter customer organizations by status, product, provisioning, and Guided Setup — open a profile for support diagnosis."
     >
       <OpsMetricStrip
         items={[
@@ -90,7 +90,12 @@ export function OrganizationsOpsWorkspace({ organizations }: { organizations: Op
             header: "Organization",
             cell: (row) => (
               <div>
-                <p className="font-medium">{row.name}</p>
+                <a
+                  href={`/admin/platform/organizations/${row.id}`}
+                  className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+                >
+                  {row.name}
+                </a>
                 <p className="font-mono text-[11px] text-[var(--mpa-color-text-secondary)]">{row.slug}</p>
               </div>
             )
@@ -202,7 +207,12 @@ export function CustomersOpsWorkspace({
             id: "user",
             header: "User",
             cell: (row) => (
-              <span className="font-mono text-[11px] break-all">{row.userId}</span>
+              <a
+                href={`/admin/platform/customers/${row.userId}`}
+                className="font-mono text-[11px] break-all text-[var(--mpa-color-brand-primary)] underline"
+              >
+                {row.userId}
+              </a>
             )
           },
           {
@@ -487,25 +497,27 @@ export function CommercialOpsWorkspace({
 export function SupportOpsWorkspace({
   organizations,
   customers,
-  events
+  events,
+  invitations
 }: {
   organizations: OpsOrgRow[];
   customers: OpsCustomerRow[];
   events: OpsSupportEvent[];
+  invitations: OpsInvitationRow[];
 }) {
   return (
     <OpsWorkspaceChrome
-      eyebrow="Platform Operations · Support"
-      title="Support lookup"
-      description="Customer and organization lookup with failure timeline. Support notes are a placeholder — no editing in this sprint."
+      eyebrow="Owner Operations · Support Center"
+      title="Support Center"
+      description="Diagnose provisioning, invitations, Stripe, authentication, documents, and notification failures. Open an organization profile for audited support actions (resend invite, retry provisioning, View As)."
     >
       <OpsMetricStrip
         items={[
           { label: "Organizations", value: organizations.length },
           { label: "Customers", value: customers.length },
           {
-            label: "Timeline events",
-            value: events.length
+            label: "Pending invites",
+            value: invitations.filter((i) => i.status === "pending").length
           },
           {
             label: "Failures",
@@ -513,6 +525,41 @@ export function SupportOpsWorkspace({
           }
         ]}
       />
+
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          {
+            title: "Provisioning logs",
+            detail: "Open org profile or Commercial → Provisioning for checkpoints and retries.",
+            href: "/admin/commercial/provisioning"
+          },
+          {
+            title: "Stripe customer",
+            detail: "Billing directory links to Stripe customer + subscription dashboards.",
+            href: "/admin/commercial/billing"
+          },
+          {
+            title: "Documents",
+            detail: "Open an organization profile for document and SignWell status.",
+            href: "/admin/platform/organizations"
+          },
+          {
+            title: "View As",
+            detail: "Secure read-only impersonation with banner, audit, and one-click exit.",
+            href: "/admin/testing/impersonation"
+          }
+        ].map((card) => (
+          <a
+            key={card.title}
+            href={card.href}
+            className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 hover:border-[var(--mpa-color-brand-primary)]"
+          >
+            <h2 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">{card.title}</h2>
+            <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">{card.detail}</p>
+          </a>
+        ))}
+      </section>
+
       <OpsDirectoryTable
         caption="Organization lookup"
         rows={organizations}
@@ -524,7 +571,12 @@ export function SupportOpsWorkspace({
             header: "Organization",
             cell: (row) => (
               <div>
-                <p className="font-medium">{row.name}</p>
+                <a
+                  href={`/admin/platform/organizations/${row.id}`}
+                  className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+                >
+                  {row.name}
+                </a>
                 <p className="font-mono text-[11px] text-[var(--mpa-color-text-secondary)]">{row.slug}</p>
               </div>
             )
@@ -550,6 +602,11 @@ export function SupportOpsWorkspace({
             cell: (row) => (
               <StatusBadge value={row.setupComplete ? "complete" : "incomplete"} />
             )
+          },
+          {
+            id: "provisioning",
+            header: "Provisioning",
+            cell: (row) => <StatusBadge value={row.provisioningState} />
           }
         ]}
       />
@@ -562,12 +619,26 @@ export function SupportOpsWorkspace({
           {
             id: "user",
             header: "User",
-            cell: (row) => <span className="font-mono text-[11px] break-all">{row.userId}</span>
+            cell: (row) => (
+              <a
+                href={`/admin/platform/customers/${row.userId}`}
+                className="font-mono text-[11px] break-all text-[var(--mpa-color-brand-primary)] underline"
+              >
+                {row.userId}
+              </a>
+            )
           },
           {
             id: "org",
             header: "Organization",
-            cell: (row) => row.organizationName
+            cell: (row) => (
+              <a
+                href={`/admin/platform/organizations/${row.organizationId}`}
+                className="text-[var(--mpa-color-brand-primary)] underline"
+              >
+                {row.organizationName}
+              </a>
+            )
           },
           {
             id: "roles",
@@ -578,11 +649,66 @@ export function SupportOpsWorkspace({
             id: "status",
             header: "Status",
             cell: (row) => <StatusBadge value={row.status} />
+          },
+          {
+            id: "invite",
+            header: "Invitation",
+            cell: (row) => (row.invitationPending ? <StatusBadge value="pending" /> : "—")
           }
         ]}
       />
       <OpsDirectoryTable
-        caption="Support timeline"
+        caption="Invitation status"
+        rows={invitations}
+        searchPlaceholder="Search invitation email or organization…"
+        searchText={(row) => `${row.email} ${row.organizationName} ${row.status} ${row.roles.join(" ")}`}
+        filters={[
+          {
+            id: "status",
+            label: "Status",
+            options: uniqueOptions(invitations.map((i) => i.status)),
+            valueOf: (row) => row.status
+          }
+        ]}
+        columns={[
+          {
+            id: "email",
+            header: "Email",
+            cell: (row) => row.email
+          },
+          {
+            id: "org",
+            header: "Organization",
+            cell: (row) => (
+              <a
+                href={`/admin/platform/organizations/${row.organizationId}`}
+                className="text-[var(--mpa-color-brand-primary)] underline"
+              >
+                {row.organizationName}
+              </a>
+            )
+          },
+          {
+            id: "roles",
+            header: "Roles",
+            cell: (row) => row.roles.join(", ") || "—"
+          },
+          {
+            id: "status",
+            header: "Status",
+            cell: (row) => <StatusBadge value={row.status} />
+          },
+          {
+            id: "created",
+            header: "Created",
+            cell: (row) => (
+              <span className="font-mono text-[11px]">{new Date(row.createdAt).toLocaleString()}</span>
+            )
+          }
+        ]}
+      />
+      <OpsDirectoryTable
+        caption="Support timeline · notification & failure history"
         rows={events}
         searchPlaceholder="Search failures, lifecycle, Guided Setup…"
         searchText={(row) => `${row.kind} ${row.title} ${row.detail}`}
@@ -634,33 +760,97 @@ export function SupportOpsWorkspace({
         ]}
       />
       <section
-        aria-label="Support notes placeholder"
-        className="rounded-md border border-dashed border-[var(--mpa-color-border-default)] bg-white p-4"
+        aria-label="Support actions"
+        className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
       >
         <h2 className="font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">
-          Support notes
+          Audited support actions
         </h2>
         <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          Notes are not available in Sprint 2. This is a read-only placeholder — no create, edit, or
-          delete.
+          Resend invitations, retry failed provisioning, and start View As from the organization profile.
+          Every action writes to <code className="font-mono text-xs">platform_support_audit_events</code>.
         </p>
       </section>
     </OpsWorkspaceChrome>
   );
 }
 
-export function SystemOpsWorkspace({ system }: { system: OpsSystemItem[] }) {
+export function SystemOpsWorkspace({
+  system,
+  commercial
+}: {
+  system: OpsSystemItem[];
+  commercial?: { failedProvisioning: number; activeSubscriptions: number; mrrFormatted: string };
+}) {
+  const commitSha =
+    process.env["VERCEL_GIT_COMMIT_SHA"] ?? process.env["NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA"] ?? null;
+  const extended: OpsSystemItem[] = [
+    {
+      id: "production_version",
+      label: "Production version",
+      tone: "ok",
+      detail: commitSha ? `Git SHA ${commitSha.slice(0, 12)}` : "Deploy SHA unavailable in this runtime"
+    },
+    {
+      id: "current_deployment",
+      label: "Current deployment",
+      tone: "ok",
+      detail: process.env["VERCEL_ENV"]
+        ? `Vercel ${process.env["VERCEL_ENV"]} · ${process.env["VERCEL_URL"] ?? "url unknown"}`
+        : `APP_URL ${process.env["NEXT_PUBLIC_APP_URL"] ?? "unset"}`
+    },
+    {
+      id: "database",
+      label: "Database status",
+      tone: system.find((s) => s.id === "supabase")?.tone ?? "unknown",
+      detail: system.find((s) => s.id === "supabase")?.detail ?? "Supabase status unknown"
+    },
+    {
+      id: "queue",
+      label: "Queue status",
+      tone: system.find((s) => s.id === "jobs")?.tone ?? "unknown",
+      detail: system.find((s) => s.id === "jobs")?.detail ?? "Job queue status unknown"
+    },
+    {
+      id: "storage",
+      label: "Storage",
+      tone: system.find((s) => s.id === "supabase")?.tone ?? "warn",
+      detail: "Supabase Storage for documents and media"
+    },
+    {
+      id: "signwell",
+      label: "SignWell",
+      tone: process.env["SIGNWELL_API_KEY"] ? "ok" : "warn",
+      detail: process.env["SIGNWELL_API_KEY"]
+        ? "SignWell API key present"
+        : "SIGNWELL_API_KEY not configured in this runtime"
+    },
+    {
+      id: "error_counts",
+      label: "Error counts / failed jobs",
+      tone: (commercial?.failedProvisioning ?? 0) > 0 ? "warn" : "ok",
+      detail: `${commercial?.failedProvisioning ?? 0} terminal provisioning failures · ${commercial?.activeSubscriptions ?? 0} active subscriptions · MRR ${commercial?.mrrFormatted ?? "—"}`
+    },
+    {
+      id: "incidents",
+      label: "Recent incidents",
+      tone: (commercial?.failedProvisioning ?? 0) > 0 ? "warn" : "ok",
+      detail:
+        (commercial?.failedProvisioning ?? 0) > 0
+          ? "Open Support Center and Provisioning for incident triage"
+          : "No terminal provisioning incidents in current window"
+    },
+    ...system
+  ];
+
   return (
     <OpsWorkspaceChrome
-      eyebrow="Platform Operations · System"
-      title="Platform health"
-      description="Environment and integration health for Stripe, Supabase, email, background jobs, demo, authentication, and app environment."
+      eyebrow="Owner Operations · System Health"
+      title="System Health"
+      description="Production version, deployment, database, queues, storage, email, Stripe, SignWell, error counts, and recent incidents."
     >
-      <section
-        aria-label="System health cards"
-        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
-      >
-        {system.map((item) => (
+      <section aria-label="System health cards" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {extended.map((item) => (
           <article
             key={item.id}
             className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"

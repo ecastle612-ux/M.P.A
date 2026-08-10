@@ -650,6 +650,44 @@ export async function retryProvisioningJob(
   return startOrAdvanceProvisioningFromPurchase(purchase);
 }
 
+/** Owner Operations — mint a fresh claim bind token and resend verification email. */
+export async function regenerateClaimLinkForSession(
+  checkoutSessionId: string
+): Promise<{ ok: true; job: ProvisioningJob; continueUrl: string } | { ok: false; error: string }> {
+  const job =
+    (await loadProvisioningJobFromDb(checkoutSessionId)) ?? getProvisioningJob(checkoutSessionId);
+  if (!job) return { ok: false, error: "Provisioning job not found" };
+  if (job.checkpoint === "ready") {
+    return { ok: false, error: "Workspace already claimed / ready — claim link not applicable" };
+  }
+
+  const issued = issueBindToken();
+  const withToken = await saveJob({
+    ...job,
+    bindTokenHash: issued.hash,
+    bindExpiresAt: issued.expiresAt,
+    // Allow re-send by removing verification marker if present.
+    emailsSent: job.emailsSent.filter((k) => k !== "verification"),
+    updatedAt: new Date().toISOString()
+  });
+  const url = continueUrl(withToken.checkoutSessionId, issued.token);
+  const sent = await sendProvisioningEmail({
+    kind: "verification",
+    to: withToken.ownerEmail,
+    continueUrl: url,
+    organizationName: withToken.organizationName
+  });
+  if (!sent.ok) {
+    return { ok: false, error: sent.error ?? "Failed to send claim email" };
+  }
+  const saved = await saveJob({
+    ...withToken,
+    emailsSent: [...withToken.emailsSent, "verification"],
+    updatedAt: new Date().toISOString()
+  });
+  return { ok: true, job: saved, continueUrl: url };
+}
+
 export async function startOrAdvanceProvisioningFromCheckoutSession(session: {
   id: string;
   customer?: string | null;

@@ -1,11 +1,13 @@
-import { AdminSimplePage } from "../../../../../components/admin/master-admin-pages";
+import { Suspense } from "react";
+import { ViewAsConsole } from "../../../../../components/admin/view-as-console";
+import { loadOpsDirectories } from "../../../../../lib/admin/load-ops-directories";
 
-export default function Page() {
+export default async function Page() {
+  const data = await loadOpsDirectories();
+  const organizations = data.organizations.map((o) => ({ id: o.id, name: o.name }));
   return (
-    <AdminSimplePage
-      title="Impersonation"
-      description="Audited support impersonation controls. Planned — visible so the capability does not disappear."
-      status="planned"
-    />
+    <Suspense fallback={<p className="p-6 text-sm">Loading View As…</p>}>
+      <ViewAsConsole organizations={organizations} />
+    </Suspense>
   );
 }
