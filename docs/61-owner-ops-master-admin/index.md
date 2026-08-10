@@ -21,6 +21,7 @@ When a customer contacts support, the Owner must diagnose the issue within minut
 - [Simplification Regression Report](./simplification-regression-report.md)
 - [Screenshots](./screenshots.md)
 - [Authorization](./owner-operations-authorization.md)
+- [Production Deployment Verification](./production-deployment-verification.md)
 
 ## Not in scope
 
