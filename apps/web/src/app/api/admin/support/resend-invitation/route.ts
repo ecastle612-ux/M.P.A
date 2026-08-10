@@ -32,7 +32,27 @@ export async function POST(request: Request) {
   }
 
   const service = await tryServiceRole();
-  const client = service ?? supabase;
+  const client = (service ?? supabase) as unknown as {
+    from: (table: string) => {
+      select: (cols: string) => {
+        eq: (col: string, val: string) => {
+          maybeSingle: () => Promise<{
+            data: {
+              id: string;
+              email: string;
+              organization_id: string;
+              status: string;
+              token: string | null;
+            } | null;
+            error: { message: string } | null;
+          }>;
+        };
+      };
+      update: (values: Record<string, string>) => {
+        eq: (col: string, val: string) => Promise<{ error: { message: string } | null }>;
+      };
+    };
+  };
   const { data: invitation, error } = await client
     .from("organization_invitations")
     .select("id, email, organization_id, status, token")
