@@ -168,41 +168,42 @@ describe("route entitlement enforcement", () => {
 });
 
 describe("master admin catalog", () => {
-  it("exposes all three products and operational areas", () => {
+  it("exposes a lean Owner Operations console only", () => {
     const titles = MASTER_ADMIN_NAV.map((group) => group.title);
-    expect(titles).toContain("Commercial Products");
-    expect(titles).toContain("Commercial");
-    expect(titles).toContain("Platform Administration");
-    expect(titles).toContain("Testing");
-    expect(titles).toContain("Operational Workspaces");
+    expect(titles).toEqual(["Operations", "Customers", "Commercial"]);
 
-    const productLabels = MASTER_ADMIN_NAV.find((group) => group.id === "products")?.items.map((item) => item.label) ?? [];
-    expect(productLabels).toEqual(["Property Manager", "Facility Operations", "Complete Platform"]);
+    const allHrefs = MASTER_ADMIN_NAV.flatMap((group) => group.items.map((item) => item.href));
+    expect(allHrefs).toEqual([
+      "/admin",
+      "/admin/support",
+      "/admin/system",
+      "/admin/platform/organizations",
+      "/admin/platform/customers",
+      "/admin/platform/operators",
+      "/admin/testing/impersonation",
+      "/admin/commercial/billing",
+      "/admin/commercial/provisioning",
+      "/admin/commercial/lifecycle",
+      "/admin/commercial/subscriptions",
+      "/admin/commercial/checkout"
+    ]);
 
-    const commercialHrefs =
-      MASTER_ADMIN_NAV.find((group) => group.id === "commercial")?.items.map((item) => item.href) ?? [];
-    expect(commercialHrefs).toContain("/admin/commercial/provisioning");
-    expect(commercialHrefs).toContain("/admin/commercial/lifecycle");
-
-    const missionHrefs =
-      MASTER_ADMIN_NAV.find((group) => group.id === "mission_control")?.items.map((item) => item.href) ??
-      [];
-    expect(missionHrefs).toContain("/admin/support");
-    expect(missionHrefs).toContain("/admin/system");
-
-    const platformHrefs =
-      MASTER_ADMIN_NAV.find((group) => group.id === "platform_admin")?.items.map((item) => item.href) ??
-      [];
-    expect(platformHrefs).toContain("/admin/platform/customers");
+    // No placeholder / future / theater surfaces in nav.
+    expect(allHrefs.some((href) => href.startsWith("/admin/workspaces"))).toBe(false);
+    expect(allHrefs).not.toContain("/admin/launch-readiness");
+    expect(allHrefs).not.toContain("/admin/testing/demo");
+    expect(allHrefs).not.toContain("/admin/testing/product-matrix");
+    expect(allHrefs).not.toContain("/admin/commercial/catalog");
+    expect(allHrefs).not.toContain("/admin/commercial/entitlements");
+    expect(allHrefs).not.toContain("/admin/platform/capability-catalog");
   });
 
-  it("does not expose Capital Projects in Version 1.0 Master Admin workspaces", () => {
-    const workspaces = MASTER_ADMIN_NAV.find((group) => group.id === "workspaces")?.items ?? [];
-    expect(
-      workspaces.some((item) => item.label.includes("Financial Operations") && item.status === "aligned")
-    ).toBe(true);
-    expect(workspaces.some((item) => item.label.includes("Assets") && item.status === "planned")).toBe(true);
-    expect(workspaces.some((item) => item.label.includes("Capital Projects"))).toBe(false);
+  it("does not expose Capital Projects or planned workspaces in Master Admin navigation", () => {
+    const labels = MASTER_ADMIN_NAV.flatMap((group) => group.items.map((item) => item.label));
+    expect(labels.some((label) => label.includes("Capital Projects"))).toBe(false);
+    expect(labels.some((label) => label.includes("Assets"))).toBe(false);
+    expect(labels).toContain("View As");
+    expect(labels).toContain("Organizations");
   });
 
   it("allows FO routes for PM and Complete, denies Facility-only", () => {

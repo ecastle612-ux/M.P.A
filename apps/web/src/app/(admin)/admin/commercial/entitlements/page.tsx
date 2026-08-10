@@ -1,11 +1,6 @@
-import { AdminSimplePage } from "../../../../../components/admin/master-admin-pages";
+import { redirect } from "next/navigation";
 
+/** Reference shell removed from Owner Operations nav. */
 export default function Page() {
-  return (
-    <AdminSimplePage
-      title="Entitlements"
-      description="SKU entitlement dictionary. Entitlements gate org capability; permissions gate users."
-      status="aligned"
-    />
-  );
+  redirect("/admin/commercial/subscriptions");
 }

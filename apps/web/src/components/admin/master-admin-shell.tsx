@@ -12,15 +12,15 @@ export function MasterAdminShell({ children, operatorEmail }: { children: ReactN
   return (
     <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)]">
       <SkipToContent />
-      <aside className="hidden w-80 shrink-0 border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] lg:block">
+      <aside className="hidden w-72 shrink-0 border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] lg:block">
         <div className="border-b border-[var(--mpa-color-border-sidebar)] px-4 py-4">
           <p className="font-display text-lg font-semibold text-[var(--mpa-color-text-sidebar-active)]">
             Owner Operations
           </p>
-          <p className="mt-1 text-xs text-[var(--mpa-color-text-sidebar)]">Platform Operations Console</p>
+          <p className="mt-1 text-xs text-[var(--mpa-color-text-sidebar)]">Platform console</p>
           <p className="mt-2 text-xs text-[var(--mpa-color-text-sidebar)]/90">{operatorEmail}</p>
         </div>
-        <nav aria-label="Master Admin" className="space-y-5 px-3 py-4">
+        <nav aria-label="Owner Operations" className="space-y-5 px-3 py-4">
           {MASTER_ADMIN_NAV.map((group) => (
             <div key={group.id}>
               <p className="mb-2 px-2 text-xs uppercase tracking-wide text-[var(--mpa-color-text-sidebar)]/80">
@@ -42,12 +42,7 @@ export function MasterAdminShell({ children, operatorEmail }: { children: ReactN
                             : ""
                         }`}
                       >
-                        <span className="flex items-center justify-between gap-2">
-                          <span>{item.label}</span>
-                          {item.status === "planned" ? (
-                            <span className="text-[10px] uppercase tracking-wide opacity-70">Planned</span>
-                          ) : null}
-                        </span>
+                        {item.label}
                       </Link>
                     </li>
                   );
@@ -65,7 +60,7 @@ export function MasterAdminShell({ children, operatorEmail }: { children: ReactN
                 Menu
               </summary>
               <nav
-                aria-label="Master Admin mobile"
+                aria-label="Owner Operations mobile"
                 className="absolute left-0 top-10 z-40 max-h-[70vh] w-72 overflow-auto rounded-md border border-[var(--mpa-color-border-default)] bg-white p-3 shadow-lg"
               >
                 {MASTER_ADMIN_NAV.map((group) => (

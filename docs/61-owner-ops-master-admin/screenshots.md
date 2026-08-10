@@ -1,15 +1,20 @@
-# Screenshots — Owner Operations Console
+# Screenshots — Simplification Pass
 
-**Status:** Code-complete; LIVE screenshots require operator session after Production deploy.
+**Status:** Capture during Owner LIVE acceptance (operator session required).
 
-Capture during Owner LIVE acceptance:
+## Required captures
 
-1. Command Center — Platform Health + Customer Search + Live Activity  
-2. Organization profile — subscription / provisioning / support actions  
-3. User profile — roles / invitations / activity  
-4. Support Center — lookup + timeline  
-5. System Health — deploy + integrations  
-6. View As console + active banner on a customer surface  
-7. Planned workspace **Not yet available** empty state  
+### Before (reference)
 
-Store under `/opt/cursor/artifacts/screenshots/` when capturing in the agent environment, or attach to the acceptance PR comment.
+Use prior Owner Ops PR screenshots if available, or note “pre-simplification sidebar with Operational Workspaces / Products / Testing theater.”
+
+### After
+
+1. Sidebar — only Operations / Customers / Commercial  
+2. Command Center first viewport  
+3. Organizations directory  
+4. Support Center  
+5. View As  
+6. Hitting `/admin/workspaces/assets` — redirects to Command Center (no placeholder)
+
+Store under `/opt/cursor/artifacts/screenshots/` when capturing in the agent environment.

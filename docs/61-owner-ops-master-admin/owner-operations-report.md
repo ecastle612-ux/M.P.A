@@ -23,7 +23,7 @@ Transform Master Admin into the Platform Operations Console so the Owner can mon
 | View As banner + exit | Root layout | Sticky banner; exit returns to `/admin` |
 | Read-only write block | Middleware | Blocks customer `/api` mutations while View As `read_only` |
 | System Health | `/admin/system` | Deploy SHA, env, DB, queue, storage, SignWell, Stripe, email, errors |
-| No MA 404s | Nav + workspaces | Every nav item resolves; planned workspaces show intentional **Not yet available** |
+| No MA placeholders | Nav | Sidebar lists only fully functional ops tools; placeholders removed from nav |
 
 ## Explicit non-goals (honored)
 

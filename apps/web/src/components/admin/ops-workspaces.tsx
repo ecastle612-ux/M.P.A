@@ -539,9 +539,9 @@ export function SupportOpsWorkspace({
             href: "/admin/commercial/billing"
           },
           {
-            title: "SignWell / documents",
-            detail: "Document status lives on organization profiles and Document Intelligence workspaces.",
-            href: "/admin/workspaces/document_intelligence"
+            title: "Documents",
+            detail: "Open an organization profile for document and SignWell status.",
+            href: "/admin/platform/organizations"
           },
           {
             title: "View As",

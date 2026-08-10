@@ -115,7 +115,7 @@ const HEALTH_HREF: Record<string, string> = {
   stripe: "/admin/commercial/billing",
   supabase: "/admin/system",
   email: "/admin/support",
-  demo: "/admin/testing/demo",
+  demo: "/admin/system",
   jobs: "/admin/system"
 };
 

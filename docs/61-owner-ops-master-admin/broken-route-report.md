@@ -1,39 +1,31 @@
-# Broken Route Report — Master Admin
+# Broken Route Report — Master Admin (post-simplification)
 
 **Date:** 2026-08-10  
-**Method:** Static audit of `MASTER_ADMIN_NAV` + App Router pages under `apps/web/src/app/(admin)/admin`
+**Method:** Audit of `MASTER_ADMIN_NAV` + App Router admin pages
 
-## Nav items (all resolve)
+## Sidebar items (all functional)
 
-| Href | Page | Result |
-|---|---|---|
-| `/admin` | `admin/page.tsx` | OK — Command Center |
-| `/admin/support` | `admin/support/page.tsx` | OK — Support Center |
-| `/admin/system` | `admin/system/page.tsx` | OK — System Health |
-| `/admin/launch-readiness` | `admin/launch-readiness/page.tsx` | OK |
-| `/admin/products/*` | product pages | OK |
-| `/admin/commercial/*` | catalog/checkout/provisioning/subscriptions/lifecycle/billing/entitlements | OK |
-| `/admin/platform/organizations` | directory | OK |
-| `/admin/platform/organizations/[orgId]` | profile | OK (linked from directory) |
-| `/admin/platform/customers` | directory | OK |
-| `/admin/platform/customers/[userId]` | profile | OK (empty-state if no data — not 404) |
-| `/admin/platform/operators` | OK | |
-| `/admin/platform/capability-catalog` | OK | |
-| `/admin/testing/product-matrix` | OK | |
-| `/admin/testing/demo` | OK | |
-| `/admin/testing/impersonation` | OK — View As | |
-| `/admin/workspaces/[moduleId]` | dynamic | OK — aligned modules show status; planned modules show **Not yet available**; unknown/`capital_projects` show intentional empty state |
-
-## Prior defects addressed
-
-| Issue | Fix |
+| Href | Result |
 |---|---|
-| Impersonation was stub AdminSimplePage | Replaced with View As console |
-| Org/user directories were tables only | Deep-link profiles |
-| Support was lookup-only placeholder notes | Support Center + audited actions on org profile |
-| `/admin` active state highlighted all routes | Exact match for Command Center |
-| Unknown workspace returned “Unknown workspace” | Renamed to intentional **Not yet available** |
+| `/admin` | OK — Command Center |
+| `/admin/support` | OK — Support Center |
+| `/admin/system` | OK — System Health |
+| `/admin/platform/organizations` (+ `/[orgId]`) | OK |
+| `/admin/platform/customers` (+ `/[userId]`) | OK |
+| `/admin/platform/operators` | OK |
+| `/admin/testing/impersonation` | OK — View As |
+| `/admin/commercial/billing` | OK |
+| `/admin/commercial/provisioning` | OK |
+| `/admin/commercial/lifecycle` | OK |
+| `/admin/commercial/subscriptions` | OK |
+| `/admin/commercial/checkout` | OK |
+
+## Placeholder policy
+
+- No sidebar item opens a placeholder, **Not yet available**, or **Coming Soon** page.
+- Former workspace shells redirect to `/admin`.
+- Thin entitlements / product-matrix shells redirect into operational tools.
 
 ## Policy
 
-Every Master Admin navigation item must either work or show an intentional Not yet available page. Next.js 404 inside Master Admin is forbidden.
+Every Master Admin navigation item must work today and help operate the platform. Unimplemented features are omitted from navigation entirely.
