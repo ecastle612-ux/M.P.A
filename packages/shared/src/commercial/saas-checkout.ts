@@ -22,7 +22,13 @@ export const SAAS_METADATA_KEYS = {
   demoSessionId: "mpa_demo_session_id"
 } as const;
 
-/** Env var names holding Stripe Price ids for self-serve PM offers (Checkout allowlist). */
+/**
+ * Env var names holding Stripe Price ids for self-serve PM offers (Checkout allowlist).
+ * Production Price IDs are injected via environment (never hard-coded).
+ * $40 reduction: create NEW Stripe Prices, then point these env keys at the new IDs.
+ * See `@mpa/shared` `pricing-migration` + docs/65-production-pricing-migration-preparation.
+ * Do not edit/delete existing Prices; existing customers remain on existing Prices.
+ */
 export const SAAS_PRICE_ENV_KEYS = {
   "mpa_property_manager__professional__monthly": "STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY",
   "mpa_property_manager__professional__annual": "STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL",
