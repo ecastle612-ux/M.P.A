@@ -17,20 +17,18 @@ export function OwnerGlobalSearch({ initialQuery = "" }: { initialQuery?: string
   const [hits, setHits] = useState<Hit[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const trimmed = query.trim();
+  const searchActive = trimmed.length >= 2;
 
   useEffect(() => {
-    const q = query.trim();
-    if (q.length < 2) {
-      setHits([]);
-      setError(null);
-      return;
-    }
+    if (!searchActive) return;
+
     const handle = window.setTimeout(() => {
       void (async () => {
         setBusy(true);
         setError(null);
         try {
-          const response = await fetch(`/api/admin/search?q=${encodeURIComponent(q)}`);
+          const response = await fetch(`/api/admin/search?q=${encodeURIComponent(trimmed)}`);
           const body = (await response.json()) as { hits?: Hit[]; error?: string };
           if (!response.ok) throw new Error(body.error ?? "Search failed");
           setHits(body.hits ?? []);
@@ -43,7 +41,10 @@ export function OwnerGlobalSearch({ initialQuery = "" }: { initialQuery?: string
       })();
     }, 250);
     return () => window.clearTimeout(handle);
-  }, [query]);
+  }, [searchActive, trimmed]);
+
+  const visibleHits = searchActive ? hits : [];
+  const visibleError = searchActive ? error : null;
 
   return (
     <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
@@ -65,15 +66,17 @@ export function OwnerGlobalSearch({ initialQuery = "" }: { initialQuery?: string
           autoComplete="off"
         />
       </div>
-      {busy ? <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">Searching…</p> : null}
-      {error ? (
+      {searchActive && busy ? (
+        <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">Searching…</p>
+      ) : null}
+      {visibleError ? (
         <p className="mt-2 text-sm text-[var(--mpa-color-danger)]" role="alert">
-          {error}
+          {visibleError}
         </p>
       ) : null}
-      {hits.length > 0 ? (
+      {visibleHits.length > 0 ? (
         <ul className="mt-3 divide-y divide-[var(--mpa-color-border-subtle)]">
-          {hits.map((hit) => (
+          {visibleHits.map((hit) => (
             <li key={hit.id} className="py-2">
               <Link href={hit.href} className="block hover:text-[var(--mpa-color-brand-primary)]">
                 <span className="text-[10px] uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
@@ -85,7 +88,7 @@ export function OwnerGlobalSearch({ initialQuery = "" }: { initialQuery?: string
             </li>
           ))}
         </ul>
-      ) : query.trim().length >= 2 && !busy ? (
+      ) : searchActive && !busy ? (
         <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No matches.</p>
       ) : null}
     </section>

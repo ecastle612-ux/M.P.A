@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   IMPERSONATION_TARGET_ROLE_LABELS,
   IMPERSONATION_TARGET_ROLES,
@@ -15,16 +15,13 @@ type OrgOption = { id: string; name: string };
 export function ViewAsConsole({ organizations }: { organizations: OrgOption[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [organizationId, setOrganizationId] = useState(searchParams.get("orgId") ?? organizations[0]?.id ?? "");
+  const [organizationId, setOrganizationId] = useState(
+    () => searchParams.get("orgId") ?? organizations[0]?.id ?? ""
+  );
   const [targetRole, setTargetRole] = useState<ImpersonationTargetRole>("property_manager");
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fromQuery = searchParams.get("orgId");
-    if (fromQuery) setOrganizationId(fromQuery);
-  }, [searchParams]);
 
   async function onStart() {
     setBusy(true);
