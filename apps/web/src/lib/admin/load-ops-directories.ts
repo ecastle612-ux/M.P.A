@@ -527,8 +527,18 @@ export async function loadOpsDirectories(): Promise<{
     {
       id: "email",
       label: "Email",
-      tone: serverEnv.RESEND_API_KEY ? "ok" : "warn",
-      detail: serverEnv.RESEND_API_KEY ? "Resend API key present" : "RESEND_API_KEY missing"
+      tone:
+        serverEnv.RESEND_API_KEY && serverEnv.RESEND_FROM_EMAIL
+          ? "ok"
+          : "down",
+      detail:
+        serverEnv.RESEND_API_KEY && serverEnv.RESEND_FROM_EMAIL
+          ? "Resend configured · customer mail delivers"
+          : !serverEnv.RESEND_API_KEY && !serverEnv.RESEND_FROM_EMAIL
+            ? "Email unavailable · RESEND_API_KEY and RESEND_FROM_EMAIL missing"
+            : !serverEnv.RESEND_API_KEY
+              ? "Email unavailable · RESEND_API_KEY missing"
+              : "Email unavailable · RESEND_FROM_EMAIL missing"
     },
     {
       id: "jobs",

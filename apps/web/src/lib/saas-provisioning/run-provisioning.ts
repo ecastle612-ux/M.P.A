@@ -363,6 +363,8 @@ async function ensureClaimEmail(job: ProvisioningJob): Promise<void> {
       emailsSent: [...withToken.emailsSent, "verification"],
       updatedAt: new Date().toISOString()
     });
+  } else if (sent.error?.startsWith("email_not_configured")) {
+    // Leave checkpoint progress intact; operators see Email down on System Health.
   }
 }
 
@@ -653,7 +655,16 @@ export async function retryProvisioningJob(
 /** Owner Operations — mint a fresh claim bind token and resend verification email. */
 export async function regenerateClaimLinkForSession(
   checkoutSessionId: string
-): Promise<{ ok: true; job: ProvisioningJob; continueUrl: string } | { ok: false; error: string }> {
+): Promise<
+  | {
+      ok: true;
+      job: ProvisioningJob;
+      continueUrl: string;
+      emailDelivered: boolean;
+      notice?: string;
+    }
+  | { ok: false; error: string }
+> {
   const job =
     (await loadProvisioningJobFromDb(checkoutSessionId)) ?? getProvisioningJob(checkoutSessionId);
   if (!job) return { ok: false, error: "Provisioning job not found" };
@@ -682,10 +693,21 @@ export async function regenerateClaimLinkForSession(
   }
   const saved = await saveJob({
     ...withToken,
-    emailsSent: [...withToken.emailsSent, "verification"],
+    emailsSent: sent.stubbed ? withToken.emailsSent : [...withToken.emailsSent, "verification"],
     updatedAt: new Date().toISOString()
   });
-  return { ok: true, job: saved, continueUrl: url };
+  return {
+    ok: true,
+    job: saved,
+    continueUrl: url,
+    emailDelivered: !sent.stubbed,
+    ...(sent.stubbed
+      ? {
+          notice:
+            "Claim link regenerated. Email was not delivered — email provider is not configured."
+        }
+      : {})
+  };
 }
 
 export async function startOrAdvanceProvisioningFromCheckoutSession(session: {

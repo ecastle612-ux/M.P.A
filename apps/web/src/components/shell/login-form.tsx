@@ -188,7 +188,7 @@ export function LoginForm() {
           : nextPath
             ? "Sign in with the invited email, then continue to accept your invitation."
             : mode === "sign_in"
-              ? "After sign-in you continue Guided Setup or land in your role workspace."
+              ? "Welcome back. After you sign in, continue Guided Setup or open your workspace."
               : "Verify your email, then sign in to create your organization."}
       </p>
       {commerceNext ? (

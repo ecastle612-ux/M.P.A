@@ -98,15 +98,15 @@ export function VendorMaintenancePortal() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <header>
+      <header className="space-y-1">
         <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
-          Vendor work orders
+          Assigned work
         </h2>
-        <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Assignments from Property Manager Maintenance. Update progress and complete work here.
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          Start, update, or complete jobs assigned to you.
         </p>
         {vendors.length > 0 ? (
-          <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">
+          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
             Linked as: {vendors.map((vendor) => vendor.name).join(", ")}
           </p>
         ) : null}
@@ -121,7 +121,7 @@ export function VendorMaintenancePortal() {
       {entries.length === 0 ? (
         <EmptyState
           title="No assigned work yet"
-          description="When a property manager assigns your vendor account, work orders appear here."
+          description="When a property manager assigns your account, work orders appear here."
         />
       ) : (
         entries.map(({ workOrder, updates }) => (
@@ -130,7 +130,7 @@ export function VendorMaintenancePortal() {
             className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-medium">{workOrder.title}</h3>
                 <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
                   {workOrder.description}
@@ -158,17 +158,21 @@ export function VendorMaintenancePortal() {
             </ul>
             {!["closed", "cancelled", "completed"].includes(workOrder.status) ? (
               <div className="space-y-2">
-                <Textarea
-                  value={notes[workOrder.id] ?? ""}
-                  onChange={(event) =>
-                    setNotes((current) => ({ ...current, [workOrder.id]: event.target.value }))
-                  }
-                  placeholder="Progress note"
-                />
-                <div className="flex flex-wrap gap-2">
+                <label className="block space-y-1 text-sm">
+                  <span className="text-xs text-[var(--mpa-color-text-secondary)]">Progress note</span>
+                  <Textarea
+                    value={notes[workOrder.id] ?? ""}
+                    onChange={(event) =>
+                      setNotes((current) => ({ ...current, [workOrder.id]: event.target.value }))
+                    }
+                    placeholder="What changed?"
+                  />
+                </label>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                   <Button
                     type="button"
                     variant="secondary"
+                    className="min-h-11"
                     disabled={busy}
                     onClick={() => void update(workOrder.id, "start")}
                   >
@@ -177,12 +181,18 @@ export function VendorMaintenancePortal() {
                   <Button
                     type="button"
                     variant="secondary"
+                    className="min-h-11"
                     disabled={busy}
                     onClick={() => void update(workOrder.id, "progress")}
                   >
-                    Update progress
+                    Update
                   </Button>
-                  <Button type="button" disabled={busy} onClick={() => void update(workOrder.id, "complete")}>
+                  <Button
+                    type="button"
+                    className="min-h-11"
+                    disabled={busy}
+                    onClick={() => void update(workOrder.id, "complete")}
+                  >
                     Complete
                   </Button>
                 </div>

@@ -130,7 +130,7 @@ export function FacilityModulePage({
       description={description}
       actions={
         <Badge variant={readiness === "aligned" ? "success" : "warning"}>
-          {readiness === "aligned" ? "Aligned" : "Planned — included"}
+          {readiness === "aligned" ? "Aligned" : "Opens when live"}
         </Badge>
       }
     >
@@ -159,8 +159,8 @@ export function FacilityModulePage({
           ))}
         </ul>
         <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">
-          No unfinished fake workflows here — this page is the commercial home and document-ready
-          shell until the Facility Operations workflow package ships.
+          This module is not in the primary navigation yet. Use Facility Mission Control for live
+          operations; this page is reserved until the workflow ships.
         </p>
       </section>
 
@@ -171,7 +171,7 @@ export function FacilityModulePage({
           <dt className="text-[var(--mpa-color-text-secondary)]">Commercial readiness</dt>
           <dd className="text-right font-medium text-[var(--mpa-color-text-primary)]">
             {readiness === "planned"
-              ? "Planned — included, not implemented"
+              ? "Reserved — opens when this module goes live"
               : "Aligned — architectural home"}
           </dd>
         </div>

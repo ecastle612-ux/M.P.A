@@ -257,7 +257,7 @@ export async function loadCommandCenterSnapshot(): Promise<CommandCenterSnapshot
       stripeCheckoutReady: isSaasCheckoutReady(),
       supabaseOk,
       supabaseDetail,
-      emailConfigured: Boolean(serverEnv.RESEND_API_KEY),
+      emailConfigured: Boolean(serverEnv.RESEND_API_KEY && serverEnv.RESEND_FROM_EMAIL),
       demoSessions: demoSessions.length,
       demoOk: true
     }

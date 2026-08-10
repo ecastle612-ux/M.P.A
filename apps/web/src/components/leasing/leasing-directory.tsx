@@ -230,7 +230,7 @@ export function LeasingDirectory() {
       ]}
       eyebrow="Property Manager · Occupancy"
       title="Leasing"
-      description="Prospect through move-out on one person record. Applications, screening placeholder, lease signing (SignWell), and renewals live in this workspace."
+      description="Prospect through move-out on one person record. Applications, manual screening status, lease signing (SignWell), and renewals live in this workspace."
       actions={
         <Button
           type="button"
@@ -355,7 +355,7 @@ export function LeasingDirectory() {
                     status={applicationStatusLabel(app.status)}
                     footer={
                       app.status === "screening_pending"
-                        ? "Background Screening (Integration Planned)"
+                        ? "Screening pending (manual)"
                         : app.incomplete_reason
                           ? `Incomplete: ${app.incomplete_reason}`
                           : "Review, screen (placeholder), approve, then create lease."
@@ -380,7 +380,7 @@ export function LeasingDirectory() {
                           disabled={busyId === app.id}
                           onClick={() => void onAction(app.id, "screening")}
                         >
-                          Enter screening
+                          Mark screening pending
                         </Button>
                       ) : null}
                       {["submitted", "screening_pending", "incomplete"].includes(app.status) ? (

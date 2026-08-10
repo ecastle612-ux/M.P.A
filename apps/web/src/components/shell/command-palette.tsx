@@ -133,9 +133,11 @@ export function CommandPalette() {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)] hover:bg-gray-50"
+        aria-label="Search workspace"
+        className="flex w-full min-w-[12rem] items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-left text-sm text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-subtle,#F7F8FA)]"
       >
-        Quick Actions <kbd className="ml-2 text-xs">⌘K</kbd>
+        <span>Search workspace…</span>
+        <kbd className="hidden text-xs sm:inline">⌘K</kbd>
       </button>
       <CommandPaletteShell
         open={open}

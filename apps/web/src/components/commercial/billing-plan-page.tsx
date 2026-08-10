@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Button, Skeleton } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 
@@ -142,72 +143,75 @@ export function BillingPlanPage() {
               </p>
             ) : null}
           </>
+        ) : data === null && !error ? (
+          <div className="space-y-3" aria-busy="true" aria-label="Loading subscription">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-4 w-full max-w-md" />
+            <Skeleton className="h-20 w-full" />
+          </div>
         ) : (
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            {data?.message ?? "Loading subscription…"}
+            {data?.message ?? "Subscription details unavailable."}
           </p>
         )}
       </section>
 
       <section className="flex flex-wrap gap-3">
         {data?.phase === "grace" || data?.phase === "past_due" || data?.phase === "expired" ? (
-          <button
+          <Button
             type="button"
             disabled={busy !== null}
             onClick={() => void post("/api/commerce/subscription/reactivate")}
-            className="rounded-md bg-[var(--mpa-color-brand-primary)] px-4 py-2 text-sm font-semibold text-white"
           >
             {busy ? "Working…" : "Restore subscription"}
-          </button>
+          </Button>
         ) : null}
         {data?.cancelAtPeriodEnd || data?.phase === "canceled" ? (
-          <button
+          <Button
             type="button"
             disabled={busy !== null}
             onClick={() => void post("/api/commerce/subscription/reactivate")}
-            className="rounded-md bg-[var(--mpa-color-brand-primary)] px-4 py-2 text-sm font-semibold text-white"
           >
             {busy ? "Working…" : "Reactivate"}
-          </button>
+          </Button>
         ) : data?.status === "active" || data?.phase === "active" || data?.phase === "reactivated" ? (
-          <button
+          <Button
             type="button"
+            variant="secondary"
             disabled={busy !== null}
             onClick={() => void post("/api/commerce/subscription/cancel")}
-            className="rounded-md border border-[var(--mpa-color-border-default)] px-4 py-2 text-sm font-semibold"
           >
             {busy ? "Working…" : "Cancel at period end"}
-          </button>
+          </Button>
         ) : null}
         {data?.planTier === "professional" ? (
-          <button
+          <Button
             type="button"
+            variant="secondary"
             disabled={busy !== null}
             onClick={() =>
               void post("/api/commerce/subscription/change-plan", { planTier: "business" })
             }
-            className="rounded-md border border-[var(--mpa-color-border-default)] px-4 py-2 text-sm font-semibold"
           >
             Upgrade to Business
-          </button>
+          </Button>
         ) : null}
         {data?.planTier === "business" ? (
-          <button
+          <Button
             type="button"
+            variant="secondary"
             disabled={busy !== null}
             onClick={() =>
               void post("/api/commerce/subscription/change-plan", { planTier: "professional" })
             }
-            className="rounded-md border border-[var(--mpa-color-border-default)] px-4 py-2 text-sm font-semibold"
           >
             Schedule Professional (period end)
-          </button>
+          </Button>
         ) : null}
-        <Link
-          href="/pm/mission-control"
-          className="rounded-md border border-[var(--mpa-color-border-default)] px-4 py-2 text-sm font-semibold"
-        >
-          Mission Control
+        <Link href="/pm/mission-control">
+          <Button type="button" variant="secondary">
+            Mission Control
+          </Button>
         </Link>
       </section>
 

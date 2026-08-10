@@ -266,10 +266,10 @@ export function buildCommandCenterSnapshot(input: {
     {
       id: "email",
       label: "Email delivery",
-      tone: input.system.emailConfigured ? "ok" : "warn",
+      tone: input.system.emailConfigured ? "ok" : "down",
       detail: input.system.emailConfigured
-        ? "Resend API key present"
-        : "RESEND_API_KEY not configured"
+        ? "Resend configured · customer mail delivers"
+        : "Email unavailable · configure RESEND_API_KEY and RESEND_FROM_EMAIL"
     },
     {
       id: "demo",

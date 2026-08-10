@@ -40,7 +40,12 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    notice: `Claim link regenerated and queued for ${result.job.ownerEmail}.`,
-    continueUrl: result.continueUrl
+    notice:
+      result.notice ??
+      (result.emailDelivered
+        ? `Claim link regenerated and emailed to ${result.job.ownerEmail}.`
+        : `Claim link regenerated. Email was not delivered — configure Resend before notifying ${result.job.ownerEmail}.`),
+    continueUrl: result.continueUrl,
+    emailDelivered: result.emailDelivered
   });
 }

@@ -1,13 +1,12 @@
-import { Suspense } from "react";
-import { ViewAsConsole } from "../../../../../components/admin/view-as-console";
-import { loadOpsDirectories } from "../../../../../lib/admin/load-ops-directories";
+import { redirect } from "next/navigation";
 
-export default async function Page() {
-  const data = await loadOpsDirectories();
-  const organizations = data.organizations.map((o) => ({ id: o.id, name: o.name }));
-  return (
-    <Suspense fallback={<p className="p-6 text-sm">Loading View As…</p>}>
-      <ViewAsConsole organizations={organizations} />
-    </Suspense>
-  );
+/** Legacy View As URL — keep bookmarks working (PRA-009). */
+export default async function LegacyImpersonationRedirect({
+  searchParams
+}: {
+  searchParams: Promise<{ orgId?: string }>;
+}) {
+  const params = await searchParams;
+  const orgId = params.orgId?.trim();
+  redirect(orgId ? `/admin/support/view-as?orgId=${encodeURIComponent(orgId)}` : "/admin/support/view-as");
 }

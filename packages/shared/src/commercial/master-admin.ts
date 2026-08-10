@@ -60,7 +60,7 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         description: "Platform operator access list."
       },
       {
-        href: "/admin/testing/impersonation",
+        href: "/admin/support/view-as",
         label: "View As",
         description: "Secure read-only impersonation for support diagnosis."
       }

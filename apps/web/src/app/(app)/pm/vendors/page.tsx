@@ -15,7 +15,7 @@ export default function Page() {
       ]}
       eyebrow="Property Manager · Vendors"
       title="Vendors"
-      description="Vendor work happens where the job lives — assign in Maintenance, pay in Financial Operations. No duplicate vendor console."
+      description="Launchpad only — assign vendors in Maintenance and pay invoices in Financial Operations. This page is not a separate vendor directory."
     >
       <PmQuickActions
         actions={[

@@ -204,15 +204,19 @@ export function FoCapabilityCard({
     <li className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 shadow-[0_1px_0_rgba(15,27,45,0.04)]">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-          <Link
-            href={href}
-            className={`text-[var(--mpa-color-brand-primary)] underline-offset-2 hover:underline ${linkFocus}`}
-          >
-            {title}
-          </Link>
+          {status === "aligned" ? (
+            <Link
+              href={href}
+              className={`text-[var(--mpa-color-brand-primary)] underline-offset-2 hover:underline ${linkFocus}`}
+            >
+              {title}
+            </Link>
+          ) : (
+            <span>{title}</span>
+          )}
         </h3>
         <Badge variant={status === "aligned" ? "success" : "warning"}>
-          {status === "aligned" ? "Aligned" : "Planned"}
+          {status === "aligned" ? "Live" : "Opens when live"}
         </Badge>
       </div>
       <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{summary}</p>

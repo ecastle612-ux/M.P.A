@@ -83,7 +83,7 @@ async function notify(
     billingUrl: billingUrl(),
     planLabel: planLabel(sub)
   });
-  if (!sent.ok) return sub;
+  if (!sent.ok || sent.stubbed) return sub;
   return saveLifecycleSubscription({
     ...sub,
     emailsSent: [...sub.emailsSent, emailKey],

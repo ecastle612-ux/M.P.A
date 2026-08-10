@@ -546,7 +546,7 @@ export function SupportOpsWorkspace({
           {
             title: "View As",
             detail: "Secure read-only impersonation with banner, audit, and one-click exit.",
-            href: "/admin/testing/impersonation"
+            href: "/admin/support/view-as"
           }
         ].map((card) => (
           <a
@@ -607,6 +607,26 @@ export function SupportOpsWorkspace({
             id: "provisioning",
             header: "Provisioning",
             cell: (row) => <StatusBadge value={row.provisioningState} />
+          },
+          {
+            id: "actions",
+            header: "Actions",
+            cell: (row) => (
+              <div className="flex flex-col gap-1 text-xs">
+                <a
+                  href={`/admin/platform/organizations/${row.id}#support-actions`}
+                  className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+                >
+                  Support actions
+                </a>
+                <a
+                  href={`/admin/support/view-as?orgId=${row.id}`}
+                  className="text-[var(--mpa-color-brand-primary)] underline"
+                >
+                  View As
+                </a>
+              </div>
+            )
           }
         ]}
       />

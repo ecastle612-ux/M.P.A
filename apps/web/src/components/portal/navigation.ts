@@ -20,6 +20,6 @@ export const TENANT_PORTAL_NAVIGATION = [
 ] as const;
 
 export const VENDOR_PORTAL_NAVIGATION = [
-  { href: "/portal/vendor", label: "Vendor home" },
-  { href: "/profile", label: "Profile" }
+  { href: "/portal/vendor", label: "Assigned work", shortLabel: "Work" },
+  { href: "/profile", label: "Account", shortLabel: "Account" }
 ] as const;

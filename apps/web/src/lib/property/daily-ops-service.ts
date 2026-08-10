@@ -205,7 +205,7 @@ export async function buildDailyOperationsBriefing(
       id: "screening-pending",
       domain: "leasing",
       title: `${screeningPendingApps.length} pending screening result(s)`,
-      detail: "Background Screening (Integration Planned)",
+      detail: "Screening pending (manual)",
       href: "/pm/leasing#applications",
       urgency: "waiting_on_others"
     });

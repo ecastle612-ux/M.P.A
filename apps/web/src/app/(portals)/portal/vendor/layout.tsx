@@ -29,10 +29,11 @@ export default async function VendorPortalLayout({ children }: { children: React
       defaultRole="vendor"
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
-      title="Vendor Portal"
-      subtitle="Assigned work orders and completion updates."
-      roleBadgeLabel="Vendor"
+      title="Assigned work"
+      subtitle="Update status on jobs assigned to you."
+      roleBadgeLabel="Technician"
       navigation={VENDOR_PORTAL_NAVIGATION}
+      experience="technician"
     >
       {children}
     </RolePortalFrame>
