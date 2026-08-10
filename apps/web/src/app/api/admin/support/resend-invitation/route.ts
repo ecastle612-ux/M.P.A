@@ -32,27 +32,7 @@ export async function POST(request: Request) {
   }
 
   const service = await tryServiceRole();
-  const client = (service ?? supabase) as unknown as {
-    from: (table: string) => {
-      select: (cols: string) => {
-        eq: (col: string, val: string) => {
-          maybeSingle: () => Promise<{
-            data: {
-              id: string;
-              email: string;
-              organization_id: string;
-              status: string;
-              token: string | null;
-            } | null;
-            error: { message: string } | null;
-          }>;
-        };
-      };
-      update: (values: Record<string, string>) => {
-        eq: (col: string, val: string) => Promise<{ error: { message: string } | null }>;
-      };
-    };
-  };
+  const client = service ?? supabase;
   const { data: invitation, error } = await client
     .from("organization_invitations")
     .select("id, email, organization_id, status, token")
@@ -68,11 +48,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Only pending invitations can be resent" }, { status: 400 });
   }
 
+  // Use generated invitation columns (email_status / email_sent_at) — not inventing schema.
   await client
     .from("organization_invitations")
     .update({
-      last_delivered_at: new Date().toISOString(),
-      delivery_status: "queued_resend",
+      email_status: "pending",
+      email_sent_at: null,
+      email_error: null,
       updated_at: new Date().toISOString()
     })
     .eq("id", invitation.id);
