@@ -537,7 +537,7 @@ export async function planBackgroundScreening(
 
   return {
     application: updated as PortfolioApplication,
-    screeningNote: "Background Screening (Integration Planned) — no provider API in Sprint 1."
+    screeningNote: "Screening pending (manual) — record the outcome in the application workspace."
   };
 }
 

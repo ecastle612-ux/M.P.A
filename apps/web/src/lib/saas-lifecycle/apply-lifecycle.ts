@@ -84,6 +84,8 @@ async function notify(
     planLabel: planLabel(sub)
   });
   if (!sent.ok) return sub;
+  // Vitest may stub delivery offline (stubbed: true). Production never stubs success.
+  // emailsSent tracks lifecycle notification attempts for idempotency — not a user-facing "sent" toast.
   return saveLifecycleSubscription({
     ...sub,
     emailsSent: [...sub.emailsSent, emailKey],

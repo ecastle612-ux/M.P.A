@@ -189,12 +189,48 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                     View pricing
                   </Link>
                   <Link href={productCheckoutHref(sku)} className={marketingSecondaryCtaClass}>
-                    Confirm Plan
+                    Confirm {summary.label}
                   </Link>
                 </div>
               </li>
             );
           })}
+        </ul>
+      </Section>
+
+      <Section
+        id="trust"
+        eyebrow="Built for operators"
+        title="Clarity before complexity."
+        description="Three platforms. Transparent pricing. Guided Setup after checkout. Mission Control when you are ready to work."
+      >
+        <ul className="grid gap-3 sm:grid-cols-3">
+          {[
+            {
+              title: "Honest products",
+              detail: "Property Manager, Facility Operations, and Complete Platform — no fake SaaS tiers."
+            },
+            {
+              title: "Pay, then claim",
+              detail: "Stripe Checkout first, then account claim and Guided Setup into Mission Control."
+            },
+            {
+              title: "Support without the database",
+              detail: "Owner Operations helps diagnose customers, provisioning, and platform health."
+            }
+          ].map((item) => (
+            <li
+              key={item.title}
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[0_1px_0_rgba(15,27,45,0.04)]"
+            >
+              <h3 className="font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                {item.detail}
+              </p>
+            </li>
+          ))}
         </ul>
       </Section>
 

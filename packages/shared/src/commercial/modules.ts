@@ -378,26 +378,8 @@ export function navigationGroupsForSku(
           label: "Facility Mission Control",
           readiness: "aligned",
           entitlement: "facility.mission_control"
-        },
-        { href: "/facility/operations", label: "Facility Operations", readiness: "planned", entitlement: "facility.operations" },
-        { href: "/facility/assets", label: "Assets", readiness: "planned", entitlement: "facility.assets" },
-        { href: "/facility/inventory", label: "Inventory", readiness: "planned", entitlement: "facility.inventory" },
-        { href: "/facility/parts", label: "Parts", readiness: "planned", entitlement: "facility.parts" },
-        {
-          href: "/facility/preventive-maintenance",
-          label: "Preventive Maintenance",
-          readiness: "planned",
-          entitlement: "facility.preventive"
-        },
-        { href: "/facility/inspections", label: "Inspections", readiness: "planned", entitlement: "facility.inspections" },
-        { href: "/facility/safety", label: "Safety", readiness: "planned", entitlement: "facility.safety" },
-        { href: "/facility/compliance", label: "Compliance", readiness: "planned", entitlement: "facility.compliance" },
-        {
-          href: "/facility/building-systems",
-          label: "Building Systems",
-          readiness: "planned",
-          entitlement: "facility.building_systems"
         }
+        // Planned FO modules stay entitled/routable but are omitted from primary nav (PRA-002 / PRA-050).
       ]
     });
   }
@@ -430,6 +412,10 @@ export function navigationGroupsForSku(
     .map((group) => ({
       ...group,
       items: group.items.filter((item) => {
+        // Nav only ships live workflows — never tease unfinished modules.
+        if (item.readiness === "planned") {
+          return false;
+        }
         if (item.entitlement && !entitlements.has(item.entitlement)) {
           return false;
         }
@@ -519,24 +505,14 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
   }
 
   if (skuIncludesFacilityOperations(sku)) {
-    items.push(
-      {
-        id: "fac_mc",
-        title: "Facility Operations · Mission Control",
-        description: "Attention home for facility, assets, and building operations.",
-        href: "/facility/mission-control",
-        product: "facility_operations",
-        readiness: "aligned"
-      },
-      {
-        id: "fac_assets",
-        title: "Asset Registry",
-        description: "Facility workspace (planned capability).",
-        href: "/facility/assets",
-        product: "facility_operations",
-        readiness: "planned"
-      }
-    );
+    items.push({
+      id: "fac_mc",
+      title: "Facility Operations · Mission Control",
+      description: "Attention home for facility, assets, and building operations.",
+      href: "/facility/mission-control",
+      product: "facility_operations",
+      readiness: "aligned"
+    });
   }
 
   items.push(

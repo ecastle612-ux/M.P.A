@@ -89,6 +89,9 @@ describe("navigation and launcher awareness", () => {
     const groups = navigationGroupsForSku("mpa_complete_platform");
     expect(groups.some((group) => group.id === "property_manager")).toBe(true);
     expect(groups.some((group) => group.id === "facility_operations")).toBe(true);
+    const fo = groups.find((group) => group.id === "facility_operations");
+    expect(fo?.items.map((item) => item.href)).toEqual(["/facility/mission-control"]);
+    expect(fo?.items.every((item) => item.readiness === "aligned")).toBe(true);
   });
 
   it("organizes launcher workspaces by commercial product", () => {
@@ -180,7 +183,7 @@ describe("master admin catalog", () => {
       "/admin/platform/organizations",
       "/admin/platform/customers",
       "/admin/platform/operators",
-      "/admin/testing/impersonation",
+      "/admin/support/view-as",
       "/admin/commercial/billing",
       "/admin/commercial/provisioning",
       "/admin/commercial/lifecycle",

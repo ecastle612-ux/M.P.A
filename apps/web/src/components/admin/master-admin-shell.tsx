@@ -88,7 +88,7 @@ export function MasterAdminShell({ children, operatorEmail }: { children: ReactN
               Diagnose · verify · support every customer from one place
             </p>
           </div>
-          <Link href="/launcher" className="shrink-0 text-sm text-[var(--mpa-color-brand-primary)] underline">
+          <Link href="/dashboard" className="shrink-0 text-sm text-[var(--mpa-color-brand-primary)] underline">
             Exit to customer app
           </Link>
         </header>

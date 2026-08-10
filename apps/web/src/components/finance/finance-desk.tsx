@@ -569,20 +569,27 @@ export function FinanceDesk() {
             });
           }}
         >
-          <Input
-            value={manualAmount}
-            onChange={(event) => setManualAmount(event.target.value)}
-            type="number"
-            min="0.01"
-            step="0.01"
-            placeholder="Amount"
-            required
-          />
-          <Select value={manualMethod} onChange={(event) => setManualMethod(event.target.value)}>
-            <option value="manual_cash">Cash</option>
-            <option value="manual_check">Check</option>
-            <option value="manual_other">Other</option>
-          </Select>
+          <label className="block space-y-1 text-sm sm:col-span-1">
+            <span className="text-xs text-[var(--mpa-color-text-secondary)]">Amount</span>
+            <Input
+              id="manual-payment-amount"
+              value={manualAmount}
+              onChange={(event) => setManualAmount(event.target.value)}
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+              required
+            />
+          </label>
+          <label className="block space-y-1 text-sm">
+            <span className="text-xs text-[var(--mpa-color-text-secondary)]">Method</span>
+            <Select value={manualMethod} onChange={(event) => setManualMethod(event.target.value)}>
+              <option value="manual_cash">Cash</option>
+              <option value="manual_check">Check</option>
+              <option value="manual_other">Other</option>
+            </Select>
+          </label>
           <Button type="submit" disabled={busy || !selectedLeaseId}>
             Record payment + receipt
           </Button>

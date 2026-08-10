@@ -170,8 +170,8 @@ export function FacilityMissionControlPage() {
             Capability map
           </h2>
           <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-            Commercially included Facility Operations modules. Planned means included — not unfinished
-            fake workflows.
+            Roadmap of Facility Operations capabilities. Only live modules are linked — unfinished
+            work is not teased in navigation.
           </p>
         </div>
         <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">

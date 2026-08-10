@@ -9,6 +9,13 @@ export type LifecycleEmailKind =
   | "subscription_canceled"
   | "subscription_restored";
 
+function allowDevEmailStub(): boolean {
+  if (process.env["VERCEL_ENV"] === "production" || process.env.NODE_ENV === "production") {
+    return false;
+  }
+  return process.env["VITEST"] === "true" || process.env["MPA_ALLOW_EMAIL_STUB"] === "true";
+}
+
 async function sendHtmlEmail(input: {
   to: string;
   subject: string;
@@ -16,7 +23,14 @@ async function sendHtmlEmail(input: {
   text: string;
 }): Promise<{ ok: true; providerId: string; stubbed?: boolean } | { ok: false; error: string }> {
   if (!serverEnv.RESEND_API_KEY || !serverEnv.RESEND_FROM_EMAIL) {
-    return { ok: true, providerId: `stub_${Date.now()}`, stubbed: true };
+    // Never report success when mail cannot be delivered (PRA-001).
+    if (allowDevEmailStub()) {
+      return { ok: true, providerId: `stub_${Date.now()}`, stubbed: true };
+    }
+    return {
+      ok: false,
+      error: "email_not_configured: RESEND_API_KEY and RESEND_FROM_EMAIL are required"
+    };
   }
   try {
     const response = await fetch("https://api.resend.com/emails", {

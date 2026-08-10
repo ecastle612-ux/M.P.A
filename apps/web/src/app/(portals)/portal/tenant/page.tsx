@@ -8,8 +8,7 @@ import {
   ResidentGlanceCard,
   ResidentPageIntro,
   ResidentQuickActions,
-  ResidentSection,
-  ResidentStatusBadge
+  ResidentSection
 } from "../../../../components/shell/resident-workspace";
 
 type AnyRow = Record<string, unknown>;
@@ -179,12 +178,6 @@ export default async function TenantPortalPage() {
           hint="Community notices from your property will show here."
           tone="neutral"
         />
-        <ResidentGlanceCard
-          label="Packages"
-          value="Coming soon"
-          hint="Package alerts will appear here when ready."
-          tone="neutral"
-        />
       </section>
 
       <ResidentSection
@@ -198,24 +191,10 @@ export default async function TenantPortalPage() {
 
       <ResidentSection
         title="Community"
-        description="Announcements, events, amenities, and neighborhood resources — when your property shares them."
+        description="When your property shares announcements, events, or amenities, they will appear here."
       >
-        <ul className="space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          <li className="flex items-center justify-between gap-2 border-b border-[var(--mpa-color-border-default)] py-2">
-            <span>Events</span>
-            <ResidentStatusBadge tone="neutral">Soon</ResidentStatusBadge>
-          </li>
-          <li className="flex items-center justify-between gap-2 border-b border-[var(--mpa-color-border-default)] py-2">
-            <span>Property & emergency contacts</span>
-            <ResidentStatusBadge tone="neutral">Soon</ResidentStatusBadge>
-          </li>
-          <li className="flex items-center justify-between gap-2 py-2">
-            <span>Amenities</span>
-            <ResidentStatusBadge tone="neutral">Soon</ResidentStatusBadge>
-          </li>
-        </ul>
-        <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">
-          No unfinished community modules here — this space stays honest until community publishing ships.
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          No community updates yet.
         </p>
       </ResidentSection>
 

@@ -25,7 +25,7 @@ export function OrganizationProfilePage({ profile }: { profile: OrgProfileSnapsh
               Back to directory
             </Button>
           </Link>
-          <Link href={`/admin/testing/impersonation?orgId=${profile.id}`}>
+          <Link href={`/admin/support/view-as?orgId=${profile.id}`}>
             <Button type="button" size="sm">
               View As…
             </Button>
@@ -129,11 +129,13 @@ export function OrganizationProfilePage({ profile }: { profile: OrgProfileSnapsh
         </article>
       </section>
 
-      <SupportOrgActions
-        organizationId={profile.id}
-        invitations={profile.invitations}
-        provisioning={profile.provisioning}
-      />
+      <div id="support-actions">
+        <SupportOrgActions
+          organizationId={profile.id}
+          invitations={profile.invitations}
+          provisioning={profile.provisioning}
+        />
+      </div>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <article className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">

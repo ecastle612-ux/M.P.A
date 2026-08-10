@@ -72,7 +72,7 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                     })}
                     className={marketingSecondaryCtaClass}
                   >
-                    Confirm Plan
+                    Confirm {SKU_SUMMARIES[sku].label}
                   </Link>
                 </div>
               </li>

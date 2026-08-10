@@ -90,7 +90,7 @@ export function PricingPage({
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
         </ol>
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Billing cycle">
+        <div className="flex flex-wrap items-center gap-3" role="group" aria-label="Billing cycle">
           {BILLING_CYCLES.map((cycle) => (
             <button
               key={cycle}
@@ -99,13 +99,18 @@ export function PricingPage({
               onClick={() => setBillingCycle(cycle)}
               className={`rounded-md px-4 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] ${
                 billingCycle === cycle
-                  ? "bg-[var(--mpa-color-brand-primary)] text-white"
+                  ? "bg-[var(--mpa-color-brand-primary)] text-white shadow-[0_6px_16px_rgba(15,107,86,0.2)]"
                   : "bg-[var(--mpa-color-bg-subtle)] text-[var(--mpa-color-text-secondary)]"
               }`}
             >
               {toBillingCycleLabel(cycle)} pricing
             </button>
           ))}
+          {billingCycle === "annual" ? (
+            <span className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-3 py-1.5 text-xs font-semibold text-[var(--mpa-color-brand-primary)]">
+              Annual billing · best value vs monthly
+            </span>
+          ) : null}
         </div>
 
         <ul className="grid gap-4 lg:grid-cols-3">
@@ -122,7 +127,31 @@ export function PricingPage({
 
         <section className="space-y-3">
           <h2 className="font-display text-xl font-semibold">Inclusion matrix</h2>
-          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]">
+          <ul className="grid gap-3 md:hidden">
+            {rows.map((row) => (
+              <li
+                key={row.id}
+                className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 text-sm"
+              >
+                <p className="font-semibold text-[var(--mpa-color-text-primary)]">{row.label}</p>
+                <dl className="mt-2 space-y-1 text-[var(--mpa-color-text-secondary)]">
+                  <div className="flex justify-between gap-2">
+                    <dt>Property Manager</dt>
+                    <dd>{row.pm ? "Included" : "—"}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt>Facility Operations</dt>
+                    <dd>{row.fo ? "Included" : "—"}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt>Complete</dt>
+                    <dd>{row.complete ? "Included" : "—"}</dd>
+                  </div>
+                </dl>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] md:block">
             <table className="w-full min-w-[40rem] border-collapse text-sm">
               <thead className="bg-[var(--mpa-color-bg-subtle,#F7F8FA)]">
                 <tr>

@@ -275,7 +275,7 @@ export function CommandCenterPage({ snapshot }: { snapshot: CommandCenterSnapsho
               <Link href="/admin/platform/customers" className="text-[var(--mpa-color-brand-primary)] underline">
                 Customers
               </Link>
-              <Link href="/admin/testing/impersonation" className="text-[var(--mpa-color-brand-primary)] underline">
+              <Link href="/admin/support/view-as" className="text-[var(--mpa-color-brand-primary)] underline">
                 View As
               </Link>
               <Link href="/admin/system" className="text-[var(--mpa-color-brand-primary)] underline">

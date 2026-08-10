@@ -756,7 +756,7 @@ export function DocumentsWorkspace() {
             </label>
             <label className="block space-y-1 text-sm">
               <span className="text-xs text-[var(--mpa-color-text-secondary)]">
-                File (PDF, images, Office, text — CAD/video placeholder)
+                File (PDF, images, Office, text)
               </span>
               <input
                 type="file"
