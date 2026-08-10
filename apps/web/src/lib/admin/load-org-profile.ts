@@ -5,9 +5,9 @@ import { listProvisioningJobsFromDb } from "../saas-provisioning/jobs-store";
 import type { HealthTone } from "./command-center-metrics";
 import { classifyOrganizationBucket } from "./command-center-metrics";
 
-type AnyClient = {
-  from: (table: string) => any;
-};
+// Generated Database types lag Owner Ops tables; service-role queries cast locally.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- loose Supabase client for additive ops tables
+type AnyClient = { from: (table: string) => any };
 
 async function tryServiceRole(): Promise<AnyClient | null> {
   try {

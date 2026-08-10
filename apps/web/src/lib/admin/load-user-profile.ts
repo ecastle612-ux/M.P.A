@@ -1,6 +1,8 @@
 import { createAuthServerClient } from "../auth/server";
 import { serverEnv } from "../env/server-env";
 
+// Generated Database types lag Owner Ops tables; service-role queries cast locally.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- loose Supabase client for additive ops tables
 type AnyClient = { from: (table: string) => any; auth?: any };
 
 async function tryServiceRole(): Promise<AnyClient | null> {

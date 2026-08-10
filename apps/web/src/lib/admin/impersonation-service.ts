@@ -10,9 +10,9 @@ import { createAuthServerClient } from "../auth/server";
 import { serverEnv } from "../env/server-env";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../organization/contracts";
 
-type LooseClient = {
-  from: (table: string) => any;
-};
+// Generated Database types lag Owner Ops tables; service-role queries cast locally.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- loose Supabase client for additive ops tables
+type LooseClient = { from: (table: string) => any };
 
 async function tryServiceRole(): Promise<LooseClient | null> {
   try {
