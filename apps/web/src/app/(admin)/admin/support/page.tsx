@@ -8,6 +8,7 @@ export default async function Page() {
       organizations={data.organizations}
       customers={data.customers}
       events={data.supportEvents}
+      invitations={data.invitations}
     />
   );
 }

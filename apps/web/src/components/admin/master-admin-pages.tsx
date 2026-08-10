@@ -146,7 +146,14 @@ export function AdminSimplePage({
     <main className="space-y-4 p-4 md:p-6">
       <h1 className="font-display text-2xl font-semibold">{title}</h1>
       <p className="text-sm text-[var(--mpa-color-text-secondary)]">{description}</p>
-      <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">Status: {status}</p>
+      <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+        Status: {status === "planned" ? "Not yet available" : status}
+      </p>
+      {status === "planned" ? (
+        <p className="rounded-md border border-dashed border-[var(--mpa-color-border-default)] bg-white p-4 text-sm text-[var(--mpa-color-text-secondary)]">
+          This Master Admin surface is intentionally not yet available. It is not a broken link.
+        </p>
+      ) : null}
       {title === "Subscriptions" ? (
         <ul className="mt-4 space-y-2 text-sm">
           {PRODUCT_SKUS.map((sku) => (
@@ -197,8 +204,15 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
   // Version 1.0: Capital Projects is not an exposed workspace surface.
   if (moduleId === "capital_projects") {
     return (
-      <main className="p-6">
-        <h1 className="font-display text-2xl font-semibold">Unknown workspace</h1>
+      <main className="space-y-3 p-6">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+          Owner Operations
+        </p>
+        <h1 className="font-display text-2xl font-semibold">Not yet available</h1>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          Capital Projects is not a commercial product surface in Master Admin. This is an intentional
+          empty state — not a 404.
+        </p>
       </main>
     );
   }
@@ -206,13 +220,20 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
   const commercialModule = COMMERCIAL_MODULES.find((item) => item.id === moduleId);
   if (!commercialModule) {
     return (
-      <main className="p-6">
-        <h1 className="font-display text-2xl font-semibold">Unknown workspace</h1>
+      <main className="space-y-3 p-6">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+          Owner Operations
+        </p>
+        <h1 className="font-display text-2xl font-semibold">Not yet available</h1>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          This workspace is not registered. Intentional empty state — not a broken route.
+        </p>
       </main>
     );
   }
 
   const isFinancialOperations = commercialModule.id === "financial_operations";
+  const isPlanned = commercialModule.readiness === "planned";
 
   return (
     <main className="space-y-3 p-4 md:p-6">
@@ -222,10 +243,12 @@ export function AdminWorkspacePage({ moduleId }: { moduleId: string }) {
         </p>
       ) : null}
       <h1 className="font-display text-2xl font-semibold">
-        {commercialModule.label}
+        {isPlanned ? `${commercialModule.label} · Not yet available` : commercialModule.label}
       </h1>
       <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        {commercialModule.plannedLabel ?? commercialModule.description}
+        {isPlanned
+          ? `This operational workspace is intentionally not yet available for operator triage. ${commercialModule.plannedLabel ?? commercialModule.description}`
+          : (commercialModule.plannedLabel ?? commercialModule.description)}
       </p>
       <dl className="grid max-w-xl gap-2 rounded border bg-white p-4 text-sm">
         <div className="flex justify-between gap-4">

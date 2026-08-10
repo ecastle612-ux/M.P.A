@@ -300,7 +300,7 @@ export function buildCommandCenterSnapshot(input: {
       detail: org.productSku
         ? `${toSkuLabel(org.productSku)} · ${org.subscriptionStatus ?? "no subscription"}`
         : org.subscriptionStatus ?? "No subscription",
-      href: "/admin/platform/organizations"
+      href: `/admin/platform/organizations/${org.id}`
     }));
 
   const latestPurchases = input.purchases.slice(0, 8).map((purchase) => ({

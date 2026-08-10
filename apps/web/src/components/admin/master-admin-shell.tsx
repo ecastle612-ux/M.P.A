@@ -15,9 +15,9 @@ export function MasterAdminShell({ children, operatorEmail }: { children: ReactN
       <aside className="hidden w-80 shrink-0 border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] lg:block">
         <div className="border-b border-[var(--mpa-color-border-sidebar)] px-4 py-4">
           <p className="font-display text-lg font-semibold text-[var(--mpa-color-text-sidebar-active)]">
-            Master Admin
+            Owner Operations
           </p>
-          <p className="mt-1 text-xs text-[var(--mpa-color-text-sidebar)]">Platform headquarters</p>
+          <p className="mt-1 text-xs text-[var(--mpa-color-text-sidebar)]">Platform Operations Console</p>
           <p className="mt-2 text-xs text-[var(--mpa-color-text-sidebar)]/90">{operatorEmail}</p>
         </div>
         <nav aria-label="Master Admin" className="space-y-5 px-3 py-4">
@@ -28,7 +28,10 @@ export function MasterAdminShell({ children, operatorEmail }: { children: ReactN
               </p>
               <ul className="space-y-1">
                 {group.items.map((item) => {
-                  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const active =
+                    item.href === "/admin"
+                      ? pathname === "/admin"
+                      : pathname === item.href || pathname.startsWith(`${item.href}/`);
                   return (
                     <li key={item.href}>
                       <Link
@@ -87,7 +90,7 @@ export function MasterAdminShell({ children, operatorEmail }: { children: ReactN
               </nav>
             </details>
             <p className="truncate text-sm text-[var(--mpa-color-text-secondary)]">
-              Mission Control · every product · every subscription · every capability
+              Diagnose · verify · support every customer from one place
             </p>
           </div>
           <Link href="/launcher" className="shrink-0 text-sm text-[var(--mpa-color-brand-primary)] underline">

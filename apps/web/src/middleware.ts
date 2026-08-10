@@ -4,6 +4,8 @@ import {
   COM_002_FLAGS,
   evaluatePathEntitlement,
   hasLifecycleModuleAccess,
+  IMPERSONATION_COOKIE,
+  IMPERSONATION_MODE_COOKIE,
   isProductSku,
   isSubscriptionPlatformStatus,
   type ProductSku,
@@ -41,6 +43,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+  const method = request.method.toUpperCase();
   // `/` (marketing homepage) is intentionally public and is not matched below.
   const isLoginRoute = pathname.startsWith("/login");
   const isForgotPasswordRoute = pathname.startsWith("/forgot-password");
@@ -96,6 +99,29 @@ export async function middleware(request: NextRequest) {
     url.pathname = "/unauthorized";
     url.search = "?reason=admin";
     return NextResponse.redirect(url);
+  }
+
+  // View As (read-only): block customer-mutating API methods while impersonation is active.
+  const impersonationSession = request.cookies.get(IMPERSONATION_COOKIE)?.value;
+  const impersonationMode = request.cookies.get(IMPERSONATION_MODE_COOKIE)?.value ?? "read_only";
+  const isMutating = method === "POST" || method === "PUT" || method === "PATCH" || method === "DELETE";
+  const isImpersonationControlApi = pathname.startsWith("/api/admin/impersonation");
+  const isAdminSupportApi = pathname.startsWith("/api/admin/");
+  if (
+    impersonationSession &&
+    impersonationMode === "read_only" &&
+    isMutating &&
+    pathname.startsWith("/api/") &&
+    !isImpersonationControlApi &&
+    !isAdminSupportApi
+  ) {
+    return NextResponse.json(
+      {
+        error: "View As is read-only. Exit the support session before making changes.",
+        code: "impersonation_read_only"
+      },
+      { status: 403 }
+    );
   }
 
   // Bootstrap active-org cookie from first membership when missing (portal first login).
@@ -196,6 +222,7 @@ export const config = {
     "/shared/:path*",
     "/settings/:path*",
     "/admin/:path*",
+    "/api/:path*",
     "/login",
     "/forgot-password",
     "/reset-password",

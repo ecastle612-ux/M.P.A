@@ -15,9 +15,9 @@ export type MasterAdminNavGroup = {
 };
 
 /**
- * Master Admin OS navigation — exposes every commercial product and operational
- * workspace. Planned items remain visible so nothing disappears because it is
- * not yet implemented.
+ * Master Admin OS navigation — Platform Operations Console.
+ * Every item must resolve to a working page or an intentional Not yet available surface.
+ * Planned items stay visible; never hide navigation for unimplemented capabilities.
  */
 export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
   {
@@ -27,19 +27,19 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
       {
         href: "/admin",
         label: "Command Center",
-        description: "Platform health, commercial pulse, and recent operator activity.",
+        description: "Platform health, global search, and live activity for Owner support.",
         status: "aligned"
       },
       {
         href: "/admin/support",
-        label: "Support",
-        description: "Customer/org lookup, failure timeline, and support notes placeholder.",
+        label: "Support Center",
+        description: "Provisioning, invitations, Stripe, SignWell, documents, and audited actions.",
         status: "aligned"
       },
       {
         href: "/admin/system",
-        label: "System",
-        description: "Platform health for Stripe, Supabase, email, jobs, demo, and auth.",
+        label: "System Health",
+        description: "Production status, Stripe, Supabase, email, jobs, and recent errors.",
         status: "aligned"
       },
       {
@@ -132,13 +132,13 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
       {
         href: "/admin/platform/organizations",
         label: "Organizations",
-        description: "Customer organization directory.",
+        description: "Organization directory and support profiles.",
         status: "aligned"
       },
       {
         href: "/admin/platform/customers",
         label: "Customers",
-        description: "Memberships, invitations, roles, and setup state.",
+        description: "Users, memberships, invitations, roles, and profiles.",
         status: "aligned"
       },
       {
@@ -173,9 +173,9 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
       },
       {
         href: "/admin/testing/impersonation",
-        label: "Impersonation",
-        description: "Audited support impersonation (planned controls).",
-        status: "planned"
+        label: "View As",
+        description: "Secure audited impersonation — read-only by default with visible banner.",
+        status: "aligned"
       }
     ]
   },
