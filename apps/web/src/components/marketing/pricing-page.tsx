@@ -66,8 +66,9 @@ export function PricingPage({
           <h1 className="font-display text-3xl font-semibold">Platform pricing</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             Monthly and Annual list prices for Property Manager, Facility Operations, and Complete
-            Platform. Only Property Manager can be purchased online today — Facility Operations and
-            Complete Platform use early access or consultation until FO_READY certification.
+            Platform. Amounts come from live Stripe Prices (never invented). Only Property Manager
+            can be purchased online today — Facility Operations and Complete Platform use early
+            access or consultation until FO_READY certification.
           </p>
         </header>
 
