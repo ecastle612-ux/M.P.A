@@ -1,5 +1,5 @@
-# Production env reload stamp
-# Purpose: force Vercel to rebuild m-p-a-web after Production STRIPE_PRICE_*
-# value updates (empty commits are skipped as unaffected in the monorepo).
-# No application behavior. Cutover verify 2026-08-11.
-stamp=2026-08-11T01:30Z-pricing-cutover-env-reload
+2026-08-11T02:00Z
+
+# Owner edited existing Production STRIPE_PRICE_* to NEW Price IDs.
+# Stamp forces m-p-a-web rebuild so runtime loads updated env map.
+# No application logic change.
