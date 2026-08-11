@@ -1,0 +1,6 @@
+# CONTROLLED DIAGNOSTIC — Cloud Dashboard → Vercel Preview env snapshot test
+# No application behavior change. Do not promote to Production.
+stamp=2026-08-11T02:35:00Z
+agent=bc-c20c2b19-7843-4446-b86b-01ecafd805a1
+project=m-p-a-web
+target=preview_only
