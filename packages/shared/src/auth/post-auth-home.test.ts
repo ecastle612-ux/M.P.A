@@ -36,6 +36,24 @@ describe("resolvePostAuthHome", () => {
     ).toBe("/pm/mission-control");
   });
 
+  it("remaps FO-only staff away from PM module homes", () => {
+    expect(
+      resolvePostAuthHome({
+        roles: ["organization_admin"],
+        productSku: "mpa_facility_operations",
+        setupComplete: true
+      })
+    ).toBe("/facility/mission-control");
+
+    expect(
+      resolvePostAuthHome({
+        roles: ["property_manager"],
+        productSku: "mpa_facility_operations",
+        setupComplete: true
+      })
+    ).toBe("/facility/mission-control");
+  });
+
   it("routes portal roles to their portals even before setup flags matter", () => {
     expect(
       resolvePostAuthHome({

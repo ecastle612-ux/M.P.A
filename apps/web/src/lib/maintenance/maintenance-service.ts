@@ -2,13 +2,16 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   buildMaintenanceReadyAssistantCopy,
   type AssignWorkOrderInput,
+  type CancelWorkOrderInput,
   type ConfirmWorkOrderInput,
+  type CreateFacilityWorkOrderInput,
   type CreateVendorDirectoryInput,
   type CreateWorkOrderInput,
   type ProgressWorkOrderInput,
   type TriageWorkOrderInput,
   type WorkOrderPriority,
-  type WorkOrderStatus
+  type WorkOrderStatus,
+  type WorkSurface
 } from "@mpa/shared";
 import { provisionVendorPortalAccess } from "../portal/portal-access-service";
 import { emitMaintenanceEvent, writeMaintenanceAudit } from "./events-audit";
@@ -28,6 +31,10 @@ export type WorkOrderRow = {
   category: string;
   priority: WorkOrderPriority;
   status: WorkOrderStatus;
+  work_surface: WorkSurface;
+  facility_asset_label: string | null;
+  due_at: string | null;
+  cancelled_at: string | null;
   assignee_type: "unassigned" | "technician" | "vendor";
   technician_user_id: string | null;
   vendor_id: string | null;
@@ -163,6 +170,7 @@ export async function getMaintenanceReadiness(supabase: Db, organizationId: stri
     .from("maintenance_work_orders")
     .select("id", { count: "exact", head: true })
     .eq("organization_id", organizationId)
+    .eq("work_surface", "residential")
     .eq("status", "closed");
   if (error) {
     throw new Error(error.message);
@@ -174,12 +182,23 @@ export async function getMaintenanceReadiness(supabase: Db, organizationId: stri
   };
 }
 
-export async function listWorkOrders(supabase: Db, organizationId: string) {
-  const { data, error } = await supabase
+export async function listWorkOrders(
+  supabase: Db,
+  organizationId: string,
+  options?: { surface?: WorkSurface | "all" }
+) {
+  let query = supabase
     .from("maintenance_work_orders")
     .select(SELECT_WO)
     .eq("organization_id", organizationId)
     .order("submitted_at", { ascending: false });
+
+  const surface = options?.surface ?? "all";
+  if (surface === "residential" || surface === "facility") {
+    query = query.eq("work_surface", surface);
+  }
+
+  const { data, error } = await query;
   if (error) {
     throw new Error(error.message);
   }
@@ -326,7 +345,8 @@ export async function createResidentWorkOrder(
       category: input.category,
       priority: input.priority,
       status: "submitted",
-      assignee_type: "unassigned"
+      assignee_type: "unassigned",
+      work_surface: "residential"
     })
     .select(SELECT_WO)
     .single();
@@ -507,6 +527,9 @@ export async function assignWorkOrder(
     }
   });
 
+  const assigneeHref =
+    existing.work_surface === "facility" ? "/facility/operations" : "/pm/maintenance";
+
   if (technicianUserId) {
     await notify(supabase, {
       organizationId,
@@ -515,7 +538,7 @@ export async function assignWorkOrder(
       key: "work_order.assigned",
       title: "Work order assigned",
       body: `You were assigned: ${existing.title}`,
-      href: "/pm/maintenance"
+      href: assigneeHref
     });
   }
   let vendorPortalHandoff: Awaited<
@@ -612,6 +635,7 @@ export async function progressWorkOrder(
     status?: WorkOrderStatus;
     started_at?: string;
     completed_at?: string;
+    closed_at?: string;
   } = {
     updated_at: new Date().toISOString()
   };
@@ -622,10 +646,19 @@ export async function progressWorkOrder(
     patch.status = nextStatus;
     patch.started_at = existing.started_at ?? new Date().toISOString();
   } else if (input.action === "complete") {
-    nextStatus = "completed";
-    eventType = "work_order.completed";
-    patch.status = nextStatus;
-    patch.completed_at = new Date().toISOString();
+    // Facility work has no resident confirmation step — complete closes the WO.
+    if (existing.work_surface === "facility") {
+      nextStatus = "closed";
+      eventType = "work_order.closed";
+      patch.status = nextStatus;
+      patch.completed_at = new Date().toISOString();
+      patch.closed_at = new Date().toISOString();
+    } else {
+      nextStatus = "completed";
+      eventType = "work_order.completed";
+      patch.status = nextStatus;
+      patch.completed_at = new Date().toISOString();
+    }
   } else if (existing.status === "assigned") {
     nextStatus = "in_progress";
     patch.status = nextStatus;
@@ -664,20 +697,22 @@ export async function progressWorkOrder(
     payload: { note: input.note, status: nextStatus, action: input.action }
   });
 
-  const residentUserId =
-    (Array.isArray(existing.pm_residents)
-      ? existing.pm_residents[0]?.user_id
-      : existing.pm_residents?.user_id) ?? existing.requested_by_user_id;
-  await notify(supabase, {
-    organizationId,
-    userId: residentUserId,
-    workOrderId: input.workOrderId,
-    key: eventType,
-    title:
-      input.action === "complete" ? "Work completed — please confirm" : "Maintenance progress update",
-    body: input.note,
-    href: "/portal/tenant/maintenance"
-  });
+  if (existing.work_surface !== "facility") {
+    const residentUserId =
+      (Array.isArray(existing.pm_residents)
+        ? existing.pm_residents[0]?.user_id
+        : existing.pm_residents?.user_id) ?? existing.requested_by_user_id;
+    await notify(supabase, {
+      organizationId,
+      userId: residentUserId,
+      workOrderId: input.workOrderId,
+      key: eventType,
+      title:
+        input.action === "complete" ? "Work completed — please confirm" : "Maintenance progress update",
+      body: input.note,
+      href: "/portal/tenant/maintenance"
+    });
+  }
 
   return data as WorkOrderRow;
 }
@@ -839,6 +874,229 @@ export async function getPropertyMaintenanceSummary(
     recentlyCompleted: recentlyCompleted.slice(0, 8),
     history: rows.slice(0, 20)
   };
+}
+
+export async function createFacilityWorkOrder(
+  supabase: Db,
+  organizationId: string,
+  actorUserId: string,
+  input: CreateFacilityWorkOrderInput
+) {
+  const { data: property, error: propertyError } = await supabase
+    .from("property_properties")
+    .select("id, name")
+    .eq("organization_id", organizationId)
+    .eq("id", input.propertyId)
+    .maybeSingle();
+  if (propertyError) {
+    throw new Error(propertyError.message);
+  }
+  if (!property) {
+    throw new Error("Property not found for organization");
+  }
+
+  if (input.unitId) {
+    const { data: unit, error: unitError } = await supabase
+      .from("property_units")
+      .select("id")
+      .eq("id", input.unitId)
+      .eq("property_id", input.propertyId)
+      .maybeSingle();
+    if (unitError) {
+      throw new Error(unitError.message);
+    }
+    if (!unit) {
+      throw new Error("Unit not found for property");
+    }
+  }
+
+  const { data: workOrder, error } = await supabase
+    .from("maintenance_work_orders")
+    .insert({
+      organization_id: organizationId,
+      property_id: input.propertyId,
+      unit_id: input.unitId ?? null,
+      resident_id: null,
+      requested_by_user_id: actorUserId,
+      title: input.title,
+      description: input.description,
+      category: input.category,
+      priority: input.priority,
+      status: "submitted",
+      assignee_type: "unassigned",
+      work_surface: "facility",
+      facility_asset_label: input.facilityAssetLabel?.trim() || null,
+      due_at: input.dueAt ?? null
+    })
+    .select(SELECT_WO)
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  await addUpdate(supabase, {
+    organizationId,
+    workOrderId: workOrder.id,
+    actorUserId,
+    actorRole: "manager",
+    body: `Facility work created: ${input.title}`,
+    statusFrom: null,
+    statusTo: "submitted"
+  });
+  await record({
+    supabase,
+    organizationId,
+    actorId: actorUserId,
+    workOrderId: workOrder.id,
+    eventType: "work_order.created",
+    alsoPropertyId: input.propertyId,
+    payload: {
+      title: input.title,
+      priority: input.priority,
+      category: input.category,
+      workSurface: "facility",
+      facilityAssetLabel: input.facilityAssetLabel ?? null,
+      dueAt: input.dueAt ?? null
+    }
+  });
+
+  return workOrder as WorkOrderRow;
+}
+
+export async function cancelWorkOrder(
+  supabase: Db,
+  organizationId: string,
+  actorUserId: string,
+  input: CancelWorkOrderInput
+) {
+  const existing = await getWorkOrder(supabase, organizationId, input.workOrderId);
+  if (!existing) {
+    throw new Error("Work order not found");
+  }
+  if (["closed", "cancelled", "completed"].includes(existing.status)) {
+    throw new Error("Cannot cancel a completed, closed, or already cancelled work order");
+  }
+
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("maintenance_work_orders")
+    .update({
+      status: "cancelled",
+      cancelled_at: now,
+      updated_at: now
+    })
+    .eq("id", input.workOrderId)
+    .eq("organization_id", organizationId)
+    .select(SELECT_WO)
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const note = input.note?.trim() || "Work order cancelled.";
+  await addUpdate(supabase, {
+    organizationId,
+    workOrderId: input.workOrderId,
+    actorUserId,
+    actorRole: "manager",
+    body: note,
+    statusFrom: existing.status,
+    statusTo: "cancelled"
+  });
+  await record({
+    supabase,
+    organizationId,
+    actorId: actorUserId,
+    workOrderId: input.workOrderId,
+    eventType: "work_order.cancelled",
+    alsoPropertyId: existing.property_id,
+    alsoResidentId: existing.resident_id,
+    payload: { note, previousStatus: existing.status }
+  });
+
+  return data as WorkOrderRow;
+}
+
+export type FacilityMissionControlSnapshot = {
+  todayOpen: number;
+  emergency: number;
+  open: number;
+  overdue: number;
+  waitingOnVendor: number;
+  waitingOnTechnician: number;
+  completedRecently: number;
+};
+
+export type FacilitySnapshotRow = {
+  status: string;
+  priority?: string | null;
+  assignee_type?: string | null;
+  due_at?: string | null;
+  submitted_at?: string | null;
+  completed_at?: string | null;
+  closed_at?: string | null;
+};
+
+function isOpenFacilityStatus(status: string) {
+  return !["closed", "cancelled", "completed"].includes(status);
+}
+
+/** Pure attention buckets for Facility Mission Control (unit-testable). */
+export function buildFacilityMissionControlSnapshot(
+  rows: FacilitySnapshotRow[],
+  nowInput: Date = new Date()
+): FacilityMissionControlSnapshot {
+  const now = nowInput;
+  const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  const openRows = rows.filter((row) => isOpenFacilityStatus(String(row.status)));
+  const todayOpen = openRows.filter((row) => {
+    const submitted = row.submitted_at ? new Date(String(row.submitted_at)) : null;
+    const due = row.due_at ? new Date(String(row.due_at)) : null;
+    const submittedToday = submitted !== null && submitted >= startOfToday;
+    const dueToday =
+      due !== null && due >= startOfToday && due < new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000);
+    return submittedToday || dueToday;
+  }).length;
+
+  return {
+    todayOpen,
+    emergency: openRows.filter((row) => row.priority === "emergency").length,
+    open: openRows.length,
+    overdue: openRows.filter((row) => row.due_at && new Date(String(row.due_at)) < now).length,
+    waitingOnVendor: openRows.filter(
+      (row) => row.status === "assigned" && row.assignee_type === "vendor"
+    ).length,
+    waitingOnTechnician: openRows.filter(
+      (row) => row.status === "assigned" && row.assignee_type === "technician"
+    ).length,
+    completedRecently: rows.filter((row) => {
+      if (!["completed", "closed"].includes(String(row.status))) {
+        return false;
+      }
+      const stamp = row.completed_at ?? row.closed_at;
+      return stamp ? new Date(String(stamp)) >= sevenDaysAgo : false;
+    }).length
+  };
+}
+
+export async function getFacilityMissionControlSnapshot(
+  supabase: Db,
+  organizationId: string
+): Promise<FacilityMissionControlSnapshot> {
+  const { data, error } = await supabase
+    .from("maintenance_work_orders")
+    .select(
+      "id, status, priority, assignee_type, due_at, submitted_at, completed_at, closed_at, cancelled_at"
+    )
+    .eq("organization_id", organizationId)
+    .eq("work_surface", "facility");
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return buildFacilityMissionControlSnapshot((data ?? []) as FacilitySnapshotRow[]);
 }
 
 export function maintenanceReadyCopy() {

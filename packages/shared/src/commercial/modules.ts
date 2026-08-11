@@ -26,6 +26,16 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/pm/mission-control",
     "/pm/properties",
     "/pm/maintenance",
+    "/facility/mission-control",
+    "/facility/operations",
+    "/facility/assets",
+    "/facility/preventive-maintenance",
+    "/facility/inspections",
+    "/facility/safety",
+    "/facility/compliance",
+    "/facility/inventory",
+    "/facility/parts",
+    "/facility/building-systems",
     "/shared/documents",
     "/shared/reports",
     "/shared/communications",
@@ -197,9 +207,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.operations",
     href: "/facility/operations",
-    readiness: "planned",
+    readiness: "aligned",
     description: "Facility corrective operations.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
   },
   {
     id: "assets",
@@ -207,9 +216,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.assets",
     href: "/facility/assets",
-    readiness: "planned",
+    readiness: "aligned",
     description: "Asset registry.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
   },
   {
     id: "inventory",
@@ -217,9 +225,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.inventory",
     href: "/facility/inventory",
-    readiness: "planned",
+    readiness: "aligned",
     description: "Storerooms and counts.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
   },
   {
     id: "parts",
@@ -227,9 +234,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.parts",
     href: "/facility/parts",
-    readiness: "planned",
+    readiness: "aligned",
     description: "Parts catalog and usage.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
   },
   {
     id: "preventive_maintenance",
@@ -237,9 +243,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.preventive",
     href: "/facility/preventive-maintenance",
-    readiness: "planned",
+    readiness: "aligned",
     description: "Preventive schedules on assets/systems.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
   },
   {
     id: "inspections",
@@ -247,9 +252,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.inspections",
     href: "/facility/inspections",
-    readiness: "planned",
+    readiness: "aligned",
     description: "Facility and building inspection programs.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
   },
   {
     id: "safety",
@@ -257,9 +261,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.safety",
     href: "/facility/safety",
-    readiness: "planned",
+    readiness: "aligned",
     description: "Safety incidents and protocols.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
   },
   {
     id: "compliance",
@@ -267,9 +270,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.compliance",
     href: "/facility/compliance",
-    readiness: "planned",
+    readiness: "aligned",
     description: "Building and facility compliance programs.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
   },
   {
     id: "building_systems",
@@ -277,9 +279,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     owner: "facility_operations",
     entitlement: "facility.building_systems",
     href: "/facility/building-systems",
-    readiness: "planned",
+    readiness: "aligned",
     description: "HVAC, electrical, fire, and related systems.",
-    plannedLabel: "Included in Facility Operations — not yet implemented"
   },
   {
     id: "capital_projects",
@@ -378,8 +379,46 @@ export function navigationGroupsForSku(
           label: "Facility Mission Control",
           readiness: "aligned",
           entitlement: "facility.mission_control"
+        },
+        {
+          href: "/facility/operations",
+          label: "Operations",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
+        { href: "/facility/assets", label: "Assets", readiness: "aligned", entitlement: "facility.assets" },
+        {
+          href: "/facility/preventive-maintenance",
+          label: "Preventive Maintenance",
+          readiness: "aligned",
+          entitlement: "facility.preventive"
+        },
+        {
+          href: "/facility/inspections",
+          label: "Inspections",
+          readiness: "aligned",
+          entitlement: "facility.inspections"
+        },
+        { href: "/facility/safety", label: "Safety", readiness: "aligned", entitlement: "facility.safety" },
+        {
+          href: "/facility/compliance",
+          label: "Compliance",
+          readiness: "aligned",
+          entitlement: "facility.compliance"
+        },
+        {
+          href: "/facility/inventory",
+          label: "Inventory",
+          readiness: "aligned",
+          entitlement: "facility.inventory"
+        },
+        { href: "/facility/parts", label: "Parts", readiness: "aligned", entitlement: "facility.parts" },
+        {
+          href: "/facility/building-systems",
+          label: "Building Systems",
+          readiness: "aligned",
+          entitlement: "facility.building_systems"
         }
-        // Planned FO modules stay entitled/routable but are omitted from primary nav (PRA-002 / PRA-050).
       ]
     });
   }

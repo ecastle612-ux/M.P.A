@@ -6,6 +6,7 @@ export const MAINTENANCE_AUDIT_ACTIONS = [
   "work_order.started",
   "work_order.progressed",
   "work_order.completed",
+  "work_order.cancelled",
   "work_order.resident_confirmed",
   "work_order.closed"
 ] as const;

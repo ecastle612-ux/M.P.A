@@ -15,7 +15,7 @@ export async function GET() {
 
   try {
     const [workOrders, technicians, vendors, readiness] = await Promise.all([
-      listWorkOrders(authz.supabase, authz.organizationId),
+      listWorkOrders(authz.supabase, authz.organizationId, { surface: "residential" }),
       listTechnicians(authz.supabase, authz.organizationId),
       listVendors(authz.supabase, authz.organizationId),
       getMaintenanceReadiness(authz.supabase, authz.organizationId)

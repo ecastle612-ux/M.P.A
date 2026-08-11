@@ -9,7 +9,7 @@ import { listSaasWebhookEvents } from "../../lib/saas-stripe/purchase-store";
 import { EnforceGraceButton } from "./enforce-grace-button";
 
 export async function SaasLifecycleConsole() {
-  const subs = listLifecycleSubscriptions();
+  const subs = await listLifecycleSubscriptions();
   const onboardingEvents = await listSaasLifecycleEventsFromDb(40);
   const events = listSaasWebhookEvents().filter((e) =>
     [

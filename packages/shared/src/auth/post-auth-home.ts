@@ -8,9 +8,21 @@ export type PostAuthHomeInput = {
   isPlatformOperator?: boolean;
 };
 
+function homeForStaffRole(role: UserRole, productSku: ProductSku | null): string {
+  const roleHome = defaultHomeForRole(role);
+  // FO-only subscriptions do not include PM module homes — send staff to FO Mission Control.
+  if (
+    productSku === "mpa_facility_operations" &&
+    (roleHome.startsWith("/pm/") || roleHome === "/launcher")
+  ) {
+    return "/facility/mission-control";
+  }
+  return roleHome;
+}
+
 /**
  * Canonical post-authentication workspace router.
- * Routes by active membership role — never by SKU alone when a role is present.
+ * Routes by active membership role, with SKU-safe remapping for FO-only orgs.
  */
 export function resolvePostAuthHome(input: PostAuthHomeInput): string {
   const role = primaryRole(input.roles);
@@ -32,7 +44,7 @@ export function resolvePostAuthHome(input: PostAuthHomeInput): string {
   }
 
   if (role) {
-    return defaultHomeForRole(role);
+    return homeForStaffRole(role, input.productSku);
   }
 
   if (input.isPlatformOperator) {

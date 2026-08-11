@@ -103,7 +103,8 @@ export function LoginForm() {
           body: JSON.stringify({
             sessionId: saasCheckoutSession,
             email,
-            password
+            password,
+            ...(bindToken ? { bindToken } : {})
           })
         });
         const claimData = (await claimRes.json().catch(() => ({}))) as { error?: string };

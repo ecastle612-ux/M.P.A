@@ -1,0 +1,164 @@
+import { describe, expect, it } from "vitest";
+import {
+  cancelWorkOrder,
+  createFacilityWorkOrder,
+  getFacilityMissionControlSnapshot,
+  listWorkOrders
+} from "./maintenance-service";
+
+function createFilterAwareClient(options: {
+  listRows?: unknown[];
+  property?: unknown;
+  existingWorkOrder?: unknown;
+}) {
+  type Builder = {
+    select: () => Builder;
+    insert: () => Builder;
+    update: () => Builder;
+    eq: (col: string, value: unknown) => Builder;
+    order: () => Builder;
+    limit: () => Builder;
+    maybeSingle: () => Promise<{ data: unknown; error: null }>;
+    single: () => Promise<{ data: unknown; error: null }>;
+    then: (
+      resolve: (value: { data: unknown; error: null }) => unknown,
+      reject?: (reason: unknown) => unknown
+    ) => Promise<unknown>;
+  };
+
+  const client: {
+    lastEq: Array<[string, unknown]>;
+    from: (table: string) => Builder;
+  } = {
+    lastEq: [],
+    from(table: string) {
+      const filters: Array<[string, unknown]> = [];
+      const builder: Builder = {
+        select() {
+          return builder;
+        },
+        insert() {
+          return builder;
+        },
+        update() {
+          return builder;
+        },
+        eq(col: string, value: unknown) {
+          filters.push([col, value]);
+          client.lastEq = filters;
+          return builder;
+        },
+        order() {
+          return builder;
+        },
+        limit() {
+          return builder;
+        },
+        maybeSingle: async () => {
+          if (table === "property_properties") {
+            return { data: options.property ?? null, error: null };
+          }
+          if (table === "maintenance_work_orders") {
+            return { data: options.existingWorkOrder ?? null, error: null };
+          }
+          return { data: null, error: null };
+        },
+        single: async () => ({ data: options.existingWorkOrder ?? null, error: null }),
+        then(resolve, reject) {
+          return Promise.resolve({
+            data: options.listRows ?? [],
+            error: null
+          }).then(resolve, reject);
+        }
+      };
+      return builder;
+    }
+  };
+  return client;
+}
+
+describe("STAB-004 maintenance-service facility surface", () => {
+  it("listWorkOrders filters by facility surface when requested", async () => {
+    const supabase = createFilterAwareClient({ listRows: [] });
+    await listWorkOrders(supabase as never, "org_1", { surface: "facility" });
+    expect(supabase.lastEq).toContainEqual(["organization_id", "org_1"]);
+    expect(supabase.lastEq).toContainEqual(["work_surface", "facility"]);
+  });
+
+  it("createFacilityWorkOrder rejects unknown property", async () => {
+    const supabase = createFilterAwareClient({ property: null });
+    await expect(
+      createFacilityWorkOrder(supabase as never, "org_1", "user_1", {
+        title: "Test work",
+        description: "Should fail property check",
+        category: "general",
+        priority: "normal",
+        propertyId: "11111111-1111-4111-8111-111111111111"
+      })
+    ).rejects.toThrow(/Property not found/);
+  });
+
+  it("cancelWorkOrder refuses completed work", async () => {
+    const supabase = createFilterAwareClient({
+      existingWorkOrder: {
+        id: "wo_1",
+        organization_id: "org_1",
+        property_id: "prop_1",
+        resident_id: null,
+        status: "completed",
+        work_surface: "facility"
+      }
+    });
+
+    await expect(
+      cancelWorkOrder(supabase as never, "org_1", "user_1", {
+        workOrderId: "22222222-2222-4222-8222-222222222222"
+      })
+    ).rejects.toThrow(/Cannot cancel/);
+  });
+
+  it("getFacilityMissionControlSnapshot counts open and overdue facility rows", async () => {
+    const now = Date.now();
+    const supabase = createFilterAwareClient({
+      listRows: [
+        {
+          id: "1",
+          status: "submitted",
+          priority: "emergency",
+          assignee_type: "unassigned",
+          due_at: new Date(now - 60_000).toISOString(),
+          submitted_at: new Date().toISOString(),
+          completed_at: null,
+          closed_at: null
+        },
+        {
+          id: "2",
+          status: "assigned",
+          priority: "normal",
+          assignee_type: "vendor",
+          due_at: null,
+          submitted_at: new Date().toISOString(),
+          completed_at: null,
+          closed_at: null
+        },
+        {
+          id: "3",
+          status: "completed",
+          priority: "normal",
+          assignee_type: "technician",
+          due_at: null,
+          submitted_at: new Date(now - 2 * 24 * 3600_000).toISOString(),
+          completed_at: new Date(now - 24 * 3600_000).toISOString(),
+          closed_at: null
+        }
+      ]
+    });
+
+    const snapshot = await getFacilityMissionControlSnapshot(supabase as never, "org_1");
+    expect(snapshot.emergency).toBe(1);
+    expect(snapshot.open).toBe(2);
+    expect(snapshot.overdue).toBe(1);
+    expect(snapshot.waitingOnVendor).toBe(1);
+    expect(snapshot.completedRecently).toBe(1);
+  });
+});

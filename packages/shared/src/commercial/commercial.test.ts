@@ -90,8 +90,35 @@ describe("navigation and launcher awareness", () => {
     expect(groups.some((group) => group.id === "property_manager")).toBe(true);
     expect(groups.some((group) => group.id === "facility_operations")).toBe(true);
     const fo = groups.find((group) => group.id === "facility_operations");
-    expect(fo?.items.map((item) => item.href)).toEqual(["/facility/mission-control"]);
+    expect(fo?.items.map((item) => item.href)).toEqual([
+      "/facility/mission-control",
+      "/facility/operations",
+      "/facility/assets",
+      "/facility/preventive-maintenance",
+      "/facility/inspections",
+      "/facility/safety",
+      "/facility/compliance",
+      "/facility/inventory",
+      "/facility/parts",
+      "/facility/building-systems"
+    ]);
     expect(fo?.items.every((item) => item.readiness === "aligned")).toBe(true);
+  });
+
+  it("marks Facility Operations modules aligned except Capital Projects", () => {
+    const foModules = modulesForSku("mpa_facility_operations").filter(
+      (module) => module.owner === "facility_operations"
+    );
+    expect(foModules.every((module) => module.readiness === "aligned")).toBe(true);
+    expect(foModules.some((module) => module.id === "capital_projects")).toBe(false);
+    expect(foModules.some((module) => module.id === "facility_operations")).toBe(true);
+    expect(foModules.find((module) => module.id === "facility_operations")?.plannedLabel).toBeUndefined();
+  });
+
+  it("removes Planned labels from Facility Operations search catalog", () => {
+    const results = searchCatalogForSku("mpa_facility_operations", "facility");
+    expect(results.some((item) => item.href === "/facility/operations")).toBe(true);
+    expect(results.every((item) => !item.label.includes("(Planned)"))).toBe(true);
   });
 
   it("organizes launcher workspaces by commercial product", () => {

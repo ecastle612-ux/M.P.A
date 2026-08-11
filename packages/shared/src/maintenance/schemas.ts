@@ -38,9 +38,36 @@ export const WORK_ORDER_CATEGORIES = [
   "hvac",
   "appliance",
   "structural",
-  "other"
+  "other",
+  "preventive",
+  "inspection",
+  "safety",
+  "compliance",
+  "building_system",
+  "inventory",
+  "parts"
 ] as const;
 export type WorkOrderCategory = (typeof WORK_ORDER_CATEGORIES)[number];
+
+export const WORK_ORDER_CATEGORY_LABELS: Record<WorkOrderCategory, string> = {
+  general: "General",
+  plumbing: "Plumbing",
+  electrical: "Electrical",
+  hvac: "HVAC",
+  appliance: "Appliance",
+  structural: "Structural",
+  other: "Other",
+  preventive: "Preventive",
+  inspection: "Inspection",
+  safety: "Safety",
+  compliance: "Compliance",
+  building_system: "Building system",
+  inventory: "Inventory",
+  parts: "Parts"
+};
+
+export const WORK_SURFACES = ["residential", "facility"] as const;
+export type WorkSurface = (typeof WORK_SURFACES)[number];
 
 export const createWorkOrderInputSchema = z.object({
   title: z.string().trim().min(3).max(160),
@@ -49,6 +76,18 @@ export const createWorkOrderInputSchema = z.object({
   priority: z.enum(WORK_ORDER_PRIORITIES).default("normal")
 });
 export type CreateWorkOrderInput = z.infer<typeof createWorkOrderInputSchema>;
+
+export const createFacilityWorkOrderInputSchema = z.object({
+  title: z.string().trim().min(3).max(160),
+  description: z.string().trim().min(3).max(4000),
+  category: z.enum(WORK_ORDER_CATEGORIES).default("general"),
+  priority: z.enum(WORK_ORDER_PRIORITIES).default("normal"),
+  propertyId: z.string().uuid(),
+  unitId: z.string().uuid().optional(),
+  facilityAssetLabel: z.string().trim().max(160).optional(),
+  dueAt: z.string().datetime().optional()
+});
+export type CreateFacilityWorkOrderInput = z.infer<typeof createFacilityWorkOrderInputSchema>;
 
 export const triageWorkOrderInputSchema = z.object({
   workOrderId: z.string().uuid(),
@@ -77,6 +116,12 @@ export const confirmWorkOrderInputSchema = z.object({
   note: z.string().trim().max(1000).optional()
 });
 export type ConfirmWorkOrderInput = z.infer<typeof confirmWorkOrderInputSchema>;
+
+export const cancelWorkOrderInputSchema = z.object({
+  workOrderId: z.string().uuid(),
+  note: z.string().trim().max(2000).optional()
+});
+export type CancelWorkOrderInput = z.infer<typeof cancelWorkOrderInputSchema>;
 
 export const createVendorDirectoryInputSchema = z.object({
   name: z.string().trim().min(2).max(160),

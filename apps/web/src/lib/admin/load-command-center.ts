@@ -250,7 +250,7 @@ export async function loadCommandCenterSnapshot(): Promise<CommandCenterSnapshot
     provisioningJobs,
     purchases,
     webhookEvents,
-    lifecycle: listLifecycleSubscriptions(),
+    lifecycle: await listLifecycleSubscriptions(),
     priceLookup,
     system: {
       stripeConfigured: isSaasStripeConfigured(),

@@ -61,7 +61,7 @@ describe("Slice 4 unit capacity service", () => {
   });
 
   it("authorizes 500 → 501 with next-period Stripe plan and raises operational capacity", async () => {
-    saveLifecycleSubscription(sub());
+    await saveLifecycleSubscription(sub());
     const intent = createCapacityAuthorizationIntent({
       organizationId: "org_cap",
       projectedUnits: 501,
@@ -94,7 +94,7 @@ describe("Slice 4 unit capacity service", () => {
   });
 
   it("rejects client price / block / Stripe Price injection", async () => {
-    saveLifecycleSubscription(sub());
+    await saveLifecycleSubscription(sub());
     const result = await authorizeAdditionalUnitCapacity({
       organizationId: "org_cap",
       clientBody: {
@@ -109,7 +109,7 @@ describe("Slice 4 unit capacity service", () => {
   });
 
   it("schedules decrease 1001 → 1000 without lowering operational capacity immediately", async () => {
-    saveLifecycleSubscription(
+    await saveLifecycleSubscription(
       sub({
         managedUnitCount: 1000,
         authorizedAdditionalBlocks: 2,

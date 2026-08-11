@@ -1,15 +1,28 @@
 import { NextResponse } from "next/server";
 import { COM_002_FLAGS } from "@mpa/shared";
 import { ensurePurchaseFromStripeSession } from "../../../../../lib/saas-stripe/ensure-purchase-from-stripe";
-import { loadProvisioningJobFromDb } from "../../../../../lib/saas-provisioning/jobs-store";
+import {
+  consumeProvisioningBindToken,
+  loadProvisioningJobFromDb,
+  saveProvisioningJob,
+  getProvisioningJob
+} from "../../../../../lib/saas-provisioning/jobs-store";
 import { startOrAdvanceProvisioningFromPurchase } from "../../../../../lib/saas-provisioning/run-provisioning";
+import { bindTokenValid } from "../../../../../lib/saas-provisioning/tokens";
+import { consumeClaimPasswordRateLimit } from "../../../../../lib/saas-provisioning/claim-password-rate-limit";
 import { serverEnv } from "../../../../../lib/env/server-env";
 
 export const runtime = "nodejs";
 
+function clientKey(request: Request, email: string, sessionId: string): string {
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const ip = forwarded || request.headers.get("x-real-ip") || "unknown";
+  return `${ip}:${email}:${sessionId}`;
+}
+
 /**
  * Sets password + confirms email for a provisioned checkout owner.
- * Needed because Slice D creates the auth user before the customer chooses a password.
+ * STAB-002: requires a short-lived, single-use bind credential — never sessionId + email alone.
  */
 export async function POST(request: Request) {
   if (!COM_002_FLAGS.sliceD_automaticProvisioning) {
@@ -23,12 +36,22 @@ export async function POST(request: Request) {
     sessionId?: string;
     email?: string;
     password?: string;
+    bindToken?: string;
   };
   const sessionId = body.sessionId?.trim();
   const email = body.email?.trim().toLowerCase();
   const password = body.password ?? "";
+  const bindToken = typeof body.bindToken === "string" ? body.bindToken.trim() : "";
+
   if (!sessionId || !email || password.length < 8) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  }
+  if (!bindToken) {
+    return NextResponse.json({ error: "bind_token_required" }, { status: 401 });
+  }
+
+  if (!consumeClaimPasswordRateLimit(clientKey(request, email, sessionId))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
   const purchase = await ensurePurchaseFromStripeSession(sessionId);
@@ -46,8 +69,18 @@ export async function POST(request: Request) {
   if (!job) {
     return NextResponse.json({ error: "provisioning_not_found" }, { status: 404 });
   }
+  // Prefer latest memory copy (may already have bind hash from advance).
+  job = getProvisioningJob(sessionId) ?? job;
+
   if (job.ownerEmail.toLowerCase() !== email) {
     return NextResponse.json({ error: "email_mismatch" }, { status: 409 });
+  }
+
+  if (!job.bindTokenHash || !job.bindExpiresAt) {
+    return NextResponse.json({ error: "bind_token_required" }, { status: 401 });
+  }
+  if (!bindTokenValid(job, bindToken)) {
+    return NextResponse.json({ error: "invalid_or_expired_bind_token" }, { status: 401 });
   }
 
   const { createServiceRoleClient } = await import("../../../../../lib/supabase/service-role");
@@ -80,6 +113,17 @@ export async function POST(request: Request) {
     if (updated.error) {
       return NextResponse.json({ error: updated.error.message }, { status: 502 });
     }
+  }
+
+  // Single-use: invalidate bind before responding so reuse cannot succeed.
+  await consumeProvisioningBindToken(sessionId);
+  const refreshed = getProvisioningJob(sessionId);
+  if (refreshed?.ownerUserId !== userId && refreshed) {
+    saveProvisioningJob({
+      ...refreshed,
+      ownerUserId: userId,
+      updatedAt: new Date().toISOString()
+    });
   }
 
   return NextResponse.json({

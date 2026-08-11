@@ -6,6 +6,7 @@ export const MAINTENANCE_EVENT_TYPES = [
   "work_order.started",
   "work_order.progressed",
   "work_order.completed",
+  "work_order.cancelled",
   "work_order.resident_confirmed",
   "work_order.closed"
 ] as const;
@@ -61,6 +62,12 @@ export const MAINTENANCE_EVENT_CATALOG: readonly MaintenanceEventDefinition[] = 
     aggregateType: "maintenance_work_orders",
     description: "Worker marked the job complete",
     auditAction: "work_order.completed"
+  },
+  {
+    type: "work_order.cancelled",
+    aggregateType: "maintenance_work_orders",
+    description: "Manager cancelled the work order",
+    auditAction: "work_order.cancelled"
   },
   {
     type: "work_order.resident_confirmed",

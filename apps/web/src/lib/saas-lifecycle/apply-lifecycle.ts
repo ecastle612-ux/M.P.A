@@ -18,6 +18,7 @@ import { serverEnv } from "../env/server-env";
 import { getSaasPurchaseBySessionId, listSaasPurchases } from "../saas-stripe/purchase-store";
 import { sendLifecycleEmail, type LifecycleEmailKind } from "./emails";
 import {
+  findLifecycleByStripeCustomerId,
   getLifecycleByOrganizationId,
   getLifecycleByStripeSubscriptionId,
   listLifecycleSubscriptions,
@@ -67,54 +68,9 @@ function resolveProductSku(input: {
   return "mpa_property_manager";
 }
 
-async function tryServiceRole() {
-  try {
-    if (process.env["VITEST"]) return null;
-    if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) return null;
-    const { createServiceRoleClient } = await import("../supabase/service-role");
-    return createServiceRoleClient();
-  } catch {
-    return null;
-  }
-}
-
 export async function persistLifecycleSubscription(sub: LifecycleSubscription): Promise<void> {
-  const supabase = await tryServiceRole();
-  if (!supabase || !sub.organizationId) return;
-  await supabase.from("organization_subscriptions").upsert(
-    {
-      organization_id: sub.organizationId,
-      sku_code: sub.productSku,
-      status: sub.status === "pending" ? "incomplete" : sub.status,
-      stripe_subscription_id: sub.stripeSubscriptionId,
-      stripe_customer_id: sub.stripeCustomerId,
-      plan_tier: sub.planTier,
-      billing_cycle: sub.billingCycle,
-      cancel_at_period_end: sub.cancelAtPeriodEnd,
-      current_period_end: sub.currentPeriodEnd,
-      grace_started_at: sub.graceStartedAt,
-      seat_limit: sub.seatLimit,
-      property_limit: sub.propertyLimit,
-      stripe_base_item_id: sub.stripeBaseItemId,
-      stripe_additional_capacity_item_id: sub.stripeAdditionalCapacityItemId,
-      managed_unit_count: sub.managedUnitCount,
-      authorized_additional_blocks: sub.authorizedAdditionalBlocks,
-      authorized_unit_capacity: sub.authorizedUnitCapacity,
-      declared_unit_count: sub.declaredUnitCount,
-      pending_additional_blocks: sub.pendingAdditionalBlocks,
-      pending_authorized_unit_capacity: sub.pendingAuthorizedUnitCapacity,
-      last_capacity_authorized_at: sub.lastCapacityAuthorizedAt,
-      quote_id: sub.quoteId,
-      trial_ends_at: sub.trialEndsAt,
-      pending_plan_tier: sub.pendingPlanTier,
-      sca_required: sub.scaRequired,
-      lifecycle_audit: sub.audit,
-      lifecycle_emails_sent: sub.emailsSent,
-      payment_history: sub.paymentHistory,
-      updated_at: sub.updatedAt
-    },
-    { onConflict: "organization_id" }
-  );
+  // STAB-005: saveLifecycleSubscription write-through is the authoritative persist path.
+  await saveLifecycleSubscription(sub);
 }
 
 async function notify(
@@ -135,7 +91,7 @@ async function notify(
   if (!sent.ok) return sub;
   // Vitest may stub delivery offline (stubbed: true). Production never stubs success.
   // emailsSent tracks lifecycle notification attempts for idempotency — not a user-facing "sent" toast.
-  return saveLifecycleSubscription({
+  return await saveLifecycleSubscription({
     ...sub,
     emailsSent: [...sub.emailsSent, emailKey],
     updatedAt: new Date().toISOString()
@@ -152,8 +108,8 @@ function findOwnerEmail(sub: LifecycleSubscription): string | null {
   return match?.customerEmail ?? null;
 }
 
-function resolveOrganizationId(stripeSubscriptionId: string, stripeCustomerId: string | null): string | null {
-  const existing = getLifecycleByStripeSubscriptionId(stripeSubscriptionId);
+async function resolveOrganizationId(stripeSubscriptionId: string, stripeCustomerId: string | null): Promise<string | null> {
+  const existing = await getLifecycleByStripeSubscriptionId(stripeSubscriptionId);
   if (existing?.organizationId) return existing.organizationId;
   const purchases = listSaasPurchases();
   const bySub = purchases.find((p) => p.stripeSubscriptionId === stripeSubscriptionId);
@@ -165,7 +121,7 @@ function resolveOrganizationId(stripeSubscriptionId: string, stripeCustomerId: s
   return null;
 }
 
-function ensureSubscription(input: {
+async function ensureSubscription(input: {
   stripeSubscriptionId: string;
   stripeCustomerId: string | null;
   productSku?: ProductSku | null;
@@ -184,12 +140,12 @@ function ensureSubscription(input: {
   trialEndsAt?: string | null;
   source: string;
   eventId?: string;
-}): LifecycleSubscription {
-  const existing = getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId);
+}): Promise<LifecycleSubscription> {
+  const existing = await getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId);
   const orgId =
     input.organizationId ??
     existing?.organizationId ??
-    resolveOrganizationId(input.stripeSubscriptionId, input.stripeCustomerId);
+    (await resolveOrganizationId(input.stripeSubscriptionId, input.stripeCustomerId));
   const productSku = resolveProductSku({
     ...(input.productSku !== undefined ? { productSku: input.productSku } : {}),
     existing,
@@ -245,7 +201,7 @@ function ensureSubscription(input: {
       createdAt: now,
       updatedAt: now
     };
-    return saveLifecycleSubscription(created);
+    return await saveLifecycleSubscription(created);
   }
 
   let next: LifecycleSubscription = {
@@ -280,7 +236,7 @@ function ensureSubscription(input: {
       input.eventId
     );
   }
-  return saveLifecycleSubscription(next);
+  return await saveLifecycleSubscription(next);
 }
 
 export async function applySubscriptionCreatedOrUpdated(input: {
@@ -304,7 +260,7 @@ export async function applySubscriptionCreatedOrUpdated(input: {
 }): Promise<LifecycleSubscription | null> {
   if (!COM_002_FLAGS.sliceE_subscriptionLifecycle) return null;
   const status = mapStripeSubscriptionStatus(input.stripeStatus);
-  let sub = ensureSubscription({
+  let sub = await ensureSubscription({
     stripeSubscriptionId: input.stripeSubscriptionId,
     stripeCustomerId: input.stripeCustomerId,
     ...(input.productSku ? { productSku: input.productSku } : {}),
@@ -351,14 +307,14 @@ export async function applyInvoicePaid(input: {
 }): Promise<LifecycleSubscription | null> {
   if (!COM_002_FLAGS.sliceE_subscriptionLifecycle || !input.stripeSubscriptionId) return null;
   let sub =
-    getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId) ??
-    ensureSubscription({
+    (await getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId)) ??
+    (await ensureSubscription({
       stripeSubscriptionId: input.stripeSubscriptionId,
       stripeCustomerId: input.stripeCustomerId,
       status: "active",
       source: "invoice.paid",
       eventId: input.eventId
-    });
+    }));
 
   const wasPastDue = sub.status === "past_due" || sub.status === "unpaid" || sub.status === "expired";
   sub = {
@@ -385,7 +341,7 @@ export async function applyInvoicePaid(input: {
       input.eventId
     );
   }
-  sub = saveLifecycleSubscription(sub);
+  sub = await saveLifecycleSubscription(sub);
   if (wasPastDue) {
     sub = await notify(sub, "subscription_restored", `restored:${input.eventId}`, findOwnerEmail(sub));
   } else {
@@ -403,14 +359,14 @@ export async function applyInvoicePaymentFailed(input: {
 }): Promise<LifecycleSubscription | null> {
   if (!COM_002_FLAGS.sliceE_subscriptionLifecycle || !input.stripeSubscriptionId) return null;
   let sub =
-    getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId) ??
-    ensureSubscription({
+    (await getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId)) ??
+    (await ensureSubscription({
       stripeSubscriptionId: input.stripeSubscriptionId,
       stripeCustomerId: input.stripeCustomerId,
       status: "past_due",
       source: "invoice.payment_failed",
       eventId: input.eventId
-    });
+    }));
 
   const graceStartedAt = sub.graceStartedAt ?? new Date().toISOString();
   sub = {
@@ -430,7 +386,7 @@ export async function applyInvoicePaymentFailed(input: {
   if (sub.status !== "past_due") {
     sub = transitionLifecycle(sub, "past_due", "invoice_payment_failed", "invoice.payment_failed", input.eventId);
   } else {
-    sub = saveLifecycleSubscription(sub);
+    sub = await saveLifecycleSubscription(sub);
   }
 
   const day = daysIntoGrace(sub.graceStartedAt) ?? 0;
@@ -449,14 +405,14 @@ export async function applyInvoicePaymentActionRequired(input: {
 }): Promise<LifecycleSubscription | null> {
   if (!COM_002_FLAGS.sliceE_subscriptionLifecycle || !input.stripeSubscriptionId) return null;
   let sub =
-    getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId) ??
-    ensureSubscription({
+    (await getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId)) ??
+    (await ensureSubscription({
       stripeSubscriptionId: input.stripeSubscriptionId,
       stripeCustomerId: input.stripeCustomerId,
       status: "incomplete",
       source: "invoice.payment_action_required",
       eventId: input.eventId
-    });
+    }));
   sub = {
     ...sub,
     scaRequired: true,
@@ -472,11 +428,11 @@ export async function applyInvoicePaymentActionRequired(input: {
   };
   if (sub.status === "active") {
     // Keep access; surface SCA banner via scaRequired.
-    sub = saveLifecycleSubscription(sub);
+    sub = await saveLifecycleSubscription(sub);
   } else if (sub.status !== "incomplete") {
     sub = transitionLifecycle(sub, "incomplete", "sca_required", "invoice.payment_action_required", input.eventId);
   } else {
-    sub = saveLifecycleSubscription(sub);
+    sub = await saveLifecycleSubscription(sub);
   }
   await persistLifecycleSubscription(sub);
   return sub;
@@ -489,15 +445,13 @@ export async function applyDisputeCreated(input: {
 }): Promise<LifecycleSubscription | null> {
   if (!COM_002_FLAGS.sliceE_subscriptionLifecycle) return null;
   let sub = input.stripeSubscriptionId
-    ? getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId)
+    ? await getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId)
     : null;
   if (!sub && input.stripeCustomerId) {
-    sub =
-      listLifecycleSubscriptions().find((row) => row.stripeCustomerId === input.stripeCustomerId) ??
-      null;
+    sub = await findLifecycleByStripeCustomerId(input.stripeCustomerId);
   }
   if (!sub && input.stripeSubscriptionId) {
-    sub = ensureSubscription({
+    sub = await ensureSubscription({
       stripeSubscriptionId: input.stripeSubscriptionId,
       stripeCustomerId: input.stripeCustomerId,
       status: "dispute_hold",
@@ -519,12 +473,10 @@ export async function applyDisputeClosed(input: {
 }): Promise<LifecycleSubscription | null> {
   if (!COM_002_FLAGS.sliceE_subscriptionLifecycle) return null;
   let sub = input.stripeSubscriptionId
-    ? getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId)
+    ? await getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId)
     : null;
   if (!sub && input.stripeCustomerId) {
-    sub =
-      listLifecycleSubscriptions().find((row) => row.stripeCustomerId === input.stripeCustomerId) ??
-      null;
+    sub = await findLifecycleByStripeCustomerId(input.stripeCustomerId);
   }
   if (!sub) return null;
   sub = transitionLifecycle(
@@ -550,9 +502,9 @@ export async function applyChargeRefunded(input: {
   eventId: string;
 }): Promise<LifecycleSubscription | null> {
   if (!COM_002_FLAGS.sliceE_subscriptionLifecycle || !input.stripeSubscriptionId) return null;
-  let sub = getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId);
+  let sub = await getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId);
   if (!sub) return null;
-  sub = saveLifecycleSubscription({
+  sub = await saveLifecycleSubscription({
     ...sub,
     paymentHistory: [
       ...sub.paymentHistory,
@@ -584,7 +536,7 @@ export async function applyChargeRefunded(input: {
 export async function enforceGraceExpirations(nowMs: number = Date.now()): Promise<number> {
   if (!COM_002_FLAGS.sliceE_subscriptionLifecycle) return 0;
   let count = 0;
-  for (const row of listLifecycleSubscriptions()) {
+  for (const row of await listLifecycleSubscriptions()) {
     if (row.status !== "past_due" || !row.graceStartedAt) continue;
     if (hasLifecycleModuleAccess(row, nowMs)) continue;
     let next = transitionLifecycle(row, "expired", "grace_expired", "grace_sweeper");
@@ -604,9 +556,11 @@ export async function cancelAtPeriodEnd(input: {
   organizationId: string;
   source?: string;
 }): Promise<LifecycleSubscription | null> {
-  let sub = getLifecycleByOrganizationId(input.organizationId);
+  const { resolveLifecycleForOrganization } = await import("./resolve-lifecycle");
+  let sub = await resolveLifecycleForOrganization(input.organizationId);
   if (!sub) return null;
-  sub = saveLifecycleSubscription({
+  if (sub.organizationId !== input.organizationId) return null;
+  sub = await saveLifecycleSubscription({
     ...sub,
     cancelAtPeriodEnd: true,
     updatedAt: new Date().toISOString(),
@@ -649,8 +603,10 @@ export async function cancelAtPeriodEnd(input: {
 export async function reactivateSubscription(input: {
   organizationId: string;
 }): Promise<LifecycleSubscription | null> {
-  let sub = getLifecycleByOrganizationId(input.organizationId);
+  const { resolveLifecycleForOrganization } = await import("./resolve-lifecycle");
+  let sub = await resolveLifecycleForOrganization(input.organizationId);
   if (!sub) return null;
+  if (sub.organizationId !== input.organizationId) return null;
 
   if (!process.env["VITEST"]) {
     try {
@@ -693,7 +649,7 @@ export async function changePlanTier(input: {
   billingCycle?: "monthly" | "annual";
 }): Promise<{ ok: true; sub: LifecycleSubscription } | { ok: false; error: string }> {
   void input.billingCycle;
-  const sub = getLifecycleByOrganizationId(input.organizationId);
+  const sub = await getLifecycleByOrganizationId(input.organizationId);
   if (!sub) return { ok: false, error: "subscription_not_found" };
   if (sub.productSku !== "mpa_property_manager") {
     return { ok: false, error: "not_self_serve" };
@@ -704,8 +660,8 @@ export async function changePlanTier(input: {
   return { ok: false, error: "unsupported_plan_change" };
 }
 
-export function lifecycleViewForOrganization(organizationId: string) {
-  const sub = getLifecycleByOrganizationId(organizationId);
+export async function lifecycleViewForOrganization(organizationId: string) {
+  const sub = await getLifecycleByOrganizationId(organizationId);
   if (!sub) return null;
   const phase = customerLifecyclePhase(sub);
   return {
@@ -716,7 +672,7 @@ export function lifecycleViewForOrganization(organizationId: string) {
   };
 }
 
-export function seedLifecycleFromPurchase(sessionId: string): LifecycleSubscription | null {
+export async function seedLifecycleFromPurchase(sessionId: string): Promise<LifecycleSubscription | null> {
   const purchase = getSaasPurchaseBySessionId(sessionId);
   if (!purchase?.stripeSubscriptionId || purchase.planTier === "enterprise") return null;
   const planTier = purchase.planTier === "business" ? "business" : "professional";
@@ -731,7 +687,7 @@ export function seedLifecycleFromPurchase(sessionId: string): LifecycleSubscript
     ? Number(meta["mpa_authorized_unit_capacity"])
     : null;
   const trialEligible = meta["mpa_trial_eligible"] === "true";
-  return ensureSubscription({
+  return await ensureSubscription({
     stripeSubscriptionId: purchase.stripeSubscriptionId,
     stripeCustomerId: purchase.stripeCustomerId,
     productSku: isProductSku(purchase.productSku)
