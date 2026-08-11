@@ -2,7 +2,7 @@
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Approved  
-**Amendments:** A1–A7 incorporated  
+**Amendments:** A1–A8 incorporated  
 
 ---
 
@@ -13,8 +13,8 @@
 | R1 | SaaS vs FIN-OPS Stripe conflation | High | Mitigated — dedicated SaaS webhook |
 | R2 | Half-provisioned orgs | High | Mitigated — checkpoints A5 |
 | R3 | Demo escapes / cost explosion | High | Mitigated — overlay + separate DB A3 |
-| R4 | Price tampering | High | Mitigated — allowlist |
-| R5 | Trial/demo abuse | Medium | Mitigated — no trials; demo caps |
+| R4 | Price tampering | High | Mitigated — allowlist + server unit-volume quote |
+| R5 | Trial/demo abuse | Medium | Mitigated — trial only ≤500 units + card required; demo caps |
 | R6 | Confirm Plan cutover confusion | Medium | Slice G messaging |
 | R7 | Enterprise in Checkout | Medium | Mitigated — A6 |
 | R8 | Downgrade surprise | Medium | Period-end + warn UX |
@@ -27,15 +27,15 @@
 
 ---
 
-## Open decisions — closed by A7
+## Open decisions — closed by A7 / A8
 
 | Former | Binding default |
 |--------|-----------------|
-| O1 Prices | Publish before Slice C live (amounts commercial); architecture unblocked |
-| O2 Limits | Pro 5/25 · Business 25/150 |
-| O3 Trial | **None** self-serve |
+| O1 Prices | Publish unit-capacity Prices before live Checkout; architecture unblocked |
+| O2 Limits | **Managed units** — included 500 + Additional Unit Capacity blocks (A8) |
+| O3 Trial | **30 days** if ≤500 units; **none** if >500; card required (A8) |
 | O4 Grace | 7 days |
-| O5 Seats | Flat included — not metered |
+| O5 Seats / properties | **Removed** as commercial meters (A8) |
 | O6 Account timing | Pay → provision → verify → access |
 | O7 Tax | On at go-live |
 | O8 Portal plans | In-app only |

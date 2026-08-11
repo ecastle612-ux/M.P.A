@@ -2,7 +2,7 @@
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Approved  
-**Amendments:** A1, A2, A4, A6  
+**Amendments:** A1, A2, A4, A6, **A8**  
 
 ---
 
@@ -16,9 +16,9 @@ Public Landing
     │
     Choose Product (self-serve: Property Manager highlighted)
     │
-    Choose Plan (Professional | Business)     [Enterprise CTA → Request Enterprise]
+    Choose Billing Cycle (Monthly | Annual)   [Enterprise CTA → Request Enterprise]
     │
-    Choose Billing Cycle (Monthly | Annual)
+    (Server quote: managed units → unit capacity / trial eligibility)
     │
     ├──────── Try Live Demo ──► interactive → Convert to Subscribe
     │
@@ -39,21 +39,21 @@ Public Landing
 
 ---
 
-## J1 — Self-service subscribe (Property Manager × Pro/Business)
+## J1 — Self-service subscribe (Property Manager)
 
 | Step | Customer sees | System |
 |------|---------------|--------|
 | 1 Landing | Brand + CTAs | Marketing |
-| 2 Product | Property Manager primary; FO/Complete → Enterprise until FO-READY | Honesty (A1) |
-| 3 Plan | Professional / Business | Persist tier |
-| 4 Cycle | Monthly / Annual | Resolve Price |
-| 5 Checkout | Stripe-hosted | `mode=subscription` |
+| 2 Product | Property Manager primary; FO/Complete gated / Enterprise sales until FO-READY | Honesty (A1) |
+| 3 Cycle | Monthly / Annual | Resolve cycle; annual = monthly × 12 |
+| 4 Capacity | Declared managed units (included 500 + Additional Unit Capacity if needed) | Server unit-volume quote (A8) |
+| 5 Checkout | Stripe-hosted (trial only if ≤500 units) | `mode=subscription` |
 | 6 Success | Preparing workspace | Webhook provision |
 | 7 Account | Create/sign in + verify email | [Identity Binding](./identity-binding.md) |
 | 8 Setup | Guided Setup | Org pre-created |
 | 9 Home | Mission Control | Entitled PM |
 
-**No employee interaction.**
+**No employee interaction.** **PM Business is not a customer plan step** (legacy only).
 
 ---
 
@@ -88,8 +88,8 @@ See [Live Demo Architecture](./live-demo-architecture.md).
 |--------|------|
 | Update payment method | In-app Billing → Stripe Customer Portal |
 | Invoices / receipts | Billing + Portal |
-| Upgrade Pro → Business | In-app plan change |
-| Downgrade | Scheduled period end |
+| Authorize Additional Unit Capacity | In-app payment gate → next-period recurring price |
+| Downgrade / reduce capacity | Scheduled period end |
 | Cancel | Period end |
 | Reactivate | Resubscribe Checkout (PM) or Portal reactivate |
 
@@ -142,9 +142,10 @@ Verified owner → Checkout or Portal reactivate → entitlements restored to pu
 
 ---
 
-## J11 — Team invite (A4)
+## J11 — Team invite (A4 / A8)
 
-After `owner_bound`: owner invites seats up to plan cap. Invitee accepts → membership. At cap → upgrade CTA (Business) or Enterprise.
+After `owner_bound`: owner invites organization members. Invitee accepts → membership.  
+**No commercial seat cap** (A8). Invitation remains an identity/membership concern, not a billing meter.
 
 ---
 

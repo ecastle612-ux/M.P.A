@@ -7,9 +7,9 @@
 
 ## Principle
 
-For Property Manager Professional and Business: **nothing manual**.
+For Property Manager self-serve: **nothing manual**.
 
-Humans appear only for Enterprise sales/implementation, FO/Complete until FO-READY, and exceptional support.
+Humans appear only for Enterprise sales motion/implementation, FO/Complete until FO-READY, and exceptional support.
 
 ---
 
@@ -21,9 +21,9 @@ Humans appear only for Enterprise sales/implementation, FO/Complete until FO-REA
 | User creation | Auth bind after **email verification** (A2) |
 | Stripe customer | Created by Checkout; `saas_customers` link |
 | Subscription lifecycle | Webhook-driven status sync |
-| Trial handling | **N/A** — no self-serve trials; Live Demo instead |
+| Trial handling | 30-day trial when ≤500 managed units; card required; Live Demo still available |
 | Module activation | PM entitlements at `entitled`; usable after `owner_bound` |
-| Guided Setup | Org pre-created; plan read-only |
+| Guided Setup | Org pre-created; capacity/cycle read-only from subscription |
 | Email verification | Required before workspace access |
 | Welcome emails | On owner_bound / welcome_sent |
 | Billing | Stripe invoices + Portal |
@@ -31,9 +31,9 @@ Humans appear only for Enterprise sales/implementation, FO/Complete until FO-REA
 | Failed payments | Retries + dunning cadence → fail closed |
 | SCA / disputes | Action-required UX; dispute_hold fail closed |
 | Cancellation | Period-end revoke |
-| Upgrade / downgrade | In-app → Stripe update → entitlement reconcile |
+| Additional Unit Capacity | Explicit authorize → next-period recurring price |
 | Re-activation | Resubscribe → entitlement restore |
-| Seat / property limits | Enforce caps (flat limits, not metered quantity) |
+| Unit capacity | Server quote + payment gate; **no seat/property commercial caps** |
 | Audit | `subscription_events` + platform audit trail |
 | Notifications | In-app + email for commercial events |
 | Mission Control | Available when entitlements active + setup rules met |

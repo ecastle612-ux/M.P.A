@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Operators must verify commercial health without becoming the provisioning path for Professional / Business.
+Operators must verify commercial health without becoming the provisioning path for Property Manager self-serve.
 
 ---
 
@@ -29,8 +29,8 @@ Operators must verify commercial health without becoming the provisioning path f
 
 | # | Case | Expected |
 |---|------|----------|
-| MA1 | Self-serve org appears after test Checkout | Status active/trialing; correct SKU/tier |
-| MA2 | No operator action required for Pro/Business | Job shows `actor=system:stripe` |
+| MA1 | Self-serve org appears after test Checkout | Status active/trialing; correct SKU + unit capacity |
+| MA2 | No operator action required for PM self-serve | Job shows `actor=system:stripe` |
 | MA3 | Enterprise lead created | Visible; notified |
 | MA4 | Enterprise provision | Audit entry; customer entitled |
 | MA5 | Past due org | Banner state visible; modules grace/locked per policy |

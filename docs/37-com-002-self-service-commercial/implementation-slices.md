@@ -10,13 +10,13 @@
 
 | Slice | Name | Independently testable outcome |
 |-------|------|--------------------------------|
-| **A** | Commercial foundation | Catalog offers (PM self-serve + Enterprise flags), limits 5/25 & 25/150, FO-READY flag false |
+| **A** | Commercial foundation | Catalog offers (PM self-serve + Enterprise flags), FO-READY flag false *(historical delivery used seat/property fields; superseded by A8 unit-capacity)* |
 | **B** | Demo platform | Snapshot + overlay demos; separate DB; honesty banners; caps |
-| **C** | Stripe Checkout | Hosted Checkout for **PM** Pro/Business only; dedicated SaaS webhooks |
+| **C** | Stripe Checkout | Hosted Checkout for **PM** self-serve; dedicated SaaS webhooks *(Business Price readiness is legacy)* |
 | **D** | Automatic provisioning | Checkpoint provisioner + identity bind; no access before verify |
-| **E** | Subscription lifecycle | Upgrade/downgrade/cancel/reactivate/dunning/SCA/dispute |
+| **E** | Subscription lifecycle | Cancel/reactivate/dunning/SCA/dispute; capacity changes per A8 |
 | **F** | Customer portal | Portal + in-app Billing (no Portal plan switching) |
-| **G** | Commercial certification | Full cert per amended certification plan |
+| **G** | Commercial certification | Full cert per amended certification plan (unit-capacity model) |
 
 ---
 
@@ -24,7 +24,8 @@
 
 **Authorize status:** **AUTHORIZED / IMPLEMENTED** (2026-08-07) — see [39 Slice A](../39-com-002-slice-a/index.md).  
 
-**Includes:** CatalogOffer model, Product × Plan × Cycle resolution, limit fields, admin read models, migrate interim Confirm Plan to read new catalog (without charging).  
+**Includes:** CatalogOffer model, Product × Cycle resolution, admin read models, migrate interim Confirm Plan to read new catalog (without charging).  
+**Historical note:** Original Slice A included seat/property limit fields — **removed by A8**.  
 **Excludes:** Stripe charges, demo runtime, provisioning.  
 **Exit:** Unit/integration tests for offer resolution; no payment.
 
@@ -45,6 +46,7 @@
 **Authorize status:** **AUTHORIZED / IMPLEMENTED** (2026-08-08) — see [41 Slice C](../41-com-002-slice-c/index.md).  
 
 **Includes:** Stripe Products/Prices setup runbook, Checkout Session API, success/cancel pages, webhook skeleton (persist events).  
+**A8 note:** Future unit-capacity Prices replace Pro/Business packaging; do not require Business Prices for readiness.  
 **Excludes:** Full org provisioning (may create pending subscription row only).  
 **Exit:** Test mode Checkout completes; webhook signature verified; FIN-OPS webhooks still green.
 
@@ -64,8 +66,8 @@
 
 **Authorize status:** **AUTHORIZED / IMPLEMENTED** (2026-08-08) — see [43 Slice E](../43-com-002-slice-e/index.md).  
 
-**Includes:** Upgrade/downgrade UX, proration, cancel-at-period-end, reactivate, past_due grace enforcement.  
-**Excludes:** Self-serve trials (A7 none); Customer Portal (Slice F).  
+**Includes:** Cancel-at-period-end, reactivate, past_due grace enforcement; capacity changes under A8 rules.  
+**Excludes:** Customer Portal (Slice F). Trials governed by A8 (≤500 / 30 days) — Stripe trial wiring is a separate authorized slice.  
 **Exit:** Matrix tests for status transitions; entitlement fail closed verified.
 
 ---
@@ -79,7 +81,7 @@
 
 ## Slice G — Commercial certification
 
-**Includes:** Full journey certification, Master Admin testing pack, risk residual review, production runbook, retire/replace Confirm Plan white-glove path for Pro/Business.  
+**Includes:** Full journey certification, Master Admin testing pack, risk residual review, production runbook, retire/replace Confirm Plan white-glove path for PM self-serve.  
 **Exit:** [Certification](./certification.md) signed Pass.
 
 ---
