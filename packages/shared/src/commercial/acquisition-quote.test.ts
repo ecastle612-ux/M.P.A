@@ -190,15 +190,16 @@ describe("server commercial quote", () => {
       buildCommercialQuote({ answers: answers({ managedUnits: 500 }) })
     );
     expect(base.additionalCapacity).toBe("None");
-    expect(base.trialLabel).toBe("30 days free");
+    expect(base.trialLabel).toBe("30-Day Free Trial");
     expect(base.additionalUnitCapacityNotice).toBeNull();
 
     const over = confirmPlanCapacityLines(
       buildCommercialQuote({ answers: answers({ managedUnits: 501 }) })
     );
     expect(over.additionalCapacity).toBe("1 × 500-unit block");
-    expect(over.trialLabel).toBe("Not eligible");
-    expect(over.additionalUnitCapacityNotice).toBe("Your plan includes additional unit capacity.");
+    expect(over.trialLabel).toBe("No free trial");
+    expect(over.additionalUnitCapacityNotice).toMatch(/Additional Unit Capacity/i);
+    expect(over.additionalUnitCapacityNotice).toMatch(/\$98\/month/);
   });
 
   it("creates an acquisition snapshot for audit", () => {

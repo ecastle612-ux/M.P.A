@@ -8,6 +8,7 @@ import {
   acquisitionHref,
   parseAcquisitionCycle,
   parseAcquisitionSku,
+  parseAcquisitionUnits,
   type BillingCycle,
   type OperationalNeed,
   type ProductSku,
@@ -41,18 +42,24 @@ const NEED_OPTIONS: Array<{ id: OperationalNeed; label: string; help: string }> 
 export function AcquisitionQuestionnairePage({
   isAuthenticated = false,
   initialSkuRaw,
-  initialCycleRaw
+  initialCycleRaw,
+  initialUnitsRaw
 }: {
   isAuthenticated?: boolean;
   initialSkuRaw?: string | null;
   initialCycleRaw?: string | null;
+  initialUnitsRaw?: string | null;
 }) {
   const router = useRouter();
   const initialSku = parseAcquisitionSku(initialSkuRaw);
   const initialCycle = parseAcquisitionCycle(initialCycleRaw) ?? "monthly";
+  const unitsFromQuery = parseAcquisitionUnits(initialUnitsRaw);
 
   const [rangeId, setRangeId] = useState<UnitCountRangeId | "">("");
-  const [exactUnits, setExactUnits] = useState("");
+  // Units from pricing calculator arrive via `?units=` (SSR-safe continuity).
+  const [exactUnits, setExactUnits] = useState(
+    unitsFromQuery != null ? String(unitsFromQuery) : ""
+  );
   const [need, setNeed] = useState<OperationalNeed | "">(
     initialSku === "mpa_facility_operations"
       ? "facility_maintenance"
@@ -103,21 +110,23 @@ export function AcquisitionQuestionnairePage({
       <main className={marketingNarrowMainClass}>
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Get started · Step 1
+            Get started · Step 2
           </p>
           <h1 className="font-display text-3xl font-semibold">A few quick questions</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             Tell us about your portfolio. We’ll recommend a platform and show your managed-unit
-            plan before checkout.
+            plan before checkout. Facility Operations and Complete Platform may be recommended but
+            remain gated until they are online.
           </p>
         </header>
 
         <ol className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">1 · Pricing</li>
           <li className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-2 py-1 text-[var(--mpa-color-brand-primary)]">
-            1 · Questionnaire
+            2 · Questionnaire
           </li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">2 · Confirm Plan</li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Checkout</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Confirm Plan</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
         </ol>
 
         <form onSubmit={(event) => void onSubmit(event)} className="space-y-6">
@@ -242,8 +251,15 @@ export function AcquisitionQuestionnairePage({
           ) : null}
 
           <div className="flex flex-wrap gap-3">
-            <Link href="/" className={marketingSecondaryCtaClass}>
-              Back
+            <Link
+              href={acquisitionHref("pricing", {
+                sku: initialSku,
+                billingCycle: billingInterval,
+                managedUnits: exactUnits ? Number(exactUnits.replace(/,/g, "")) || null : null
+              })}
+              className={marketingSecondaryCtaClass}
+            >
+              Back to pricing
             </Link>
             <button
               type="submit"

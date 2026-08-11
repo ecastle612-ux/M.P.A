@@ -6,8 +6,11 @@ import { COMMERCIAL_MODULES, modulesForSku, type CommercialModule } from "./modu
 export const ACQUISITION_SKU_PARAM = "intent";
 export const ACQUISITION_PLAN_PARAM = "plan";
 export const ACQUISITION_CYCLE_PARAM = "cycle";
+export const ACQUISITION_UNITS_PARAM = "units";
 export const ACQUISITION_QUOTE_PARAM = "quote";
 export const ACQUISITION_SNAPSHOT_PARAM = "snapshot";
+/** Browser session key — carry calculator units into the questionnaire. */
+export const ACQUISITION_UNITS_SESSION_KEY = "mpa_acquisition_managed_units";
 export const ACQUISITION_SKU_COOKIE = "mpa_acquisition_sku";
 export const ACQUISITION_OFFER_COOKIE = "mpa_acquisition_offer";
 export const ACQUISITION_QUOTE_COOKIE = "mpa_acquisition_quote";
@@ -32,9 +35,17 @@ export type AcquisitionQuery = {
   sku?: ProductSku | null;
   planTier?: PlanTier | null;
   billingCycle?: BillingCycle | null;
+  managedUnits?: number | null;
   quoteId?: string | null;
   snapshotId?: string | null;
 };
+
+export function parseAcquisitionUnits(value: string | null | undefined): number | null {
+  if (value == null || value === "") return null;
+  const n = Number(String(value).replace(/,/g, "").trim());
+  if (!Number.isFinite(n) || !Number.isInteger(n) || n <= 0) return null;
+  return n;
+}
 
 function buildQuery(parts: AcquisitionQuery): string {
   const params = new URLSearchParams();
@@ -46,6 +57,9 @@ function buildQuery(parts: AcquisitionQuery): string {
   }
   if (parts.billingCycle) {
     params.set(ACQUISITION_CYCLE_PARAM, parts.billingCycle);
+  }
+  if (parts.managedUnits != null && parts.managedUnits > 0) {
+    params.set(ACQUISITION_UNITS_PARAM, String(Math.floor(parts.managedUnits)));
   }
   if (parts.quoteId) {
     params.set(ACQUISITION_QUOTE_PARAM, parts.quoteId);
@@ -102,13 +116,15 @@ export function acquisitionHref(
 }
 
 /**
- * Next href after pricing — acquisition questionnaire (Slice 2), then Confirm Plan.
+ * Next href after pricing — acquisition questionnaire, then Confirm Plan.
  * When a quote already exists, callers may use `acquisitionHref("checkout", { quoteId })`.
+ * `planTier` is omitted from customer URLs (not a commercial product tier).
  */
 export function commercialContinueHref(input: {
   productSku: ProductSku;
-  planTier: PlanTier;
+  planTier?: PlanTier | null;
   billingCycle: BillingCycle;
+  managedUnits?: number | null;
   quoteId?: string | null;
   snapshotId?: string | null;
 }): string {
@@ -122,7 +138,8 @@ export function commercialContinueHref(input: {
   }
   return acquisitionHref("questionnaire", {
     sku: input.productSku,
-    billingCycle: input.billingCycle
+    billingCycle: input.billingCycle,
+    managedUnits: input.managedUnits ?? null
   });
 }
 

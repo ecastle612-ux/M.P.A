@@ -15,12 +15,12 @@ type BillingPayload = {
   status: string | null;
   phase: string | null;
   moduleAccess: boolean;
-  planTier?: string;
+  productSku?: string;
   planLabel?: string;
+  billingCycle?: string;
   billingCycleLabel?: string;
   cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: string | null;
-  pendingPlanTier?: string | null;
   scaRequired?: boolean;
   title?: string;
   detail?: string;
@@ -31,8 +31,8 @@ type BillingPayload = {
   authorizedUnitCapacity?: number | null;
   authorizedAdditionalBlocks?: number | null;
   pendingAdditionalBlocks?: number | null;
-  seatLimit?: number | null;
-  propertyLimit?: number | null;
+  trialEndsAt?: string | null;
+  trialActive?: boolean;
 };
 
 type CapacityPayload = {
@@ -157,10 +157,12 @@ export function BillingPlanPage() {
             ) : null}
             <dl className="grid gap-2 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Plan</dt>
-                <dd>
-                  {data.planLabel ?? productLabel ?? "Property Manager"} · {data.billingCycleLabel}
-                </dd>
+                <dt className="text-[var(--mpa-color-text-muted)]">Module</dt>
+                <dd>{data.planLabel ?? productLabel ?? "Property Manager"}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Billing interval</dt>
+                <dd>{data.billingCycleLabel ?? "Monthly"}</dd>
               </div>
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Workspace access</dt>
@@ -168,13 +170,39 @@ export function BillingPlanPage() {
               </div>
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Managed units</dt>
+                <dd>{capacity?.actualUnits ?? data.managedUnitCount ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Included capacity</dt>
+                <dd>500 units</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Authorized capacity</dt>
                 <dd>
-                  {capacity?.actualUnits ?? data.managedUnitCount ?? "—"} /{" "}
-                  {capacity?.authorizedCapacity ?? data.authorizedUnitCapacity ?? 500} authorized
+                  {capacity?.authorizedCapacity ?? data.authorizedUnitCapacity ?? 500} units
                 </dd>
               </div>
               <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Next renewal</dt>
+                <dt className="text-[var(--mpa-color-text-muted)]">Additional Unit Capacity</dt>
+                <dd>
+                  {capacity?.additionalBlocks ?? data.authorizedAdditionalBlocks ?? 0} block
+                  {(capacity?.additionalBlocks ?? data.authorizedAdditionalBlocks ?? 0) === 1
+                    ? ""
+                    : "s"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Trial status</dt>
+                <dd>
+                  {data.trialActive
+                    ? data.trialEndsAt
+                      ? `30-Day Free Trial · ends ${new Date(data.trialEndsAt).toLocaleDateString()}`
+                      : "30-Day Free Trial"
+                    : "Not on trial"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Next billing date</dt>
                 <dd>
                   {data.cancelAtPeriodEnd
                     ? "Cancels at period end"

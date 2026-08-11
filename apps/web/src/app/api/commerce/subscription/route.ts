@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import {
   COM_002_FLAGS,
+  SKU_SUMMARIES,
   customerStatusCopy,
-  toBillingCycleLabel,
-  toPlanTierLabel
+  toBillingCycleLabel
 } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../../../../lib/organization/contracts";
@@ -52,8 +52,8 @@ export async function GET(request: Request) {
     status: view.status,
     phase: view.phase,
     moduleAccess: view.moduleAccess,
-    planTier: view.planTier,
-    planLabel: toPlanTierLabel(view.planTier),
+    productSku: view.productSku,
+    planLabel: SKU_SUMMARIES[view.productSku]?.label ?? "Property Manager",
     billingCycle: view.billingCycle,
     billingCycleLabel: toBillingCycleLabel(view.billingCycle),
     seatLimit: null,
@@ -66,6 +66,9 @@ export async function GET(request: Request) {
     declaredUnitCount: view.declaredUnitCount,
     lastCapacityAuthorizedAt: view.lastCapacityAuthorizedAt,
     trialEndsAt: view.trialEndsAt,
+    trialActive:
+      view.status === "trialing" ||
+      (view.trialEndsAt != null && Date.parse(view.trialEndsAt) > Date.now()),
     cancelAtPeriodEnd: view.cancelAtPeriodEnd,
     currentPeriodEnd: view.currentPeriodEnd,
     graceStartedAt: view.graceStartedAt,

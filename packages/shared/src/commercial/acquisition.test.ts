@@ -50,11 +50,17 @@ describe("commercial acquisition helpers", () => {
     expect(
       commercialContinueHref({
         productSku: "mpa_property_manager",
-        planTier: "professional",
         billingCycle: "annual",
         quoteId: "cq_test"
       })
     ).toBe("/checkout?intent=mpa_property_manager&cycle=annual&quote=cq_test");
+    expect(
+      commercialContinueHref({
+        productSku: "mpa_property_manager",
+        billingCycle: "monthly",
+        managedUnits: 501
+      })
+    ).toBe("/get-started?intent=mpa_property_manager&cycle=monthly&units=501");
     expect(acquisitionHref("questionnaire")).toBe("/get-started");
     expect(acquisitionHref("enterprise", "mpa_facility_operations")).toBe(
       "/enterprise?intent=mpa_facility_operations"

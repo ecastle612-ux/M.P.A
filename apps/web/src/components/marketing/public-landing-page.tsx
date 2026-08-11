@@ -136,8 +136,8 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               Property operations, calm and complete.
             </h1>
             <p className="max-w-lg text-base leading-relaxed text-white/80 md:text-lg">
-              Choose Property Manager, Facility Operations, or Complete Platform — then monthly or
-              annual billing.
+              Property Manager is available online with managed-unit pricing. Start with pricing or
+              Get Started — then confirm your plan before secure checkout.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               {isAuthenticated ? (
@@ -382,8 +382,8 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         <dl className="space-y-4">
           {[
             {
-              q: "What can I buy?",
-              a: "Property Manager, Facility Operations, or Complete Platform — each with monthly or annual billing."
+              q: "What can I buy online today?",
+              a: "Property Manager — from $59/month for up to 500 managed units, with Additional Unit Capacity at +$39/month per additional 500 units. Facility Operations and Complete Platform are not online yet."
             },
             {
               q: "Are background screening integrations available?",
@@ -391,7 +391,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             },
             {
               q: "How does checkout work?",
-              a: "Choose your platform and billing cycle, confirm your plan, then pay securely with Stripe where self-service checkout is supported. Your workspace is prepared after payment."
+              a: "Review pricing, answer a short questionnaire, confirm your managed-unit plan, then pay securely with Stripe for Property Manager. Your workspace is prepared after payment."
             },
             {
               q: "What is Enterprise?",

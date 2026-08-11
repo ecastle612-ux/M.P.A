@@ -308,11 +308,11 @@ export function firstBillingDescription(input: {
   billingInterval: BillingCycle;
 }): string {
   if (input.trialEligible) {
-    return `30 days free, then first charge after the ${input.trialDays}-day trial ends (${input.billingInterval} billing).`;
+    return `30-Day Free Trial. Valid payment card required. Your subscription automatically begins billing after the free trial (${input.billingInterval} billing).`;
   }
   return input.billingInterval === "annual"
-    ? "Billing begins when you complete secure checkout (no free trial) — annual amount due."
-    : "Billing begins when you complete secure checkout (no free trial) — monthly amount due.";
+    ? "No free trial for portfolios over 500 managed units. Valid payment card required. Annual amount is due when you complete secure checkout."
+    : "No free trial for portfolios over 500 managed units. Valid payment card required. Monthly amount is due when you complete secure checkout.";
 }
 
 function newId(prefix: string): string {
@@ -513,10 +513,10 @@ export function confirmPlanCapacityLines(quote: CommercialQuote): {
     baseCapacity: `${UNIT_BLOCK_SIZE} units`,
     additionalCapacity:
       blocks === 0 ? "None" : `${blocks} × ${UNIT_BLOCK_SIZE}-unit block${blocks === 1 ? "" : "s"}`,
-    trialLabel: quote.trial_eligible ? "30 days free" : "Not eligible",
+    trialLabel: quote.trial_eligible ? "30-Day Free Trial" : "No free trial",
     additionalUnitCapacityNotice:
       quote.managed_units > UNIT_BLOCK_SIZE
-        ? "Your plan includes additional unit capacity."
+        ? `Additional Unit Capacity: ${quote.additional_blocks} × ${UNIT_BLOCK_SIZE}-unit block${quote.additional_blocks === 1 ? "" : "s"} — recurring ${quote.billing_interval === "annual" ? `$${quote.annual_amount}/year` : `$${quote.monthly_amount}/month`}.`
         : null
   };
 }

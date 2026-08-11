@@ -4,25 +4,23 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   BILLING_CYCLES,
+  FO_ANNUAL_USD,
+  FO_MONTHLY_USD,
   PRODUCT_SKUS,
+  PUBLIC_PRICING_MODEL_COPY,
   SKU_SUMMARIES,
   acquisitionHref,
   commercialContinueHref,
-  isSelfServeCheckoutAllowed,
   marketingModulesForSku,
   parseAcquisitionCycle,
   parseAcquisitionSku,
+  parseAcquisitionUnits,
   publicPurchaseMotionForSku,
-  resolveCatalogOffer,
   skuComparisonRows,
   toBillingCycleLabel,
   type BillingCycle,
   type ProductSku
 } from "@mpa/shared";
-import {
-  priceForSkuCycle,
-  type PublicCatalogPriceCatalog
-} from "../../lib/saas-stripe/public-prices";
 import {
   MarketingChrome,
   marketingPageMainClass,
@@ -35,24 +33,23 @@ import {
   FutureIntegrationsNote,
   PlannedIntegrationCell
 } from "./future-integrations-note";
-
-/** Internal Stripe offer mapping — not shown as a customer-facing tier. */
-const CHECKOUT_PLAN = "professional" as const;
+import { UnitVolumePricingCalculator } from "./unit-volume-pricing-calculator";
 
 export function PricingPage({
   isAuthenticated = false,
   selectedSkuRaw,
   selectedCycleRaw,
-  priceCatalog
+  selectedUnitsRaw
 }: {
   isAuthenticated?: boolean;
   selectedSkuRaw?: string | null;
   selectedPlanRaw?: string | null;
   selectedCycleRaw?: string | null;
-  priceCatalog: PublicCatalogPriceCatalog;
+  selectedUnitsRaw?: string | null;
 }) {
   const selectedSku = parseAcquisitionSku(selectedSkuRaw) ?? "mpa_property_manager";
   const initialCycle = parseAcquisitionCycle(selectedCycleRaw) ?? "monthly";
+  const initialUnits = parseAcquisitionUnits(selectedUnitsRaw) ?? 500;
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(initialCycle);
   const rows = skuComparisonRows();
 
@@ -61,31 +58,20 @@ export function PricingPage({
       <main className={marketingPageMainClass}>
         <header className="max-w-2xl space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Get started · Step 2
+            Pricing
           </p>
           <h1 className="font-display text-3xl font-semibold">Platform pricing</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Monthly and Annual list prices for Property Manager, Facility Operations, and Complete
-            Platform. Only Property Manager can be purchased online today — Facility Operations and
-            Complete Platform use early access or consultation until FO_READY certification.
+            Property Manager is available online today with managed-unit pricing. Facility Operations
+            and Complete Platform are not online yet — early access and consultation only.
           </p>
         </header>
 
-        {priceCatalog.warning ? (
-          <p
-            className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
-            role="status"
-          >
-            <span className="font-semibold">Pricing system warning: </span>
-            {priceCatalog.warning}
-          </p>
-        ) : null}
-
         <ol className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">1 · Modules</li>
           <li className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-2 py-1 text-[var(--mpa-color-brand-primary)]">
-            2 · Pricing
+            1 · Pricing
           </li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">2 · Get Started</li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Confirm Plan</li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
         </ol>
@@ -103,14 +89,12 @@ export function PricingPage({
                   : "bg-[var(--mpa-color-bg-subtle)] text-[var(--mpa-color-text-secondary)]"
               }`}
             >
-              {toBillingCycleLabel(cycle)} pricing
+              {toBillingCycleLabel(cycle)}
             </button>
           ))}
-          {billingCycle === "annual" ? (
-            <span className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-3 py-1.5 text-xs font-semibold text-[var(--mpa-color-brand-primary)]">
-              Annual billing · best value vs monthly
-            </span>
-          ) : null}
+          <span className="text-xs text-[var(--mpa-color-text-secondary)]">
+            {PUBLIC_PRICING_MODEL_COPY.annualNote}
+          </span>
         </div>
 
         <ul className="grid gap-4 lg:grid-cols-3">
@@ -120,10 +104,16 @@ export function PricingPage({
               sku={sku}
               billingCycle={billingCycle}
               highlighted={sku === selectedSku}
-              priceCatalog={priceCatalog}
+              managedUnits={initialUnits}
             />
           ))}
         </ul>
+
+        <UnitVolumePricingCalculator
+          key={`${billingCycle}-${initialUnits}`}
+          initialUnits={initialUnits}
+          initialCycle={billingCycle}
+        />
 
         <section className="space-y-3">
           <h2 className="font-display text-xl font-semibold">Inclusion matrix</h2>
@@ -245,15 +235,15 @@ export function PricingPage({
               publicPurchaseMotionForSku(selectedSku).kind === "self_serve"
                 ? commercialContinueHref({
                     productSku: selectedSku,
-                    planTier: CHECKOUT_PLAN,
-                    billingCycle
+                    billingCycle,
+                    managedUnits: initialUnits
                   })
                 : acquisitionHref("enterprise", selectedSku)
             }
             className={marketingPrimaryCtaClass}
           >
             {publicPurchaseMotionForSku(selectedSku).kind === "self_serve"
-              ? "Continue to confirm plan"
+              ? "Continue to Get Started"
               : publicPurchaseMotionForSku(selectedSku).ctaLabel}
           </Link>
         </div>
@@ -266,30 +256,22 @@ function PlatformPriceCard({
   sku,
   billingCycle,
   highlighted,
-  priceCatalog
+  managedUnits
 }: {
   sku: ProductSku;
   billingCycle: BillingCycle;
   highlighted: boolean;
-  priceCatalog: PublicCatalogPriceCatalog;
+  managedUnits: number;
 }) {
   const summary = SKU_SUMMARIES[sku];
   const modules = marketingModulesForSku(sku);
-  const offer =
-    resolveCatalogOffer({
-      productSku: sku,
-      planTier: CHECKOUT_PLAN,
-      billingCycle
-    }) ?? null;
-  const selfServeReady = offer ? isSelfServeCheckoutAllowed(offer) : false;
   const motion = publicPurchaseMotionForSku(sku);
-  const livePrice = priceForSkuCycle(priceCatalog, sku, billingCycle);
   const href =
     motion.kind === "self_serve"
       ? commercialContinueHref({
           productSku: sku,
-          planTier: CHECKOUT_PLAN,
-          billingCycle
+          billingCycle,
+          managedUnits
         })
       : acquisitionHref("enterprise", sku);
 
@@ -306,33 +288,61 @@ function PlatformPriceCard({
       <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
         {motion.availabilityLabel}
       </p>
-      <p className="mt-4 text-lg font-semibold text-[var(--mpa-color-text-primary)]">
-        {toBillingCycleLabel(billingCycle)} pricing
-      </p>
-      {livePrice ? (
-        <div className="mt-1 space-y-1">
+
+      {sku === "mpa_property_manager" ? (
+        <div className="mt-4 space-y-1">
           <p className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
-            {livePrice.formatted}
+            {PUBLIC_PRICING_MODEL_COPY.pmHeadline}
+          </p>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            {PUBLIC_PRICING_MODEL_COPY.pmIncludes}
+          </p>
+          <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">
+            Additional Unit Capacity: {PUBLIC_PRICING_MODEL_COPY.additionalCapacityLine}
+          </p>
+          <p className="text-xs text-[var(--mpa-color-text-muted)]">
+            {billingCycle === "annual"
+              ? "Annual = monthly × 12 (example: $59 → $708/year at 500 units)."
+              : "Use the calculator below for your managed-unit total."}
+          </p>
+        </div>
+      ) : null}
+
+      {sku === "mpa_facility_operations" ? (
+        <div className="mt-4 space-y-1">
+          <p className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
+            ${billingCycle === "annual" ? FO_ANNUAL_USD : FO_MONTHLY_USD}
             <span className="ml-1 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
               / {billingCycle === "annual" ? "year" : "month"}
             </span>
           </p>
-          <p className="text-xs text-[var(--mpa-color-text-secondary)]">{livePrice.cadenceLabel}</p>
+          <p className="text-xs font-semibold text-[var(--mpa-color-text-primary)]">
+            Not online · not purchasable
+          </p>
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
-            {selfServeReady
-              ? "Amount from live Stripe Price · confirmed again in Checkout"
-              : "List amount from live Stripe Price · online checkout not enabled for this platform yet"}
+            Flat Facility Operations price when the product is online. Not available for self-service
+            checkout today.
           </p>
         </div>
-      ) : (
-        <p
-          className="mt-1 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-950"
-          role="status"
-        >
-          Live Stripe price for this platform and billing cycle could not be retrieved. No amount is
-          invented here.
-        </p>
-      )}
+      ) : null}
+
+      {sku === "mpa_complete_platform" ? (
+        <div className="mt-4 space-y-1">
+          <p className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
+            ${PUBLIC_PRICING_MODEL_COPY.completeBaseMonthly}/month
+          </p>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Includes up to {PUBLIC_PRICING_MODEL_COPY.includedUnits} managed units
+          </p>
+          <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">
+            Additional Unit Capacity: {PUBLIC_PRICING_MODEL_COPY.additionalCapacityLine}
+          </p>
+          <p className="text-xs font-semibold text-[var(--mpa-color-text-primary)]">
+            Not online · not purchasable
+          </p>
+        </div>
+      ) : null}
+
       <p className="mt-3 text-xs leading-5 text-[var(--mpa-color-text-secondary)]">{motion.explanation}</p>
       <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
         Includes ({modules.length})
@@ -343,7 +353,13 @@ function PlatformPriceCard({
         ))}
         <li className="text-[var(--mpa-color-text-muted)]">• {BACKGROUND_SCREENING_LINE}</li>
       </ul>
-      <Link href={href} className={`${marketingPrimaryCtaClass} mt-5`}>
+      <Link
+        href={href}
+        className={`${marketingPrimaryCtaClass} mt-5 ${
+          motion.kind !== "self_serve" ? "opacity-95" : ""
+        }`}
+        aria-disabled={motion.kind !== "self_serve" ? undefined : undefined}
+      >
         {motion.ctaLabel}
       </Link>
     </li>

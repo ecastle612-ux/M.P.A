@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 type Search = {
   intent?: string;
   cycle?: string;
+  units?: string;
 };
 
 export default async function GetStartedRoute({
@@ -29,6 +30,7 @@ export default async function GetStartedRoute({
       isAuthenticated={Boolean(user)}
       initialSkuRaw={params.intent ?? null}
       initialCycleRaw={params.cycle ?? null}
+      initialUnitsRaw={params.units ?? null}
     />
   );
 }

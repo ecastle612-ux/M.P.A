@@ -123,21 +123,22 @@ export function CheckoutPage({
       <main className={marketingNarrowMainClass}>
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Get started · Step 2
+            Get started · Step 3
           </p>
           <h1 className="font-display text-3xl font-semibold">Confirm Plan</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Review your recommended platform, managed-unit capacity, price, and trial status before
-            secure checkout.
+            Review your recommended platform, managed units, Additional Unit Capacity, price, and
+            trial status before secure checkout.
           </p>
         </header>
 
         <ol className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">1 · Questionnaire</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">1 · Pricing</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">2 · Questionnaire</li>
           <li className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-2 py-1 text-[var(--mpa-color-brand-primary)]">
-            2 · Confirm Plan
+            3 · Confirm Plan
           </li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Checkout</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
         </ol>
 
         {loading ? (
@@ -203,10 +204,24 @@ export function CheckoutPage({
                 <dd className="font-semibold">{capacity.additionalCapacity}</dd>
               </div>
               <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Trial</dt>
+                <dt className="text-[var(--mpa-color-text-muted)]">Selected interval</dt>
+                <dd className="font-semibold">{toBillingCycleLabel(billingCycle)}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Trial status</dt>
                 <dd className="font-semibold">
-                  {quote.trial_eligible ? "30 days free" : capacity.trialLabel}
+                  {quote.trial_eligible ? "30-Day Free Trial" : capacity.trialLabel}
                 </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Trial duration</dt>
+                <dd className="font-semibold">
+                  {quote.trial_eligible ? `${quote.trial_days} days` : "None"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Payment card</dt>
+                <dd className="font-semibold">Required</dd>
               </div>
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Monthly</dt>
@@ -233,6 +248,13 @@ export function CheckoutPage({
             <p className="text-sm text-[var(--mpa-color-text-secondary)]">
               {quote.first_billing_description}
             </p>
+            {quote.trial_eligible ? (
+              <ul className="list-disc space-y-1 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
+                <li>30 days free</li>
+                <li>Valid payment card required.</li>
+                <li>Your subscription automatically begins billing after the free trial.</li>
+              </ul>
+            ) : null}
 
             {gated && quote.recommendation.gatedExplanation ? (
               <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">

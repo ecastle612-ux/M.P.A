@@ -18,14 +18,16 @@ describe("public purchase motion (Option B)", () => {
     const motion = publicPurchaseMotionForSku("mpa_facility_operations");
     expect(motion.kind).toBe("early_access");
     expect(motion.ctaLabel).toBe("Request Early Access");
-    expect(motion.explanation.toLowerCase()).toContain("fo_ready");
+    expect(motion.availabilityLabel.toLowerCase()).toMatch(/not online|gated/);
+    expect(motion.explanation.toLowerCase()).toContain("not available");
   });
 
   it("routes Complete Platform to Request Consultation while FO_READY is false", () => {
     const motion = publicPurchaseMotionForSku("mpa_complete_platform");
     expect(motion.kind).toBe("consultation");
     expect(motion.ctaLabel).toBe("Request Consultation");
-    expect(motion.explanation.toLowerCase()).toContain("facility operations");
+    expect(motion.availabilityLabel.toLowerCase()).toMatch(/not online|gated/);
+    expect(motion.explanation.toLowerCase()).toContain("not available");
   });
 });
 

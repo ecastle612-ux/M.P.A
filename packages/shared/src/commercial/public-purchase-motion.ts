@@ -29,10 +29,10 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
   if (sku === "mpa_property_manager") {
     return {
       kind: "self_serve",
-      ctaLabel: "Confirm Property Manager",
-      availabilityLabel: "Available online today",
+      ctaLabel: "Get started with Property Manager",
+      availabilityLabel: "Available",
       explanation:
-        "Property Manager supports self-service Stripe Checkout with live Monthly and Annual Prices."
+        "$59/month includes up to 500 managed units. Additional Unit Capacity is +$39/month per additional 500 units. Annual = monthly × 12."
     };
   }
 
@@ -40,19 +40,19 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
     return {
       kind: "early_access",
       ctaLabel: "Request Early Access",
-      availabilityLabel: FO_READY ? "Self-service checkout" : "Early access · not online yet",
+      availabilityLabel: FO_READY ? "Available" : "Not online · gated",
       explanation: FO_READY
         ? "Facility Operations self-service checkout is available."
-        : "Self-service purchasing will be available after FO_READY certification. Request Early Access to talk with our team."
+        : "Facility Operations is not available for online purchase yet ($59/month or $590/year when online). Request Early Access to talk with our team."
     };
   }
 
   return {
     kind: "consultation",
     ctaLabel: "Request Consultation",
-    availabilityLabel: FO_READY ? "Self-service checkout" : "Consultation · not online yet",
+    availabilityLabel: FO_READY ? "Available" : "Not online · gated",
     explanation: FO_READY
       ? "Complete Platform self-service checkout is available."
-      : "Online purchasing will become available after Facility Operations reaches production readiness. Request a consultation for Complete Platform today."
+      : "Complete Platform is not available for online purchase yet. When online, pricing follows unit-volume ($109/month base + Additional Unit Capacity). Request a consultation today."
   };
 }
