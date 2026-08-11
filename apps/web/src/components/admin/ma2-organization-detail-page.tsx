@@ -4,6 +4,12 @@ import { Badge } from "@mpa/ui";
 import type { Ma2OrgDetailSnapshot } from "../../lib/admin/load-ma2-org-detail";
 import type { HealthTone } from "../../lib/admin/command-center-metrics";
 import { SupportOrgActions } from "./support-org-actions";
+import {
+  Ma7CapacityMutationBlocked,
+  Ma7MembershipActions,
+  Ma7OrgLifecycleBlocked,
+  Ma7SubscriptionActions
+} from "./ma7-mutation-actions";
 
 function toneVariant(tone: HealthTone): "success" | "warning" | "danger" | "neutral" | "info" {
   switch (tone) {
@@ -216,6 +222,8 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
         )}
       </Section>
 
+      <Ma7OrgLifecycleBlocked organizationName={detail.name} />
+
       <Section id="users" title="Users / Memberships">
         <p className="mb-3 text-xs">
           <Link
@@ -250,12 +258,19 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
                       updated {u.updatedAt ? new Date(u.updatedAt).toLocaleString() : "—"}
                       {u.createdAt ? ` · created ${new Date(u.createdAt).toLocaleString()}` : ""}
                     </p>
+                    <Ma7MembershipActions
+                      membershipId={u.membershipId}
+                      organizationId={detail.id}
+                      status={u.status}
+                      roles={u.roles}
+                    />
                   </li>
                 ))}
               </ul>
             )}
             <p className="mt-3 text-[11px] text-[var(--mpa-color-text-secondary)]">
-              Inspect-only. Role/membership mutations are deferred to a later MA slice.
+              Membership status changes are governed MA-7 mutations (confirmation + reason + audit). Role
+              editing is not available here.
             </p>
           </Panel>
           <Panel>
@@ -385,6 +400,13 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
             <Kv label="Quote ID" value={detail.subscription.quoteId ?? "—"} />
           </dl>
         </Panel>
+        <Ma7SubscriptionActions
+          organizationId={detail.id}
+          organizationName={detail.name}
+          status={detail.subscription.status}
+          cancelAtPeriodEnd={Boolean(detail.subscription.cancelAtPeriodEnd)}
+          currentPeriodEnd={detail.subscription.currentPeriodEnd ?? null}
+        />
       </Section>
 
       <Section id="capacity" title="Capacity">
@@ -396,6 +418,7 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
             Open fleet Capacity detail →
           </Link>
         </p>
+        <Ma7CapacityMutationBlocked />
         <Panel>
           <dl>
             <Kv label="Managed units" value={detail.capacity.managedUnitCount ?? "—"} />
