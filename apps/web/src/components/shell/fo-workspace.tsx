@@ -46,8 +46,7 @@ export function FoPriorityLegend() {
         ))}
       </ul>
       <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">
-        Facility queues will use this language so emergency, scheduled, and waiting work never look the
-        same.
+        Use this language so emergency, scheduled, and waiting facility work never look the same.
       </p>
     </section>
   );
@@ -196,15 +195,16 @@ export function FoCapabilityCard({
 }: {
   title: string;
   href: string;
-  status: "aligned" | "planned";
+  status: "aligned" | "live" | "planned";
   summary: string;
   documentsHref?: string;
 }) {
+  const isLive = status === "aligned" || status === "live";
   return (
     <li className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 shadow-[0_1px_0_rgba(15,27,45,0.04)]">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-          {status === "aligned" ? (
+          {isLive ? (
             <Link
               href={href}
               className={`text-[var(--mpa-color-brand-primary)] underline-offset-2 hover:underline ${linkFocus}`}
@@ -215,9 +215,7 @@ export function FoCapabilityCard({
             <span>{title}</span>
           )}
         </h3>
-        <Badge variant={status === "aligned" ? "success" : "warning"}>
-          {status === "aligned" ? "Live" : "Opens when live"}
-        </Badge>
+        <Badge variant={isLive ? "success" : "neutral"}>{isLive ? "Live" : "Deferred"}</Badge>
       </div>
       <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{summary}</p>
       {docsHref ? (

@@ -238,25 +238,25 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath("/facility/mission-control", "Facility Operations · Mission Control", "Facility Operations", "facility.mission_control")
     );
-    push(decisionPath("/facility/operations", "Facility Operations (Planned)", "Facility Operations", "facility.operations"));
-    push(decisionPath("/facility/assets", "Assets (Planned)", "Facility Operations", "facility.assets"));
-    push(decisionPath("/facility/inventory", "Inventory (Planned)", "Facility Operations", "facility.inventory"));
-    push(decisionPath("/facility/parts", "Parts (Planned)", "Facility Operations", "facility.parts"));
+    push(decisionPath("/facility/operations", "Facility Operations", "Facility Operations", "facility.operations"));
+    push(decisionPath("/facility/assets", "Assets", "Facility Operations", "facility.assets"));
+    push(decisionPath("/facility/inventory", "Inventory", "Facility Operations", "facility.inventory"));
+    push(decisionPath("/facility/parts", "Parts", "Facility Operations", "facility.parts"));
     push(
       decisionPath(
         "/facility/preventive-maintenance",
-        "Preventive Maintenance (Planned)",
+        "Preventive Maintenance",
         "Facility Operations",
         "facility.preventive"
       )
     );
-    push(decisionPath("/facility/inspections", "Inspections (Planned)", "Facility Operations", "facility.inspections"));
-    push(decisionPath("/facility/safety", "Safety (Planned)", "Facility Operations", "facility.safety"));
-    push(decisionPath("/facility/compliance", "Compliance (Planned)", "Facility Operations", "facility.compliance"));
+    push(decisionPath("/facility/inspections", "Inspections", "Facility Operations", "facility.inspections"));
+    push(decisionPath("/facility/safety", "Safety", "Facility Operations", "facility.safety"));
+    push(decisionPath("/facility/compliance", "Compliance", "Facility Operations", "facility.compliance"));
     push(
       decisionPath(
         "/facility/building-systems",
-        "Building Systems (Planned)",
+        "Building Systems",
         "Facility Operations",
         "facility.building_systems"
       )

@@ -1,15 +1,5 @@
-import { FacilityModulePage } from "../../../../components/facility/facility-module-page";
+import { FacilityAssetsWorkspace } from "../../../../components/facility/facility-assets-workspace";
 
 export default function Page() {
-  return (
-    <FacilityModulePage
-      title="Assets"
-      description="Asset registry for health, warranty, service history, upcoming maintenance, open work, inspections, and related documents."
-      readiness="planned"
-      entitlement="facility.assets"
-      includedIn={["Facility Operations", "Complete Platform"]}
-      requiresComplete="Property Manager-only customers"
-      domain="assets"
-    />
-  );
+  return <FacilityAssetsWorkspace />;
 }
