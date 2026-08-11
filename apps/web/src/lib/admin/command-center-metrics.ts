@@ -388,7 +388,7 @@ export function buildCommandCenterSnapshot(input: {
       at: latestCriticalErrors[0]?.at ?? input.generatedAt ?? new Date().toISOString(),
       title: "Critical production errors",
       detail: `${criticalErrorCount} recent error event(s) in the durable feed`,
-      href: "/admin#critical-errors"
+      href: "/admin/errors"
     });
   }
 

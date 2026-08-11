@@ -68,6 +68,7 @@ This package **supersedes** fragmented “what Master Admin should become” not
 | [Data, API & Database](./data-api-database.md) | Existing sources, API requirements, DB requirements |
 | [Security & Observability](./security-observability.md) | Security model + observability integration |
 | [Implementation Slices](./implementation-slices.md) | Slices, acceptance criteria, test strategy, open questions |
+| [MA-1 Implementation Notes](./ma1-implementation-notes.md) | Overview + Critical Errors delivery notes |
 
 ---
 

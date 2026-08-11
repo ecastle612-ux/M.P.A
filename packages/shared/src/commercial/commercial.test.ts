@@ -198,13 +198,14 @@ describe("route entitlement enforcement", () => {
 });
 
 describe("master admin catalog", () => {
-  it("exposes a lean Owner Operations console only", () => {
+  it("exposes Master Admin Overview + Errors with lean Owner Ops groups", () => {
     const titles = MASTER_ADMIN_NAV.map((group) => group.title);
-    expect(titles).toEqual(["Operations", "Customers", "Commercial"]);
+    expect(titles).toEqual(["Master Admin", "Operations", "Customers", "Commercial"]);
 
     const allHrefs = MASTER_ADMIN_NAV.flatMap((group) => group.items.map((item) => item.href));
     expect(allHrefs).toEqual([
       "/admin",
+      "/admin/errors",
       "/admin/support",
       "/admin/system",
       "/admin/platform/organizations",
@@ -217,6 +218,9 @@ describe("master admin catalog", () => {
       "/admin/commercial/subscriptions",
       "/admin/commercial/checkout"
     ]);
+
+    const maGroup = MASTER_ADMIN_NAV.find((group) => group.id === "master-admin");
+    expect(maGroup?.items.map((item) => item.label)).toEqual(["Overview", "Errors"]);
 
     // No placeholder / future / theater surfaces in nav.
     expect(allHrefs.some((href) => href.startsWith("/admin/workspaces"))).toBe(false);

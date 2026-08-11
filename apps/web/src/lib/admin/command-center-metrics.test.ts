@@ -143,7 +143,7 @@ describe("command-center-metrics", () => {
           at: "2026-08-11T00:00:00.000Z",
           title: "[critical] boom",
           detail: "POST /api/x · req r1",
-          href: "/admin#critical-errors"
+          href: "/admin/errors"
         }
       ],
       sentryConfigured: true,
