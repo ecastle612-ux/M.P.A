@@ -1,24 +1,25 @@
-# M.P.A. Unit-Volume Pricing — Design & Governance
+# M.P.A. Unit-Volume Pricing — Final Governance
 
 **Date:** 2026-08-11  
+**Status:** Owner decisions below are **FINAL** for design/governance  
 **Mode:** Design + governance **only**  
-**Implementation:** Forbidden until Design → Document → Approve (and Owner authorization of open decisions below)  
-**Production / Stripe / Vercel / env / checkout / PR #118 deploy:** **NONE in this package**
+**Implementation:** Forbidden until Design → Document → Approve (Implementation Gate) authorizes coding  
+**Production / Stripe / Vercel / env / checkout / subscriptions / PR #118 deploy:** **NONE in this package**
 
 **Supersedes:** `tenant-volume-pricing-design-2026-08-11.md` (removed).  
-**Owner decision (2026-08-11):** The billing metric is **managed units**, not tenants. Multiple tenants can occupy one unit; tenant count is not an appropriate billing metric.
+**Billing metric:** **MANAGED UNITS** (not tenants). Multiple tenants in one unit count as **one** billable unit.
 
 **Related:**  
-- Product Constitution / ADR-019 (unchanged by this doc)  
+- Product Constitution / ADR-019 (**unchanged** by this doc)  
 - ADR-018 / COM-002 commercial architecture (current implementation baseline)  
 - Authoritative commercial reconciliation (PM Business = legacy)  
 - PR #118 — Business readiness removal (**do not deploy** from this task)
 
 ---
 
-## 1. Owner-approved monthly model (CONFIRMED)
+## 1. Product structure (FINAL)
 
-### Products (unchanged — Constitution)
+Approved customer products:
 
 1. Property Manager  
 2. Facility Operations  
@@ -28,13 +29,48 @@ There is **no**:
 
 - Property Manager Professional customer tier  
 - Property Manager Business customer tier  
-- Business customer tier  
+- Business subscription  
+- Separate Enterprise product / Stripe Product / Enterprise subscription  
 
 Internal Stripe / env labels such as `PROFESSIONAL` remain **implementation labels only**, not customer-facing tiers.
 
-Enterprise is **not** a separate product and must **not** become a separate subscription. The approved volume model is simply the **Property Manager pricing structure** for organizations managing more than 500 units.
+Unit-volume pricing is the **Property Manager pricing structure** for organizations whose managed-unit count requires additional 500-unit blocks (above the first 500 included in base).
 
-### Property Manager — unit-volume block pricing (monthly)
+“Enterprise” may describe higher-volume Property Manager pricing **only if** governance (Constitution / ADR-019) later permits that wording. It is **not** a separate product. **Do not create an Enterprise Stripe Product.**
+
+**This design package does not modify** `product-constitution.md` or ADR-019.
+
+---
+
+## 2. Billing metric — managed units (FINAL)
+
+| Rule | Decision |
+|------|----------|
+| Metric | Count of rows in `public.property_units` for the organization |
+| Status filter | **None** — status does **not** exclude a unit |
+| `available` / vacant | **Counts** |
+| `occupied` | **Counts** |
+| `offline` | **Counts** |
+| Multiple tenants / residents in one unit | **One** billable unit |
+| Property association | Exactly one property via `property_id` (not null) |
+| Additional exclusion rules | **Do not invent** |
+
+### Data-model reference (audit)
+
+| Item | Finding |
+|------|---------|
+| Table | `public.property_units` |
+| Introduced | `supabase/migrations/20260806040000_fin_ops_001_s1_resident_billing.sql` |
+| Columns (core) | `id`, `organization_id`, `property_id`, `unit_label`, `status`, `created_at` |
+| Status check | `'available' \| 'occupied' \| 'offline'` (default `'available'`) |
+| Uniqueness | `unique (property_id, unit_label)` |
+| Soft-delete / archive column | **Not present** — only existing rows count |
+| Hard delete | Row removed → no longer in managed-unit count |
+| Non-residential type column | **Not present** — no invented exclusion |
+
+---
+
+## 3. Property Manager monthly pricing (FINAL)
 
 | Managed units | Monthly price |
 |---------------|--------------:|
@@ -52,364 +88,198 @@ additional_blocks = ceil(managed_units / 500) - 1
 monthly_pm_price_usd = 59 + (39 × additional_blocks)
 ```
 
-Equivalent: `$59 + ($39 × additional 500-unit blocks)`.
-
 ### Worked examples
 
-| Managed units | Additional blocks | Calculation | Monthly |
-|--------------:|------------------:|-------------|---------|
-| 1 | 0 | 59 + 39×0 | **$59** |
-| 500 | 0 | 59 + 39×0 | **$59** |
-| 501 | 1 | 59 + 39×1 | **$98** |
-| 1,000 | 1 | 59 + 39×1 | **$98** |
-| 1,001 | 2 | 59 + 39×2 | **$137** |
-| 1,500 | 2 | 59 + 39×2 | **$137** |
-| 1,501 | 3 | 59 + 39×3 | **$176** |
-| 2,500 | 4 | 59 + 39×4 | **$215** |
-| 2,501 | 5 | 59 + 39×5 | **$254** |
-
-### Boundary conditions (price only — which units count still open)
-
-| Boundary | Additional blocks | Monthly |
-|----------|------------------:|--------:|
-| 500 | 0 | $59 |
-| 501 | 1 | $98 |
-| 1,000 | 1 | $98 |
-| 1,001 | 2 | $137 |
-| 1,500 | 2 | $137 |
-| 1,501 | 3 | $176 |
+| Managed units | Additional blocks | Monthly |
+|--------------:|------------------:|--------:|
+| 500 | 0 | **$59** |
+| 501 | 1 | **$98** |
+| 1,000 | 1 | **$98** |
+| 1,001 | 2 | **$137** |
+| 1,500 | 2 | **$137** |
+| 1,501 | 3 | **$176** |
+| 2,500 | 4 | **$215** |
+| 2,501 | 5 | **$254** |
 
 ---
 
-## 2. Product structure vs “Enterprise” (no Constitution amendment)
+## 4. Annual pricing (FINAL — no discount)
 
-| Statement | Status |
-|-----------|--------|
-| Three customer modules only | Binding (Constitution / ADR-019) |
-| Volume pricing = Property Manager capacity pricing above 500 managed units | Owner-approved in this package |
-| Separate Enterprise subscription / SKU | **Forbidden** |
-| Enterprise as sales motion (SSO, custom contracts, etc.) | Remains Constitution language; **not amended here** |
-| Customer-facing Professional / Business tiers | **Forbidden** |
+**Owner decision:** Annual unit-volume pricing has **no discount**.
 
-**This design package does not modify** `product-constitution.md` or ADR-019.
-
-If customer UI later uses the word “Enterprise,” that requires **explicit Owner authorization** to amend Constitution / ADR-019. Until then, market and implement this as **Property Manager unit-volume / capacity pricing**, not an Enterprise product.
-
----
-
-## 3. Billable unit — data-model audit (findings)
-
-### Exact entity / table
-
-| Item | Finding |
-|------|---------|
-| Table | `public.property_units` |
-| Introduced | `supabase/migrations/20260806040000_fin_ops_001_s1_resident_billing.sql` |
-| Columns (core) | `id`, `organization_id`, `property_id`, `unit_label`, `status`, `created_at` |
-| Status check | `'available' \| 'occupied' \| 'offline'` (default `'available'`) |
-| Uniqueness | `unique (property_id, unit_label)` |
-
-### Association to properties
-
-| Item | Finding |
-|------|---------|
-| Parent property | `property_id uuid not null` → `public.property_properties` |
-| Org scope | `organization_id` on both property and unit; unit cascades with org/property delete |
-| Multi-property ownership of one unit | **No** — a unit has exactly one `property_id` |
-
-### Vacant units
-
-| Item | Finding |
-|------|---------|
-| Same model? | **Yes** — vacant units are rows in `property_units` |
-| Vacant representation | Status `'available'` (product create wizard creates units as `available`) |
-| Occupied representation | Status `'occupied'` |
-
-### Archived / deleted units
-
-| Item | Finding |
-|------|---------|
-| Soft-delete / archived column | **Not present** on `property_units` |
-| Hard delete | Possible; FK from leases/maintenance often `on delete set null` or `restrict` depending on table |
-| Property delete | Units cascade-delete with property (`on delete cascade`) |
-
-### Non-residential spaces
-
-| Item | Finding |
-|------|---------|
-| Unit type / use column | **Not present** in `property_units` |
-| Non-residential distinction | **Not represented** in the current unit schema |
-
-### Suitability for billing (assessment — not a rule)
-
-The current `property_units` model is a **suitable base entity** for counting managed units (org-scoped, property-associated, statused).  
-
-**It is not yet a complete billable definition.** Owner must decide which rows count (see §7). This package does **not** invent edge-case rules.
-
-### Why not tenants
-
-Residential people / leases live in related tables (`lease_residents`, `lease_agreements`, etc.). Multiple residents can associate to one unit via leases. Owner decision: bill **managed units**, not tenant/resident count.
-
----
-
-## 4. How current architecture represents commercial state (baseline)
-
-Today (COM-002 / Slice C–E):
-
-| Concern | Current representation |
-|---------|------------------------|
-| Sellable unit | `CatalogOffer` = productSku × planTier × billingCycle |
-| Price binding | Fixed Stripe Price IDs via env (`STRIPE_PRICE_PM_PROFESSIONAL_*`, etc.) |
-| Quantity | **Not used** — flat Price; seats/properties as **metadata limits** |
-| Seats | Org member login seats — **not** managed units |
-| Properties | Max properties (flat caps) |
-| Checkout | Stripe Checkout `mode=subscription`, one line item Price |
-| Lifecycle | Webhooks sync status; upgrade proration immediate; downgrade period-end |
-| Entitlements | Module keys by product SKU + seat/property limits |
-| FO / Complete | Gated (`FO_READY=false`); sales path |
-| FIN-OPS | Separate money domain (resident rent) — must stay separate |
-
-COM-002 closed **metered seat quantity** for v1. Unit-volume block pricing is a **new commercial dimension** and requires an approved architecture change before coding.
-
-Tenant-based volume billing is **removed from this design**.
-
----
-
-## 5. Stripe architecture options (design only)
-
-### A — Fixed Stripe Prices per unit-volume band
-
-Create Prices: $59, $98, $137, $176, $215, … (and annual twins once defined).  
-Subscription always has **quantity 1**; upgrades swap Price ID.
-
-| Criterion | Assessment |
-|-----------|------------|
-| Correctness | High if band table is complete |
-| Predictability | High — invoice shows one amount |
-| Up/downgrade | Swap Price; Stripe proration works |
-| Annual | Doubles Price count per band |
-| Scalability | Poor — unbounded Prices as volume grows |
-| Fit with M.P.A. today | Closest to current “one env Price ID” model |
-| Auditability | OK if metadata stores band + managed_units |
-
-### B — Subscription item quantity (licensed unit blocks) **[RECOMMENDED DESIGN OPTION]**
-
-Represent capacity as **number of 500-unit blocks**:
+Annual price = **twelve months** of the applicable monthly unit-volume rate:
 
 ```
-block_quantity = max(1, ceil(managed_units / 500))
-additional_blocks = block_quantity - 1
+annual_pm_price_usd = monthly_pm_price_usd × 12
 ```
 
-**Recommended Stripe shape (two line items) — DESIGN ONLY:**
+### Examples
 
-| Item | Role | Unit amount (monthly) | Quantity |
-|------|------|----------------------:|---------:|
-| Property Manager — Base | Includes first 500 managed units | $59 | always **1** |
-| Property Manager — Additional Unit Block | Each extra 500 managed units | $39 | `ceil(managed_units / 500) - 1` |
+| Managed units | Monthly | Annual (×12) |
+|--------------:|--------:|-------------:|
+| 1–500 | $59 | **$708** |
+| 501–1,000 | $98 | **$1,176** |
+| 1,001–1,500 | $137 | **$1,644** |
+| 1,501–2,000 | $176 | **$2,112** |
+| 2,001–2,500 | $215 | **$2,580** |
 
-Total = `59 + 39 × (blocks − 1)` — matches Owner formula exactly.
+Do **not** introduce an annual discount.  
+Do **not** invent another annual pricing formula.
 
-| Criterion | Assessment |
-|-----------|------------|
-| Correctness | Exact match to approved monthly formula |
-| Predictability | High — invoice lines explain base + blocks |
-| Up/downgrade | Change `quantity` on additional-block item |
-| Proration | Stripe native on quantity/price updates (policy TBD — §8) |
-| Annual | Needs Owner annual rule, then annual Prices for the same two items |
-| Scalability | Excellent — one pair of Prices scales forever |
-| Fit with M.P.A. | Extends subscription model; replaces “swap fixed Price” with quantity |
-| Auditability | Strong — store `managed_units`, `block_quantity`, item IDs |
-
-**Close variant (still B):** single Stripe Price with **graduated** tiers (first unit $59, each additional $39) and `quantity = block_quantity`. Prefer two-item unless Owner prioritizes minimal Stripe objects.
-
-### C — Base subscription + metered component
-
-Meter `managed_units` or blocks via usage records.
-
-| Criterion | Assessment |
-|-----------|------------|
-| Predictability | **Weak** for capacity pricing |
-| Fit with M.P.A. | Conflicts with COM-002 “not metered in v1” commercial intent |
-| Recommendation | **Reject** for this model |
-
-### D — Other
-
-Custom invoicing / non-Checkout billing for high volume only. Rejected as primary self-serve path (breaks Constitution Checkout flow for PM).
+Same block model applies annually (design): Base annual amount for first 500 units + Additional Unit Block annual amount × `additional_blocks`.
 
 ---
 
-## 6. Recommended billing architecture (ONE — design only)
+## 5. Billing-period adjustment (FINAL)
 
-### Recommendation
+**Owner decision:** Unit-count pricing is recalculated **after the customer’s paid billing period ends**.
 
-**Stripe architecture B — licensed unit-block quantity with two subscription items**  
-(Base $59 qty 1 + Additional Unit Block $39 × (ceil(managed_units / 500) − 1)).
+| During a paid period | Behavior |
+|----------------------|----------|
+| Managed-unit count increases or decreases | **Do not** immediately charge a surprise amount |
+| Mid-period price increases | **Forbidden** |
+| Mid-period proration for unit-volume | **Not used** for this model |
+| At end of paid period | Calculate required unit-volume block from current `property_units` count |
+| Next paid period | Recurring billing uses the updated block quantity / price |
 
-**Do not create these Stripe Prices yet.**  
-**Do not implement quantity synchronization yet.**
+The system must **automatically** adjust the recurring billing amount for the **next** paid period (monthly or annual period, as applicable).
 
-### Why not A or C
+This replaces COM-002’s immediate-proration upgrade default **for unit-volume block quantity changes**. Seat/module lifecycle rules outside unit-volume remain out of scope here.
 
-- **A** does not scale and recreates a tier matrix under a new name.  
-- **C** is the wrong Stripe abstraction for predictable capacity pricing.
+---
 
-### How M.P.A. should represent state (target design — not implemented)
+## 6. Existing subscribers (FINAL)
 
-| Concern | Target representation |
-|---------|----------------------|
-| Managed unit count | Org commercial attribute derived from billable `property_units` definition (Owner decision — §7) |
-| Included capacity | First 500 managed units in Base item |
+**Owner decision:** There are currently **no** existing subscribers.
+
+| Topic | Decision |
+|-------|----------|
+| Legacy subscriber migration | **Not required** |
+| Fixed-price subscriber migration | **Not required** |
+| Grandfathering logic | **Not required** |
+| Migration tooling for existing customers | **Not required** |
+
+Future customers enter the approved unit-volume pricing architecture.
+
+---
+
+## 7. Stripe architecture (DESIGN ONLY — not created)
+
+### Recommended shape
+
+Property Manager subscription with **two subscription items**:
+
+| Item | Role | Monthly unit amount | Annual unit amount (no discount) | Quantity |
+|------|------|--------------------:|---------------------------------:|---------:|
+| Base Property Manager | Includes first 500 units | **$59** | **$708** | always **1** |
+| Additional Unit Block | Each extra 500 units | **$39** | **$468** (= $39 × 12) | `ceil(managed_units / 500) - 1` |
+
+```
+additional_blocks = ceil(managed_units / 500) - 1
+monthly_total = 59 + (39 × additional_blocks)
+annual_total  = monthly_total × 12
+```
+
+### Explicit non-actions (this package)
+
+- **Do not** create these Stripe Prices yet  
+- **Do not** modify existing Stripe Prices  
+- **Do not** modify subscriptions  
+- **Do not** create an Enterprise Stripe Product  
+- **Do not** implement quantity synchronization yet  
+
+### Why this shape (retained)
+
+Scales without a Price-per-band matrix; invoice lines explain base + blocks; matches Owner formula exactly.
+
+Rejected for primary path: fixed Price-per-band matrix (does not scale); metered usage (wrong abstraction for capacity).
+
+---
+
+## 8. Target commercial representation (design — not implemented)
+
+| Concern | Target |
+|---------|--------|
+| Managed unit count | `count(*)` of `public.property_units` for the org (all statuses) |
+| Included capacity | First 500 units in Base item |
 | Additional blocks | `max(0, ceil(managed_units / 500) − 1)` |
-| Recurring monthly price | Sum of Base + Additional Unit Block items |
-| Annual pricing | **Owner decision required** (see §9) |
-| Plan eligibility | Product = Property Manager; cycle = monthly (annual TBD); block qty from managed units |
-| Entitlements | Still by product SKU; **capacity** via unit-count/block entitlement separate from seat/property limits unless Owner consolidates |
-| Checkout | Collect or measure initial managed units (policy TBD); create subscription with correct quantities |
-| Lifecycle | Webhooks remain access truth; sync quantities on unit-count change events (timing TBD — §8) |
-| FO / Complete | Unchanged until FO_READY; volume model for those products is out of scope unless Owner extends the same formula |
+| Monthly total | Base + Additional Unit Block items |
+| Annual total | Same blocks × 12 (no discount) |
+| Quantity / price changes | Applied for the **next** paid billing period only |
+| Entitlements | Product SKU modules; unit capacity via block quantity |
+| FO / Complete | Unchanged until FO_READY; unit-volume for those products out of scope unless Owner extends |
 
-### Metadata / domain fields (illustrative design names)
+### Illustrative metadata / field names (design)
 
 - `mpa_money_domain=saas_billing`  
 - `mpa_product_sku=mpa_property_manager`  
-- `mpa_billing_cycle`  
+- `mpa_billing_cycle` (`monthly` \| `annual`)  
 - `mpa_billable_managed_unit_count`  
 - `mpa_unit_block_quantity`  
 - `mpa_unit_block_size=500`  
-- Keep or revise seat/property limits only after Owner decides whether they remain orthogonal  
 
 ---
 
-## 7. Billable managed-unit definition — OWNER DECISIONS REQUIRED
+## 9. Current architecture baseline (context only)
 
-Owner has approved the **metric category** (managed units) and the **price table**.  
+Today (COM-002 / Slice C–E): fixed Stripe Price IDs via env; quantity unused; seats/properties as metadata limits; Checkout one line item; FO/Complete gated. Unit-volume is a **new** commercial dimension requiring Implementation Gate approval before coding.
 
-The following rules are **not invented** in this package; each needs Owner approval before implementation:
-
-| Decision | Why it matters |
-|----------|----------------|
-| Count all `property_units` rows for the org? | Simplest; includes vacant (`available`) and `offline` |
-| Exclude `offline`? | Offline exists in schema; may or may not be “managed” |
-| Exclude vacant (`available`)? | Vacant units are still often managed inventory |
-| Count only `occupied`? | Understates portfolio if vacant inventory is managed |
-| Soft-deleted / archived units | No archive column today; future soft-delete would need a rule |
-| Hard-deleted units | Drop out of count when deleted — confirm timing vs billing |
-| Non-residential spaces | Not modeled today; future types need a rule |
-| Units on `inactive` properties | Properties have `active`/`inactive`; counting rule TBD |
-| Who sets count at Checkout | Customer declaration vs system-measured from `property_units` |
-| Remeasure cadence | On every unit create/update/delete vs nightly vs period boundary |
-
-**Flag:** **OWNER DECISION REQUIRED** before metering UI, Stripe quantity sync, or enforcement.
+Tenant-based volume billing remains **removed** from this design.
 
 ---
 
-## 8. Over-capacity / quantity-change policy — OWNER DECISIONS REQUIRED
+## 10. Future implementation requirements (DO NOT IMPLEMENT in this package)
 
-Identify what must be decided (do **not** implement):
+Document for a future approved implementation only:
 
-| Topic | Open question |
-|-------|----------------|
-| When unit count changes | Immediate recount on create/update/delete/status change? |
-| When billing quantity changes | Same moment as count, or batched? |
-| Increases | Immediate proration vs period-end? |
-| Decreases | Immediate vs period-end? |
-| Grace periods | Allow temporary overage before charging next block? |
-| Units added temporarily | Count toward billable? grace? |
-| Archived units | N/A today; future archive behavior |
-| Deleted units | When do they leave the billable count? |
-| Vacant units | Included or excluded (ties to §7)? |
-| Offline units | Included or excluded (ties to §7)? |
-| Fail-closed vs soft warn | Block unit create when over paid capacity, or warn only? |
-| Auto-upgrade | Automatically increase Additional Block quantity when crossing a threshold? |
-
-Suggested alignment **candidates** (not approved): COM-002 used immediate proration for upgrades and period-end for downgrades. Whether unit-volume follows that pattern is an **Owner decision**.
-
----
-
-## 9. Annual pricing — OWNER DECISION REQUIRED
-
-Owner has established **monthly** unit-volume pricing only.
-
-**Do not invent** annual unit-volume amounts.
-
-Open decisions:
-
-1. Does annual exist for unit-volume pricing at all?  
-2. If yes: is annual `10 × monthly`, `12 × monthly`, or another discount rule?  
-3. Does annual lock **block quantity** for the term, or can blocks change mid-term with proration?  
-4. Are annual Stripe Prices separate objects for Base + Additional Unit Block?
-
-Until decided: design and Checkout must treat **monthly as the only approved volume cadence**.
-
----
-
-## 10. Existing subscribers — OWNER DECISION REQUIRED
-
-Do **not** migrate existing customers in this package.
-
-Customers currently on the fixed Property Manager Stripe Price (flat list price; quantity unused) require a **future** Owner decision:
-
-| Option (illustrative) | Notes |
-|-----------------------|-------|
-| Grandfather on fixed Price | Volume model applies to new Checkout only |
-| Migrate at renewal | Switch to Base + Additional Block at next period |
-| Forced cutover | Requires communication, proration, and support plan |
-| Hybrid | Grandfather until unit count / renewal event |
-
-**Flag:** **OWNER DECISION REQUIRED** — no silent repricing.
-
----
-
-## 11. Implementation requirements (future — not this task)
-
-When approved:
-
-1. Owner decisions closed (§7, §8, §9, §10; Enterprise label only if Constitution amended).  
-2. ADR / commercial-model amendment (Design → Document → Approve) — **do not silently override ADR-019**.  
-3. Stripe: create Base + Additional Unit Block Prices (monthly; annual if approved). **Do not edit existing subscription Prices in place.**  
-4. Replace single-Price Checkout assumption with quantity-aware session create.  
-5. Env mappings for base + block Prices — migration plan required; do not casually rename `PROFESSIONAL` keys.  
-6. Entitlement enforcement tied to approved managed-unit definition.  
-7. Lifecycle APIs for quantity changes; admin audit.  
-8. Pricing UI: show unit-block calculator; no Business tier; no invented annual.  
-9. Tests: boundary table 500/501/1000/1001/1500/1501; FO/Complete still gated.  
-10. Migration plan for existing fixed-Price subscribers after Owner decision.
+1. Automatic managed-unit count from `public.property_units` (all statuses).  
+2. Block quantity: `ceil(managed_units / 500) - 1`.  
+3. Billing-period-end adjustment of Additional Unit Block quantity / recurring amount (no mid-period surprise charges).  
+4. Annual calculation = monthly × 12 (no discount).  
+5. Stripe two-item subscription architecture (Base + Additional Unit Block), monthly and annual Prices.  
+6. Checkout calculation of initial block quantity from unit count (or initial portfolio setup).  
+7. Billing lifecycle synchronization (webhooks remain access truth; period-end quantity sync).  
+8. Customer pricing display (unit-block calculator; no Business / Professional customer tiers).  
+9. Unit-count change handling (track count during period; apply at period boundary).  
+10. Audit history of count and block changes.  
+11. Billing notifications (period-end price change notice — content TBD at implementation).  
+12. Tests: boundaries 500/501/1000/1001/1500/1501; annual = 12× monthly; no mid-period unit-volume proration; FO/Complete still gated; FIN-OPS rent domain untouched.
 
 ### Acceptance criteria (future implementation)
 
-- [ ] 1–500 managed units → $59/mo Checkout line total  
-- [ ] 501–1000 → $98/mo  
-- [ ] Formula holds for arbitrary unit blocks  
-- [ ] Billing metric is managed units (not tenants)  
+- [ ] All `property_units` statuses count toward managed units  
+- [ ] Multiple tenants in one unit = one billable unit  
+- [ ] 1–500 → $59/mo / $708/yr  
+- [ ] 501–1000 → $98/mo / $1,176/yr  
+- [ ] Formula holds for arbitrary blocks; annual = monthly × 12  
+- [ ] Unit-volume price changes apply next paid period only  
 - [ ] No customer-facing Business / Professional tier  
-- [ ] No separate Enterprise subscription  
-- [ ] FO/Complete remain gated until FO_READY  
-- [ ] No Constitution violation without approved amendment  
-- [ ] Existing customers not silently repriced without migration authorization  
+- [ ] No separate Enterprise product or Stripe Product  
+- [ ] No mid-period surprise unit-volume charges  
 - [ ] FIN-OPS rent money domain untouched  
 
 ---
 
-## 12. Unresolved Owner decisions (complete list)
+## 11. Remaining Owner decisions (genuine open items only)
 
-1. **Exact billable managed-unit definition** (which `property_units` statuses/properties count).  
-2. **Over-capacity / quantity-change timing** (increases, decreases, grace, temporary units, delete/archive).  
-3. **Annual unit-volume pricing** rule (or explicitly “monthly only”).  
-4. **Existing fixed-Price subscriber migration** strategy.  
-5. **Enterprise label vs Constitution** — amend ADR-019 / Constitution only if Owner wants the word “Enterprise” on this capacity model; otherwise market as PM unit-volume.  
-6. **Relationship to seat/property limits** — keep, replace, or revise under unit-volume pricing.  
-7. **Checkout input model** — customer-declared count vs system-measured from `property_units`.  
-8. **FO / Complete** — same unit-block formula later, or different.  
+Resolved and **removed** from open list: billable tenant metric; billable unit status exclusions; annual pricing rule; existing subscriber migration.
+
+Still open (not invented here):
+
+1. **“Enterprise” customer-facing label** — Owner allows describing higher-volume PM pricing as Enterprise **if governance permits**; Constitution / ADR-019 amendment required before customer UI uses that word as a named offering. Until then, use Property Manager unit-volume / capacity language.  
+2. **Relationship to seat/property limits** — keep, replace, or revise under unit-volume pricing.  
+3. **FO / Complete** — same unit-block formula later, or different (out of scope until FO_READY / Owner extension).  
+4. **In-period UX when count exceeds current paid blocks** — pricing waits until next period; whether the product **blocks**, **warns**, or **allows** adding units mid-period is still an Owner product decision.  
+5. **Period-end notification copy / channel** — that customers are informed before the next period amount changes (implementation detail; Owner may set policy later).
 
 ---
 
-## 13. Explicit non-actions (this package)
+## 12. Explicit non-actions (this package)
 
 | Item | Status |
 |------|--------|
 | Production changes | **NONE** |
-| Stripe changes | **NONE** (no Prices created) |
+| Stripe changes | **NONE** (no Prices created or modified) |
 | Vercel / env changes | **NONE** |
 | Application / billing code | **NONE** |
 | Quantity synchronization | **NONE** |
@@ -420,6 +290,7 @@ When approved:
 
 ---
 
-## 14. STOP
+## 13. STOP
 
-Await Owner decisions in §12 and Implementation Gate approval before any Stripe Prices, env wiring, Checkout quantity work, or Vercel configuration.
+Governance for unit-volume pricing is finalized per Owner decisions above.  
+Await Implementation Gate approval before any Stripe Prices, env wiring, Checkout quantity work, billing lifecycle code, or Vercel configuration.
