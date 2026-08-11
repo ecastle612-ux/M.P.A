@@ -288,7 +288,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               Operational fragmentation
             </p>
             <h2 className="font-display text-2xl font-semibold md:text-3xl">
-              The work itself isn’t always the hard part.
+              The work itself is not always the hard part.
             </h2>
             <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:text-base">
               Remembering, coordinating, and following up across all the moving pieces is.
