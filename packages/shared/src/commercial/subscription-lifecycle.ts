@@ -59,6 +59,19 @@ export type LifecycleSubscription = {
   seatLimit: number | null;
   /** @deprecated Commercial property capacity removed — always null for new records. */
   propertyLimit: number | null;
+  /** Stripe subscription item id for module base Price (qty 1). */
+  stripeBaseItemId: string | null;
+  /** Stripe subscription item id for Additional Unit Capacity Price (omitted when blocks=0). */
+  stripeAdditionalCapacityItemId: string | null;
+  /** Declared / reconciled managed unit count. */
+  managedUnitCount: number | null;
+  /** Authorized Additional Unit Capacity blocks. */
+  authorizedAdditionalBlocks: number | null;
+  /** Authorized unit capacity ceiling = 500 × (1 + blocks). */
+  authorizedUnitCapacity: number | null;
+  /** Acquisition quote id when provisioned via unit-volume Checkout. */
+  quoteId: string | null;
+  trialEndsAt: string | null;
   pendingPlanTier: "professional" | "business" | null;
   lastInvoiceStatus: string | null;
   scaRequired: boolean;

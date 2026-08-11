@@ -128,9 +128,12 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
   switch (event.type) {
     case "customer.subscription.created":
     case "customer.subscription.updated":
-    case "customer.subscription.deleted": {
+    case "customer.subscription.deleted":
+    case "customer.subscription.trial_will_end": {
       const subscription = event.data.object as Stripe.Subscription & {
         current_period_end?: number;
+        trial_end?: number | null;
+        items?: { data?: Array<{ id: string; quantity?: number | null; price?: { id?: string } | null }> };
       };
       const meta = metaRecord(subscription.metadata);
       const periodEndUnix = subscription.current_period_end;
@@ -140,18 +143,51 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
           : null;
       const planTier = planTierFromMeta(meta);
       const billingCycle = billingCycleFromMeta(meta);
+      const items = subscription.items?.data ?? [];
+      const baseItem = items[0] ?? null;
+      const capacityItem =
+        items.length > 1 ? items.find((item) => (item.quantity ?? 0) > 0 && item.id !== baseItem?.id) : null;
+      const managedUnitCount = meta["mpa_managed_units"]
+        ? Number(meta["mpa_managed_units"])
+        : null;
+      const authorizedAdditionalBlocks = meta["mpa_additional_blocks"]
+        ? Number(meta["mpa_additional_blocks"])
+        : capacityItem?.quantity ?? null;
+      const authorizedUnitCapacity = meta["mpa_authorized_unit_capacity"]
+        ? Number(meta["mpa_authorized_unit_capacity"])
+        : null;
+      const trialEndsAt =
+        typeof subscription.trial_end === "number"
+          ? new Date(subscription.trial_end * 1000).toISOString()
+          : null;
       await applySubscriptionCreatedOrUpdated({
         stripeSubscriptionId: subscription.id,
         stripeCustomerId:
           typeof subscription.customer === "string" ? subscription.customer : null,
-        stripeStatus: event.type === "customer.subscription.deleted" ? "canceled" : subscription.status,
+        stripeStatus:
+          event.type === "customer.subscription.deleted" ? "canceled" : subscription.status,
         cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end),
         currentPeriodEnd: periodEnd,
         ...(planTier ? { planTier } : {}),
         ...(billingCycle ? { billingCycle } : {}),
+        stripeBaseItemId: baseItem?.id ?? null,
+        stripeAdditionalCapacityItemId: capacityItem?.id ?? null,
+        managedUnitCount: Number.isFinite(managedUnitCount) ? managedUnitCount : null,
+        authorizedAdditionalBlocks: Number.isFinite(authorizedAdditionalBlocks as number)
+          ? (authorizedAdditionalBlocks as number)
+          : null,
+        authorizedUnitCapacity: Number.isFinite(authorizedUnitCapacity as number)
+          ? (authorizedUnitCapacity as number)
+          : null,
+        quoteId: meta["mpa_quote_id"] ?? null,
+        trialEndsAt,
         eventId: event.id,
         eventType: event.type
       });
+      return;
+    }
+    case "invoice.created": {
+      // Prepared for Slice 4 capacity reconciliation — ack only for now.
       return;
     }
     case "invoice.paid": {
@@ -309,6 +345,8 @@ export async function handleSaasStripeEvent(event: Stripe.Event): Promise<SaasWe
     case "customer.subscription.created":
     case "customer.subscription.updated":
     case "customer.subscription.deleted":
+    case "customer.subscription.trial_will_end":
+    case "invoice.created":
     case "invoice.paid":
     case "invoice.payment_failed":
     case "invoice.payment_action_required":

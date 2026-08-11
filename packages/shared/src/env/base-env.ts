@@ -17,11 +17,21 @@ export const serverEnvSchema = clientEnvSchema.extend({
   /** COM-002 SaaS Checkout dedicated webhook secret (separate endpoint). */
   STRIPE_SAAS_WEBHOOK_SECRET: z.string().min(1).optional(),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).optional(),
-  /** COM-002 PM self-serve Price ids (Stripe Dashboard / test mode). */
+  /** Legacy COM-002 PM Price ids (display / transitional). Not the unit-volume registry. */
   STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY: z.string().min(1).optional(),
   STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL: z.string().min(1).optional(),
   STRIPE_PRICE_PM_BUSINESS_MONTHLY: z.string().min(1).optional(),
   STRIPE_PRICE_PM_BUSINESS_ANNUAL: z.string().min(1).optional(),
+  /**
+   * Unit-volume Checkout Price registry (Slice 3+) — optional until Prices are published.
+   * Do not set in Production from this slice. Do not hard-code Price IDs in code.
+   */
+  STRIPE_PRICE_PM_BASE_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_PM_BASE_ANNUAL: z.string().min(1).optional(),
+  STRIPE_PRICE_COMPLETE_BASE_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_COMPLETE_BASE_ANNUAL: z.string().min(1).optional(),
+  STRIPE_PRICE_UNIT_BLOCK_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_UNIT_BLOCK_ANNUAL: z.string().min(1).optional(),
   /**
    * Optional display-only FO/Complete professional Price ids for public Pricing transparency.
    * Do not enable Checkout — FO_READY + checkout validation still gate purchase.

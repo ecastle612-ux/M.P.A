@@ -57,6 +57,13 @@ async function persistToDb(sub: LifecycleSubscription): Promise<void> {
       grace_started_at: sub.graceStartedAt,
       seat_limit: sub.seatLimit,
       property_limit: sub.propertyLimit,
+      stripe_base_item_id: sub.stripeBaseItemId,
+      stripe_additional_capacity_item_id: sub.stripeAdditionalCapacityItemId,
+      managed_unit_count: sub.managedUnitCount,
+      authorized_additional_blocks: sub.authorizedAdditionalBlocks,
+      authorized_unit_capacity: sub.authorizedUnitCapacity,
+      quote_id: sub.quoteId,
+      trial_ends_at: sub.trialEndsAt,
       pending_plan_tier: sub.pendingPlanTier,
       sca_required: sub.scaRequired,
       lifecycle_audit: sub.audit,
@@ -125,6 +132,13 @@ function ensureSubscription(input: {
   cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: string | null;
   organizationId?: string | null;
+  stripeBaseItemId?: string | null;
+  stripeAdditionalCapacityItemId?: string | null;
+  managedUnitCount?: number | null;
+  authorizedAdditionalBlocks?: number | null;
+  authorizedUnitCapacity?: number | null;
+  quoteId?: string | null;
+  trialEndsAt?: string | null;
   source: string;
   eventId?: string;
 }): LifecycleSubscription {
@@ -153,6 +167,13 @@ function ensureSubscription(input: {
       graceStartedAt: null,
       seatLimit: limits.seatLimit,
       propertyLimit: limits.propertyLimit,
+      stripeBaseItemId: input.stripeBaseItemId ?? null,
+      stripeAdditionalCapacityItemId: input.stripeAdditionalCapacityItemId ?? null,
+      managedUnitCount: input.managedUnitCount ?? null,
+      authorizedAdditionalBlocks: input.authorizedAdditionalBlocks ?? null,
+      authorizedUnitCapacity: input.authorizedUnitCapacity ?? null,
+      quoteId: input.quoteId ?? null,
+      trialEndsAt: input.trialEndsAt ?? null,
       pendingPlanTier: null,
       lastInvoiceStatus: null,
       scaRequired: false,
@@ -182,6 +203,15 @@ function ensureSubscription(input: {
     billingCycle,
     seatLimit: limits.seatLimit,
     propertyLimit: limits.propertyLimit,
+    stripeBaseItemId: input.stripeBaseItemId ?? existing.stripeBaseItemId,
+    stripeAdditionalCapacityItemId:
+      input.stripeAdditionalCapacityItemId ?? existing.stripeAdditionalCapacityItemId,
+    managedUnitCount: input.managedUnitCount ?? existing.managedUnitCount,
+    authorizedAdditionalBlocks:
+      input.authorizedAdditionalBlocks ?? existing.authorizedAdditionalBlocks,
+    authorizedUnitCapacity: input.authorizedUnitCapacity ?? existing.authorizedUnitCapacity,
+    quoteId: input.quoteId ?? existing.quoteId,
+    trialEndsAt: input.trialEndsAt ?? existing.trialEndsAt,
     cancelAtPeriodEnd: input.cancelAtPeriodEnd ?? existing.cancelAtPeriodEnd,
     currentPeriodEnd:
       input.currentPeriodEnd !== undefined ? input.currentPeriodEnd : existing.currentPeriodEnd,
@@ -207,6 +237,13 @@ export async function applySubscriptionCreatedOrUpdated(input: {
   currentPeriodEnd: string | null;
   planTier?: "professional" | "business";
   billingCycle?: "monthly" | "annual";
+  stripeBaseItemId?: string | null;
+  stripeAdditionalCapacityItemId?: string | null;
+  managedUnitCount?: number | null;
+  authorizedAdditionalBlocks?: number | null;
+  authorizedUnitCapacity?: number | null;
+  quoteId?: string | null;
+  trialEndsAt?: string | null;
   eventId: string;
   eventType: string;
 }): Promise<LifecycleSubscription | null> {
@@ -217,6 +254,23 @@ export async function applySubscriptionCreatedOrUpdated(input: {
     stripeCustomerId: input.stripeCustomerId,
     ...(input.planTier ? { planTier: input.planTier } : {}),
     ...(input.billingCycle ? { billingCycle: input.billingCycle } : {}),
+    ...(input.stripeBaseItemId !== undefined
+      ? { stripeBaseItemId: input.stripeBaseItemId }
+      : {}),
+    ...(input.stripeAdditionalCapacityItemId !== undefined
+      ? { stripeAdditionalCapacityItemId: input.stripeAdditionalCapacityItemId }
+      : {}),
+    ...(input.managedUnitCount !== undefined
+      ? { managedUnitCount: input.managedUnitCount }
+      : {}),
+    ...(input.authorizedAdditionalBlocks !== undefined
+      ? { authorizedAdditionalBlocks: input.authorizedAdditionalBlocks }
+      : {}),
+    ...(input.authorizedUnitCapacity !== undefined
+      ? { authorizedUnitCapacity: input.authorizedUnitCapacity }
+      : {}),
+    ...(input.quoteId !== undefined ? { quoteId: input.quoteId } : {}),
+    ...(input.trialEndsAt !== undefined ? { trialEndsAt: input.trialEndsAt } : {}),
     status,
     cancelAtPeriodEnd: input.cancelAtPeriodEnd,
     currentPeriodEnd: input.currentPeriodEnd,
@@ -693,13 +747,32 @@ export function seedLifecycleFromPurchase(sessionId: string): LifecycleSubscript
   const purchase = getSaasPurchaseBySessionId(sessionId);
   if (!purchase?.stripeSubscriptionId || purchase.planTier === "enterprise") return null;
   const planTier = purchase.planTier === "business" ? "business" : "professional";
+  const meta = purchase.metadata ?? {};
+  const managedUnitCount = meta["mpa_managed_units"]
+    ? Number(meta["mpa_managed_units"])
+    : null;
+  const authorizedAdditionalBlocks = meta["mpa_additional_blocks"]
+    ? Number(meta["mpa_additional_blocks"])
+    : null;
+  const authorizedUnitCapacity = meta["mpa_authorized_unit_capacity"]
+    ? Number(meta["mpa_authorized_unit_capacity"])
+    : null;
+  const trialEligible = meta["mpa_trial_eligible"] === "true";
   return ensureSubscription({
     stripeSubscriptionId: purchase.stripeSubscriptionId,
     stripeCustomerId: purchase.stripeCustomerId,
     planTier,
     billingCycle: purchase.billingCycle,
-    status: "active",
+    status: trialEligible ? "trialing" : "active",
     organizationId: purchase.organizationId,
+    managedUnitCount: Number.isFinite(managedUnitCount) ? managedUnitCount : null,
+    authorizedAdditionalBlocks: Number.isFinite(authorizedAdditionalBlocks)
+      ? authorizedAdditionalBlocks
+      : null,
+    authorizedUnitCapacity: Number.isFinite(authorizedUnitCapacity)
+      ? authorizedUnitCapacity
+      : null,
+    quoteId: meta["mpa_quote_id"] ?? null,
     source: "seed_from_purchase"
   });
 }

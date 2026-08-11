@@ -16,7 +16,8 @@ export const COM_002_FLAGS = {
   sliceF_customerPortal: false,
   sliceG_commercialCertification: false,
   foReady: FO_READY,
-  selfServeTrials: false,
+  /** Slice 3: trial architecture ready (≤500 units only); applied from server quote. */
+  selfServeTrials: true,
   selfServePause: false
 } as const;
 

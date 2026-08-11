@@ -1,5 +1,9 @@
 import Stripe from "stripe";
-import { saasDisplayPriceEnvKeyForOfferId, saasPriceEnvKeyForOfferId } from "@mpa/shared";
+import {
+  saasDisplayPriceEnvKeyForOfferId,
+  saasPriceEnvKeyForOfferId,
+  unitVolumeCheckoutReadyEnvKeys
+} from "@mpa/shared";
 import { serverEnv } from "../env/server-env";
 
 /** SaaS Stripe client — same account key OK; webhook secret is dedicated. */
@@ -7,8 +11,22 @@ export function isSaasStripeConfigured(): boolean {
   return Boolean(serverEnv.STRIPE_SECRET_KEY && serverEnv.STRIPE_SAAS_WEBHOOK_SECRET);
 }
 
+/** True when unit-volume Base + Block Price env vars are present (not created in this slice). */
+export function isUnitVolumeCheckoutReady(): boolean {
+  if (!serverEnv.STRIPE_SECRET_KEY) {
+    return false;
+  }
+  return unitVolumeCheckoutReadyEnvKeys().every((key) => {
+    const value = serverEnv[key as keyof typeof serverEnv];
+    return typeof value === "string" && value.length > 0;
+  });
+}
+
 export function isSaasCheckoutReady(): boolean {
-  // Business Price envs are obsolete — unit-volume / professional mapping only.
+  // Prefer unit-volume registry; keep legacy professional Prices as transitional readiness.
+  if (isUnitVolumeCheckoutReady()) {
+    return true;
+  }
   return Boolean(
     serverEnv.STRIPE_SECRET_KEY &&
       serverEnv.STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY &&
@@ -28,6 +46,12 @@ export function resolveSaasPriceId(offerId: string): string | null {
   if (!envKey) {
     return null;
   }
+  const value = serverEnv[envKey as keyof typeof serverEnv];
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+/** Resolve a unit-volume registry env key to a Stripe Price id (never invent IDs). */
+export function resolveUnitVolumePriceEnv(envKey: string): string | null {
   const value = serverEnv[envKey as keyof typeof serverEnv];
   return typeof value === "string" && value.length > 0 ? value : null;
 }

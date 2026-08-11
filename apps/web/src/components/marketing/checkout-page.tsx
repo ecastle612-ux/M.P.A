@@ -57,6 +57,9 @@ export function CheckoutPage({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(() => Boolean(quoteIdRaw));
   const [confirmed, setConfirmed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     if (!quoteIdRaw) {
@@ -249,16 +252,35 @@ export function CheckoutPage({
               </ul>
             </div>
 
+            {quote && !gated ? (
+              <label className="block space-y-1 text-sm">
+                <span className="font-semibold">Checkout email (optional)</span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@company.com"
+                  autoComplete="email"
+                  className="w-full rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]"
+                />
+              </label>
+            ) : null}
+
             {confirmed ? (
               <p
                 className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]"
                 role="status"
               >
-                Plan selection saved. Secure Stripe Checkout is not enabled in this slice — your
-                quote and acquisition snapshot are ready for the next implementation step.
+                Starting secure checkout from your server quote…
               </p>
             ) : null}
           </section>
+        ) : null}
+
+        {checkoutError ? (
+          <p className="text-sm text-red-700" role="alert">
+            {checkoutError}
+          </p>
         ) : null}
 
         <div className="flex flex-wrap gap-3">
@@ -285,9 +307,54 @@ export function CheckoutPage({
             <button
               type="button"
               className={marketingPrimaryCtaClass}
-              onClick={() => setConfirmed(true)}
+              disabled={busy}
+              aria-busy={busy}
+              onClick={() => {
+                setBusy(true);
+                setCheckoutError(null);
+                setConfirmed(true);
+                void fetch("/api/commerce/checkout", {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({
+                    quoteId: quote.quote_id,
+                    customerEmail: email.trim() || undefined,
+                    idempotencyKey: `ui_${crypto.randomUUID()}`
+                  })
+                })
+                  .then(async (res) => {
+                    const data = (await res.json().catch(() => ({}))) as {
+                      url?: string;
+                      error?: string;
+                      message?: string;
+                      detail?: string;
+                      redirectTo?: string;
+                    };
+                    if (res.status === 503) {
+                      setCheckoutError(
+                        data.message ??
+                          data.detail ??
+                          "Secure checkout Prices are not configured yet. Your quote is saved — unit-volume Price env vars must be published before Checkout can start."
+                      );
+                      setBusy(false);
+                      return;
+                    }
+                    if (!res.ok || !data.url) {
+                      setCheckoutError(
+                        data.message ?? data.error ?? "Could not start secure checkout."
+                      );
+                      setBusy(false);
+                      return;
+                    }
+                    window.location.assign(data.url);
+                  })
+                  .catch(() => {
+                    setCheckoutError("Could not start secure checkout.");
+                    setBusy(false);
+                  });
+              }}
             >
-              Confirm selection
+              {busy ? "Starting Checkout…" : "Continue to secure checkout"}
             </button>
           ) : null}
         </div>

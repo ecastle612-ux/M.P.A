@@ -58,8 +58,8 @@ const TRANSITIONS: Record<
     BACK: "modules"
   },
   confirm_plan: {
-    /** Slice 2 stops before Stripe Checkout Session creation. */
-    CONFIRM_PLAN: "confirm_plan",
+    /** Slice 3: Confirm Plan may advance to Checkout Session creation from server quote. */
+    CONFIRM_PLAN: "checkout_payment",
     REQUEST_ENTERPRISE: "enterprise_request",
     BACK: "questionnaire"
   },
