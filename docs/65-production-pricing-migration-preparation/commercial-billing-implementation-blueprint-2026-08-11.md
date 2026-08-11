@@ -8,7 +8,9 @@
 **Authoritative commercial governance:**  
 [`unit-volume-pricing-design-2026-08-11.md`](./unit-volume-pricing-design-2026-08-11.md) (PR #119)  
 **Acquisition + trial eligibility decisions:**  
-[`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md)
+[`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md)  
+**Implementation plan (slices 1–14):**  
+[`commercial-implementation-plan-2026-08-11.md`](./commercial-implementation-plan-2026-08-11.md)
 
 **Explicit non-actions in this package:**
 

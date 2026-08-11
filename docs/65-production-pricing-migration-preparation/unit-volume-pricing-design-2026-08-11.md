@@ -15,7 +15,8 @@
 - Authoritative commercial reconciliation (PM Business = legacy)  
 - PR #118 — Business readiness removal (**do not deploy** from this task)  
 - Implementation blueprint (planning only): [`commercial-billing-implementation-blueprint-2026-08-11.md`](./commercial-billing-implementation-blueprint-2026-08-11.md)  
-- Acquisition + billing decisions (final design): [`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md)
+- Acquisition + billing decisions (final design): [`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md)  
+- Implementation plan (planning only): [`commercial-implementation-plan-2026-08-11.md`](./commercial-implementation-plan-2026-08-11.md)
 
 ---
 
