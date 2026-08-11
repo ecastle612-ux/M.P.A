@@ -16,6 +16,8 @@
 
 **Vercel environment snapshot investigation:** Dashboard Production = Owner-confirmed NEW; live runtime (`dpl_2kbmwcr…`) still OLD/WRONG after post-confirmation redeploy. Deployment env snapshot **UNREADABLE** via API. Do **not** re-edit the eight Price vars; do **not** blind redeploy. See [final-vercel-environment-snapshot-investigation-2026-08-11.md](./final-vercel-environment-snapshot-investigation-2026-08-11.md).
 
+**Escalation package:** Support-ready evidence + draft ticket (not submitted). See [vercel-environment-snapshot-escalation.md](./vercel-environment-snapshot-escalation.md) and [vercel-support-request-draft.md](./vercel-support-request-draft.md).
+
 **Duplicate audit:** Owner clarified NEW entries were **added** without editing existing. Vercel forbids same-name+Production duplicates; runtime still binds old/wrong values for the eight app-read keys. See [vercel-production-env-duplicate-audit-2026-08-11.md](./vercel-production-env-duplicate-audit-2026-08-11.md).
 
 ## Migration model
