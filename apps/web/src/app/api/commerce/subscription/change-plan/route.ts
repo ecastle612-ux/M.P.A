@@ -27,8 +27,10 @@ export async function POST(request: Request) {
     planTier?: "professional" | "business";
     billingCycle?: "monthly" | "annual";
   };
-  if (body.planTier !== "professional" && body.planTier !== "business") {
-    return NextResponse.json({ error: "invalid_plan_tier" }, { status: 400 });
+  // ADR-019: Business is not an offered customer plan. Allow professional only
+  // (e.g. cycle changes / legacy remediation toward the approved mapping).
+  if (body.planTier !== "professional") {
+    return NextResponse.json({ error: "business_tier_not_offered" }, { status: 400 });
   }
   const result = await changePlanTier({
     organizationId,

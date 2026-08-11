@@ -81,8 +81,7 @@ export function BillingPlanPage() {
           Billing & Plan
         </h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Property Manager Professional and Business renew, recover, and cancel automatically — no
-          employee involvement.
+          Property Manager renews, recovers, and cancels automatically — no employee involvement.
         </p>
       </section>
 
@@ -184,18 +183,6 @@ export function BillingPlanPage() {
             {busy ? "Working…" : "Cancel at period end"}
           </Button>
         ) : null}
-        {data?.planTier === "professional" ? (
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={busy !== null}
-            onClick={() =>
-              void post("/api/commerce/subscription/change-plan", { planTier: "business" })
-            }
-          >
-            Upgrade to Business
-          </Button>
-        ) : null}
         {data?.planTier === "business" ? (
           <Button
             type="button"
@@ -205,7 +192,7 @@ export function BillingPlanPage() {
               void post("/api/commerce/subscription/change-plan", { planTier: "professional" })
             }
           >
-            Schedule Professional (period end)
+            Move to standard Property Manager (period end)
           </Button>
         ) : null}
         <Link href="/pm/mission-control">

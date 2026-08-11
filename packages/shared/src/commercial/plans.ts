@@ -3,7 +3,8 @@
 export const PLAN_TIERS = ["professional", "business", "enterprise"] as const;
 export type PlanTier = (typeof PLAN_TIERS)[number];
 
-export const SELF_SERVE_PLAN_TIERS = ["professional", "business"] as const;
+/** Customer self-serve Checkout plan mapping — ADR-019 (not a customer-facing tier chooser). */
+export const SELF_SERVE_PLAN_TIERS = ["professional"] as const;
 export type SelfServePlanTier = (typeof SELF_SERVE_PLAN_TIERS)[number];
 
 export const BILLING_CYCLES = ["monthly", "annual"] as const;

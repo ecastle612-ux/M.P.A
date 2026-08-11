@@ -1,5 +1,6 @@
 /**
- * COM-002 Slice E — self-serve subscription lifecycle (PM Professional / Business).
+ * COM-002 Slice E — self-serve subscription lifecycle (Property Manager).
+ * Legacy Business tier may exist on historical rows; new Business upgrades are not offered (ADR-019).
  * Binding: 7-day past-due grace; webhooks are access truth; FO_READY stays false.
  */
 

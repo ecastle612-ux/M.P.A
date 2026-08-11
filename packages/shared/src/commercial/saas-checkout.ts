@@ -22,11 +22,18 @@ export const SAAS_METADATA_KEYS = {
   demoSessionId: "mpa_demo_session_id"
 } as const;
 
-/** Env var names holding Stripe Price ids for self-serve PM offers (Checkout allowlist). */
+/**
+ * Env var names holding Stripe Price ids for self-serve PM Checkout.
+ * Approved customer path uses the PROFESSIONAL monthly/annual mappings only
+ * (internal names — not a customer-facing “Professional” tier; ADR-019).
+ * Legacy BUSINESS keys remain for optional read of historical subscriptions only.
+ */
 export const SAAS_PRICE_ENV_KEYS = {
   "mpa_property_manager__professional__monthly": "STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY",
   "mpa_property_manager__professional__annual": "STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL",
+  /** @deprecated Legacy / unapproved customer tier — not required for Checkout readiness. */
   "mpa_property_manager__business__monthly": "STRIPE_PRICE_PM_BUSINESS_MONTHLY",
+  /** @deprecated Legacy / unapproved customer tier — not required for Checkout readiness. */
   "mpa_property_manager__business__annual": "STRIPE_PRICE_PM_BUSINESS_ANNUAL"
 } as const;
 
@@ -98,7 +105,8 @@ export function validateSaasCheckoutRequest(
   if (input.productSku !== "mpa_property_manager" || input.planTier === "enterprise") {
     return { ok: false, reason: "enterprise_required", route: "enterprise" };
   }
-  if (input.planTier !== "professional" && input.planTier !== "business") {
+  // ADR-019: Business is not a customer-facing plan chooser / Checkout offer.
+  if (input.planTier !== "professional") {
     return { ok: false, reason: "invalid_plan", route: "pricing" };
   }
 
@@ -152,13 +160,12 @@ export function assertSaasOfferMatchesPrice(input: {
   return Boolean(expected && expected === input.priceId);
 }
 
+/** Self-serve Checkout offers for the approved Property Manager Monthly/Annual path. */
 export function getSelfServeSaasOffers(): CatalogOffer[] {
-  return ["professional", "business"].flatMap((tier) =>
-    (["monthly", "annual"] as const).map((cycle) => {
-      const id = `mpa_property_manager__${tier}__${cycle}`;
-      return getCatalogOfferById(id)!;
-    })
-  );
+  return (["monthly", "annual"] as const).map((cycle) => {
+    const id = `mpa_property_manager__professional__${cycle}`;
+    return getCatalogOfferById(id)!;
+  });
 }
 
 /** Pending purchase record — Slice C only; provisioning is Slice D. */

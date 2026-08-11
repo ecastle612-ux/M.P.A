@@ -39,13 +39,16 @@ function buildSelfServePmOffers(): CatalogOffer[] {
   const offers: CatalogOffer[] = [];
   for (const tier of ["professional", "business"] as const) {
     for (const cycle of BILLING_CYCLES) {
+      // ADR-019: only the internal "professional" mapping is self-serve Checkout-eligible.
+      // Business remains as a legacy catalog row for historical entitlements — not Checkout.
+      const selfServeEligible = tier === "professional";
       offers.push({
         id: offerId("mpa_property_manager", tier, cycle),
         productSku: "mpa_property_manager",
         planTier: tier,
         billingCycle: cycle,
         motion: "self_serve",
-        selfServeEligible: true,
+        selfServeEligible,
         seatLimit: SEAT_LIMITS[tier],
         propertyLimit: PROPERTY_LIMITS[tier],
         stripePriceId: null,

@@ -582,10 +582,12 @@ export async function changePlanTier(input: {
   if (sub.productSku !== "mpa_property_manager") {
     return { ok: false, error: "not_self_serve" };
   }
+  // ADR-019: do not offer upgrades onto the legacy Business tier.
+  if (input.planTier === "business") {
+    return { ok: false, error: "business_tier_not_offered" };
+  }
 
-  const upgrading =
-    (sub.planTier === "professional" && input.planTier === "business") ||
-    (sub.billingCycle === "monthly" && input.billingCycle === "annual");
+  const upgrading = sub.billingCycle === "monthly" && input.billingCycle === "annual";
   const downgrading = sub.planTier === "business" && input.planTier === "professional";
 
   if (!process.env["VITEST"]) {

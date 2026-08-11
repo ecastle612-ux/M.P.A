@@ -14,7 +14,7 @@ describe("COM-002 Slice C SaaS checkout validation", () => {
     expect(COM_002_FLAGS.sliceD_automaticProvisioning).toBe(true);
   });
 
-  it("allows PM professional/business when price is configured", () => {
+  it("allows PM professional when price is configured", () => {
     const result = validateSaasCheckoutRequest(
       {
         productSku: "mpa_property_manager",
@@ -26,6 +26,21 @@ describe("COM-002 Slice C SaaS checkout validation", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.offer.stripePriceId).toBe("price_test_pm_pro_monthly");
+    }
+  });
+
+  it("rejects PM business as a customer Checkout plan (ADR-019)", () => {
+    const result = validateSaasCheckoutRequest(
+      {
+        productSku: "mpa_property_manager",
+        planTier: "business",
+        billingCycle: "monthly"
+      },
+      () => "price_should_not_matter"
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toBe("invalid_plan");
     }
   });
 
@@ -49,7 +64,7 @@ describe("COM-002 Slice C SaaS checkout validation", () => {
     const result = validateSaasCheckoutRequest(
       {
         productSku: "mpa_property_manager",
-        planTier: "business",
+        planTier: "professional",
         billingCycle: "annual"
       },
       () => null
