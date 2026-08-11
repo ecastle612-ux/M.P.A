@@ -6,6 +6,7 @@ import {
   canAccessWorkspaceModules,
   isProvisioningComplete,
   isProvisioningCheckpoint,
+  isTerminalFailure,
   operatorStepStatuses,
   type ProductSku,
   type ProvisioningJob,
