@@ -439,14 +439,10 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             </p>
           </div>
           <ul className="grid sm:grid-cols-2 lg:grid-cols-4">
-            {OPERATING_MODEL.map((item, index) => (
+            {OPERATING_MODEL.map((item) => (
               <li
                 key={item}
-                className={`border-[var(--mpa-color-border-subtle)] px-5 py-4 text-sm font-medium text-[var(--mpa-color-text-primary)] ${
-                  index < OPERATING_MODEL.length - 1 ? "sm:border-r" : ""
-                } ${index < 4 ? "border-b lg:border-b-0" : ""} ${index === 3 ? "lg:border-r-0" : ""} ${
-                  index >= 4 ? "border-t lg:border-t" : ""
-                }`}
+                className="border-b border-[var(--mpa-color-border-subtle)] px-5 py-4 text-sm font-medium text-[var(--mpa-color-text-primary)] last:border-b-0 sm:odd:border-r lg:border-r lg:[&:nth-child(4n)]:border-r-0"
               >
                 {item}
               </li>
