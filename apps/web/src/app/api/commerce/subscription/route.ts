@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "missing_organization" }, { status: 400 });
   }
 
-  const view = lifecycleViewForOrganization(organizationId);
+  const view = await lifecycleViewForOrganization(organizationId);
   if (!view) {
     return NextResponse.json({
       organizationId,

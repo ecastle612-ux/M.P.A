@@ -58,7 +58,7 @@ import { POST as cancelPost } from "./route";
 import { POST as reactivatePost } from "../reactivate/route";
 import { POST as authorizePost } from "../../capacity/authorize/route";
 
-function seedSub(orgId: string, stripeId: string): LifecycleSubscription {
+async function seedSub(orgId: string, stripeId: string): Promise<LifecycleSubscription> {
   const now = new Date().toISOString();
   return saveLifecycleSubscription({
     id: `life_${orgId}`,
@@ -120,7 +120,7 @@ describe("STAB-001 commerce organization authorization", () => {
   });
 
   it("rejects forged active-organization cookie (cross-org cancel)", async () => {
-    seedSub("org_victim", "sub_victim");
+    await seedSub("org_victim", "sub_victim");
     authState.membershipByOrg.set("org_attacker", {
       roles: ["organization_admin"],
       status: "active"
@@ -133,8 +133,8 @@ describe("STAB-001 commerce organization authorization", () => {
   });
 
   it("rejects cross-organization reactivation", async () => {
-    seedSub("org_victim", "sub_victim");
-    seedSub("org_attacker", "sub_attacker");
+    await seedSub("org_victim", "sub_victim");
+    await seedSub("org_attacker", "sub_attacker");
     authState.membershipByOrg.set("org_attacker", {
       roles: ["organization_admin"],
       status: "active"
@@ -146,7 +146,7 @@ describe("STAB-001 commerce organization authorization", () => {
   });
 
   it("rejects cross-organization capacity authorization", async () => {
-    seedSub("org_victim", "sub_victim");
+    await seedSub("org_victim", "sub_victim");
     authState.membershipByOrg.set("org_attacker", {
       roles: ["organization_admin"],
       status: "active"
@@ -158,13 +158,13 @@ describe("STAB-001 commerce organization authorization", () => {
   });
 
   it("rejects non-member organization mutation", async () => {
-    seedSub("org_a", "sub_a");
+    await seedSub("org_a", "sub_a");
     const res = await cancelPost(requestFor("/api/commerce/subscription/cancel", "org_a"));
     expect(res.status).toBe(403);
   });
 
   it("rejects member without billing capability", async () => {
-    seedSub("org_a", "sub_a");
+    await seedSub("org_a", "sub_a");
     authState.userId = "user_member";
     authState.membershipByOrg.set("org_a", {
       roles: ["tenant"],
@@ -177,7 +177,7 @@ describe("STAB-001 commerce organization authorization", () => {
   });
 
   it("accepts authorized billing administrator cancel", async () => {
-    seedSub("org_a", "sub_a");
+    await seedSub("org_a", "sub_a");
     authState.userId = "user_admin";
     authState.membershipByOrg.set("org_a", {
       roles: ["organization_admin"],
@@ -191,8 +191,8 @@ describe("STAB-001 commerce organization authorization", () => {
   });
 
   it("accepts property_manager billing capability for reactivate", async () => {
-    const sub = seedSub("org_b", "sub_b");
-    saveLifecycleSubscription({ ...sub, cancelAtPeriodEnd: true });
+    const sub = await seedSub("org_b", "sub_b");
+    await saveLifecycleSubscription({ ...sub, cancelAtPeriodEnd: true });
     authState.userId = "user_pm";
     authState.membershipByOrg.set("org_b", {
       roles: ["property_manager"],
@@ -208,7 +208,7 @@ describe("STAB-001 commerce organization authorization", () => {
   });
 
   it("rejects unauthenticated commerce mutation", async () => {
-    seedSub("org_a", "sub_a");
+    await seedSub("org_a", "sub_a");
     authState.userId = null;
     const res = await cancelPost(requestFor("/api/commerce/subscription/cancel", "org_a"));
     expect(res.status).toBe(401);
