@@ -17,7 +17,9 @@ export const SAAS_METADATA_KEYS = {
   planTier: "mpa_plan_tier",
   billingCycle: "mpa_billing_cycle",
   catalogOfferId: "mpa_catalog_offer_id",
+  /** @deprecated Removed from commercial model — ignored if present on legacy sessions. */
   seatLimit: "mpa_seat_limit",
+  /** @deprecated Removed from commercial model — ignored if present on legacy sessions. */
   propertyLimit: "mpa_property_limit",
   demoSessionId: "mpa_demo_session_id"
 } as const;
@@ -98,7 +100,8 @@ export function validateSaasCheckoutRequest(
   if (input.productSku !== "mpa_property_manager" || input.planTier === "enterprise") {
     return { ok: false, reason: "enterprise_required", route: "enterprise" };
   }
-  if (input.planTier !== "professional" && input.planTier !== "business") {
+  // Business is not a customer product — professional is the only self-serve PM planTier label.
+  if (input.planTier !== "professional") {
     return { ok: false, reason: "invalid_plan", route: "pricing" };
   }
 
@@ -129,9 +132,7 @@ export function buildSaasCheckoutMetadata(input: {
     [SAAS_METADATA_KEYS.productSku]: input.offer.productSku,
     [SAAS_METADATA_KEYS.planTier]: input.offer.planTier,
     [SAAS_METADATA_KEYS.billingCycle]: input.offer.billingCycle ?? "",
-    [SAAS_METADATA_KEYS.catalogOfferId]: input.offer.id,
-    [SAAS_METADATA_KEYS.seatLimit]: String(input.offer.seatLimit ?? ""),
-    [SAAS_METADATA_KEYS.propertyLimit]: String(input.offer.propertyLimit ?? "")
+    [SAAS_METADATA_KEYS.catalogOfferId]: input.offer.id
   };
   if (input.demoSessionId) {
     meta[SAAS_METADATA_KEYS.demoSessionId] = input.demoSessionId;

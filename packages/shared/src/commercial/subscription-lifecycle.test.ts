@@ -27,8 +27,8 @@ function sub(partial: Partial<LifecycleSubscription> = {}): LifecycleSubscriptio
     cancelAtPeriodEnd: false,
     currentPeriodEnd: null,
     graceStartedAt: null,
-    seatLimit: 5,
-    propertyLimit: 25,
+    seatLimit: null,
+    propertyLimit: null,
     pendingPlanTier: null,
     lastInvoiceStatus: null,
     scaRequired: false,
@@ -49,12 +49,12 @@ describe("COM-002 Slice E subscription lifecycle", () => {
     expect(PAST_DUE_GRACE_DAYS).toBe(7);
   });
 
-  it("maps Stripe statuses and binding limits", () => {
+  it("maps Stripe statuses and returns null commercial seat/property limits", () => {
     expect(mapStripeSubscriptionStatus("active")).toBe("active");
     expect(mapStripeSubscriptionStatus("past_due")).toBe("past_due");
     expect(mapStripeSubscriptionStatus("unpaid")).toBe("unpaid");
-    expect(limitsForPlanTier("professional")).toEqual({ seatLimit: 5, propertyLimit: 25 });
-    expect(limitsForPlanTier("business")).toEqual({ seatLimit: 25, propertyLimit: 150 });
+    expect(limitsForPlanTier("professional")).toEqual({ seatLimit: null, propertyLimit: null });
+    expect(limitsForPlanTier("business")).toEqual({ seatLimit: null, propertyLimit: null });
   });
 
   it("keeps module access during grace and revokes after", () => {

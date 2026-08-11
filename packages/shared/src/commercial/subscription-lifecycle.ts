@@ -55,8 +55,10 @@ export type LifecycleSubscription = {
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: string | null;
   graceStartedAt: string | null;
-  seatLimit: number;
-  propertyLimit: number;
+  /** @deprecated Commercial seat capacity removed — always null for new records. */
+  seatLimit: number | null;
+  /** @deprecated Commercial property capacity removed — always null for new records. */
+  propertyLimit: number | null;
   pendingPlanTier: "professional" | "business" | null;
   lastInvoiceStatus: string | null;
   scaRequired: boolean;
@@ -256,14 +258,15 @@ export function dunningEmailKindForDay(
   return null;
 }
 
-export function limitsForPlanTier(tier: "professional" | "business"): {
-  seatLimit: number;
-  propertyLimit: number;
+/**
+ * Commercial seat/property caps removed (unit-volume capacity model).
+ * Kept as a no-op helper so lifecycle callers stop writing capacity meters.
+ */
+export function limitsForPlanTier(_tier: "professional" | "business"): {
+  seatLimit: null;
+  propertyLimit: null;
 } {
-  if (tier === "business") {
-    return { seatLimit: 25, propertyLimit: 150 };
-  }
-  return { seatLimit: 5, propertyLimit: 25 };
+  return { seatLimit: null, propertyLimit: null };
 }
 
 export function isSelfServeLifecycleSku(sku: string): sku is "mpa_property_manager" {

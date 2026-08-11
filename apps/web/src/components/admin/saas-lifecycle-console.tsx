@@ -72,7 +72,7 @@ export async function SaasLifecycleConsole() {
                     {String(hasLifecycleModuleAccess(sub))} · {sub.planTier}/{sub.billingCycle}
                   </p>
                   <p className="text-xs text-[var(--mpa-color-text-muted)]">
-                    seats={sub.seatLimit} properties={sub.propertyLimit} grace=
+                    capacity=unit-volume (no seat/property limits) grace=
                     {sub.graceStartedAt ?? "—"} cancelAtPeriodEnd={String(sub.cancelAtPeriodEnd)}
                   </p>
                   <details className="text-xs text-[var(--mpa-color-text-muted)]">

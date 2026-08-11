@@ -54,9 +54,7 @@ describe("COM-002 SaaS webhook handling (Slice C + D + E)", () => {
         mpa_product_sku: "mpa_property_manager",
         mpa_plan_tier: "professional",
         mpa_billing_cycle: "monthly",
-        mpa_catalog_offer_id: "mpa_property_manager__professional__monthly",
-        mpa_seat_limit: "5",
-        mpa_property_limit: "25"
+        mpa_catalog_offer_id: "mpa_property_manager__professional__monthly"
       },
       provisioned: false,
       organizationId: null,

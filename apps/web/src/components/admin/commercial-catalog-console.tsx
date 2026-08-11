@@ -61,8 +61,7 @@ export function CommercialCatalogConsole() {
                 <th className="px-3 py-2 font-semibold">Cycle</th>
                 <th className="px-3 py-2 font-semibold">Motion</th>
                 <th className="px-3 py-2 font-semibold">Self-serve</th>
-                <th className="px-3 py-2 font-semibold">Seats</th>
-                <th className="px-3 py-2 font-semibold">Properties</th>
+                <th className="px-3 py-2 font-semibold">Unit capacity</th>
                 <th className="px-3 py-2 font-semibold">Stripe Price</th>
               </tr>
             </thead>
@@ -77,8 +76,12 @@ export function CommercialCatalogConsole() {
                   </td>
                   <td className="px-3 py-2">{offer.motion}</td>
                   <td className="px-3 py-2">{offer.selfServeEligible ? "yes" : "no"}</td>
-                  <td className="px-3 py-2">{offer.seatLimit ?? "custom"}</td>
-                  <td className="px-3 py-2">{offer.propertyLimit ?? "custom"}</td>
+                  <td className="px-3 py-2">
+                    {offer.productSku === "mpa_property_manager" ||
+                    offer.productSku === "mpa_complete_platform"
+                      ? "Base 500 units + $39 / block"
+                      : "—"}
+                  </td>
                   <td className="px-3 py-2 font-mono text-xs">{offer.stripePriceId ?? "null"}</td>
                 </tr>
               ))}

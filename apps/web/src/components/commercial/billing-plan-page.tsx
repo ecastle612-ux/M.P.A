@@ -14,8 +14,6 @@ type BillingPayload = {
   planTier?: string;
   planLabel?: string;
   billingCycleLabel?: string;
-  seatLimit?: number;
-  propertyLimit?: number;
   cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: string | null;
   pendingPlanTier?: string | null;
@@ -81,8 +79,8 @@ export function BillingPlanPage() {
           Billing & Plan
         </h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Property Manager Professional and Business renew, recover, and cancel automatically — no
-          employee involvement.
+          Property Manager renewals, recovery, and cancellation run automatically — no employee
+          involvement.
         </p>
       </section>
 
@@ -115,10 +113,8 @@ export function BillingPlanPage() {
                 <dd>{data.moduleAccess ? "Available" : "Paused — billing recovery required"}</dd>
               </div>
               <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Included seats / properties</dt>
-                <dd>
-                  {data.seatLimit ?? "—"} / {data.propertyLimit ?? "—"}
-                </dd>
+                <dt className="text-[var(--mpa-color-text-muted)]">Capacity</dt>
+                <dd>Managed units (Additional Unit Capacity)</dd>
               </div>
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Next renewal</dt>

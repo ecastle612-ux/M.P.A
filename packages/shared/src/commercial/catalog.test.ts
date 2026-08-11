@@ -10,29 +10,31 @@ import {
 import { FO_READY } from "./commerce-flags";
 import { transitionCommerceFunnel } from "./commerce-state";
 
-describe("COM-002 catalog (Slice A)", () => {
-  it("marks only Property Manager Pro/Business as self-serve while FO_READY is false", () => {
+describe("COM-002 catalog (unit-capacity model)", () => {
+  it("marks only Property Manager professional as self-serve while FO_READY is false", () => {
     expect(FO_READY).toBe(false);
     const selfServe = CATALOG_OFFERS.filter(isSelfServeCheckoutAllowed);
-    expect(selfServe.length).toBe(4);
+    expect(selfServe.length).toBe(2);
     expect(selfServe.every((o) => o.productSku === "mpa_property_manager")).toBe(true);
+    expect(selfServe.every((o) => o.planTier === "professional")).toBe(true);
     expect(requiresEnterpriseMotion("mpa_facility_operations")).toBe(true);
     expect(requiresEnterpriseMotion("mpa_complete_platform")).toBe(true);
     expect(requiresEnterpriseMotion("mpa_property_manager")).toBe(false);
   });
 
-  it("resolves PM professional monthly with binding limits", () => {
+  it("resolves PM professional monthly without seat/property commercial limits", () => {
     const offer = resolveCatalogOffer({
       productSku: "mpa_property_manager",
       planTier: "professional",
       billingCycle: "monthly"
     });
-    expect(offer?.seatLimit).toBe(5);
-    expect(offer?.propertyLimit).toBe(25);
+    expect(offer).not.toBeNull();
+    expect("seatLimit" in (offer ?? {})).toBe(false);
+    expect("propertyLimit" in (offer ?? {})).toBe(false);
     expect(isSelfServeCheckoutAllowed(offer!)).toBe(true);
   });
 
-  it("routes FO and Complete selections to enterprise", () => {
+  it("routes FO, Complete, and legacy Business PM away from self-serve confirm plan", () => {
     const fo = validateCommercialSelection({
       productSku: "mpa_facility_operations",
       planTier: "professional",
@@ -47,9 +49,16 @@ describe("COM-002 catalog (Slice A)", () => {
     });
     expect(complete.route).toBe("enterprise");
 
-    const pm = validateCommercialSelection({
+    const pmBusiness = validateCommercialSelection({
       productSku: "mpa_property_manager",
       planTier: "business",
+      billingCycle: "annual"
+    });
+    expect(pmBusiness.route).toBe("enterprise");
+
+    const pm = validateCommercialSelection({
+      productSku: "mpa_property_manager",
+      planTier: "professional",
       billingCycle: "annual"
     });
     expect(pm.route).toBe("confirm_plan");
@@ -61,16 +70,16 @@ describe("COM-002 catalog (Slice A)", () => {
     expect(enterprise.every((o) => o.selfServeEligible === false)).toBe(true);
   });
 
-  it("prepares entitlement limits and keys for provisioning handoff", () => {
+  it("prepares entitlement keys without seat/property capacity", () => {
     const offer = resolveCatalogOffer({
       productSku: "mpa_property_manager",
-      planTier: "business",
+      planTier: "professional",
       billingCycle: "annual"
     });
     expect(offer).not.toBeNull();
     const prep = prepareOfferEntitlements(offer!);
-    expect(prep.seatLimit).toBe(25);
-    expect(prep.propertyLimit).toBe(150);
+    expect(prep).not.toHaveProperty("seatLimit");
+    expect(prep).not.toHaveProperty("propertyLimit");
     expect(prep.entitlementKeys).toContain("pm.mission_control");
     expect(prep.entitlementKeys).not.toContain("facility.capital_projects");
   });

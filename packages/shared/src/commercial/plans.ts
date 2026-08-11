@@ -38,16 +38,10 @@ export function toBillingCycleLabel(cycle: BillingCycle): string {
   return cycle === "monthly" ? "Monthly" : "Annual";
 }
 
-/** Binding seat limits (COM-002 A7). Enterprise is custom (null = contract). */
-export const SEAT_LIMITS: Record<PlanTier, number | null> = {
-  professional: 5,
-  business: 25,
-  enterprise: null
-};
-
-/** Binding property limits (COM-002 A7). */
-export const PROPERTY_LIMITS: Record<PlanTier, number | null> = {
-  professional: 25,
-  business: 150,
-  enterprise: null
-};
+/**
+ * Seat / property commercial capacity meters are removed.
+ * Capacity is managed-unit Additional Unit Capacity — see `unit-volume.ts`.
+ *
+ * Internal planTier labels (professional / business / enterprise) may remain
+ * for legacy offer ids; they are not customer-facing capacity tiers.
+ */

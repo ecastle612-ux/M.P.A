@@ -114,8 +114,8 @@ describe("COM-002 Slice E lifecycle apply", () => {
     expect(up.ok).toBe(true);
     if (up.ok) {
       expect(up.sub.planTier).toBe("business");
-      expect(up.sub.seatLimit).toBe(25);
-      expect(up.sub.propertyLimit).toBe(150);
+      expect(up.sub.seatLimit).toBeNull();
+      expect(up.sub.propertyLimit).toBeNull();
     }
     const down = await changePlanTier({ organizationId: "org_plan", planTier: "professional" });
     expect(down.ok).toBe(true);

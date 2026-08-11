@@ -8,12 +8,11 @@ export function isSaasStripeConfigured(): boolean {
 }
 
 export function isSaasCheckoutReady(): boolean {
+  // Business Price envs are obsolete — unit-volume / professional mapping only.
   return Boolean(
     serverEnv.STRIPE_SECRET_KEY &&
       serverEnv.STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY &&
-      serverEnv.STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL &&
-      serverEnv.STRIPE_PRICE_PM_BUSINESS_MONTHLY &&
-      serverEnv.STRIPE_PRICE_PM_BUSINESS_ANNUAL
+      serverEnv.STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL
   );
 }
 

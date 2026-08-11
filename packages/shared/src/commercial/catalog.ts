@@ -2,8 +2,6 @@ import { FO_READY } from "./commerce-flags";
 import { entitlementsForSku, type EntitlementKey } from "./entitlements";
 import {
   BILLING_CYCLES,
-  PROPERTY_LIMITS,
-  SEAT_LIMITS,
   type BillingCycle,
   type PlanTier,
   isBillingCycle,
@@ -15,6 +13,7 @@ export type CommercialMotion = "self_serve" | "enterprise_sales";
 
 /**
  * Canonical sellable offer — future Stripe Price ids plug in here (Slice C).
+ * Seat/property commercial limits removed — unit-volume is the capacity model.
  */
 export type CatalogOffer = {
   id: string;
@@ -22,10 +21,8 @@ export type CatalogOffer = {
   planTier: PlanTier;
   billingCycle: BillingCycle | null;
   motion: CommercialMotion;
-  /** False until FO-READY for FO/Complete; always false for Enterprise. */
+  /** False until FO-READY for FO/Complete; always false for Enterprise / Business. */
   selfServeEligible: boolean;
-  seatLimit: number | null;
-  propertyLimit: number | null;
   /** Reserved for Slice C — null until Prices are published. */
   stripePriceId: string | null;
   label: string;
@@ -45,11 +42,13 @@ function buildSelfServePmOffers(): CatalogOffer[] {
         planTier: tier,
         billingCycle: cycle,
         motion: "self_serve",
-        selfServeEligible: true,
-        seatLimit: SEAT_LIMITS[tier],
-        propertyLimit: PROPERTY_LIMITS[tier],
+        // Business is not a customer product — keep offer id for legacy mapping only.
+        selfServeEligible: tier === "professional",
         stripePriceId: null,
-        label: `Property Manager ${tier === "professional" ? "Professional" : "Business"} (${cycle})`
+        label:
+          tier === "professional"
+            ? `Property Manager (${cycle})`
+            : `Property Manager legacy business (${cycle})`
       });
     }
   }
@@ -64,8 +63,6 @@ function buildEnterpriseOffers(): CatalogOffer[] {
     billingCycle: null,
     motion: "enterprise_sales" as const,
     selfServeEligible: false,
-    seatLimit: SEAT_LIMITS.enterprise,
-    propertyLimit: PROPERTY_LIMITS.enterprise,
     stripePriceId: null,
     label: `${sku === "mpa_property_manager" ? "Property Manager" : sku === "mpa_facility_operations" ? "Facility Operations" : "Complete Platform"} Enterprise`
   }));
@@ -84,9 +81,7 @@ function buildFutureFoSelfServeOffers(): CatalogOffer[] {
           planTier: tier,
           billingCycle: cycle,
           motion: "self_serve",
-          selfServeEligible: FO_READY,
-          seatLimit: SEAT_LIMITS[tier],
-          propertyLimit: PROPERTY_LIMITS[tier],
+          selfServeEligible: FO_READY && tier === "professional",
           stripePriceId: null,
           label: `${sku} ${tier} ${cycle}`
         });
@@ -135,15 +130,13 @@ export function isSelfServeCheckoutAllowed(offer: CatalogOffer): boolean {
 }
 
 /**
- * Entitlement preparation for an offer — Seat/property limits + module keys.
- * Provisioning (Slice D) will grant from this shape; Slice A only prepares it.
+ * Entitlement preparation for an offer — module keys only.
+ * Capacity is unit-volume (see `unit-volume.ts`), not seat/property caps.
  */
 export type OfferEntitlementPrep = {
   offerId: string;
   productSku: ProductSku;
   planTier: PlanTier;
-  seatLimit: number | null;
-  propertyLimit: number | null;
   entitlementKeys: EntitlementKey[];
 };
 
@@ -152,8 +145,6 @@ export function prepareOfferEntitlements(offer: CatalogOffer): OfferEntitlementP
     offerId: offer.id,
     productSku: offer.productSku,
     planTier: offer.planTier,
-    seatLimit: offer.seatLimit,
-    propertyLimit: offer.propertyLimit,
     entitlementKeys: entitlementsForSku(offer.productSku)
   };
 }
