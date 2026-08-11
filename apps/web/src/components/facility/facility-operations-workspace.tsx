@@ -758,7 +758,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                     onSubmit={(event) => {
                       event.preventDefault();
                       void run(async () => {
-                        const response = await fetch("/api/pm/maintenance/cancel", {
+                        const response = await fetch("/api/facility/operations/cancel", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
