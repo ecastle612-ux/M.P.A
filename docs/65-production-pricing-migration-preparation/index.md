@@ -21,14 +21,14 @@ NEW Stripe Price       →  new customers after env cutover
 
 | Plan | Billing | Current (verified) | New (authorized) | Existing Stripe Price ID | New Stripe Price ID | Status |
 |------|---------|--------------------|------------------|--------------------------|---------------------|--------|
-| PM Professional | Monthly | $99 | $59 | `price_1Tw3Cb8jGrZYUXDtQwHvaXFW` | PENDING STRIPE OPERATOR CREATION | Prep |
-| PM Professional | Annual | $990 (live) | $590 | `price_1Tw3Cc8jGrZYUXDtoMZ4ypxU` | PENDING STRIPE OPERATOR CREATION | Prep |
-| PM Business | Monthly | $249 | $209 | `price_1Tw3Cd8jGrZYUXDtQTEZdC4G` | PENDING STRIPE OPERATOR CREATION | Prep |
-| PM Business | Annual | $2,490 | $2,450 | `price_1Tw3Cd8jGrZYUXDt8nQgBomF` | PENDING STRIPE OPERATOR CREATION | Prep |
-| FO Professional | Monthly | $99 | $59 | `price_1U2O9M8jGrZYUXDtuoUU9jVQ` | PENDING STRIPE OPERATOR CREATION | Display-only / gated |
-| FO Professional | Annual | $990 (live) | $590 | `price_1U2O9N8jGrZYUXDt28S1FwxK` | PENDING STRIPE OPERATOR CREATION | Display-only / gated |
-| Complete Professional | Monthly | $149 | $109 | `price_1U2O9N8jGrZYUXDtqwDqgobS` | PENDING STRIPE OPERATOR CREATION | Display-only / gated |
-| Complete Professional | Annual | $1,490 (live) | $1,090 | `price_1U2O9N8jGrZYUXDtsAhAkcTD` | PENDING STRIPE OPERATOR CREATION | Display-only / gated |
+| PM Professional | Monthly | $99 | $59 | `price_1Tw3Cb8jGrZYUXDtQwHvaXFW` | `price_1U31Z48jGrZYUXDteGv4gbSw` | NEW Price exists; Production env still old |
+| PM Professional | Annual | $990 (live) | $590 | `price_1Tw3Cc8jGrZYUXDtoMZ4ypxU` | `price_1U31Z58jGrZYUXDt2d9wqG4p` | NEW Price exists; Production env still old |
+| PM Business | Monthly | $249 | $209 | `price_1Tw3Cd8jGrZYUXDtQTEZdC4G` | `price_1U31Z58jGrZYUXDtMKIvMBCo` | Env invalid (`we_…` webhook id) |
+| PM Business | Annual | $2,490 | $2,450 | `price_1Tw3Cd8jGrZYUXDt8nQgBomF` | `price_1U31Z68jGrZYUXDtfHZfdUMI` | Env invalid (literal key name) |
+| FO Professional | Monthly | $99 | $59 | `price_1U2O9M8jGrZYUXDtuoUU9jVQ` | `price_1U31Z68jGrZYUXDtxN4pEhmQ` | Display-only / gated |
+| FO Professional | Annual | $990 (live) | $590 | `price_1U2O9N8jGrZYUXDt28S1FwxK` | `price_1U31Z68jGrZYUXDtZbyPva6V` | Display-only / gated |
+| Complete Professional | Monthly | $149 | $109 | `price_1U2O9N8jGrZYUXDtqwDqgobS` | `price_1U31Z78jGrZYUXDtZw1c648L` | Display-only / gated |
+| Complete Professional | Annual | $1,490 (live) | $1,090 | `price_1U2O9N8jGrZYUXDtsAhAkcTD` | `price_1U31Z78jGrZYUXDtJuCrMN4V` | Display-only / gated |
 
 **Note:** Live annual amounts are 10× monthly on current Stripe Prices. Owner-authorized annual **targets** are $590 / $1,090 (and Business $2,450). Confirm Vercel env bindings before cutover.
 
