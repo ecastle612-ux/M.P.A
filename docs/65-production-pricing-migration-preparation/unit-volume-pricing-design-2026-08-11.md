@@ -36,9 +36,13 @@ There is **no**:
 
 Internal Stripe / env labels such as `PROFESSIONAL` remain **implementation labels only**, not customer-facing tiers.
 
-Unit-volume pricing is the **Property Manager pricing structure** for organizations whose managed-unit count requires additional 500-unit blocks (above the first 500 included in base).
+Unit-volume / **Additional Unit Capacity** applies to **Property Manager** and **Complete Platform** (different bases; same +$39/500-unit block). Facility Operations stays flat and gated.
 
-“Enterprise” may describe higher-volume Property Manager pricing **only if** governance (Constitution / ADR-019) later permits that wording. It is **not** a separate product. **Do not create an Enterprise Stripe Product.**
+Customer-facing language: **Additional Unit Capacity** — not “Enterprise product/tier.”  
+**Do not create an Enterprise Stripe Product.**
+
+**Seat limits:** Owner decision — **remove** (unit-volume replaces seat-capacity). Code removal is future work — see acquisition blueprint §4.  
+**Property limits:** **Do not change** without explicit Owner authorization — see acquisition blueprint §5.
 
 **This design package does not modify** `product-constitution.md` or ADR-019.
 
@@ -130,23 +134,42 @@ Do **not** invent another annual pricing formula.
 
 Same block model applies annually (design): Base annual amount for first 500 units + Additional Unit Block annual amount × `additional_blocks`.
 
+### Complete Platform pricing (FINAL)
+
+```
+monthly_complete = 109 + (39 × additional_blocks)
+annual_complete  = monthly_complete × 12
+```
+
+| Managed units | Monthly | Annual |
+|--------------:|--------:|-------:|
+| 1–500 | **$109** | **$1,308** |
+| 501–1,000 | **$148** | **$1,776** |
+| 1,001–1,500 | **$187** | **$2,244** |
+| 1,501–2,000 | **$226** | **$2,712** |
+
+Additional Unit Capacity is **not** a separate subscription tier. Complete self-serve remains `FO_READY`-gated until authorized.
+
+### Facility Operations (unchanged / gated)
+
+**$59**/month · **$590**/year — not online; **do not activate**; no unit-volume surcharge in this package.
+
 ---
 
-## 5. Billing-period adjustment (FINAL)
+## 5. Billing-period adjustment + over-capacity payment gate (FINAL)
 
-**Owner decision:** Unit-count pricing is recalculated **after the customer’s paid billing period ends**.
+| Situation | Behavior |
+|-----------|----------|
+| Unit count changes **within** paid capacity | **No surprise** mid-period charge |
+| Customer would **exceed** paid capacity (e.g. add unit 501 on 500 paid) | **Payment gate** — explain Additional Unit Capacity, show new price, require **explicit authorization**, then update billing capacity and allow the action |
+| Silent / surprise subscription increase | **Forbidden** |
+| Block entire organization | **Forbidden** — gate only the exceeding action |
+| After customer authorizes uplift | Billing capacity updates; recurring amount reflects authorized capacity; customer continues |
+| Period-end reconciliation | Align recurring items to authorized/actual capacity for next period |
 
-| During a paid period | Behavior |
-|----------------------|----------|
-| Managed-unit count increases or decreases | **Do not** immediately charge a surprise amount |
-| Mid-period price increases | **Forbidden** |
-| Mid-period proration for unit-volume | **Not used** for this model |
-| At end of paid period | Calculate required unit-volume block from current `property_units` count |
-| Next paid period | Recurring billing uses the updated block quantity / price |
+Paid capacity = `500 × (1 + authorized_additional_blocks)`.
 
-The system must **automatically** adjust the recurring billing amount for the **next** paid period (monthly or annual period, as applicable).
-
-This replaces COM-002’s immediate-proration upgrade default **for unit-volume block quantity changes**. Seat/module lifecycle rules outside unit-volume remain out of scope here.
+Full UX + future Stripe notes: [`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md) §6.
 
 ---
 
@@ -171,17 +194,17 @@ Future customers enter the approved unit-volume pricing architecture.
 
 | Declared managed units | Trial |
 |------------------------|-------|
-| **≤ 500** | First month free; card required; $0 during trial; auto-bill after |
-| **> 500** | **No free trial** — subscribe at applicable unit-volume price (high-volume / Additional Unit Capacity segment) |
+| **≤ 500** | **Exactly 30 days** free; card required; $0 during trial; auto-bill after |
+| **> 500** | **No free trial** — payment/subscription required before Additional Unit Capacity |
 
 | Rule | Decision |
 |------|----------|
-| Eligibility source | Server-validated **declared** unit count from pre-Checkout questionnaire — not post-Checkout text |
-| Payment card | **Required** for all Checkouts (trial and non-trial) |
-| Charges during free month | **None** (trial-eligible path only) |
-| After free month | Automatic recurring billing at reconciled applicable unit-volume amount |
-| Manual payment action at end of free month | **Not required** |
-| Separate Enterprise product | **Forbidden** — >500 is PM unit-volume pricing, not a new module |
+| Duration | **Exactly 30 days** — not a calendar-month approximation |
+| Eligibility source | Server-validated **declared** unit count — never trust client |
+| Payment card | **Required** before trial begins |
+| Charges during trial | **None** (eligible path only) |
+| After 30 days | Automatic recurring billing at authorized capacity price |
+| Separate Enterprise product | **Forbidden** — use **Additional Unit Capacity** |
 
 ### Interaction with unit-volume pricing
 
@@ -194,11 +217,12 @@ The free month does **not** change the rate table.
 ### Future Stripe design support (DO NOT IMPLEMENT)
 
 1. Payment method collected at Checkout.  
-2. `trial_period_days` **only** when `declared_managed_units <= 500`.  
+2. `trial_period_days = 30` **only** when `declared_managed_units <= 500`.  
 3. No trial when declared units > 500.  
 4. Automatic recurring billing after trial (or immediate charge when not trial-eligible).  
-5. Correct unit-volume items/quantities at billing start.  
-6. Annual = monthly × 12 (no discount).
+5. Correct unit-volume items/quantities at billing start (PM base $59 or Complete base $109 + blocks).  
+6. Annual = monthly × 12 (no discount).  
+7. In-app payment gate when exceeding paid capacity (authorized uplift only).
 
 **Stripe trial / free-month behavior is not implemented in this package.**
 
@@ -208,17 +232,18 @@ The free month does **not** change the rate table.
 
 ### Recommended shape
 
-Property Manager subscription with **two subscription items**:
+Two subscription items per sellable module (PM or Complete), with **conditional** Additional Unit Block (omit when blocks = 0):
 
-| Item | Role | Monthly unit amount | Annual unit amount (no discount) | Quantity |
-|------|------|--------------------:|---------------------------------:|---------:|
-| Base Property Manager | Includes first 500 units | **$59** | **$708** | always **1** |
-| Additional Unit Block | Each extra 500 units | **$39** | **$468** (= $39 × 12) | `ceil(managed_units / 500) - 1` |
+| Item | PM monthly / annual | Complete monthly / annual | Quantity |
+|------|--------------------:|--------------------------:|---------:|
+| Base (includes first 500 units) | **$59** / **$708** | **$109** / **$1,308** | always **1** |
+| Additional Unit Block | **$39** / **$468** | **$39** / **$468** | `max(0, ceil(units/500)-1)` when ≥ 1 |
 
 ```
-additional_blocks = ceil(managed_units / 500) - 1
-monthly_total = 59 + (39 × additional_blocks)
-annual_total  = monthly_total × 12
+additional_blocks = max(0, ceil(managed_units / 500) - 1)
+pm_monthly       = 59 + (39 × additional_blocks)
+complete_monthly = 109 + (39 × additional_blocks)
+annual           = monthly × 12
 ```
 
 ### Explicit non-actions (this package)
@@ -246,10 +271,13 @@ Rejected for primary path: fixed Price-per-band matrix (does not scale); metered
 | Additional blocks | `max(0, ceil(managed_units / 500) − 1)` |
 | Monthly total | Base + Additional Unit Block items |
 | Annual total | Same blocks × 12 (no discount) |
-| Quantity / price changes | Applied for the **next** paid billing period only |
-| First month | Free **only if declared units ≤ 500**; card always required; auto-bill after free month |
-| Entitlements | Product SKU modules; unit capacity via block quantity |
-| FO / Complete | Unchanged until FO_READY; unit-volume for those products out of scope unless Owner extends |
+| Quantity / price changes | No surprise mid-period charges; **payment gate** when exceeding paid capacity; period-end reconcile |
+| Trial | **30 days** if declared ≤ 500; else none; card always required |
+| Seat limit | **Remove** (future code) — unit-volume replaces seat capacity |
+| Property limit | **Unchanged** until Owner authorizes |
+| Entitlements | Product SKU modules; unit capacity via authorized blocks |
+| FO | Flat $59/$590; gated; no unit-volume |
+| Complete | Unit-volume with $109 base; self-serve gated until FO_READY |
 
 ### Illustrative metadata / field names (design)
 
@@ -280,42 +308,40 @@ Document for a future approved implementation only:
 4. Annual calculation = monthly × 12 (no discount).  
 5. Stripe two-item subscription architecture (Base + Additional Unit Block), monthly and annual Prices.  
 6. Checkout calculation of initial block quantity from unit count (or initial portfolio setup).  
-7. **First-month-free (≤500 declared units only):** collect and validate payment method; trial only when eligible; automatic recurring billing after free month (or immediate charge when >500) at correct unit-volume price.  
-8. Billing lifecycle synchronization (webhooks remain access truth; period-end quantity sync).  
-9. Customer pricing display (unit-block calculator; first-month-free messaging; no Business / Professional customer tiers).  
-10. Unit-count change handling (track count during period; apply at period boundary).  
-11. Audit history of count and block changes.  
-12. Billing notifications (period-end price change notice — content TBD at implementation).  
-13. Tests: boundaries 500/501/1000/1001/1500/1501; annual = 12× monthly; no mid-period unit-volume proration; first month free with card required; auto-bill after free month; FO/Complete still gated; FIN-OPS rent domain untouched.
+7. **30-day free trial (≤500 declared units only):** card required; `trial_period_days=30`; no trial when >500.  
+8. **Payment gate** when exceeding paid unit capacity (authorize Additional Unit Capacity before continuing).  
+9. **Retire seat limits** (COM-002 `SEAT_LIMITS` / `mpa_seat_limit` / `seat_limit` column usage).  
+10. Complete unit-volume Prices (base $109 + shared $39 block) when Complete Checkout is authorized.  
+11. Billing lifecycle sync; period-end reconcile; audit history.  
+12. Acquisition questionnaire + Confirm Plan price display.  
+13. Tests: PM/Complete boundaries; 30-day trial; >500 no trial; payment gate at 501; seat limit absent; FO gated; FIN-OPS untouched.
 
 ### Acceptance criteria (future implementation)
 
 - [ ] All `property_units` statuses count toward managed units  
-- [ ] Multiple tenants in one unit = one billable unit  
-- [ ] 1–500 → $59/mo / $708/yr  
-- [ ] 501–1000 → $98/mo / $1,176/yr  
-- [ ] Formula holds for arbitrary blocks; annual = monthly × 12  
-- [ ] Unit-volume price changes apply next paid period only  
-- [ ] First month free **only when declared units ≤ 500**; card always required  
-- [ ] Declared units > 500 → no trial; charge applicable unit-volume amount  
-- [ ] No charge during free month when eligible; automatic recurring billing afterward  
-- [ ] No customer-facing Business / Professional tier  
-- [ ] No separate Enterprise product or Stripe Product  
-- [ ] No mid-period surprise unit-volume charges  
+- [ ] PM 1–500 → $59/mo / $708/yr; Complete 1–500 → $109/mo / $1,308/yr  
+- [ ] +$39 per additional 500-unit block; annual = monthly × 12  
+- [ ] Trial = exactly 30 days when declared ≤ 500; card required  
+- [ ] Declared > 500 → no trial  
+- [ ] Exceeding paid capacity → payment gate (no silent charge; no org-wide lockout)  
+- [ ] Seat limits removed from commercial model  
+- [ ] Property limits unchanged unless Owner authorizes  
+- [ ] No Business / Enterprise customer product  
+- [ ] Customer-facing **Additional Unit Capacity** language  
 - [ ] FIN-OPS rent money domain untouched  
 
 ---
 
 ## 12. Remaining Owner decisions (genuine open items only)
 
-Resolved and **removed** from open list: billable tenant metric; billable unit statuses; annual pricing; existing subscriber migration; first-month-free eligibility (**≤500 only**); trial edge behaviors; Confirm Plan unit declaration; customer-facing “Enterprise” product wording (use **Additional Unit Capacity** — see acquisition blueprint).
+Resolved and **removed:** trial length (**30 days**); seat limit (**remove**); over-capacity (**payment gate**); Complete unit-volume (**$109 + $39/block**); trial eligibility (≤500); Additional Unit Capacity wording; existing subscribers (none).
 
-Still open (minimal):
+Still open (minimal — need explicit authorization):
 
-1. **Relationship to seat/property limits** under unit-volume.  
-2. **FO / Complete** unit-volume vs flat price when FO_READY (Complete $109 vs PM unit-volume composition).  
-3. **In-period UX** when actual units exceed current paid blocks (allow / warn / block) — price still waits until next period.  
-4. Exact **`trial_period_days`** (acquisition blueprint proposes 30).
+1. **Property limit** fate — keep / raise / remove (conflict documented; **do not change** yet).  
+2. **Authorize-uplift Stripe timing** — charge immediately on Authorize vs next invoice (must not surprise).  
+3. **FO_READY** Complete self-serve activation timing (pricing model already final).  
+4. **FO unit-volume** — none unless Owner later extends.
 
 ---
 

@@ -40,22 +40,23 @@ Internal env labels such as `PROFESSIONAL` are Price-mapping names only.
 |------|-------|
 | Metric | Managed units = `count(*)` of `public.property_units` for the org |
 | Statuses | **ALL** (`available`, `occupied`, `offline`) |
-| Monthly | `$59 + ($39 × (ceil(managed_units / 500) - 1))` |
+| PM monthly | `$59 + ($39 × additional_blocks)` |
+| Complete monthly | `$109 + ($39 × additional_blocks)` |
 | Annual | Monthly × 12 — **no discount** |
-| Unit-count price change | **Next paid billing period only** (no mid-period surprise charges) |
-| First month | **Free only if declared units ≤ 500**; card **required**; >500 = no trial |
-| Existing subscribers | **None** — no migration / grandfathering |
-| Acquisition | Short pre-Checkout questionnaire → recommend module → show price → Confirm Plan |
+| Unit overage | **Payment gate** (authorize Additional Unit Capacity); no silent/surprise charge |
+| Trial | **Exactly 30 days** if declared ≤ 500; else none; card required |
+| Seat limits | **Remove** (future code) — unit-volume replaces seat capacity |
+| Property limits | **Unchanged** until Owner authorizes |
+| Existing subscribers | **None** — migration **not required** |
+| Acquisition | Short questionnaire → recommend module → price → Confirm Plan |
 
-### Module list prices stated for this blueprint (do not change; do not activate FO/Complete)
+### Module pricing (FINAL)
 
-| Module | Monthly (Owner-stated for this blueprint) | Self-serve today |
-|--------|-------------------------------------------:|------------------|
-| Property Manager | Unit-volume table above | Yes (COM-002 PM Checkout) |
-| Facility Operations | **$59**/month | **No** — `FO_READY=false` |
-| Complete Platform | **$109**/month | **No** — `FO_READY=false` |
-
-FO/Complete remain gated. Unit-volume does **not** currently apply to FO/Complete unless Owner later extends it.
+| Module | Model | Self-serve today |
+|--------|-------|------------------|
+| Property Manager | Unit-volume $59 base + $39/block | Yes (COM-002 PM Checkout path) |
+| Complete Platform | Unit-volume $109 base + $39/block | **Gated** `FO_READY=false` (pricing finalized) |
+| Facility Operations | Flat **$59**/mo · **$590**/yr — **no** unit-volume | **Gated** — do not activate |
 
 ### Complete includes PM + FO (current approved rule — not invented)
 
@@ -132,10 +133,10 @@ Exists for ops (`available|occupied|offline`). **Not** used for SaaS billing tod
 
 ### 2.1 Proposed two-item model (governance)
 
-| Item | Monthly | Annual (×12) | Quantity |
-|------|--------:|-------------:|---------:|
-| Property Manager Base | $59 | $708 | always **1** (includes first 500 units) |
-| Additional Unit Block | $39 | $468 | `max(0, ceil(managed_units / 500) - 1)` |
+| Item | PM | Complete | Quantity |
+|------|---:|---------:|---------:|
+| Base (includes first 500) | $59 / $708 | $109 / $1,308 | always **1** |
+| Additional Unit Block | $39 / $468 | $39 / $468 | `max(0, ceil(units/500)-1)` if ≥ 1; else **omit item** |
 
 ### 2.2 Fit against requirements
 
@@ -143,7 +144,8 @@ Exists for ops (`available|occupied|offline`). **Not** used for SaaS billing tod
 |-------------|--------------------------|-------|
 | Monthly billing | **Fit** | Exact Owner formula |
 | Annual billing | **Fit** | Separate annual Prices at monthly×12; same quantities — **no band matrix** |
-| First-month-free (≤500 only) | **Fit** | Set `trial_period_days` only when server `declared_units <= 500`; omit trial when >500 |
+| 30-day free trial (≤500 only) | **Fit** | `trial_period_days=30` only when server `declared_units <= 500`; omit trial when >500 |
+| Over-capacity payment gate | **Fit with app logic** | Block exceeding action; authorize uplift; then update Stripe items — no silent increase |
 | Payment method collection | **Fit** | Stripe Checkout default collects PM; do **not** use `payment_method_collection=if_required` |
 | Auto-bill after trial | **Fit** | Stripe invoices when trial ends if default payment method present; immediate charge when no trial |
 | Unit-count changes | **Fit with app logic** | Update Additional Block quantity (or add/remove item); use `proration_behavior=none` + apply at period boundary |
@@ -195,12 +197,12 @@ This preserves invoice clarity and the Owner formula without relying on unsuppor
 
 **Adopt two-item licensed architecture with conditional Additional Unit Block item:**
 
-- Always: Base Price qty **1**  
-- If and only if `additional_blocks >= 1`: Additional Unit Block Price with that quantity  
-- Monthly Prices: $59 and $39  
-- Annual Prices: $708 and $468 (no discount)  
-- First month: Checkout trial (~30 days) with payment method required  
-- Quantity/item changes: `proration_behavior=none`, effective next paid period  
+- Always: Module Base Price qty **1** (PM $59/$708 or Complete $109/$1,308)  
+- If and only if `additional_blocks >= 1`: shared Additional Unit Block Price ($39/$468) with that quantity  
+- Trial: Checkout `trial_period_days=30` only when declared ≤ 500; card required  
+- Within paid capacity: no surprise mid-period charges  
+- Exceeding paid capacity: **payment gate** then authorized Stripe item update  
+- Retire COM-002 **seat limits** in future implementation; leave **property limits** until Owner authorizes  
 - **Do not create these Stripe Prices until implementation is approved**
 
 ---
@@ -221,7 +223,7 @@ Units typically **do not exist** as actual `property_units` at Checkout; **decla
 | Moment | What exists | Billing action |
 |--------|-------------|----------------|
 | Pre-Checkout questionnaire | Declared managed units + needs + cycle | Server computes price + `trial_eligible` |
-| Checkout / subscription start | Declared units → Stripe items | Trial **only if** declared ≤ 500; else immediate charge |
+| Checkout / subscription start | Declared units → Stripe items | `trial_period_days=30` **only if** declared ≤ 500; else immediate charge |
 | Card collected | Stripe Customer + payment method | **Always** required |
 | Trial starts (if eligible) | Subscription `trialing` | **$0** charge |
 | Org created | Provisioning after Checkout complete | Entitlements by SKU |
@@ -242,9 +244,9 @@ If still 0 actual units → Base only → $59 (or $708 annual).
 
 ### 3.3 Annual + first month free
 
-- Declared ≤ 500 + annual → ~30-day trial at $0 → then charge **full annual** for reconciled blocks.  
+- Declared ≤ 500 + annual → **exactly 30-day** trial at $0 → then charge **full annual** for authorized capacity.  
 - Declared > 500 + annual → **no trial**; charge full annual at Checkout.  
-- Propose `trial_period_days=30` (acquisition blueprint).
+- `trial_period_days = 30` (FINAL).
 
 ---
 
@@ -253,10 +255,10 @@ If still 0 actual units → Base only → $59 (or $708 annual).
 | Concern | Design |
 |---------|--------|
 | Discount | **None** — annual unit amount = monthly × 12 |
-| Stripe objects | **Four** PM Prices only: Base monthly, Base annual, Block monthly, Block annual — **not** a Price per band |
+| Stripe objects | PM Base + Complete Base + shared Block (monthly/annual) — **not** a Price per band |
 | Quantities | Same `additional_blocks` formula for monthly and annual |
-| Period-end sync | Same rule: adjust items/qty for **next** annual period; no mid-period surprise |
-| FO/Complete annual | Out of scope until FO_READY; keep existing display Price env pattern |
+| Period-end sync | Reconcile authorized capacity; payment gate handles mid-period exceed |
+| FO annual | Flat $590 — gated; no unit-volume |
 
 ---
 
@@ -264,13 +266,11 @@ If still 0 actual units → Base only → $59 (or $708 annual).
 
 | Module | Charge model (target) | Activation |
 |--------|----------------------|------------|
-| Property Manager | Unit-volume two-item subscription | Self-serve |
-| Facility Operations | Flat **$59**/mo (Owner-stated); display via FO PROFESSIONAL Price envs today | Gated `FO_READY=false` |
-| Complete Platform | Flat **$109**/mo (Owner-stated); includes PM∪FO entitlements | Gated `FO_READY=false` |
+| Property Manager | Unit-volume: Base $59 + Block $39 | Self-serve |
+| Complete Platform | Unit-volume: Base $109 + Block $39; entitlements = PM ∪ FO | Gated `FO_READY=false` until authorized |
+| Facility Operations | Flat **$59**/mo · **$590**/yr — **no** unit-volume | Gated — **do not activate** |
 
-**Do not** invent unit-volume for FO/Complete in this blueprint.  
-**Do not** activate FO/Complete Checkout.  
-When Complete later self-serves, Owner must decide whether Complete’s $109 **replaces** PM unit-volume, **adds** to it, or uses a different composition — **open decision** (do not invent).
+Complete’s unit surcharge is **Additional Unit Capacity** on the Complete subscription — **not** a separate tier/product.
 
 ---
 
@@ -278,17 +278,16 @@ When Complete later self-serves, Owner must decide whether Complete’s $109 **r
 
 | Area | Current | Required for approved model |
 |------|---------|-----------------------------|
-| Catalog | Fixed single Price / offer; Pro/Business tiers | PM unit-volume offers; retire Business customer path; internal tier label may remain for mapping |
-| Checkout | One line item qty 1; no trial | Questionnaire → Base + conditional Block; `trial_period_days` only if declared ≤ 500; card required |
-| Pricing UI | Stripe retrieve fixed amounts; Pro/Business copy | Questionnaire; unit-volume calculator; ≤500 free month / >500 Additional Unit Capacity |
-| Env Price maps | `STRIPE_PRICE_PM_PROFESSIONAL_*` (+ Business) | New Base/Block monthly+annual keys (see §7) |
-| Org commercial state | seats/properties; no unit meter | Store managed_unit_count, additional_blocks, stripe item ids, last_synced_at, pending_blocks |
-| Unit meter | None | Query `property_units`; all statuses |
-| Lifecycle upgrades | Immediate proration on tier change | Unit-volume: period-end / pre-invoice sync with `proration_behavior=none` |
-| Webhooks | No trial_will_end / upcoming sync | Handle trial end sync; invoice.upcoming quantity reconcile |
-| Provisioning | Unchanged sequence | Still post-Checkout; may seed unit meter at 0 |
-| BILL-001 | Dual-rail recon (PR #67) | Keep SaaS money domain separation; additive compatibility if Production still has BILL-001 tables |
-| FO/Complete | Display + gated | Unchanged activation |
+| Catalog | Fixed single Price; Pro/Business tiers; seat/property limits | PM (+ later Complete) unit-volume; retire Business; **remove seat limits** |
+| Checkout | One line item qty 1; no trial | Questionnaire → Base + conditional Block; `trial_period_days=30` if ≤500 |
+| Pricing UI | Fixed Stripe amounts; seat copy | Questionnaire; Additional Unit Capacity; 30-day trial messaging |
+| Env Price maps | `STRIPE_PRICE_PM_PROFESSIONAL_*` (+ Business) | PM/Complete Base + shared Block keys (see §7) |
+| Org commercial state | `seat_limit` / `property_limit` | Authorized unit blocks; **stop using seat_limit**; property_limit unchanged until Owner says |
+| Unit meter + payment gate | None | Count `property_units`; gate exceeding paid capacity |
+| Lifecycle | Immediate proration on tier change | Payment-gate uplift; period-end reconcile; no silent increases |
+| Webhooks | No trial_will_end sync | 30-day trial end; capacity sync |
+| BILL-001 | Dual-rail recon (PR #67) | Keep money-domain separation; do not reintroduce seat caps |
+| FO | Display + gated | Stay flat $59/$590; do not activate |
 
 ---
 
@@ -324,8 +323,10 @@ After approved implementation, PM unit-volume needs **exact** dedicated Price en
 |-----------------|----------------------|
 | `STRIPE_PRICE_PM_BASE_MONTHLY` | $59 / month, qty 1 |
 | `STRIPE_PRICE_PM_BASE_ANNUAL` | $708 / year, qty 1 |
-| `STRIPE_PRICE_PM_UNIT_BLOCK_MONTHLY` | $39 / month per additional block |
-| `STRIPE_PRICE_PM_UNIT_BLOCK_ANNUAL` | $468 / year per additional block |
+| `STRIPE_PRICE_COMPLETE_BASE_MONTHLY` | $109 / month, qty 1 |
+| `STRIPE_PRICE_COMPLETE_BASE_ANNUAL` | $1,308 / year, qty 1 |
+| `STRIPE_PRICE_UNIT_BLOCK_MONTHLY` | $39 / month per additional block (shared PM/Complete) |
+| `STRIPE_PRICE_UNIT_BLOCK_ANNUAL` | $468 / year per additional block (shared) |
 
 **Retain (unchanged roles until FO_READY work):**
 
@@ -371,7 +372,7 @@ After approved implementation, PM unit-volume needs **exact** dedicated Price en
 
 | Aspect | Plan |
 |--------|------|
-| Scope | Checkout `subscription_data.trial_period_days` (~30); ensure payment method collected (default Checkout behavior); reject `if_required` |
+| Scope | Checkout `subscription_data.trial_period_days=30` when eligible; payment method collected; reject `if_required` |
 | Files | `create-checkout-session.ts`; lifecycle trial mapping; success/claim UX copy |
 | DB | Status `trialing` already modeled |
 | Stripe | Trial on subscription; no charge during trial |
@@ -483,14 +484,14 @@ Documented in governance + this blueprint; **do not implement now:**
 
 ## 11. Owner decisions still required (minimal)
 
-Closed by acquisition decision blueprint: unit declaration pre-Checkout; trial ≤500 only; trial edge behaviors; Additional Unit Capacity wording (no Enterprise product); declared vs actual reconciliation.
+Closed: trial = **30 days**; seat limits = **remove**; over-capacity = **payment gate**; Complete = **$109 + $39/block**; trial eligibility ≤500; Additional Unit Capacity wording; no existing subscribers.
 
-Still open only if Owner overrides best judgment:
+Still open (need explicit authorization later):
 
-1. Exact **`trial_period_days`** (proposed 30).  
-2. **Seat/property limits** under unit-volume.  
-3. **In-period UX** when actual units exceed paid blocks (allow / warn / block).  
-4. **Complete vs PM unit-volume** composition when FO_READY.
+1. **Property limit** fate — keep / raise / remove (do not change yet).  
+2. **Authorize-uplift Stripe timing** — charge on Authorize vs next invoice (must not surprise).  
+3. **FO_READY** Complete Checkout activation timing.  
+4. **FO unit-volume** — none unless Owner extends.
 
 ---
 
