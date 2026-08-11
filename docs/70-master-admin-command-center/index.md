@@ -69,6 +69,7 @@ This package **supersedes** fragmented “what Master Admin should become” not
 | [Security & Observability](./security-observability.md) | Security model + observability integration |
 | [Implementation Slices](./implementation-slices.md) | Slices, acceptance criteria, test strategy, open questions |
 | [MA-1 Implementation Notes](./ma1-implementation-notes.md) | Overview + Critical Errors delivery notes |
+| [MA-2 Implementation Notes](./ma2-implementation-notes.md) | Organization Detail diagnostic delivery notes |
 
 ---
 

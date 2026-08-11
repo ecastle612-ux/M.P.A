@@ -29,6 +29,11 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         description: "Is M.P.A. healthy right now? Operational health signals."
       },
       {
+        href: "/admin/platform/organizations",
+        label: "Organizations",
+        description: "Organization directory and diagnostic detail."
+      },
+      {
         href: "/admin/errors",
         label: "Errors",
         description: "Critical production errors from the durable platform feed."
@@ -55,11 +60,6 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
     id: "customers",
     title: "Customers",
     items: [
-      {
-        href: "/admin/platform/organizations",
-        label: "Organizations",
-        description: "Organization directory and support profiles."
-      },
       {
         href: "/admin/platform/customers",
         label: "Customers",

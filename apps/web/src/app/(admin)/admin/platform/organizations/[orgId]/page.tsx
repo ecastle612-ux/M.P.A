@@ -1,12 +1,15 @@
 import { notFound } from "next/navigation";
-import { OrganizationProfilePage } from "../../../../../../components/admin/organization-profile-page";
-import { loadOrganizationProfile } from "../../../../../../lib/admin/load-org-profile";
+import { Ma2OrganizationDetailPage } from "../../../../../../components/admin/ma2-organization-detail-page";
+import { loadMa2OrganizationDetail } from "../../../../../../lib/admin/load-ma2-org-detail";
 
-type PageProps = { params: Promise<{ orgId: string }> };
+type PageProps = {
+  params: Promise<{ orgId: string }> | { orgId: string };
+};
 
 export default async function Page({ params }: PageProps) {
-  const { orgId } = await params;
-  const profile = await loadOrganizationProfile(orgId);
-  if (!profile) notFound();
-  return <OrganizationProfilePage profile={profile} />;
+  const { orgId } = await Promise.resolve(params);
+  // Server-validated organization id from path only.
+  const detail = await loadMa2OrganizationDetail(orgId);
+  if (!detail) notFound();
+  return <Ma2OrganizationDetailPage detail={detail} />;
 }

@@ -198,17 +198,17 @@ describe("route entitlement enforcement", () => {
 });
 
 describe("master admin catalog", () => {
-  it("exposes Master Admin Overview + Errors with lean Owner Ops groups", () => {
+  it("exposes Master Admin Overview + Organizations + Errors with lean Owner Ops groups", () => {
     const titles = MASTER_ADMIN_NAV.map((group) => group.title);
     expect(titles).toEqual(["Master Admin", "Operations", "Customers", "Commercial"]);
 
     const allHrefs = MASTER_ADMIN_NAV.flatMap((group) => group.items.map((item) => item.href));
     expect(allHrefs).toEqual([
       "/admin",
+      "/admin/platform/organizations",
       "/admin/errors",
       "/admin/support",
       "/admin/system",
-      "/admin/platform/organizations",
       "/admin/platform/customers",
       "/admin/platform/operators",
       "/admin/support/view-as",
@@ -220,7 +220,11 @@ describe("master admin catalog", () => {
     ]);
 
     const maGroup = MASTER_ADMIN_NAV.find((group) => group.id === "master-admin");
-    expect(maGroup?.items.map((item) => item.label)).toEqual(["Overview", "Errors"]);
+    expect(maGroup?.items.map((item) => item.label)).toEqual([
+      "Overview",
+      "Organizations",
+      "Errors"
+    ]);
 
     // No placeholder / future / theater surfaces in nav.
     expect(allHrefs.some((href) => href.startsWith("/admin/workspaces"))).toBe(false);
