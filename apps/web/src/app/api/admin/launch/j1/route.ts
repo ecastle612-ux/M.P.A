@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { isPlatformOperatorUser } from "../../../../../lib/commercial/server";
+import { scrubUnknown } from "../../../../../lib/observability/scrub";
 
 type PropertyRow = {
   id: string;
@@ -26,6 +27,15 @@ type AuditRow = {
   created_at: string;
   actor_id: string | null;
 };
+
+function scrubRowPayload<T extends { payload: Record<string, unknown> | null }>(row: T): T {
+  const scrubbed = scrubUnknown(row.payload ?? {});
+  const payload =
+    scrubbed && typeof scrubbed === "object" && !Array.isArray(scrubbed)
+      ? (scrubbed as Record<string, unknown>)
+      : {};
+  return { ...row, payload };
+}
 
 export async function GET(request: Request) {
   const supabase = await createAuthServerClient();
@@ -74,8 +84,8 @@ export async function GET(request: Request) {
     ]);
 
   const properties = (propertiesData ?? []) as PropertyRow[];
-  const events = (eventsData ?? []) as EventRow[];
-  const audits = (auditsData ?? []) as AuditRow[];
+  const events = ((eventsData ?? []) as EventRow[]).map(scrubRowPayload);
+  const audits = ((auditsData ?? []) as AuditRow[]).map(scrubRowPayload);
   const propertyCount = properties.length;
   const createdEvents = events.filter((event) => event.event_type === "property.created");
   const createdAudits = audits.filter((audit) => audit.action === "property.created");

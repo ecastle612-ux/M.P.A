@@ -75,6 +75,8 @@ This package **supersedes** fragmented “what Master Admin should become” not
 | [MA-5 Implementation Notes](./ma5-implementation-notes.md) | Checkout, Provisioning & Webhook Health delivery notes |
 | [MA-6 Implementation Notes](./ma6-implementation-notes.md) | Platform Operations delivery notes |
 | [MA-7 Implementation Notes](./ma7-implementation-notes.md) | RBAC + controlled lifecycle mutations |
+| [MA-8 Implementation Notes](./ma8-implementation-notes.md) | Hardening & certification delivery notes |
+| [MA-8 Certification Report](./ma8-certification-report.md) | Final Master Admin certification scorecard |
 
 ---
 

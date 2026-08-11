@@ -34,10 +34,12 @@ export async function POST(request: Request) {
     entityId: body.sessionId,
     payload: {
       ownerEmail: result.job.ownerEmail,
-      checkpoint: result.job.checkpoint
+      checkpoint: result.job.checkpoint,
+      emailDelivered: result.emailDelivered
     }
   });
 
+  // MA-8: never return claim/bind URLs (contain sensitive tokens). Delivery is email-only.
   return NextResponse.json({
     ok: true,
     notice:
@@ -45,7 +47,6 @@ export async function POST(request: Request) {
       (result.emailDelivered
         ? `Claim link regenerated and emailed to ${result.job.ownerEmail}.`
         : `Claim link regenerated. Email was not delivered — configure Resend before notifying ${result.job.ownerEmail}.`),
-    continueUrl: result.continueUrl,
     emailDelivered: result.emailDelivered
   });
 }
