@@ -316,21 +316,34 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
 
       <form
         className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:grid-cols-2"
+        noValidate
         onSubmit={(event) => {
           event.preventDefault();
           void run(async () => {
-            if (!createPropertyId) {
+            const title = createTitle.trim();
+            const description = createDescription.trim();
+            const propertyId = createPropertyId.trim();
+            if (title.length < 3) {
+              throw new Error("Enter a title (at least 3 characters).");
+            }
+            if (description.length < 3) {
+              throw new Error("Enter a description (at least 3 characters).");
+            }
+            if (!propertyId) {
               throw new Error("Select a building before creating work.");
+            }
+            if (!properties.some((property) => property.id === propertyId)) {
+              throw new Error("Selected building is no longer available. Refresh and try again.");
             }
             const response = await fetch("/api/facility/operations", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                title: createTitle,
-                description: createDescription,
+                title,
+                description,
                 category: createCategory,
                 priority: createPriority,
-                propertyId: createPropertyId,
+                propertyId,
                 unitId: createUnitId || undefined,
                 facilityAssetLabel: createAssetLabel || undefined,
                 dueAt: createDueAt ? new Date(createDueAt).toISOString() : undefined
@@ -386,7 +399,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
               setCreatePropertyId(e.target.value);
               setCreateUnitId("");
             }}
-            required
+            aria-required="true"
           >
             <option value="">Select building</option>
             {properties.map((property) => (
