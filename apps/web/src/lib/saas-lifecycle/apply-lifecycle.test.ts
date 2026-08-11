@@ -98,14 +98,123 @@ describe("COM-002 Slice E lifecycle apply", () => {
     expect(restored?.emailsSent.some((e) => e.startsWith("restored:"))).toBe(true);
   });
 
-  it("supports cancel at period end and reactivate", async () => {
+  it("supports cancel at period end and reactivate without refunds", async () => {
     seedPurchase("cs_life_4", "sub_life_4", "org_cancel");
     await seedLifecycleFromPurchase("cs_life_4");
+    const periodEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+    await applySubscriptionCreatedOrUpdated({
+      stripeSubscriptionId: "sub_life_4",
+      stripeCustomerId: "cus_life",
+      stripeStatus: "active",
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: periodEnd,
+      planTier: "professional",
+      billingCycle: "monthly",
+      eventId: "evt_period_4",
+      eventType: "customer.subscription.updated"
+    });
     const canceled = await cancelAtPeriodEnd({ organizationId: "org_cancel" });
     expect(canceled?.cancelAtPeriodEnd).toBe(true);
+    expect(canceled?.status).toBe("active");
+    expect(hasLifecycleModuleAccess(canceled!)).toBe(true);
+    expect(customerLifecyclePhase(canceled!)).toBe("cancellation_scheduled");
+    expect(canceled?.paymentHistory.some((p) => p.kind === "refunded")).toBe(false);
+
+    // Idempotent second cancel — no duplicate cancel_scheduled email key noise / status flip
+    const canceledAgain = await cancelAtPeriodEnd({ organizationId: "org_cancel" });
+    expect(canceledAgain?.cancelAtPeriodEnd).toBe(true);
+    expect(canceledAgain?.status).toBe("active");
+    const cancelAudits =
+      canceledAgain?.audit.filter((a) => a.reason === "cancel_at_period_end_requested") ?? [];
+    expect(cancelAudits).toHaveLength(1);
+
     const reactivated = await reactivateSubscription({ organizationId: "org_cancel" });
     expect(reactivated?.status).toBe("active");
     expect(reactivated?.cancelAtPeriodEnd).toBe(false);
+    expect(hasLifecycleModuleAccess(reactivated!)).toBe(true);
+    expect(customerLifecyclePhase(reactivated!)).not.toBe("cancellation_scheduled");
+  });
+
+  it("keeps annual access through paid-through after cancellation schedule", async () => {
+    seedPurchase("cs_life_annual", "sub_life_annual", "org_annual");
+    await seedLifecycleFromPurchase("cs_life_annual");
+    const annualEnd = new Date(Date.now() + 200 * 24 * 60 * 60 * 1000).toISOString();
+    const synced = await applySubscriptionCreatedOrUpdated({
+      stripeSubscriptionId: "sub_life_annual",
+      stripeCustomerId: "cus_life",
+      stripeStatus: "active",
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: annualEnd,
+      planTier: "professional",
+      billingCycle: "annual",
+      eventId: "evt_annual_1",
+      eventType: "customer.subscription.updated"
+    });
+    expect(synced?.billingCycle).toBe("annual");
+    const canceled = await cancelAtPeriodEnd({ organizationId: "org_annual" });
+    expect(canceled?.cancelAtPeriodEnd).toBe(true);
+    expect(canceled?.currentPeriodEnd).toBe(annualEnd);
+    expect(hasLifecycleModuleAccess(canceled!)).toBe(true);
+  });
+
+  it("ends access when Stripe marks subscription canceled at period end", async () => {
+    seedPurchase("cs_life_end", "sub_life_end", "org_end");
+    await seedLifecycleFromPurchase("cs_life_end");
+    await cancelAtPeriodEnd({ organizationId: "org_end" });
+    const ended = await applySubscriptionCreatedOrUpdated({
+      stripeSubscriptionId: "sub_life_end",
+      stripeCustomerId: "cus_life",
+      stripeStatus: "canceled",
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: new Date(Date.now() - 1000).toISOString(),
+      planTier: "professional",
+      billingCycle: "monthly",
+      eventId: "evt_end_1",
+      eventType: "customer.subscription.deleted"
+    });
+    expect(ended?.status).toBe("canceled");
+    expect(hasLifecycleModuleAccess(ended!)).toBe(false);
+    expect(customerLifecyclePhase(ended!)).toBe("canceled");
+  });
+
+  it("does not silently reactivate an already-ended subscription", async () => {
+    seedPurchase("cs_life_dead", "sub_life_dead", "org_dead");
+    await seedLifecycleFromPurchase("cs_life_dead");
+    await applySubscriptionCreatedOrUpdated({
+      stripeSubscriptionId: "sub_life_dead",
+      stripeCustomerId: "cus_life",
+      stripeStatus: "canceled",
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: new Date(Date.now() - 1000).toISOString(),
+      planTier: "professional",
+      billingCycle: "monthly",
+      eventId: "evt_dead_1",
+      eventType: "customer.subscription.deleted"
+    });
+    const result = await reactivateSubscription({ organizationId: "org_dead" });
+    expect(result).toBeNull();
+  });
+
+  it("supports cancel during trial without flipping to canceled status", async () => {
+    seedPurchase("cs_life_trial", "sub_life_trial", "org_trial");
+    await seedLifecycleFromPurchase("cs_life_trial");
+    const trialEnd = new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString();
+    await applySubscriptionCreatedOrUpdated({
+      stripeSubscriptionId: "sub_life_trial",
+      stripeCustomerId: "cus_life",
+      stripeStatus: "trialing",
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: trialEnd,
+      planTier: "professional",
+      billingCycle: "monthly",
+      eventId: "evt_trial_1",
+      eventType: "customer.subscription.updated"
+    });
+    const canceled = await cancelAtPeriodEnd({ organizationId: "org_trial" });
+    expect(canceled?.status).toBe("trialing");
+    expect(canceled?.cancelAtPeriodEnd).toBe(true);
+    expect(hasLifecycleModuleAccess(canceled!)).toBe(true);
+    expect(canceled?.paymentHistory.some((p) => p.kind === "refunded")).toBe(false);
   });
 
   it("rejects Business and legacy Professional plan-price swaps", async () => {

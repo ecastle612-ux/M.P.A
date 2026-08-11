@@ -77,7 +77,8 @@ async function notify(
   sub: LifecycleSubscription,
   kind: LifecycleEmailKind,
   emailKey: string,
-  ownerEmail: string | null
+  ownerEmail: string | null,
+  paidThroughIso?: string | null
 ): Promise<LifecycleSubscription> {
   if (!ownerEmail || sub.emailsSent.includes(emailKey)) {
     return sub;
@@ -86,7 +87,8 @@ async function notify(
     kind,
     to: ownerEmail,
     billingUrl: billingUrl(),
-    planLabel: planLabel(sub)
+    planLabel: planLabel(sub),
+    paidThroughIso: paidThroughIso ?? sub.currentPeriodEnd
   });
   if (!sent.ok) return sub;
   // Vitest may stub delivery offline (stubbed: true). Production never stubs success.
@@ -552,6 +554,11 @@ export async function enforceGraceExpirations(nowMs: number = Date.now()): Promi
   return count;
 }
 
+/**
+ * Schedule cancellation at period end (no refund, no proration, no immediate access cut).
+ * Idempotent: repeating cancel while already scheduled is a no-op.
+ * Never calls Stripe refunds / credits / invoice adjustments.
+ */
 export async function cancelAtPeriodEnd(input: {
   organizationId: string;
   source?: string;
@@ -560,6 +567,17 @@ export async function cancelAtPeriodEnd(input: {
   let sub = await resolveLifecycleForOrganization(input.organizationId);
   if (!sub) return null;
   if (sub.organizationId !== input.organizationId) return null;
+
+  // Idempotent: already scheduled — do not re-audit, re-email, or re-call Stripe.
+  if (sub.cancelAtPeriodEnd) {
+    return sub;
+  }
+
+  // Cannot schedule cancel on an already-ended subscription.
+  if (sub.status === "canceled" || sub.status === "expired") {
+    return sub;
+  }
+
   sub = await saveLifecycleSubscription({
     ...sub,
     cancelAtPeriodEnd: true,
@@ -581,6 +599,8 @@ export async function cancelAtPeriodEnd(input: {
       const { getSaasStripeClient } = await import("../saas-stripe/client");
       const stripe = getSaasStripeClient();
       if (stripe) {
+        // Period-end cancel only — never subscriptions.cancel() immediate terminate,
+        // never refunds.create, never proration_behavior on cancel.
         await stripe.subscriptions.update(sub.stripeSubscriptionId, {
           cancel_at_period_end: true
         });
@@ -592,14 +612,20 @@ export async function cancelAtPeriodEnd(input: {
 
   sub = await notify(
     sub,
-    "subscription_canceled",
-    `cancel_scheduled:${sub.updatedAt}`,
-    findOwnerEmail(sub)
+    "subscription_cancel_scheduled",
+    `cancel_scheduled:${sub.stripeSubscriptionId}`,
+    findOwnerEmail(sub),
+    sub.currentPeriodEnd
   );
   await persistLifecycleSubscription(sub);
   return sub;
 }
 
+/**
+ * Undo a scheduled cancellation while the paid period is still running,
+ * or restore a past_due subscription into recovery.
+ * Does not silently recreate an ended subscription (use acquisition/checkout).
+ */
 export async function reactivateSubscription(input: {
   organizationId: string;
 }): Promise<LifecycleSubscription | null> {
@@ -607,6 +633,30 @@ export async function reactivateSubscription(input: {
   let sub = await resolveLifecycleForOrganization(input.organizationId);
   if (!sub) return null;
   if (sub.organizationId !== input.organizationId) return null;
+
+  // Ended subscriptions require normal reacquisition — do not invent a new Stripe sub here.
+  if (
+    (sub.status === "canceled" || sub.status === "expired") &&
+    !sub.cancelAtPeriodEnd
+  ) {
+    return null;
+  }
+  if (
+    (sub.status === "canceled" || sub.status === "expired") &&
+    sub.currentPeriodEnd &&
+    Date.now() >= Date.parse(sub.currentPeriodEnd)
+  ) {
+    return null;
+  }
+
+  // Idempotent: already renewing and active.
+  if (
+    !sub.cancelAtPeriodEnd &&
+    (sub.status === "active" || sub.status === "trialing") &&
+    !sub.graceStartedAt
+  ) {
+    return sub;
+  }
 
   if (!process.env["VITEST"]) {
     try {
@@ -622,18 +672,26 @@ export async function reactivateSubscription(input: {
     }
   }
 
+  const nextStatus: SubscriptionPlatformStatus =
+    sub.status === "trialing" ? "trialing" : "active";
+
   sub = transitionLifecycle(
     {
       ...sub,
       cancelAtPeriodEnd: false,
-      graceStartedAt: null,
+      graceStartedAt: sub.status === "past_due" ? null : sub.graceStartedAt,
       scaRequired: false
     },
-    "active",
+    nextStatus,
     "reactivated",
     "customer"
   );
-  sub = await notify(sub, "subscription_restored", `reactivate:${sub.updatedAt}`, findOwnerEmail(sub));
+  sub = await notify(
+    sub,
+    "subscription_restored",
+    `reactivate:${sub.stripeSubscriptionId}`,
+    findOwnerEmail(sub)
+  );
   await persistLifecycleSubscription(sub);
   return sub;
 }
@@ -668,7 +726,8 @@ export async function lifecycleViewForOrganization(organizationId: string) {
     ...sub,
     phase,
     moduleAccess: hasLifecycleModuleAccess(sub),
-    ownerEmail: findOwnerEmail(sub)
+    ownerEmail: findOwnerEmail(sub),
+    paidThrough: sub.currentPeriodEnd
   };
 }
 

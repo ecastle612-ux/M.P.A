@@ -1,4 +1,11 @@
-import { toSkuLabel, type ProductSku } from "@mpa/shared";
+import {
+  isSubscriptionPlatformStatus,
+  lifecycleAdminDisplayLabel,
+  lifecycleAdminDisplayState,
+  paidThroughLabel,
+  type ProductSku,
+  toSkuLabel
+} from "@mpa/shared";
 import { createAuthServerClient } from "../auth/server";
 import { serverEnv } from "../env/server-env";
 import { listProvisioningJobsFromDb } from "../saas-provisioning/jobs-store";
@@ -29,9 +36,15 @@ export type OrgProfileSnapshot = {
   health: HealthTone;
   subscription: {
     status: string | null;
+    displayState: string | null;
+    displayLabel: string | null;
     sku: ProductSku | null;
     skuLabel: string | null;
     billingCycle: string | null;
+    cancelAtPeriodEnd: boolean;
+    currentPeriodEnd: string | null;
+    paidThroughLabel: string | null;
+    renewalState: string | null;
     stripeCustomerId: string | null;
     stripeSubscriptionId: string | null;
   };
@@ -80,7 +93,9 @@ export async function loadOrganizationProfile(orgId: string): Promise<OrgProfile
   ] = await Promise.all([
     client
       .from("organization_subscriptions")
-      .select("status, sku_code, billing_cycle, stripe_customer_id, stripe_subscription_id")
+      .select(
+        "status, sku_code, billing_cycle, cancel_at_period_end, current_period_end, stripe_customer_id, stripe_subscription_id"
+      )
       .eq("organization_id", orgId)
       .maybeSingle(),
     client
@@ -137,6 +152,8 @@ export async function loadOrganizationProfile(orgId: string): Promise<OrgProfile
     status?: string | null;
     sku_code?: string | null;
     billing_cycle?: string | null;
+    cancel_at_period_end?: boolean | null;
+    current_period_end?: string | null;
     stripe_customer_id?: string | null;
     stripe_subscription_id?: string | null;
   } | null;
@@ -148,6 +165,17 @@ export async function loadOrganizationProfile(orgId: string): Promise<OrgProfile
     setupComplete,
     provisioningStatuses: orgJobs.map((j) => j.checkpoint)
   });
+  const cancelAtPeriodEnd = Boolean(sub?.cancel_at_period_end);
+  const currentPeriodEnd = sub?.current_period_end ?? null;
+  const displayState =
+    sub?.status && isSubscriptionPlatformStatus(sub.status)
+      ? lifecycleAdminDisplayState({
+          status: sub.status,
+          cancelAtPeriodEnd,
+          currentPeriodEnd,
+          graceStartedAt: null
+        })
+      : null;
 
   return {
     id: org.id as string,
@@ -163,9 +191,19 @@ export async function loadOrganizationProfile(orgId: string): Promise<OrgProfile
           : "info",
     subscription: {
       status: sub?.status ?? null,
+      displayState,
+      displayLabel: displayState ? lifecycleAdminDisplayLabel(displayState) : null,
       sku,
       skuLabel: sku ? toSkuLabel(sku) : null,
       billingCycle: sub?.billing_cycle ?? null,
+      cancelAtPeriodEnd,
+      currentPeriodEnd,
+      paidThroughLabel: paidThroughLabel(currentPeriodEnd),
+      renewalState: cancelAtPeriodEnd
+        ? "No future renewal"
+        : sub?.status === "canceled" || sub?.status === "expired"
+          ? "Ended"
+          : "Renews automatically",
       stripeCustomerId: sub?.stripe_customer_id ?? null,
       stripeSubscriptionId: sub?.stripe_subscription_id ?? null
     },

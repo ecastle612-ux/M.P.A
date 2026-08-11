@@ -84,7 +84,18 @@ export function OrganizationProfilePage({ profile }: { profile: OrgProfileSnapsh
               <dd>{profile.subscription.skuLabel ?? "—"}</dd>
             </div>
             <div className="flex justify-between gap-3">
-              <dt className="text-[var(--mpa-color-text-secondary)]">Status</dt>
+              <dt className="text-[var(--mpa-color-text-secondary)]">Lifecycle state</dt>
+              <dd className="text-right font-medium">
+                {profile.subscription.displayLabel ??
+                  (profile.subscription.status ? (
+                    <StatusBadge value={profile.subscription.status} />
+                  ) : (
+                    "—"
+                  ))}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-[var(--mpa-color-text-secondary)]">Platform status</dt>
               <dd>
                 {profile.subscription.status ? (
                   <StatusBadge value={profile.subscription.status} />
@@ -96,6 +107,25 @@ export function OrganizationProfilePage({ profile }: { profile: OrgProfileSnapsh
             <div className="flex justify-between gap-3">
               <dt className="text-[var(--mpa-color-text-secondary)]">Billing cycle</dt>
               <dd>{profile.subscription.billingCycle ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-[var(--mpa-color-text-secondary)]">Cancellation</dt>
+              <dd>
+                {profile.subscription.cancelAtPeriodEnd
+                  ? "Scheduled at period end"
+                  : profile.subscription.status === "canceled" ||
+                      profile.subscription.status === "expired"
+                    ? "Ended"
+                    : "Not scheduled"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-[var(--mpa-color-text-secondary)]">Paid-through</dt>
+              <dd>{profile.subscription.paidThroughLabel ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-[var(--mpa-color-text-secondary)]">Renewal</dt>
+              <dd>{profile.subscription.renewalState ?? "—"}</dd>
             </div>
             <div className="flex flex-wrap gap-3 pt-2">
               {stripeCustomer ? (

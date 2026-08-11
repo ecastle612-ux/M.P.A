@@ -23,6 +23,7 @@ export type SubscriptionPlatformStatus = (typeof SUBSCRIPTION_PLATFORM_STATUSES)
 export const CUSTOMER_LIFECYCLE_PHASES = [
   "pending",
   "active",
+  "cancellation_scheduled",
   "grace",
   "past_due",
   "canceled",
@@ -31,6 +32,19 @@ export const CUSTOMER_LIFECYCLE_PHASES = [
 ] as const;
 
 export type CustomerLifecyclePhase = (typeof CUSTOMER_LIFECYCLE_PHASES)[number];
+
+/**
+ * Master Admin / ops display states for cancellation policy clarity.
+ * Cancellation scheduled is still ACTIVE for access until paid-through ends.
+ */
+export const LIFECYCLE_ADMIN_DISPLAY_STATES = [
+  "ACTIVE",
+  "ACTIVE_CANCELLATION_SCHEDULED",
+  "CANCELLED_ENDED",
+  "OTHER"
+] as const;
+
+export type LifecycleAdminDisplayState = (typeof LIFECYCLE_ADMIN_DISPLAY_STATES)[number];
 
 export const PAST_DUE_GRACE_DAYS = 7;
 
@@ -149,12 +163,27 @@ export function daysIntoGrace(
 
 /**
  * Module / Mission Control access — billing & setup remain reachable separately.
+ *
+ * Cancellation requested (cancelAtPeriodEnd) does NOT revoke access while status
+ * remains active/trialing and the paid-through date has not passed.
+ * No refunds / prorations are implied by this gate.
  */
 export function hasLifecycleModuleAccess(
-  sub: Pick<LifecycleSubscription, "status" | "graceStartedAt" | "cancelAtPeriodEnd">,
+  sub: Pick<
+    LifecycleSubscription,
+    "status" | "graceStartedAt" | "cancelAtPeriodEnd" | "currentPeriodEnd"
+  >,
   nowMs: number = Date.now()
 ): boolean {
   if (sub.status === "active" || sub.status === "trialing") {
+    // Webhook-lag safety: scheduled cancel past paid-through → no module access.
+    if (
+      sub.cancelAtPeriodEnd &&
+      sub.currentPeriodEnd &&
+      nowMs >= Date.parse(sub.currentPeriodEnd)
+    ) {
+      return false;
+    }
     return true;
   }
   if (sub.status === "past_due" && isWithinGracePeriod(sub.graceStartedAt, nowMs)) {
@@ -166,8 +195,9 @@ export function hasLifecycleModuleAccess(
 export function customerLifecyclePhase(
   sub: Pick<
     LifecycleSubscription,
-    "status" | "graceStartedAt" | "audit" | "cancelAtPeriodEnd"
-  >,
+    "status" | "graceStartedAt" | "cancelAtPeriodEnd" | "currentPeriodEnd"
+  > &
+    Partial<Pick<LifecycleSubscription, "audit">>,
   nowMs: number = Date.now()
 ): CustomerLifecyclePhase {
   if (sub.status === "incomplete" || sub.status === "pending") {
@@ -185,7 +215,17 @@ export function customerLifecyclePhase(
   if (sub.status === "past_due") {
     return isWithinGracePeriod(sub.graceStartedAt, nowMs) ? "grace" : "past_due";
   }
-  const last = sub.audit[sub.audit.length - 1];
+  // Active / trialing with cancel scheduled = still entitled until paid-through.
+  if (
+    (sub.status === "active" || sub.status === "trialing") &&
+    sub.cancelAtPeriodEnd
+  ) {
+    if (sub.currentPeriodEnd && nowMs >= Date.parse(sub.currentPeriodEnd)) {
+      return "canceled";
+    }
+    return "cancellation_scheduled";
+  }
+  const last = sub.audit?.[sub.audit.length - 1];
   if (
     sub.status === "active" &&
     last?.reason === "reactivated" &&
@@ -194,6 +234,56 @@ export function customerLifecyclePhase(
     return "reactivated";
   }
   return "active";
+}
+
+/** Paid-through date for cancellation policy copy (current_period_end). */
+export function paidThroughLabel(currentPeriodEnd: string | null | undefined): string | null {
+  if (!currentPeriodEnd) return null;
+  const ms = Date.parse(currentPeriodEnd);
+  if (!Number.isFinite(ms)) return null;
+  return new Date(ms).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
+
+export function lifecycleAdminDisplayState(
+  sub: Pick<
+    LifecycleSubscription,
+    "status" | "cancelAtPeriodEnd" | "currentPeriodEnd" | "graceStartedAt"
+  >,
+  nowMs: number = Date.now()
+): LifecycleAdminDisplayState {
+  const phase = customerLifecyclePhase(sub, nowMs);
+  if (phase === "cancellation_scheduled") {
+    return "ACTIVE_CANCELLATION_SCHEDULED";
+  }
+  if (phase === "canceled" || phase === "expired") {
+    return "CANCELLED_ENDED";
+  }
+  if (
+    phase === "active" ||
+    phase === "reactivated" ||
+    phase === "grace" ||
+    sub.status === "trialing"
+  ) {
+    return "ACTIVE";
+  }
+  return "OTHER";
+}
+
+export function lifecycleAdminDisplayLabel(state: LifecycleAdminDisplayState): string {
+  switch (state) {
+    case "ACTIVE":
+      return "ACTIVE";
+    case "ACTIVE_CANCELLATION_SCHEDULED":
+      return "ACTIVE — CANCELLATION SCHEDULED";
+    case "CANCELLED_ENDED":
+      return "CANCELLED / ENDED";
+    default:
+      return "OTHER";
+  }
 }
 
 export function transitionLifecycle(
@@ -219,11 +309,15 @@ export function transitionLifecycle(
   };
 }
 
-export function customerStatusCopy(phase: CustomerLifecyclePhase): {
+export function customerStatusCopy(
+  phase: CustomerLifecyclePhase,
+  options?: { currentPeriodEnd?: string | null }
+): {
   title: string;
   detail: string;
   requiredAction: string | null;
 } {
+  const paidThrough = paidThroughLabel(options?.currentPeriodEnd ?? null);
   switch (phase) {
     case "pending":
       return {
@@ -236,6 +330,16 @@ export function customerStatusCopy(phase: CustomerLifecyclePhase): {
         title: "Active",
         detail: "Your subscription is in good standing. Renewals are automatic.",
         requiredAction: null
+      };
+    case "cancellation_scheduled":
+      return {
+        title: paidThrough
+          ? `Cancelled — access continues until ${paidThrough}`
+          : "Cancelled — access continues until period end",
+        detail: paidThrough
+          ? `Cancelling stops future renewals. You keep full access through ${paidThrough}. No refunds or prorated refunds are provided.`
+          : "Cancelling stops future renewals. You keep full access through the end of your current paid billing period. No refunds or prorated refunds are provided.",
+        requiredAction: "You can reactivate before that date to keep renewals on."
       };
     case "reactivated":
       return {
@@ -259,15 +363,17 @@ export function customerStatusCopy(phase: CustomerLifecyclePhase): {
       };
     case "canceled":
       return {
-        title: "Canceled",
-        detail: "Your subscription is canceled. Access ends at the close of the current billing period when applicable.",
-        requiredAction: "Reactivate anytime to restore access."
+        title: "Cancelled / ended",
+        detail:
+          "Your paid period has ended and renewals are off. No refunds were issued. Your data is retained.",
+        requiredAction: "Choose a plan again to restore access."
       };
     case "expired":
       return {
         title: "Ended",
-        detail: "Your subscription has ended. Your data is retained. Reactivate to return to Mission Control.",
-        requiredAction: "Reactivate your plan to continue."
+        detail:
+          "Your subscription has ended. Your data is retained. Choose a plan again to return to Mission Control.",
+        requiredAction: "Choose a plan to continue."
       };
   }
 }

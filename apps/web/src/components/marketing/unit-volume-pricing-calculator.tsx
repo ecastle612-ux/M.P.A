@@ -267,6 +267,10 @@ export function UnitVolumePricingCalculator({
           <p className="font-semibold text-[var(--mpa-color-text-primary)]">30 DAYS FREE</p>
           <p>Payment card required at signup.</p>
           <p>After the free trial, automatic billing begins unless you cancel.</p>
+          <p>
+            Cancel anytime — access continues through the paid period end. No refunds or prorated
+            refunds.
+          </p>
         </div>
       ) : (
         <div className="space-y-1 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-3 text-sm">
@@ -276,6 +280,10 @@ export function UnitVolumePricingCalculator({
           <p>
             Payment card required. Recurring amount before Checkout:{" "}
             {formatUsdAmount(selected)}/{billingInterval === "annual" ? "year" : "month"}.
+          </p>
+          <p>
+            Cancel anytime — access continues through the paid period end. No refunds or prorated
+            refunds.
           </p>
         </div>
       )}

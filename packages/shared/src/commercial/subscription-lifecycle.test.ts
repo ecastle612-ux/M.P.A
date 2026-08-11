@@ -7,8 +7,11 @@ import {
   dunningEmailKindForDay,
   graceEndsAt,
   hasLifecycleModuleAccess,
+  lifecycleAdminDisplayLabel,
+  lifecycleAdminDisplayState,
   limitsForPlanTier,
   mapStripeSubscriptionStatus,
+  paidThroughLabel,
   transitionLifecycle,
   type LifecycleSubscription
 } from "./subscription-lifecycle";
@@ -105,5 +108,59 @@ describe("COM-002 Slice E subscription lifecycle", () => {
     expect(dunningEmailKindForDay(3)).toBe("grace_warning");
     expect(dunningEmailKindForDay(6)).toBe("grace_warning");
     expect(dunningEmailKindForDay(7)).toBe("subscription_canceled");
+  });
+
+  it("keeps access while cancellation is scheduled before paid-through (monthly + annual)", () => {
+    const paidThrough = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString();
+    for (const billingCycle of ["monthly", "annual"] as const) {
+      const scheduled = sub({
+        status: "active",
+        billingCycle,
+        cancelAtPeriodEnd: true,
+        currentPeriodEnd: paidThrough
+      });
+      expect(hasLifecycleModuleAccess(scheduled)).toBe(true);
+      expect(customerLifecyclePhase(scheduled)).toBe("cancellation_scheduled");
+      expect(lifecycleAdminDisplayState(scheduled)).toBe("ACTIVE_CANCELLATION_SCHEDULED");
+      expect(lifecycleAdminDisplayLabel("ACTIVE_CANCELLATION_SCHEDULED")).toContain(
+        "CANCELLATION SCHEDULED"
+      );
+      const copy = customerStatusCopy("cancellation_scheduled", {
+        currentPeriodEnd: paidThrough
+      });
+      expect(copy.title.toLowerCase()).toContain("access continues");
+      expect(copy.detail.toLowerCase()).toContain("no refund");
+      expect(copy.detail.toLowerCase()).toContain("prorated");
+      expect(copy.title).not.toMatch(/immediately|terminated/i);
+    }
+  });
+
+  it("revokes access after paid-through when cancel was scheduled (webhook lag safety)", () => {
+    const ended = sub({
+      status: "active",
+      cancelAtPeriodEnd: true,
+      currentPeriodEnd: new Date(Date.now() - 60_000).toISOString()
+    });
+    expect(hasLifecycleModuleAccess(ended)).toBe(false);
+    expect(customerLifecyclePhase(ended)).toBe("canceled");
+    expect(lifecycleAdminDisplayState(ended)).toBe("CANCELLED_ENDED");
+  });
+
+  it("keeps trial access when cancellation is scheduled during trial", () => {
+    const trialEnd = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
+    const trialCancel = sub({
+      status: "trialing",
+      cancelAtPeriodEnd: true,
+      currentPeriodEnd: trialEnd,
+      trialEndsAt: trialEnd
+    });
+    expect(hasLifecycleModuleAccess(trialCancel)).toBe(true);
+    expect(customerLifecyclePhase(trialCancel)).toBe("cancellation_scheduled");
+  });
+
+  it("formats paid-through labels for customer and admin copy", () => {
+    const iso = "2026-08-31T00:00:00.000Z";
+    expect(paidThroughLabel(iso)).toMatch(/2026/);
+    expect(paidThroughLabel(null)).toBeNull();
   });
 });

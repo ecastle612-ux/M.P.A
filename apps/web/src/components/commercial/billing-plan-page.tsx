@@ -21,6 +21,8 @@ type BillingPayload = {
   billingCycleLabel?: string;
   cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: string | null;
+  paidThrough?: string | null;
+  renewalState?: string | null;
   scaRequired?: boolean;
   title?: string;
   detail?: string;
@@ -49,6 +51,17 @@ type CapacityPayload = {
   message?: string;
 };
 
+function formatPaidThrough(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const ms = Date.parse(iso);
+  if (!Number.isFinite(ms)) return null;
+  return new Date(ms).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
+
 export function BillingPlanPage() {
   const router = useRouter();
   const { productLabel } = useCommercialContext();
@@ -60,6 +73,7 @@ export function BillingPlanPage() {
   const [gateOpen, setGateOpen] = useState(false);
   const [authorizeBusy, setAuthorizeBusy] = useState(false);
   const [authorizeError, setAuthorizeError] = useState<string | null>(null);
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -100,10 +114,11 @@ export function BillingPlanPage() {
     if (!res.ok) {
       const payload = (await res.json().catch(() => ({}))) as { error?: string };
       setError(payload.error ?? "Request failed.");
-      return;
+      return false;
     }
     setReloadToken((value) => value + 1);
     router.refresh();
+    return true;
   }
 
   async function authorizeFromBilling() {
@@ -124,6 +139,12 @@ export function BillingPlanPage() {
     setReloadToken((value) => value + 1);
     router.refresh();
   }
+
+  const paidThrough =
+    formatPaidThrough(data?.paidThrough ?? data?.currentPeriodEnd) ?? null;
+  const cancellationScheduled =
+    data?.phase === "cancellation_scheduled" || Boolean(data?.cancelAtPeriodEnd);
+  const subscriptionEnded = data?.phase === "canceled" || data?.phase === "expired";
 
   return (
     <main className="flex-1 space-y-6 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
@@ -157,7 +178,7 @@ export function BillingPlanPage() {
             ) : null}
             <dl className="grid gap-2 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Module</dt>
+                <dt className="text-[var(--mpa-color-text-muted)]">Current plan</dt>
                 <dd>{data.planLabel ?? productLabel ?? "Property Manager"}</dd>
               </div>
               <div>
@@ -169,26 +190,37 @@ export function BillingPlanPage() {
                 <dd>{data.moduleAccess ? "Available" : "Paused — billing recovery required"}</dd>
               </div>
               <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Managed units</dt>
-                <dd>{capacity?.actualUnits ?? data.managedUnitCount ?? "—"}</dd>
+                <dt className="text-[var(--mpa-color-text-muted)]">Paid-through date</dt>
+                <dd>{paidThrough ?? "—"}</dd>
               </div>
               <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Included capacity</dt>
-                <dd>500 units</dd>
+                <dt className="text-[var(--mpa-color-text-muted)]">Cancellation status</dt>
+                <dd>
+                  {cancellationScheduled
+                    ? paidThrough
+                      ? `Cancelled — access continues until ${paidThrough}`
+                      : "Cancellation scheduled — access continues until period end"
+                    : subscriptionEnded
+                      ? "Cancelled / ended"
+                      : "Not cancelled"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Renewal state</dt>
+                <dd>
+                  {cancellationScheduled || subscriptionEnded
+                    ? "No future renewal"
+                    : "Renews automatically"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Managed units</dt>
+                <dd>{capacity?.actualUnits ?? data.managedUnitCount ?? "—"}</dd>
               </div>
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Authorized capacity</dt>
                 <dd>
                   {capacity?.authorizedCapacity ?? data.authorizedUnitCapacity ?? 500} units
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Additional Unit Capacity</dt>
-                <dd>
-                  {capacity?.additionalBlocks ?? data.authorizedAdditionalBlocks ?? 0} block
-                  {(capacity?.additionalBlocks ?? data.authorizedAdditionalBlocks ?? 0) === 1
-                    ? ""
-                    : "s"}
                 </dd>
               </div>
               <div>
@@ -204,8 +236,10 @@ export function BillingPlanPage() {
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Next billing date</dt>
                 <dd>
-                  {data.cancelAtPeriodEnd
-                    ? "Cancels at period end"
+                  {cancellationScheduled
+                    ? paidThrough
+                      ? `Stops after ${paidThrough}`
+                      : "Cancels at period end"
                     : data.currentPeriodEnd
                       ? new Date(data.currentPeriodEnd).toLocaleString()
                       : "Automatic on your billing date"}
@@ -230,6 +264,15 @@ export function BillingPlanPage() {
             {data?.message ?? "Subscription details unavailable."}
           </p>
         )}
+      </section>
+
+      <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+        <h2 className="font-display text-lg font-semibold">Cancellation policy</h2>
+        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+          You may cancel anytime. Cancelling stops future renewals. You keep access until the end of
+          your current paid billing period
+          {paidThrough ? ` (${paidThrough})` : ""}. No refunds or prorated refunds are provided.
+        </p>
       </section>
 
       {capacity?.linked ? (
@@ -276,7 +319,7 @@ export function BillingPlanPage() {
       ) : null}
 
       <section className="flex flex-wrap gap-3">
-        {data?.phase === "grace" || data?.phase === "past_due" || data?.phase === "expired" ? (
+        {data?.phase === "grace" || data?.phase === "past_due" ? (
           <Button
             type="button"
             disabled={busy !== null}
@@ -285,22 +328,33 @@ export function BillingPlanPage() {
             {busy ? "Working…" : "Restore subscription"}
           </Button>
         ) : null}
-        {data?.cancelAtPeriodEnd || data?.phase === "canceled" ? (
+        {cancellationScheduled && !subscriptionEnded ? (
           <Button
             type="button"
             disabled={busy !== null}
             onClick={() => void post("/api/commerce/subscription/reactivate")}
           >
-            {busy ? "Working…" : "Reactivate"}
+            {busy ? "Working…" : "Reactivate renewals"}
           </Button>
-        ) : data?.status === "active" || data?.phase === "active" || data?.phase === "reactivated" ? (
+        ) : null}
+        {subscriptionEnded ? (
+          <Link href="/get-started">
+            <Button type="button">Choose a plan again</Button>
+          </Link>
+        ) : null}
+        {!cancellationScheduled &&
+        !subscriptionEnded &&
+        (data?.status === "active" ||
+          data?.status === "trialing" ||
+          data?.phase === "active" ||
+          data?.phase === "reactivated") ? (
           <Button
             type="button"
             variant="secondary"
             disabled={busy !== null}
-            onClick={() => void post("/api/commerce/subscription/cancel")}
+            onClick={() => setConfirmCancelOpen(true)}
           >
-            {busy ? "Working…" : "Cancel at period end"}
+            Cancel subscription
           </Button>
         ) : null}
         <Link href="/pm/mission-control">
@@ -309,6 +363,52 @@ export function BillingPlanPage() {
           </Button>
         </Link>
       </section>
+
+      {confirmCancelOpen ? (
+        <section
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cancel-confirm-title"
+          className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5 shadow-lg"
+        >
+          <h2 id="cancel-confirm-title" className="font-display text-lg font-semibold">
+            Confirm cancellation
+          </h2>
+          <ul className="list-disc space-y-2 pl-5 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+            <li>Cancelling stops future renewals.</li>
+            <li>
+              You keep access until{" "}
+              <strong className="text-[var(--mpa-color-text-primary)]">
+                {paidThrough ?? "the end of your current paid billing period"}
+              </strong>
+              .
+            </li>
+            <li>No refunds.</li>
+            <li>No prorated refunds.</li>
+          </ul>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              type="button"
+              disabled={busy !== null}
+              onClick={() => {
+                void post("/api/commerce/subscription/cancel").then((ok) => {
+                  if (ok) setConfirmCancelOpen(false);
+                });
+              }}
+            >
+              {busy ? "Working…" : "Confirm cancel"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={busy !== null}
+              onClick={() => setConfirmCancelOpen(false)}
+            >
+              Keep subscription
+            </Button>
+          </div>
+        </section>
+      ) : null}
 
       <section className="space-y-2">
         <h2 className="font-display text-lg font-semibold">Payment history</h2>

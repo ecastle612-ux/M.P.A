@@ -45,7 +45,9 @@ export async function GET(request: Request) {
     });
   }
 
-  const copy = customerStatusCopy(view.phase);
+  const copy = customerStatusCopy(view.phase, {
+    currentPeriodEnd: view.currentPeriodEnd
+  });
   return NextResponse.json({
     organizationId,
     stripeSubscriptionId: view.stripeSubscriptionId,
@@ -71,6 +73,8 @@ export async function GET(request: Request) {
       (view.trialEndsAt != null && Date.parse(view.trialEndsAt) > Date.now()),
     cancelAtPeriodEnd: view.cancelAtPeriodEnd,
     currentPeriodEnd: view.currentPeriodEnd,
+    paidThrough: view.currentPeriodEnd,
+    renewalState: view.cancelAtPeriodEnd ? "stops_at_period_end" : "renews_automatically",
     graceStartedAt: view.graceStartedAt,
     pendingPlanTier: view.pendingPlanTier,
     scaRequired: view.scaRequired,

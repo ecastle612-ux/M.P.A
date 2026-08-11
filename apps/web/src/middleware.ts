@@ -183,7 +183,7 @@ export async function middleware(request: NextRequest) {
     if (organizationId) {
       const { data: subscription } = await supabase
         .from("organization_subscriptions")
-        .select("sku_code, status, grace_started_at, cancel_at_period_end")
+        .select("sku_code, status, grace_started_at, cancel_at_period_end, current_period_end")
         .eq("organization_id", organizationId)
         .maybeSingle();
 
@@ -194,7 +194,11 @@ export async function middleware(request: NextRequest) {
             status: status as SubscriptionPlatformStatus,
             graceStartedAt:
               typeof subscription.grace_started_at === "string" ? subscription.grace_started_at : null,
-            cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end)
+            cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end),
+            currentPeriodEnd:
+              typeof subscription.current_period_end === "string"
+                ? subscription.current_period_end
+                : null
           });
           if (moduleAccess || pathname.startsWith("/billing") || pathname.startsWith("/setup")) {
             sku = subscription.sku_code;

@@ -1,3 +1,4 @@
+import { paidThroughLabel } from "@mpa/shared";
 import { renderFoundationEmail } from "@mpa/email";
 import { serverEnv } from "../env/server-env";
 
@@ -6,6 +7,7 @@ export type LifecycleEmailKind =
   | "payment_failed"
   | "card_expiring"
   | "grace_warning"
+  | "subscription_cancel_scheduled"
   | "subscription_canceled"
   | "subscription_restored";
 
@@ -62,8 +64,10 @@ export async function sendLifecycleEmail(input: {
   to: string;
   billingUrl: string;
   planLabel?: string;
+  paidThroughIso?: string | null;
 }): Promise<{ ok: boolean; stubbed?: boolean; error?: string }> {
   const plan = input.planLabel ?? "your Property Manager plan";
+  const paidThrough = paidThroughLabel(input.paidThroughIso ?? null);
   const copy: Record<LifecycleEmailKind, { subject: string; body: string }> = {
     renewal_success: {
       subject: "Your M.P.A. subscription renewed",
@@ -81,13 +85,19 @@ export async function sendLifecycleEmail(input: {
       subject: "Reminder: update payment to keep your M.P.A. workspace",
       body: `<p>Payment for <strong>${plan}</strong> is still outstanding. Please update billing before the grace period ends.</p><p><a href="${input.billingUrl}">Fix payment</a></p>`
     },
+    subscription_cancel_scheduled: {
+      subject: "Your M.P.A. cancellation is scheduled",
+      body: paidThrough
+        ? `<p>Cancellation for <strong>${plan}</strong> is scheduled. Future renewals are stopped.</p><p>You keep full access through <strong>${paidThrough}</strong>. No refunds or prorated refunds are provided.</p><p><a href="${input.billingUrl}">Manage subscription</a></p>`
+        : `<p>Cancellation for <strong>${plan}</strong> is scheduled. Future renewals are stopped.</p><p>You keep full access through the end of your current paid billing period. No refunds or prorated refunds are provided.</p><p><a href="${input.billingUrl}">Manage subscription</a></p>`
+    },
     subscription_canceled: {
-      subject: "Your M.P.A. subscription was canceled",
-      body: `<p><strong>${plan}</strong> is canceled. Your data is retained. Reactivate anytime from Billing.</p><p><a href="${input.billingUrl}">Manage subscription</a></p>`
+      subject: "Your M.P.A. subscription has ended",
+      body: `<p><strong>${plan}</strong> has ended because the paid period closed. Renewals are off. No refunds were issued. Your data is retained.</p><p><a href="${input.billingUrl}">Manage subscription</a></p>`
     },
     subscription_restored: {
       subject: "Your M.P.A. subscription is restored",
-      body: `<p>Welcome back — <strong>${plan}</strong> is active again and Mission Control is available.</p><p><a href="${input.billingUrl}">View billing</a></p>`
+      body: `<p>Welcome back — <strong>${plan}</strong> is active again and renewals will continue. Mission Control remains available.</p><p><a href="${input.billingUrl}">View billing</a></p>`
     }
   };
   const selected = copy[input.kind];

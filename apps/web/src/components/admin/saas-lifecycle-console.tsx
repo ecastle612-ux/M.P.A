@@ -1,7 +1,10 @@
 import {
   COM_002_FLAGS,
   customerLifecyclePhase,
-  hasLifecycleModuleAccess
+  hasLifecycleModuleAccess,
+  lifecycleAdminDisplayLabel,
+  lifecycleAdminDisplayState,
+  paidThroughLabel
 } from "@mpa/shared";
 import { listLifecycleSubscriptions } from "../../lib/saas-lifecycle/lifecycle-store";
 import { listSaasLifecycleEventsFromDb } from "../../lib/saas-lifecycle/lifecycle-events-store";
@@ -58,6 +61,7 @@ export async function SaasLifecycleConsole() {
           <ul className="space-y-3">
             {subs.slice(0, 40).map((sub) => {
               const phase = customerLifecyclePhase(sub);
+              const display = lifecycleAdminDisplayState(sub);
               return (
                 <li
                   key={sub.id}
@@ -66,13 +70,20 @@ export async function SaasLifecycleConsole() {
                   <p className="font-mono text-xs">
                     {sub.stripeSubscriptionId} · org={sub.organizationId ?? "—"}
                   </p>
+                  <p className="font-medium">{lifecycleAdminDisplayLabel(display)}</p>
                   <p>
                     status={sub.status} · phase={phase} · modules=
-                    {String(hasLifecycleModuleAccess(sub))} · {sub.planTier}/{sub.billingCycle}
+                    {String(hasLifecycleModuleAccess(sub))} · {sub.billingCycle}
                   </p>
                   <p className="text-xs text-[var(--mpa-color-text-muted)]">
-                    capacity=unit-volume (no seat/property limits) grace=
-                    {sub.graceStartedAt ?? "—"} cancelAtPeriodEnd={String(sub.cancelAtPeriodEnd)}
+                    paid-through={paidThroughLabel(sub.currentPeriodEnd) ?? "—"} · renewal=
+                    {sub.cancelAtPeriodEnd ||
+                    sub.status === "canceled" ||
+                    sub.status === "expired"
+                      ? "stopped"
+                      : "on"}{" "}
+                    · cancelAtPeriodEnd={String(sub.cancelAtPeriodEnd)} · grace=
+                    {sub.graceStartedAt ?? "—"}
                   </p>
                   <details className="text-xs text-[var(--mpa-color-text-muted)]">
                     <summary>Audit ({sub.audit.length}) · payments ({sub.paymentHistory.length})</summary>
