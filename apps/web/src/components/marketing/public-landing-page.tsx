@@ -1,42 +1,40 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
-  SKU_SUMMARIES,
   PRODUCT_SKUS,
+  PUBLIC_PRICING_MODEL_COPY,
+  SKU_SUMMARIES,
   acquisitionHref,
-  marketingModulesForOwner,
-  marketingModulesForSku,
-  skuComparisonRows,
   type ProductSku
 } from "@mpa/shared";
 import {
   MarketingChrome,
-  marketingHeroSecondaryCtaClass,
   marketingPrimaryCtaClass,
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
-import { marketingModuleDescription } from "./marketing-module-copy";
-import {
-  BACKGROUND_SCREENING_LABEL,
-  FutureIntegrationsNote,
-  PlannedIntegrationCell
-} from "./future-integrations-note";
+import { LandingCtaRow } from "./landing-cta-row";
+import { LandingMissionControlPreview } from "./landing-mission-control-preview";
 
 function Section({
   id,
   eyebrow,
   title,
   description,
-  children
+  children,
+  className = ""
 }: {
   id?: string;
   eyebrow?: string;
   title: string;
   description?: string;
-  children: ReactNode;
+  children?: ReactNode;
+  className?: string;
 }) {
   return (
-    <section id={id} className="mx-auto max-w-6xl space-y-6 px-4 py-14 md:px-6 md:py-16">
+    <section
+      id={id}
+      className={`mx-auto max-w-6xl space-y-6 px-4 py-14 md:px-6 md:py-16 ${className}`}
+    >
       <div className="max-w-2xl space-y-2">
         {eyebrow ? (
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
@@ -57,29 +55,142 @@ function Section({
   );
 }
 
-function CapabilityList({
-  modules
-}: {
-  modules: ReturnType<typeof marketingModulesForOwner>;
-}) {
-  return (
-    <ul className="grid gap-3 sm:grid-cols-2">
-      {modules.map((module) => (
-        <li
-          key={module.id}
-          className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-4 py-3"
-        >
-          <h3 className="font-medium text-[var(--mpa-color-text-primary)]">{module.label}</h3>
-          <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-            {marketingModuleDescription(module.id, module.description)}
-          </p>
-        </li>
-      ))}
-    </ul>
-  );
-}
+const WORKFLOW_STEPS = [
+  {
+    label: "Property",
+    detail: "Add the property and units you operate."
+  },
+  {
+    label: "Resident / Lease",
+    detail: "Connect residents and lease handoffs to the portfolio."
+  },
+  {
+    label: "Rent",
+    detail: "Run resident billing, collection attention, and payment follow-through."
+  },
+  {
+    label: "Maintenance / Vendor",
+    detail: "Move residential work from request to assignment to resolution."
+  },
+  {
+    label: "Mission Control",
+    detail: "Return to ranked attention and a clear next action each day."
+  },
+  {
+    label: "Owner visibility",
+    detail: "Give owners a portfolio view of occupancy, rent, and maintenance."
+  }
+] as const;
 
-function productCheckoutHref(sku: ProductSku) {
+const OUTCOMES = [
+  {
+    title: "Operational visibility",
+    detail:
+      "Mission Control surfaces what needs attention now, what can wait, and what to do next — from live property work, not a vanity dashboard."
+  },
+  {
+    title: "Clearer handoffs",
+    detail:
+      "Keep work moving between operators, residents, vendors, and owners through connected records and portals."
+  },
+  {
+    title: "Less manual chasing",
+    detail:
+      "Reduce the constant checking across inboxes and spreadsheets by concentrating follow-up in one attention home."
+  },
+  {
+    title: "Connected property work",
+    detail:
+      "Properties, residents, leases, billing, and maintenance stay linked in the same operating loop."
+  },
+  {
+    title: "Resident, owner, and vendor access",
+    detail:
+      "Supported portals let residents handle billing and maintenance requests, owners review portfolio health, and vendors track assigned work."
+  },
+  {
+    title: "Facility work when you need it",
+    detail:
+      "Facility Operations adds a building-side attention home and corrective / domain work-order queues — not a separate spreadsheet for facility tasks."
+  }
+] as const;
+
+const PRODUCT_LANDING_COPY: Record<
+  ProductSku,
+  { priceLine: string; annualLine: string; promise: string }
+> = {
+  mpa_property_manager: {
+    priceLine: PUBLIC_PRICING_MODEL_COPY.pmHeadline,
+    annualLine: `$${PUBLIC_PRICING_MODEL_COPY.pmBaseMonthly * 12}/year`,
+    promise:
+      "Portfolio operations for professional teams — properties, residents, leasing, maintenance, vendors, financial operations, documents, communications, and portals."
+  },
+  mpa_facility_operations: {
+    priceLine: PUBLIC_PRICING_MODEL_COPY.foHeadlineMonthly,
+    annualLine: PUBLIC_PRICING_MODEL_COPY.foHeadlineAnnual,
+    promise:
+      "Facility product for building teams — facility Mission Control plus corrective and domain work-order queues for building work."
+  },
+  mpa_complete_platform: {
+    priceLine: PUBLIC_PRICING_MODEL_COPY.completeHeadlineMonthly,
+    annualLine: PUBLIC_PRICING_MODEL_COPY.completeHeadlineAnnual,
+    promise:
+      "Property Manager and Facility Operations together — both product homes in one organization with shared documents, communications, and identity."
+  }
+};
+
+const FAQ_ITEMS = [
+  {
+    q: "What is M.P.A.?",
+    a: "M.P.A. (My Property Assistant) is a workflow-first Property Operations Platform. It helps operators run the work around properties, residents, leases, billing, maintenance, vendors, facility work, and day-to-day operational attention."
+  },
+  {
+    q: "Who is M.P.A. built for?",
+    a: "Property operators and teams who need more than rent collection alone — portfolio managers, facility teams, and organizations that want residents, owners, and vendors connected to the same operating work."
+  },
+  {
+    q: "Is M.P.A. just rent collection software?",
+    a: "No. Resident billing and rent collection are part of Financial Operations inside Property Manager, but M.P.A. is designed around the broader operating loop: properties, residents, leases, maintenance, vendors, Mission Control attention, and owner visibility."
+  },
+  {
+    q: "What does Property Manager include?",
+    a: "Property Manager includes Mission Control, properties and units, residents, leasing, residential maintenance, vendors, financial operations, documents, communications, reporting, and resident, owner, and vendor portals."
+  },
+  {
+    q: "What is Facility Operations?",
+    a: "Facility Operations is a separate product for building teams. It includes a Facility Mission Control attention home and facility work-order coverage across corrective and domain queues (such as preventive, inspections, safety, and compliance work surfaces). It is a production facility work-order product — not a full traditional CMMS with storeroom ledgers or automated PM engines."
+  },
+  {
+    q: "What is included in Complete Platform?",
+    a: "Complete Platform includes Property Manager and Facility Operations together in one organization, with both product homes and the shared platform foundation (documents, communications, search, and identity)."
+  },
+  {
+    q: "Can I try M.P.A.?",
+    a: "Yes. Plans with 500 or fewer managed units receive a 30-day free trial. A payment card is required at signup. Plans above 500 managed units do not include a free trial. You can also explore without buying through Live Demo."
+  },
+  {
+    q: "How does the 30-day trial work?",
+    a: PUBLIC_PRICING_MODEL_COPY.trialEligible
+  },
+  {
+    q: "What happens after I get started?",
+    a: "You choose a product, confirm managed units and billing, complete Confirm Plan, and pay securely with Stripe. After payment you claim your account, complete Guided Setup, and land in Mission Control — your attention home for daily work."
+  },
+  {
+    q: "What happens if I exceed 500 units?",
+    a: `${PUBLIC_PRICING_MODEL_COPY.includedCapacityPlain} ${PUBLIC_PRICING_MODEL_COPY.additionalCapacityPlain} ${PUBLIC_PRICING_MODEL_COPY.capacityChange}`
+  },
+  {
+    q: "Is screening available?",
+    a: "Professional Background Screening integration is planned and is not available in Version 1.0 today. Leasing and applicant workflow paths exist; provider screening is not shipped yet."
+  },
+  {
+    q: "Is there an Enterprise plan?",
+    a: PUBLIC_PRICING_MODEL_COPY.enterpriseNotProduct
+  }
+] as const;
+
+function productGetStartedHref(sku: ProductSku) {
   return acquisitionHref("questionnaire", {
     sku,
     billingCycle: "monthly"
@@ -87,19 +198,16 @@ function productCheckoutHref(sku: ProductSku) {
 }
 
 export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
-  const pmModules = marketingModulesForOwner("property_manager");
-  const foModules = marketingModulesForOwner("facility_operations");
-  const comparison = skuComparisonRows();
-
   return (
     <MarketingChrome isAuthenticated={isAuthenticated}>
       <a
-        href="#choose-platform"
+        href="#problem"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm"
       >
-        Skip to choose your platform
+        Skip to operational problem
       </a>
 
+      {/* 1. HERO */}
       <section
         aria-label="Homepage hero"
         className="relative isolate flex min-h-[100svh] items-end overflow-hidden"
@@ -116,80 +224,286 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           aria-hidden
           className="absolute inset-y-0 right-0 w-full max-w-3xl bg-[radial-gradient(ellipse_at_70%_40%,rgba(255,255,255,0.16),transparent_55%)]"
         />
-        <svg
-          aria-hidden
-          className="absolute bottom-0 right-0 h-[70%] w-[min(720px,90vw)] text-white/15 motion-safe:animate-[mpa-rise_900ms_ease-out]"
-          viewBox="0 0 720 520"
-          fill="currentColor"
-        >
-          <rect x="80" y="160" width="140" height="360" />
-          <rect x="240" y="90" width="170" height="430" />
-          <rect x="430" y="140" width="150" height="380" />
-          <rect x="600" y="210" width="100" height="310" />
-        </svg>
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-28 md:px-6 md:pb-24">
+
+        <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-4 pb-14 pt-28 md:px-6 md:pb-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-end lg:gap-12">
           <div className="max-w-2xl space-y-5 motion-safe:animate-[mpa-rise_700ms_ease-out]">
             <p className="font-display text-4xl font-semibold tracking-tight text-white md:text-6xl">
               M.P.A.
             </p>
             <h1 className="max-w-xl font-display text-2xl font-semibold leading-tight text-white/95 md:text-3xl">
-              Property operations, calm and complete.
+              Run the whole property operation — not just rent collection.
             </h1>
             <p className="max-w-lg text-base leading-relaxed text-white/80 md:text-lg">
-              Property Manager is available online with managed-unit pricing. Start with pricing or
-              Get Started — then confirm your plan before secure checkout.
+              M.P.A. gives property operators one system for properties, residents, leases, billing,
+              maintenance, vendors, and day-to-day operational attention — so less work falls through
+              the cracks.
             </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              {isAuthenticated ? (
-                <Link href="/dashboard" className={marketingPrimaryCtaClass}>
-                  Open workspace
-                </Link>
-              ) : (
-                <Link href={acquisitionHref("questionnaire")} className={marketingPrimaryCtaClass}>
-                  Get Started
-                </Link>
-              )}
-              <Link href="/demo" className={marketingHeroSecondaryCtaClass}>
-                Live Demo
-              </Link>
-              <Link href="/pricing" className={marketingHeroSecondaryCtaClass}>
-                View Pricing
-              </Link>
-            </div>
+            <LandingCtaRow
+              isAuthenticated={isAuthenticated}
+              variant="hero"
+              showJourneyHint
+            />
+          </div>
+
+          <div className="motion-safe:animate-[mpa-rise_900ms_ease-out] lg:pb-2">
+            <LandingMissionControlPreview />
+            <p className="mt-3 text-xs leading-5 text-white/65">
+              Illustrative Mission Control layout based on the shipped attention home. Explore the
+              Live Demo for the real product experience.
+            </p>
           </div>
         </div>
       </section>
 
+      {/* 2. OPERATIONAL PROBLEM */}
+      <Section
+        id="problem"
+        eyebrow="The real work"
+        title="Rent is only one job. The operation has many."
+        description="Running properties means keeping many moving pieces coordinated — not just collecting rent once a month."
+      >
+        <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2 md:grid-cols-3">
+          {[
+            "Properties and units",
+            "Residents and leases",
+            "Rent and billing follow-up",
+            "Maintenance and work orders",
+            "Vendors and handoffs",
+            "Communication and reminders",
+            "Daily operational attention",
+            "Owner visibility",
+            "Facility building work"
+          ].map((item) => (
+            <li
+              key={item}
+              className="border-l-2 border-[var(--mpa-color-brand-primary)] pl-3 text-sm font-medium text-[var(--mpa-color-text-primary)] md:text-base"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      {/* 3. CONSEQUENCE */}
+      <section
+        id="fragmentation"
+        className="border-y border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)]"
+      >
+        <div className="mx-auto max-w-6xl space-y-6 px-4 py-14 md:px-6 md:py-16">
+          <div className="max-w-2xl space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+              Operational fragmentation
+            </p>
+            <h2 className="font-display text-2xl font-semibold md:text-3xl">
+              When the work is scattered, the operation gets harder to run.
+            </h2>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:text-base">
+              When property work lives in inboxes, spreadsheets, texts, separate tools, and individual
+              memory, operators spend too much time remembering, checking, coordinating, and chasing.
+            </p>
+          </div>
+          <ul className="grid gap-4 md:grid-cols-2">
+            {[
+              {
+                title: "Missed follow-ups",
+                detail: "Requests and reminders slip because nothing holds the full queue in view."
+              },
+              {
+                title: "Unclear ownership",
+                detail: "It becomes harder to see who is waiting on whom — resident, vendor, or team."
+              },
+              {
+                title: "Scattered communication",
+                detail: "Context is split across channels, so the same issue gets re-explained."
+              },
+              {
+                title: "No single operational picture",
+                detail: "Leaders and owners lack one clear view of what needs attention today."
+              }
+            ].map((item) => (
+              <li key={item.title} className="max-w-xl space-y-1">
+                <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+                <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                  {item.detail}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* 4. SOLUTION */}
+      <Section
+        id="solution"
+        eyebrow="The solution"
+        title="M.P.A. — a workflow-first Property Operations Platform"
+        description="M.P.A. gives property operators a system built around the work of running the operation — connecting people, properties, residents, maintenance, and day-to-day attention so less work falls through the cracks."
+      >
+        <p className="max-w-2xl text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:text-base">
+          Instead of organizing isolated rental tasks in separate places, M.P.A. is designed so the
+          operating loop can move together: from property setup through residents, leases, rent,
+          maintenance, and daily attention in Mission Control.
+        </p>
+      </Section>
+
+      {/* 5. WORKFLOW STORY */}
+      <Section
+        id="workflow"
+        eyebrow="How the work flows"
+        title="A connected operating loop — not a pile of disconnected tasks"
+        description="Property Manager supports this operating path from purchase through daily ops. Facility Operations adds a building-side path for facility work orders."
+      >
+        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {WORKFLOW_STEPS.map((step, index) => (
+            <li
+              key={step.label}
+              className="relative space-y-2 border-t border-[var(--mpa-color-brand-primary)]/40 pt-4"
+            >
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+                Step {index + 1}
+              </p>
+              <h3 className="font-display text-lg font-semibold">{step.label}</h3>
+              <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                {step.detail}
+              </p>
+            </li>
+          ))}
+        </ol>
+        <div className="max-w-2xl space-y-2 border-t border-[var(--mpa-color-border-subtle)] pt-6">
+          <h3 className="font-display text-base font-semibold">Facility path</h3>
+          <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+            Facility Mission Control → corrective and domain work-order queues for building teams.
+            Complete Platform customers get both Property Manager and Facility Operations homes in
+            one organization.
+          </p>
+        </div>
+      </Section>
+
+      {/* 6. MISSION CONTROL PROOF */}
+      <section
+        id="mission-control"
+        className="border-y border-[var(--mpa-color-border-subtle)] bg-[linear-gradient(180deg,#0B1F1A_0%,#102820_55%,#0F1720_100%)]"
+      >
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:items-center md:px-6 md:py-16">
+          <div className="space-y-4 text-white">
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/65">
+              Mission Control
+            </p>
+            <h2 className="font-display text-2xl font-semibold md:text-3xl">
+              See what needs attention and keep the operation moving.
+            </h2>
+            <p className="max-w-lg text-sm leading-6 text-white/75 md:text-base">
+              Mission Control is your attention home after Guided Setup — Immediate, Waiting on me,
+              Waiting on others, and a clear next action drawn from live property work.
+            </p>
+            <LandingCtaRow isAuthenticated={isAuthenticated} variant="hero" />
+          </div>
+          <div>
+            <LandingMissionControlPreview />
+            <p className="mt-3 text-xs leading-5 text-white/60">
+              Illustrative layout of the shipped Mission Control attention model. Not a live customer
+              screenshot.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. OUTCOMES */}
+      <Section
+        id="outcomes"
+        eyebrow="What changes"
+        title="Know what needs attention. Keep work moving. Operate with greater control."
+        description="Outcome-led capabilities grounded in the shipped Property Manager loop, portals, and Facility Operations work-order product."
+      >
+        <ul className="grid gap-8 sm:grid-cols-2">
+          {OUTCOMES.map((item) => (
+            <li key={item.title} className="max-w-md space-y-2">
+              <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+              <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                {item.detail}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      {/* 8. DIFFERENTIATION */}
+      <Section
+        id="differentiation"
+        eyebrow="Built around the operation"
+        title="Task tools organize pieces. M.P.A. is built for the operating loop."
+        description="Many property tools help with individual rental tasks. M.P.A. is designed around the operation that connects those tasks — so people, properties, residents, maintenance, and attention can move together."
+      >
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+              Task-focused tools
+            </h3>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              Helpful for discrete jobs — collect rent, log a repair, send a message — often handled
+              as separate activities.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+              Workflow-first property operations
+            </h3>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              Designed so the work stays connected across the operating loop, with Mission Control as
+              the daily attention home.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* 9. PRODUCT EXPERIENCE */}
+      <Section
+        id="experience"
+        eyebrow="See it working"
+        title="Explore the real product in Live Demo"
+        description="Prefer proof over promises. Open Live Demo to experience Mission Control and the operating surfaces without creating an account."
+      >
+        <LandingCtaRow isAuthenticated={isAuthenticated} />
+      </Section>
+
+      {/* 10. PRODUCT SELECTION */}
       <Section
         id="choose-platform"
-        eyebrow="Choose Your Platform"
-        title="Three platforms. One operating system."
-        description="Start with the product that matches your team."
+        eyebrow="Choose your platform"
+        title="Three products. One operating approach."
+        description="Start with the product that matches your team. Enterprise remains an optional sales path — not a fourth self-serve product."
       >
         <ul className="grid gap-4 md:grid-cols-3">
           {PRODUCT_SKUS.map((sku) => {
             const summary = SKU_SUMMARIES[sku];
+            const copy = PRODUCT_LANDING_COPY[sku];
             return (
               <li
                 key={sku}
-                className="flex flex-col rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
+                className="flex flex-col border-t-2 border-[var(--mpa-color-brand-primary)] pt-4"
               >
                 <h3 className="font-display text-xl font-semibold">{summary.label}</h3>
-                <p className="mt-2 flex-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-                  {summary.description}
+                <p className="mt-2 text-2xl font-semibold tabular-nums">
+                  {copy.priceLine}
+                  <span className="ml-2 text-sm font-normal text-[var(--mpa-color-text-secondary)]">
+                    {copy.annualLine}
+                  </span>
                 </p>
-                <p className="mt-4 text-xs text-[var(--mpa-color-text-muted)]">
-                  {marketingModulesForSku(sku).length} included modules
+                <p className="mt-1 text-xs text-[var(--mpa-color-text-muted)]">
+                  {PUBLIC_PRICING_MODEL_COPY.pmIncludes}
                 </p>
-                <div className="mt-4 flex flex-col gap-2">
+                <p className="mt-3 flex-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                  {copy.promise}
+                </p>
+                <div className="mt-5 flex flex-col gap-2">
+                  <Link href={productGetStartedHref(sku)} className={marketingPrimaryCtaClass}>
+                    Get started with {summary.label}
+                  </Link>
                   <Link
                     href={acquisitionHref("pricing", sku)}
-                    className={marketingPrimaryCtaClass}
+                    className={marketingSecondaryCtaClass}
                   >
                     View pricing
-                  </Link>
-                  <Link href={productCheckoutHref(sku)} className={marketingSecondaryCtaClass}>
-                    Confirm {summary.label}
                   </Link>
                 </div>
               </li>
@@ -198,35 +512,85 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         </ul>
       </Section>
 
+      {/* 11. PRICING / VALUE BRIDGE */}
+      <section
+        id="pricing-value"
+        className="border-y border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)]"
+      >
+        <div className="mx-auto max-w-6xl space-y-6 px-4 py-14 md:px-6 md:py-16">
+          <div className="max-w-2xl space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+              Transparent value
+            </p>
+            <h2 className="font-display text-2xl font-semibold md:text-3xl">
+              Clear pricing for operating capacity — not seat theater.
+            </h2>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:text-base">
+              Property Manager and Facility Operations start at {PUBLIC_PRICING_MODEL_COPY.pmHeadline}.
+              Complete Platform is {PUBLIC_PRICING_MODEL_COPY.completeHeadlineMonthly}. Each plan
+              includes up to {PUBLIC_PRICING_MODEL_COPY.includedUnits} managed units.
+            </p>
+          </div>
+          <ul className="grid gap-4 text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:grid-cols-3">
+            <li>
+              <p className="font-semibold text-[var(--mpa-color-text-primary)]">
+                Additional capacity
+              </p>
+              <p className="mt-1">{PUBLIC_PRICING_MODEL_COPY.additionalCapacityLine}</p>
+              <p className="mt-1">{PUBLIC_PRICING_MODEL_COPY.additionalCapacityAnnualLine}</p>
+            </li>
+            <li>
+              <p className="font-semibold text-[var(--mpa-color-text-primary)]">Trial</p>
+              <p className="mt-1">{PUBLIC_PRICING_MODEL_COPY.trialEligible}</p>
+            </li>
+            <li>
+              <p className="font-semibold text-[var(--mpa-color-text-primary)]">Above 500 units</p>
+              <p className="mt-1">{PUBLIC_PRICING_MODEL_COPY.trialIneligible}</p>
+            </li>
+          </ul>
+          <Link href="/pricing" className={marketingPrimaryCtaClass}>
+            View full pricing
+          </Link>
+        </div>
+      </section>
+
+      {/* 12. TRUST */}
       <Section
         id="trust"
-        eyebrow="Built for operators"
-        title="Clarity before complexity."
-        description="Three platforms. Transparent pricing. Guided Setup after checkout. Mission Control when you are ready to work."
+        eyebrow="Trust without theater"
+        title="Honest scope. Transparent rules. A clear path in."
+        description="We do not invent customer logos or savings percentages. These are the signals you can verify today."
       >
-        <ul className="grid gap-3 sm:grid-cols-3">
+        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
-              title: "Honest products",
-              detail: "Property Manager, Facility Operations, and Complete Platform — no fake SaaS tiers."
+              title: "Transparent pricing",
+              detail: "Published base prices, unit capacity rules, and Additional Unit Capacity in plain language."
             },
             {
-              title: "Pay, then claim",
-              detail: "Stripe Checkout first, then account claim and Guided Setup into Mission Control."
+              title: "Transparent trial",
+              detail: "30 days for ≤500 managed units. Card required. No trial above 500 units."
             },
             {
-              title: "Support without the database",
-              detail: "Owner Operations helps diagnose customers, provisioning, and platform health."
+              title: "Clear product scope",
+              detail: "Three real products. Facility Operations described as the shipped work-order product — not an oversold CMMS."
+            },
+            {
+              title: "Live Demo",
+              detail: "Explore Mission Control and product surfaces without creating an account."
+            },
+            {
+              title: "Clear post-checkout path",
+              detail: "Stripe Checkout → account claim → Guided Setup → Mission Control."
+            },
+            {
+              title: "Honest roadmap language",
+              detail: "Background Screening is planned and called out as not available in Version 1.0."
             }
           ].map((item) => (
-            <li
-              key={item.title}
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4 shadow-[0_1px_0_rgba(15,27,45,0.04)]"
-            >
-              <h3 className="font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+            <li key={item.title} className="space-y-1">
+              <h3 className="font-display text-base font-semibold">{item.title}</h3>
+              <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                 {item.detail}
               </p>
             </li>
@@ -234,196 +598,41 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         </ul>
       </Section>
 
-      <Section
-        id="property-manager"
-        eyebrow="Property Manager"
-        title="Portfolio operations for professional teams"
-        description="Mission Control, properties, residents, leasing, maintenance, vendors, financial operations, and customer portals."
-      >
-        <CapabilityList modules={pmModules} />
-        <div className="flex flex-wrap gap-3 pt-2">
-          <Link
-            href={acquisitionHref("pricing", "mpa_property_manager")}
-            className={marketingPrimaryCtaClass}
-          >
-            Property Manager pricing
-          </Link>
-        </div>
-      </Section>
-
-      <Section
-        id="facility-operations"
-        eyebrow="Facility Operations"
-        title="Facility product for building teams"
-        description="Work coverage, assets, inventory, preventive maintenance, safety, compliance, and building systems."
-      >
-        <CapabilityList modules={foModules} />
-        <div className="flex flex-wrap gap-3 pt-2">
-          <Link
-            href={acquisitionHref("pricing", "mpa_facility_operations")}
-            className={marketingPrimaryCtaClass}
-          >
-            Facility Operations pricing
-          </Link>
-        </div>
-      </Section>
-
-      <Section
-        id="complete-platform"
-        eyebrow="Complete Platform"
-        title="Both product homes, one organization"
-        description="Property Manager and Facility Operations together with shared documents, communications, search, and identity."
-      >
-        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Complete Platform includes every module from Property Manager and Facility Operations.
-        </p>
-        <div className="flex flex-wrap gap-3 pt-2">
-          <Link
-            href={acquisitionHref("pricing", "mpa_complete_platform")}
-            className={marketingPrimaryCtaClass}
-          >
-            Complete Platform pricing
-          </Link>
-        </div>
-      </Section>
-
-      <Section
-        id="comparison"
-        eyebrow="Feature comparison"
-        title="See what each platform includes"
-        description="Compare capabilities across Property Manager, Facility Operations, and Complete Platform."
-      >
-        <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)]">
-          <table className="w-full min-w-[40rem] border-collapse text-sm">
-            <thead className="bg-[var(--mpa-color-bg-subtle,#F7F8FA)]">
-              <tr>
-                <th scope="col" className="px-3 py-2 text-left font-semibold">
-                  Capability
-                </th>
-                <th scope="col" className="px-3 py-2 text-left font-semibold">
-                  Property Manager
-                </th>
-                <th scope="col" className="px-3 py-2 text-left font-semibold">
-                  Facility Operations
-                </th>
-                <th scope="col" className="px-3 py-2 text-left font-semibold">
-                  Complete
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {comparison.map((row) => (
-                <tr key={row.id} className="border-t border-[var(--mpa-color-border-subtle)]">
-                  <th scope="row" className="px-3 py-2 text-left font-normal">
-                    {row.label}
-                  </th>
-                  <td className="px-3 py-2">
-                    {row.pm ? (
-                      <>
-                        <span aria-hidden>●</span>
-                        <span className="sr-only">Included</span>
-                      </>
-                    ) : (
-                      <>
-                        <span aria-hidden>—</span>
-                        <span className="sr-only">Not included</span>
-                      </>
-                    )}
-                  </td>
-                  <td className="px-3 py-2">
-                    {row.fo ? (
-                      <>
-                        <span aria-hidden>●</span>
-                        <span className="sr-only">Included</span>
-                      </>
-                    ) : (
-                      <>
-                        <span aria-hidden>—</span>
-                        <span className="sr-only">Not included</span>
-                      </>
-                    )}
-                  </td>
-                  <td className="px-3 py-2">
-                    {row.complete ? (
-                      <>
-                        <span aria-hidden>●</span>
-                        <span className="sr-only">Included</span>
-                      </>
-                    ) : (
-                      <>
-                        <span aria-hidden>—</span>
-                        <span className="sr-only">Not included</span>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              <tr className="border-t border-[var(--mpa-color-border-subtle)]">
-                <th scope="row" className="px-3 py-2 text-left font-normal">
-                  {BACKGROUND_SCREENING_LABEL}
-                </th>
-                <td className="px-3 py-2">
-                  <PlannedIntegrationCell />
-                </td>
-                <td className="px-3 py-2">
-                  <PlannedIntegrationCell />
-                </td>
-                <td className="px-3 py-2">
-                  <PlannedIntegrationCell />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <FutureIntegrationsNote className="mt-4 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-4 py-3" />
-      </Section>
-
-      <Section id="faq" eyebrow="FAQ" title="Straight answers">
-        <dl className="space-y-4">
-          {[
-            {
-              q: "What can I buy online today?",
-              a: "Property Manager and Facility Operations from $59/month, and Complete Platform from $109/month — each includes up to 500 managed units, with Additional Unit Capacity at +$39/month per additional 500 units. Annual equals monthly × 12 (Facility Operations base annual is $590)."
-            },
-            {
-              q: "Are background screening integrations available?",
-              a: "Professional Background Screening integration is planned. M.P.A. continues expanding its connected property operations ecosystem — this is not available in Version 1.0 today."
-            },
-            {
-              q: "How does checkout work?",
-              a: "Review pricing, answer a short questionnaire, confirm your managed-unit plan, then pay securely with Stripe. Your workspace is prepared after payment."
-            },
-            {
-              q: "What is Enterprise?",
-              a: "Enterprise is an optional purchasing and onboarding path for very large organizations that need custom contracts, SSO, integrations, or dedicated onboarding — not a separate product."
-            }
-          ].map((item) => (
-            <div
-              key={item.q}
-              className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
-            >
+      {/* 13. FAQ */}
+      <Section id="faq" eyebrow="FAQ" title="Straight answers before you start">
+        <dl className="space-y-5">
+          {FAQ_ITEMS.map((item) => (
+            <div key={item.q} className="max-w-3xl border-t border-[var(--mpa-color-border-subtle)] pt-4">
               <dt className="font-semibold">{item.q}</dt>
-              <dd className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{item.a}</dd>
+              <dd className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                {item.a}
+              </dd>
             </div>
           ))}
         </dl>
       </Section>
 
-      <Section
-        id="enterprise"
-        eyebrow="Enterprise Solutions"
-        title="For very large organizations"
-        description="Need custom contracts, SSO, integrations, or dedicated onboarding? Enterprise is an optional path — not a product and not a pricing tier."
+      {/* 14. FINAL CTA — not Enterprise */}
+      <section
+        id="get-started"
+        className="border-t border-[var(--mpa-color-border-subtle)] bg-[linear-gradient(145deg,#0B1F1A_0%,#0F6B56_55%,#1A2330_100%)]"
       >
-        <div className="flex flex-wrap gap-3">
-          <Link href="/enterprise" className={marketingPrimaryCtaClass}>
-            Explore Enterprise Solutions
-          </Link>
-          <Link href="/pricing" className={marketingSecondaryCtaClass}>
-            Back to platform pricing
-          </Link>
+        <div className="mx-auto max-w-6xl space-y-5 px-4 py-16 md:px-6 md:py-20">
+          <p className="font-display text-3xl font-semibold text-white md:text-4xl">M.P.A.</p>
+          <h2 className="max-w-2xl font-display text-2xl font-semibold text-white md:text-3xl">
+            Run the operation with greater clarity and control.
+          </h2>
+          <p className="max-w-xl text-sm leading-6 text-white/75 md:text-base">
+            Know what needs attention, keep work moving, and stop running the property operation from
+            scattered tools and memory.
+          </p>
+          <LandingCtaRow
+            isAuthenticated={isAuthenticated}
+            variant="hero"
+            showJourneyHint
+          />
         </div>
-      </Section>
+      </section>
     </MarketingChrome>
   );
 }
