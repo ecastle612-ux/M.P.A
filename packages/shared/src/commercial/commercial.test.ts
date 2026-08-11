@@ -198,7 +198,7 @@ describe("route entitlement enforcement", () => {
 });
 
 describe("master admin catalog", () => {
-  it("exposes Master Admin Overview + Organizations + Errors with lean Owner Ops groups", () => {
+  it("exposes Master Admin Overview + Organizations + Users + Audit + Errors", () => {
     const titles = MASTER_ADMIN_NAV.map((group) => group.title);
     expect(titles).toEqual(["Master Admin", "Operations", "Customers", "Commercial"]);
 
@@ -206,6 +206,8 @@ describe("master admin catalog", () => {
     expect(allHrefs).toEqual([
       "/admin",
       "/admin/platform/organizations",
+      "/admin/users",
+      "/admin/audit",
       "/admin/errors",
       "/admin/support",
       "/admin/system",
@@ -223,6 +225,8 @@ describe("master admin catalog", () => {
     expect(maGroup?.items.map((item) => item.label)).toEqual([
       "Overview",
       "Organizations",
+      "Users",
+      "Audit Log",
       "Errors"
     ]);
 
