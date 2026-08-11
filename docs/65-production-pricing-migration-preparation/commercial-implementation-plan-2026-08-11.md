@@ -36,7 +36,7 @@ annual           = monthly × 12   # NO discount
 | Trial | **Exactly 30 days** if declared units ≤ 500; else **no trial** |
 | Card | **Required** before trial / Checkout |
 | Seat limit | **REMOVE** (future slice — not this task) |
-| Property limit | **UNCHANGED** |
+| Property limit | **REMOVE** (Owner-authorized; future slice — not this task) |
 | Over-capacity | **Payment gate** — authorize Additional Unit Capacity |
 | Existing subscribers | **None** — no migration |
 | Customer language | **Additional Unit Capacity** (not Enterprise product) |
@@ -90,23 +90,12 @@ Landing → Questionnaire → Recommend → Confirm Plan → Stripe Checkout
 
 ---
 
-## 3. Property limit (UNCHANGED)
+## 3. Property limit (REMOVE — AUTHORIZED)
 
-### 3.1 Where it applies today
+Owner authorized removal. Properties are not a billing metric.  
+Full inventory: [`unit-based-commercial-authorization-2026-08-11.md`](./unit-based-commercial-authorization-2026-08-11.md) §2.
 
-| Location | Behavior |
-|----------|----------|
-| `PROPERTY_LIMITS` in `plans.ts` | Pro=25, Business=150, Enterprise=null |
-| Catalog / Checkout metadata `mpa_property_limit` | Stored on offer + Stripe metadata |
-| `organization_subscriptions.property_limit` | Persisted by lifecycle |
-| Billing / admin UI | Displays property cap |
-| COM-002 defaults | Fail closed on property create at cap |
-
-### 3.2 Conflict with unit-volume
-
-Many small properties can hit property=25 while still within $59 unit capacity; few large properties may be fine. **Orthogonal and potentially conflicting.**
-
-**Decision:** Keep property limits **as-is**. Flag future Owner authorization to raise/remove. **Do not change in implementation slices unless authorized.**
+**Do not implement removal in this planning package.** Combine with Slice 2 (seat + property commercial capacity retirement).
 
 ---
 
@@ -280,18 +269,18 @@ Reuse COM-002 lifecycle statuses/webhooks; adapt behaviors:
 | **Acceptance** | Formulas match Owner tables; `trial_eligible = units <= 500` |
 | **Rollback** | Delete pure module; no runtime coupling |
 
-### Slice 2 — Seat-limit removal
+### Slice 2 — Seat + property limit removal
 
 | | |
 |--|--|
-| **Scope** | Stop seat enforcement/display/metadata; keep property limits |
-| **Files** | `plans.ts`, `catalog.ts`, `saas-checkout.ts`, lifecycle, billing UI, admin consoles, tests |
-| **APIs** | Subscription GET/change-plan response shape |
-| **DB** | Stop writing `seat_limit` (nullable); no forced drop |
-| **Stripe / env** | Stop `mpa_seat_limit` metadata |
-| **Tests** | Invites not blocked by seat; UI has no seat cap |
-| **Acceptance** | Seat capacity gone; property limit still present |
-| **Rollback** | Revert PR; seats were non-billing |
+| **Scope** | Stop seat **and** property commercial capacity enforcement/display/metadata |
+| **Files** | `plans.ts` (`SEAT_LIMITS`, `PROPERTY_LIMITS`), `catalog.ts`, `saas-checkout.ts`, lifecycle, billing UI, admin consoles, tests |
+| **APIs** | Subscription GET/change-plan — drop seat/property capacity fields |
+| **DB** | Stop writing `seat_limit` / `property_limit` (nullable; optional later drop) |
+| **Stripe / env** | Stop `mpa_seat_limit` / `mpa_property_limit` metadata |
+| **Tests** | No seat/property caps; property create not blocked by 25/150 |
+| **Acceptance** | Only unit-capacity payment gate remains for commercial capacity |
+| **Rollback** | Revert PR |
 
 ### Slice 3 — Pricing calculation (server)
 
@@ -456,7 +445,8 @@ Reuse COM-002 lifecycle statuses/webhooks; adapt behaviors:
 
 - Acquisition session table  
 - Org subscription unit-volume columns + authorization audit  
-- Stop relying on `seat_limit` (keep `property_limit`)  
+- Stop relying on `seat_limit` and `property_limit`  
+- Authorization: [`unit-based-commercial-authorization-2026-08-11.md`](./unit-based-commercial-authorization-2026-08-11.md)
 
 ### APIs (future)
 
@@ -483,12 +473,11 @@ Reuse COM-002 lifecycle statuses/webhooks; adapt behaviors:
 
 ## 11. Remaining Owner decisions
 
-1. **Property limit** keep/raise/remove (currently **unchanged**; **OWNER DECISION REQUIRED** for commercial contradiction — not a coding blocker).  
-2. **COM-002 defaults** seat/trial/proration amendments — authorize separate governance PR.  
-3. **FO_READY** timing for Complete self-serve Checkout.  
-4. **Production cutover** after readiness checklist in [`pre-implementation-reconciliation-2026-08-11.md`](./pre-implementation-reconciliation-2026-08-11.md) §6.  
+1. **COM-002 package edit PR** — apply [`com-002-unit-capacity-amendment-proposal-2026-08-11.md`](./com-002-unit-capacity-amendment-proposal-2026-08-11.md).  
+2. **FO_READY** timing for Complete self-serve Checkout.  
+3. **Production cutover** after readiness checklist.  
 
-**Closed:** over-capacity payment gate; new recurring price = **next billing period**; no mid-period surprise charge.
+**Closed:** property-limit **REMOVE**; seat-limit **REMOVE**; payment gate → next billing period.
 
 ---
 

@@ -47,8 +47,8 @@ Internal env labels such as `PROFESSIONAL` are Price-mapping names only.
 | Annual | Monthly × 12 — **no discount** |
 | Unit overage | **Payment gate** (authorize Additional Unit Capacity); no silent/surprise charge |
 | Trial | **Exactly 30 days** if declared ≤ 500; else none; card required |
-| Seat limits | **Remove** (future code) — unit-volume replaces seat capacity |
-| Property limits | **Unchanged** until Owner authorizes |
+| Seat limits | **REMOVE** (future code) |
+| Property limits | **REMOVE** (Owner-authorized; future code) |
 | Existing subscribers | **None** — migration **not required** |
 | Acquisition | Short questionnaire → recommend module → price → Confirm Plan |
 
@@ -284,7 +284,7 @@ Complete’s unit surcharge is **Additional Unit Capacity** on the Complete subs
 | Checkout | One line item qty 1; no trial | Questionnaire → Base + conditional Block; `trial_period_days=30` if ≤500 |
 | Pricing UI | Fixed Stripe amounts; seat copy | Questionnaire; Additional Unit Capacity; 30-day trial messaging |
 | Env Price maps | `STRIPE_PRICE_PM_PROFESSIONAL_*` (+ Business) | PM/Complete Base + shared Block keys (see §7) |
-| Org commercial state | `seat_limit` / `property_limit` | Authorized unit blocks; **stop using seat_limit**; property_limit unchanged until Owner says |
+| Org commercial state | `seat_limit` / `property_limit` | Authorized unit blocks; **stop using seat_limit and property_limit** |
 | Unit meter + payment gate | None | Count `property_units`; gate exceeding paid capacity |
 | Lifecycle | Immediate proration on tier change | Payment-gate uplift; period-end reconcile; no silent increases |
 | Webhooks | No trial_will_end sync | 30-day trial end; capacity sync |
@@ -490,10 +490,11 @@ Closed: trial = **30 days**; seat limits = **remove**; over-capacity = **payment
 
 Still open (need explicit authorization later):
 
-1. **Property limit** fate — keep / raise / remove (do not change yet).  
-2. **Authorize-uplift Stripe timing** — charge on Authorize vs next invoice (must not surprise).  
-3. **FO_READY** Complete Checkout activation timing.  
-4. **FO unit-volume** — none unless Owner extends.
+1. **COM-002 package edit** applying unit-capacity amendment proposal.  
+2. **FO_READY** Complete Checkout activation timing.  
+3. Production cutover authorization.
+
+**Closed:** property-limit **REMOVE**; seat-limit **REMOVE**; next-period capacity pricing.
 
 ---
 

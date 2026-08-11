@@ -275,8 +275,8 @@ Rejected for primary path: fixed Price-per-band matrix (does not scale); metered
 | Annual total | Same blocks × 12 (no discount) |
 | Quantity / price changes | No surprise mid-period charges; **payment gate** when exceeding paid capacity; period-end reconcile |
 | Trial | **30 days** if declared ≤ 500; else none; card always required |
-| Seat limit | **Remove** (future code) — unit-volume replaces seat capacity |
-| Property limit | **Unchanged** until Owner authorizes |
+| Seat limit | **REMOVE** (future code) |
+| Property limit | **REMOVE** (future code) — not a billing metric |
 | Entitlements | Product SKU modules; unit capacity via authorized blocks |
 | FO | Flat $59/$590; gated; no unit-volume |
 | Complete | Unit-volume with $109 base; self-serve gated until FO_READY |
@@ -312,7 +312,7 @@ Document for a future approved implementation only:
 6. Checkout calculation of initial block quantity from unit count (or initial portfolio setup).  
 7. **30-day free trial (≤500 declared units only):** card required; `trial_period_days=30`; no trial when >500.  
 8. **Payment gate** when exceeding paid unit capacity (authorize Additional Unit Capacity before continuing).  
-9. **Retire seat limits** (COM-002 `SEAT_LIMITS` / `mpa_seat_limit` / `seat_limit` column usage).  
+9. **Retire seat + property limits** (`SEAT_LIMITS` / `PROPERTY_LIMITS` / metadata / columns / UI).  
 10. Complete unit-volume Prices (base $109 + shared $39 block) when Complete Checkout is authorized.  
 11. Billing lifecycle sync; period-end reconcile; audit history.  
 12. Acquisition questionnaire + Confirm Plan price display.  
@@ -327,7 +327,7 @@ Document for a future approved implementation only:
 - [ ] Declared > 500 → no trial  
 - [ ] Exceeding paid capacity → payment gate (no silent charge; no org-wide lockout)  
 - [ ] Seat limits removed from commercial model  
-- [ ] Property limits unchanged unless Owner authorizes  
+- [ ] Property limits removed from commercial model  
 - [ ] No Business / Enterprise customer product  
 - [ ] Customer-facing **Additional Unit Capacity** language  
 - [ ] FIN-OPS rent money domain untouched  
@@ -340,12 +340,11 @@ Resolved and **removed:** trial length (**30 days**); seat limit (**remove**); o
 
 Still open (minimal — need explicit authorization):
 
-1. **Property limit** fate — keep / raise / remove (**OWNER DECISION REQUIRED**; **do not change** yet).  
-2. **COM-002** seat/trial/proration governance amendment authorization.  
-3. **FO_READY** Complete self-serve activation timing (pricing model already final).  
-4. Production cutover after pre-implementation readiness checklist.
+1. **COM-002 package edit PR** applying unit-capacity amendment proposal.  
+2. **FO_READY** Complete self-serve activation timing.  
+3. Production cutover after readiness checklist.
 
-**Closed:** over-capacity payment gate; new recurring price = **next billing period**; no mid-period surprise charge.
+**Closed:** seat **REMOVE**; property **REMOVE**; payment gate → next billing period.
 
 ---
 

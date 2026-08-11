@@ -29,8 +29,9 @@
 | Annual | Monthly × 12 — **no discount** |
 | Trial | **Exactly 30 days** when declared units **≤ 500** |
 | Trial if declared units **> 500** | **None** |
-| Seat (login) hard cap from COM-002 tiers | **Remove** (unit-volume replaces seat-capacity commercial model) — code removal is **future** |
-| Property limit | **Do not change** without explicit Owner authorization — conflict documented in §5 |
+| Seat limit | **REMOVE** (authorized; code removal future) |
+| Property limit | **REMOVE** (Owner-authorized 2026-08-11; code removal future) |
+| Property count billing | **NONE** |
 | Existing subscribers | **None** — migration **not required** |
 | FO | **$59**/mo · **$590**/yr — gated / not online — **do not activate** |
 
@@ -138,37 +139,15 @@ Do **not** preserve a conflicting COM-002 Professional/Business seat cap.
 
 ---
 
-## 5. Property limit — audit only (no change without authorization)
+## 5. Property limit — REMOVE (AUTHORIZED — do not implement yet)
 
-### 5.1 Current model (COM-002 A7)
+**Owner decision (2026-08-11):** Remove the property-limit concept from the commercial model.  
+Properties are **not** a billing metric. Pro=25 / Business=150 packaging is obsolete.
 
-| Plan tier (internal) | Max properties |
-|----------------------|---------------:|
-| Professional | **25** |
-| Business | **150** |
-| Enterprise | Custom (`null`) |
+Exact removal inventory and acceptance criteria:  
+[`unit-based-commercial-authorization-2026-08-11.md`](./unit-based-commercial-authorization-2026-08-11.md) §2.
 
-Stored as `property_limit` / metadata `mpa_property_limit` / catalog `PROPERTY_LIMITS` — same files as seats above.
-
-### 5.2 Conflict with unit-volume
-
-| Scenario | Conflict |
-|----------|----------|
-| Few properties, many units (e.g. 3 properties × 400 units) | Unit-volume allows growth; property cap may be fine |
-| Many properties, few units each (e.g. 40 properties × 10 units) | Unit-volume price may still be $59, but **property cap 25 blocks** portfolio shape |
-| High-volume PM (>500 units) on former “Professional” mapping | Property=25 may be arbitrarily tight vs paid unit capacity |
-
-**Conclusion:** Flat property caps are **orthogonal** to managed-unit billing and **can conflict** with legitimate portfolios under unit-volume.
-
-### 5.3 Recommendation (not authorized to implement)
-
-Recommend Owner later choose one:
-
-1. **Remove** hard property limits (mirror seat removal), **or**  
-2. **Raise** to a high operational ceiling unrelated to Pro/Business tiers, **or**  
-3. **Keep** as a separate operational safety cap with explicit numbers approved for unit-volume era.
-
-**Until explicit authorization: do not change property limits in code or Production.**
+**This package does not remove property limits in code.**
 
 ---
 
@@ -358,10 +337,11 @@ Removed from open list: trial length (30 days); seat limit removal; over-capacit
 
 **Still unresolved (need explicit authorization later):**
 
-1. **Property limit** fate — keep / raise / remove (**OWNER DECISION REQUIRED** for commercial contradiction; not a technical blocker).  
-2. **COM-002 seat/trial/proration governance amendment** authorization.  
-3. **FO_READY:** Complete self-serve Checkout activation (pricing model already finalized).  
-4. Production cutover authorization after readiness checklist.
+1. **COM-002 package edit PR** applying [`com-002-unit-capacity-amendment-proposal-2026-08-11.md`](./com-002-unit-capacity-amendment-proposal-2026-08-11.md).  
+2. **FO_READY:** Complete self-serve Checkout activation (pricing model already finalized).  
+3. Production cutover authorization after readiness checklist.
+
+**Closed:** property-limit **REMOVE**; seat-limit **REMOVE**.
 
 ---
 
