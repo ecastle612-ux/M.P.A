@@ -286,7 +286,6 @@ When Complete later self-serves, Owner must decide whether Complete’s $109 **r
 | Unit meter | None | Query `property_units`; all statuses |
 | Lifecycle upgrades | Immediate proration on tier change | Unit-volume: period-end / pre-invoice sync with `proration_behavior=none` |
 | Webhooks | No trial_will_end / upcoming sync | Handle trial end sync; invoice.upcoming quantity reconcile |
-| Pricing UI | Stripe retrieve fixed amounts; Pro/Business copy | Unit-block calculator; first-month-free; Monthly/Annual |
 | Provisioning | Unchanged sequence | Still post-Checkout; may seed unit meter at 0 |
 | BILL-001 | Dual-rail recon (PR #67) | Keep SaaS money domain separation; additive compatibility if Production still has BILL-001 tables |
 | FO/Complete | Display + gated | Unchanged activation |
