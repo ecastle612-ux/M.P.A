@@ -1,94 +1,136 @@
-# Final Vercel Environment Snapshot Investigation — 2026-08-11
+# M.P.A. VERCEL ENVIRONMENT SNAPSHOT INVESTIGATION — 2026-08-11
 
-**Mode:** Investigation only. No deploy, no env mutation, no Stripe/code changes.  
-**PR #115:** Confirmed unrelated (not investigated further here).
+**Mode:** Investigation only.  
+**Production changes:** NONE  
+**Deployment changes:** NONE  
+**Env mutations:** NONE  
+**Stripe / subscription / application code changes:** NONE  
 
-## Clarification: current live deployment
-
-The prompt cites `dpl_6zLALiQLDKskpqva9ssgMGBTbukf` / `520f7c5`.  
-
-**Live right now** (www, apex, `m-p-a-web.vercel.app`):
-
-| Field | Value |
-|-------|--------|
-| Deployment | **`dpl_2kbmwcrEg1sCR41CJNUBWg9CFx3y`** |
-| SHA | **`e3f6e83d9663a4629fd96acedef23b4b5e40a7d0`** |
-| Completed | `2026-08-11T02:12:39Z` |
-
-`dpl_6zLA…` is the **prior** Production deployment (`520f7c5`, completed `02:01:10Z`). Both received the **same class** of OLD/WRONG runtime Price values.
+Constraints honored: no Owner re-edit request for the eight Production Price variables; no create/delete of Vercel vars; no deploy.
 
 ---
 
-## 1. Deployment timeline (verified only)
+## Live vs cited deployment
 
-| Deployment | SHA | Commit time (UTC) | Vercel status completed | GitHub Production deploy created |
-|------------|-----|-------------------|-------------------------|----------------------------------|
-| `dpl_2o619…` | `8d7485c` | (earlier stamp) | `01:31:31Z` | `01:31:31Z` |
-| `dpl_6zLA…` | `520f7c5` | `02:00:10Z` | `02:01:10Z` | `02:01:11Z` |
-| `dpl_2kbmwcr…` (live) | `e3f6e83` | `02:11:47Z` | `02:12:39Z` | `02:12:40Z` |
+The prompt cites Production as `dpl_6zLALiQLDKskpqva9ssgMGBTbukf` / SHA `520f7c5`.
 
-| Unknown | Status |
-|---------|--------|
-| Exact Vercel Dashboard “env value changed” timestamp | **UNAVAILABLE** — no env API (`VERCEL_TOKEN` absent); Vercel MCP unavailable/`needsAuth` |
+**Live Production right now** (re-verified this investigation):
 
-Cannot prove whether Owner’s confirmed Dashboard save was before or after `dpl_6zLA` / `dpl_2kbmwcr` without that timestamp. Conversation order: Owner confirmed NEW → fresh snapshot deploy `e3f6e83` still OLD at runtime.
+| Field | Value |
+|-------|--------|
+| Deployment | `dpl_2kbmwcrEg1sCR41CJNUBWg9CFx3y` |
+| SHA | `e3f6e83d9663a4629fd96acedef23b4b5e40a7d0` |
+| Vercel status completed | `2026-08-11T02:12:39Z` |
+| GitHub Production deployment created | `2026-08-11T02:12:40Z` |
+
+`dpl_6zLA…` is the **prior** Production deployment for SHA `520f7c5` (completed `02:01:10Z`). Runtime fingerprints for that deployment (when it was aliased to www) and for live `dpl_2kbmwcr` are the **same OLD/WRONG class**.
+
+---
+
+## Dashboard vs runtime (confirmed)
+
+**Dashboard Production values:** CONFIRMED NEW (Owner Reveal — do not re-edit).
+
+**Current runtime values** (www → `dpl_2kbmwcr`, probed `2026-08-11T02:19Z`–`02:22Z` UTC):
+
+| Key / offer | Runtime |
+|-------------|---------|
+| PM Professional Monthly | `price_1Tw3Cb8jGrZYUXDtQwHvaXFW` ($99) |
+| PM Professional Annual | `price_1Tw3Cc8jGrZYUXDtoMZ4ypxU` ($990) |
+| PM Business Monthly | `we_1Tw3Cg8jGrZYUXDtp2lv6gY0` (Stripe webhook endpoint id) |
+| PM Business Annual | literal `STRIPE_PRICE_PM_BUSINESS_ANNUAL` |
+| Catalog FO / Complete display | still $99 / $149 class (old display Price envs) |
+
+Checkout proof (live www, no charge beyond creating Checkout Session):
+
+- Professional monthly session line item → `price_1Tw3Cb8jGrZYUXDtQwHvaXFW`
+- Business monthly → `502 No such price: 'we_1Tw3Cg8jGrZYUXDtp2lv6gY0'`
+- Business annual → `502 No such price: 'STRIPE_PRICE_PM_BUSINESS_ANNUAL'`
+
+---
+
+## 1. Vercel deployment timeline (no guessing)
+
+| Event | `dpl_2o619…` (`8d7485c`) | `dpl_6zLA…` (`520f7c5`) | `dpl_2kbmwcr…` (`e3f6e83`, live) |
+|-------|--------------------------|-------------------------|----------------------------------|
+| Git commit time (UTC) | `2026-08-11T01:30:31Z` | `2026-08-11T02:00:10Z` | `2026-08-11T02:11:47Z` |
+| Vercel GitHub status “Deployment has completed” | `2026-08-11T01:31:31Z` | `2026-08-11T02:01:10Z` | `2026-08-11T02:12:39Z` |
+| GitHub Deployments API Production record created | `2026-08-11T01:31:31Z` | `2026-08-11T02:01:11Z` | `2026-08-11T02:12:40Z` |
+| Build started (Vercel `buildingAt`) | **UNAVAILABLE** (API requires auth token; MCP `needsAuth`) | same | same |
+| Exact Dashboard env `updatedAt` for Production `STRIPE_PRICE_*` | **UNAVAILABLE** | **UNAVAILABLE** | **UNAVAILABLE** |
+
+Sources used: GitHub Commits API, Commit Statuses (`context=Vercel`), Deployments API.  
+Sources **not** available this run: Vercel REST (`403 missingToken`), Vercel MCP (`needsAuth`), CLI token file empty.
+
+**Whether deploys occurred after env changes**
+
+- Exact Dashboard save timestamp: **unknown**.
+- Conversation order (non-timestamp): Owner confirmed existing Production rows show NEW → then SHA `e3f6e83` / `dpl_2kbmwcr` was created specifically to load that map → **runtime still OLD/WRONG**.
+- Therefore: “deploy before env edit” **does not** explain the live deployment.
+
+Deployment-specific `*.vercel.app` URLs for the three dpls are behind **Deployment Protection** (401); prior Production-alias probes remain the runtime evidence for `dpl_2o619` and `dpl_6zLA`.
 
 ---
 
 ## 2. Environment snapshot timing (Vercel docs)
 
-Authoritative Vercel behavior ([Environment variables](https://vercel.com/docs/environment-variables)):
+Authoritative ([Environment variables](https://vercel.com/docs/environment-variables)):
 
 > Any change you make to environment variables are **not applied to previous deployments**, they only apply to **new deployments**.
 
-Implications:
+| Question | Finding |
+|----------|---------|
+| When are project env vars bound? | To **new deployments** (immutable per deployment). Not hot-reloaded onto a running deployment. |
+| Build time vs runtime | Build Step and Function execution both read the env map for **that** deployment. Server-only vars (`STRIPE_PRICE_*`, non-`NEXT_PUBLIC`) are read via `process.env` at Function runtime from the deployment’s env map. |
+| Does changing Dashboard alone update Production traffic? | **No** — requires a **new** Production deployment. |
 
-| Question | Answer |
-|----------|--------|
-| Do env changes hot-reload a live deployment? | **No** |
-| Required to pick up env changes | A **new deployment** (redeploy or new git Production deploy) |
-| New build required? | New deployment typically runs a build; for server-only `process.env` (non-`NEXT_PUBLIC`), values are supplied to the Functions of **that** deployment |
-| Build cache | Docs recommend clearing build cache when env changes matter for inlined/`NEXT_PUBLIC` vars; server-only vars should still come from the deployment’s env map |
+**After an env change, what is required?**
 
-For this app (`process.env["STRIPE_PRICE_*"]` in Node checkout/pricing): values must come from the **deployment’s** Production env map at create/runtime of that deployment — not from a later Dashboard edit of an older deployment.
+| Option | Required? |
+|--------|-----------|
+| A) Redeploy | Yes (or equivalent new Production deploy) |
+| B) New build | Typically yes for a normal git/redeploy path (new deployment runs a build) |
+| C) New deployment | **Yes — mandatory** |
+| D) All of the above | Effectively **yes** for this Git→Vercel Production path |
 
-**Required after Dashboard env change:** new Production deployment (we already performed multiple).
-
----
-
-## 3. Deployment environment snapshot readability
-
-| Deployment | Snapshot of injected `STRIPE_PRICE_*` values |
-|------------|-----------------------------------------------|
-| Any | **UNREADABLE** via API/MCP (no token; no env decrypt tools) |
-| Inferred from runtime probes | **OLD/WRONG** for `dpl_2o619`, `dpl_6zLA`, and live `dpl_2kbmwcr` |
-
-No Vercel “deployment env snapshot” payload was available to this agent.
+Blind additional redeploys without resolving **which** env map is injected are **not** useful (already done multiple times).
 
 ---
 
-## 4. Project configuration (from prior authenticated MCP + GitHub status URLs)
+## 3. Deployment environment source for `dpl_6zLA…` / live
+
+| Check | Result |
+|-------|--------|
+| Vercel deployment env snapshot via API/MCP | **UNREADABLE** |
+| Inferred from Production runtime when `dpl_6zLA` was live | **OLD/WRONG** |
+| Inferred from live `dpl_2kbmwcr` runtime | **OLD/WRONG** |
+| Created with Dashboard-confirmed NEW values? | **No evidence it was** — runtime proves injected map ≠ Owner-confirmed NEW |
+
+---
+
+## 4. Project settings (read-only)
 
 | Setting | Finding |
 |---------|---------|
-| Project | `m-p-a-web` / `prj_pZn4nRYNDeN4AlVz1RZqY4L8tfjL` |
-| Team | `ecastle612-uxs-projects` / `team_Dh1s7cYC7PuAc0PioeJqS80q` |
-| Framework | Next.js (prior `get_project`) |
-| Git | `ecastle612-ux/M.P.A`, Production branch `main` (deploy meta) |
-| Domains | www, apex, `m-p-a-web.vercel.app` on this project |
-| `vercel.json` | Absent in repo |
-| Root directory / build commands | Not re-fetched this turn (MCP down); no evidence of alternate project |
+| Project | `m-p-a-web` (`prj_pZn4nRYNDeN4AlVz1RZqY4L8tfjL`) |
+| Team | `ecastle612-uxs-projects` (`team_Dh1s7cYC7PuAc0PioeJqS80q`) |
+| Framework | Next.js (`apps/web`: `next build`) |
+| Build / install | App scripts `next build` / monorepo install (no `vercel.json` in repo) |
+| Root directory | `apps/web` (Vercel project for `m-p-a-web`; not re-fetched this turn — MCP down) |
+| Git repository | `ecastle612-ux/M.P.A` |
+| Production branch | `main` (stamp commits auto-deployed) |
+| Alternate project serving www? | **No** — Vercel status URLs and domains point at `m-p-a-web` |
 
-**Project configuration: PASS** (serving the intended `m-p-a-web` Production project).
+**Project configuration: PASS**
 
-**Shared env note (docs):** Team Shared Environment Variables exist; **project-level overrides shared** for same key+environment. Therefore if project Production rows are truly NEW, shared OLD cannot win. If runtime is OLD, either project Production effective bindings are not the rows Owner revealed, or Vercel is not attaching those project values to new deployments.
+Note: team Shared Environment Variables can exist; project-level same key+Production **overrides** shared. If project Production rows are truly NEW, shared OLD cannot win. Persistent OLD injection therefore means the **effective** Production binding Vercel attaches to new deployments is not the NEW rows Owner Revealed (UI/id mismatch or platform defect)—not “wrong project.”
 
 ---
 
 ## 5. Domain mapping
 
-| Host | `data-dpl-id` |
-|------|----------------|
+| Host | Serves |
+|------|--------|
 | `www.my-property-assistant.com` | `dpl_2kbmwcrEg1sCR41CJNUBWg9CFx3y` |
 | `my-property-assistant.com` | same |
 | `m-p-a-web.vercel.app` | same |
@@ -97,42 +139,73 @@ No Vercel “deployment env snapshot” payload was available to this agent.
 
 ---
 
-## 6. Previous vs current deployments
+## 6. Previous vs cited/current deployments
 
-| Deployment | Runtime PM Pro monthly | Runtime Business monthly |
-|------------|------------------------|--------------------------|
-| `dpl_2o619…` | old `price_1Tw3Cb…` | `we_1Tw3Cg…` |
-| `dpl_6zLA…` | old `price_1Tw3Cb…` | `we_1Tw3Cg…` |
-| `dpl_2kbmwcr…` (live) | old `price_1Tw3Cb…` | `we_1Tw3Cg…` |
+| Deployment | When Production | Runtime class |
+|------------|-----------------|---------------|
+| `dpl_2o619PF678iM8CxXKAEAtTR4RbBN` | ~`01:31Z` | OLD Pro Prices + Business `we_` + literal annual |
+| `dpl_6zLALiQLDKskpqva9ssgMGBTbukf` | ~`02:01Z` | **identical** OLD/WRONG class |
+| `dpl_2kbmwcrEg1sCR41CJNUBWg9CFx3y` (live) | ~`02:12Z` (after Owner NEW confirmation) | **identical** OLD/WRONG class |
 
-**Previous deployment comparison:** All three Production deployments received **identical OLD/WRONG** runtime Price configuration class, despite Owner-confirmed Dashboard NEW and at least one deploy (`dpl_2kbmwcr`) created specifically after that confirmation.
-
-That pattern indicates the mismatch is **not** explained by “forgot to redeploy.” It is a **Dashboard-visible Production values ≠ values injected into new Production deployments** problem on this project.
+**Previous deployment comparison:** Both cited deployments (`dpl_2o619`, `dpl_6zLA`) and the later live deployment received the **same OLD/WRONG environment snapshot class**, despite Dashboard NEW confirmation before the latest deploy. That rules out “forgot to redeploy” and points to **Dashboard-visible Production ≠ injected Production env map**.
 
 ---
 
-## Root cause (precise)
+## Scorecard (requested format)
 
-**Vercel is injecting an OLD/WRONG `STRIPE_PRICE_*` map into new `m-p-a-web` Production deployments (`process.env`), while the Owner-confirmed Dashboard Production UI shows NEW Price IDs. Application/CI/repo sources are ruled out. Env changes require a new deployment (done repeatedly); therefore the failure is in Vercel’s stored-vs-injected Production configuration path for this project (wrong effective binding vs UI, or platform snapshot defect)—not missing redeploys and not M.P.A. code.**
+```
+M.P.A. VERCEL ENVIRONMENT SNAPSHOT INVESTIGATION
+
+Dashboard Production values:
+CONFIRMED NEW
+
+Current runtime values:
+OLD/WRONG
+
+Deployment:
+dpl_6zLALiQLDKskpqva9ssgMGBTbukf (cited; prior Production)
+Live now: dpl_2kbmwcrEg1sCR41CJNUBWg9CFx3y (same runtime class)
+
+Deployment environment snapshot:
+UNREADABLE (API/MCP); inferred OLD/WRONG from runtime
+
+Environment snapshot timing:
+Bound to NEW deployments only (not hot-reload). Env change ⇒ new deployment (+ typical rebuild). Exact Dashboard updatedAt unavailable. Live deploy after Owner NEW confirmation still OLD.
+
+Previous deployment comparison:
+dpl_2o619, dpl_6zLA, and live dpl_2kbmwcr all received identical OLD/WRONG STRIPE_PRICE_* injection class
+
+Project configuration:
+PASS
+
+Domain mapping:
+PASS
+
+Root cause:
+Vercel injects an OLD/WRONG Production STRIPE_PRICE_* map into new m-p-a-web deployments’ process.env while Owner-confirmed Dashboard Production rows show NEW — not app/CI/repo and not missing redeploy.
+
+Required fix:
+Obtain a machine-readable dump of all project + team Shared STRIPE_PRICE_* rows (id, target, type, updatedAt, value) and escalate to Vercel Support with Dashboard NEW vs runtime OLD/we_/literal on post-confirmation dpl_2kbmwcr — do not re-edit the eight Price vars again.
+
+Owner action:
+Do not edit/delete/recreate the eight Production Price variables. Optional: authorize read-only VERCEL_TOKEN for dump and/or open Vercel Support with mismatch evidence. Optional later (only if Support recommends): one Redeploy with build cache disabled — not another blind redeploy.
+
+Production changes:
+NONE
+
+Deployment changes:
+NONE
+
+STOP.
+```
 
 ---
 
-## Required fix (precise)
+## Ruled out (unchanged)
 
-1. Obtain a **machine-readable dump** of all project + team Shared env rows for keys `STRIPE_PRICE_*` (id, target, type, updatedAt, value) via `VERCEL_TOKEN` / `vercel env ls` / Support — **read-only**.  
-2. Open **Vercel Support** with: project `m-p-a-web`, live `dpl_2kbmwcr…`, Owner screenshots of Dashboard NEW vs runtime OLD/`we_`/literal after post-confirmation redeploy.  
-3. Optional Owner Dashboard action (not env re-entry): one **Redeploy** with **“Use existing Build Cache” unchecked** — only after Support/token dump, if they recommend it.
-
----
-
-## Owner action
-
-**Do not edit/delete/recreate the eight Production Price variables again.**  
-
-Optional: (a) check Team **Shared Environment Variables** for any `STRIPE_PRICE_*` (informational; project should override), (b) authorize read-only `VERCEL_TOKEN` for agent dump, or (c) file Vercel Support with the mismatch evidence.
-
----
-
-## Production / deployment changes this investigation
-
-**NONE**
+- PR #115 (unrelated; not Stripe/pricing; not deployed)
+- `.cursor/environment.json` / `install.sh` affecting Vercel
+- `apps/web/.env` (Cloud Agent–only, gitignored)
+- GitHub Actions Stripe Price override
+- Application Price ID fallbacks on Production SHA
+- Wrong domain / wrong Vercel project
