@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 import { COM_002_FLAGS } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../../../../../lib/organization/contracts";
-import { changePlanTier } from "../../../../../lib/saas-lifecycle/apply-lifecycle";
 
 export const runtime = "nodejs";
 
+/**
+ * Customer plan-change endpoint — Business and legacy Professional Price swaps are unsupported.
+ * Unit-volume commercial changes are not implemented on this route.
+ */
 export async function POST(request: Request) {
   if (!COM_002_FLAGS.sliceE_subscriptionLifecycle) {
     return NextResponse.json({ error: "slice_disabled" }, { status: 404 });
@@ -23,26 +26,28 @@ export async function POST(request: Request) {
   if (!organizationId) {
     return NextResponse.json({ error: "missing_organization" }, { status: 400 });
   }
+
   const body = (await request.json().catch(() => ({}))) as {
-    planTier?: "professional" | "business";
-    billingCycle?: "monthly" | "annual";
+    planTier?: string;
+    billingCycle?: string;
   };
-  if (body.planTier !== "professional" && body.planTier !== "business") {
-    return NextResponse.json({ error: "invalid_plan_tier" }, { status: 400 });
+
+  if (body.planTier === "business") {
+    return NextResponse.json(
+      {
+        error: "unsupported_plan",
+        message: "PM Business is not a customer product and cannot be selected."
+      },
+      { status: 400 }
+    );
   }
-  const result = await changePlanTier({
-    organizationId,
-    planTier: body.planTier,
-    ...(body.billingCycle ? { billingCycle: body.billingCycle } : {})
-  });
-  if (!result.ok) {
-    return NextResponse.json({ error: result.error }, { status: 409 });
-  }
-  return NextResponse.json({
-    ok: true,
-    planTier: result.sub.planTier,
-    pendingPlanTier: result.sub.pendingPlanTier,
-    seatLimit: result.sub.seatLimit,
-    propertyLimit: result.sub.propertyLimit
-  });
+
+  return NextResponse.json(
+    {
+      error: "unsupported_plan_change",
+      message:
+        "Customer plan or billing-cycle changes that swap Stripe Prices are not available on this endpoint. Unit-volume subscriptions are managed through capacity and billing lifecycle flows."
+    },
+    { status: 409 }
+  );
 }

@@ -20,8 +20,9 @@ export function CommercialCatalogConsole() {
       <header className="space-y-2">
         <h1 className="font-display text-2xl font-semibold">Commercial Catalog</h1>
         <p className="max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Canonical CatalogOffer read model (COM-002 Slice A). Stripe Price ids remain null until
-          Slice C. Property Manager, Facility Operations, and Complete Platform use unit-volume Checkout.
+          Canonical CatalogOffer read model. Customer acquisition uses unit-volume Checkout for
+          Property Manager, Facility Operations, and Complete Platform. Business / Enterprise rows
+          are historical or sales-motion diagnostics — not customer purchase options.
         </p>
         <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           Status: aligned · Slice A foundation
@@ -61,6 +62,7 @@ export function CommercialCatalogConsole() {
                 <th className="px-3 py-2 font-semibold">Cycle</th>
                 <th className="px-3 py-2 font-semibold">Motion</th>
                 <th className="px-3 py-2 font-semibold">Self-serve</th>
+                <th className="px-3 py-2 font-semibold">Classification</th>
                 <th className="px-3 py-2 font-semibold">Unit capacity</th>
                 <th className="px-3 py-2 font-semibold">Stripe Price</th>
               </tr>
@@ -76,9 +78,15 @@ export function CommercialCatalogConsole() {
                   </td>
                   <td className="px-3 py-2">{offer.motion}</td>
                   <td className="px-3 py-2">{offer.selfServeEligible ? "yes" : "no"}</td>
+                  <td className="px-3 py-2 text-xs">
+                    {offer.planTier === "business"
+                      ? "historical — not a customer product"
+                      : offer.planTier === "enterprise"
+                        ? "sales motion only"
+                        : "unit-volume customer product"}
+                  </td>
                   <td className="px-3 py-2">
-                    {offer.productSku === "mpa_property_manager" ||
-                    offer.productSku === "mpa_complete_platform"
+                    {offer.planTier === "professional"
                       ? "Base 500 units + $39 / block"
                       : "—"}
                   </td>

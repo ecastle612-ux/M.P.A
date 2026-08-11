@@ -107,21 +107,21 @@ describe("COM-002 Slice E lifecycle apply", () => {
     expect(reactivated?.cancelAtPeriodEnd).toBe(false);
   });
 
-  it("upgrades immediately and schedules downgrade", async () => {
+  it("rejects Business and legacy Professional plan-price swaps", async () => {
     seedPurchase("cs_life_5", "sub_life_5", "org_plan");
     seedLifecycleFromPurchase("cs_life_5");
-    const up = await changePlanTier({ organizationId: "org_plan", planTier: "business" });
-    expect(up.ok).toBe(true);
-    if (up.ok) {
-      expect(up.sub.planTier).toBe("business");
-      expect(up.sub.seatLimit).toBeNull();
-      expect(up.sub.propertyLimit).toBeNull();
+    const business = await changePlanTier({ organizationId: "org_plan", planTier: "business" });
+    expect(business.ok).toBe(false);
+    if (!business.ok) {
+      expect(business.error).toBe("unsupported_plan");
     }
-    const down = await changePlanTier({ organizationId: "org_plan", planTier: "professional" });
-    expect(down.ok).toBe(true);
-    if (down.ok) {
-      expect(down.sub.pendingPlanTier).toBe("professional");
-      expect(down.sub.planTier).toBe("business");
+    const professional = await changePlanTier({
+      organizationId: "org_plan",
+      planTier: "professional"
+    });
+    expect(professional.ok).toBe(false);
+    if (!professional.ok) {
+      expect(professional.error).toBe("unsupported_plan_change");
     }
   });
 

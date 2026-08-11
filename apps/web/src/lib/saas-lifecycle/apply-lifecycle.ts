@@ -682,109 +682,26 @@ export async function reactivateSubscription(input: {
   return sub;
 }
 
+/**
+ * Plan-tier change helper — disabled for customer Stripe Price swaps.
+ * Must never attach legacy Professional/Business Prices to a subscription.
+ * Customer route rejects Business and returns unsupported_plan_change.
+ */
 export async function changePlanTier(input: {
   organizationId: string;
   planTier: "professional" | "business";
   billingCycle?: "monthly" | "annual";
 }): Promise<{ ok: true; sub: LifecycleSubscription } | { ok: false; error: string }> {
-  let sub = getLifecycleByOrganizationId(input.organizationId);
+  void input.billingCycle;
+  const sub = getLifecycleByOrganizationId(input.organizationId);
   if (!sub) return { ok: false, error: "subscription_not_found" };
   if (sub.productSku !== "mpa_property_manager") {
     return { ok: false, error: "not_self_serve" };
   }
-
-  const upgrading =
-    (sub.planTier === "professional" && input.planTier === "business") ||
-    (sub.billingCycle === "monthly" && input.billingCycle === "annual");
-  const downgrading = sub.planTier === "business" && input.planTier === "professional";
-
-  if (!process.env["VITEST"]) {
-    try {
-      const { getSaasStripeClient, resolveSaasPriceId } = await import("../saas-stripe/client");
-      const stripe = getSaasStripeClient();
-      const cycle = input.billingCycle ?? sub.billingCycle;
-      const offerId = `mpa_property_manager__${input.planTier}__${cycle}`;
-      const priceId = resolveSaasPriceId(offerId);
-      if (stripe && priceId) {
-        const remote = await stripe.subscriptions.retrieve(sub.stripeSubscriptionId);
-        const itemId = remote.items.data[0]?.id;
-        if (itemId) {
-          if (upgrading || (!downgrading && input.planTier !== sub.planTier)) {
-            await stripe.subscriptions.update(sub.stripeSubscriptionId, {
-              items: [{ id: itemId, price: priceId }],
-              proration_behavior: "create_prorations"
-            });
-          } else if (downgrading) {
-            // Period-end downgrade: schedule pending tier locally; Stripe schedule optional.
-            sub = saveLifecycleSubscription({
-              ...sub,
-              pendingPlanTier: input.planTier,
-              billingCycle: cycle,
-              updatedAt: new Date().toISOString(),
-              audit: [
-                ...sub.audit,
-                {
-                  at: new Date().toISOString(),
-                  from: sub.status,
-                  to: sub.status,
-                  reason: "downgrade_scheduled_period_end",
-                  source: "customer"
-                }
-              ]
-            });
-            await persistLifecycleSubscription(sub);
-            return { ok: true, sub };
-          }
-        }
-      }
-    } catch (error) {
-      return {
-        ok: false,
-        error: error instanceof Error ? error.message : "stripe_plan_change_failed"
-      };
-    }
+  if (input.planTier === "business") {
+    return { ok: false, error: "unsupported_plan" };
   }
-
-  if (downgrading) {
-    sub = saveLifecycleSubscription({
-      ...sub,
-      pendingPlanTier: input.planTier,
-      updatedAt: new Date().toISOString(),
-      audit: [
-        ...sub.audit,
-        {
-          at: new Date().toISOString(),
-          from: sub.status,
-          to: sub.status,
-          reason: "downgrade_scheduled_period_end",
-          source: "customer"
-        }
-      ]
-    });
-  } else {
-    const limits = limitsForPlanTier(input.planTier);
-    sub = saveLifecycleSubscription({
-      ...sub,
-      planTier: input.planTier,
-      billingCycle: input.billingCycle ?? sub.billingCycle,
-      seatLimit: limits.seatLimit,
-      propertyLimit: limits.propertyLimit,
-      pendingPlanTier: null,
-      updatedAt: new Date().toISOString(),
-      audit: [
-        ...sub.audit,
-        {
-          at: new Date().toISOString(),
-          from: sub.status,
-          to: sub.status,
-          reason: "plan_upgraded_immediate",
-          source: "customer"
-        }
-      ]
-    });
-  }
-  await persistLifecycleSubscription(sub);
-  return { ok: true, sub };
+  return { ok: false, error: "unsupported_plan_change" };
 }
 
 export function lifecycleViewForOrganization(organizationId: string) {
