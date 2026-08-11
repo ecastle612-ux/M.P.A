@@ -266,6 +266,7 @@ export function limitsForPlanTier(_tier: "professional" | "business"): {
   seatLimit: null;
   propertyLimit: null;
 } {
+  void _tier;
   return { seatLimit: null, propertyLimit: null };
 }
 
