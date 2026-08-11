@@ -124,29 +124,52 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  // Bootstrap active-org cookie from first membership when missing (portal first login).
+  // Bootstrap / repair active-org cookie from memberships.
+  // Reject stale or forged org cookies that do not match an active membership (STAB-001).
   let organizationId = request.cookies.get(ACTIVE_ORGANIZATION_COOKIE)?.value ?? null;
-  if (user && isProtected && !organizationId) {
-    const { data: membership } = await supabase
-      .from("organization_memberships")
-      .select("organization_id")
-      .eq("user_id", user.id)
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle();
-    const membershipOrg =
-      membership && typeof membership.organization_id === "string"
-        ? membership.organization_id
-        : null;
-    if (membershipOrg) {
+  if (user && isProtected) {
+    let cookieMembershipValid = false;
+    if (organizationId) {
+      const { data: cookieMembership } = await supabase
+        .from("organization_memberships")
+        .select("organization_id")
+        .eq("user_id", user.id)
+        .eq("organization_id", organizationId)
+        .eq("status", "active")
+        .maybeSingle();
+      cookieMembershipValid = Boolean(cookieMembership?.organization_id);
+    }
+
+    if (!cookieMembershipValid) {
+      const { data: membership } = await supabase
+        .from("organization_memberships")
+        .select("organization_id")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+      const membershipOrg =
+        membership && typeof membership.organization_id === "string"
+          ? membership.organization_id
+          : null;
       organizationId = membershipOrg;
-      response.cookies.set(ACTIVE_ORGANIZATION_COOKIE, membershipOrg, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env["NODE_ENV"] === "production",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30
-      });
+      if (membershipOrg) {
+        response.cookies.set(ACTIVE_ORGANIZATION_COOKIE, membershipOrg, {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env["NODE_ENV"] === "production",
+          path: "/",
+          maxAge: 60 * 60 * 24 * 30
+        });
+      } else if (request.cookies.get(ACTIVE_ORGANIZATION_COOKIE)?.value) {
+        response.cookies.set(ACTIVE_ORGANIZATION_COOKIE, "", {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env["NODE_ENV"] === "production",
+          path: "/",
+          maxAge: 0
+        });
+      }
     }
   }
 

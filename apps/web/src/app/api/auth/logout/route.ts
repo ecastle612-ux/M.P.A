@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createAuthServerClient } from "../../../../lib/auth/server";
+import { ACTIVE_ORGANIZATION_COOKIE } from "../../../../lib/organization/contracts";
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
@@ -18,12 +19,21 @@ export async function POST(request: NextRequest) {
 
   const supabase = await createAuthServerClient();
   await supabase.auth.signOut();
-  return NextResponse.json(
+  const response = NextResponse.json(
     { ok: true },
     {
       headers: {
         "Cache-Control": "no-store"
       }
-    },
+    }
   );
+  // Clear org context so the next account cannot inherit a stale active org (STAB-001).
+  response.cookies.set(ACTIVE_ORGANIZATION_COOKIE, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env["NODE_ENV"] === "production",
+    path: "/",
+    maxAge: 0
+  });
+  return response;
 }
