@@ -153,11 +153,12 @@ Many small properties can hit property=25 while still within $59 unit capacity; 
 3. Modal: current units, included capacity, required capacity, current vs new price, billing impact, **Authorize** CTA.  
 4. Authorize API (authenticated, CSRF-safe, idempotent):  
    - Recompute required blocks server-side  
-   - Update Stripe subscription items (add/increase Block; never qty 0)  
-   - Prefer **explicit paid uplift on Authorize** (invoice/pay newly authorized capacity) so there is no silent surprise — exact `proration_behavior` chosen in slice 9 with test-mode verification  
-   - Persist authorization audit  
-   - Only then allow the unit operation (or return token to retry)  
-5. Fail closed if Stripe update/payment fails — unit not created.
+   - Persist **pending** authorized blocks + audit (show next billing date in UI)  
+   - Grant **operational** capacity immediately so the unit action can proceed  
+   - Schedule Stripe item change for **next billing period** with `proration_behavior=none` — **no immediate invoice**  
+   - Never qty 0 Block items  
+5. Fail closed if authorization persistence fails — unit not created.  
+6. Full mechanism: [`pre-implementation-reconciliation-2026-08-11.md`](./pre-implementation-reconciliation-2026-08-11.md) §2.
 
 ### 4.5 Reconciliation sync
 
@@ -482,11 +483,12 @@ Reuse COM-002 lifecycle statuses/webhooks; adapt behaviors:
 
 ## 11. Remaining Owner decisions
 
-1. **Property limit** keep/raise/remove (currently **unchanged**).  
-2. **Authorize-uplift charge timing** — invoice immediately on Authorize vs align to period (must not surprise; plan prefers explicit paid uplift on Authorize).  
+1. **Property limit** keep/raise/remove (currently **unchanged**; **OWNER DECISION REQUIRED** for commercial contradiction — not a coding blocker).  
+2. **COM-002 defaults** seat/trial/proration amendments — authorize separate governance PR.  
 3. **FO_READY** timing for Complete self-serve Checkout.  
-4. **COM-002 defaults / seat / trial doc amendments** — authorize separate governance PR when ready to reconcile binding COM-002 text with this model.  
-5. **Production Price cutover window** after test certification.
+4. **Production cutover** after readiness checklist in [`pre-implementation-reconciliation-2026-08-11.md`](./pre-implementation-reconciliation-2026-08-11.md) §6.  
+
+**Closed:** over-capacity payment gate; new recurring price = **next billing period**; no mid-period surprise charge.
 
 ---
 

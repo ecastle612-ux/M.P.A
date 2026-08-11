@@ -200,10 +200,11 @@ Attempted action that would make `actual_units + delta > paid_unit_capacity` →
    - “Adding this unit requires Additional Unit Capacity.”  
    - Show **new** monthly/annual price (e.g. $98 / $1,176).  
    - Show what they’re authorizing (e.g. +1 block / +500 unit capacity).  
-3. Customer **explicitly authorizes** the pricing change (primary CTA).  
-4. On success: update billing capacity (Stripe items/qty — future engineering); persist authorized blocks.  
-5. **Then** complete the unit create (or prompt retry).  
-6. Secondary: Cancel / not now — no charge, no unit added.
+3. Gate shows current units, current capacity, new capacity, current vs new recurring price, and **next billing date**.  
+4. Customer **explicitly authorizes** Additional Unit Capacity.  
+5. Capacity-increasing action is then **allowed** (operational capacity granted).  
+6. **New recurring price applies at the NEXT billing period** — **no** immediate mid-period charge.  
+7. Secondary: Cancel / not now — no charge, no unit added.
 
 ### 6.4 Interaction with “no surprise mid-period charges”
 
@@ -211,22 +212,19 @@ Attempted action that would make `actual_units + delta > paid_unit_capacity` →
 |-----------|----------|
 | Units change **within** paid capacity | No charge; no Stripe quantity change required mid-period |
 | Units would **exceed** paid capacity | **Payment gate** — customer must authorize; **not** a silent/surprise charge |
-| After authorization | Billing capacity updates; customer continues; recurring amount reflects authorized capacity |
-| Period-end reconciliation | Still reconcile actual vs authorized; see §8 |
+| After authorization | Operational capacity granted now; **recurring amount changes next billing period** |
+| Period-end | Stripe items/qty reflect authorized blocks on the next invoice |
 
 Unauthorized overage is **not** allowed to proceed.
 
 ### 6.5 Future Stripe implementation (engineering task — not now)
 
-Document for later approval/implementation:
+See [`pre-implementation-reconciliation-2026-08-11.md`](./pre-implementation-reconciliation-2026-08-11.md) §2.2:
 
-- On authorize: update subscription — ensure Base item qty 1; add/increase Additional Unit Block item to required `additional_blocks` (omit item when 0).  
-- Use explicit customer confirmation UI before `subscriptions.update`.  
-- Prefer immediate capacity grant **after** successful payment method charge / invoice payment for the uplift when leaving a free trial or when Owner requires payment-up-front for >500; for in-app uplift from 500→501 during an active paid period, choose authenticated subscription update with clear confirmation and **no silent proration surprises** — recommend `proration_behavior` policy in implementation phase (invoice immediately for newly authorized capacity **only after** CTA, or align next invoice — **implementation must not surprise**; prefer charging for newly authorized block when customer clicks Authorize if they are already past trial).  
-- Idempotent updates; store authorization audit (who, when, from_blocks, to_blocks, price).  
-- Webhook confirms item quantities; fail closed if Stripe update fails (do not create the unit).
-
-**Exact Stripe API sequence is deferred to implementation blueprint Phase F — not executed here.**
+- Persist pending authorized blocks + audit.  
+- Grant in-app capacity immediately after Authorize.  
+- Defer Stripe Additional Unit Capacity quantity to **next period** (`proration_behavior=none`; no `always_invoice` for this uplift).  
+- Idempotent; never quantity 0 Block items.
 
 ---
 
@@ -360,10 +358,10 @@ Removed from open list: trial length (30 days); seat limit removal; over-capacit
 
 **Still unresolved (need explicit authorization later):**
 
-1. **Property limit** fate — keep / raise / remove (§5 recommendation only).  
-2. **In-app capacity uplift Stripe proration** — charge immediately on Authorize vs align to next invoice (must not be surprising; prefer explicit paid uplift on Authorize for clarity).  
-3. **FO unit-volume** — none unless Owner later extends (FO stays flat $59/$590).  
-4. **When FO_READY:** Complete self-serve Checkout activation (pricing model already finalized).
+1. **Property limit** fate — keep / raise / remove (**OWNER DECISION REQUIRED** for commercial contradiction; not a technical blocker).  
+2. **COM-002 seat/trial/proration governance amendment** authorization.  
+3. **FO_READY:** Complete self-serve Checkout activation (pricing model already finalized).  
+4. Production cutover authorization after readiness checklist.
 
 ---
 

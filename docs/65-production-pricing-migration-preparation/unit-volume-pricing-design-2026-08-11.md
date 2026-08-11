@@ -16,7 +16,8 @@
 - PR #118 — Business readiness removal (**do not deploy** from this task)  
 - Implementation blueprint (planning only): [`commercial-billing-implementation-blueprint-2026-08-11.md`](./commercial-billing-implementation-blueprint-2026-08-11.md)  
 - Acquisition + billing decisions (final design): [`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md)  
-- Implementation plan (planning only): [`commercial-implementation-plan-2026-08-11.md`](./commercial-implementation-plan-2026-08-11.md)
+- Implementation plan (planning only): [`commercial-implementation-plan-2026-08-11.md`](./commercial-implementation-plan-2026-08-11.md)  
+- Pre-implementation reconciliation: [`pre-implementation-reconciliation-2026-08-11.md`](./pre-implementation-reconciliation-2026-08-11.md)
 
 ---
 
@@ -339,10 +340,12 @@ Resolved and **removed:** trial length (**30 days**); seat limit (**remove**); o
 
 Still open (minimal — need explicit authorization):
 
-1. **Property limit** fate — keep / raise / remove (conflict documented; **do not change** yet).  
-2. **Authorize-uplift Stripe timing** — charge immediately on Authorize vs next invoice (must not surprise).  
+1. **Property limit** fate — keep / raise / remove (**OWNER DECISION REQUIRED**; **do not change** yet).  
+2. **COM-002** seat/trial/proration governance amendment authorization.  
 3. **FO_READY** Complete self-serve activation timing (pricing model already final).  
-4. **FO unit-volume** — none unless Owner later extends.
+4. Production cutover after pre-implementation readiness checklist.
+
+**Closed:** over-capacity payment gate; new recurring price = **next billing period**; no mid-period surprise charge.
 
 ---
 
