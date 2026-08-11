@@ -88,7 +88,7 @@ export type Ma7MutationResult = {
   entityId?: string;
 };
 
-export async function mutateOrganizationLifecycle(_input: {
+export async function mutateOrganizationLifecycle(input: {
   organizationId: string;
   action: "suspend" | "reactivate";
   reason?: unknown;
@@ -97,6 +97,7 @@ export async function mutateOrganizationLifecycle(_input: {
   confirmationPhrase?: unknown;
   clientClaimedCapabilities?: unknown;
 }): Promise<Ma7MutationResult> {
+  void input;
   const correlationId = newCorrelationId();
   return {
     ok: false,
@@ -243,7 +244,7 @@ export async function mutateMembershipStatus(input: {
       idempotencyKey: input.idempotencyKey ?? null
     });
     if (!audited.ok) {
-      return { ok: false, code: "audit_failed", correlationId, message: audited.error };
+      return { ok: false, code: "audit_failed", correlationId, message: audited.error ?? "audit_failed" };
     }
     return {
       ok: true,
@@ -503,7 +504,7 @@ export async function mutateSubscriptionLifecycle(input: {
         idempotencyKey: input.idempotencyKey ?? null
       });
       if (!audited.ok) {
-        return { ok: false, code: "audit_failed", correlationId, message: audited.error };
+        return { ok: false, code: "audit_failed", correlationId, message: audited.error ?? "audit_failed" };
       }
       return {
         ok: true,
@@ -633,7 +634,7 @@ export async function mutateSubscriptionLifecycle(input: {
       idempotencyKey: input.idempotencyKey ?? null
     });
     if (!audited.ok) {
-      return { ok: false, code: "audit_failed", correlationId, message: audited.error };
+      return { ok: false, code: "audit_failed", correlationId, message: audited.error ?? "audit_failed" };
     }
     return {
       ok: true,

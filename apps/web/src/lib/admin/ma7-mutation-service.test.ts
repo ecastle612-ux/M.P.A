@@ -96,35 +96,41 @@ function makeQuery(table: string) {
 
 function seedLife(partial: Partial<LifecycleSubscription> & { organizationId: string }): LifecycleSubscription {
   const now = new Date().toISOString();
+  const organizationId = partial.organizationId;
   return {
-    id: `life_${partial.organizationId}`,
-    organizationId: partial.organizationId,
-    stripeSubscriptionId: partial.stripeSubscriptionId ?? `sub_${partial.organizationId}`,
-    stripeCustomerId: `cus_${partial.organizationId}`,
-    productSku: "mpa_property_manager",
-    planTier: "professional",
-    billingCycle: "monthly",
+    id: partial.id ?? `life_${organizationId}`,
+    organizationId,
+    stripeSubscriptionId: partial.stripeSubscriptionId ?? `sub_${organizationId}`,
+    stripeCustomerId: partial.stripeCustomerId ?? `cus_${organizationId}`,
+    productSku: partial.productSku ?? "mpa_property_manager",
+    planTier: partial.planTier ?? "professional",
+    billingCycle: partial.billingCycle ?? "monthly",
     status: partial.status ?? "active",
     cancelAtPeriodEnd: partial.cancelAtPeriodEnd ?? false,
-    currentPeriodEnd: now,
-    graceStartedAt: null,
-    seatLimit: null,
-    propertyLimit: null,
-    stripeBaseItemId: null,
-    stripeAdditionalCapacityItemId: null,
-    managedUnitCount: 10,
-    authorizedAdditionalBlocks: 0,
-    pendingAuthorizedAdditionalBlocks: null,
-    declaredUnitCount: null,
-    lastCapacityAuthorizedAt: null,
-    trialEndsAt: null,
-    quoteId: null,
-    scaRequired: false,
-    emailsSent: [],
-    audit: [],
-    updatedAt: now,
-    ...partial
-  } as LifecycleSubscription;
+    currentPeriodEnd: partial.currentPeriodEnd ?? now,
+    graceStartedAt: partial.graceStartedAt ?? null,
+    seatLimit: partial.seatLimit ?? null,
+    propertyLimit: partial.propertyLimit ?? null,
+    stripeBaseItemId: partial.stripeBaseItemId ?? null,
+    stripeAdditionalCapacityItemId: partial.stripeAdditionalCapacityItemId ?? null,
+    managedUnitCount: partial.managedUnitCount ?? 10,
+    authorizedAdditionalBlocks: partial.authorizedAdditionalBlocks ?? 0,
+    authorizedUnitCapacity: partial.authorizedUnitCapacity ?? 500,
+    declaredUnitCount: partial.declaredUnitCount ?? null,
+    pendingAdditionalBlocks: partial.pendingAdditionalBlocks ?? null,
+    pendingAuthorizedUnitCapacity: partial.pendingAuthorizedUnitCapacity ?? null,
+    lastCapacityAuthorizedAt: partial.lastCapacityAuthorizedAt ?? null,
+    quoteId: partial.quoteId ?? null,
+    trialEndsAt: partial.trialEndsAt ?? null,
+    pendingPlanTier: partial.pendingPlanTier ?? null,
+    lastInvoiceStatus: partial.lastInvoiceStatus ?? null,
+    scaRequired: partial.scaRequired ?? false,
+    emailsSent: partial.emailsSent ?? [],
+    audit: partial.audit ?? [],
+    paymentHistory: partial.paymentHistory ?? [],
+    createdAt: partial.createdAt ?? now,
+    updatedAt: partial.updatedAt ?? now
+  };
 }
 
 describe("MA-7 membership + subscription mutation service", () => {

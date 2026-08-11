@@ -144,9 +144,9 @@ export function Ma7MembershipActions({
     const body = (await response.json()) as ResultState & { error?: string };
     setResult({
       ok: Boolean(body?.ok),
-      code: body?.code ?? body?.error,
-      message: body?.message,
-      correlationId: body?.correlationId
+      ...(body?.code ? { code: body.code } : {}),
+      ...(body?.message ? { message: body.message } : {}),
+      ...(body?.correlationId ? { correlationId: body.correlationId } : {})
     });
     if (body?.ok) router.refresh();
   }
@@ -216,9 +216,9 @@ export function Ma7SubscriptionActions({
     const body = (await response.json()) as ResultState & { error?: string };
     setResult({
       ok: Boolean(body?.ok),
-      code: body?.code ?? body?.error,
-      message: body?.message,
-      correlationId: body?.correlationId
+      ...(body?.code ? { code: body.code } : {}),
+      ...(body?.message ? { message: body.message } : {}),
+      ...(body?.correlationId ? { correlationId: body.correlationId } : {})
     });
     if (body?.ok) router.refresh();
   }
