@@ -13,7 +13,8 @@
 - Product Constitution / ADR-019 (**unchanged** by this doc)  
 - ADR-018 / COM-002 commercial architecture (current implementation baseline)  
 - Authoritative commercial reconciliation (PM Business = legacy)  
-- PR #118 — Business readiness removal (**do not deploy** from this task)
+- PR #118 — Business readiness removal (**do not deploy** from this task)  
+- Implementation blueprint (planning only): [`commercial-billing-implementation-blueprint-2026-08-11.md`](./commercial-billing-implementation-blueprint-2026-08-11.md)
 
 ---
 
