@@ -33,9 +33,9 @@ function uniqueOptions(values: string[]): Array<{ value: string; label: string }
 export function OrganizationsOpsWorkspace({ organizations }: { organizations: OpsOrgRow[] }) {
   return (
     <OpsWorkspaceChrome
-      eyebrow="Platform Operations · Organizations"
+      eyebrow="Master Admin · Organizations"
       title="Organization directory"
-      description="Search and filter customer organizations by status, product, provisioning, and Guided Setup — open a profile for support diagnosis."
+      description="Search and filter customer organizations by name, ID, status, product, provisioning, and Guided Setup — open diagnostic detail."
     >
       <OpsMetricStrip
         items={[
@@ -57,9 +57,9 @@ export function OrganizationsOpsWorkspace({ organizations }: { organizations: Op
       <OpsDirectoryTable
         caption="Organizations"
         rows={organizations}
-        searchPlaceholder="Search name, slug, product…"
+        searchPlaceholder="Search name, slug, organization ID, product…"
         searchText={(row) =>
-          `${row.name} ${row.slug} ${row.productLabel ?? ""} ${row.statusBucket} ${row.provisioningState}`
+          `${row.name} ${row.slug} ${row.id} ${row.productLabel ?? ""} ${row.statusBucket} ${row.provisioningState}`
         }
         filters={[
           {
@@ -97,6 +97,7 @@ export function OrganizationsOpsWorkspace({ organizations }: { organizations: Op
                   {row.name}
                 </a>
                 <p className="font-mono text-[11px] text-[var(--mpa-color-text-secondary)]">{row.slug}</p>
+                <p className="font-mono text-[10px] text-[var(--mpa-color-text-secondary)]">{row.id}</p>
               </div>
             )
           },
