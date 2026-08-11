@@ -5,12 +5,13 @@ import { createAuthServerClient } from "../../lib/auth/server";
 export const metadata: Metadata = {
   title: "M.P.A. — My Property Assistant",
   description:
-    "Property operations for portfolio managers, facility teams, residents, vendors, and owners."
+    "Run the whole property operation — not just rent collection. M.P.A. is a workflow-first Property Operations Platform for properties, residents, leases, billing, maintenance, vendors, and day-to-day attention."
 };
 
 /**
  * Public homepage. Never redirects to authentication.
- * Funnel: Choose Modules → Pricing → Confirm Plan → account creation.
+ * Commercial flow: Landing → Choose Product → Monthly/Annual → Stripe Checkout →
+ * Create Account → Guided Setup → Mission Control.
  */
 export default async function MarketingHomePage() {
   const supabase = await createAuthServerClient();

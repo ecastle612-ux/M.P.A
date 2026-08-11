@@ -75,7 +75,10 @@ function AuthNavLinks({
       >
         Sign In
       </Link>
-      <Link href="/modules" className={`${primaryCtaClass} ${stacked ? "w-full" : ""}`}>
+      <Link
+        href={acquisitionHref("questionnaire")}
+        className={`${primaryCtaClass} ${stacked ? "w-full" : ""}`}
+      >
         Get Started
       </Link>
     </div>
