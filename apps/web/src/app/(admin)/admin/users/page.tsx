@@ -1,5 +1,5 @@
-import { Ma3UsersPage } from "../../../components/admin/ma3-users-page";
-import { loadMa3UsersDirectory } from "../../../lib/admin/load-ma3-users";
+import { Ma3UsersPage } from "../../../../components/admin/ma3-users-page";
+import { loadMa3UsersDirectory } from "../../../../lib/admin/load-ma3-users";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 

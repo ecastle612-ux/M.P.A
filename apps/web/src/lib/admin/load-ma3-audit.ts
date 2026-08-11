@@ -131,11 +131,10 @@ export async function loadMa3AuditDirectory(
   }
 
   try {
-    const { rows, degraded: errDegraded, detail } = await listPlatformErrorEvents({
-      limit: 150,
-      organizationId: filters.organizationId,
-      since: filters.since
-    });
+    const errorQuery: { limit: number; organizationId?: string; since?: string } = { limit: 150 };
+    if (filters.organizationId) errorQuery.organizationId = filters.organizationId;
+    if (filters.since) errorQuery.since = filters.since;
+    const { rows, degraded: errDegraded, detail } = await listPlatformErrorEvents(errorQuery);
     if (errDegraded) degraded.push(`Security signals: ${detail ?? "error feed unavailable"}`);
     for (const row of rows) {
       const mapped = mapSecurityErrorToAudit({

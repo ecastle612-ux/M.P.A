@@ -1,5 +1,5 @@
-import { Ma3AuditLogPage } from "../../../components/admin/ma3-audit-page";
-import { loadMa3AuditDirectory } from "../../../lib/admin/load-ma3-audit";
+import { Ma3AuditLogPage } from "../../../../components/admin/ma3-audit-page";
+import { loadMa3AuditDirectory } from "../../../../lib/admin/load-ma3-audit";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 

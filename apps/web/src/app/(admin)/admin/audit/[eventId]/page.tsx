@@ -1,5 +1,5 @@
-import { Ma3AuditDetailPage } from "../../../../components/admin/ma3-audit-page";
-import { loadMa3AuditEvent } from "../../../../lib/admin/load-ma3-audit";
+import { Ma3AuditDetailPage } from "../../../../../components/admin/ma3-audit-page";
+import { loadMa3AuditEvent } from "../../../../../lib/admin/load-ma3-audit";
 
 export default async function Page({
   params

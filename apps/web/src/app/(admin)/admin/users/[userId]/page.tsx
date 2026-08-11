@@ -1,6 +1,6 @@
-import { Ma3UserDetailPage } from "../../../../components/admin/ma3-user-detail-page";
-import { loadUserProfile } from "../../../../lib/admin/load-user-profile";
-import { loadMa3AuditDirectory } from "../../../../lib/admin/load-ma3-audit";
+import { Ma3UserDetailPage } from "../../../../../components/admin/ma3-user-detail-page";
+import { loadUserProfile } from "../../../../../lib/admin/load-user-profile";
+import { loadMa3AuditDirectory } from "../../../../../lib/admin/load-ma3-audit";
 
 export const dynamic = "force-dynamic";
 
