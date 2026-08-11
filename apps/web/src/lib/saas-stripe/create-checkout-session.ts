@@ -240,7 +240,9 @@ export function buildUnitVolumeSessionParamsForTest(input: {
 }
 
 /**
- * Legacy offer-based Checkout (pre–unit-volume). Kept for transitional readiness.
+ * Legacy offer-based Checkout (pre–unit-volume).
+ * Not reachable from customer Checkout API — retained for admin/historical helpers + tests only.
+ * Do not wire back into `/api/commerce/checkout`.
  */
 export async function createSaasCheckoutSession(
   input: SaasCheckoutRequest

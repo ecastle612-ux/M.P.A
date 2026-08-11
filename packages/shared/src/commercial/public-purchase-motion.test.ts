@@ -37,16 +37,22 @@ describe("public purchase motion (Option B)", () => {
 });
 
 describe("display Price env keys", () => {
-  it("maps FO/Complete display Prices; legacy Checkout allowlist stays PM-only", () => {
+  it("maps public catalog display Prices to authoritative unit-volume registry", () => {
     expect(saasPriceEnvKeyForOfferId("mpa_facility_operations__professional__monthly")).toBeNull();
     expect(saasDisplayPriceEnvKeyForOfferId("mpa_facility_operations__professional__monthly")).toBe(
       "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY"
     );
     expect(saasDisplayPriceEnvKeyForOfferId("mpa_complete_platform__professional__annual")).toBe(
-      "STRIPE_PRICE_COMPLETE_PROFESSIONAL_ANNUAL"
+      "STRIPE_PRICE_COMPLETE_BASE_ANNUAL"
     );
     expect(saasDisplayPriceEnvKeyForOfferId("mpa_property_manager__professional__monthly")).toBe(
-      "STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY"
+      "STRIPE_PRICE_PM_BASE_MONTHLY"
+    );
+    expect(saasDisplayPriceEnvKeyForOfferId("mpa_property_manager__professional__annual")).toBe(
+      "STRIPE_PRICE_PM_BASE_ANNUAL"
+    );
+    expect(saasDisplayPriceEnvKeyForOfferId("mpa_complete_platform__professional__monthly")).toBe(
+      "STRIPE_PRICE_COMPLETE_BASE_MONTHLY"
     );
   });
 });

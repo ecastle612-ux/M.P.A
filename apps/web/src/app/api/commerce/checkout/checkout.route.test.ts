@@ -72,4 +72,34 @@ describe("POST /api/commerce/checkout (quote path)", () => {
       )
     ).toBe(true);
   });
+
+  it("rejects Checkout without quoteId", async () => {
+    const res = await checkoutPost(
+      new Request("http://localhost/api/commerce/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({})
+      })
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe("quote_id_required");
+  });
+
+  it("rejects legacy productSku/planTier Checkout payloads", async () => {
+    const res = await checkoutPost(
+      new Request("http://localhost/api/commerce/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          productSku: "mpa_property_manager",
+          planTier: "professional",
+          billingCycle: "monthly"
+        })
+      })
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe("legacy_checkout_unsupported");
+  });
 });

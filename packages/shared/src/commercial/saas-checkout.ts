@@ -24,7 +24,10 @@ export const SAAS_METADATA_KEYS = {
   demoSessionId: "mpa_demo_session_id"
 } as const;
 
-/** Env var names holding Stripe Price ids for self-serve PM offers (Checkout allowlist). */
+/**
+ * Legacy offer → Price env map (admin/historical only).
+ * Not used by customer Checkout — unit-volume quote path is authoritative.
+ */
 export const SAAS_PRICE_ENV_KEYS = {
   "mpa_property_manager__professional__monthly": "STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY",
   "mpa_property_manager__professional__annual": "STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL",
@@ -33,18 +36,17 @@ export const SAAS_PRICE_ENV_KEYS = {
 } as const;
 
 /**
- * Display Price env keys for public Pricing / Confirm Plan.
- * FO / Complete professional env keys remain for display catalogs; unit-volume Checkout uses
- * STRIPE_PRICE_*_BASE_* / UNIT_BLOCK_* (and FO_PROFESSIONAL_* as FO base). Legacy
- * validateSaasCheckoutRequest stays PM-only — FO/Complete use the quote path.
+ * Authoritative display Price env keys for public catalog transparency.
+ * Maps internal offer ids to unit-volume registry Prices (not legacy PM/Complete professional).
+ * FO_PROFESSIONAL_* remain the authoritative FO base Prices despite the historical name.
  */
 export const SAAS_DISPLAY_PRICE_ENV_KEYS = {
-  "mpa_property_manager__professional__monthly": "STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY",
-  "mpa_property_manager__professional__annual": "STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL",
+  "mpa_property_manager__professional__monthly": "STRIPE_PRICE_PM_BASE_MONTHLY",
+  "mpa_property_manager__professional__annual": "STRIPE_PRICE_PM_BASE_ANNUAL",
   "mpa_facility_operations__professional__monthly": "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY",
   "mpa_facility_operations__professional__annual": "STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL",
-  "mpa_complete_platform__professional__monthly": "STRIPE_PRICE_COMPLETE_PROFESSIONAL_MONTHLY",
-  "mpa_complete_platform__professional__annual": "STRIPE_PRICE_COMPLETE_PROFESSIONAL_ANNUAL"
+  "mpa_complete_platform__professional__monthly": "STRIPE_PRICE_COMPLETE_BASE_MONTHLY",
+  "mpa_complete_platform__professional__annual": "STRIPE_PRICE_COMPLETE_BASE_ANNUAL"
 } as const;
 
 export type SaasPriceOfferId = keyof typeof SAAS_PRICE_ENV_KEYS;

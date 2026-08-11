@@ -22,8 +22,8 @@ export function isUnitVolumeCheckoutReady(): boolean {
   });
 }
 
+/** Admin/historical readiness helper. Customer Checkout uses `isUnitVolumeCheckoutReady` only. */
 export function isSaasCheckoutReady(): boolean {
-  // Prefer unit-volume registry; keep legacy professional Prices as transitional readiness.
   if (isUnitVolumeCheckoutReady()) {
     return true;
   }

@@ -19,9 +19,9 @@ const PUBLIC_PLAN = "professional" as const;
 const PUBLIC_CYCLES: BillingCycle[] = ["monthly", "annual"];
 
 /**
- * Loads live Stripe Price amounts for public Pricing / Confirm Plan across all three products.
- * Does not invent amounts. Returns an explicit warning when any expected price cannot be retrieved.
- * FO / Complete professional Price env keys map to Checkout base Prices (unit-volume registry).
+ * Loads live Stripe Price amounts for public catalog transparency across all three products.
+ * Resolves authoritative unit-volume Price env keys (PM/Complete BASE, FO PROFESSIONAL as FO base).
+ * Does not invent amounts. Does not expose legacy $99/$149 professional catalog Prices.
  */
 export async function loadPublicCatalogPrices(): Promise<PublicCatalogPriceCatalog> {
   const stripe = getSaasStripeClient();
