@@ -163,7 +163,58 @@ Future customers enter the approved unit-volume pricing architecture.
 
 ---
 
-## 7. Stripe architecture (DESIGN ONLY — not created)
+## 7. First-Month-Free Commercial Rule (FINAL)
+
+**Owner-approved offer:** New customers receive **FIRST MONTH FREE**.
+
+| Rule | Decision |
+|------|----------|
+| Offer | First month free for new customers |
+| Payment card at registration / Checkout | **Required** — valid payment method must be provided before the free month begins |
+| Charges during free month | **None** — customer is not charged during the first month |
+| After free month | Normal recurring subscription billing begins **automatically** using the applicable approved unit-volume price |
+| Manual payment action at end of free month | **Not required** |
+
+### Interaction with unit-volume pricing
+
+The free month does **not** change the approved pricing model.
+
+- Monthly Property Manager unit-volume rates remain as finalized in §3 ($59 base + $39 per additional 500-unit block).  
+- Annual billing remains **no discount** (monthly × 12) as finalized in §4.  
+- The free month applies to the **applicable subscription amount** (the customer’s unit-volume total for their selected cycle).  
+- Unit-count / block recalculation for subsequent paid periods remains as finalized in §5 (next paid billing period).
+
+### Do not invent trial rules
+
+This package records **only** the Owner-approved requirements above.  
+Do **not** invent or implement rules for:
+
+- cancellation during or after the free month  
+- refunds  
+- grace periods  
+- failed-payment handling after the free month  
+- card authorization / hold amount  
+- trial extension or renewal of free months  
+
+Those remain **Owner decisions** if required for future implementation (see §12).
+
+### Future Stripe design support (DO NOT IMPLEMENT)
+
+Future implementation must support:
+
+1. Payment method collected at signup / Checkout.  
+2. Payment method validity checked before the free month begins.  
+3. First month represented as a trial / free period.  
+4. No subscription charge during the trial / free month.  
+5. Automatic recurring billing after the trial / free month ends.  
+6. Correct unit-volume price (Base + Additional Unit Block quantities) at billing start.  
+7. Annual billing with no volume discount (monthly × 12), when annual is selected.
+
+**Stripe trial / free-month behavior is not implemented in this package.**
+
+---
+
+## 8. Stripe architecture (DESIGN ONLY — not created)
 
 ### Recommended shape
 
@@ -196,7 +247,7 @@ Rejected for primary path: fixed Price-per-band matrix (does not scale); metered
 
 ---
 
-## 8. Target commercial representation (design — not implemented)
+## 9. Target commercial representation (design — not implemented)
 
 | Concern | Target |
 |---------|--------|
@@ -206,6 +257,7 @@ Rejected for primary path: fixed Price-per-band matrix (does not scale); metered
 | Monthly total | Base + Additional Unit Block items |
 | Annual total | Same blocks × 12 (no discount) |
 | Quantity / price changes | Applied for the **next** paid billing period only |
+| First month | Free; valid payment method required up front; auto-bill after free month |
 | Entitlements | Product SKU modules; unit capacity via block quantity |
 | FO / Complete | Unchanged until FO_READY; unit-volume for those products out of scope unless Owner extends |
 
@@ -220,7 +272,7 @@ Rejected for primary path: fixed Price-per-band matrix (does not scale); metered
 
 ---
 
-## 9. Current architecture baseline (context only)
+## 10. Current architecture baseline (context only)
 
 Today (COM-002 / Slice C–E): fixed Stripe Price IDs via env; quantity unused; seats/properties as metadata limits; Checkout one line item; FO/Complete gated. Unit-volume is a **new** commercial dimension requiring Implementation Gate approval before coding.
 
@@ -228,7 +280,7 @@ Tenant-based volume billing remains **removed** from this design.
 
 ---
 
-## 10. Future implementation requirements (DO NOT IMPLEMENT in this package)
+## 11. Future implementation requirements (DO NOT IMPLEMENT in this package)
 
 Document for a future approved implementation only:
 
@@ -238,12 +290,13 @@ Document for a future approved implementation only:
 4. Annual calculation = monthly × 12 (no discount).  
 5. Stripe two-item subscription architecture (Base + Additional Unit Block), monthly and annual Prices.  
 6. Checkout calculation of initial block quantity from unit count (or initial portfolio setup).  
-7. Billing lifecycle synchronization (webhooks remain access truth; period-end quantity sync).  
-8. Customer pricing display (unit-block calculator; no Business / Professional customer tiers).  
-9. Unit-count change handling (track count during period; apply at period boundary).  
-10. Audit history of count and block changes.  
-11. Billing notifications (period-end price change notice — content TBD at implementation).  
-12. Tests: boundaries 500/501/1000/1001/1500/1501; annual = 12× monthly; no mid-period unit-volume proration; FO/Complete still gated; FIN-OPS rent domain untouched.
+7. **First-month-free:** collect and validate payment method at signup; trial/free period with no charge; automatic recurring billing after free month at correct unit-volume price.  
+8. Billing lifecycle synchronization (webhooks remain access truth; period-end quantity sync).  
+9. Customer pricing display (unit-block calculator; first-month-free messaging; no Business / Professional customer tiers).  
+10. Unit-count change handling (track count during period; apply at period boundary).  
+11. Audit history of count and block changes.  
+12. Billing notifications (period-end price change notice — content TBD at implementation).  
+13. Tests: boundaries 500/501/1000/1001/1500/1501; annual = 12× monthly; no mid-period unit-volume proration; first month free with card required; auto-bill after free month; FO/Complete still gated; FIN-OPS rent domain untouched.
 
 ### Acceptance criteria (future implementation)
 
@@ -253,6 +306,8 @@ Document for a future approved implementation only:
 - [ ] 501–1000 → $98/mo / $1,176/yr  
 - [ ] Formula holds for arbitrary blocks; annual = monthly × 12  
 - [ ] Unit-volume price changes apply next paid period only  
+- [ ] First month free; valid payment method required before free month begins  
+- [ ] No charge during free month; automatic recurring billing afterward  
 - [ ] No customer-facing Business / Professional tier  
 - [ ] No separate Enterprise product or Stripe Product  
 - [ ] No mid-period surprise unit-volume charges  
@@ -260,9 +315,9 @@ Document for a future approved implementation only:
 
 ---
 
-## 11. Remaining Owner decisions (genuine open items only)
+## 12. Remaining Owner decisions (genuine open items only)
 
-Resolved and **removed** from open list: billable tenant metric; billable unit status exclusions; annual pricing rule; existing subscriber migration.
+Resolved and **removed** from open list: billable tenant metric; billable unit status exclusions; annual pricing rule; existing subscriber migration; first-month-free offer (card required; auto-bill after free month).
 
 Still open (not invented here):
 
@@ -270,27 +325,31 @@ Still open (not invented here):
 2. **Relationship to seat/property limits** — keep, replace, or revise under unit-volume pricing.  
 3. **FO / Complete** — same unit-block formula later, or different (out of scope until FO_READY / Owner extension).  
 4. **In-period UX when count exceeds current paid blocks** — pricing waits until next period; whether the product **blocks**, **warns**, or **allows** adding units mid-period is still an Owner product decision.  
-5. **Period-end notification copy / channel** — that customers are informed before the next period amount changes (implementation detail; Owner may set policy later).
+5. **Period-end notification copy / channel** — that customers are informed before the next period amount changes (implementation detail; Owner may set policy later).  
+6. **Free-month / trial edge policies** (do not invent): cancellation during free month; refunds; grace periods; failed-payment handling after free month; card authorization / hold amount; trial extension rules.  
+7. **Whether first-month-free applies to annual Checkout** the same way (one free month then annual charge vs other) — Owner stated free month applies to the applicable subscription amount; exact annual Checkout sequencing may need confirmation at implementation approval.
 
 ---
 
-## 12. Explicit non-actions (this package)
+## 13. Explicit non-actions (this package)
 
 | Item | Status |
 |------|--------|
 | Production changes | **NONE** |
 | Stripe changes | **NONE** (no Prices created or modified) |
+| Stripe trial / free-month implementation | **NOT IMPLEMENTED** |
 | Vercel / env changes | **NONE** |
-| Application / billing code | **NONE** |
+| Application / billing / Checkout code | **NONE** |
 | Quantity synchronization | **NONE** |
 | Subscriptions | **UNCHANGED** |
+| Pricing amounts | **UNCHANGED** (free month does not alter rate table) |
 | Product Constitution / ADR-019 edits | **NONE** |
 | PR #118 deploy | **NOT AUTHORIZED by this task** |
 | Vercel environment configuration | **NOT AUTHORIZED by this task** |
 
 ---
 
-## 13. STOP
+## 14. STOP
 
-Governance for unit-volume pricing is finalized per Owner decisions above.  
-Await Implementation Gate approval before any Stripe Prices, env wiring, Checkout quantity work, billing lifecycle code, or Vercel configuration.
+Governance for unit-volume pricing and first-month-free is recorded per Owner decisions above.  
+Await Implementation Gate approval before any Stripe Prices, trial configuration, env wiring, Checkout quantity work, billing lifecycle code, or Vercel configuration.
