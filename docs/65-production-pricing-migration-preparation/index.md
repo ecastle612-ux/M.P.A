@@ -12,6 +12,8 @@
 
 **Dashboard vs runtime proof:** **BRANCH C** — Dashboard Production values **UNREADABLE** from agent. Runtime still OLD-WRONG. See [vercel-production-environment-proof-2026-08-11.md](./vercel-production-environment-proof-2026-08-11.md).
 
+**Final verify (after Owner Edit + redeploy `dpl_6zLA…` / `520f7c5`):** **OVERALL FAIL** — runtime still OLD/WRONG. See [final-production-pricing-verification-2026-08-11.md](./final-production-pricing-verification-2026-08-11.md).
+
 **Duplicate audit:** Owner clarified NEW entries were **added** without editing existing. Vercel forbids same-name+Production duplicates; runtime still binds old/wrong values for the eight app-read keys. See [vercel-production-env-duplicate-audit-2026-08-11.md](./vercel-production-env-duplicate-audit-2026-08-11.md). Next: read-only Dashboard row inventory (no delete/re-enter yet).
 
 ## Migration model
