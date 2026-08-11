@@ -544,6 +544,14 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
           </span>
         }
       >
+        <p className="mb-3 text-xs">
+          <Link
+            href={`/admin/operations/work-orders?organizationId=${encodeURIComponent(detail.id)}`}
+            className="text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open fleet Operations work orders for this org →
+          </Link>
+        </p>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <Panel>
             <Kv label="Open" value={detail.workOrders.open} />
@@ -572,7 +580,12 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
                   key={wo.id}
                   className="border-t border-[var(--mpa-color-border-subtle)] pt-2 first:border-0 first:pt-0 text-xs"
                 >
-                  <span className="text-[var(--mpa-color-text-primary)]">{wo.title}</span>
+                  <Link
+                    href={`/admin/operations/work-orders/${encodeURIComponent(wo.id)}`}
+                    className="text-[var(--mpa-color-text-primary)] underline"
+                  >
+                    {wo.title}
+                  </Link>
                   <p className="text-[var(--mpa-color-text-secondary)]">
                     {wo.status} · {wo.priority}
                     {wo.workSurface ? ` · ${wo.workSurface}` : ""}
@@ -585,6 +598,14 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
       </Section>
 
       <Section id="vendors" title="Vendors">
+        <p className="mb-3 text-xs">
+          <Link
+            href={`/admin/operations/vendors?organizationId=${encodeURIComponent(detail.id)}`}
+            className="text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open fleet Operations vendors for this org →
+          </Link>
+        </p>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Panel>
             <Kv label="Vendors" value={detail.vendors.total} />
@@ -618,6 +639,14 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
       </Section>
 
       <Section id="notifications" title="Notifications">
+        <p className="mb-3 text-xs">
+          <Link
+            href={`/admin/operations/notifications?organizationId=${encodeURIComponent(detail.id)}`}
+            className="text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open fleet Operations notifications for this org →
+          </Link>
+        </p>
         <div className="grid gap-3 sm:grid-cols-3">
           <Panel>
             <Kv label="Email failed" value={detail.notifications.recentFailed} />
