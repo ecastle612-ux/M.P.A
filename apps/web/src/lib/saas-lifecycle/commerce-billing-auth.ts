@@ -12,7 +12,6 @@ import { isOrganizationManager } from "../organization/server";
 import { resolveLifecycleForOrganization } from "./resolve-lifecycle";
 
 export type CommerceBillingAuth = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: Awaited<ReturnType<typeof createAuthServerClient>>;
   user: User;
   organizationId: string;

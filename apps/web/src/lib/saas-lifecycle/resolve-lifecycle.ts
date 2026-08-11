@@ -173,7 +173,7 @@ export async function resolveLifecycleForOrganization(
     return null;
   }
 
-  const row = data as OrganizationSubscriptionRow;
+  const row = data as unknown as OrganizationSubscriptionRow;
   if (row.organization_id !== organizationId) {
     return null;
   }
