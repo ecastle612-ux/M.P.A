@@ -65,8 +65,14 @@ export type CommandCenterSnapshot = {
     latestProvisioning: CommandCenterActivityItem[];
     latestLifecycle: CommandCenterActivityItem[];
     latestSupport: CommandCenterActivityItem[];
+    /** STAB-006 — durable critical/error feed for operators */
+    latestCriticalErrors: CommandCenterActivityItem[];
   };
   alerts: CommandCenterActivityItem[];
+  observability: {
+    criticalErrorCount: number;
+    sentryConfigured: boolean;
+  };
 };
 
 export type OrgMetricRow = {
@@ -197,6 +203,8 @@ export function buildCommandCenterSnapshot(input: {
     demoSessions: number;
     demoOk: boolean;
   };
+  criticalErrors?: CommandCenterActivityItem[];
+  sentryConfigured?: boolean;
   generatedAt?: string;
 }): CommandCenterSnapshot {
   const jobsByOrg = new Map<string, ProvisioningStatus[]>();
@@ -372,6 +380,18 @@ export function buildCommandCenterSnapshot(input: {
     });
   }
 
+  const latestCriticalErrors = (input.criticalErrors ?? []).slice(0, 12);
+  const criticalErrorCount = latestCriticalErrors.length;
+  if (criticalErrorCount > 0) {
+    alerts.unshift({
+      id: "alert-critical-errors",
+      at: latestCriticalErrors[0]?.at ?? input.generatedAt ?? new Date().toISOString(),
+      title: "Critical production errors",
+      detail: `${criticalErrorCount} recent error event(s) in the durable feed`,
+      href: "/admin#critical-errors"
+    });
+  }
+
   return {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
     organizations: {
@@ -403,8 +423,13 @@ export function buildCommandCenterSnapshot(input: {
       latestPurchases,
       latestProvisioning,
       latestLifecycle,
-      latestSupport
+      latestSupport,
+      latestCriticalErrors
     },
-    alerts
+    alerts,
+    observability: {
+      criticalErrorCount,
+      sentryConfigured: Boolean(input.sentryConfigured)
+    }
   };
 }

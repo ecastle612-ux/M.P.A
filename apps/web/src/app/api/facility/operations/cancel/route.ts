@@ -3,6 +3,15 @@ import { cancelWorkOrderInputSchema } from "@mpa/shared";
 import { requireFacilityOperation } from "../../../../../lib/facility/authz";
 import { requireFacilityWorkOrder } from "../../../../../lib/facility/assert-facility-work-order";
 import { cancelWorkOrder } from "../../../../../lib/maintenance/maintenance-service";
+import { reportApiFailure } from "../../../../../lib/observability/api-error";
+
+function isExpectedCancelError(message: string) {
+  return (
+    /not found/i.test(message) ||
+    /cannot cancel/i.test(message) ||
+    /completed|closed|cancelled/i.test(message)
+  );
+}
 
 export async function POST(request: Request) {
   const authz = await requireFacilityOperation("pm.maintenance:assign", "facility.operations");
@@ -37,9 +46,19 @@ export async function POST(request: Request) {
     );
     return NextResponse.json({ workOrder });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to cancel facility work order" },
-      { status: 400 }
-    );
+    const message =
+      error instanceof Error ? error.message : "Failed to cancel facility work order";
+    if (isExpectedCancelError(message)) {
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+    return reportApiFailure({
+      request,
+      error,
+      organizationId: authz.organizationId,
+      actorId: authz.user.id,
+      status: 500,
+      publicMessage: "Failed to cancel facility work order",
+      severity: "error"
+    });
   }
 }

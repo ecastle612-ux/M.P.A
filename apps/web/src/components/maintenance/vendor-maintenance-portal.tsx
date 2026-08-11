@@ -99,15 +99,19 @@ export function VendorMaintenancePortal() {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <header className="space-y-1">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+          Vendor portal
+        </p>
         <h2 className="font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">
           Assigned work
         </h2>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Start, update, or complete jobs assigned to you.
+          Work orders assigned to your vendor account. Start, update progress, or complete jobs here.
+          Invoices, messaging, and document exchange are not part of this portal yet.
         </p>
         {vendors.length > 0 ? (
           <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-            Linked as: {vendors.map((vendor) => vendor.name).join(", ")}
+            Vendor identity: {vendors.map((vendor) => vendor.name).join(", ")}
           </p>
         ) : null}
       </header>
@@ -121,7 +125,7 @@ export function VendorMaintenancePortal() {
       {entries.length === 0 ? (
         <EmptyState
           title="No assigned work yet"
-          description="When a property manager assigns your account, work orders appear here."
+          description="When a property or facility manager assigns your vendor account, work orders appear here."
         />
       ) : (
         entries.map(({ workOrder, updates }) => (

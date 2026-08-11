@@ -1,15 +1,16 @@
+import { scrubMetadata } from "./scrub";
 import type { LogContext, LogLevel } from "./types";
 
 /**
- * Foundation placeholder logger. Replace transport in a later phase.
+ * Structured production logger. Always console-safe; never throws.
  */
 export function log(level: LogLevel, message: string, context: LogContext = {}): void {
-  // Intentionally minimal; avoids vendor lock-in during foundation stage.
+  const safeContext = scrubMetadata(context as Record<string, string | number | boolean | null | undefined>);
   const payload = {
     timestamp: new Date().toISOString(),
     level,
-    message,
-    ...context
+    message: typeof message === "string" ? message.slice(0, 2000) : "log",
+    ...safeContext
   };
   if (level === "error") {
     console.error(payload);

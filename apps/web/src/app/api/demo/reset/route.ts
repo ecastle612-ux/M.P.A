@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { COM_002_FLAGS } from "@mpa/shared";
 import { readDemoCookiePair } from "../../../../lib/demo/cookie";
 import { applyDemoCookies } from "../../../../lib/demo/durable-state";
+import { isDemoRuntimeEnabled } from "../../../../lib/demo/demo-runtime";
 import {
   resetDemoSessionRecord,
   resolveDemoSessionRecord
 } from "../../../../lib/demo/session-store";
 
 export async function POST(request: Request) {
-  if (!COM_002_FLAGS.sliceB_demoPlatform) {
+  if (!isDemoRuntimeEnabled()) {
     return NextResponse.json({ error: "demo_disabled" }, { status: 404 });
   }
   const body = (await request.json().catch(() => ({}))) as { sessionId?: string };

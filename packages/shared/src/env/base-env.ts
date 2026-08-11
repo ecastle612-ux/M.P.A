@@ -49,7 +49,18 @@ export const serverEnvSchema = clientEnvSchema.extend({
   SIGNWELL_API_KEY: z.string().min(1).optional(),
   SIGNWELL_WEBHOOK_ID: z.string().min(1).optional(),
   /** Defaults to test mode unless explicitly set to "false". */
-  SIGNWELL_TEST_MODE: z.string().optional()
+  SIGNWELL_TEST_MODE: z.string().optional(),
+  /**
+   * STAB-006 — optional Sentry DSN. Local/dev work without these.
+   * Do not configure Production from application code; operators set env when ready.
+   */
+  SENTRY_DSN: z.string().min(1).optional(),
+  NEXT_PUBLIC_SENTRY_DSN: z.string().min(1).optional(),
+  SENTRY_ENVIRONMENT: z.string().min(1).optional(),
+  /**
+   * STAB-015 — when VERCEL_ENV=production, demo APIs stay disabled unless "true".
+   */
+  DEMO_ENABLED: z.string().optional()
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
