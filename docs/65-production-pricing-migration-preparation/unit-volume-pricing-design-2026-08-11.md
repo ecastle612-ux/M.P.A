@@ -166,8 +166,8 @@ Additional Unit Capacity is **not** a separate subscription tier. Complete self-
 | Customer would **exceed** paid capacity (e.g. add unit 501 on 500 paid) | **Payment gate** — explain Additional Unit Capacity, show new price, require **explicit authorization**, then update billing capacity and allow the action |
 | Silent / surprise subscription increase | **Forbidden** |
 | Block entire organization | **Forbidden** — gate only the exceeding action |
-| After customer authorizes uplift | Billing capacity updates; recurring amount reflects authorized capacity; customer continues |
-| Period-end reconciliation | Align recurring items to authorized/actual capacity for next period |
+| After customer authorizes uplift | Operational capacity granted now; **new recurring price applies next billing period** |
+| Period-end reconciliation | Stripe items reflect authorized blocks on the next invoice |
 
 Paid capacity = `500 × (1 + authorized_additional_blocks)`.
 
