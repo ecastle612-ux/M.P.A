@@ -5,13 +5,14 @@
 
 export const COMMERCE_FUNNEL_STATES = [
   "landing",
+  "questionnaire",
   "modules",
   "pricing",
   "confirm_plan",
   "enterprise_request",
   /** Interim until Slice C/D — account path without payment. */
   "account_interim",
-  /** Reserved — Slice C+. */
+  /** Reserved — Stripe Checkout session creation (future slice). */
   "checkout_payment",
   "provisioning",
   "guided_setup",
@@ -34,8 +35,14 @@ const TRANSITIONS: Record<
   Partial<Record<CommerceFunnelEvent, CommerceFunnelState>>
 > = {
   landing: {
-    CONTINUE: "modules",
+    CONTINUE: "questionnaire",
     REQUEST_ENTERPRISE: "enterprise_request"
+  },
+  questionnaire: {
+    CONTINUE: "confirm_plan",
+    SELECT_PRODUCT: "confirm_plan",
+    REQUEST_ENTERPRISE: "enterprise_request",
+    BACK: "landing"
   },
   modules: {
     SELECT_PRODUCT: "pricing",
@@ -46,14 +53,15 @@ const TRANSITIONS: Record<
   pricing: {
     SELECT_PLAN: "pricing",
     SELECT_CYCLE: "pricing",
-    CONTINUE: "confirm_plan",
+    CONTINUE: "questionnaire",
     REQUEST_ENTERPRISE: "enterprise_request",
     BACK: "modules"
   },
   confirm_plan: {
-    CONFIRM_PLAN: "checkout_payment",
+    /** Slice 2 stops before Stripe Checkout Session creation. */
+    CONFIRM_PLAN: "confirm_plan",
     REQUEST_ENTERPRISE: "enterprise_request",
-    BACK: "pricing"
+    BACK: "questionnaire"
   },
   enterprise_request: {
     BACK: "landing"
@@ -83,6 +91,8 @@ export function commerceFunnelStepIndex(state: CommerceFunnelState): number {
   switch (state) {
     case "landing":
       return 0;
+    case "questionnaire":
+      return 1;
     case "modules":
       return 1;
     case "pricing":

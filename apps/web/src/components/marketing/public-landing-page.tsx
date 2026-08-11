@@ -80,7 +80,7 @@ function CapabilityList({
 }
 
 function productCheckoutHref(sku: ProductSku) {
-  return acquisitionHref("checkout", {
+  return acquisitionHref("questionnaire", {
     sku,
     billingCycle: "monthly"
   });
@@ -145,7 +145,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                   Open workspace
                 </Link>
               ) : (
-                <Link href={acquisitionHref("modules")} className={marketingPrimaryCtaClass}>
+                <Link href={acquisitionHref("questionnaire")} className={marketingPrimaryCtaClass}>
                   Get Started
                 </Link>
               )}

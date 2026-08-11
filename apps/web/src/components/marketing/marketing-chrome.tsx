@@ -18,11 +18,8 @@ const publicNav = [
   { href: "/modules", label: "Modules" },
   { href: "/pricing", label: "Pricing" },
   {
-    href: acquisitionHref("checkout", {
-      sku: "mpa_property_manager",
-      billingCycle: "monthly"
-    }),
-    label: "Confirm Plan"
+    href: acquisitionHref("questionnaire"),
+    label: "Get Started"
   },
   { href: "/enterprise", label: "Enterprise" }
 ] as const;
@@ -177,13 +174,10 @@ export function MarketingChrome({
               Pricing
             </Link>
             <Link
-              href={acquisitionHref("checkout", {
-                sku: "mpa_property_manager",
-                billingCycle: "monthly"
-              })}
+              href={acquisitionHref("questionnaire")}
               className="hover:text-[var(--mpa-color-text-primary)]"
             >
-              Confirm Plan
+              Get Started
             </Link>
             <Link href="/enterprise" className="hover:text-[var(--mpa-color-text-primary)]">
               Enterprise

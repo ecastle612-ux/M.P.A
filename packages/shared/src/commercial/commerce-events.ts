@@ -5,6 +5,8 @@
 
 export const COMMERCE_ANALYTICS_EVENTS = {
   landing_viewed: "commerce.landing_viewed",
+  questionnaire_viewed: "commerce.questionnaire_viewed",
+  questionnaire_submitted: "commerce.questionnaire_submitted",
   modules_viewed: "commerce.modules_viewed",
   product_selected: "commerce.product_selected",
   pricing_viewed: "commerce.pricing_viewed",
@@ -22,7 +24,11 @@ export const COMMERCE_AUDIT_EVENTS = {
   offer_resolved: "commerce.audit.offer_resolved",
   offer_rejected_not_self_serve: "commerce.audit.offer_rejected_not_self_serve",
   funnel_transition: "commerce.audit.funnel_transition",
-  catalog_inspected: "commerce.audit.catalog_inspected"
+  catalog_inspected: "commerce.audit.catalog_inspected",
+  quote_created: "commerce.audit.quote_created",
+  quote_rejected_tamper: "commerce.audit.quote_rejected_tamper",
+  quote_expired: "commerce.audit.quote_expired",
+  acquisition_snapshot_created: "commerce.audit.acquisition_snapshot_created"
 } as const;
 
 export type CommerceAnalyticsEvent =

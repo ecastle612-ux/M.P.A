@@ -46,7 +46,16 @@ describe("commercial acquisition helpers", () => {
         planTier: "professional",
         billingCycle: "monthly"
       })
-    ).toBe("/checkout?intent=mpa_complete_platform&cycle=monthly");
+    ).toBe("/get-started?intent=mpa_complete_platform&cycle=monthly");
+    expect(
+      commercialContinueHref({
+        productSku: "mpa_property_manager",
+        planTier: "professional",
+        billingCycle: "annual",
+        quoteId: "cq_test"
+      })
+    ).toBe("/checkout?intent=mpa_property_manager&cycle=annual&quote=cq_test");
+    expect(acquisitionHref("questionnaire")).toBe("/get-started");
     expect(acquisitionHref("enterprise", "mpa_facility_operations")).toBe(
       "/enterprise?intent=mpa_facility_operations"
     );

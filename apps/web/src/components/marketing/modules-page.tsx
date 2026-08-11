@@ -66,13 +66,13 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                     View pricing
                   </Link>
                   <Link
-                    href={acquisitionHref("checkout", {
+                    href={acquisitionHref("questionnaire", {
                       sku,
                       billingCycle: "monthly"
                     })}
                     className={marketingSecondaryCtaClass}
                   >
-                    Confirm {SKU_SUMMARIES[sku].label}
+                    Get started with {SKU_SUMMARIES[sku].label}
                   </Link>
                 </div>
               </li>

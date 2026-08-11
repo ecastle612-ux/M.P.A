@@ -86,10 +86,13 @@ describe("COM-002 catalog (unit-capacity model)", () => {
 });
 
 describe("commerce funnel state machine", () => {
-  it("transitions modules → pricing → confirm_plan", () => {
+  it("transitions landing → questionnaire → confirm_plan (Slice 2)", () => {
+    expect(transitionCommerceFunnel("landing", "CONTINUE")).toBe("questionnaire");
+    expect(transitionCommerceFunnel("questionnaire", "CONTINUE")).toBe("confirm_plan");
     expect(transitionCommerceFunnel("modules", "CONTINUE")).toBe("pricing");
-    expect(transitionCommerceFunnel("pricing", "CONTINUE")).toBe("confirm_plan");
-    expect(transitionCommerceFunnel("confirm_plan", "CONFIRM_PLAN")).toBe("checkout_payment");
+    expect(transitionCommerceFunnel("pricing", "CONTINUE")).toBe("questionnaire");
+    // Slice 2 does not advance into Stripe Checkout Session creation.
+    expect(transitionCommerceFunnel("confirm_plan", "CONFIRM_PLAN")).toBe("confirm_plan");
     expect(transitionCommerceFunnel("checkout_payment", "CONTINUE")).toBe("account_interim");
     expect(transitionCommerceFunnel("pricing", "REQUEST_ENTERPRISE")).toBe("enterprise_request");
   });

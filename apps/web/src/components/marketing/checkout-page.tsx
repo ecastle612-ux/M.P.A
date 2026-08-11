@@ -4,24 +4,20 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   ACQUISITION_OFFER_COOKIE,
+  ACQUISITION_QUOTE_COOKIE,
   ACQUISITION_SKU_COOKIE,
-  COM_002_FLAGS,
+  ACQUISITION_SNAPSHOT_COOKIE,
   SKU_SUMMARIES,
   acquisitionHref,
-  isSelfServeCheckoutAllowed,
+  confirmPlanCapacityLines,
   marketingModulesForSku,
   parseAcquisitionCycle,
   parseAcquisitionSku,
-  publicPurchaseMotionForSku,
-  resolveCatalogOffer,
   toBillingCycleLabel,
   type BillingCycle,
+  type CommercialQuote,
   type ProductSku
 } from "@mpa/shared";
-import {
-  priceForSkuCycle,
-  type PublicCatalogPriceCatalog
-} from "../../lib/saas-stripe/public-prices";
 import {
   MarketingChrome,
   marketingNarrowMainClass,
@@ -29,245 +25,271 @@ import {
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
 
-/** Internal Stripe offer mapping — not shown as a customer-facing tier. */
-const CHECKOUT_PLAN = "professional" as const;
+function formatUsd(amount: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  }).format(amount);
+}
 
 /**
- * Confirm Plan → Stripe Checkout (payment before account) for Property Manager only.
- * FO / Complete show list pricing + Request Early Access / Request Consultation (FO_READY gate).
+ * Confirm Plan — shows server quote (managed units / capacity / trial).
+ * Slice 2: does **not** create Stripe Checkout Sessions.
  */
 export function CheckoutPage({
   isAuthenticated = false,
   selectedSkuRaw,
   selectedCycleRaw,
-  priceCatalog
+  quoteIdRaw,
+  snapshotIdRaw
 }: {
   isAuthenticated?: boolean;
   selectedSkuRaw?: string | null;
   selectedPlanRaw?: string | null;
   selectedCycleRaw?: string | null;
-  priceCatalog: PublicCatalogPriceCatalog;
+  quoteIdRaw?: string | null;
+  snapshotIdRaw?: string | null;
 }) {
-  const sku: ProductSku = parseAcquisitionSku(selectedSkuRaw) ?? "mpa_property_manager";
-  const billingCycle: BillingCycle = parseAcquisitionCycle(selectedCycleRaw) ?? "monthly";
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
-
-  const offer =
-    resolveCatalogOffer({
-      productSku: sku,
-      planTier: CHECKOUT_PLAN,
-      billingCycle
-    }) ?? null;
-  const selfServeReady = offer ? isSelfServeCheckoutAllowed(offer) : false;
-  const motion = publicPurchaseMotionForSku(sku);
-  const summary = SKU_SUMMARIES[sku];
-  const modules = marketingModulesForSku(sku);
-  const livePrice = priceForSkuCycle(priceCatalog, sku, billingCycle);
+  const fallbackSku: ProductSku = parseAcquisitionSku(selectedSkuRaw) ?? "mpa_property_manager";
+  const fallbackCycle: BillingCycle = parseAcquisitionCycle(selectedCycleRaw) ?? "monthly";
+  const [quote, setQuote] = useState<CommercialQuote | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(() => Boolean(quoteIdRaw));
+  const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
-    document.cookie = `${ACQUISITION_SKU_COOKIE}=${encodeURIComponent(sku)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
-    if (offer) {
-      document.cookie = `${ACQUISITION_OFFER_COOKIE}=${encodeURIComponent(offer.id)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
-    }
-  }, [sku, offer]);
-
-  async function startStripeCheckout() {
-    if (!COM_002_FLAGS.sliceC_stripeCheckout) {
-      setError("Checkout is not enabled.");
+    if (!quoteIdRaw) {
       return;
     }
-    if (!selfServeReady) {
-      setError(
-        "Self-service checkout for this platform is not available yet. Use Request Early Access or Request Consultation, or choose Property Manager."
-      );
-      return;
-    }
-    setBusy(true);
-    setError(null);
-    const idempotencyKey = `ui_${crypto.randomUUID()}`;
-    const res = await fetch("/api/commerce/checkout", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        productSku: sku,
-        planTier: CHECKOUT_PLAN,
-        billingCycle,
-        customerEmail: email.trim() || undefined,
-        idempotencyKey
+    const controller = new AbortController();
+    void fetch(`/api/commerce/quote?id=${encodeURIComponent(quoteIdRaw)}`, {
+      signal: controller.signal
+    })
+      .then(async (res) => {
+        const data = (await res.json().catch(() => ({}))) as {
+          quote?: CommercialQuote;
+          error?: string;
+          message?: string;
+          regeneratePath?: string;
+        };
+        if (controller.signal.aborted) return;
+        if (res.status === 410) {
+          setLoadError(data.message ?? "This quote expired. Please answer the questionnaire again.");
+          setQuote(null);
+          setLoading(false);
+          return;
+        }
+        if (!res.ok || !data.quote) {
+          setLoadError(data.message ?? data.error ?? "Could not load your plan quote.");
+          setQuote(null);
+          setLoading(false);
+          return;
+        }
+        setQuote(data.quote);
+        setLoadError(null);
+        setLoading(false);
       })
-    });
-    const data = (await res.json().catch(() => ({}))) as {
-      url?: string;
-      error?: string;
-      redirectTo?: string;
-      message?: string;
-    };
-    setBusy(false);
-    if (res.status === 409 && data.redirectTo) {
-      setError(
-        "Self-service checkout for this platform is not available yet. Use Request Early Access or Request Consultation, or choose Property Manager."
-      );
-      return;
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return;
+        setLoadError(err instanceof Error ? err.message : "Could not load your plan quote.");
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [quoteIdRaw]);
+
+  const sku = quote?.module ?? fallbackSku;
+  const billingCycle = quote?.billing_interval ?? fallbackCycle;
+  const summary = SKU_SUMMARIES[sku];
+  const modules = marketingModulesForSku(sku);
+  const capacity = quote ? confirmPlanCapacityLines(quote) : null;
+  const gated = quote?.recommendation.gated ?? sku !== "mpa_property_manager";
+
+  useEffect(() => {
+    if (!quote) return;
+    document.cookie = `${ACQUISITION_SKU_COOKIE}=${encodeURIComponent(quote.module)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+    document.cookie = `${ACQUISITION_QUOTE_COOKIE}=${encodeURIComponent(quote.quote_id)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+    if (snapshotIdRaw) {
+      document.cookie = `${ACQUISITION_SNAPSHOT_COOKIE}=${encodeURIComponent(snapshotIdRaw)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
     }
-    if (!res.ok || !data.url) {
-      setError(data.message ?? data.error ?? "Could not start Stripe Checkout. Please retry.");
-      return;
-    }
-    window.location.assign(data.url);
-  }
+    document.cookie = `${ACQUISITION_OFFER_COOKIE}=${encodeURIComponent(`${quote.module}__unit_volume__${quote.billing_interval}`)}; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+  }, [quote, snapshotIdRaw]);
 
   return (
     <MarketingChrome isAuthenticated={isAuthenticated} denseNav>
       <main className={marketingNarrowMainClass}>
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Get started · Step 3
+            Get started · Step 2
           </p>
           <h1 className="font-display text-3xl font-semibold">Confirm Plan</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Confirm your platform, billing cycle, and amount. Property Manager continues to secure
-            Stripe Checkout. Facility Operations and Complete Platform keep the FO_READY purchase
-            gate — request early access or consultation instead of online checkout.
+            Review your recommended platform, managed-unit capacity, price, and trial status before
+            secure checkout.
           </p>
         </header>
 
-        {priceCatalog.warning ? (
-          <p
-            className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
-            role="status"
-          >
-            <span className="font-semibold">Pricing system warning: </span>
-            {priceCatalog.warning}
-          </p>
-        ) : null}
-
         <ol className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">1 · Modules</li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">2 · Pricing</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">1 · Questionnaire</li>
           <li className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-2 py-1 text-[var(--mpa-color-brand-primary)]">
-            3 · Confirm Plan
+            2 · Confirm Plan
           </li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Checkout</li>
         </ol>
 
-        <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-              Selected platform
-            </p>
-            <h2 className="mt-1 font-display text-2xl font-semibold">{summary.label}</h2>
-            <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              {toBillingCycleLabel(billingCycle)} billing
-            </p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
-              {motion.availabilityLabel}
-            </p>
-            <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">{summary.description}</p>
-          </div>
+        {loading ? (
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">Loading your plan quote…</p>
+        ) : null}
 
-          {livePrice ? (
-            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-4">
+        {loadError ? (
+          <div className="space-y-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+            <p>{loadError}</p>
+            <Link href={acquisitionHref("questionnaire")} className={marketingPrimaryCtaClass}>
+              Restart questionnaire
+            </Link>
+          </div>
+        ) : null}
+
+        {!loading && !quote && !loadError ? (
+          <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
+            <h2 className="font-display text-xl font-semibold">Complete the questionnaire first</h2>
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+              Confirm Plan uses a server-calculated quote from your managed unit count and needs.
+            </p>
+            <Link
+              href={acquisitionHref("questionnaire", { sku: fallbackSku, billingCycle: fallbackCycle })}
+              className={marketingPrimaryCtaClass}
+            >
+              Start questionnaire
+            </Link>
+          </section>
+        ) : null}
+
+        {quote && capacity ? (
+          <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
+            <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-                Amount
+                Selected platform
               </p>
-              <p className="mt-1 font-display text-3xl font-semibold">
-                {livePrice.formatted}
-                <span className="ml-2 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
-                  / {billingCycle === "annual" ? "year" : "month"}
-                </span>
+              <h2 className="mt-1 font-display text-2xl font-semibold">{summary.label}</h2>
+              <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                Recommended because: {quote.recommendation.reason}
               </p>
               <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                {livePrice.cadenceLabel}
-              </p>
-              <p className="mt-2 text-xs text-[var(--mpa-color-text-muted)]">
-                {selfServeReady
-                  ? "From live Stripe Price · you will confirm again in Stripe Checkout"
-                  : "List amount from live Stripe Price · online checkout is not enabled for this platform yet"}
+                {toBillingCycleLabel(billingCycle)} billing
               </p>
             </div>
-          ) : (
-            <p
-              className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950"
-              role="status"
-            >
-              Live Stripe amount could not be retrieved for this selection. No amount is invented
-              here.
+
+            {capacity.additionalUnitCapacityNotice ? (
+              <p className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm font-medium text-[var(--mpa-color-text-primary)]">
+                {capacity.additionalUnitCapacityNotice}
+              </p>
+            ) : null}
+
+            <dl className="grid gap-3 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Managed units</dt>
+                <dd className="font-semibold">{quote.managed_units.toLocaleString("en-US")}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Base capacity</dt>
+                <dd className="font-semibold">{capacity.baseCapacity}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Additional Unit Capacity</dt>
+                <dd className="font-semibold">{capacity.additionalCapacity}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Trial</dt>
+                <dd className="font-semibold">
+                  {quote.trial_eligible ? "30 days free" : capacity.trialLabel}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Monthly</dt>
+                <dd className="font-semibold">{formatUsd(quote.monthly_amount)}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--mpa-color-text-muted)]">Annual</dt>
+                <dd className="font-semibold">{formatUsd(quote.annual_amount)}</dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-[var(--mpa-color-text-muted)]">Selected amount</dt>
+                <dd className="font-display text-3xl font-semibold">
+                  {formatUsd(quote.selected_amount)}
+                  <span className="ml-2 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
+                    / {billingCycle === "annual" ? "year" : "month"}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+              {quote.capacity_description}
             </p>
-          )}
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+              {quote.first_billing_description}
+            </p>
 
-          {!selfServeReady ? (
-            <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">
-              <p className="font-semibold text-[var(--mpa-color-text-primary)]">
-                {motion.ctaLabel} — online checkout not available yet
-              </p>
-              <p>{motion.explanation}</p>
+            {gated && quote.recommendation.gatedExplanation ? (
+              <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] p-3 text-sm text-[var(--mpa-color-text-secondary)]">
+                <p className="font-semibold text-[var(--mpa-color-text-primary)]">
+                  Not available for self-service yet
+                </p>
+                <p>{quote.recommendation.gatedExplanation}</p>
+              </div>
+            ) : null}
+
+            <div>
+              <p className="text-sm font-semibold">Included modules ({modules.length})</p>
+              <ul className="mt-2 grid gap-1 text-sm text-[var(--mpa-color-text-secondary)] sm:grid-cols-2">
+                {modules.map((module) => (
+                  <li key={module.id}>• {module.label}</li>
+                ))}
+              </ul>
             </div>
-          ) : null}
 
-          <div>
-            <p className="text-sm font-semibold">Included modules ({modules.length})</p>
-            <ul className="mt-2 grid gap-1 text-sm text-[var(--mpa-color-text-secondary)] sm:grid-cols-2">
-              {modules.map((module) => (
-                <li key={module.id}>• {module.label}</li>
-              ))}
-            </ul>
-          </div>
-          {selfServeReady ? (
-            <label className="block space-y-1 text-sm">
-              <span className="font-semibold">Checkout email (optional)</span>
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@company.com"
-                autoComplete="email"
-                className="w-full rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]"
-              />
-            </label>
-          ) : null}
-        </section>
-
-        {error ? (
-          <p className="text-sm text-red-700" role="alert">
-            {error}
-          </p>
+            {confirmed ? (
+              <p
+                className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]"
+                role="status"
+              >
+                Plan selection saved. Secure Stripe Checkout is not enabled in this slice — your
+                quote and acquisition snapshot are ready for the next implementation step.
+              </p>
+            ) : null}
+          </section>
         ) : null}
 
         <div className="flex flex-wrap gap-3">
-          <Link
-            href={acquisitionHref("pricing", { sku, billingCycle })}
-            className={marketingSecondaryCtaClass}
-          >
-            Back to pricing
+          <Link href={acquisitionHref("questionnaire")} className={marketingSecondaryCtaClass}>
+            Back to questionnaire
           </Link>
-          {selfServeReady ? (
-            <button
-              type="button"
-              disabled={busy}
-              aria-busy={busy}
-              onClick={() => void startStripeCheckout()}
-              className={marketingPrimaryCtaClass}
-            >
-              {busy ? "Starting Checkout…" : "Continue to secure checkout"}
-            </button>
-          ) : (
+          {quote && gated ? (
             <>
               <Link href={acquisitionHref("enterprise", sku)} className={marketingPrimaryCtaClass}>
-                {motion.ctaLabel}
+                {quote.recommendation.nextActionLabel}
               </Link>
               <Link
-                href={acquisitionHref("checkout", {
+                href={acquisitionHref("questionnaire", {
                   sku: "mpa_property_manager",
                   billingCycle
                 })}
                 className={marketingSecondaryCtaClass}
               >
-                Choose Property Manager (online)
+                Continue with Property Manager
               </Link>
             </>
-          )}
+          ) : null}
+          {quote && !gated ? (
+            <button
+              type="button"
+              className={marketingPrimaryCtaClass}
+              onClick={() => setConfirmed(true)}
+            >
+              Confirm selection
+            </button>
+          ) : null}
         </div>
       </main>
     </MarketingChrome>

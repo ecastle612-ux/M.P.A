@@ -15,3 +15,4 @@ export * from "./public-purchase-motion";
 export * from "./provisioning";
 export * from "./subscription-lifecycle";
 export * from "./unit-volume";
+export * from "./acquisition-quote";

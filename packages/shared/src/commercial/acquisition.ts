@@ -6,8 +6,12 @@ import { COMMERCIAL_MODULES, modulesForSku, type CommercialModule } from "./modu
 export const ACQUISITION_SKU_PARAM = "intent";
 export const ACQUISITION_PLAN_PARAM = "plan";
 export const ACQUISITION_CYCLE_PARAM = "cycle";
+export const ACQUISITION_QUOTE_PARAM = "quote";
+export const ACQUISITION_SNAPSHOT_PARAM = "snapshot";
 export const ACQUISITION_SKU_COOKIE = "mpa_acquisition_sku";
 export const ACQUISITION_OFFER_COOKIE = "mpa_acquisition_offer";
+export const ACQUISITION_QUOTE_COOKIE = "mpa_acquisition_quote";
+export const ACQUISITION_SNAPSHOT_COOKIE = "mpa_acquisition_snapshot";
 
 export function parseAcquisitionSku(value: string | null | undefined): ProductSku | null {
   if (!value || !isProductSku(value)) {
@@ -28,6 +32,8 @@ export type AcquisitionQuery = {
   sku?: ProductSku | null;
   planTier?: PlanTier | null;
   billingCycle?: BillingCycle | null;
+  quoteId?: string | null;
+  snapshotId?: string | null;
 };
 
 function buildQuery(parts: AcquisitionQuery): string {
@@ -41,11 +47,18 @@ function buildQuery(parts: AcquisitionQuery): string {
   if (parts.billingCycle) {
     params.set(ACQUISITION_CYCLE_PARAM, parts.billingCycle);
   }
+  if (parts.quoteId) {
+    params.set(ACQUISITION_QUOTE_PARAM, parts.quoteId);
+  }
+  if (parts.snapshotId) {
+    params.set(ACQUISITION_SNAPSHOT_PARAM, parts.snapshotId);
+  }
   const q = params.toString();
   return q ? `?${q}` : "";
 }
 
 export type AcquisitionStep =
+  | "questionnaire"
   | "modules"
   | "pricing"
   | "checkout"
@@ -71,6 +84,8 @@ export function acquisitionHref(
 
   const q = buildQuery(query);
   switch (step) {
+    case "questionnaire":
+      return `/get-started${q}`;
     case "modules":
       return `/modules${q}`;
     case "pricing":
@@ -87,16 +102,25 @@ export function acquisitionHref(
 }
 
 /**
- * Next href after pricing selection — Confirm Plan for the chosen platform.
- * Public URLs omit internal Stripe plan-tier mapping (`professional`); Confirm Plan
- * defaults the offer mapping. `planTier` remains on the input for callers that resolve offers.
+ * Next href after pricing — acquisition questionnaire (Slice 2), then Confirm Plan.
+ * When a quote already exists, callers may use `acquisitionHref("checkout", { quoteId })`.
  */
 export function commercialContinueHref(input: {
   productSku: ProductSku;
   planTier: PlanTier;
   billingCycle: BillingCycle;
+  quoteId?: string | null;
+  snapshotId?: string | null;
 }): string {
-  return acquisitionHref("checkout", {
+  if (input.quoteId) {
+    return acquisitionHref("checkout", {
+      sku: input.productSku,
+      billingCycle: input.billingCycle,
+      quoteId: input.quoteId,
+      snapshotId: input.snapshotId ?? null
+    });
+  }
+  return acquisitionHref("questionnaire", {
     sku: input.productSku,
     billingCycle: input.billingCycle
   });
