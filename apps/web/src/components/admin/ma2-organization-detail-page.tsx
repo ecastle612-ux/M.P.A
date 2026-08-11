@@ -453,6 +453,14 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
       </Section>
 
       <Section id="checkout" title="Checkout / Provisioning">
+        <p className="mb-3 text-xs">
+          <Link
+            href={`/admin/checkout?organizationId=${encodeURIComponent(detail.id)}`}
+            className="text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open fleet Checkout / Provisioning for this org →
+          </Link>
+        </p>
         <div className="grid gap-3 lg:grid-cols-2">
           <Panel>
             <h3 className="text-sm font-semibold">Checkout sessions</h3>
@@ -465,7 +473,12 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
                     key={c.sessionId}
                     className="border-t border-[var(--mpa-color-border-subtle)] pt-2 first:border-0 first:pt-0 text-xs"
                   >
-                    <p className="font-mono break-all">{c.sessionId}</p>
+                    <Link
+                      href={`/admin/checkout/${encodeURIComponent(c.sessionId)}`}
+                      className="font-mono break-all text-[var(--mpa-color-brand-primary)] underline"
+                    >
+                      {c.sessionId}
+                    </Link>
                     <p className="text-[var(--mpa-color-text-secondary)]">
                       {c.status} · provisioned={String(c.provisioned)} · {c.productSku ?? "—"} ·{" "}
                       {c.billingCycle ?? "—"}
@@ -639,7 +652,15 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
       </Section>
 
       <Section id="webhooks" title="Webhooks">
-        <p className="text-xs text-[var(--mpa-color-text-secondary)]">{detail.webhooks.note}</p>
+        <p className="mb-2 text-xs text-[var(--mpa-color-text-secondary)]">{detail.webhooks.note}</p>
+        <p className="mb-3 text-xs">
+          <Link
+            href={`/admin/webhooks?organizationId=${encodeURIComponent(detail.id)}`}
+            className="text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open fleet Webhook Health for this org →
+          </Link>
+        </p>
         <div className="grid gap-3 lg:grid-cols-2">
           <Panel>
             <h3 className="text-sm font-semibold">Stripe lifecycle</h3>

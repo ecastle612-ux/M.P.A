@@ -15,8 +15,9 @@ export type MasterAdminNavGroup = {
 /**
  * Master Admin / Owner Operations Console navigation.
  *
- * MA-4 primary surfaces: Overview · Organizations · Users · Subscriptions · Capacity · Audit Log · Errors.
- * Existing Owner Ops routes remain (already shipping) — no unfinished MA-5+ placeholders.
+ * MA-5 primary surfaces: Overview · Organizations · Users · Subscriptions · Capacity ·
+ * Checkout / Provisioning · Webhooks · Audit Log · Errors.
+ * Existing Owner Ops routes remain (already shipping) — no unfinished MA-6+ placeholders.
  */
 export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
   {
@@ -47,6 +48,16 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         href: "/admin/capacity",
         label: "Capacity",
         description: "Unit-volume capacity and reconciliation (read-only)."
+      },
+      {
+        href: "/admin/checkout",
+        label: "Checkout / Provisioning",
+        description: "Acquisition pipeline: checkout, payment, provisioning (read-only)."
+      },
+      {
+        href: "/admin/webhooks",
+        label: "Webhooks",
+        description: "Stripe + SignWell webhook health (read-only, no replay)."
       },
       {
         href: "/admin/audit",
