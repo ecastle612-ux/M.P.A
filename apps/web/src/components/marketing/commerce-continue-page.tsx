@@ -14,10 +14,11 @@ type StatusPayload = {
   checkpoint: string;
   ready: boolean;
   canAccessModules: boolean;
-  ownerEmail: string;
-  organizationName: string | null;
-  lastError: string | null;
-  steps: Array<{ id: number; label: string; done: boolean; current: boolean }>;
+  awaitingClaim?: boolean;
+  maskedOwnerEmail?: string | null;
+  organizationPrepared?: boolean;
+  hasTemporaryIssue?: boolean;
+  steps: Array<{ id: number; done?: boolean; current?: boolean; label?: string }>;
   nextPath: string | null;
 };
 
@@ -86,8 +87,12 @@ export function CommerceContinuePage({
     if (!sessionId) return;
     let cancelled = false;
     async function poll() {
+      const bindQuery =
+        bindToken && bindToken.length > 0
+          ? `&bind_token=${encodeURIComponent(bindToken)}`
+          : "";
       const res = await fetch(
-        `/api/commerce/provision/status?session_id=${encodeURIComponent(sessionId!)}`
+        `/api/commerce/provision/status?session_id=${encodeURIComponent(sessionId!)}${bindQuery}`
       );
       if (!res.ok) {
         if (!cancelled) {
@@ -109,7 +114,7 @@ export function CommerceContinuePage({
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [sessionId]);
+  }, [sessionId, bindToken]);
 
   useEffect(() => {
     if (!sessionId || !isAuthenticated || autoClaimStarted.current) return;
@@ -173,6 +178,7 @@ export function CommerceContinuePage({
   }
 
   const awaitingClaim =
+    status?.awaitingClaim === true ||
     status?.checkpoint === "owner_pending" ||
     status?.checkpoint === "entitled" ||
     status?.checkpoint === "org_created";
@@ -287,14 +293,16 @@ export function CommerceContinuePage({
               </p>
             ) : null}
             <dl className="grid gap-2 text-sm sm:grid-cols-2">
-              <div>
-                <dt className="text-xs text-[var(--mpa-color-text-muted)]">Purchase email</dt>
-                <dd className="font-medium">{status.ownerEmail}</dd>
-              </div>
-              {status.organizationName ? (
+              {status.maskedOwnerEmail ? (
+                <div>
+                  <dt className="text-xs text-[var(--mpa-color-text-muted)]">Purchase email</dt>
+                  <dd className="font-medium">{status.maskedOwnerEmail}</dd>
+                </div>
+              ) : null}
+              {status.organizationPrepared ? (
                 <div>
                   <dt className="text-xs text-[var(--mpa-color-text-muted)]">Organization</dt>
-                  <dd className="font-medium">{status.organizationName}</dd>
+                  <dd className="font-medium">Prepared</dd>
                 </div>
               ) : null}
             </dl>
@@ -329,7 +337,7 @@ export function CommerceContinuePage({
             {error}
           </p>
         ) : null}
-        {status?.lastError ? (
+        {status?.hasTemporaryIssue ? (
           <p className="text-sm text-[var(--mpa-color-text-secondary)]" role="status">
             We hit a temporary issue while preparing your workspace and are retrying automatically.
             You can stay on this page.

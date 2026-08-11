@@ -6,21 +6,16 @@ import {
   SKU_SUMMARIES,
   toBillingCycleLabel,
   type BillingCycle,
-  type PlanTier,
   type ProductSku
 } from "@mpa/shared";
 import { MarketingChrome, marketingPrimaryCtaClass, marketingSecondaryCtaClass } from "./marketing-chrome";
 
 type SessionStatus = {
-  sessionId: string;
   status: string;
-  offerId: string;
   productSku?: ProductSku;
-  planTier: PlanTier;
   billingCycle: BillingCycle;
-  provisioned: boolean;
-  organizationId: string | null;
-  userId: string | null;
+  workspacePreparing?: boolean;
+  provisioned?: boolean;
   continuePath: string | null;
 };
 
@@ -113,7 +108,7 @@ export function CheckoutSuccessPage({
             </p>
             <p>
               <span className="font-semibold">Workspace:</span>{" "}
-              {status.provisioned
+              {status.workspacePreparing === false
                 ? "Ready — continue to claim access"
                 : "Preparing automatically after you continue"}
             </p>
