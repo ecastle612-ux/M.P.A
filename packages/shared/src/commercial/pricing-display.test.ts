@@ -10,8 +10,9 @@ describe("unit-volume pricing display (Slice 5)", () => {
     expect(at500.monthlyPriceUsd).toBe(59);
     expect(at500.annualPriceUsd).toBe(708);
     expect(at500.trialEligible).toBe(true);
-    expect(at500.trialHeadline).toBe("30 days free");
-    expect(at500.trialDetails.join(" ")).toMatch(/Valid payment card required/i);
+    expect(at500.trialHeadline).toBe("30 DAYS FREE");
+    expect(at500.trialDetails.join(" ")).toMatch(/Payment card required/i);
+    expect(at500.trialDetails.join(" ")).toMatch(/unless you cancel/i);
 
     const at501 = calculateUnitVolumeDisplay({
       managedUnits: 501,
@@ -104,5 +105,9 @@ describe("unit-volume pricing display (Slice 5)", () => {
     expect(PUBLIC_PRICING_MODEL_COPY.foAnnual).toBe(590);
     expect(PUBLIC_PRICING_MODEL_COPY.additionalBlockMonthly).toBe(39);
     expect(PUBLIC_PRICING_MODEL_COPY.pmHeadline).not.toMatch(/99|249|Professional|Business/);
+    expect(PUBLIC_PRICING_MODEL_COPY.unitDefinition).toMatch(/1 managed unit/i);
+    expect(PUBLIC_PRICING_MODEL_COPY.capacityChange).toMatch(/customer approval/i);
+    expect(PUBLIC_PRICING_MODEL_COPY.enterpriseNotProduct).toMatch(/not a separate product/i);
+    expect(PUBLIC_PRICING_MODEL_COPY.additionalCapacityAnnualLine).toMatch(/468/);
   });
 });

@@ -47,17 +47,17 @@ export function calculateUnitVolumeDisplay(input: {
   });
   const selectedAmount =
     input.billingInterval === "annual" ? quote.annualPriceUsd : quote.monthlyPriceUsd;
-  const trialHeadline = quote.trialEligible ? "30 days free" : null;
+  const trialHeadline = quote.trialEligible ? "30 DAYS FREE" : null;
   const trialDetails = quote.trialEligible
     ? [
-        "30 days free",
-        "Valid payment card required.",
-        "Your subscription automatically begins billing after the free trial."
+        "30 DAYS FREE for plans with 500 or fewer managed units.",
+        "Payment card required at signup.",
+        "After the free trial, automatic billing begins unless you cancel."
       ]
     : [
-        "No free trial for portfolios over 500 managed units.",
-        "Valid payment card required at checkout.",
-        `Additional Unit Capacity applies — ${formatUsdAmount(selectedAmount)}/${input.billingInterval === "annual" ? "year" : "month"}.`
+        "No free trial for more than 500 managed units.",
+        "Payment card required.",
+        `You see the calculated price before Checkout — ${formatUsdAmount(selectedAmount)}/${input.billingInterval === "annual" ? "year" : "month"}.`
       ];
 
   return {
@@ -98,5 +98,27 @@ export const PUBLIC_PRICING_MODEL_COPY = {
   foIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
   completeIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
   additionalCapacityLine: `+$${ADDITIONAL_UNIT_BLOCK_MONTHLY_USD}/month per additional ${UNIT_BLOCK_SIZE} units`,
-  annualNote: "Annual equals monthly × 12 — no discount."
+  additionalCapacityAnnualLine: `+$${ADDITIONAL_UNIT_BLOCK_MONTHLY_USD * 12}/year per additional ${UNIT_BLOCK_SIZE} units`,
+  includedCapacityPlain: `Your plan includes up to ${UNIT_BLOCK_SIZE} managed units.`,
+  additionalCapacityPlain: `Each additional ${UNIT_BLOCK_SIZE}-unit block adds $${ADDITIONAL_UNIT_BLOCK_MONTHLY_USD}/month or $${ADDITIONAL_UNIT_BLOCK_MONTHLY_USD * 12}/year.`,
+  annualNote:
+    "Annual billing: Property Manager and Complete Platform = monthly × 12 (no discount). Facility Operations base annual is $590; Additional Unit Capacity annual is always monthly × 12.",
+  unitDefinitionTitle: "What is a managed unit?",
+  unitDefinition:
+    "A managed unit is a property unit managed through M.P.A. Two tenants living in one unit count as 1 managed unit — not 2. Billing is by unit, not by the number of residents.",
+  billingMonthly: "Monthly: base price + applicable Additional Unit Capacity.",
+  billingAnnual:
+    "Annual: Property Manager and Complete Platform charge 12 × the equivalent monthly total (no annual discount). Facility Operations uses a $590 base annual price; Additional Unit Capacity still adds $468/year per 500-unit block.",
+  capacityChangeTitle: "If your unit count increases",
+  capacityChange:
+    "Unit-count changes do not create surprise mid-period charges. If Additional Unit Capacity must increase, customer approval is required. The new recurring capacity takes effect on the next billing period.",
+  trialTitle: "30 DAYS FREE",
+  trialEligible:
+    "30 DAYS FREE for plans with 500 or fewer managed units. Payment card required at signup. After the free trial, automatic billing begins unless you cancel.",
+  trialIneligible:
+    "For more than 500 managed units: no free trial. Payment card required. You see the calculated price before Checkout.",
+  enterpriseNotProduct:
+    "Enterprise is not a separate product. It is an optional sales and onboarding path for organizations that need custom contracts, SSO, or dedicated onboarding — not a fourth platform SKU.",
+  journeyNote:
+    "Get Started takes you through questionnaire → product recommendation → unit count → quote → Confirm Plan → Checkout. You do not re-enter pricing math that the calculator already resolved."
 } as const;

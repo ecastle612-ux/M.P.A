@@ -9,7 +9,9 @@ import {
   PUBLIC_PRICING_MODEL_COPY,
   SKU_SUMMARIES,
   acquisitionHref,
+  calculateUnitVolumeDisplay,
   commercialContinueHref,
+  formatUsdAmount,
   marketingModulesForSku,
   parseAcquisitionCycle,
   parseAcquisitionSku,
@@ -71,9 +73,15 @@ export function PricingPage({
             1 · Pricing
           </li>
           <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">2 · Get Started</li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Confirm Plan</li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Questionnaire</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Quote</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">5 · Confirm Plan</li>
+          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">6 · Checkout</li>
         </ol>
+
+        <p className="max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
+          {PUBLIC_PRICING_MODEL_COPY.journeyNote}
+        </p>
 
         <div className="flex flex-wrap items-center gap-3" role="group" aria-label="Billing cycle">
           {BILLING_CYCLES.map((cycle) => (
@@ -113,6 +121,115 @@ export function PricingPage({
           initialUnits={initialUnits}
           initialCycle={billingCycle}
         />
+
+        <section className="grid gap-4 md:grid-cols-2" aria-label="Pricing transparency">
+          <article className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
+            <h2 className="font-display text-lg font-semibold">
+              {PUBLIC_PRICING_MODEL_COPY.unitDefinitionTitle}
+            </h2>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              {PUBLIC_PRICING_MODEL_COPY.unitDefinition}
+            </p>
+          </article>
+          <article className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
+            <h2 className="font-display text-lg font-semibold">Additional Unit Capacity</h2>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              {PUBLIC_PRICING_MODEL_COPY.includedCapacityPlain}{" "}
+              {PUBLIC_PRICING_MODEL_COPY.additionalCapacityPlain}
+            </p>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              Monthly examples for Property Manager or Facility Operations: 500 → $59 · 501–1,000 →
+              $98 · 1,001–1,500 → $137. Complete Platform: 500 → $109 · 501–1,000 → $148 · 1,001–1,500
+              → $187.
+            </p>
+          </article>
+          <article className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
+            <h2 className="font-display text-lg font-semibold">
+              {PUBLIC_PRICING_MODEL_COPY.trialTitle}
+            </h2>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              {PUBLIC_PRICING_MODEL_COPY.trialEligible}
+            </p>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              {PUBLIC_PRICING_MODEL_COPY.trialIneligible}
+            </p>
+          </article>
+          <article className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
+            <h2 className="font-display text-lg font-semibold">Billing transparency</h2>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              {PUBLIC_PRICING_MODEL_COPY.billingMonthly}
+            </p>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              {PUBLIC_PRICING_MODEL_COPY.billingAnnual}
+            </p>
+          </article>
+          <article className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
+            <h2 className="font-display text-lg font-semibold">
+              {PUBLIC_PRICING_MODEL_COPY.capacityChangeTitle}
+            </h2>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              {PUBLIC_PRICING_MODEL_COPY.capacityChange}
+            </p>
+          </article>
+          <article className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
+            <h2 className="font-display text-lg font-semibold">Enterprise</h2>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              {PUBLIC_PRICING_MODEL_COPY.enterpriseNotProduct}
+            </p>
+          </article>
+        </section>
+
+        <section className="space-y-3" aria-labelledby="all-product-examples">
+          <h2 id="all-product-examples" className="font-display text-xl font-semibold">
+            Price examples by product
+          </h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Same server formula as Checkout. Use the calculator above for your exact unit count.
+          </p>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {(
+              [
+                "mpa_property_manager",
+                "mpa_facility_operations",
+                "mpa_complete_platform"
+              ] as const
+            ).map((sku) => {
+              const examples = calculateUnitVolumeDisplay({
+                module: sku,
+                managedUnits: 500,
+                billingInterval: "monthly"
+              }).examples;
+              return (
+                <div
+                  key={sku}
+                  className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3"
+                >
+                  <table className="w-full min-w-[16rem] border-collapse text-sm">
+                    <caption className="pb-2 text-left text-sm font-semibold">
+                      {SKU_SUMMARIES[sku].label}
+                    </caption>
+                    <thead>
+                      <tr className="border-b border-[var(--mpa-color-border-subtle)] text-left">
+                        <th className="py-1 pr-2 font-semibold">Units</th>
+                        <th className="py-1 pr-2 font-semibold">Monthly</th>
+                        <th className="py-1 font-semibold">Annual</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {examples.map((row) => (
+                        <tr key={row.units} className="border-b border-[var(--mpa-color-border-subtle)]">
+                          <td className="py-1 pr-2">{row.units.toLocaleString("en-US")}</td>
+                          <td className="py-1 pr-2">{formatUsdAmount(row.monthly)}</td>
+                          <td className="py-1">{formatUsdAmount(row.annual)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
         <section className="space-y-3">
           <h2 className="font-display text-xl font-semibold">Inclusion matrix</h2>
@@ -242,7 +359,7 @@ export function PricingPage({
             className={marketingPrimaryCtaClass}
           >
             {publicPurchaseMotionForSku(selectedSku).kind === "self_serve"
-              ? "Continue to Get Started"
+              ? "Get Started"
               : publicPurchaseMotionForSku(selectedSku).ctaLabel}
           </Link>
         </div>
@@ -322,7 +439,7 @@ function PlatformPriceCard({
           </p>
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
             {billingCycle === "annual"
-              ? `Base annual is $${FO_ANNUAL_USD}. Additional Unit Capacity annual = monthly × 12.`
+              ? `Base annual is $${FO_ANNUAL_USD}. Additional Unit Capacity annual = +$468 per 500 units.`
               : "Use the calculator below for your managed-unit total."}
           </p>
         </div>
