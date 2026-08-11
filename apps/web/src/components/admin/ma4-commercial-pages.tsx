@@ -7,6 +7,7 @@ import type {
   Ma4SubscriptionRow
 } from "../../lib/admin/ma4-commercial";
 import { healthToneToBadge } from "../../lib/admin/ma4-commercial";
+import { Ma7CapacityMutationBlocked, Ma7SubscriptionActions } from "./ma7-mutation-actions";
 
 function HealthBadge({ health }: { health: Ma4SubscriptionRow["health"] }) {
   const label =
@@ -536,6 +537,16 @@ export function Ma4SubscriptionDetailPage({
         </article>
       </section>
 
+      {mode === "subscription" ? (
+        <Ma7SubscriptionActions
+          organizationId={row.organizationId}
+          organizationName={row.organizationName}
+          status={row.status}
+          cancelAtPeriodEnd={row.cancelAtPeriodEnd}
+          currentPeriodEnd={row.currentPeriodEnd}
+        />
+      ) : null}
+
       <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
         <h2 className="font-display text-lg font-semibold">Entitlements</h2>
         {entitlements.legacyPlanTier ? (
@@ -555,6 +566,7 @@ export function Ma4SubscriptionDetailPage({
 
       <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
         <h2 className="font-display text-lg font-semibold">Capacity</h2>
+        <Ma7CapacityMutationBlocked />
         <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm">
           <Kv label="Managed units" value={capacity.managedUnitCount ?? "—"} />
           <Kv label="Included capacity" value={capacity.includedCapacity} />

@@ -74,6 +74,7 @@ This package **supersedes** fragmented “what Master Admin should become” not
 | [MA-4 Implementation Notes](./ma4-implementation-notes.md) | Subscriptions, Entitlements & Capacity delivery notes |
 | [MA-5 Implementation Notes](./ma5-implementation-notes.md) | Checkout, Provisioning & Webhook Health delivery notes |
 | [MA-6 Implementation Notes](./ma6-implementation-notes.md) | Platform Operations delivery notes |
+| [MA-7 Implementation Notes](./ma7-implementation-notes.md) | RBAC + controlled lifecycle mutations |
 
 ---
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "@mpa/ui";
 import type { UserProfileSnapshot } from "../../lib/admin/load-user-profile";
 import type { Ma3AuditEvent } from "../../lib/admin/ma3-audit";
+import { Ma7MembershipActions } from "./ma7-mutation-actions";
 
 export function Ma3UserDetailPage({
   profile,
@@ -29,7 +30,7 @@ export function Ma3UserDetailPage({
           {profile.displayName ?? profile.email ?? profile.userId}
         </h1>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Read-only user diagnostic — identity, memberships, and related audit/security signals.
+          User diagnostic — identity, memberships, and governed MA-7 membership status changes.
         </p>
       </header>
 
@@ -98,6 +99,12 @@ export function Ma3UserDetailPage({
                   joined {m.createdAt ? new Date(m.createdAt).toLocaleString() : "—"} · updated{" "}
                   {m.updatedAt ? new Date(m.updatedAt).toLocaleString() : "—"}
                 </p>
+                <Ma7MembershipActions
+                  membershipId={m.id}
+                  organizationId={m.organizationId}
+                  status={m.status}
+                  roles={m.roles}
+                />
               </li>
             ))}
           </ul>
@@ -110,7 +117,8 @@ export function Ma3UserDetailPage({
           Authoritative roles from memberships: {roles.join(", ") || "none"}
         </p>
         <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-          Fine-grained RBAC administration is deferred to a later MA slice.
+          Role editing and arbitrary capability grants are not available. Membership status changes use
+          MA-7 governed mutations only.
         </p>
       </section>
 
