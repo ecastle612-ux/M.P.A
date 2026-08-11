@@ -19,6 +19,8 @@
 | Live `/pricing` shows $59 / $590 | **NOT YET** (still prior Prices via env) |
 | FO/Complete remain enterprise-gated | **PASS** (code + gates unchanged) |
 
+**2026-08-11 follow-up:** Re-inspected all Vercel connection methods. Still blocked. See [vercel-production-access.md](./vercel-production-access.md) for exact secure setup (MCP desktop auth or Cursor environment secret injection). No secrets pasted; no new Stripe Prices created.
+
 ## Missing permission / connection
 
 Cannot update Vercel Production environment variables from this agent:
