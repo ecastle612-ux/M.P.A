@@ -14,11 +14,13 @@ PR #126 / #121: **not** merged.
 
 | Field | Value |
 |-------|--------|
-| Production SHA | `1571eccaab98c91166c0ec04a4e16de185398cca` |
-| Vercel deployment | `dpl_BZrknTQLJ7rkpJLPtmqxePdFjUSt` |
-| GitHub deployment | `5851092378` |
-| Status | success · Deployment has completed · `2026-08-11T13:10:58Z` |
-| Aliases | `www.my-property-assistant.com`, `my-property-assistant.com`, `m-p-a-web.vercel.app` (all same dpl) |
+| Commercial merge tip | `1571eccaab98c91166c0ec04a4e16de185398cca` (PR #129 + #130) |
+| Production SHA (live) | `5df8b750a19efc6b75226c7821e2923ba4f9644a` (docs release record on same commercial tree) |
+| Vercel deployment (live) | `dpl_5GPduPhDDCfDfmPKgWTMkET42nfk` |
+| Prior commercial deploy | `dpl_BZrknTQLJ7rkpJLPtmqxePdFjUSt` @ `1571ecc` |
+| GitHub deployment (live) | `5851397475` |
+| Status | success · Deployment has completed |
+| Aliases | `www.my-property-assistant.com`, `my-property-assistant.com`, `m-p-a-web.vercel.app` (all same live dpl) |
 
 ## Safety
 
