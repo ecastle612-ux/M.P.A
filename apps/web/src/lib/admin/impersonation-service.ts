@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { createAuthServerClient } from "../auth/server";
 import { serverEnv } from "../env/server-env";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../organization/contracts";
+import { scrubUnknown } from "../observability/scrub";
 
 // Generated Database types lag Owner Ops tables; service-role queries cast locally.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- loose Supabase client for additive ops tables
@@ -50,13 +51,18 @@ export async function writeSupportAudit(args: {
   payload?: Record<string, unknown>;
 }) {
   const client = await dbClient();
+  const scrubbed = scrubUnknown(args.payload ?? {});
+  const payload =
+    scrubbed && typeof scrubbed === "object" && !Array.isArray(scrubbed)
+      ? (scrubbed as Record<string, unknown>)
+      : {};
   await client.from("platform_support_audit_events").insert({
     operator_user_id: args.operatorUserId,
     organization_id: args.organizationId ?? null,
     action: args.action,
     entity_type: args.entityType,
     entity_id: args.entityId ?? null,
-    payload: args.payload ?? {}
+    payload
   });
 }
 

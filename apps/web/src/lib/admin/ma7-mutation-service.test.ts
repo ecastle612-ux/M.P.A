@@ -235,6 +235,7 @@ describe("MA-7 membership + subscription mutation service", () => {
     });
     expect(first.ok).toBe(true);
     expect(first.resultingState?.["cancelAtPeriodEnd"]).toBe(true);
+    expect(first.resultingState?.["status"]).toBe("active");
     expect(cancelAtPeriodEnd).toHaveBeenCalledWith({
       organizationId: "org_b",
       source: "master_admin"
