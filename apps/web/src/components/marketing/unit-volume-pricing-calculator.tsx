@@ -5,36 +5,48 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ACQUISITION_UNITS_SESSION_KEY,
   BILLING_CYCLES,
+  OPERATIONAL_NEEDS,
+  SKU_SUMMARIES,
   calculateUnitVolumeDisplay,
   commercialContinueHref,
   formatUsdAmount,
+  operationalNeedLabel,
+  recommendModuleForNeed,
   toBillingCycleLabel,
-  type BillingCycle
+  type BillingCycle,
+  type OperationalNeed,
+  type ProductSku
 } from "@mpa/shared";
 import { marketingPrimaryCtaClass } from "./marketing-chrome";
 
 type UnitVolumePricingCalculatorProps = {
   initialUnits?: number | null;
   initialCycle?: BillingCycle;
+  initialNeed?: OperationalNeed;
 };
 
 /**
- * Property Manager pricing calculator.
+ * Unit-volume pricing calculator for all three products.
  * Display math uses shared `quoteUnitVolume` (same domain as server quotes).
- * Continue carries units into the questionnaire → server quote → Confirm Plan.
+ * Operational need drives the recommended product; Continue carries units into
+ * questionnaire → server quote → Confirm Plan → Checkout.
  */
 export function UnitVolumePricingCalculator({
   initialUnits = 500,
-  initialCycle = "monthly"
+  initialCycle = "monthly",
+  initialNeed = "property_resident_leasing"
 }: UnitVolumePricingCalculatorProps) {
   const [unitsInput, setUnitsInput] = useState(String(initialUnits ?? 500));
   const [billingInterval, setBillingInterval] = useState<BillingCycle>(initialCycle);
+  const [operationalNeed, setOperationalNeed] = useState<OperationalNeed>(initialNeed);
   const [serverQuote, setServerQuote] = useState<{
     monthly_amount: number;
     annual_amount: number;
     trial_eligible: boolean;
     additional_blocks: number;
     quote_id: string;
+    module?: ProductSku;
+    recommendation?: { recommendedModule?: ProductSku };
   } | null>(null);
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [quoting, setQuoting] = useState(false);
@@ -45,17 +57,22 @@ export function UnitVolumePricingCalculator({
     return Math.floor(n);
   }, [unitsInput]);
 
+  const recommendation = useMemo(
+    () => recommendModuleForNeed(operationalNeed),
+    [operationalNeed]
+  );
+  const recommendedSku = recommendation.recommendedModule;
+
   const display = useMemo(
     () =>
       calculateUnitVolumeDisplay({
-        module: "mpa_property_manager",
+        module: recommendedSku,
         managedUnits,
         billingInterval
       }),
-    [managedUnits, billingInterval]
+    [recommendedSku, managedUnits, billingInterval]
   );
 
-  // Server-authoritative quote for the amounts shown as “your plan”.
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(() => {
@@ -67,7 +84,7 @@ export function UnitVolumePricingCalculator({
         signal: controller.signal,
         body: JSON.stringify({
           managedUnits,
-          operationalNeed: "property_resident_leasing",
+          operationalNeed,
           billingInterval
         })
       })
@@ -79,7 +96,10 @@ export function UnitVolumePricingCalculator({
               trial_eligible: boolean;
               additional_blocks: number;
               quote_id: string;
+              module?: ProductSku;
+              recommendation?: { recommendedModule?: ProductSku };
             };
+            snapshot?: { recommended_module?: ProductSku; selected_module?: ProductSku };
             error?: string;
             message?: string;
           };
@@ -105,18 +125,21 @@ export function UnitVolumePricingCalculator({
       controller.abort();
       clearTimeout(timer);
     };
-  }, [managedUnits, billingInterval]);
+  }, [managedUnits, billingInterval, operationalNeed]);
 
   const monthly = serverQuote?.monthly_amount ?? display.monthlyPriceUsd;
   const annual = serverQuote?.annual_amount ?? display.annualPriceUsd;
   const selected = billingInterval === "annual" ? annual : monthly;
   const trialEligible = serverQuote?.trial_eligible ?? display.trialEligible;
   const additionalBlocks = serverQuote?.additional_blocks ?? display.additionalBlocks;
+  const shownSku =
+    serverQuote?.module ??
+    serverQuote?.recommendation?.recommendedModule ??
+    recommendedSku;
+  const productLabel = SKU_SUMMARIES[shownSku].label;
 
-  // Continuity: Pricing → Get Started (questionnaire) with units carried forward.
-  // Do not skip the questionnaire by jumping straight to Confirm Plan.
   const continueHref = commercialContinueHref({
-    productSku: "mpa_property_manager",
+    productSku: shownSku,
     billingCycle: billingInterval,
     managedUnits
   });
@@ -131,16 +154,16 @@ export function UnitVolumePricingCalculator({
 
   return (
     <section
-      aria-labelledby="pm-calculator-title"
+      aria-labelledby="unit-calculator-title"
       className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5"
     >
       <header className="space-y-1">
-        <h2 id="pm-calculator-title" className="font-display text-xl font-semibold">
-          Property Manager calculator
+        <h2 id="unit-calculator-title" className="font-display text-xl font-semibold">
+          Pricing calculator
         </h2>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Enter your managed unit count. Amounts come from the server quote — the same calculation
-          used on Confirm Plan.
+          Enter your approximate managed unit count and what you need to run. Amounts come from the
+          server quote — the same calculation used on Confirm Plan and Checkout.
         </p>
       </header>
 
@@ -152,8 +175,22 @@ export function UnitVolumePricingCalculator({
             value={unitsInput}
             onChange={(event) => setUnitsInput(event.target.value)}
             className="w-full rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]"
-            aria-describedby="pm-calculator-hint"
+            aria-describedby="unit-calculator-hint"
           />
+        </label>
+        <label className="block min-w-[14rem] flex-[1.4] space-y-1 text-sm">
+          <span className="font-semibold">What do you need?</span>
+          <select
+            value={operationalNeed}
+            onChange={(event) => setOperationalNeed(event.target.value as OperationalNeed)}
+            className="w-full rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]"
+          >
+            {OPERATIONAL_NEEDS.map((need) => (
+              <option key={need} value={need}>
+                {operationalNeedLabel(need)}
+              </option>
+            ))}
+          </select>
         </label>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Billing interval">
           {BILLING_CYCLES.map((cycle) => (
@@ -173,12 +210,23 @@ export function UnitVolumePricingCalculator({
           ))}
         </div>
       </div>
-      <p id="pm-calculator-hint" className="text-xs text-[var(--mpa-color-text-muted)]">
-        Examples: 500 → $59 · 501 → $98 · 1,000 → $98 · 1,001 → $137 per month
+      <p id="unit-calculator-hint" className="text-xs text-[var(--mpa-color-text-muted)]">
+        {shownSku === "mpa_complete_platform"
+          ? "Examples: 500 → $109 · 501 → $148 · 1,000 → $148 · 1,001 → $187 per month"
+          : "Examples: 500 → $59 · 501 → $98 · 1,000 → $98 · 1,001 → $137 per month"}
         {quoting ? " · Updating quote…" : ""}
       </p>
 
       <dl className="grid gap-3 text-sm sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <dt className="text-[var(--mpa-color-text-muted)]">Recommended product</dt>
+          <dd className="font-semibold text-[var(--mpa-color-text-primary)]">
+            {productLabel}
+            <span className="ml-2 text-xs font-normal text-[var(--mpa-color-text-secondary)]">
+              ({recommendation.reason})
+            </span>
+          </dd>
+        </div>
         <div>
           <dt className="text-[var(--mpa-color-text-muted)]">Included units</dt>
           <dd className="font-semibold">{display.includedUnits.toLocaleString("en-US")}</dd>
@@ -199,6 +247,10 @@ export function UnitVolumePricingCalculator({
           <dt className="text-[var(--mpa-color-text-muted)]">Annual</dt>
           <dd className="font-semibold">{formatUsdAmount(annual)}</dd>
         </div>
+        <div>
+          <dt className="text-[var(--mpa-color-text-muted)]">Trial eligibility</dt>
+          <dd className="font-semibold">{trialEligible ? "30 DAYS FREE" : "Not eligible"}</dd>
+        </div>
         <div className="sm:col-span-2">
           <dt className="text-[var(--mpa-color-text-muted)]">Selected</dt>
           <dd className="font-display text-3xl font-semibold">
@@ -212,20 +264,19 @@ export function UnitVolumePricingCalculator({
 
       {trialEligible ? (
         <div className="space-y-1 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-3 text-sm">
-          <p className="font-semibold text-[var(--mpa-color-text-primary)]">30 days free</p>
-          <p>Valid payment card required.</p>
-          <p>Your subscription automatically begins billing after the free trial.</p>
+          <p className="font-semibold text-[var(--mpa-color-text-primary)]">30 DAYS FREE</p>
+          <p>Payment card required at signup.</p>
+          <p>After the free trial, automatic billing begins unless you cancel.</p>
         </div>
       ) : (
         <div className="space-y-1 rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-3 text-sm">
           <p className="font-semibold text-[var(--mpa-color-text-primary)]">
-            Additional Unit Capacity
+            No free trial above 500 units
           </p>
           <p>
-            Portfolios over 500 managed units are not eligible for the free trial. Recurring amount:{" "}
+            Payment card required. Recurring amount before Checkout:{" "}
             {formatUsdAmount(selected)}/{billingInterval === "annual" ? "year" : "month"}.
           </p>
-          <p>Valid payment card required at checkout.</p>
         </div>
       )}
 
@@ -237,7 +288,9 @@ export function UnitVolumePricingCalculator({
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[20rem] border-collapse text-sm">
-          <caption className="sr-only">Property Manager price examples</caption>
+          <caption className="py-2 text-left text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
+            {productLabel} price examples
+          </caption>
           <thead>
             <tr className="border-b border-[var(--mpa-color-border-subtle)] text-left">
               <th className="py-2 pr-3 font-semibold">Managed units</th>
@@ -262,7 +315,7 @@ export function UnitVolumePricingCalculator({
         className={marketingPrimaryCtaClass}
         onClick={persistUnitsAndContinue}
       >
-        Continue to Get Started
+        Get Started
       </Link>
     </section>
   );

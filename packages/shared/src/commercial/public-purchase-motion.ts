@@ -2,8 +2,8 @@ import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 import type { ProductSku } from "./skus";
 
 /**
- * Public commercial purchase motion for Option B pricing transparency.
- * Property Manager + Facility Operations are self-serve; Complete remains gated.
+ * Public commercial purchase motion.
+ * All three products are self-serve when FO_READY / COMPLETE_READY are true.
  */
 export type PublicPurchaseMotion =
   | {
@@ -32,7 +32,7 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
       ctaLabel: "Get started with Property Manager",
       availabilityLabel: "Available",
       explanation:
-        "$59/month includes up to 500 managed units. Additional Unit Capacity is +$39/month per additional 500 units. Annual = monthly × 12."
+        "$59/month includes up to 500 managed units. Additional Unit Capacity is +$39/month or +$468/year per additional 500 units. Annual = monthly × 12."
     };
   }
 
@@ -43,7 +43,7 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
         ctaLabel: "Get started with Facility Operations",
         availabilityLabel: "Available",
         explanation:
-          "$59/month or $590/year includes up to 500 managed units. Additional Unit Capacity is +$39/month per additional 500 units (shared unit-block Prices)."
+          "$59/month or $590/year includes up to 500 managed units. Additional Unit Capacity is +$39/month or +$468/year per additional 500 units."
       };
     }
     return {
@@ -61,7 +61,7 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
       ctaLabel: "Get started with Complete Platform",
       availabilityLabel: "Available",
       explanation:
-        "$109/month or $1,308/year includes up to 500 managed units. Additional Unit Capacity is +$39/month per additional 500 units. Annual = monthly × 12."
+        "$109/month or $1,308/year includes up to 500 managed units. Additional Unit Capacity is +$39/month or +$468/year per additional 500 units. Annual = monthly × 12."
     };
   }
 
