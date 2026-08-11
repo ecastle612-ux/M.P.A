@@ -7,13 +7,16 @@ export function isSaasStripeConfigured(): boolean {
   return Boolean(serverEnv.STRIPE_SECRET_KEY && serverEnv.STRIPE_SAAS_WEBHOOK_SECRET);
 }
 
+/**
+ * Checkout readiness for the approved three-module commercial model.
+ * Requires Property Manager Monthly/Annual Price env only (internal PROFESSIONAL mapping names).
+ * Does not require legacy PM Business Price env vars (ADR-019 / Product Constitution).
+ */
 export function isSaasCheckoutReady(): boolean {
   return Boolean(
     serverEnv.STRIPE_SECRET_KEY &&
       serverEnv.STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY &&
-      serverEnv.STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL &&
-      serverEnv.STRIPE_PRICE_PM_BUSINESS_MONTHLY &&
-      serverEnv.STRIPE_PRICE_PM_BUSINESS_ANNUAL
+      serverEnv.STRIPE_PRICE_PM_PROFESSIONAL_ANNUAL
   );
 }
 

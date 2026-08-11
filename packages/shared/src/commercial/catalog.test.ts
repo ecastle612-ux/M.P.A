@@ -11,11 +11,12 @@ import { FO_READY } from "./commerce-flags";
 import { transitionCommerceFunnel } from "./commerce-state";
 
 describe("COM-002 catalog (Slice A)", () => {
-  it("marks only Property Manager Pro/Business as self-serve while FO_READY is false", () => {
+  it("marks only Property Manager professional Monthly/Annual as self-serve while FO_READY is false", () => {
     expect(FO_READY).toBe(false);
     const selfServe = CATALOG_OFFERS.filter(isSelfServeCheckoutAllowed);
-    expect(selfServe.length).toBe(4);
+    expect(selfServe.length).toBe(2);
     expect(selfServe.every((o) => o.productSku === "mpa_property_manager")).toBe(true);
+    expect(selfServe.every((o) => o.planTier === "professional")).toBe(true);
     expect(requiresEnterpriseMotion("mpa_facility_operations")).toBe(true);
     expect(requiresEnterpriseMotion("mpa_complete_platform")).toBe(true);
     expect(requiresEnterpriseMotion("mpa_property_manager")).toBe(false);
@@ -47,12 +48,14 @@ describe("COM-002 catalog (Slice A)", () => {
     });
     expect(complete.route).toBe("enterprise");
 
-    const pm = validateCommercialSelection({
+    const pmBusiness = validateCommercialSelection({
       productSku: "mpa_property_manager",
       planTier: "business",
       billingCycle: "annual"
     });
-    expect(pm.route).toBe("confirm_plan");
+    // Legacy Business is not self-serve Checkout-eligible (ADR-019).
+    expect(pmBusiness.ok).toBe(true);
+    expect(pmBusiness.route).not.toBe("confirm_plan");
   });
 
   it("never marks enterprise offers self-serve eligible", () => {

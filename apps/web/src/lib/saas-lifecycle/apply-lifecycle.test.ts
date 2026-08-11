@@ -107,16 +107,28 @@ describe("COM-002 Slice E lifecycle apply", () => {
     expect(reactivated?.cancelAtPeriodEnd).toBe(false);
   });
 
-  it("upgrades immediately and schedules downgrade", async () => {
+  it("rejects Business upgrades and allows remediation to professional", async () => {
     seedPurchase("cs_life_5", "sub_life_5", "org_plan");
     seedLifecycleFromPurchase("cs_life_5");
     const up = await changePlanTier({ organizationId: "org_plan", planTier: "business" });
-    expect(up.ok).toBe(true);
-    if (up.ok) {
-      expect(up.sub.planTier).toBe("business");
-      expect(up.sub.seatLimit).toBe(25);
-      expect(up.sub.propertyLimit).toBe(150);
+    expect(up.ok).toBe(false);
+    if (!up.ok) {
+      expect(up.error).toBe("business_tier_not_offered");
     }
+    // Simulate a legacy Business subscription remaining in store, then remediate.
+    const { getLifecycleByOrganizationId, saveLifecycleSubscription } = await import(
+      "./lifecycle-store"
+    );
+    const existing = getLifecycleByOrganizationId("org_plan");
+    expect(existing).not.toBeNull();
+    if (!existing) return;
+    saveLifecycleSubscription({
+      ...existing,
+      planTier: "business",
+      seatLimit: 25,
+      propertyLimit: 150,
+      updatedAt: new Date().toISOString()
+    });
     const down = await changePlanTier({ organizationId: "org_plan", planTier: "professional" });
     expect(down.ok).toBe(true);
     if (down.ok) {
