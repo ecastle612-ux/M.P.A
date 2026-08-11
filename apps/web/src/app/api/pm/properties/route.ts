@@ -5,6 +5,7 @@ import {
   createPortfolioProperty,
   listPortfolioProperties
 } from "../../../../lib/property/property-service";
+import { assertWithinUnitCapacityOrGate } from "../../../../lib/saas-lifecycle/unit-capacity-service";
 
 export async function GET() {
   const authz = await requirePropertyPermission("pm.properties:read");
@@ -39,6 +40,16 @@ export async function POST(request: Request) {
   }
 
   try {
+    const capacity = await assertWithinUnitCapacityOrGate({
+      supabase: authz.supabase,
+      organizationId: authz.organizationId,
+      additionalUnits: parsed.data.unitCount,
+      source: "pm.properties.create"
+    });
+    if (!capacity.ok) {
+      return NextResponse.json(capacity.body, { status: capacity.status });
+    }
+
     const result = await createPortfolioProperty(
       authz.supabase,
       authz.organizationId,

@@ -69,6 +69,14 @@ export type LifecycleSubscription = {
   authorizedAdditionalBlocks: number | null;
   /** Authorized unit capacity ceiling = 500 × (1 + blocks). */
   authorizedUnitCapacity: number | null;
+  /** Questionnaire / acquisition declared units (not the billing source of truth). */
+  declaredUnitCount: number | null;
+  /** Next-period Additional Unit Capacity blocks (Stripe qty after authorize/decrease). */
+  pendingAdditionalBlocks: number | null;
+  /** Next-period authorized capacity ceiling. */
+  pendingAuthorizedUnitCapacity: number | null;
+  /** Last successful capacity authorization timestamp. */
+  lastCapacityAuthorizedAt: string | null;
   /** Acquisition quote id when provisioned via unit-volume Checkout. */
   quoteId: string | null;
   trialEndsAt: string | null;

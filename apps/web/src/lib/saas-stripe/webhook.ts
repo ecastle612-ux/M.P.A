@@ -187,7 +187,20 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
       return;
     }
     case "invoice.created": {
-      // Prepared for Slice 4 capacity reconciliation — ack only for now.
+      const invoice = event.data.object as Stripe.Invoice & {
+        subscription?: string | Stripe.Subscription | null;
+      };
+      const subId =
+        typeof invoice.subscription === "string" ? invoice.subscription : null;
+      if (subId) {
+        const { applyPendingCapacityAtPeriodBoundary } = await import(
+          "../saas-lifecycle/unit-capacity-service"
+        );
+        await applyPendingCapacityAtPeriodBoundary({
+          stripeSubscriptionId: subId,
+          eventId: event.id
+        });
+      }
       return;
     }
     case "invoice.paid": {

@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 import { Button, Skeleton } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import {
+  AdditionalUnitCapacityGate,
+  type CapacityGatePayload
+} from "./additional-unit-capacity-gate";
 
 type BillingPayload = {
   status: string | null;
@@ -23,28 +27,59 @@ type BillingPayload = {
   requiredAction?: string | null;
   paymentHistory?: Array<{ at: string; kind: string; note: string; amountCents?: number }>;
   message?: string;
+  managedUnitCount?: number | null;
+  authorizedUnitCapacity?: number | null;
+  authorizedAdditionalBlocks?: number | null;
+  pendingAdditionalBlocks?: number | null;
+  seatLimit?: number | null;
+  propertyLimit?: number | null;
+};
+
+type CapacityPayload = {
+  linked?: boolean;
+  capacityStatus?: string;
+  actualUnits?: number;
+  authorizedCapacity?: number;
+  additionalBlocks?: number;
+  currentBillingAmountMonthlyUsd?: number;
+  nextBillingAmountMonthlyUsd?: number;
+  nextBillingPeriodEnd?: string | null;
+  trialActive?: boolean;
+  gate?: CapacityGatePayload | null;
+  message?: string;
 };
 
 export function BillingPlanPage() {
   const router = useRouter();
   const { productLabel } = useCommercialContext();
   const [data, setData] = useState<BillingPayload | null>(null);
+  const [capacity, setCapacity] = useState<CapacityPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [authorizeBusy, setAuthorizeBusy] = useState(false);
+  const [authorizeError, setAuthorizeError] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/commerce/subscription", { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) {
-          throw new Error("Could not load subscription status.");
-        }
+    Promise.all([
+      fetch("/api/commerce/subscription", { signal: controller.signal }).then(async (res) => {
+        if (!res.ok) throw new Error("Could not load subscription status.");
         return (await res.json()) as BillingPayload;
+      }),
+      fetch("/api/commerce/capacity", { signal: controller.signal }).then(async (res) => {
+        if (!res.ok) return null;
+        return (await res.json()) as CapacityPayload;
       })
-      .then((payload) => {
+    ])
+      .then(([subscription, capacityPayload]) => {
         setError(null);
-        setData(payload);
+        setData(subscription);
+        setCapacity(capacityPayload);
+        if (capacityPayload?.capacityStatus === "requires_authorization" && capacityPayload.gate) {
+          setGateOpen(true);
+        }
       })
       .catch((err: unknown) => {
         if (controller.signal.aborted) return;
@@ -71,6 +106,25 @@ export function BillingPlanPage() {
     router.refresh();
   }
 
+  async function authorizeFromBilling() {
+    setAuthorizeBusy(true);
+    setAuthorizeError(null);
+    const res = await fetch("/api/commerce/capacity/authorize", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({})
+    });
+    const payload = (await res.json().catch(() => ({}))) as { error?: string };
+    setAuthorizeBusy(false);
+    if (!res.ok) {
+      setAuthorizeError(payload.error ?? "Authorization failed.");
+      return;
+    }
+    setGateOpen(false);
+    setReloadToken((value) => value + 1);
+    router.refresh();
+  }
+
   return (
     <main className="flex-1 space-y-6 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
       <Breadcrumbs items={[{ href: "/launcher", label: "Launcher" }, { label: "Billing & Plan" }]} />
@@ -79,8 +133,8 @@ export function BillingPlanPage() {
           Billing & Plan
         </h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Property Manager renewals, recovery, and cancellation run automatically — no employee
-          involvement.
+          Property Manager renewals, recovery, and Additional Unit Capacity run automatically — no
+          employee involvement.
         </p>
       </section>
 
@@ -113,8 +167,11 @@ export function BillingPlanPage() {
                 <dd>{data.moduleAccess ? "Available" : "Paused — billing recovery required"}</dd>
               </div>
               <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Capacity</dt>
-                <dd>Managed units (Additional Unit Capacity)</dd>
+                <dt className="text-[var(--mpa-color-text-muted)]">Managed units</dt>
+                <dd>
+                  {capacity?.actualUnits ?? data.managedUnitCount ?? "—"} /{" "}
+                  {capacity?.authorizedCapacity ?? data.authorizedUnitCapacity ?? 500} authorized
+                </dd>
               </div>
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Next renewal</dt>
@@ -133,11 +190,6 @@ export function BillingPlanPage() {
                 app, then return here.
               </p>
             ) : null}
-            {data.pendingPlanTier ? (
-              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                Plan change to {data.pendingPlanTier} is scheduled for the end of this billing period.
-              </p>
-            ) : null}
           </>
         ) : data === null && !error ? (
           <div className="space-y-3" aria-busy="true" aria-label="Loading subscription">
@@ -151,6 +203,49 @@ export function BillingPlanPage() {
           </p>
         )}
       </section>
+
+      {capacity?.linked ? (
+        <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+          <h2 className="font-display text-lg font-semibold">Additional Unit Capacity</h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Included capacity is 500 units. Additional blocks are $39/month each and take effect
+            next billing period after authorization — never a surprise mid-period charge.
+          </p>
+          <dl className="grid gap-2 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-[var(--mpa-color-text-muted)]">Status</dt>
+              <dd className="font-medium">
+                {(capacity.capacityStatus ?? "").replace(/_/g, " ")}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[var(--mpa-color-text-muted)]">Additional blocks</dt>
+              <dd>{capacity.additionalBlocks ?? 0}</dd>
+            </div>
+            <div>
+              <dt className="text-[var(--mpa-color-text-muted)]">Current recurring</dt>
+              <dd>
+                {typeof capacity.currentBillingAmountMonthlyUsd === "number"
+                  ? `$${capacity.currentBillingAmountMonthlyUsd}/month`
+                  : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[var(--mpa-color-text-muted)]">Next period recurring</dt>
+              <dd>
+                {typeof capacity.nextBillingAmountMonthlyUsd === "number"
+                  ? `$${capacity.nextBillingAmountMonthlyUsd}/month`
+                  : "—"}
+              </dd>
+            </div>
+          </dl>
+          {capacity.capacityStatus === "requires_authorization" && capacity.gate ? (
+            <Button type="button" onClick={() => setGateOpen(true)}>
+              Authorize Additional Capacity
+            </Button>
+          ) : null}
+        </section>
+      ) : null}
 
       <section className="flex flex-wrap gap-3">
         {data?.phase === "grace" || data?.phase === "past_due" || data?.phase === "expired" ? (
@@ -178,30 +273,6 @@ export function BillingPlanPage() {
             onClick={() => void post("/api/commerce/subscription/cancel")}
           >
             {busy ? "Working…" : "Cancel at period end"}
-          </Button>
-        ) : null}
-        {data?.planTier === "professional" ? (
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={busy !== null}
-            onClick={() =>
-              void post("/api/commerce/subscription/change-plan", { planTier: "business" })
-            }
-          >
-            Upgrade to Business
-          </Button>
-        ) : null}
-        {data?.planTier === "business" ? (
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={busy !== null}
-            onClick={() =>
-              void post("/api/commerce/subscription/change-plan", { planTier: "professional" })
-            }
-          >
-            Schedule Professional (period end)
           </Button>
         ) : null}
         <Link href="/pm/mission-control">
@@ -235,6 +306,18 @@ export function BillingPlanPage() {
           </ul>
         )}
       </section>
+
+      <AdditionalUnitCapacityGate
+        open={gateOpen}
+        gate={capacity?.gate ?? null}
+        busy={authorizeBusy}
+        error={authorizeError}
+        onClose={() => {
+          setGateOpen(false);
+          setAuthorizeError(null);
+        }}
+        onAuthorize={() => void authorizeFromBilling()}
+      />
     </main>
   );
 }

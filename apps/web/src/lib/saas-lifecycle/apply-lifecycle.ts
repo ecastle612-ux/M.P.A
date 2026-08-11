@@ -40,7 +40,7 @@ async function tryServiceRole() {
   }
 }
 
-async function persistToDb(sub: LifecycleSubscription): Promise<void> {
+export async function persistLifecycleSubscription(sub: LifecycleSubscription): Promise<void> {
   const supabase = await tryServiceRole();
   if (!supabase || !sub.organizationId) return;
   await supabase.from("organization_subscriptions").upsert(
@@ -62,6 +62,10 @@ async function persistToDb(sub: LifecycleSubscription): Promise<void> {
       managed_unit_count: sub.managedUnitCount,
       authorized_additional_blocks: sub.authorizedAdditionalBlocks,
       authorized_unit_capacity: sub.authorizedUnitCapacity,
+      declared_unit_count: sub.declaredUnitCount,
+      pending_additional_blocks: sub.pendingAdditionalBlocks,
+      pending_authorized_unit_capacity: sub.pendingAuthorizedUnitCapacity,
+      last_capacity_authorized_at: sub.lastCapacityAuthorizedAt,
       quote_id: sub.quoteId,
       trial_ends_at: sub.trialEndsAt,
       pending_plan_tier: sub.pendingPlanTier,
@@ -172,6 +176,10 @@ function ensureSubscription(input: {
       managedUnitCount: input.managedUnitCount ?? null,
       authorizedAdditionalBlocks: input.authorizedAdditionalBlocks ?? null,
       authorizedUnitCapacity: input.authorizedUnitCapacity ?? null,
+      declaredUnitCount: null,
+      pendingAdditionalBlocks: null,
+      pendingAuthorizedUnitCapacity: null,
+      lastCapacityAuthorizedAt: null,
       quoteId: input.quoteId ?? null,
       trialEndsAt: input.trialEndsAt ?? null,
       pendingPlanTier: null,
@@ -283,7 +291,7 @@ export async function applySubscriptionCreatedOrUpdated(input: {
     sub = await notify(sub, "subscription_canceled", `canceled:${input.eventId}`, findOwnerEmail(sub));
   }
 
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return sub;
 }
 
@@ -335,7 +343,7 @@ export async function applyInvoicePaid(input: {
   } else {
     sub = await notify(sub, "renewal_success", `renewal:${input.eventId}`, findOwnerEmail(sub));
   }
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return sub;
 }
 
@@ -382,7 +390,7 @@ export async function applyInvoicePaymentFailed(input: {
   if (kind === "payment_failed" || kind === "grace_warning") {
     sub = await notify(sub, kind, `dunning:${day}:${sub.graceStartedAt}`, findOwnerEmail(sub));
   }
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return sub;
 }
 
@@ -422,7 +430,7 @@ export async function applyInvoicePaymentActionRequired(input: {
   } else {
     sub = saveLifecycleSubscription(sub);
   }
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return sub;
 }
 
@@ -451,7 +459,7 @@ export async function applyDisputeCreated(input: {
   }
   if (!sub) return null;
   sub = transitionLifecycle(sub, "dispute_hold", "dispute_created", "charge.dispute.created", input.eventId);
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return sub;
 }
 
@@ -483,7 +491,7 @@ export async function applyDisputeClosed(input: {
   } else {
     sub = await notify(sub, "subscription_canceled", `dispute_lost:${input.eventId}`, findOwnerEmail(sub));
   }
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return sub;
 }
 
@@ -520,7 +528,7 @@ export async function applyChargeRefunded(input: {
     ],
     updatedAt: new Date().toISOString()
   });
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return sub;
 }
 
@@ -538,7 +546,7 @@ export async function enforceGraceExpirations(nowMs: number = Date.now()): Promi
       `grace_expired:${row.graceStartedAt}`,
       findOwnerEmail(next)
     );
-    await persistToDb(next);
+    await persistLifecycleSubscription(next);
     count += 1;
   }
   return count;
@@ -586,7 +594,7 @@ export async function cancelAtPeriodEnd(input: {
     `cancel_scheduled:${sub.updatedAt}`,
     findOwnerEmail(sub)
   );
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return sub;
 }
 
@@ -622,7 +630,7 @@ export async function reactivateSubscription(input: {
     "customer"
   );
   sub = await notify(sub, "subscription_restored", `reactivate:${sub.updatedAt}`, findOwnerEmail(sub));
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return sub;
 }
 
@@ -676,7 +684,7 @@ export async function changePlanTier(input: {
                 }
               ]
             });
-            await persistToDb(sub);
+            await persistLifecycleSubscription(sub);
             return { ok: true, sub };
           }
         }
@@ -727,7 +735,7 @@ export async function changePlanTier(input: {
       ]
     });
   }
-  await persistToDb(sub);
+  await persistLifecycleSubscription(sub);
   return { ok: true, sub };
 }
 
