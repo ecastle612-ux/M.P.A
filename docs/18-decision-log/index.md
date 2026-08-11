@@ -55,8 +55,8 @@ What other options were evaluated and why were they rejected?
 | [ADR-017](./adr-017-launch-001-customer-promise-journeys.md) | LAUNCH-001 Customer Promise Journeys | Accepted | 2026-08-06 |
 | [ADR-018](./adr-018-self-service-commercial-platform.md) | Self-Service Commercial Platform (COM-002) | Accepted (packaging amended by ADR-019) | 2026-08-07 |
 | [ADR-019](./adr-019-product-constitution.md) | M.P.A. Product Constitution | Accepted | 2026-08-08 |
-| [ADR-020](./adr-020-facility-operations-production-mvp.md) | Facility Operations Production MVP | See ADR file | 2026-08-11 |
-| [ADR-021](./adr-021-production-stabilization-sprint-5.md) | Production Stabilization Sprint 5 | See ADR file | 2026-08-11 |
+| [ADR-020](./adr-020-facility-operations-production-mvp.md) | Facility Operations Production MVP | Accepted | 2026-08-11 |
+| [ADR-021](./adr-021-production-stabilization-sprint-5.md) | Production Stabilization Sprint 5 | Accepted | 2026-08-11 |
 | [ADR-022](./adr-022-master-admin-command-center.md) | Master Admin Command Center Control Plane | Proposed | 2026-08-11 |
 
 ---
