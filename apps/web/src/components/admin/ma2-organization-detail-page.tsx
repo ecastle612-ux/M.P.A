@@ -355,6 +355,14 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
       </Section>
 
       <Section id="subscription" title="Subscription">
+        <p className="mb-3 text-xs">
+          <Link
+            href={`/admin/subscriptions/${encodeURIComponent(detail.id)}`}
+            className="text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open fleet Subscription detail →
+          </Link>
+        </p>
         <Panel>
           <dl>
             <Kv label="Product / module" value={detail.subscription.skuLabel ?? "—"} />
@@ -380,6 +388,14 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
       </Section>
 
       <Section id="capacity" title="Capacity">
+        <p className="mb-3 text-xs">
+          <Link
+            href={`/admin/capacity/${encodeURIComponent(detail.id)}`}
+            className="text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open fleet Capacity detail →
+          </Link>
+        </p>
         <Panel>
           <dl>
             <Kv label="Managed units" value={detail.capacity.managedUnitCount ?? "—"} />

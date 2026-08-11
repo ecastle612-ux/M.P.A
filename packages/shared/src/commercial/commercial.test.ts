@@ -198,7 +198,7 @@ describe("route entitlement enforcement", () => {
 });
 
 describe("master admin catalog", () => {
-  it("exposes Master Admin Overview + Organizations + Users + Audit + Errors", () => {
+  it("exposes Master Admin Overview + Organizations + Users + Subscriptions + Capacity + Audit + Errors", () => {
     const titles = MASTER_ADMIN_NAV.map((group) => group.title);
     expect(titles).toEqual(["Master Admin", "Operations", "Customers", "Commercial"]);
 
@@ -207,6 +207,8 @@ describe("master admin catalog", () => {
       "/admin",
       "/admin/platform/organizations",
       "/admin/users",
+      "/admin/subscriptions",
+      "/admin/capacity",
       "/admin/audit",
       "/admin/errors",
       "/admin/support",
@@ -226,6 +228,8 @@ describe("master admin catalog", () => {
       "Overview",
       "Organizations",
       "Users",
+      "Subscriptions",
+      "Capacity",
       "Audit Log",
       "Errors"
     ]);
