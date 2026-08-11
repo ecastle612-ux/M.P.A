@@ -91,7 +91,7 @@ describe("COM-002 SaaS webhook handling (Slice C + D + E)", () => {
     expect(purchase?.provisioned).toBe(false);
     const job = getProvisioningJob(sessionId);
     expect(job?.checkpoint).toBe("owner_pending");
-    expect(getLifecycleByStripeSubscriptionId("sub_test")?.status).toBe("active");
+    expect((await getLifecycleByStripeSubscriptionId("sub_test"))?.status).toBe("active");
 
     const dup = await handleSaasStripeEvent(event as never);
     expect(dup.ok).toBe(true);
@@ -116,7 +116,7 @@ describe("COM-002 SaaS webhook handling (Slice C + D + E)", () => {
     };
     const fail = await handleSaasStripeEvent(failEvent as never);
     expect(fail.ok).toBe(true);
-    expect(getLifecycleByStripeSubscriptionId("sub_wh_1")?.status).toBe("past_due");
+    expect((await getLifecycleByStripeSubscriptionId("sub_wh_1"))?.status).toBe("past_due");
 
     const failDup = await handleSaasStripeEvent(failEvent as never);
     expect(failDup.ok).toBe(true);
@@ -137,7 +137,7 @@ describe("COM-002 SaaS webhook handling (Slice C + D + E)", () => {
     };
     const paid = await handleSaasStripeEvent(paidEvent as never);
     expect(paid.ok).toBe(true);
-    expect(getLifecycleByStripeSubscriptionId("sub_wh_1")?.status).toBe("active");
+    expect((await getLifecycleByStripeSubscriptionId("sub_wh_1"))?.status).toBe("active");
   });
 
   it("builds a stripe-compatible signature header shape", () => {

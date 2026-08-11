@@ -99,7 +99,7 @@ export async function assertWithinUnitCapacityOrGate(input: {
   status: 409;
   body: CapacityGateErrorBody;
 }> {
-  const sub = getLifecycleByOrganizationId(input.organizationId);
+  const sub = await getLifecycleByOrganizationId(input.organizationId);
   if (!sub) {
     // No commercial subscription linked — do not invent seat/property limits.
     const actualUnits = await countOrganizationPropertyUnits(
@@ -121,7 +121,7 @@ export async function assertWithinUnitCapacityOrGate(input: {
 
   // Persist reconciled actual count (questionnaire is not the permanent source of truth).
   if (sub.managedUnitCount !== actualUnits) {
-    saveLifecycleSubscription({
+    await saveLifecycleSubscription({
       ...sub,
       managedUnitCount: actualUnits,
       declaredUnitCount: sub.declaredUnitCount ?? sub.managedUnitCount,
@@ -133,7 +133,7 @@ export async function assertWithinUnitCapacityOrGate(input: {
     return { ok: true, actualUnits, sub };
   }
 
-  const latest = getLifecycleByOrganizationId(input.organizationId) ?? sub;
+  const latest = (await getLifecycleByOrganizationId(input.organizationId)) ?? sub;
   const snapshot = snapshotForSubscription(latest, actualUnits, input.additionalUnits);
   const gate = buildCapacityGatePresentation(snapshot, projected);
   const intent = createCapacityAuthorizationIntent({
@@ -211,7 +211,7 @@ export async function authorizeAdditionalUnitCapacity(input: {
   if (idemKey) {
     const prior = getCapacityAuthIdempotency(idemKey);
     if (prior) {
-      const sub = getLifecycleByOrganizationId(input.organizationId);
+      const sub = await getLifecycleByOrganizationId(input.organizationId);
       if (sub) {
         const actual = sub.managedUnitCount ?? 0;
         return {
@@ -356,7 +356,7 @@ export async function authorizeAdditionalUnitCapacity(input: {
       },
       auditEntry
     );
-    sub = saveLifecycleSubscription(sub);
+    sub = await saveLifecycleSubscription(sub);
     await persistLifecycleSubscription(sub);
 
     if (intent) consumeCapacityAuthorizationIntent(intent.id);
@@ -384,7 +384,7 @@ export async function reconcileOrganizationUnitCapacity(input: {
   source?: string;
   eventId?: string;
 }): Promise<{ sub: LifecycleSubscription | null; snapshot: UnitCapacitySnapshot }> {
-  let sub = getLifecycleByOrganizationId(input.organizationId);
+  let sub = await getLifecycleByOrganizationId(input.organizationId);
   if (!sub) {
     return {
       sub: null,
@@ -452,7 +452,7 @@ export async function reconcileOrganizationUnitCapacity(input: {
     // Already aligned.
   }
 
-  sub = saveLifecycleSubscription(next);
+  sub = await saveLifecycleSubscription(next);
   await persistLifecycleSubscription(sub);
   return { sub, snapshot: snapshotForSubscription(sub, actualUnits) };
 }
@@ -465,7 +465,7 @@ export async function applyPendingCapacityAtPeriodBoundary(input: {
   eventId: string;
 }): Promise<LifecycleSubscription | null> {
   const { getLifecycleByStripeSubscriptionId } = await import("./lifecycle-store");
-  let sub = getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId);
+  let sub = await getLifecycleByStripeSubscriptionId(input.stripeSubscriptionId);
   if (!sub) return null;
 
   if (
@@ -481,7 +481,7 @@ export async function applyPendingCapacityAtPeriodBoundary(input: {
   // Increases already raised authorized at authorize-time; clear pending when matched.
   // Decreases: lower authorized now that the period rolled.
   const now = new Date().toISOString();
-  sub = saveLifecycleSubscription({
+  sub = await saveLifecycleSubscription({
     ...sub,
     authorizedAdditionalBlocks: pendingBlocks,
     authorizedUnitCapacity: sub.pendingAuthorizedUnitCapacity,
@@ -516,7 +516,7 @@ export async function getOrganizationCapacityView(input: {
   gate: CapacityGatePresentation | null;
   sub: LifecycleSubscription | null;
 }> {
-  const sub = getLifecycleByOrganizationId(input.organizationId);
+  const sub = await getLifecycleByOrganizationId(input.organizationId);
   if (!sub) {
     return { linked: false, snapshot: null, gate: null, sub: null };
   }
@@ -527,14 +527,14 @@ export async function getOrganizationCapacityView(input: {
       input.organizationId
     );
     if (actualUnits !== sub.managedUnitCount) {
-      saveLifecycleSubscription({
+      await saveLifecycleSubscription({
         ...sub,
         managedUnitCount: actualUnits,
         updatedAt: new Date().toISOString()
       });
     }
   }
-  const latest = getLifecycleByOrganizationId(input.organizationId) ?? sub;
+  const latest = (await getLifecycleByOrganizationId(input.organizationId)) ?? sub;
   const snapshot = snapshotForSubscription(latest, actualUnits);
   const gate =
     snapshot.capacityStatus === "requires_authorization"

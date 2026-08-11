@@ -11,7 +11,7 @@ import {
   reactivateSubscription,
   seedLifecycleFromPurchase
 } from "./apply-lifecycle";
-import { clearLifecycleStoreForTests, getLifecycleByStripeSubscriptionId } from "./lifecycle-store";
+import { clearLifecycleStoreForTests, getLifecycleByStripeSubscriptionId, saveLifecycleSubscription } from "./lifecycle-store";
 
 function seedPurchase(sessionId: string, subId: string, orgId = "org_life_1") {
   const now = new Date().toISOString();
@@ -44,7 +44,7 @@ describe("COM-002 Slice E lifecycle apply", () => {
 
   it("seeds active subscription and handles renewal success", async () => {
     seedPurchase("cs_life_1", "sub_life_1");
-    const seeded = seedLifecycleFromPurchase("cs_life_1");
+    const seeded = await seedLifecycleFromPurchase("cs_life_1");
     expect(seeded?.status).toBe("active");
     const paid = await applyInvoicePaid({
       stripeSubscriptionId: "sub_life_1",
@@ -59,7 +59,7 @@ describe("COM-002 Slice E lifecycle apply", () => {
 
   it("enters grace on payment failure and expires after 7 days", async () => {
     seedPurchase("cs_life_2", "sub_life_2");
-    seedLifecycleFromPurchase("cs_life_2");
+    await seedLifecycleFromPurchase("cs_life_2");
     const failed = await applyInvoicePaymentFailed({
       stripeSubscriptionId: "sub_life_2",
       stripeCustomerId: "cus_life",
@@ -70,18 +70,19 @@ describe("COM-002 Slice E lifecycle apply", () => {
     expect(hasLifecycleModuleAccess(failed!)).toBe(true);
     expect(failed?.emailsSent.some((e) => e.includes("dunning:0"))).toBe(true);
 
-    const row = getLifecycleByStripeSubscriptionId("sub_life_2")!;
+    const row = (await getLifecycleByStripeSubscriptionId("sub_life_2"))!;
     row.graceStartedAt = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+    await saveLifecycleSubscription(row);
     const expiredCount = await enforceGraceExpirations();
     expect(expiredCount).toBe(1);
-    const expired = getLifecycleByStripeSubscriptionId("sub_life_2");
+    const expired = await getLifecycleByStripeSubscriptionId("sub_life_2");
     expect(expired?.status).toBe("expired");
     expect(hasLifecycleModuleAccess(expired!)).toBe(false);
   });
 
   it("recovers from past_due on invoice.paid (restored)", async () => {
     seedPurchase("cs_life_3", "sub_life_3");
-    seedLifecycleFromPurchase("cs_life_3");
+    await seedLifecycleFromPurchase("cs_life_3");
     await applyInvoicePaymentFailed({
       stripeSubscriptionId: "sub_life_3",
       stripeCustomerId: "cus_life",
@@ -99,7 +100,7 @@ describe("COM-002 Slice E lifecycle apply", () => {
 
   it("supports cancel at period end and reactivate", async () => {
     seedPurchase("cs_life_4", "sub_life_4", "org_cancel");
-    seedLifecycleFromPurchase("cs_life_4");
+    await seedLifecycleFromPurchase("cs_life_4");
     const canceled = await cancelAtPeriodEnd({ organizationId: "org_cancel" });
     expect(canceled?.cancelAtPeriodEnd).toBe(true);
     const reactivated = await reactivateSubscription({ organizationId: "org_cancel" });
@@ -109,7 +110,7 @@ describe("COM-002 Slice E lifecycle apply", () => {
 
   it("rejects Business and legacy Professional plan-price swaps", async () => {
     seedPurchase("cs_life_5", "sub_life_5", "org_plan");
-    seedLifecycleFromPurchase("cs_life_5");
+    await seedLifecycleFromPurchase("cs_life_5");
     const business = await changePlanTier({ organizationId: "org_plan", planTier: "business" });
     expect(business.ok).toBe(false);
     if (!business.ok) {

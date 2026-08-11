@@ -224,7 +224,7 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
       if (subId) {
         const purchase = listSaasPurchases().find((p) => p.stripeSubscriptionId === subId);
         if (purchase?.stripeCheckoutSessionId) {
-          seedLifecycleFromPurchase(purchase.stripeCheckoutSessionId);
+          await seedLifecycleFromPurchase(purchase.stripeCheckoutSessionId);
         }
       }
       await applyInvoicePaid({
@@ -349,7 +349,7 @@ export async function handleSaasStripeEvent(event: Stripe.Event): Promise<SaasWe
         }
         if (COM_002_FLAGS.sliceE_subscriptionLifecycle && typeof session.subscription === "string") {
           const { seedLifecycleFromPurchase } = await import("../saas-lifecycle/apply-lifecycle");
-          seedLifecycleFromPurchase(session.id);
+          await seedLifecycleFromPurchase(session.id);
         }
       } catch {
         // Provisioning/lifecycle failures are tracked on stores; webhook still acks.
