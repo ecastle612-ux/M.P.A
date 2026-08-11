@@ -17,7 +17,9 @@
 - Implementation blueprint (planning only): [`commercial-billing-implementation-blueprint-2026-08-11.md`](./commercial-billing-implementation-blueprint-2026-08-11.md)  
 - Acquisition + billing decisions (final design): [`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md)  
 - Implementation plan (planning only): [`commercial-implementation-plan-2026-08-11.md`](./commercial-implementation-plan-2026-08-11.md)  
-- Pre-implementation reconciliation: [`pre-implementation-reconciliation-2026-08-11.md`](./pre-implementation-reconciliation-2026-08-11.md)
+- Pre-implementation reconciliation: [`pre-implementation-reconciliation-2026-08-11.md`](./pre-implementation-reconciliation-2026-08-11.md)  
+- Unit-based authorization + removal plans: [`unit-based-commercial-authorization-2026-08-11.md`](./unit-based-commercial-authorization-2026-08-11.md)  
+- COM-002 amendment proposal: [`com-002-unit-capacity-amendment-proposal-2026-08-11.md`](./com-002-unit-capacity-amendment-proposal-2026-08-11.md)
 
 ---
 
@@ -43,8 +45,9 @@ Unit-volume / **Additional Unit Capacity** applies to **Property Manager** and *
 Customer-facing language: **Additional Unit Capacity** — not “Enterprise product/tier.”  
 **Do not create an Enterprise Stripe Product.**
 
-**Seat limits:** Owner decision — **remove** (unit-volume replaces seat-capacity). Code removal is future work — see acquisition blueprint §4.  
-**Property limits:** **Do not change** without explicit Owner authorization — see acquisition blueprint §5.
+**Seat limits:** **REMOVE** (authorized). Code removal is future work.  
+**Property limits:** **REMOVE** (Owner-authorized 2026-08-11). Properties are not a billing metric.  
+See [`unit-based-commercial-authorization-2026-08-11.md`](./unit-based-commercial-authorization-2026-08-11.md).
 
 **This design package does not modify** `product-constitution.md` or ADR-019.
 
@@ -316,7 +319,7 @@ Document for a future approved implementation only:
 10. Complete unit-volume Prices (base $109 + shared $39 block) when Complete Checkout is authorized.  
 11. Billing lifecycle sync; period-end reconcile; audit history.  
 12. Acquisition questionnaire + Confirm Plan price display.  
-13. Tests: PM/Complete boundaries; 30-day trial; >500 no trial; payment gate at 501; seat limit absent; FO gated; FIN-OPS untouched.
+13. Tests: PM/Complete boundaries; 30-day trial; >500 no trial; payment gate at 501; seat **and** property limits absent; FO gated; FIN-OPS untouched.
 
 ### Acceptance criteria (future implementation)
 
