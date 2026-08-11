@@ -7,13 +7,13 @@
 
 ## Vision
 
-A prospective customer can discover M.P.A., try a live interactive demo, subscribe online to **Property Manager** (Professional or Business), and land in Mission Control — without waiting for a human.
+A prospective customer can discover M.P.A., try a live interactive demo, subscribe online to **Property Manager** (monthly or annual, unit-capacity priced), and land in Mission Control — without waiting for a human.
 
-**Facility Operations** and **Complete Platform** are sold with commercial honesty: Enterprise implementation today; self-serve only after **FO-READY**.
+**Facility Operations** and **Complete Platform** are sold with commercial honesty: Enterprise sales motion / implementation today; self-serve only after **FO-READY**.
 
-Enterprise buyers receive a premium high-touch path that forks **before** Checkout: consultation, proposal, contract, and implementation.
+Enterprise buyers receive a premium high-touch **sales motion** that forks **before** Checkout: consultation, proposal, contract, and implementation. Enterprise is not a product.
 
-Try-before-buy is **Live Demo** (no self-serve card trials in v1).
+Try-before-buy includes **Live Demo** (no payment) and, for Property Manager with ≤500 managed units, a **30-day** card-required free trial (A8).
 
 The purchasing experience must feel comparable to HubSpot, Monday.com, Shopify, Slack, Notion, Stripe, and Linear: professional, minimal, fast, clear, premium.
 
@@ -32,7 +32,7 @@ The purchasing experience must feel comparable to HubSpot, Monday.com, Shopify, 
 
 ## Goals
 
-1. Fully automated self-service for Property Manager Professional and Business.
+1. Fully automated self-service for Property Manager (Constitution flow; unit-capacity commercial model).
 2. Secure Stripe Checkout for SaaS subscriptions (platform billing).
 3. Checkpointed organization provisioning; modules usable only after email-verified bind.
 4. Scalable isolated Live Demo (snapshot + overlay) — no account, no payment.
@@ -72,10 +72,10 @@ The purchasing experience must feel comparable to HubSpot, Monday.com, Shopify, 
 
 | Audience | Success |
 |----------|---------|
-| Professional / Business buyer | Pays online → Mission Control same day without employee interaction |
-| Enterprise buyer | Clear Request Enterprise path; never forced through self-serve Checkout |
+| Property Manager buyer | Pays online → Mission Control same day without employee interaction |
+| Enterprise sales buyer | Clear Request Enterprise path; never forced through self-serve Checkout |
 | Demo visitor | Interactive product experience in minutes; clear path to subscribe |
-| Platform ops | Near-zero manual provisioning for Pro/Business; auditability via Master Admin |
+| Platform ops | Near-zero manual provisioning for PM self-serve; auditability via Master Admin |
 | Engineering | Slice-gated implementation with independent tests |
 
 ---

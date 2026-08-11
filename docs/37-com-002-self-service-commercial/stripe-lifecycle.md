@@ -2,8 +2,8 @@
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Approved  
-**Amendments:** A4, A6, A7  
-**Implementation:** Forbidden until Slice C+ authorized  
+**Amendments:** A4, A6, A7, **A8**  
+**Implementation:** Checkout/Price publication remains slice-gated; this doc is design governance only  
 
 ---
 
@@ -15,7 +15,7 @@
 
 ---
 
-## Products & Prices (self-serve v1)
+## Products & Prices (self-serve v1 / A8)
 
 | Stripe Product | SKU | Self-serve |
 |----------------|-----|------------|
@@ -23,16 +23,19 @@
 | M.P.A. Facility Operations | `mpa_facility_operations` | **No** until FO-READY |
 | M.P.A. Complete Platform | `mpa_complete_platform` | **No** until FO-READY |
 
-Property Manager Prices:
+Property Manager Prices (unit-capacity model — design target):
 
-| Tier | Monthly | Annual |
-|------|---------|--------|
-| Professional | required | required |
-| Business | required | required |
+| Component | Monthly | Annual |
+|-----------|---------|--------|
+| PM base (includes first 500 units) | required | required (monthly × 12) |
+| Additional Unit Capacity block (+500 units) | required when blocks > 0 | required when blocks > 0 |
+
+**Legacy:** Historical PM Professional/Business Price env keys may exist until migration; **Business is not a customer product** and must not be required for Checkout readiness.
 
 Enterprise: **no public Checkout Price**. Optional invoice Price after contract only.
 
-Metadata: `mpa_product_sku`, `mpa_plan_tier`, `mpa_billing_cycle`, `mpa_money_domain=saas_billing`, `mpa_seat_limit`, `mpa_property_limit`.
+Metadata: `mpa_product_sku`, `mpa_billing_cycle`, `mpa_money_domain=saas_billing`, catalog/offer id, and unit-capacity fields as implemented in authorized slices.  
+**Do not** write `mpa_seat_limit` / `mpa_property_limit` for new sessions (A8 — removed). Legacy metadata keys may be ignored if present.
 
 ---
 
@@ -42,20 +45,21 @@ Metadata: `mpa_product_sku`, `mpa_plan_tier`, `mpa_billing_cycle`, `mpa_money_do
 |-----------|--------|
 | Mode | `subscription` |
 | UI | Stripe-hosted |
-| Eligible offers | PM Pro/Business only (A1/A6) |
-| Trial | **None** (A7) |
+| Eligible offers | Property Manager self-serve only (A1/A6/A8) |
+| Trial | **30 days** if declared managed units ≤500; **none** if >500; card required (A8) |
 | Tax | Stripe Tax **on** at go-live |
 | Coupons | Promotion codes allowed (ops-generated) |
 | Success URL | Signed continue → identity bind |
-| Cancel URL | Return to plan selection |
+| Cancel URL | Return to product / cycle selection |
 
 ---
 
-## Subscriptions & seats
+## Subscriptions & unit capacity
 
 - Webhooks are access truth.  
-- Seats/properties: **flat limits in metadata** — not Stripe quantity metering in v1.  
-- Proration on upgrade immediate; downgrade at period end.
+- Capacity is **managed units** + Additional Unit Capacity — not seat/property flat limits.  
+- Additional Unit Capacity uplifts: explicit customer authorization; new recurring amount at **next billing period**.  
+- Capacity reduction / cancel: period end.
 
 ---
 
@@ -104,4 +108,4 @@ Enabled for payment methods, invoices, cancel-at-period-end. **Plan switching of
 | `canceled` | `canceled` | Off at period end |
 | `unpaid` | `unpaid` | Off |
 | `incomplete` / action required | `incomplete` | Off |
-| `trialing` | unused v1 | — |
+| `trialing` | `trialing` (≤500-unit eligible trials) | On (if owner_bound); convert to active after 30 days |

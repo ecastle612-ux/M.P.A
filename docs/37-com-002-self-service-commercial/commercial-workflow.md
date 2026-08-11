@@ -2,7 +2,7 @@
 
 **Parent:** [COM-002 Index](./index.md)  
 **Status:** Approved  
-**Amendments:** A4, A5, A6, A7  
+**Amendments:** A4, A5, A6, A7, **A8**  
 
 ---
 
@@ -10,10 +10,10 @@
 
 ```
 Select Property Manager
-  → Select Professional | Business
   → Select Monthly | Annual
-  → Create Checkout Session (allowlisted Price)
-  → Pay on Stripe
+  → Server unit-volume quote (managed units / trial eligibility)
+  → Create Checkout Session (allowlisted Prices; no client final price)
+  → Pay on Stripe (card required; trial only if ≤500 units)
   → Webhook → provisioning checkpoints (A5)
   → owner_pending → verify email → owner_bound (A2)
   → Guided Setup → Mission Control
@@ -23,11 +23,11 @@ Enterprise divergence is **before** Checkout ([Journeys](./customer-journeys.md)
 
 ---
 
-## Lifecycle catalog (nothing undefined — A4)
+## Lifecycle catalog (nothing undefined — A4 / A8)
 
 | State / event | Customer effect | System |
 |---------------|-----------------|--------|
-| Trial | **N/A self-serve v1** | Use Live Demo |
+| Trial | 30 days if ≤500 managed units; none if >500 | Card required; Live Demo still available |
 | Active | Full entitled access | `active` + owner_bound |
 | Renewal | Continuous access | `invoice.paid` |
 | Failed payment | Banner + emails | `past_due` |
@@ -39,20 +39,21 @@ Enterprise divergence is **before** Checkout ([Journeys](./customer-journeys.md)
 | Cancellation scheduled | Access until period end | `cancel_at_period_end` |
 | Cancellation effective | Expired wall + reactivate CTA | entitlements off |
 | Reactivation | Restore offer | Checkout/Portal |
-| Invite acceptance | Seat membership | Enforce seat cap |
+| Over authorized unit capacity | Additional Unit Capacity payment gate | Explicit authorize; next-period price |
+| Invite acceptance | Membership | **No commercial seat cap** (A8) |
 | Organization transfer | New owner | Audited transfer |
 | Unclaimed paid org | Suspend Day 7 | `suspended_unclaimed` |
 
 ---
 
-## Upgrade / downgrade
+## Capacity / product changes
 
 | Change | When |
 |--------|------|
-| Pro → Business | Immediate proration |
-| Business → Pro | Period end |
-| FO/Complete add (pre FO-READY) | Enterprise only |
-| Self-serve → Enterprise | Sales migration |
+| Additional Unit Capacity | Explicit authorize → recurring price at **next billing period** |
+| FO/Complete add (pre FO-READY) | Enterprise sales motion only |
+| Self-serve → Enterprise sales motion | Sales migration |
+| Legacy Pro ↔ Business tier labels | Not a customer commercial path (A8 / ADR-019) |
 
 ---
 

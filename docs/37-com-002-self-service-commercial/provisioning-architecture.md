@@ -38,7 +38,7 @@ Webhook: checkout.session.completed (saas_billing, selfServeEligible offer)
   1. received — persist event, validate metadata/allowlist
   2. customer_linked — upsert saas_customers
   3. org_created — create Organization (unique on session id)
-  4. entitled — write subscription + seat/property limits + PM entitlements
+  4. entitled — write subscription + unit-capacity authorization fields + PM entitlements
   5. owner_pending — issue bind token; send claim email
   6. owner_bound — on verified claim (Identity Binding)
   7. welcome_sent — welcome + next-step email
@@ -84,7 +84,7 @@ There is no destructive “delete paid org” automatic rollback that orphans St
 | Name | Checkout business name or “{email} Organization” |
 | SKU | `mpa_property_manager` (v1 self-serve) |
 | Plan tier / cycle | From offer |
-| Seats / properties | From [Commercial Defaults](./commercial-defaults.md) |
+| Unit capacity | From [Commercial Defaults](./commercial-defaults.md) (managed units / Additional Unit Capacity; no seat/property caps) |
 | setupComplete | false until Guided Setup done |
 | Timezone | Default `America/New_York` until customer sets (or browser hint at bind) |
 | Currency | USD |

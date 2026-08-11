@@ -17,7 +17,7 @@
 | Enterprise Checkout leak | Reject non–self-serve offers at Session create (A6) |
 | Demo → prod leak | Separate demo DB/project; separate secrets (A3) |
 | Demo scrape/abuse | Caps, CAPTCHA, uploads off, sweeper |
-| Trial abuse | No self-serve trials (A7) |
+| Trial abuse | Trial only if ≤500 managed units; valid card required; Live Demo caps (A8) |
 | Duplicate provision | Idempotency + unique session id |
 | Operator abuse | Audited Enterprise provision |
 
