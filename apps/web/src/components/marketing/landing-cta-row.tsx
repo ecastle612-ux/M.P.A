@@ -53,8 +53,8 @@ export function LandingCtaRow({
               : "max-w-xl text-xs leading-5 text-[var(--mpa-color-text-secondary)] md:text-sm"
           }
         >
-          After Get Started: choose your product → confirm managed units → 30-day trial if you have
-          500 or fewer units (card required) → Guided Setup → Mission Control.
+          After Get Started: choose your product → confirm your plan → start your trial if eligible
+          (≤500 units; card required) → Guided Setup → Mission Control.
         </p>
       ) : null}
     </div>

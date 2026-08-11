@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -5,6 +6,7 @@ import {
   PUBLIC_PRICING_MODEL_COPY,
   SKU_SUMMARIES,
   acquisitionHref,
+  formatUsdAmount,
   type ProductSku
 } from "@mpa/shared";
 import {
@@ -13,7 +15,8 @@ import {
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
 import { LandingCtaRow } from "./landing-cta-row";
-import { LandingMissionControlPreview } from "./landing-mission-control-preview";
+import { LandingMaintenancePreview } from "./landing-maintenance-preview";
+import { LandingProductFrame } from "./landing-product-frame";
 
 function Section({
   id,
@@ -56,30 +59,13 @@ function Section({
 }
 
 const WORKFLOW_STEPS = [
-  {
-    label: "Property",
-    detail: "Add the property and units you operate."
-  },
-  {
-    label: "Resident / Lease",
-    detail: "Connect residents and lease handoffs to the portfolio."
-  },
-  {
-    label: "Rent",
-    detail: "Run resident billing, collection attention, and payment follow-through."
-  },
-  {
-    label: "Maintenance / Vendor",
-    detail: "Move residential work from request to assignment to resolution."
-  },
-  {
-    label: "Mission Control",
-    detail: "Return to ranked attention and a clear next action each day."
-  },
-  {
-    label: "Owner visibility",
-    detail: "Give owners a portfolio view of occupancy, rent, and maintenance."
-  }
+  { label: "Property", detail: "Add the properties and units you operate." },
+  { label: "People", detail: "Bring your team into the same operating home." },
+  { label: "Resident / Lease", detail: "Connect residents and lease handoffs." },
+  { label: "Rent", detail: "Billing, collection attention, and payment follow-through." },
+  { label: "Maintenance / Vendor", detail: "Request → assign → progress → resolution." },
+  { label: "Mission Control", detail: "Daily attention and a clear next action." },
+  { label: "Owner visibility", detail: "Portfolio view of occupancy, rent, and maintenance." }
 ] as const;
 
 const OUTCOMES = [
@@ -96,7 +82,7 @@ const OUTCOMES = [
   {
     title: "Less manual chasing",
     detail:
-      "Reduce the constant checking across inboxes and spreadsheets by concentrating follow-up in one attention home."
+      "Reduce constant checking across inboxes and spreadsheets by concentrating follow-up in one attention home."
   },
   {
     title: "Connected property work",
@@ -115,13 +101,15 @@ const OUTCOMES = [
   }
 ] as const;
 
+const COMPLETE_ANNUAL_DISPLAY = `${formatUsdAmount(PUBLIC_PRICING_MODEL_COPY.completeBaseMonthly * 12)}/year`;
+
 const PRODUCT_LANDING_COPY: Record<
   ProductSku,
   { priceLine: string; annualLine: string; promise: string }
 > = {
   mpa_property_manager: {
     priceLine: PUBLIC_PRICING_MODEL_COPY.pmHeadline,
-    annualLine: `$${PUBLIC_PRICING_MODEL_COPY.pmBaseMonthly * 12}/year`,
+    annualLine: `${formatUsdAmount(PUBLIC_PRICING_MODEL_COPY.pmBaseMonthly * 12)}/year`,
     promise:
       "Portfolio operations for professional teams — properties, residents, leasing, maintenance, vendors, financial operations, documents, communications, and portals."
   },
@@ -133,7 +121,7 @@ const PRODUCT_LANDING_COPY: Record<
   },
   mpa_complete_platform: {
     priceLine: PUBLIC_PRICING_MODEL_COPY.completeHeadlineMonthly,
-    annualLine: PUBLIC_PRICING_MODEL_COPY.completeHeadlineAnnual,
+    annualLine: COMPLETE_ANNUAL_DISPLAY,
     promise:
       "Property Manager and Facility Operations together — both product homes in one organization with shared documents, communications, and identity."
   }
@@ -225,7 +213,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           className="absolute inset-y-0 right-0 w-full max-w-3xl bg-[radial-gradient(ellipse_at_70%_40%,rgba(255,255,255,0.16),transparent_55%)]"
         />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-4 pb-14 pt-28 md:px-6 md:pb-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-end lg:gap-12">
+        <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-8 px-4 pb-14 pt-28 md:px-6 md:pb-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-end lg:gap-10">
           <div className="max-w-2xl space-y-5 motion-safe:animate-[mpa-rise_700ms_ease-out]">
             <p className="font-display text-4xl font-semibold tracking-tight text-white md:text-6xl">
               M.P.A.
@@ -238,18 +226,23 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               maintenance, vendors, and day-to-day operational attention — so less work falls through
               the cracks.
             </p>
-            <LandingCtaRow
-              isAuthenticated={isAuthenticated}
-              variant="hero"
-              showJourneyHint
-            />
+            <LandingCtaRow isAuthenticated={isAuthenticated} variant="hero" showJourneyHint />
           </div>
 
           <div className="motion-safe:animate-[mpa-rise_900ms_ease-out] lg:pb-2">
-            <LandingMissionControlPreview />
-            <p className="mt-3 text-xs leading-5 text-white/65">
-              Illustrative Mission Control layout based on the shipped attention home. Explore the
-              Live Demo for the real product experience.
+            <div className="overflow-hidden rounded-lg border border-white/20 shadow-[0_24px_60px_rgba(5,20,16,0.35)]">
+              <Image
+                src="/marketing/pm-mission-control-demo.png"
+                alt="Property Manager Mission Control in Live Demo"
+                className="h-auto w-full"
+                width={1280}
+                height={720}
+                sizes="(max-width: 1024px) 100vw, 560px"
+                priority
+              />
+            </div>
+            <p className="mt-3 text-sm leading-5 text-white/70">
+              Live Demo — Mission Control attention home for Harborline Properties.
             </p>
           </div>
         </div>
@@ -284,25 +277,38 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         </ul>
       </Section>
 
-      {/* 3. CONSEQUENCE */}
+      {/* 3. CONSEQUENCE — strengthened Monday-morning scenario */}
       <section
         id="fragmentation"
         className="border-y border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)]"
       >
         <div className="mx-auto max-w-6xl space-y-6 px-4 py-14 md:px-6 md:py-16">
-          <div className="max-w-2xl space-y-2">
+          <div className="max-w-2xl space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
               Operational fragmentation
             </p>
             <h2 className="font-display text-2xl font-semibold md:text-3xl">
-              When the work is scattered, the operation gets harder to run.
+              The work itself isn’t always the hard part.
             </h2>
             <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:text-base">
-              When property work lives in inboxes, spreadsheets, texts, separate tools, and individual
-              memory, operators spend too much time remembering, checking, coordinating, and chasing.
+              Remembering, coordinating, and following up across all the moving pieces is.
             </p>
           </div>
-          <ul className="grid gap-4 md:grid-cols-2">
+
+          <div className="max-w-3xl space-y-4 text-sm leading-7 text-[var(--mpa-color-text-secondary)] md:text-base">
+            <p>
+              A resident reports a problem. Someone has to determine who is handling it. A vendor may
+              need to be contacted. Someone has to follow up. The operator needs to know whether the
+              work was completed. An owner may eventually ask what happened. Meanwhile other
+              properties have their own issues waiting in inboxes, texts, and memory.
+            </p>
+            <p className="font-medium text-[var(--mpa-color-text-primary)]">
+              When property work is scattered, operators spend the day re-checking instead of
+              finishing.
+            </p>
+          </div>
+
+          <ul className="grid gap-5 md:grid-cols-2">
             {[
               {
                 title: "Missed follow-ups",
@@ -346,14 +352,25 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         </p>
       </Section>
 
-      {/* 5. WORKFLOW STORY */}
+      {/* 5. WORKFLOW STORY — denser on mobile */}
       <Section
         id="workflow"
         eyebrow="How the work flows"
-        title="A connected operating loop — not a pile of disconnected tasks"
-        description="Property Manager supports this operating path from purchase through daily ops. Facility Operations adds a building-side path for facility work orders."
+        title="A connected operating loop"
+        description="Property Manager supports this path from purchase through daily ops. Facility Operations adds a building-side path for facility work orders."
       >
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ol className="flex flex-wrap gap-2 md:hidden" aria-label="Operating loop">
+          {WORKFLOW_STEPS.map((step, index) => (
+            <li
+              key={step.label}
+              className="inline-flex items-center gap-2 rounded-md bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm font-medium"
+            >
+              <span className="text-[var(--mpa-color-brand-primary)]">{index + 1}</span>
+              {step.label}
+            </li>
+          ))}
+        </ol>
+        <ol className="hidden gap-3 sm:grid-cols-2 lg:grid-cols-3 md:grid">
           {WORKFLOW_STEPS.map((step, index) => (
             <li
               key={step.label}
@@ -373,18 +390,17 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           <h3 className="font-display text-base font-semibold">Facility path</h3>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             Facility Mission Control → corrective and domain work-order queues for building teams.
-            Complete Platform customers get both Property Manager and Facility Operations homes in
-            one organization.
+            Complete Platform customers get both product homes in one organization.
           </p>
         </div>
       </Section>
 
-      {/* 6. MISSION CONTROL PROOF */}
+      {/* 6. MISSION CONTROL PROOF — real screenshot */}
       <section
         id="mission-control"
         className="border-y border-[var(--mpa-color-border-subtle)] bg-[linear-gradient(180deg,#0B1F1A_0%,#102820_55%,#0F1720_100%)]"
       >
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:items-center md:px-6 md:py-16">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:items-center md:px-6 md:py-16">
           <div className="space-y-4 text-white">
             <p className="text-xs font-semibold uppercase tracking-wide text-white/65">
               Mission Control
@@ -394,15 +410,21 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             </h2>
             <p className="max-w-lg text-sm leading-6 text-white/75 md:text-base">
               Mission Control is your attention home after Guided Setup — Immediate, Waiting on me,
-              Waiting on others, and a clear next action drawn from live property work.
+              Waiting on others, and a clear next action drawn from property work.
             </p>
             <LandingCtaRow isAuthenticated={isAuthenticated} variant="hero" />
           </div>
-          <div>
-            <LandingMissionControlPreview />
-            <p className="mt-3 text-xs leading-5 text-white/60">
-              Illustrative layout of the shipped Mission Control attention model. Not a live customer
-              screenshot.
+          <div className="overflow-hidden rounded-lg border border-white/15 shadow-[0_24px_60px_rgba(5,20,16,0.35)]">
+            <Image
+              src="/marketing/pm-mission-control-demo.png"
+              alt="Mission Control Live Demo showing Immediate and Waiting priorities"
+              className="h-auto w-full"
+              width={1280}
+              height={720}
+              sizes="(max-width: 1024px) 100vw, 640px"
+            />
+            <p className="bg-[#0B1F1A]/80 px-3 py-2 text-sm text-white/70">
+              Live Demo — Property Manager Mission Control
             </p>
           </div>
         </div>
@@ -427,43 +449,59 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         </ul>
       </Section>
 
-      {/* 8. DIFFERENTIATION */}
+      {/* 8. DIFFERENTIATION — more concrete */}
       <Section
         id="differentiation"
         eyebrow="Built around the operation"
-        title="Task tools organize pieces. M.P.A. is built for the operating loop."
-        description="Many property tools help with individual rental tasks. M.P.A. is designed around the operation that connects those tasks — so people, properties, residents, maintenance, and attention can move together."
+        title="M.P.A. is designed to keep the operation visible and workable day to day."
+        description="Not simply another place to manage individual rental tasks."
       >
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-2">
           <div className="space-y-2">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-              Task-focused tools
+              Task-oriented software
             </h3>
-            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-              Helpful for discrete jobs — collect rent, log a repair, send a message — often handled
-              as separate activities.
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:text-base">
+              Helps manage individual rental activities — collect rent, log a repair, send a message —
+              often as separate jobs.
             </p>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
-              Workflow-first property operations
+              M.P.A. operating loop
             </h3>
-            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-              Designed so the work stays connected across the operating loop, with Mission Control as
-              the daily attention home.
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:text-base">
+              Designed around the loop that connects property → people → resident → lease → rent →
+              maintenance → vendor → resolution → ongoing attention in Mission Control.
             </p>
           </div>
         </div>
       </Section>
 
-      {/* 9. PRODUCT EXPERIENCE */}
+      {/* 9. PRODUCT EXPERIENCE — evidence, not just CTA */}
       <Section
         id="experience"
         eyebrow="See it working"
-        title="Explore the real product in Live Demo"
-        description="Prefer proof over promises. Open Live Demo to experience Mission Control and the operating surfaces without creating an account."
+        title="What using M.P.A. actually looks like"
+        description="Mission Control keeps the day prioritized. Maintenance Command Center keeps residential work moving from request to resolution."
       >
-        <LandingCtaRow isAuthenticated={isAuthenticated} />
+        <div className="space-y-8">
+          <LandingProductFrame
+            eyebrow="Maintenance workflow"
+            title="Maintenance Command Center"
+            description="Review requests, prioritize, assign, monitor progress, and close — including vendor handoffs."
+            caption="Illustrative layout of the shipped Maintenance Command Center — not a live screenshot."
+          >
+            <LandingMaintenancePreview className="rounded-none border-0 shadow-none" />
+          </LandingProductFrame>
+          <div className="max-w-2xl space-y-3">
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:text-base">
+              Together with Mission Control above, an operator can see what needs attention, move
+              maintenance work without losing context, and return for the next clear action.
+            </p>
+            <LandingCtaRow isAuthenticated={isAuthenticated} />
+          </div>
+        </div>
       </Section>
 
       {/* 10. PRODUCT SELECTION */}
@@ -527,8 +565,9 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             </h2>
             <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:text-base">
               Property Manager and Facility Operations start at {PUBLIC_PRICING_MODEL_COPY.pmHeadline}.
-              Complete Platform is {PUBLIC_PRICING_MODEL_COPY.completeHeadlineMonthly}. Each plan
-              includes up to {PUBLIC_PRICING_MODEL_COPY.includedUnits} managed units.
+              Complete Platform is {PUBLIC_PRICING_MODEL_COPY.completeHeadlineMonthly} (
+              {COMPLETE_ANNUAL_DISPLAY}). Each plan includes up to{" "}
+              {PUBLIC_PRICING_MODEL_COPY.includedUnits} managed units.
             </p>
           </div>
           <ul className="grid gap-4 text-sm leading-6 text-[var(--mpa-color-text-secondary)] md:grid-cols-3">
@@ -559,13 +598,14 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         id="trust"
         eyebrow="Trust without theater"
         title="Honest scope. Transparent rules. A clear path in."
-        description="We do not invent customer logos or savings percentages. These are the signals you can verify today."
+        description="These are the signals you can verify today — without invented logos or savings percentages."
       >
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
               title: "Transparent pricing",
-              detail: "Published base prices, unit capacity rules, and Additional Unit Capacity in plain language."
+              detail:
+                "Published base prices, unit capacity rules, and Additional Unit Capacity in plain language."
             },
             {
               title: "Transparent trial",
@@ -573,15 +613,16 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             },
             {
               title: "Clear product scope",
-              detail: "Three real products. Facility Operations described as the shipped work-order product — not an oversold CMMS."
+              detail:
+                "Three real products. Facility Operations described as the shipped work-order product — not an oversold CMMS."
             },
             {
               title: "Live Demo",
-              detail: "Explore Mission Control and product surfaces without creating an account."
+              detail: "Explore Mission Control and product surfaces without creating an account when demo is available."
             },
             {
               title: "Clear post-checkout path",
-              detail: "Stripe Checkout → account claim → Guided Setup → Mission Control."
+              detail: "Confirm plan → secure checkout → account claim → Guided Setup → Mission Control."
             },
             {
               title: "Honest roadmap language",
@@ -602,7 +643,10 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
       <Section id="faq" eyebrow="FAQ" title="Straight answers before you start">
         <dl className="space-y-5">
           {FAQ_ITEMS.map((item) => (
-            <div key={item.q} className="max-w-3xl border-t border-[var(--mpa-color-border-subtle)] pt-4">
+            <div
+              key={item.q}
+              className="max-w-3xl border-t border-[var(--mpa-color-border-subtle)] pt-4"
+            >
               <dt className="font-semibold">{item.q}</dt>
               <dd className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                 {item.a}
@@ -612,7 +656,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         </dl>
       </Section>
 
-      {/* 14. FINAL CTA — not Enterprise */}
+      {/* 14. FINAL CTA */}
       <section
         id="get-started"
         className="border-t border-[var(--mpa-color-border-subtle)] bg-[linear-gradient(145deg,#0B1F1A_0%,#0F6B56_55%,#1A2330_100%)]"
@@ -626,11 +670,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             Know what needs attention, keep work moving, and stop running the property operation from
             scattered tools and memory.
           </p>
-          <LandingCtaRow
-            isAuthenticated={isAuthenticated}
-            variant="hero"
-            showJourneyHint
-          />
+          <LandingCtaRow isAuthenticated={isAuthenticated} variant="hero" showJourneyHint />
         </div>
       </section>
     </MarketingChrome>
