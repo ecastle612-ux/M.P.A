@@ -1,14 +1,17 @@
 import {
   COM_002_FLAGS,
+  SKU_SUMMARIES,
   customerLifecyclePhase,
   daysIntoGrace,
   dunningEmailKindForDay,
   hasLifecycleModuleAccess,
+  isProductSku,
   limitsForPlanTier,
   mapStripeSubscriptionStatus,
   toPlanTierLabel,
   transitionLifecycle,
   type LifecycleSubscription,
+  type ProductSku,
   type SubscriptionPlatformStatus
 } from "@mpa/shared";
 import { serverEnv } from "../env/server-env";
@@ -26,7 +29,42 @@ function billingUrl(): string {
 }
 
 function planLabel(sub: LifecycleSubscription): string {
-  return `Property Manager ${toPlanTierLabel(sub.planTier)}`;
+  const moduleLabel = SKU_SUMMARIES[sub.productSku]?.label ?? "Property Manager";
+  // Unit-volume products do not sell Professional/Business tiers to customers.
+  if (
+    sub.productSku === "mpa_property_manager" ||
+    sub.productSku === "mpa_facility_operations" ||
+    sub.productSku === "mpa_complete_platform"
+  ) {
+    return moduleLabel;
+  }
+  return `${moduleLabel} ${toPlanTierLabel(sub.planTier)}`;
+}
+
+function resolveProductSku(input: {
+  productSku?: ProductSku | null;
+  existing?: LifecycleSubscription | null;
+  stripeSubscriptionId: string;
+  stripeCustomerId: string | null;
+}): ProductSku {
+  if (input.productSku && isProductSku(input.productSku)) {
+    return input.productSku;
+  }
+  if (input.existing?.productSku && isProductSku(input.existing.productSku)) {
+    return input.existing.productSku;
+  }
+  const purchases = listSaasPurchases();
+  const bySub = purchases.find((p) => p.stripeSubscriptionId === input.stripeSubscriptionId);
+  if (bySub?.productSku && isProductSku(bySub.productSku)) {
+    return bySub.productSku;
+  }
+  if (input.stripeCustomerId) {
+    const byCust = purchases.find((p) => p.stripeCustomerId === input.stripeCustomerId);
+    if (byCust?.productSku && isProductSku(byCust.productSku)) {
+      return byCust.productSku;
+    }
+  }
+  return "mpa_property_manager";
 }
 
 async function tryServiceRole() {
@@ -130,6 +168,7 @@ function resolveOrganizationId(stripeSubscriptionId: string, stripeCustomerId: s
 function ensureSubscription(input: {
   stripeSubscriptionId: string;
   stripeCustomerId: string | null;
+  productSku?: ProductSku | null;
   planTier?: "professional" | "business";
   billingCycle?: "monthly" | "annual";
   status: SubscriptionPlatformStatus;
@@ -151,6 +190,12 @@ function ensureSubscription(input: {
     input.organizationId ??
     existing?.organizationId ??
     resolveOrganizationId(input.stripeSubscriptionId, input.stripeCustomerId);
+  const productSku = resolveProductSku({
+    ...(input.productSku !== undefined ? { productSku: input.productSku } : {}),
+    existing,
+    stripeSubscriptionId: input.stripeSubscriptionId,
+    stripeCustomerId: input.stripeCustomerId
+  });
   const planTier = input.planTier ?? existing?.planTier ?? "professional";
   const billingCycle = input.billingCycle ?? existing?.billingCycle ?? "monthly";
   const limits = limitsForPlanTier(planTier);
@@ -162,7 +207,7 @@ function ensureSubscription(input: {
       organizationId: orgId,
       stripeSubscriptionId: input.stripeSubscriptionId,
       stripeCustomerId: input.stripeCustomerId,
-      productSku: "mpa_property_manager",
+      productSku,
       planTier,
       billingCycle,
       status: input.status,
@@ -207,6 +252,7 @@ function ensureSubscription(input: {
     ...existing,
     organizationId: orgId ?? existing.organizationId,
     stripeCustomerId: input.stripeCustomerId ?? existing.stripeCustomerId,
+    productSku,
     planTier,
     billingCycle,
     seatLimit: limits.seatLimit,
@@ -243,6 +289,7 @@ export async function applySubscriptionCreatedOrUpdated(input: {
   stripeStatus: string;
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: string | null;
+  productSku?: ProductSku | null;
   planTier?: "professional" | "business";
   billingCycle?: "monthly" | "annual";
   stripeBaseItemId?: string | null;
@@ -260,6 +307,7 @@ export async function applySubscriptionCreatedOrUpdated(input: {
   let sub = ensureSubscription({
     stripeSubscriptionId: input.stripeSubscriptionId,
     stripeCustomerId: input.stripeCustomerId,
+    ...(input.productSku ? { productSku: input.productSku } : {}),
     ...(input.planTier ? { planTier: input.planTier } : {}),
     ...(input.billingCycle ? { billingCycle: input.billingCycle } : {}),
     ...(input.stripeBaseItemId !== undefined
@@ -769,6 +817,11 @@ export function seedLifecycleFromPurchase(sessionId: string): LifecycleSubscript
   return ensureSubscription({
     stripeSubscriptionId: purchase.stripeSubscriptionId,
     stripeCustomerId: purchase.stripeCustomerId,
+    productSku: isProductSku(purchase.productSku)
+      ? purchase.productSku
+      : isProductSku(meta["mpa_product_sku"])
+        ? meta["mpa_product_sku"]
+        : "mpa_property_manager",
     planTier,
     billingCycle: purchase.billingCycle,
     status: trialEligible ? "trialing" : "active",

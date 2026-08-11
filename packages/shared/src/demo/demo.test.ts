@@ -19,10 +19,10 @@ import {
 } from "./index";
 
 describe("COM-002 Slice B demo foundation", () => {
-  it("enables slice B flag with FO self-serve authorized", () => {
+  it("enables slice B flag with FO and Complete self-serve authorized", () => {
     expect(COM_002_FLAGS.sliceB_demoPlatform).toBe(true);
     expect(COM_002_FLAGS.foReady).toBe(true);
-    expect(COM_002_FLAGS.completeReady).toBe(false);
+    expect(COM_002_FLAGS.completeReady).toBe(true);
     expect(COM_002_FLAGS.sliceC_stripeCheckout).toBe(true);
   });
 

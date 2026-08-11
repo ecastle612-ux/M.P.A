@@ -72,9 +72,9 @@ describe("acquisition questionnaire validation", () => {
 });
 
 describe("module recommendation", () => {
-  it("maps needs to modules — FO self-serve; Complete remains gated", () => {
+  it("maps needs to modules — PM, FO, and Complete are self-serve", () => {
     expect(FO_READY).toBe(true);
-    expect(COMPLETE_READY).toBe(false);
+    expect(COMPLETE_READY).toBe(true);
     expect(recommendModuleForNeed("property_resident_leasing").recommendedModule).toBe(
       "mpa_property_manager"
     );
@@ -85,8 +85,9 @@ describe("module recommendation", () => {
     expect(fo.nextAction).toBe("confirm_plan_self_serve");
     const complete = recommendModuleForNeed("both");
     expect(complete.recommendedModule).toBe("mpa_complete_platform");
-    expect(complete.gated).toBe(true);
-    expect(complete.selfServeAvailable).toBe(false);
+    expect(complete.gated).toBe(false);
+    expect(complete.selfServeAvailable).toBe(true);
+    expect(complete.nextAction).toBe("confirm_plan_self_serve");
   });
 });
 
@@ -118,18 +119,41 @@ describe("server commercial quote", () => {
     expect(quote.annual_amount).toBe(quote.monthly_amount * 12);
   });
 
-  it("calculates Complete pricing without activating self-serve", () => {
-    const quote = buildCommercialQuote({
-      answers: answers({
-        managedUnits: 501,
-        operationalNeed: "both",
-        selectedModule: "mpa_complete_platform"
-      })
-    });
-    expect(quote.module).toBe("mpa_complete_platform");
-    expect(quote.monthly_amount).toBe(148);
-    expect(quote.annual_amount).toBe(1776);
-    expect(quote.recommendation.gated).toBe(true);
+  it("prices Complete on unit-volume with self-serve available", () => {
+    const cases: Array<{ units: number; monthly: number; annual: number; trial: boolean }> = [
+      { units: 500, monthly: 109, annual: 1308, trial: true },
+      { units: 501, monthly: 148, annual: 1776, trial: false },
+      { units: 1000, monthly: 148, annual: 1776, trial: false },
+      { units: 1001, monthly: 187, annual: 2244, trial: false }
+    ];
+    for (const row of cases) {
+      const monthly = buildCommercialQuote({
+        answers: answers({
+          managedUnits: row.units,
+          operationalNeed: "both",
+          selectedModule: "mpa_complete_platform",
+          billingInterval: "monthly"
+        })
+      });
+      expect(monthly.module).toBe("mpa_complete_platform");
+      expect(monthly.monthly_amount).toBe(row.monthly);
+      expect(monthly.annual_amount).toBe(row.annual);
+      expect(monthly.trial_eligible).toBe(row.trial);
+      expect(monthly.trial_days).toBe(row.trial ? 30 : 0);
+      expect(monthly.recommendation.gated).toBe(false);
+      expect(monthly.recommendation.selfServeAvailable).toBe(true);
+
+      const annual = buildCommercialQuote({
+        answers: answers({
+          managedUnits: row.units,
+          operationalNeed: "both",
+          selectedModule: "mpa_complete_platform",
+          billingInterval: "annual"
+        })
+      });
+      expect(annual.selected_amount).toBe(row.annual);
+      expect(annual.annual_amount).toBe(annual.monthly_amount * 12);
+    }
   });
 
   it("prices FO on unit-volume with trial and capacity", () => {

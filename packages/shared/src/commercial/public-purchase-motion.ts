@@ -61,7 +61,7 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
       ctaLabel: "Get started with Complete Platform",
       availabilityLabel: "Available",
       explanation:
-        "Complete Platform self-service checkout is available. Pricing follows unit-volume ($109/month base + Additional Unit Capacity)."
+        "$109/month or $1,308/year includes up to 500 managed units. Additional Unit Capacity is +$39/month per additional 500 units. Annual = monthly × 12."
     };
   }
 

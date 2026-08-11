@@ -11,20 +11,22 @@ import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 import { transitionCommerceFunnel } from "./commerce-state";
 
 describe("COM-002 catalog (unit-capacity model)", () => {
-  it("marks PM and FO professional as self-serve; Complete remains gated", () => {
+  it("marks PM, FO, and Complete professional as self-serve", () => {
     expect(FO_READY).toBe(true);
-    expect(COMPLETE_READY).toBe(false);
+    expect(COMPLETE_READY).toBe(true);
     const selfServe = CATALOG_OFFERS.filter(isSelfServeCheckoutAllowed);
-    expect(selfServe.length).toBe(4);
+    expect(selfServe.length).toBe(6);
     expect(
       selfServe.every(
         (o) =>
-          (o.productSku === "mpa_property_manager" || o.productSku === "mpa_facility_operations") &&
+          (o.productSku === "mpa_property_manager" ||
+            o.productSku === "mpa_facility_operations" ||
+            o.productSku === "mpa_complete_platform") &&
           o.planTier === "professional"
       )
     ).toBe(true);
     expect(requiresEnterpriseMotion("mpa_facility_operations")).toBe(false);
-    expect(requiresEnterpriseMotion("mpa_complete_platform")).toBe(true);
+    expect(requiresEnterpriseMotion("mpa_complete_platform")).toBe(false);
     expect(requiresEnterpriseMotion("mpa_property_manager")).toBe(false);
   });
 
@@ -40,7 +42,7 @@ describe("COM-002 catalog (unit-capacity model)", () => {
     expect(isSelfServeCheckoutAllowed(offer!)).toBe(true);
   });
 
-  it("routes FO to confirm plan; Complete and legacy Business PM away from self-serve", () => {
+  it("routes FO and Complete to confirm plan; legacy Business PM away from self-serve", () => {
     const fo = validateCommercialSelection({
       productSku: "mpa_facility_operations",
       planTier: "professional",
@@ -50,10 +52,10 @@ describe("COM-002 catalog (unit-capacity model)", () => {
 
     const complete = validateCommercialSelection({
       productSku: "mpa_complete_platform",
-      planTier: "business",
+      planTier: "professional",
       billingCycle: "annual"
     });
-    expect(complete.route).toBe("enterprise");
+    expect(complete.route).toBe("confirm_plan");
 
     const pmBusiness = validateCommercialSelection({
       productSku: "mpa_property_manager",

@@ -43,13 +43,13 @@ export function PricingJsonLd() {
       {
         "@type": "Product",
         name: "Complete Platform",
-        description: "Not available for online purchase yet.",
+        description: `Up to ${UNIT_BLOCK_SIZE} managed units included. Additional Unit Capacity available.`,
         offers: {
           "@type": "Offer",
           price: String(COMPLETE_BASE_MONTHLY_USD),
           priceCurrency: "USD",
-          availability: "https://schema.org/PreOrder",
-          description: `From $${COMPLETE_BASE_MONTHLY_USD}/month when online`
+          availability: "https://schema.org/InStock",
+          description: `From $${COMPLETE_BASE_MONTHLY_USD}/month or $${COMPLETE_BASE_MONTHLY_USD * 12}/year`
         }
       }
     ]

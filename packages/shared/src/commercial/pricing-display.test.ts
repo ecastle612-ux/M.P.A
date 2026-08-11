@@ -63,8 +63,43 @@ describe("unit-volume pricing display (Slice 5)", () => {
     ).toBe(1526);
   });
 
+  it("calculates Complete examples 500/501/1000/1001 monthly and annual", () => {
+    const at500 = calculateUnitVolumeDisplay({
+      module: "mpa_complete_platform",
+      managedUnits: 500,
+      billingInterval: "monthly"
+    });
+    expect(at500.monthlyPriceUsd).toBe(109);
+    expect(at500.annualPriceUsd).toBe(1308);
+    expect(at500.trialEligible).toBe(true);
+
+    expect(
+      calculateUnitVolumeDisplay({
+        module: "mpa_complete_platform",
+        managedUnits: 501,
+        billingInterval: "monthly"
+      }).monthlyPriceUsd
+    ).toBe(148);
+    expect(
+      calculateUnitVolumeDisplay({
+        module: "mpa_complete_platform",
+        managedUnits: 1000,
+        billingInterval: "annual"
+      }).selectedAmount
+    ).toBe(1776);
+    expect(
+      calculateUnitVolumeDisplay({
+        module: "mpa_complete_platform",
+        managedUnits: 1001,
+        billingInterval: "annual"
+      }).selectedAmount
+    ).toBe(2244);
+  });
+
   it("documents public model copy without legacy tiers", () => {
     expect(PUBLIC_PRICING_MODEL_COPY.pmBaseMonthly).toBe(59);
+    expect(PUBLIC_PRICING_MODEL_COPY.completeBaseMonthly).toBe(109);
+    expect(PUBLIC_PRICING_MODEL_COPY.completeHeadlineAnnual).toBe("$1308/year");
     expect(PUBLIC_PRICING_MODEL_COPY.foMonthly).toBe(59);
     expect(PUBLIC_PRICING_MODEL_COPY.foAnnual).toBe(590);
     expect(PUBLIC_PRICING_MODEL_COPY.additionalBlockMonthly).toBe(39);

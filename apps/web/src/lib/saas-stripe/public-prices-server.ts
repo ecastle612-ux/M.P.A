@@ -21,7 +21,7 @@ const PUBLIC_CYCLES: BillingCycle[] = ["monthly", "annual"];
 /**
  * Loads live Stripe Price amounts for public Pricing / Confirm Plan across all three products.
  * Does not invent amounts. Returns an explicit warning when any expected price cannot be retrieved.
- * Complete Price IDs remain display-only until COMPLETE_READY. FO Prices are Checkout base Prices.
+ * FO / Complete professional Price env keys map to Checkout base Prices (unit-volume registry).
  */
 export async function loadPublicCatalogPrices(): Promise<PublicCatalogPriceCatalog> {
   const stripe = getSaasStripeClient();

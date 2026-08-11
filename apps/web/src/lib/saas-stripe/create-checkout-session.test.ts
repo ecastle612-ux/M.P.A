@@ -108,4 +108,30 @@ describe("unit-volume Checkout Session param builder", () => {
     ]);
     expect(at1001Annual.subscription_data.trial_period_days).toBeUndefined();
   });
+
+  it("builds Complete Checkout params with base + shared unit blocks", () => {
+    const pricesWithComplete = {
+      ...prices,
+      STRIPE_PRICE_COMPLETE_BASE_MONTHLY: "price_complete_m",
+      STRIPE_PRICE_COMPLETE_BASE_ANNUAL: "price_complete_a"
+    };
+    const validated = validateAcquisitionAnswers({
+      managedUnits: 1001,
+      operationalNeed: "both",
+      billingInterval: "monthly",
+      selectedModule: "mpa_complete_platform"
+    });
+    if (!validated.ok) throw new Error(validated.reason);
+    const params = buildUnitVolumeSessionParamsForTest({
+      plan: buildUnitVolumeCheckoutPlan(buildCommercialQuote({ answers: validated.answers }))!,
+      prices: pricesWithComplete
+    });
+    expect(params.line_items).toEqual([
+      { price: "price_complete_m", quantity: 1 },
+      { price: "price_block_m", quantity: 2 }
+    ]);
+    expect(params.payment_method_collection).toBe("always");
+    expect(params.subscription_data.trial_period_days).toBeUndefined();
+    expect(params.metadata["mpa_product_sku"]).toBe("mpa_complete_platform");
+  });
 });

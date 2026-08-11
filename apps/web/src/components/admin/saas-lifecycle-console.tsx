@@ -30,9 +30,8 @@ export async function SaasLifecycleConsole() {
       <header className="space-y-2">
         <h1 className="font-display text-2xl font-semibold">Subscription Lifecycle</h1>
         <p className="max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
-          COM-002 Slice E verification — Property Manager and Facility Operations renewals, grace,
-          failures, cancellation, and reactivation. Complete Platform remains gated
-          (COMPLETE_READY false).
+          COM-002 Slice E verification — Property Manager, Facility Operations, and Complete
+          Platform renewals, grace, failures, cancellation, and reactivation.
         </p>
       </header>
 

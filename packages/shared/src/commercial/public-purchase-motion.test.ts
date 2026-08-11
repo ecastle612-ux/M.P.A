@@ -23,13 +23,16 @@ describe("public purchase motion (Option B)", () => {
     expect(motion.explanation.toLowerCase()).not.toMatch(/coming soon|early access|gated|enterprise only/);
   });
 
-  it("routes Complete Platform to Request Consultation while COMPLETE_READY is false", () => {
-    expect(COMPLETE_READY).toBe(false);
+  it("routes Complete Platform to self-serve when COMPLETE_READY", () => {
+    expect(COMPLETE_READY).toBe(true);
     const motion = publicPurchaseMotionForSku("mpa_complete_platform");
-    expect(motion.kind).toBe("consultation");
-    expect(motion.ctaLabel).toBe("Request Consultation");
-    expect(motion.availabilityLabel.toLowerCase()).toMatch(/not online|gated/);
-    expect(motion.explanation.toLowerCase()).toContain("not available");
+    expect(motion.kind).toBe("self_serve");
+    expect(motion.ctaLabel).toMatch(/Complete Platform/i);
+    expect(motion.availabilityLabel).toBe("Available");
+    expect(motion.explanation.toLowerCase()).not.toContain("not available");
+    expect(motion.explanation.toLowerCase()).not.toMatch(
+      /coming soon|early access|gated|enterprise only|consultation only/
+    );
   });
 });
 

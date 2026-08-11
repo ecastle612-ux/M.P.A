@@ -3,7 +3,8 @@
  * Used when serverless memory is empty but payment already completed.
  */
 
-import type { BillingCycle, PlanTier } from "@mpa/shared";
+import type { BillingCycle, PlanTier, ProductSku } from "@mpa/shared";
+import { isProductSku } from "@mpa/shared";
 import { getSaasStripeClient } from "./client";
 import {
   getSaasPurchaseBySessionId,
@@ -68,7 +69,9 @@ export async function ensurePurchaseFromStripeSession(
       stripeSubscriptionId:
         typeof session.subscription === "string" ? session.subscription : null,
       catalogOfferId: meta["mpa_catalog_offer_id"] ?? session.client_reference_id ?? "unknown",
-      productSku: "mpa_property_manager",
+      productSku: (isProductSku(meta["mpa_product_sku"])
+        ? meta["mpa_product_sku"]
+        : "mpa_property_manager") as ProductSku,
       planTier,
       billingCycle,
       status,

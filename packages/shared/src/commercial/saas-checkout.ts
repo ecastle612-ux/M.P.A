@@ -34,9 +34,9 @@ export const SAAS_PRICE_ENV_KEYS = {
 
 /**
  * Display Price env keys for public Pricing / Confirm Plan.
- * FO professional Prices are also the unit-volume FO base Checkout Prices.
- * Complete remains display-only until COMPLETE_READY (legacy validateSaasCheckoutRequest is PM-only;
- * FO/Complete Checkout uses the quote-authoritative unit-volume path).
+ * FO / Complete professional env keys remain for display catalogs; unit-volume Checkout uses
+ * STRIPE_PRICE_*_BASE_* / UNIT_BLOCK_* (and FO_PROFESSIONAL_* as FO base). Legacy
+ * validateSaasCheckoutRequest stays PM-only — FO/Complete use the quote path.
  */
 export const SAAS_DISPLAY_PRICE_ENV_KEYS = {
   "mpa_property_manager__professional__monthly": "STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY",

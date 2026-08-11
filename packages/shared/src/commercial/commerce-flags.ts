@@ -10,10 +10,10 @@
 export const FO_READY = true;
 
 /**
- * Complete Platform self-service — remains gated until Owner authorizes activation.
- * Decoupled from FO_READY so enabling FO does not unlock Complete.
+ * Complete Platform self-service — Owner-authorized for full release.
+ * Must not remain artificially gated when the product is commercially ready.
  */
-export const COMPLETE_READY = false;
+export const COMPLETE_READY = true;
 
 /** Slice delivery markers — informational for Master Admin / diagnostics. */
 export const COM_002_FLAGS = {

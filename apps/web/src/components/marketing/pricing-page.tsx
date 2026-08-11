@@ -61,8 +61,8 @@ export function PricingPage({
           </p>
           <h1 className="font-display text-3xl font-semibold">Platform pricing</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Property Manager and Facility Operations are available online with managed-unit pricing.
-            Complete Platform is not online yet — consultation only.
+            Property Manager, Facility Operations, and Complete Platform are available online with
+            managed-unit pricing.
           </p>
         </header>
 
@@ -331,16 +331,20 @@ function PlatformPriceCard({
       {sku === "mpa_complete_platform" ? (
         <div className="mt-4 space-y-1">
           <p className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
-            ${PUBLIC_PRICING_MODEL_COPY.completeBaseMonthly}/month
+            {billingCycle === "annual"
+              ? PUBLIC_PRICING_MODEL_COPY.completeHeadlineAnnual
+              : PUBLIC_PRICING_MODEL_COPY.completeHeadlineMonthly}
           </p>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Includes up to {PUBLIC_PRICING_MODEL_COPY.includedUnits} managed units
+            {PUBLIC_PRICING_MODEL_COPY.completeIncludes}
           </p>
           <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">
             Additional Unit Capacity: {PUBLIC_PRICING_MODEL_COPY.additionalCapacityLine}
           </p>
-          <p className="text-xs font-semibold text-[var(--mpa-color-text-primary)]">
-            Not online · not purchasable
+          <p className="text-xs text-[var(--mpa-color-text-muted)]">
+            {billingCycle === "annual"
+              ? "Annual = monthly × 12 (example: $109 → $1,308/year at 500 units)."
+              : "Use Get Started to confirm your managed-unit plan."}
           </p>
         </div>
       ) : null}

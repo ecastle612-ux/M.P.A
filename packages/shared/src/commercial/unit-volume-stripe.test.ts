@@ -132,23 +132,58 @@ describe("unit-volume Stripe checkout architecture", () => {
     expect(annualPlan.lineItems).toHaveLength(1);
   });
 
-  it("builds Complete monthly architecture while remaining gated", () => {
-    const validated = validateAcquisitionAnswers({
-      managedUnits: 501,
+  it("builds Complete Checkout plan with trial, capacity, and self-serve allowed", () => {
+    const at500 = validateAcquisitionAnswers({
+      managedUnits: 500,
       operationalNeed: "both",
       billingInterval: "monthly",
       selectedModule: "mpa_complete_platform"
     });
-    if (!validated.ok) throw new Error(validated.reason);
-    const quote = buildCommercialQuote({ answers: validated.answers });
-    const plan = buildUnitVolumeCheckoutPlan(quote)!;
-    expect(plan.module).toBe("mpa_complete_platform");
-    expect(plan.lineItems[0]?.priceEnvKey).toBe("STRIPE_PRICE_COMPLETE_BASE_MONTHLY");
-    expect(plan.lineItems[1]?.quantity).toBe(1);
-    expect(plan.selfServeAllowed).toBe(false);
+    if (!at500.ok) throw new Error(at500.reason);
+    const plan500 = buildUnitVolumeCheckoutPlan(
+      buildCommercialQuote({ answers: at500.answers })
+    )!;
+    expect(plan500.module).toBe("mpa_complete_platform");
+    expect(plan500.selfServeAllowed).toBe(true);
+    expect(plan500.trialEligible).toBe(true);
+    expect(plan500.trialPeriodDays).toBe(30);
+    expect(plan500.paymentMethodCollection).toBe("always");
+    expect(plan500.lineItems).toEqual([
+      {
+        role: "base",
+        priceEnvKey: "STRIPE_PRICE_COMPLETE_BASE_MONTHLY",
+        quantity: 1
+      }
+    ]);
+
+    const at501 = validateAcquisitionAnswers({
+      managedUnits: 501,
+      operationalNeed: "both",
+      billingInterval: "annual",
+      selectedModule: "mpa_complete_platform"
+    });
+    if (!at501.ok) throw new Error(at501.reason);
+    const plan501 = buildUnitVolumeCheckoutPlan(
+      buildCommercialQuote({ answers: at501.answers })
+    )!;
+    expect(plan501.selfServeAllowed).toBe(true);
+    expect(plan501.trialEligible).toBe(false);
+    expect(plan501.trialPeriodDays).toBeNull();
+    expect(plan501.lineItems).toEqual([
+      {
+        role: "base",
+        priceEnvKey: "STRIPE_PRICE_COMPLETE_BASE_ANNUAL",
+        quantity: 1
+      },
+      {
+        role: "additional_unit_capacity",
+        priceEnvKey: "STRIPE_PRICE_UNIT_BLOCK_ANNUAL",
+        quantity: 1
+      }
+    ]);
   });
 
-  it("allows FO quote Checkout validation and rejects Complete as gated", () => {
+  it("allows FO and Complete quote Checkout validation; rejects client tampering", () => {
     const foValidated = validateAcquisitionAnswers({
       managedUnits: 1001,
       operationalNeed: "facility_maintenance",
@@ -176,11 +211,19 @@ describe("unit-volume Stripe checkout architecture", () => {
     });
     if (!completeValidated.ok) throw new Error(completeValidated.reason);
     const completeQuote = buildCommercialQuote({ answers: completeValidated.answers });
-    const gated = validateQuoteForCheckout({ quote: completeQuote });
-    expect(gated.ok).toBe(false);
-    if (!gated.ok) {
-      expect(gated.reason).toBe("module_gated");
-    }
+    const completeOk = validateQuoteForCheckout({
+      quote: completeQuote,
+      resolvePriceId: (key) =>
+        key.includes("COMPLETE_BASE") || key.includes("UNIT_BLOCK") ? `price_${key}` : null
+    });
+    expect(completeOk.ok).toBe(true);
+
+    expect(
+      validateQuoteForCheckout({
+        quote: completeQuote,
+        clientBody: { stripePriceId: "price_hack", trial_eligible: true, quantity: 99 }
+      }).ok
+    ).toBe(false);
   });
 
   it("writes reconciliation metadata without sensitive payload", () => {

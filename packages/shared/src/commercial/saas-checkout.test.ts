@@ -8,10 +8,10 @@ import {
 } from "./saas-checkout";
 
 describe("COM-002 Slice C SaaS checkout validation", () => {
-  it("enables Slice C with FO self-serve and Complete gated", () => {
+  it("enables Slice C with FO and Complete self-serve", () => {
     expect(COM_002_FLAGS.sliceC_stripeCheckout).toBe(true);
     expect(COM_002_FLAGS.foReady).toBe(true);
-    expect(COM_002_FLAGS.completeReady).toBe(false);
+    expect(COM_002_FLAGS.completeReady).toBe(true);
     expect(COM_002_FLAGS.sliceD_automaticProvisioning).toBe(true);
   });
 

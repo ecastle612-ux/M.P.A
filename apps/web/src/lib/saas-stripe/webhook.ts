@@ -1,5 +1,10 @@
 import type Stripe from "stripe";
-import { COM_002_FLAGS, isSaasCheckoutMetadata } from "@mpa/shared";
+import {
+  COM_002_FLAGS,
+  isProductSku,
+  isSaasCheckoutMetadata,
+  type ProductSku
+} from "@mpa/shared";
 import { serverEnv } from "../env/server-env";
 import { getSaasStripeClient } from "./client";
 import {
@@ -10,6 +15,11 @@ import {
   rememberSaasWebhookEvent,
   updateSaasPurchase
 } from "./purchase-store";
+
+function productSkuFromMeta(meta: Record<string, string>): ProductSku {
+  const raw = meta["mpa_product_sku"];
+  return isProductSku(raw) ? raw : "mpa_property_manager";
+}
 
 export type SaasWebhookResult =
   | { ok: true; duplicate?: boolean; ignored?: boolean; handled?: string }
@@ -47,7 +57,7 @@ function ensurePurchaseFromSession(session: Stripe.Checkout.Session) {
     stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
     stripeSubscriptionId: typeof session.subscription === "string" ? session.subscription : null,
     catalogOfferId: meta["mpa_catalog_offer_id"] ?? session.client_reference_id ?? "unknown",
-    productSku: "mpa_property_manager",
+    productSku: productSkuFromMeta(meta),
     planTier: meta["mpa_plan_tier"] === "business" ? "business" : "professional",
     billingCycle: meta["mpa_billing_cycle"] === "annual" ? "annual" : "monthly",
     status: "checkout_created",
@@ -143,6 +153,7 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
           : null;
       const planTier = planTierFromMeta(meta);
       const billingCycle = billingCycleFromMeta(meta);
+      const productSku = productSkuFromMeta(meta);
       const items = subscription.items?.data ?? [];
       const baseItem = items[0] ?? null;
       const capacityItem =
@@ -168,6 +179,7 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
           event.type === "customer.subscription.deleted" ? "canceled" : subscription.status,
         cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end),
         currentPeriodEnd: periodEnd,
+        productSku,
         ...(planTier ? { planTier } : {}),
         ...(billingCycle ? { billingCycle } : {}),
         stripeBaseItemId: baseItem?.id ?? null,

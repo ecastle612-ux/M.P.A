@@ -87,7 +87,7 @@ export type UnitVolumeCheckoutPlan = {
   metadata: Record<string, string>;
   quoteId: string;
   commercialModelVersion: typeof COMMERCIAL_MODEL_VERSION;
-  /** Complete remains gated until COMPLETE_READY — plan may be built for tests only. */
+  /** False only when a module is intentionally not yet Owner-authorized for self-serve. */
   selfServeAllowed: boolean;
 };
 

@@ -133,8 +133,8 @@ export function BillingPlanPage() {
           Billing & Plan
         </h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Property Manager renewals, recovery, and Additional Unit Capacity run automatically — no
-          employee involvement.
+          Property Manager, Facility Operations, and Complete Platform renewals, recovery, and
+          Additional Unit Capacity run automatically — no employee involvement.
         </p>
       </section>
 

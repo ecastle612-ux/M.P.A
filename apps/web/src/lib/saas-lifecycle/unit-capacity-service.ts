@@ -307,11 +307,11 @@ export async function authorizeAdditionalUnitCapacity(input: {
 
     const now = new Date().toISOString();
     const previousMonthly = recurringMonthlyUsd({
-      module: "mpa_property_manager",
+      module: sub.productSku,
       additionalBlocks: previousBlocks
     });
     const newMonthly = recurringMonthlyUsd({
-      module: "mpa_property_manager",
+      module: sub.productSku,
       additionalBlocks: newBlocks
     });
     const auditEntry: CapacityAuditEntry = {

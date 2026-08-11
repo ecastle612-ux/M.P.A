@@ -223,4 +223,34 @@ describe("unit capacity payment gate (Slice 4)", () => {
     expect(annualGate.newPriceLabel).toBe("$1058/year");
     expect(annualGate.additionalCapacityLabel).toBe("+$468/year");
   });
+
+  it("prices Complete capacity gate at 500 → 501 and 1001", () => {
+    const to501 = evaluateUnitCapacityState({
+      module: "mpa_complete_platform",
+      actualUnits: 500,
+      projectedAdditionalUnits: 1,
+      authorizedUnitCapacity: 500,
+      authorizedAdditionalBlocks: 0,
+      billingInterval: "monthly"
+    });
+    expect(to501.currentBillingAmountMonthlyUsd).toBe(109);
+    expect(to501.nextBillingAmountMonthlyUsd).toBe(148);
+    const gate501 = buildCapacityGatePresentation(to501, 501);
+    expect(gate501.currentPriceLabel).toBe("$109/month");
+    expect(gate501.newPriceLabel).toBe("$148/month");
+
+    const to1001 = evaluateUnitCapacityState({
+      module: "mpa_complete_platform",
+      actualUnits: 1000,
+      projectedAdditionalUnits: 1,
+      authorizedUnitCapacity: 1000,
+      authorizedAdditionalBlocks: 1,
+      billingInterval: "annual"
+    });
+    expect(to1001.currentBillingAmountMonthlyUsd).toBe(148);
+    expect(to1001.nextBillingAmountMonthlyUsd).toBe(187);
+    const gate1001 = buildCapacityGatePresentation(to1001, 1001);
+    expect(gate1001.currentPriceLabel).toBe("$1776/year");
+    expect(gate1001.newPriceLabel).toBe("$2244/year");
+  });
 });

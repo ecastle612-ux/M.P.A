@@ -126,6 +126,6 @@ describe("POST /api/commerce/quote", () => {
     };
     expect(payload.quote.module).toBe("mpa_complete_platform");
     expect(payload.quote.monthly_amount).toBe(148);
-    expect(payload.quote.recommendation.gated).toBe(true);
+    expect(payload.quote.recommendation.gated).toBe(false);
   });
 });

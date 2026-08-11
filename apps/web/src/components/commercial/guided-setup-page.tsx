@@ -254,7 +254,7 @@ export function GuidedSetupPage() {
               {SKU_SUMMARIES[acquisitionSku].label}
             </span>
             . Your organization begins with Property Manager access. If you selected Facility
-            Operations or Complete Platform, our team activates that plan during onboarding.
+            Operations or Complete Platform when that is your selected plan.
           </p>
         ) : null}
         {setupComplete ? (
@@ -375,8 +375,8 @@ export function GuidedSetupPage() {
                   <span className="font-medium text-[var(--mpa-color-text-primary)]">
                     {SKU_SUMMARIES.mpa_property_manager.label}
                   </span>
-                  . Facility Operations or Complete Platform activation, if selected, is completed
-                  during onboarding.
+                  . Your purchased module (Property Manager, Facility Operations, or Complete
+                  Platform) is provisioned from Checkout.
                 </p>
                 <label className="block space-y-1 text-sm">
                   <span className="font-medium text-[var(--mpa-color-text-secondary)]">

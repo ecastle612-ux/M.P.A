@@ -1,7 +1,9 @@
 /**
- * COM-002 Slice E — self-serve subscription lifecycle (PM Professional / Business).
- * Binding: 7-day past-due grace; webhooks are access truth; Complete remains gated.
+ * COM-002 Slice E — self-serve subscription lifecycle (PM / FO / Complete).
+ * Binding: 7-day past-due grace; webhooks are access truth.
  */
+
+import type { ProductSku } from "./skus";
 
 export const SUBSCRIPTION_PLATFORM_STATUSES = [
   "pending",
@@ -48,7 +50,7 @@ export type LifecycleSubscription = {
   organizationId: string | null;
   stripeSubscriptionId: string;
   stripeCustomerId: string | null;
-  productSku: "mpa_property_manager";
+  productSku: ProductSku;
   planTier: "professional" | "business";
   billingCycle: "monthly" | "annual";
   status: SubscriptionPlatformStatus;
