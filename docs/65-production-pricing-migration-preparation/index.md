@@ -8,7 +8,9 @@
 
 **FAIL (verify after Owner env edit):** NEW Stripe Prices exist. Production was redeployed (`dpl_2o619PF678iM8CxXKAEAtTR4RbBN` / SHA `8d7485c`). Live Pricing/Checkout still resolve **old** / **invalid** Price IDs.
 
-**Root cause (investigation):** Application has **no** Price-ID fallbacks on the serving SHA. Runtime `process.env` for Production still supplies old/invalid strings. See [vercel-pricing-configuration-root-cause-2026-08-11.md](./vercel-pricing-configuration-root-cause-2026-08-11.md) and [pricing-cutover-verification-2026-08-11.md](./pricing-cutover-verification-2026-08-11.md).
+**Root cause (investigation):** Application has **no** Price-ID fallbacks on the serving SHA. Runtime `process.env` for Production still supplies old/invalid strings. See [vercel-pricing-configuration-root-cause-2026-08-11.md](./vercel-pricing-configuration-root-cause-2026-08-11.md).
+
+**Dashboard vs runtime proof:** **BRANCH C** — Dashboard Production values **UNREADABLE** from agent (no env list/decrypt; no `VERCEL_TOKEN`). Runtime still OLD-WRONG. See [vercel-production-environment-proof-2026-08-11.md](./vercel-production-environment-proof-2026-08-11.md). Owner should Reveal (not edit) Production values before any further cutover action.
 
 ## Migration model
 
