@@ -15,8 +15,8 @@ export type MasterAdminNavGroup = {
 /**
  * Master Admin / Owner Operations Console navigation.
  *
- * MA-3 primary surfaces: Overview · Organizations · Users · Audit Log · Errors.
- * Existing Owner Ops routes remain (already shipping) — no unfinished MA-4+ placeholders.
+ * MA-4 primary surfaces: Overview · Organizations · Users · Subscriptions · Capacity · Audit Log · Errors.
+ * Existing Owner Ops routes remain (already shipping) — no unfinished MA-5+ placeholders.
  */
 export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
   {
@@ -37,6 +37,16 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         href: "/admin/users",
         label: "Users",
         description: "Platform users, memberships, and roles (read-only)."
+      },
+      {
+        href: "/admin/subscriptions",
+        label: "Subscriptions",
+        description: "Fleet commercial state, entitlements, and Stripe linkage (read-only)."
+      },
+      {
+        href: "/admin/capacity",
+        label: "Capacity",
+        description: "Unit-volume capacity and reconciliation (read-only)."
       },
       {
         href: "/admin/audit",
