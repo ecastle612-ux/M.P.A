@@ -1,4 +1,4 @@
-import { FO_READY } from "./commerce-flags";
+import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 import { entitlementsForSku, type EntitlementKey } from "./entitlements";
 import {
   BILLING_CYCLES,
@@ -68,11 +68,12 @@ function buildEnterpriseOffers(): CatalogOffer[] {
   }));
 }
 
-/** FO / Complete self-serve placeholders — not eligible until FO_READY. */
+/** FO / Complete self-serve offers — FO Owner-authorized; Complete remains gated. */
 function buildFutureFoSelfServeOffers(): CatalogOffer[] {
   const skus: ProductSku[] = ["mpa_facility_operations", "mpa_complete_platform"];
   const offers: CatalogOffer[] = [];
   for (const sku of skus) {
+    const ready = sku === "mpa_facility_operations" ? FO_READY : COMPLETE_READY;
     for (const tier of ["professional", "business"] as const) {
       for (const cycle of BILLING_CYCLES) {
         offers.push({
@@ -81,7 +82,7 @@ function buildFutureFoSelfServeOffers(): CatalogOffer[] {
           planTier: tier,
           billingCycle: cycle,
           motion: "self_serve",
-          selfServeEligible: FO_READY && tier === "professional",
+          selfServeEligible: ready && tier === "professional",
           stripePriceId: null,
           label: `${sku} ${tier} ${cycle}`
         });
@@ -149,12 +150,18 @@ export function prepareOfferEntitlements(offer: CatalogOffer): OfferEntitlementP
   };
 }
 
-/** Product requires Enterprise workflow (not Confirm Plan / future Checkout). */
+/** Product requires Enterprise / early-access workflow (not Confirm Plan / Checkout). */
 export function requiresEnterpriseMotion(productSku: ProductSku): boolean {
   if (productSku === "mpa_property_manager") {
     return false;
   }
-  return !FO_READY;
+  if (productSku === "mpa_facility_operations") {
+    return !FO_READY;
+  }
+  if (productSku === "mpa_complete_platform") {
+    return !COMPLETE_READY;
+  }
+  return true;
 }
 
 export function selfServeOffersForSku(productSku: ProductSku): CatalogOffer[] {

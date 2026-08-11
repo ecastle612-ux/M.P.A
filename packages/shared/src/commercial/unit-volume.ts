@@ -1,6 +1,5 @@
 /**
  * Authoritative managed-unit commercial capacity + pricing (server domain).
- * Slice 1 — calculation only; no Stripe Checkout / Prices.
  *
  * Billing metric: count of public.property_units (all statuses).
  * Multiple residents/tenants in one unit = one billable unit.
@@ -20,14 +19,24 @@ export const PM_BASE_MONTHLY_USD = 59 as const;
 /** Complete Platform base monthly (includes first 500 units). */
 export const COMPLETE_BASE_MONTHLY_USD = 109 as const;
 
-/** Facility Operations flat prices — gated; not unit-volume. */
+/**
+ * Facility Operations base prices (existing approved Stripe Prices).
+ * Monthly matches PM ($59). Annual base is the approved FO annual Price ($590),
+ * not monthly × 12 — do not create a duplicate FO annual Price.
+ */
 export const FO_MONTHLY_USD = 59 as const;
 export const FO_ANNUAL_USD = 590 as const;
 
-/** Trial length for future Checkout wiring (days). */
+/** Additional Unit Capacity annual = monthly × 12 (no discount on blocks). */
+export const ADDITIONAL_UNIT_BLOCK_ANNUAL_USD = ADDITIONAL_UNIT_BLOCK_MONTHLY_USD * 12;
+
+/** Trial length for Checkout wiring (days). */
 export const UNIT_VOLUME_TRIAL_DAYS = 30 as const;
 
-export type UnitVolumeModule = "mpa_property_manager" | "mpa_complete_platform";
+export type UnitVolumeModule =
+  | "mpa_property_manager"
+  | "mpa_facility_operations"
+  | "mpa_complete_platform";
 
 export type UnitVolumeQuote = {
   managedUnits: number;
@@ -40,6 +49,7 @@ export type UnitVolumeQuote = {
   trialDays: typeof UNIT_VOLUME_TRIAL_DAYS;
   module: UnitVolumeModule;
   baseMonthlyUsd: number;
+  baseAnnualUsd: number;
   additionalBlockMonthlyUsd: typeof ADDITIONAL_UNIT_BLOCK_MONTHLY_USD;
 };
 
@@ -73,7 +83,22 @@ export function isUnitVolumeTrialEligible(managedUnits: number): boolean {
 }
 
 export function baseMonthlyUsdForModule(module: UnitVolumeModule): number {
-  return module === "mpa_complete_platform" ? COMPLETE_BASE_MONTHLY_USD : PM_BASE_MONTHLY_USD;
+  if (module === "mpa_complete_platform") {
+    return COMPLETE_BASE_MONTHLY_USD;
+  }
+  // Property Manager and Facility Operations share the $59 monthly base.
+  return PM_BASE_MONTHLY_USD;
+}
+
+/**
+ * Annual base for Checkout line-item 1.
+ * FO uses the approved $590 annual Price; PM/Complete use monthly × 12.
+ */
+export function baseAnnualUsdForModule(module: UnitVolumeModule): number {
+  if (module === "mpa_facility_operations") {
+    return FO_ANNUAL_USD;
+  }
+  return baseMonthlyUsdForModule(module) * 12;
 }
 
 export function monthlyUnitVolumePriceUsd(input: {
@@ -88,7 +113,8 @@ export function annualUnitVolumePriceUsd(input: {
   module: UnitVolumeModule;
   managedUnits: number;
 }): number {
-  return monthlyUnitVolumePriceUsd(input) * 12;
+  const blocks = additionalUnitBlocks(input.managedUnits);
+  return baseAnnualUsdForModule(input.module) + ADDITIONAL_UNIT_BLOCK_ANNUAL_USD * blocks;
 }
 
 /**
@@ -101,7 +127,9 @@ export function quoteUnitVolume(input: {
   const managedUnits = normalizeManagedUnits(input.managedUnits);
   const additionalBlocks = additionalUnitBlocks(managedUnits);
   const baseMonthlyUsd = baseMonthlyUsdForModule(input.module);
+  const baseAnnualUsd = baseAnnualUsdForModule(input.module);
   const monthlyPriceUsd = baseMonthlyUsd + ADDITIONAL_UNIT_BLOCK_MONTHLY_USD * additionalBlocks;
+  const annualPriceUsd = baseAnnualUsd + ADDITIONAL_UNIT_BLOCK_ANNUAL_USD * additionalBlocks;
 
   return {
     managedUnits,
@@ -109,20 +137,25 @@ export function quoteUnitVolume(input: {
     additionalBlocks,
     authorizedUnitCapacity: authorizedUnitCapacity(additionalBlocks),
     monthlyPriceUsd,
-    annualPriceUsd: monthlyPriceUsd * 12,
+    annualPriceUsd,
     trialEligible: isUnitVolumeTrialEligible(managedUnits),
     trialDays: UNIT_VOLUME_TRIAL_DAYS,
     module: input.module,
     baseMonthlyUsd,
+    baseAnnualUsd,
     additionalBlockMonthlyUsd: ADDITIONAL_UNIT_BLOCK_MONTHLY_USD
   };
 }
 
 export function isUnitVolumeModule(sku: ProductSku): sku is UnitVolumeModule {
-  return sku === "mpa_property_manager" || sku === "mpa_complete_platform";
+  return (
+    sku === "mpa_property_manager" ||
+    sku === "mpa_facility_operations" ||
+    sku === "mpa_complete_platform"
+  );
 }
 
-/** Quote helper that rejects FO / unknown SKUs (FO stays flat + gated). */
+/** Quote helper for all three customer products (unit-volume). */
 export function quoteUnitVolumeForSku(input: {
   productSku: ProductSku;
   managedUnits: number;

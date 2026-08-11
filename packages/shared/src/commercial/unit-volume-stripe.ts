@@ -21,26 +21,30 @@ import {
   findForbiddenClientQuoteFields,
   isCommercialQuoteExpired
 } from "./acquisition-quote";
-import { FO_READY } from "./commerce-flags";
+import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 import { SAAS_MONEY_DOMAIN, SAAS_METADATA_KEYS } from "./saas-checkout";
 
 /** Commercial model stamp for Stripe metadata reconciliation. */
 export const COMMERCIAL_MODEL_VERSION = "unit_volume_v1" as const;
 
 /**
- * Future Stripe Price env var names (do not create Prices or set Production env in this slice).
+ * Stripe Price env var names (do not create Prices or set Production env in this task).
  *
  * Registry:
  * - PM_BASE_MONTHLY  → STRIPE_PRICE_PM_BASE_MONTHLY
  * - PM_BASE_ANNUAL   → STRIPE_PRICE_PM_BASE_ANNUAL
+ * - FO_BASE_MONTHLY  → STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY (existing FO Prices)
+ * - FO_BASE_ANNUAL   → STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL
  * - COMPLETE_BASE_MONTHLY → STRIPE_PRICE_COMPLETE_BASE_MONTHLY
  * - COMPLETE_BASE_ANNUAL  → STRIPE_PRICE_COMPLETE_BASE_ANNUAL
- * - UNIT_BLOCK_MONTHLY → STRIPE_PRICE_UNIT_BLOCK_MONTHLY
- * - UNIT_BLOCK_ANNUAL  → STRIPE_PRICE_UNIT_BLOCK_ANNUAL
+ * - UNIT_BLOCK_MONTHLY → STRIPE_PRICE_UNIT_BLOCK_MONTHLY (shared)
+ * - UNIT_BLOCK_ANNUAL  → STRIPE_PRICE_UNIT_BLOCK_ANNUAL (shared)
  */
 export const UNIT_VOLUME_PRICE_ENV_KEYS = {
   PM_BASE_MONTHLY: "STRIPE_PRICE_PM_BASE_MONTHLY",
   PM_BASE_ANNUAL: "STRIPE_PRICE_PM_BASE_ANNUAL",
+  FO_BASE_MONTHLY: "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY",
+  FO_BASE_ANNUAL: "STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL",
   COMPLETE_BASE_MONTHLY: "STRIPE_PRICE_COMPLETE_BASE_MONTHLY",
   COMPLETE_BASE_ANNUAL: "STRIPE_PRICE_COMPLETE_BASE_ANNUAL",
   UNIT_BLOCK_MONTHLY: "STRIPE_PRICE_UNIT_BLOCK_MONTHLY",
@@ -83,7 +87,7 @@ export type UnitVolumeCheckoutPlan = {
   metadata: Record<string, string>;
   quoteId: string;
   commercialModelVersion: typeof COMMERCIAL_MODEL_VERSION;
-  /** Complete remains gated until FO_READY — plan may be built for tests only. */
+  /** Complete remains gated until COMPLETE_READY — plan may be built for tests only. */
   selfServeAllowed: boolean;
 };
 
@@ -97,6 +101,11 @@ export function basePriceEnvKeyForModule(
     return billingInterval === "annual"
       ? UNIT_VOLUME_PRICE_ENV_KEYS.COMPLETE_BASE_ANNUAL
       : UNIT_VOLUME_PRICE_ENV_KEYS.COMPLETE_BASE_MONTHLY;
+  }
+  if (module === "mpa_facility_operations") {
+    return billingInterval === "annual"
+      ? UNIT_VOLUME_PRICE_ENV_KEYS.FO_BASE_ANNUAL
+      : UNIT_VOLUME_PRICE_ENV_KEYS.FO_BASE_MONTHLY;
   }
   return billingInterval === "annual"
     ? UNIT_VOLUME_PRICE_ENV_KEYS.PM_BASE_ANNUAL
@@ -173,7 +182,8 @@ export function buildUnitVolumeCheckoutPlan(quote: CommercialQuote): UnitVolumeC
   }
   const selfServeAllowed =
     quote.module === "mpa_property_manager" ||
-    (quote.module === "mpa_complete_platform" && FO_READY);
+    (quote.module === "mpa_facility_operations" && FO_READY) ||
+    (quote.module === "mpa_complete_platform" && COMPLETE_READY);
 
   const trialEligible = quote.managed_units <= UNIT_BLOCK_SIZE && quote.trial_eligible;
   const trialPeriodDays = trialEligible ? UNIT_VOLUME_TRIAL_DAYS : null;

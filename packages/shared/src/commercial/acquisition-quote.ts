@@ -3,14 +3,12 @@
  * module recommendation, and Confirm Plan snapshot (no Stripe objects).
  */
 
-import { FO_READY } from "./commerce-flags";
+import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 import type { BillingCycle } from "./plans";
 import { publicPurchaseMotionForSku } from "./public-purchase-motion";
 import type { ProductSku } from "./skus";
 import { SKU_SUMMARIES } from "./skus";
 import {
-  FO_ANNUAL_USD,
-  FO_MONTHLY_USD,
   UNIT_BLOCK_SIZE,
   UNIT_VOLUME_TRIAL_DAYS,
   additionalUnitBlocks,
@@ -167,7 +165,7 @@ export function recommendModuleForNeed(need: OperationalNeed): ModuleRecommendat
       reason: "Facility and maintenance operations",
       selfServeAvailable: FO_READY,
       gated: !FO_READY,
-      nextAction: "request_early_access",
+      nextAction: FO_READY ? "confirm_plan_self_serve" : "request_early_access",
       nextActionLabel: motion.ctaLabel,
       gatedExplanation: FO_READY
         ? null
@@ -179,11 +177,11 @@ export function recommendModuleForNeed(need: OperationalNeed): ModuleRecommendat
     return {
       recommendedModule: "mpa_complete_platform",
       reason: "Both property and facility operations in one organization",
-      selfServeAvailable: FO_READY,
-      gated: !FO_READY,
-      nextAction: "request_consultation",
+      selfServeAvailable: COMPLETE_READY,
+      gated: !COMPLETE_READY,
+      nextAction: COMPLETE_READY ? "confirm_plan_self_serve" : "request_consultation",
       nextActionLabel: motion.ctaLabel,
-      gatedExplanation: FO_READY
+      gatedExplanation: COMPLETE_READY
         ? null
         : "Complete Platform is not yet available for self-service. Your questionnaire answers are saved — request a consultation, or continue with Property Manager online."
     };
@@ -293,9 +291,6 @@ export function describeUnitCapacity(input: {
   managedUnits: number;
   additionalBlocks: number;
 }): string {
-  if (input.module === "mpa_facility_operations") {
-    return "Facility Operations uses a flat monthly or annual price (not unit-volume). Self-service remains gated until FO_READY.";
-  }
   if (input.additionalBlocks <= 0) {
     return `Includes the first ${UNIT_BLOCK_SIZE} managed units in the base price. Declared ${input.managedUnits} units — no Additional Unit Capacity required.`;
   }
@@ -345,42 +340,6 @@ export function buildCommercialQuote(input: {
         };
 
   const expires = new Date(now.getTime() + COMMERCIAL_QUOTE_TTL_MS);
-
-  if (module === "mpa_facility_operations") {
-    const monthly = FO_MONTHLY_USD;
-    const annual = FO_ANNUAL_USD;
-    return {
-      quote_id: input.quoteId ?? newId("cq"),
-      module,
-      managed_units: input.answers.managedUnits,
-      included_units: 0,
-      additional_blocks: 0,
-      monthly_amount: monthly,
-      annual_amount: annual,
-      billing_interval: input.answers.billingInterval,
-      trial_eligible: false,
-      trial_days: 0,
-      capacity_description: describeUnitCapacity({
-        module,
-        managedUnits: input.answers.managedUnits,
-        additionalBlocks: 0
-      }),
-      created_at: now.toISOString(),
-      expires_at: expires.toISOString(),
-      selected_amount: input.answers.billingInterval === "annual" ? annual : monthly,
-      base_monthly_amount: monthly,
-      recommendation: recommendationForSelected,
-      operational_need: input.answers.operationalNeed,
-      notes: input.answers.notes,
-      unit_range_id: input.answers.unitRangeId,
-      first_billing_description: firstBillingDescription({
-        trialEligible: false,
-        trialDays: 0,
-        billingInterval: input.answers.billingInterval
-      }),
-      stripe_objects_created: false
-    };
-  }
 
   const volume = quoteUnitVolumeForSku({
     productSku: module,
@@ -500,14 +459,6 @@ export function confirmPlanCapacityLines(quote: CommercialQuote): {
   trialLabel: string;
   additionalUnitCapacityNotice: string | null;
 } {
-  if (quote.module === "mpa_facility_operations") {
-    return {
-      baseCapacity: "Flat Facility Operations price (not unit-volume)",
-      additionalCapacity: "None",
-      trialLabel: "Not eligible (gated module)",
-      additionalUnitCapacityNotice: null
-    };
-  }
   const blocks = additionalUnitBlocks(quote.managed_units);
   return {
     baseCapacity: `${UNIT_BLOCK_SIZE} units`,

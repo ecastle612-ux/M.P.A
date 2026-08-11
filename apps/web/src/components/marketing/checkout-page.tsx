@@ -106,7 +106,9 @@ export function CheckoutPage({
   const summary = SKU_SUMMARIES[sku];
   const modules = marketingModulesForSku(sku);
   const capacity = quote ? confirmPlanCapacityLines(quote) : null;
-  const gated = quote?.recommendation.gated ?? sku !== "mpa_property_manager";
+  const gated =
+    quote?.recommendation.gated ??
+    (sku !== "mpa_property_manager" && sku !== "mpa_facility_operations");
 
   useEffect(() => {
     if (!quote) return;

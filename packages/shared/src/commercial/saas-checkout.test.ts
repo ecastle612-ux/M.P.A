@@ -8,9 +8,10 @@ import {
 } from "./saas-checkout";
 
 describe("COM-002 Slice C SaaS checkout validation", () => {
-  it("enables Slice C while FO_READY stays false", () => {
+  it("enables Slice C with FO self-serve and Complete gated", () => {
     expect(COM_002_FLAGS.sliceC_stripeCheckout).toBe(true);
-    expect(COM_002_FLAGS.foReady).toBe(false);
+    expect(COM_002_FLAGS.foReady).toBe(true);
+    expect(COM_002_FLAGS.completeReady).toBe(false);
     expect(COM_002_FLAGS.sliceD_automaticProvisioning).toBe(true);
   });
 
@@ -44,7 +45,7 @@ describe("COM-002 Slice C SaaS checkout validation", () => {
     }
   });
 
-  it("rejects FO and Complete self-serve checkout", () => {
+  it("rejects FO/Complete on legacy offer Checkout (unit-volume quote path is authoritative)", () => {
     const fo = validateSaasCheckoutRequest(
       {
         productSku: "mpa_facility_operations",
@@ -55,6 +56,7 @@ describe("COM-002 Slice C SaaS checkout validation", () => {
     );
     expect(fo.ok).toBe(false);
     if (!fo.ok) {
+      // Legacy path remains PM-only; FO Checkout uses quote-authoritative unit-volume sessions.
       expect(fo.reason).toBe("enterprise_required");
       expect(fo.route).toBe("enterprise");
     }

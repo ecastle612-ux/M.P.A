@@ -33,9 +33,10 @@ export const SAAS_PRICE_ENV_KEYS = {
 } as const;
 
 /**
- * Display-only Price env keys for public Pricing / Confirm Plan.
- * Includes FO/Complete professional Prices so list amounts can load without enabling Checkout
- * (FO_READY gate + validateSaasCheckoutRequest still block self-serve purchase).
+ * Display Price env keys for public Pricing / Confirm Plan.
+ * FO professional Prices are also the unit-volume FO base Checkout Prices.
+ * Complete remains display-only until COMPLETE_READY (legacy validateSaasCheckoutRequest is PM-only;
+ * FO/Complete Checkout uses the quote-authoritative unit-volume path).
  */
 export const SAAS_DISPLAY_PRICE_ENV_KEYS = {
   "mpa_property_manager__professional__monthly": "STRIPE_PRICE_PM_PROFESSIONAL_MONTHLY",

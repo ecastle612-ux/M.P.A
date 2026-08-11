@@ -562,7 +562,7 @@ export async function loadOpsDirectories(): Promise<{
       id: "environment",
       label: "Environment health",
       tone: serverEnv.NEXT_PUBLIC_APP_URL ? "ok" : "warn",
-      detail: `APP_URL ${serverEnv.NEXT_PUBLIC_APP_URL ?? "unset"} · FO_READY gated commercially`
+      detail: `APP_URL ${serverEnv.NEXT_PUBLIC_APP_URL ?? "unset"} · FO self-serve · Complete gated`
     }
   ];
 

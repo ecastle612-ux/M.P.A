@@ -1,9 +1,9 @@
-import { FO_READY } from "./commerce-flags";
+import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 import type { ProductSku } from "./skus";
 
 /**
  * Public commercial purchase motion for Option B pricing transparency.
- * Display prices for all three products; Checkout remains FO_READY-gated.
+ * Property Manager + Facility Operations are self-serve; Complete remains gated.
  */
 export type PublicPurchaseMotion =
   | {
@@ -37,22 +37,39 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
   }
 
   if (sku === "mpa_facility_operations") {
+    if (FO_READY) {
+      return {
+        kind: "self_serve",
+        ctaLabel: "Get started with Facility Operations",
+        availabilityLabel: "Available",
+        explanation:
+          "$59/month or $590/year includes up to 500 managed units. Additional Unit Capacity is +$39/month per additional 500 units (shared unit-block Prices)."
+      };
+    }
     return {
       kind: "early_access",
       ctaLabel: "Request Early Access",
-      availabilityLabel: FO_READY ? "Available" : "Not online · gated",
-      explanation: FO_READY
-        ? "Facility Operations self-service checkout is available."
-        : "Facility Operations is not available for online purchase yet ($59/month or $590/year when online). Request Early Access to talk with our team."
+      availabilityLabel: "Not online · gated",
+      explanation:
+        "Facility Operations is not available for online purchase yet ($59/month or $590/year when online). Request Early Access to talk with our team."
+    };
+  }
+
+  if (COMPLETE_READY) {
+    return {
+      kind: "self_serve",
+      ctaLabel: "Get started with Complete Platform",
+      availabilityLabel: "Available",
+      explanation:
+        "Complete Platform self-service checkout is available. Pricing follows unit-volume ($109/month base + Additional Unit Capacity)."
     };
   }
 
   return {
     kind: "consultation",
     ctaLabel: "Request Consultation",
-    availabilityLabel: FO_READY ? "Available" : "Not online · gated",
-    explanation: FO_READY
-      ? "Complete Platform self-service checkout is available."
-      : "Complete Platform is not available for online purchase yet. When online, pricing follows unit-volume ($109/month base + Additional Unit Capacity). Request a consultation today."
+    availabilityLabel: "Not online · gated",
+    explanation:
+      "Complete Platform is not available for online purchase yet. When online, pricing follows unit-volume ($109/month base + Additional Unit Capacity). Request a consultation today."
   };
 }

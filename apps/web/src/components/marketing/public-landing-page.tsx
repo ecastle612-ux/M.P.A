@@ -383,7 +383,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           {[
             {
               q: "What can I buy online today?",
-              a: "Property Manager — from $59/month for up to 500 managed units, with Additional Unit Capacity at +$39/month per additional 500 units. Facility Operations and Complete Platform are not online yet."
+              a: "Property Manager and Facility Operations — from $59/month for up to 500 managed units, with Additional Unit Capacity at +$39/month per additional 500 units. Facility Operations is also $590/year at base capacity. Complete Platform is not online yet."
             },
             {
               q: "Are background screening integrations available?",
@@ -391,7 +391,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             },
             {
               q: "How does checkout work?",
-              a: "Review pricing, answer a short questionnaire, confirm your managed-unit plan, then pay securely with Stripe for Property Manager. Your workspace is prepared after payment."
+              a: "Review pricing, answer a short questionnaire, confirm your managed-unit plan, then pay securely with Stripe for Property Manager or Facility Operations. Your workspace is prepared after payment."
             },
             {
               q: "What is Enterprise?",

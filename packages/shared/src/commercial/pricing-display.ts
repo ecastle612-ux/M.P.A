@@ -90,7 +90,10 @@ export const PUBLIC_PRICING_MODEL_COPY = {
   foMonthly: FO_MONTHLY_USD,
   foAnnual: FO_ANNUAL_USD,
   pmHeadline: `$${PM_BASE_MONTHLY_USD}/month`,
+  foHeadlineMonthly: `$${FO_MONTHLY_USD}/month`,
+  foHeadlineAnnual: `$${FO_ANNUAL_USD}/year`,
   pmIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
+  foIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
   additionalCapacityLine: `+$${ADDITIONAL_UNIT_BLOCK_MONTHLY_USD}/month per additional ${UNIT_BLOCK_SIZE} units`,
-  annualNote: "Annual equals monthly × 12 — no discount."
+  annualNote: "Annual equals monthly × 12 — no discount on Additional Unit Capacity."
 } as const;

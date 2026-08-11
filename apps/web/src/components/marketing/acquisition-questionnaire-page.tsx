@@ -115,8 +115,8 @@ export function AcquisitionQuestionnairePage({
           <h1 className="font-display text-3xl font-semibold">A few quick questions</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             Tell us about your portfolio. We’ll recommend a platform and show your managed-unit
-            plan before checkout. Facility Operations and Complete Platform may be recommended but
-            remain gated until they are online.
+            plan before checkout. Property Manager and Facility Operations are available online;
+            Complete Platform may be recommended but remains consultation-only until it is online.
           </p>
         </header>
 

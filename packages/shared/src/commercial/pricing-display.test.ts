@@ -34,8 +34,39 @@ describe("unit-volume pricing display (Slice 5)", () => {
     ).toBe(1644);
   });
 
+  it("calculates FO examples with approved annual base Price", () => {
+    const at500 = calculateUnitVolumeDisplay({
+      module: "mpa_facility_operations",
+      managedUnits: 500,
+      billingInterval: "monthly"
+    });
+    expect(at500.monthlyPriceUsd).toBe(59);
+    expect(at500.annualPriceUsd).toBe(590);
+    expect(at500.trialEligible).toBe(true);
+
+    const at501 = calculateUnitVolumeDisplay({
+      module: "mpa_facility_operations",
+      managedUnits: 501,
+      billingInterval: "annual"
+    });
+    expect(at501.monthlyPriceUsd).toBe(98);
+    expect(at501.annualPriceUsd).toBe(1058);
+    expect(at501.selectedAmount).toBe(1058);
+    expect(at501.trialEligible).toBe(false);
+
+    expect(
+      calculateUnitVolumeDisplay({
+        module: "mpa_facility_operations",
+        managedUnits: 1001,
+        billingInterval: "annual"
+      }).selectedAmount
+    ).toBe(1526);
+  });
+
   it("documents public model copy without legacy tiers", () => {
     expect(PUBLIC_PRICING_MODEL_COPY.pmBaseMonthly).toBe(59);
+    expect(PUBLIC_PRICING_MODEL_COPY.foMonthly).toBe(59);
+    expect(PUBLIC_PRICING_MODEL_COPY.foAnnual).toBe(590);
     expect(PUBLIC_PRICING_MODEL_COPY.additionalBlockMonthly).toBe(39);
     expect(PUBLIC_PRICING_MODEL_COPY.pmHeadline).not.toMatch(/99|249|Professional|Business/);
   });

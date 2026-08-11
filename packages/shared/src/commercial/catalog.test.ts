@@ -7,17 +7,23 @@ import {
   resolveCatalogOffer,
   validateCommercialSelection
 } from "./catalog";
-import { FO_READY } from "./commerce-flags";
+import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 import { transitionCommerceFunnel } from "./commerce-state";
 
 describe("COM-002 catalog (unit-capacity model)", () => {
-  it("marks only Property Manager professional as self-serve while FO_READY is false", () => {
-    expect(FO_READY).toBe(false);
+  it("marks PM and FO professional as self-serve; Complete remains gated", () => {
+    expect(FO_READY).toBe(true);
+    expect(COMPLETE_READY).toBe(false);
     const selfServe = CATALOG_OFFERS.filter(isSelfServeCheckoutAllowed);
-    expect(selfServe.length).toBe(2);
-    expect(selfServe.every((o) => o.productSku === "mpa_property_manager")).toBe(true);
-    expect(selfServe.every((o) => o.planTier === "professional")).toBe(true);
-    expect(requiresEnterpriseMotion("mpa_facility_operations")).toBe(true);
+    expect(selfServe.length).toBe(4);
+    expect(
+      selfServe.every(
+        (o) =>
+          (o.productSku === "mpa_property_manager" || o.productSku === "mpa_facility_operations") &&
+          o.planTier === "professional"
+      )
+    ).toBe(true);
+    expect(requiresEnterpriseMotion("mpa_facility_operations")).toBe(false);
     expect(requiresEnterpriseMotion("mpa_complete_platform")).toBe(true);
     expect(requiresEnterpriseMotion("mpa_property_manager")).toBe(false);
   });
@@ -34,13 +40,13 @@ describe("COM-002 catalog (unit-capacity model)", () => {
     expect(isSelfServeCheckoutAllowed(offer!)).toBe(true);
   });
 
-  it("routes FO, Complete, and legacy Business PM away from self-serve confirm plan", () => {
+  it("routes FO to confirm plan; Complete and legacy Business PM away from self-serve", () => {
     const fo = validateCommercialSelection({
       productSku: "mpa_facility_operations",
       planTier: "professional",
       billingCycle: "monthly"
     });
-    expect(fo.route).toBe("enterprise");
+    expect(fo.route).toBe("confirm_plan");
 
     const complete = validateCommercialSelection({
       productSku: "mpa_complete_platform",

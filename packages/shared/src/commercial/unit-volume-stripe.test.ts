@@ -24,8 +24,10 @@ function quoteFor(units: number, cycle: "monthly" | "annual" = "monthly") {
 }
 
 describe("unit-volume Stripe checkout architecture", () => {
-  it("documents future Price env keys without hard-coded Price IDs", () => {
+  it("documents Price env keys without hard-coded Price IDs", () => {
     expect(UNIT_VOLUME_PRICE_ENV_KEYS.PM_BASE_MONTHLY).toBe("STRIPE_PRICE_PM_BASE_MONTHLY");
+    expect(UNIT_VOLUME_PRICE_ENV_KEYS.FO_BASE_MONTHLY).toBe("STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY");
+    expect(UNIT_VOLUME_PRICE_ENV_KEYS.FO_BASE_ANNUAL).toBe("STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL");
     expect(UNIT_VOLUME_PRICE_ENV_KEYS.UNIT_BLOCK_ANNUAL).toBe("STRIPE_PRICE_UNIT_BLOCK_ANNUAL");
     expect(UNIT_VOLUME_PRICE_ENV_KEYS.COMPLETE_BASE_MONTHLY).toBe(
       "STRIPE_PRICE_COMPLETE_BASE_MONTHLY"
@@ -86,6 +88,50 @@ describe("unit-volume Stripe checkout architecture", () => {
     expect(annual.lineItems[0]?.priceEnvKey).toBe("STRIPE_PRICE_PM_BASE_ANNUAL");
   });
 
+  it("builds FO Checkout plan with shared unit-block Prices and self-serve allowed", () => {
+    const validated = validateAcquisitionAnswers({
+      managedUnits: 501,
+      operationalNeed: "facility_maintenance",
+      billingInterval: "monthly",
+      selectedModule: "mpa_facility_operations"
+    });
+    if (!validated.ok) throw new Error(validated.reason);
+    const quote = buildCommercialQuote({ answers: validated.answers });
+    const plan = buildUnitVolumeCheckoutPlan(quote)!;
+    expect(plan.module).toBe("mpa_facility_operations");
+    expect(plan.selfServeAllowed).toBe(true);
+    expect(plan.trialEligible).toBe(false);
+    expect(plan.trialPeriodDays).toBeNull();
+    expect(plan.paymentMethodCollection).toBe("always");
+    expect(plan.lineItems).toEqual([
+      {
+        role: "base",
+        priceEnvKey: "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY",
+        quantity: 1
+      },
+      {
+        role: "additional_unit_capacity",
+        priceEnvKey: "STRIPE_PRICE_UNIT_BLOCK_MONTHLY",
+        quantity: 1
+      }
+    ]);
+
+    const annual = validateAcquisitionAnswers({
+      managedUnits: 500,
+      operationalNeed: "facility_maintenance",
+      billingInterval: "annual",
+      selectedModule: "mpa_facility_operations"
+    });
+    if (!annual.ok) throw new Error(annual.reason);
+    const annualPlan = buildUnitVolumeCheckoutPlan(
+      buildCommercialQuote({ answers: annual.answers })
+    )!;
+    expect(annualPlan.trialEligible).toBe(true);
+    expect(annualPlan.trialPeriodDays).toBe(30);
+    expect(annualPlan.lineItems[0]?.priceEnvKey).toBe("STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL");
+    expect(annualPlan.lineItems).toHaveLength(1);
+  });
+
   it("builds Complete monthly architecture while remaining gated", () => {
     const validated = validateAcquisitionAnswers({
       managedUnits: 501,
@@ -100,6 +146,41 @@ describe("unit-volume Stripe checkout architecture", () => {
     expect(plan.lineItems[0]?.priceEnvKey).toBe("STRIPE_PRICE_COMPLETE_BASE_MONTHLY");
     expect(plan.lineItems[1]?.quantity).toBe(1);
     expect(plan.selfServeAllowed).toBe(false);
+  });
+
+  it("allows FO quote Checkout validation and rejects Complete as gated", () => {
+    const foValidated = validateAcquisitionAnswers({
+      managedUnits: 1001,
+      operationalNeed: "facility_maintenance",
+      billingInterval: "annual",
+      selectedModule: "mpa_facility_operations"
+    });
+    if (!foValidated.ok) throw new Error(foValidated.reason);
+    const foQuote = buildCommercialQuote({ answers: foValidated.answers });
+    const foOk = validateQuoteForCheckout({
+      quote: foQuote,
+      resolvePriceId: (key) =>
+        key.includes("FO_PROFESSIONAL") || key.includes("UNIT_BLOCK") ? `price_${key}` : null
+    });
+    expect(foOk.ok).toBe(true);
+    if (foOk.ok) {
+      expect(foOk.plan.lineItems[1]?.quantity).toBe(2);
+      expect(foOk.plan.trialPeriodDays).toBeNull();
+    }
+
+    const completeValidated = validateAcquisitionAnswers({
+      managedUnits: 500,
+      operationalNeed: "both",
+      billingInterval: "monthly",
+      selectedModule: "mpa_complete_platform"
+    });
+    if (!completeValidated.ok) throw new Error(completeValidated.reason);
+    const completeQuote = buildCommercialQuote({ answers: completeValidated.answers });
+    const gated = validateQuoteForCheckout({ quote: completeQuote });
+    expect(gated.ok).toBe(false);
+    if (!gated.ok) {
+      expect(gated.reason).toBe("module_gated");
+    }
   });
 
   it("writes reconciliation metadata without sensitive payload", () => {

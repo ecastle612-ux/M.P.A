@@ -31,13 +31,13 @@ export function PricingJsonLd() {
       {
         "@type": "Product",
         name: "Facility Operations",
-        description: "Not available for online purchase yet.",
+        description: `Up to ${UNIT_BLOCK_SIZE} managed units included. Additional Unit Capacity available.`,
         offers: {
           "@type": "Offer",
           price: String(FO_MONTHLY_USD),
           priceCurrency: "USD",
-          availability: "https://schema.org/PreOrder",
-          description: `$${FO_MONTHLY_USD}/month or $${FO_ANNUAL_USD}/year when online`
+          availability: "https://schema.org/InStock",
+          description: `$${FO_MONTHLY_USD}/month or $${FO_ANNUAL_USD}/year`
         }
       },
       {

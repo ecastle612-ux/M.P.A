@@ -11,7 +11,7 @@ import {
   regenerateCommercialQuote,
   validateAcquisitionAnswers
 } from "./acquisition-quote";
-import { FO_READY } from "./commerce-flags";
+import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 
 const BOUNDARY = [1, 500, 501, 1000, 1001, 1500, 1501] as const;
 
@@ -72,18 +72,21 @@ describe("acquisition questionnaire validation", () => {
 });
 
 describe("module recommendation", () => {
-  it("maps needs to modules and keeps FO/Complete gated", () => {
-    expect(FO_READY).toBe(false);
+  it("maps needs to modules — FO self-serve; Complete remains gated", () => {
+    expect(FO_READY).toBe(true);
+    expect(COMPLETE_READY).toBe(false);
     expect(recommendModuleForNeed("property_resident_leasing").recommendedModule).toBe(
       "mpa_property_manager"
     );
     const fo = recommendModuleForNeed("facility_maintenance");
     expect(fo.recommendedModule).toBe("mpa_facility_operations");
-    expect(fo.gated).toBe(true);
-    expect(fo.selfServeAvailable).toBe(false);
+    expect(fo.gated).toBe(false);
+    expect(fo.selfServeAvailable).toBe(true);
+    expect(fo.nextAction).toBe("confirm_plan_self_serve");
     const complete = recommendModuleForNeed("both");
     expect(complete.recommendedModule).toBe("mpa_complete_platform");
     expect(complete.gated).toBe(true);
+    expect(complete.selfServeAvailable).toBe(false);
   });
 });
 
@@ -129,20 +132,61 @@ describe("server commercial quote", () => {
     expect(quote.recommendation.gated).toBe(true);
   });
 
-  it("keeps FO flat and gated", () => {
-    const quote = buildCommercialQuote({
+  it("prices FO on unit-volume with trial and capacity", () => {
+    const at500 = buildCommercialQuote({
       answers: answers({
-        managedUnits: 1000,
+        managedUnits: 500,
+        operationalNeed: "facility_maintenance",
+        selectedModule: "mpa_facility_operations",
+        billingInterval: "monthly"
+      })
+    });
+    expect(at500.monthly_amount).toBe(59);
+    expect(at500.annual_amount).toBe(590);
+    expect(at500.additional_blocks).toBe(0);
+    expect(at500.included_units).toBe(500);
+    expect(at500.trial_eligible).toBe(true);
+    expect(at500.trial_days).toBe(30);
+    expect(at500.recommendation.gated).toBe(false);
+    expect(at500.recommendation.selfServeAvailable).toBe(true);
+
+    const at501 = buildCommercialQuote({
+      answers: answers({
+        managedUnits: 501,
         operationalNeed: "facility_maintenance",
         selectedModule: "mpa_facility_operations",
         billingInterval: "annual"
       })
     });
-    expect(quote.monthly_amount).toBe(59);
-    expect(quote.annual_amount).toBe(590);
-    expect(quote.additional_blocks).toBe(0);
-    expect(quote.trial_eligible).toBe(false);
-    expect(quote.recommendation.gated).toBe(true);
+    expect(at501.monthly_amount).toBe(98);
+    expect(at501.annual_amount).toBe(1058);
+    expect(at501.selected_amount).toBe(1058);
+    expect(at501.additional_blocks).toBe(1);
+    expect(at501.trial_eligible).toBe(false);
+    expect(at501.trial_days).toBe(0);
+
+    const at1000 = buildCommercialQuote({
+      answers: answers({
+        managedUnits: 1000,
+        operationalNeed: "facility_maintenance",
+        selectedModule: "mpa_facility_operations"
+      })
+    });
+    expect(at1000.monthly_amount).toBe(98);
+    expect(at1000.additional_blocks).toBe(1);
+
+    const at1001 = buildCommercialQuote({
+      answers: answers({
+        managedUnits: 1001,
+        operationalNeed: "facility_maintenance",
+        selectedModule: "mpa_facility_operations",
+        billingInterval: "annual"
+      })
+    });
+    expect(at1001.monthly_amount).toBe(137);
+    expect(at1001.annual_amount).toBe(1526);
+    expect(at1001.additional_blocks).toBe(2);
+    expect(at1001.trial_eligible).toBe(false);
   });
 
   it("sets trial eligibility only for <=500 units on unit-volume modules", () => {
@@ -157,6 +201,14 @@ describe("server commercial quote", () => {
   it("reproduces quote fields server-side", () => {
     const quote = buildCommercialQuote({ answers: answers({ managedUnits: 1001 }) });
     expect(assertQuoteMatchesRecompute(quote)).toBe(true);
+    const fo = buildCommercialQuote({
+      answers: answers({
+        managedUnits: 1001,
+        operationalNeed: "facility_maintenance",
+        selectedModule: "mpa_facility_operations"
+      })
+    });
+    expect(assertQuoteMatchesRecompute(fo)).toBe(true);
   });
 
   it("expires and regenerates a fresh quote", () => {
@@ -185,16 +237,28 @@ describe("server commercial quote", () => {
     ).toEqual(expect.arrayContaining(["stripePriceId", "monthly_amount", "trial_eligible"]));
   });
 
-  it("builds Confirm Plan capacity lines for 500 and 501", () => {
+  it("builds Confirm Plan capacity lines for FO 500 and 501", () => {
     const base = confirmPlanCapacityLines(
-      buildCommercialQuote({ answers: answers({ managedUnits: 500 }) })
+      buildCommercialQuote({
+        answers: answers({
+          managedUnits: 500,
+          operationalNeed: "facility_maintenance",
+          selectedModule: "mpa_facility_operations"
+        })
+      })
     );
     expect(base.additionalCapacity).toBe("None");
     expect(base.trialLabel).toBe("30-Day Free Trial");
     expect(base.additionalUnitCapacityNotice).toBeNull();
 
     const over = confirmPlanCapacityLines(
-      buildCommercialQuote({ answers: answers({ managedUnits: 501 }) })
+      buildCommercialQuote({
+        answers: answers({
+          managedUnits: 501,
+          operationalNeed: "facility_maintenance",
+          selectedModule: "mpa_facility_operations"
+        })
+      })
     );
     expect(over.additionalCapacity).toBe("1 × 500-unit block");
     expect(over.trialLabel).toBe("No free trial");

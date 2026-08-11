@@ -1,6 +1,6 @@
 /**
  * COM-002 Slice E — self-serve subscription lifecycle (PM Professional / Business).
- * Binding: 7-day past-due grace; webhooks are access truth; FO_READY stays false.
+ * Binding: 7-day past-due grace; webhooks are access truth; Complete remains gated.
  */
 
 export const SUBSCRIPTION_PLATFORM_STATUSES = [

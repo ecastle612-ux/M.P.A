@@ -33,8 +33,8 @@ export const serverEnvSchema = clientEnvSchema.extend({
   STRIPE_PRICE_UNIT_BLOCK_MONTHLY: z.string().min(1).optional(),
   STRIPE_PRICE_UNIT_BLOCK_ANNUAL: z.string().min(1).optional(),
   /**
-   * Optional display-only FO/Complete professional Price ids for public Pricing transparency.
-   * Do not enable Checkout — FO_READY + checkout validation still gate purchase.
+   * Facility Operations base Prices (unit-volume Checkout) — reuse existing FO Prices.
+   * Complete professional Price ids remain display-only until COMPLETE_READY.
    */
   STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY: z.string().min(1).optional(),
   STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL: z.string().min(1).optional(),

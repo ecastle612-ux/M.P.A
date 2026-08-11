@@ -5,7 +5,6 @@ import { useState } from "react";
 import {
   BILLING_CYCLES,
   FO_ANNUAL_USD,
-  FO_MONTHLY_USD,
   PRODUCT_SKUS,
   PUBLIC_PRICING_MODEL_COPY,
   SKU_SUMMARIES,
@@ -62,8 +61,8 @@ export function PricingPage({
           </p>
           <h1 className="font-display text-3xl font-semibold">Platform pricing</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Property Manager is available online today with managed-unit pricing. Facility Operations
-            and Complete Platform are not online yet — early access and consultation only.
+            Property Manager and Facility Operations are available online with managed-unit pricing.
+            Complete Platform is not online yet — consultation only.
           </p>
         </header>
 
@@ -311,17 +310,20 @@ function PlatformPriceCard({
       {sku === "mpa_facility_operations" ? (
         <div className="mt-4 space-y-1">
           <p className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
-            ${billingCycle === "annual" ? FO_ANNUAL_USD : FO_MONTHLY_USD}
-            <span className="ml-1 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
-              / {billingCycle === "annual" ? "year" : "month"}
-            </span>
+            {billingCycle === "annual"
+              ? PUBLIC_PRICING_MODEL_COPY.foHeadlineAnnual
+              : PUBLIC_PRICING_MODEL_COPY.foHeadlineMonthly}
           </p>
-          <p className="text-xs font-semibold text-[var(--mpa-color-text-primary)]">
-            Not online · not purchasable
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            {PUBLIC_PRICING_MODEL_COPY.foIncludes}
+          </p>
+          <p className="text-sm font-medium text-[var(--mpa-color-text-primary)]">
+            Additional Unit Capacity: {PUBLIC_PRICING_MODEL_COPY.additionalCapacityLine}
           </p>
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
-            Flat Facility Operations price when the product is online. Not available for self-service
-            checkout today.
+            {billingCycle === "annual"
+              ? `Base annual is $${FO_ANNUAL_USD}. Additional Unit Capacity annual = monthly × 12.`
+              : "Use the calculator below for your managed-unit total."}
           </p>
         </div>
       ) : null}

@@ -53,10 +53,11 @@ function sub(partial: Partial<LifecycleSubscription> = {}): LifecycleSubscriptio
 }
 
 describe("COM-002 Slice E subscription lifecycle", () => {
-  it("enables Slice E while portal/FO stay off", () => {
+  it("enables Slice E while portal stays off and Complete remains gated", () => {
     expect(COM_002_FLAGS.sliceE_subscriptionLifecycle).toBe(true);
     expect(COM_002_FLAGS.sliceF_customerPortal).toBe(false);
-    expect(COM_002_FLAGS.foReady).toBe(false);
+    expect(COM_002_FLAGS.foReady).toBe(true);
+    expect(COM_002_FLAGS.completeReady).toBe(false);
     expect(PAST_DUE_GRACE_DAYS).toBe(7);
   });
 
