@@ -14,7 +14,8 @@
 - ADR-018 / COM-002 commercial architecture (current implementation baseline)  
 - Authoritative commercial reconciliation (PM Business = legacy)  
 - PR #118 — Business readiness removal (**do not deploy** from this task)  
-- Implementation blueprint (planning only): [`commercial-billing-implementation-blueprint-2026-08-11.md`](./commercial-billing-implementation-blueprint-2026-08-11.md)
+- Implementation blueprint (planning only): [`commercial-billing-implementation-blueprint-2026-08-11.md`](./commercial-billing-implementation-blueprint-2026-08-11.md)  
+- Acquisition + billing decisions (final design): [`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md)
 
 ---
 
@@ -164,52 +165,40 @@ Future customers enter the approved unit-volume pricing architecture.
 
 ---
 
-## 7. First-Month-Free Commercial Rule (FINAL)
+## 7. First-Month-Free Commercial Rule (FINAL — amended)
 
-**Owner-approved offer:** New customers receive **FIRST MONTH FREE**.
+**Owner-approved offer:** **FIRST MONTH FREE** only when **declared managed units ≤ 500**.
+
+| Declared managed units | Trial |
+|------------------------|-------|
+| **≤ 500** | First month free; card required; $0 during trial; auto-bill after |
+| **> 500** | **No free trial** — subscribe at applicable unit-volume price (high-volume / Additional Unit Capacity segment) |
 
 | Rule | Decision |
 |------|----------|
-| Offer | First month free for new customers |
-| Payment card at registration / Checkout | **Required** — valid payment method must be provided before the free month begins |
-| Charges during free month | **None** — customer is not charged during the first month |
-| After free month | Normal recurring subscription billing begins **automatically** using the applicable approved unit-volume price |
+| Eligibility source | Server-validated **declared** unit count from pre-Checkout questionnaire — not post-Checkout text |
+| Payment card | **Required** for all Checkouts (trial and non-trial) |
+| Charges during free month | **None** (trial-eligible path only) |
+| After free month | Automatic recurring billing at reconciled applicable unit-volume amount |
 | Manual payment action at end of free month | **Not required** |
+| Separate Enterprise product | **Forbidden** — >500 is PM unit-volume pricing, not a new module |
 
 ### Interaction with unit-volume pricing
 
-The free month does **not** change the approved pricing model.
+The free month does **not** change the rate table.
 
-- Monthly Property Manager unit-volume rates remain as finalized in §3 ($59 base + $39 per additional 500-unit block).  
-- Annual billing remains **no discount** (monthly × 12) as finalized in §4.  
-- The free month applies to the **applicable subscription amount** (the customer’s unit-volume total for their selected cycle).  
-- Unit-count / block recalculation for subsequent paid periods remains as finalized in §5 (next paid billing period).
-
-### Do not invent trial rules
-
-This package records **only** the Owner-approved requirements above.  
-Do **not** invent or implement rules for:
-
-- cancellation during or after the free month  
-- refunds  
-- grace periods  
-- failed-payment handling after the free month  
-- card authorization / hold amount  
-- trial extension or renewal of free months  
-
-Those remain **Owner decisions** if required for future implementation (see §12).
+- Monthly / annual formulas remain as finalized in §3–§4.  
+- Unit-count price changes remain next paid period only (§5).  
+- Acquisition questionnaire, reconciliation, and trial edge behaviors: see [`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md).
 
 ### Future Stripe design support (DO NOT IMPLEMENT)
 
-Future implementation must support:
-
-1. Payment method collected at signup / Checkout.  
-2. Payment method validity checked before the free month begins.  
-3. First month represented as a trial / free period.  
-4. No subscription charge during the trial / free month.  
-5. Automatic recurring billing after the trial / free month ends.  
-6. Correct unit-volume price (Base + Additional Unit Block quantities) at billing start.  
-7. Annual billing with no volume discount (monthly × 12), when annual is selected.
+1. Payment method collected at Checkout.  
+2. `trial_period_days` **only** when `declared_managed_units <= 500`.  
+3. No trial when declared units > 500.  
+4. Automatic recurring billing after trial (or immediate charge when not trial-eligible).  
+5. Correct unit-volume items/quantities at billing start.  
+6. Annual = monthly × 12 (no discount).
 
 **Stripe trial / free-month behavior is not implemented in this package.**
 
@@ -258,7 +247,7 @@ Rejected for primary path: fixed Price-per-band matrix (does not scale); metered
 | Monthly total | Base + Additional Unit Block items |
 | Annual total | Same blocks × 12 (no discount) |
 | Quantity / price changes | Applied for the **next** paid billing period only |
-| First month | Free; valid payment method required up front; auto-bill after free month |
+| First month | Free **only if declared units ≤ 500**; card always required; auto-bill after free month |
 | Entitlements | Product SKU modules; unit capacity via block quantity |
 | FO / Complete | Unchanged until FO_READY; unit-volume for those products out of scope unless Owner extends |
 
@@ -291,7 +280,7 @@ Document for a future approved implementation only:
 4. Annual calculation = monthly × 12 (no discount).  
 5. Stripe two-item subscription architecture (Base + Additional Unit Block), monthly and annual Prices.  
 6. Checkout calculation of initial block quantity from unit count (or initial portfolio setup).  
-7. **First-month-free:** collect and validate payment method at signup; trial/free period with no charge; automatic recurring billing after free month at correct unit-volume price.  
+7. **First-month-free (≤500 declared units only):** collect and validate payment method; trial only when eligible; automatic recurring billing after free month (or immediate charge when >500) at correct unit-volume price.  
 8. Billing lifecycle synchronization (webhooks remain access truth; period-end quantity sync).  
 9. Customer pricing display (unit-block calculator; first-month-free messaging; no Business / Professional customer tiers).  
 10. Unit-count change handling (track count during period; apply at period boundary).  
@@ -307,8 +296,9 @@ Document for a future approved implementation only:
 - [ ] 501–1000 → $98/mo / $1,176/yr  
 - [ ] Formula holds for arbitrary blocks; annual = monthly × 12  
 - [ ] Unit-volume price changes apply next paid period only  
-- [ ] First month free; valid payment method required before free month begins  
-- [ ] No charge during free month; automatic recurring billing afterward  
+- [ ] First month free **only when declared units ≤ 500**; card always required  
+- [ ] Declared units > 500 → no trial; charge applicable unit-volume amount  
+- [ ] No charge during free month when eligible; automatic recurring billing afterward  
 - [ ] No customer-facing Business / Professional tier  
 - [ ] No separate Enterprise product or Stripe Product  
 - [ ] No mid-period surprise unit-volume charges  
@@ -318,17 +308,14 @@ Document for a future approved implementation only:
 
 ## 12. Remaining Owner decisions (genuine open items only)
 
-Resolved and **removed** from open list: billable tenant metric; billable unit status exclusions; annual pricing rule; existing subscriber migration; first-month-free offer (card required; auto-bill after free month).
+Resolved and **removed** from open list: billable tenant metric; billable unit statuses; annual pricing; existing subscriber migration; first-month-free eligibility (**≤500 only**); trial edge behaviors; Confirm Plan unit declaration; customer-facing “Enterprise” product wording (use **Additional Unit Capacity** — see acquisition blueprint).
 
-Still open (not invented here):
+Still open (minimal):
 
-1. **“Enterprise” customer-facing label** — Owner allows describing higher-volume PM pricing as Enterprise **if governance permits**; Constitution / ADR-019 amendment required before customer UI uses that word as a named offering. Until then, use Property Manager unit-volume / capacity language.  
-2. **Relationship to seat/property limits** — keep, replace, or revise under unit-volume pricing.  
-3. **FO / Complete** — same unit-block formula later, or different (out of scope until FO_READY / Owner extension).  
-4. **In-period UX when count exceeds current paid blocks** — pricing waits until next period; whether the product **blocks**, **warns**, or **allows** adding units mid-period is still an Owner product decision.  
-5. **Period-end notification copy / channel** — that customers are informed before the next period amount changes (implementation detail; Owner may set policy later).  
-6. **Free-month / trial edge policies** (do not invent): cancellation during free month; refunds; grace periods; failed-payment handling after free month; card authorization / hold amount; trial extension rules.  
-7. **Whether first-month-free applies to annual Checkout** the same way (one free month then annual charge vs other) — Owner stated free month applies to the applicable subscription amount; exact annual Checkout sequencing may need confirmation at implementation approval.
+1. **Relationship to seat/property limits** under unit-volume.  
+2. **FO / Complete** unit-volume vs flat price when FO_READY (Complete $109 vs PM unit-volume composition).  
+3. **In-period UX** when actual units exceed current paid blocks (allow / warn / block) — price still waits until next period.  
+4. Exact **`trial_period_days`** (acquisition blueprint proposes 30).
 
 ---
 

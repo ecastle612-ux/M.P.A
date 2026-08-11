@@ -6,7 +6,9 @@
 **Implementation:** **Forbidden** until this blueprint is approved and Design → Document → Approve authorizes coding  
 
 **Authoritative commercial governance:**  
-[`unit-volume-pricing-design-2026-08-11.md`](./unit-volume-pricing-design-2026-08-11.md) (PR #119)
+[`unit-volume-pricing-design-2026-08-11.md`](./unit-volume-pricing-design-2026-08-11.md) (PR #119)  
+**Acquisition + trial eligibility decisions:**  
+[`acquisition-billing-decision-blueprint-2026-08-11.md`](./acquisition-billing-decision-blueprint-2026-08-11.md)
 
 **Explicit non-actions in this package:**
 
@@ -41,8 +43,9 @@ Internal env labels such as `PROFESSIONAL` are Price-mapping names only.
 | Monthly | `$59 + ($39 × (ceil(managed_units / 500) - 1))` |
 | Annual | Monthly × 12 — **no discount** |
 | Unit-count price change | **Next paid billing period only** (no mid-period surprise charges) |
-| First month | **Free**; valid payment card **required**; auto recurring billing after |
+| First month | **Free only if declared units ≤ 500**; card **required**; >500 = no trial |
 | Existing subscribers | **None** — no migration / grandfathering |
+| Acquisition | Short pre-Checkout questionnaire → recommend module → show price → Confirm Plan |
 
 ### Module list prices stated for this blueprint (do not change; do not activate FO/Complete)
 
@@ -140,9 +143,9 @@ Exists for ops (`available|occupied|offline`). **Not** used for SaaS billing tod
 |-------------|--------------------------|-------|
 | Monthly billing | **Fit** | Exact Owner formula |
 | Annual billing | **Fit** | Separate annual Prices at monthly×12; same quantities — **no band matrix** |
-| First-month-free | **Fit** | Checkout `subscription_data.trial_period_days` (hosted Checkout free trials) + default card collection |
-| Payment method collection | **Fit** | Stripe Checkout default collects PM for post-trial; do **not** use `payment_method_collection=if_required` |
-| Auto-bill after trial | **Fit** | Stripe invoices when trial ends if default payment method present |
+| First-month-free (≤500 only) | **Fit** | Set `trial_period_days` only when server `declared_units <= 500`; omit trial when >500 |
+| Payment method collection | **Fit** | Stripe Checkout default collects PM; do **not** use `payment_method_collection=if_required` |
+| Auto-bill after trial | **Fit** | Stripe invoices when trial ends if default payment method present; immediate charge when no trial |
 | Unit-count changes | **Fit with app logic** | Update Additional Block quantity (or add/remove item); use `proration_behavior=none` + apply at period boundary |
 | Period-end adjustments | **Fit with app logic** | Sync before next invoice (`invoice.upcoming` / trial_will_end / period boundary job) |
 | Zero additional blocks | **Must not use qty 0** — see §2.3 | |
@@ -204,50 +207,44 @@ This preserves invoice clarity and the Owner formula without relying on unsuppor
 
 ## 3. Trial + unit count design
 
-Constitution sequence:
+Acquisition sequence (authoritative design):
 
 ```
-Landing → Choose Product → Monthly/Annual → Stripe Checkout
-→ Create Account → Guided Setup → Mission Control
+Landing → Questionnaire → Recommended module → Price + trial eligibility
+→ Confirm Plan → Stripe Checkout → Account / provisioning → Guided Setup
 ```
 
-Units typically **do not exist** at Checkout time (org is provisioned after `checkout.session.completed`).
+Units typically **do not exist** as actual `property_units` at Checkout; **declared** units from the questionnaire drive initial price and trial eligibility. See acquisition blueprint.
 
 ### 3.1 Timeline
 
 | Moment | What exists | Billing action |
 |--------|-------------|----------------|
-| Confirm Plan / Checkout create | No org / units yet (typical) | Create subscription with **Base only** (assumes ≤500 until measured) **or** customer-declared initial unit count if Owner later adds a Confirm Plan input — **default design: Base only at signup** |
-| Card collected | Stripe Customer + payment method | Required before trial begins |
-| Trial starts | Subscription `trialing` | **$0** charge |
+| Pre-Checkout questionnaire | Declared managed units + needs + cycle | Server computes price + `trial_eligible` |
+| Checkout / subscription start | Declared units → Stripe items | Trial **only if** declared ≤ 500; else immediate charge |
+| Card collected | Stripe Customer + payment method | **Always** required |
+| Trial starts (if eligible) | Subscription `trialing` | **$0** charge |
 | Org created | Provisioning after Checkout complete | Entitlements by SKU |
-| Properties / units created | Guided Setup / Mission Control | Count all `property_units`; **do not** change Stripe quantity mid-trial for immediate charge |
-| During free month | Units may rise/fall | Track count; **no mid-trial surprise charge** |
-| Before trial ends | `customer.subscription.trial_will_end` / `invoice.upcoming` | Recalculate managed units → set Additional Block item/qty for first paid invoice |
-| Trial ends | First paid invoice | Charge applicable approved amount for then-current blocks (monthly or annual) automatically |
+| Properties / units created | Guided Setup / Mission Control | Actual units counted; no mid-period surprise charge |
+| Before first paid invoice / period end | `trial_will_end` / `invoice.upcoming` / period sync | Reconcile actual → billing units → blocks; sync Stripe |
+| First paid invoice | Active subscription | Charge applicable amount for reconciled blocks |
 
-### 3.2 What is charged when the trial ends
+### 3.2 What is charged at first paid invoice
 
 ```
-managed_units = count(property_units) for org   # all statuses
-additional_blocks = max(0, ceil(managed_units / 500) - 1)
-# sync Stripe items (no proration), then Stripe charges:
+billing_units = actual_units if actual_units >= 1 else declared_units
+additional_blocks = max(0, ceil(billing_units / 500) - 1)
 monthly: 59 + 39 × additional_blocks
-annual:  (59 + 39 × additional_blocks) × 12
+annual:  monthly × 12
 ```
 
-If still 0 units at trial end → Base only → $59 (or $708 annual).
-
-**No special trial pricing rule** beyond first month free.
+If still 0 actual units → Base only → $59 (or $708 annual).
 
 ### 3.3 Annual + first month free
 
-Stripe Checkout free trials apply to the subscription; after trial, the **first invoice** uses the subscription’s recurring Prices (annual interval charges the annual amount once per year).
-
-Design interpretation consistent with Owner language (“free month applies to the applicable subscription amount”):
-
-- Annual Checkout → ~30-day trial at $0 → then charge **full annual unit-volume total** for current blocks.  
-- Exact calendar definition of “one month” (30 days vs calendar month) remains an implementation detail — propose `trial_period_days=30` unless Owner specifies otherwise (listed in open decisions).
+- Declared ≤ 500 + annual → ~30-day trial at $0 → then charge **full annual** for reconciled blocks.  
+- Declared > 500 + annual → **no trial**; charge full annual at Checkout.  
+- Propose `trial_period_days=30` (acquisition blueprint).
 
 ---
 
@@ -282,7 +279,8 @@ When Complete later self-serves, Owner must decide whether Complete’s $109 **r
 | Area | Current | Required for approved model |
 |------|---------|-----------------------------|
 | Catalog | Fixed single Price / offer; Pro/Business tiers | PM unit-volume offers; retire Business customer path; internal tier label may remain for mapping |
-| Checkout | One line item qty 1; no trial | Base + conditional Block; `trial_period_days`; card required |
+| Checkout | One line item qty 1; no trial | Questionnaire → Base + conditional Block; `trial_period_days` only if declared ≤ 500; card required |
+| Pricing UI | Stripe retrieve fixed amounts; Pro/Business copy | Questionnaire; unit-volume calculator; ≤500 free month / >500 Additional Unit Capacity |
 | Env Price maps | `STRIPE_PRICE_PM_PROFESSIONAL_*` (+ Business) | New Base/Block monthly+annual keys (see §7) |
 | Org commercial state | seats/properties; no unit meter | Store managed_unit_count, additional_blocks, stripe item ids, last_synced_at, pending_blocks |
 | Unit meter | None | Query `property_units`; all statuses |
@@ -484,16 +482,16 @@ Documented in governance + this blueprint; **do not implement now:**
 
 ---
 
-## 11. Owner decisions still required (genuine only)
+## 11. Owner decisions still required (minimal)
 
-1. **Trial length exact days** — propose 30; confirm calendar-month vs 30-day.  
-2. **Confirm Plan initial unit declaration** — default Base-only at signup vs optional declared count before Checkout.  
-3. **In-period UX when units exceed current paid blocks** — allow / warn / block (pricing still waits until next period).  
-4. **Seat/property limits** under unit-volume — keep Professional-era caps, replace, or revise.  
-5. **“Enterprise” customer-facing label** for high volume — requires Constitution/ADR-019 amendment if used as named offering.  
-6. **Complete Platform commercial composition when FO_READY** — whether $109 replaces or combines with PM unit-volume.  
-7. **Trial edge policies** (do not invent): cancel during free month; refunds; failed payment at trial end; authorization/hold amount; extensions.  
-8. **Missing payment method end_behavior** if card somehow absent — cancel vs pause (Owner requires card, but Stripe setting still needed).
+Closed by acquisition decision blueprint: unit declaration pre-Checkout; trial ≤500 only; trial edge behaviors; Additional Unit Capacity wording (no Enterprise product); declared vs actual reconciliation.
+
+Still open only if Owner overrides best judgment:
+
+1. Exact **`trial_period_days`** (proposed 30).  
+2. **Seat/property limits** under unit-volume.  
+3. **In-period UX** when actual units exceed paid blocks (allow / warn / block).  
+4. **Complete vs PM unit-volume** composition when FO_READY.
 
 ---
 
