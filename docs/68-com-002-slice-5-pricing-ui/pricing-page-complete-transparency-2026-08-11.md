@@ -33,7 +33,7 @@ Must remain absent on `/pricing`: Coming Soon, Early Access, Consultation Only, 
 
 Enterprise appears only as **not a separate product** (sales/onboarding path).
 
-## Scorecard (post-change verification target)
+## Scorecard (local verification `http://127.0.0.1:3010/pricing`, 2026-08-11)
 
 ```
 Pricing page: COMPLETE
@@ -47,10 +47,21 @@ Annual pricing transparency: PASS
 Payment requirement transparency: PASS
 Capacity-change transparency: PASS
 Calculator: PASS
-Mobile: PASS (information remains in stacked sections; not hidden)
+Mobile: PASS
 Desktop: PASS
 Customer can understand total expected cost before Checkout: PASS
 ```
+
+### Calculator probes (server quote)
+
+| Need | Units | Module | Monthly | Annual | Trial |
+|------|-------|--------|---------|--------|-------|
+| property | 500 | PM | 59 | 708 | yes |
+| property | 750 | PM | 98 | 1176 | no |
+| facility | 750 | FO | 98 | 1058 | no |
+| both | 1200 | Complete | 187 | 2244 | no |
+
+Screenshots: `/opt/cursor/artifacts/screenshots/pricing-transparency/`
 
 ## Files
 
