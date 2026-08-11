@@ -6,9 +6,9 @@
 
 ## Decision
 
-**PARTIAL:** NEW Stripe Prices created in production. Vercel Production env cutover **blocked** (no Vercel credentials in this agent).
+**FAIL (verify after Owner env edit):** NEW Stripe Prices exist. Production was redeployed (`dpl_2o619PF678iM8CxXKAEAtTR4RbBN` / SHA `8d7485c`). Live Pricing/Checkout still resolve **old** / **invalid** Price IDs — Production env values are not correctly cut over.
 
-See [cutover-execution-report.md](./cutover-execution-report.md) for Price IDs and exact env values.
+See [pricing-cutover-verification-2026-08-11.md](./pricing-cutover-verification-2026-08-11.md) and [cutover-execution-report.md](./cutover-execution-report.md).
 
 ## Migration model
 
