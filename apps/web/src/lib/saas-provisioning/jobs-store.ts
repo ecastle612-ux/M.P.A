@@ -182,6 +182,40 @@ export async function loadProvisioningJobFromDb(
   return saveProvisioningJob(mapDbJob(data as DbProvisioningRow));
 }
 
+/**
+ * STAB-002 — invalidate one-time bind credential after successful password claim.
+ * Clears hash in memory and Postgres when service role is available.
+ */
+export async function consumeProvisioningBindToken(
+  checkoutSessionId: string
+): Promise<boolean> {
+  const job =
+    getProvisioningJob(checkoutSessionId) ??
+    (await loadProvisioningJobFromDb(checkoutSessionId));
+  if (!job) {
+    return false;
+  }
+  const next: ProvisioningJob = {
+    ...job,
+    bindTokenHash: null,
+    bindExpiresAt: null,
+    updatedAt: new Date().toISOString()
+  };
+  saveProvisioningJob(next);
+  const supabase = await tryServiceRole();
+  if (supabase) {
+    await supabase
+      .from("provisioning_jobs")
+      .update({
+        bind_token_hash: null,
+        bind_expires_at: null,
+        updated_at: next.updatedAt
+      })
+      .eq("checkout_session_id", checkoutSessionId);
+  }
+  return true;
+}
+
 export async function listProvisioningJobsFromDb(limit = 40): Promise<ProvisioningJob[]> {
   const supabase = await tryServiceRole();
   if (!supabase) return listProvisioningJobs();

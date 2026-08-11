@@ -112,24 +112,46 @@ export async function getSignWellDocument(documentId: string): Promise<SignWellD
   return payload;
 }
 
-/** Verify SignWell webhook hash when SIGNWELL_WEBHOOK_ID is configured. */
+/**
+ * STAB-003 — SignWell webhook verification (fail closed).
+ * Missing verification configuration must never be treated as valid.
+ */
+export function verifySignWellWebhookWithSecret(
+  webhookId: string | undefined | null,
+  input: {
+    eventType: string;
+    eventTime: string;
+    hash: string;
+  }
+): boolean {
+  if (!webhookId) {
+    return false;
+  }
+  if (!input.eventType || !input.eventTime || !input.hash) {
+    return false;
+  }
+  const digest = createHmac("sha256", webhookId)
+    .update(`${input.eventType}@${input.eventTime}`)
+    .digest("hex");
+  const expected = Buffer.from(digest);
+  const provided = Buffer.from(input.hash);
+  if (expected.length !== provided.length) {
+    return false;
+  }
+  try {
+    return timingSafeEqual(expected, provided);
+  } catch {
+    return false;
+  }
+}
+
+/** Verify SignWell webhook hash. Fail closed when SIGNWELL_WEBHOOK_ID is missing. */
 export function verifySignWellWebhook(input: {
   eventType: string;
   eventTime: string;
   hash: string;
 }): boolean {
-  const webhookId = serverEnv.SIGNWELL_WEBHOOK_ID;
-  if (!webhookId) {
-    return true;
-  }
-  const digest = createHmac("sha256", webhookId)
-    .update(`${input.eventType}@${input.eventTime}`)
-    .digest("hex");
-  try {
-    return timingSafeEqual(Buffer.from(digest), Buffer.from(input.hash));
-  } catch {
-    return false;
-  }
+  return verifySignWellWebhookWithSecret(serverEnv.SIGNWELL_WEBHOOK_ID, input);
 }
 
 export function isSignWellCompletedStatus(status: string | null | undefined): boolean {

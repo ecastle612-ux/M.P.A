@@ -604,8 +604,10 @@ export async function cancelAtPeriodEnd(input: {
   organizationId: string;
   source?: string;
 }): Promise<LifecycleSubscription | null> {
-  let sub = getLifecycleByOrganizationId(input.organizationId);
+  const { resolveLifecycleForOrganization } = await import("./resolve-lifecycle");
+  let sub = await resolveLifecycleForOrganization(input.organizationId);
   if (!sub) return null;
+  if (sub.organizationId !== input.organizationId) return null;
   sub = saveLifecycleSubscription({
     ...sub,
     cancelAtPeriodEnd: true,
@@ -649,8 +651,10 @@ export async function cancelAtPeriodEnd(input: {
 export async function reactivateSubscription(input: {
   organizationId: string;
 }): Promise<LifecycleSubscription | null> {
-  let sub = getLifecycleByOrganizationId(input.organizationId);
+  const { resolveLifecycleForOrganization } = await import("./resolve-lifecycle");
+  let sub = await resolveLifecycleForOrganization(input.organizationId);
   if (!sub) return null;
+  if (sub.organizationId !== input.organizationId) return null;
 
   if (!process.env["VITEST"]) {
     try {

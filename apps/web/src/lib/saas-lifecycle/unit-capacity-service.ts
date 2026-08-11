@@ -225,9 +225,16 @@ export async function authorizeAdditionalUnitCapacity(input: {
     }
   }
 
-  let sub = getLifecycleByOrganizationId(input.organizationId);
+  const { resolveLifecycleForOrganization } = await import("./resolve-lifecycle");
+  let sub = await resolveLifecycleForOrganization(
+    input.organizationId,
+    input.supabase ?? null
+  );
   if (!sub) {
     return { ok: false, status: 404, error: "subscription_not_found" };
+  }
+  if (sub.organizationId !== input.organizationId) {
+    return { ok: false, status: 403, error: "subscription_org_mismatch" };
   }
 
   if (!tryAcquireCapacityAuthLock(input.organizationId)) {
