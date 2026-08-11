@@ -1,18 +1,31 @@
 import { NextResponse } from "next/server";
-import { COM_002_FLAGS } from "@mpa/shared";
+import { COM_002_FLAGS, isProductSku } from "@mpa/shared";
 import { getSaasStripeClient } from "../../../../../lib/saas-stripe/client";
 import { getSaasPurchaseBySessionId } from "../../../../../lib/saas-stripe/purchase-store";
+import { minimalCheckoutSessionPayload } from "../../../../../lib/saas-commerce/session-privacy";
+import {
+  clientLookupKey,
+  consumeCommerceSessionLookupRateLimit
+} from "../../../../../lib/saas-commerce/session-lookup-rate-limit";
 
 export const runtime = "nodejs";
 
-/** Purchase status for success page polling. Soft-mark may kick off Slice D provisioning. */
+/**
+ * STAB-009 — purchase confirmation poll for checkout success page.
+ * Soft-marks paid sessions and may start provisioning server-side.
+ * Response is minimized: no organizationId, userId, email, or Stripe object dump.
+ */
 export async function GET(request: Request) {
   if (!COM_002_FLAGS.sliceC_stripeCheckout) {
-    return NextResponse.json({ error: "slice_disabled" }, { status: 404 });
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
-  const sessionId = new URL(request.url).searchParams.get("session_id");
+  const sessionId = new URL(request.url).searchParams.get("session_id")?.trim() ?? "";
   if (!sessionId) {
-    return NextResponse.json({ error: "missing_session_id" }, { status: 400 });
+    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  }
+
+  if (!consumeCommerceSessionLookupRateLimit(clientLookupKey(request, `checkout:${sessionId}`))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
   let purchase = getSaasPurchaseBySessionId(sessionId);
@@ -21,7 +34,6 @@ export async function GET(request: Request) {
     try {
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       if (session.payment_status === "paid" || session.status === "complete") {
-        // Soft-mark from redirect race if webhook is delayed.
         const { updateSaasPurchase, rememberSaasPurchase } = await import(
           "../../../../../lib/saas-stripe/purchase-store"
         );
@@ -36,6 +48,7 @@ export async function GET(request: Request) {
             }) ?? purchase;
         } else if (session.metadata?.["mpa_money_domain"] === "saas_billing") {
           const now = new Date().toISOString();
+          const metaSku = session.metadata["mpa_product_sku"];
           purchase = rememberSaasPurchase({
             id: crypto.randomUUID(),
             stripeCheckoutSessionId: session.id,
@@ -43,7 +56,7 @@ export async function GET(request: Request) {
             stripeSubscriptionId:
               typeof session.subscription === "string" ? session.subscription : null,
             catalogOfferId: session.metadata["mpa_catalog_offer_id"] ?? "unknown",
-            productSku: "mpa_property_manager",
+            productSku: isProductSku(metaSku) ? metaSku : "mpa_property_manager",
             planTier: session.metadata["mpa_plan_tier"] === "business" ? "business" : "professional",
             billingCycle: session.metadata["mpa_billing_cycle"] === "annual" ? "annual" : "monthly",
             status: "checkout_completed",
@@ -67,7 +80,7 @@ export async function GET(request: Request) {
         purchase = updateSaasPurchase(sessionId, { status: "checkout_expired" }) ?? purchase;
       }
     } catch {
-      // Fall through with store state.
+      // Fall through with store state — never expose Stripe errors.
     }
   }
 
@@ -75,7 +88,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  // Payment-confirmation path (not the read-only provision status poll) may start Slice D.
   if (COM_002_FLAGS.sliceD_automaticProvisioning && purchase.status === "checkout_completed") {
     try {
       const { getProvisioningJob } = await import(
@@ -89,22 +101,20 @@ export async function GET(request: Request) {
         purchase = getSaasPurchaseBySessionId(sessionId) ?? purchase;
       }
     } catch {
-      // Job records failures; purchase status still returned.
+      // Job records failures; minimized purchase status still returned.
     }
   }
 
-  return NextResponse.json({
-    sessionId: purchase.stripeCheckoutSessionId,
-    status: purchase.status,
-    offerId: purchase.catalogOfferId,
-    productSku: purchase.productSku,
-    planTier: purchase.planTier,
-    billingCycle: purchase.billingCycle,
-    provisioned: purchase.provisioned,
-    organizationId: purchase.organizationId,
-    userId: purchase.userId,
-    continuePath: purchase.status === "checkout_completed"
-      ? `/commerce/continue?session_id=${encodeURIComponent(purchase.stripeCheckoutSessionId)}`
-      : null
-  });
+  return NextResponse.json(
+    minimalCheckoutSessionPayload({
+      status: purchase.status,
+      productSku: purchase.productSku,
+      billingCycle: purchase.billingCycle,
+      workspacePreparing: !purchase.provisioned,
+      continuePath:
+        purchase.status === "checkout_completed"
+          ? `/commerce/continue?session_id=${encodeURIComponent(purchase.stripeCheckoutSessionId)}`
+          : null
+    })
+  );
 }
