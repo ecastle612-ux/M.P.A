@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import {
-  COM_002_FLAGS,
   defaultDemoSurface,
   defaultPersonaForProduct,
   parseDemoProduct
 } from "@mpa/shared";
 import { applyDemoCookies } from "../../../../lib/demo/durable-state";
+import { isDemoRuntimeEnabled } from "../../../../lib/demo/demo-runtime";
 import { createDemoSessionRecord } from "../../../../lib/demo/session-store";
 
 export async function GET(request: Request) {
-  if (!COM_002_FLAGS.sliceB_demoPlatform) {
+  if (!isDemoRuntimeEnabled()) {
     return NextResponse.redirect(new URL("/modules", request.url));
   }
   const url = new URL(request.url);

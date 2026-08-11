@@ -120,9 +120,10 @@ const HEALTH_HREF: Record<string, string> = {
 };
 
 export function CommandCenterPage({ snapshot }: { snapshot: CommandCenterSnapshot }) {
-  const { organizations, commercial, users, system, activity, alerts } = snapshot;
+  const { organizations, commercial, users, system, activity, alerts, observability } = snapshot;
   const commitSha =
     process.env["VERCEL_GIT_COMMIT_SHA"] ?? process.env["NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA"] ?? null;
+  const criticalCount = observability?.criticalErrorCount ?? activity.latestCriticalErrors?.length ?? 0;
 
   const extendedHealth: CommandCenterHealthItem[] = [
     {
@@ -153,11 +154,16 @@ export function CommandCenterPage({ snapshot }: { snapshot: CommandCenterSnapsho
     {
       id: "errors",
       label: "Recent Errors",
-      tone: commercial.failedProvisioning > 0 ? "warn" : "ok",
+      tone: criticalCount > 0 || commercial.failedProvisioning > 0 ? "warn" : "ok",
       detail:
-        commercial.failedProvisioning > 0
-          ? `${commercial.failedProvisioning} failed provisioning job(s)`
-          : "No terminal provisioning failures in current window"
+        criticalCount > 0
+          ? `${criticalCount} durable error event(s)` +
+            (observability?.sentryConfigured ? " · Sentry DSN configured" : " · console + durable sink")
+          : commercial.failedProvisioning > 0
+            ? `${commercial.failedProvisioning} failed provisioning job(s)`
+            : observability?.sentryConfigured
+              ? "No recent durable errors · Sentry DSN configured"
+              : "No recent durable errors · optional Sentry unset"
     }
   ];
 
@@ -260,6 +266,13 @@ export function CommandCenterPage({ snapshot }: { snapshot: CommandCenterSnapsho
             items={activity.latestSupport}
             empty="No recent support events."
           />
+          <div id="critical-errors">
+            <ActivityList
+              title="Critical errors"
+              items={activity.latestCriticalErrors ?? []}
+              empty="No durable production errors in the current window."
+            />
+          </div>
           <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 lg:col-span-2">
             <h3 className="font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">
               Applications · Residents · Work orders · Documents

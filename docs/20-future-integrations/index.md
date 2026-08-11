@@ -23,7 +23,7 @@ M.P.A. owns the **workflow graph**. Third-party systems own specialized capabili
 
 | Provider | Workflow | Integration Point | Priority |
 |----------|----------|-------------------|----------|
-| **TransUnion SmartMove** | Tenant screening | Webhook + Edge Function | P1 (Phase 5) |
+| **TransUnion SmartMove** | Tenant screening | Webhook + Edge Function | P1 (Phase 5) — **STAB-008 deferred**; see [background-screening.md](./background-screening.md) |
 | **DocuSign** | Lease signing | Webhook + Edge Function | P1 (Phase 5) |
 | **Zillow Rental Manager** | Listing syndication | API integration | P2 |
 | **Apartments.com** | Listing syndication | API integration | P2 |

@@ -17,9 +17,12 @@ import {
   type StoredSaasWebhookEvent
 } from "../saas-stripe/purchase-store";
 import { loadPublicCatalogPrices } from "../saas-stripe/public-prices-server";
+import { listRecentPlatformErrorEvents } from "../observability/durable-errors";
+import { getSentryDsn } from "../observability/sentry-sink";
 import {
   buildCommandCenterSnapshot,
   offerPriceKey,
+  type CommandCenterActivityItem,
   type CommandCenterSnapshot,
   type OrgMetricRow,
   type PriceLookup
@@ -240,6 +243,17 @@ export async function loadCommandCenterSnapshot(): Promise<CommandCenterSnapshot
     (row) => row.status === "active"
   ).length;
 
+  const errorRows = await listRecentPlatformErrorEvents(20);
+  const criticalErrors: CommandCenterActivityItem[] = errorRows.map((row) => ({
+    id: `err-${row.id}`,
+    at: row.created_at,
+    title: `[${row.severity}] ${row.message}`,
+    detail: [row.route, row.request_id ? `req ${row.request_id}` : null, row.organization_id]
+      .filter(Boolean)
+      .join(" · "),
+    href: "/admin#critical-errors"
+  }));
+
   return buildCommandCenterSnapshot({
     organizations: orgRows,
     memberships: ((memberships ?? []) as Array<{ roles: unknown; status: string | null }>).map((row) => ({
@@ -252,6 +266,8 @@ export async function loadCommandCenterSnapshot(): Promise<CommandCenterSnapshot
     webhookEvents,
     lifecycle: await listLifecycleSubscriptions(),
     priceLookup,
+    criticalErrors,
+    sentryConfigured: Boolean(getSentryDsn()),
     system: {
       stripeConfigured: isSaasStripeConfigured(),
       stripeCheckoutReady: isSaasCheckoutReady(),

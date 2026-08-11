@@ -14,7 +14,9 @@
 | Analytics / vitals | observability placeholders | No external sink |
 | Audit | product audit tables + MA cert APIs | Business audit where already implemented |
 
-**Do not** treat Sentry as deployed unless a future authorize adds it.
+**Sprint 5 (STAB-006):** `captureException` now emits structured logs, optionally forwards to Sentry when `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` are set, and persists warning+ events to `platform_error_events` for Master Admin. Local/dev remains unblocked without Sentry.
+
+**Do not** treat Sentry as deployed until operators configure the DSN in the target environment. This sprint does not mutate Production Vercel env.
 
 ---
 

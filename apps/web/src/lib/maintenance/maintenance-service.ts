@@ -15,6 +15,7 @@ import {
 } from "@mpa/shared";
 import { provisionVendorPortalAccess } from "../portal/portal-access-service";
 import { emitMaintenanceEvent, writeMaintenanceAudit } from "./events-audit";
+import { notifyLifecycle } from "./lifecycle-notify";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -141,20 +142,11 @@ async function notify(
     title: string;
     body: string;
     href: string;
+    emailCritical?: boolean;
   }
 ) {
-  if (!args.userId) {
-    return;
-  }
-  await supabase.from("maintenance_notifications").insert({
-    organization_id: args.organizationId,
-    user_id: args.userId,
-    work_order_id: args.workOrderId,
-    notification_key: args.key,
-    title: args.title,
-    body: args.body,
-    href: args.href
-  });
+  // STAB-007 — in-app always when user present; email for critical lifecycle events.
+  await notifyLifecycle(supabase as never, args);
 }
 
 const SELECT_WO = `
@@ -439,14 +431,18 @@ export async function triageWorkOrder(
     (Array.isArray(existing.pm_residents)
       ? existing.pm_residents[0]?.user_id
       : existing.pm_residents?.user_id) ?? existing.requested_by_user_id;
+  const emergency = input.priority === "emergency";
   await notify(supabase, {
     organizationId,
     userId: residentUserId,
     workOrderId: input.workOrderId,
-    key: "work_order.triaged",
-    title: "Maintenance request reviewed",
-    body: `Your request was prioritized as ${input.priority}.`,
-    href: "/portal/tenant/maintenance"
+    key: emergency ? "work_order.emergency" : "work_order.triaged",
+    title: emergency ? "Emergency maintenance prioritized" : "Maintenance request reviewed",
+    body: emergency
+      ? `Your request was marked emergency (${input.priority}).`
+      : `Your request was prioritized as ${input.priority}.`,
+    href: "/portal/tenant/maintenance",
+    emailCritical: emergency
   });
 
   return data as WorkOrderRow;
@@ -538,7 +534,8 @@ export async function assignWorkOrder(
       key: "work_order.assigned",
       title: "Work order assigned",
       body: `You were assigned: ${existing.title}`,
-      href: assigneeHref
+      href: assigneeHref,
+      emailCritical: true
     });
   }
   let vendorPortalHandoff: Awaited<
@@ -577,7 +574,8 @@ export async function assignWorkOrder(
       key: "vendor.assigned",
       title: "Vendor work assigned",
       body: `Assigned work order: ${existing.title}`,
-      href: "/portal/vendor"
+      href: "/portal/vendor",
+      emailCritical: true
     });
   }
 
@@ -592,7 +590,8 @@ export async function assignWorkOrder(
     key: "work_order.assigned",
     title: "Maintenance update",
     body: "Someone has been assigned to your request.",
-    href: "/portal/tenant/maintenance"
+    href: "/portal/tenant/maintenance",
+    emailCritical: existing.priority === "emergency"
   });
 
   return {
@@ -697,6 +696,14 @@ export async function progressWorkOrder(
     payload: { note: input.note, status: nextStatus, action: input.action }
   });
 
+  const isTerminalProgress =
+    input.action === "start" || input.action === "complete" || eventType === "work_order.started";
+  const criticalProgress =
+    isTerminalProgress ||
+    existing.priority === "emergency" ||
+    eventType === "work_order.completed" ||
+    eventType === "work_order.closed";
+
   if (existing.work_surface !== "facility") {
     const residentUserId =
       (Array.isArray(existing.pm_residents)
@@ -710,8 +717,44 @@ export async function progressWorkOrder(
       title:
         input.action === "complete" ? "Work completed — please confirm" : "Maintenance progress update",
       body: input.note,
-      href: "/portal/tenant/maintenance"
+      href: "/portal/tenant/maintenance",
+      emailCritical: criticalProgress
     });
+  } else if (criticalProgress) {
+    // Facility: notify assignee + requester (no resident portal).
+    const facilityHref = "/facility/operations";
+    await notify(supabase, {
+      organizationId,
+      userId: existing.technician_user_id,
+      workOrderId: input.workOrderId,
+      key: eventType,
+      title:
+        input.action === "complete"
+          ? "Facility work completed"
+          : input.action === "start"
+            ? "Facility work started"
+            : "Facility work update",
+      body: input.note,
+      href: facilityHref,
+      emailCritical: true
+    });
+    if (existing.requested_by_user_id && existing.requested_by_user_id !== existing.technician_user_id) {
+      await notify(supabase, {
+        organizationId,
+        userId: existing.requested_by_user_id,
+        workOrderId: input.workOrderId,
+        key: eventType,
+        title:
+          input.action === "complete"
+            ? "Facility work completed"
+            : input.action === "start"
+              ? "Facility work started"
+              : "Facility work update",
+        body: input.note,
+        href: facilityHref,
+        emailCritical: true
+      });
+    }
   }
 
   return data as WorkOrderRow;
@@ -1013,6 +1056,64 @@ export async function cancelWorkOrder(
     alsoResidentId: existing.resident_id,
     payload: { note, previousStatus: existing.status }
   });
+
+  const cancelHref =
+    existing.work_surface === "facility" ? "/facility/operations" : "/pm/maintenance";
+  const residentUserId =
+    (Array.isArray(existing.pm_residents)
+      ? existing.pm_residents[0]?.user_id
+      : existing.pm_residents?.user_id) ?? existing.requested_by_user_id;
+
+  await notify(supabase, {
+    organizationId,
+    userId: existing.technician_user_id,
+    workOrderId: input.workOrderId,
+    key: "work_order.cancelled",
+    title: "Work order cancelled",
+    body: note,
+    href: cancelHref,
+    emailCritical: true
+  });
+
+  if (existing.assignee_type === "vendor") {
+    const vendorUserId = Array.isArray(existing.vendor_vendors)
+      ? existing.vendor_vendors[0]?.user_id
+      : existing.vendor_vendors?.user_id;
+    await notify(supabase, {
+      organizationId,
+      userId: vendorUserId,
+      workOrderId: input.workOrderId,
+      key: "work_order.cancelled",
+      title: "Work order cancelled",
+      body: note,
+      href: "/portal/vendor",
+      emailCritical: true
+    });
+  }
+
+  if (existing.work_surface !== "facility") {
+    await notify(supabase, {
+      organizationId,
+      userId: residentUserId,
+      workOrderId: input.workOrderId,
+      key: "work_order.cancelled",
+      title: "Maintenance request cancelled",
+      body: note,
+      href: "/portal/tenant/maintenance",
+      emailCritical: true
+    });
+  } else if (residentUserId && residentUserId !== existing.technician_user_id) {
+    await notify(supabase, {
+      organizationId,
+      userId: residentUserId,
+      workOrderId: input.workOrderId,
+      key: "work_order.cancelled",
+      title: "Facility work cancelled",
+      body: note,
+      href: cancelHref,
+      emailCritical: true
+    });
+  }
 
   return data as WorkOrderRow;
 }

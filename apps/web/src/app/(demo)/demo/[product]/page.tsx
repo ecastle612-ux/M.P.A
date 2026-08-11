@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { COM_002_FLAGS, parseDemoProduct } from "@mpa/shared";
+import { parseDemoProduct } from "@mpa/shared";
+import { isDemoRuntimeEnabled } from "../../../../lib/demo/demo-runtime";
 
 /** Starts a demo session via API (sets httpOnly cookie), then lands on default surface. */
 export default async function DemoProductEntryPage({
@@ -7,7 +8,7 @@ export default async function DemoProductEntryPage({
 }: {
   params: Promise<{ product: string }>;
 }) {
-  if (!COM_002_FLAGS.sliceB_demoPlatform) {
+  if (!isDemoRuntimeEnabled()) {
     redirect("/modules");
   }
   const { product: raw } = await params;

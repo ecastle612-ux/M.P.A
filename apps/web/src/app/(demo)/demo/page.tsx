@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
-import { COM_002_FLAGS } from "@mpa/shared";
 import { DemoProductPicker } from "../../../components/demo/demo-product-picker";
 import { createAuthServerClient } from "../../../lib/auth/server";
+import { isDemoRuntimeEnabled } from "../../../lib/demo/demo-runtime";
 import { DEMO_ROUTE_METADATA } from "../../../lib/demo/meta";
 
 export const metadata = DEMO_ROUTE_METADATA;
 
 export default async function DemoIndexPage() {
-  if (!COM_002_FLAGS.sliceB_demoPlatform) {
+  if (!isDemoRuntimeEnabled()) {
     redirect("/modules");
   }
   const supabase = await createAuthServerClient();

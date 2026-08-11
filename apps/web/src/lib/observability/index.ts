@@ -3,3 +3,8 @@ export * from "./logger";
 export * from "./analytics";
 export * from "./errors";
 export * from "./performance";
+export * from "./scrub";
+export * from "./request-context";
+export * from "./api-error";
+export * from "./durable-errors";
+export * from "./sentry-sink";

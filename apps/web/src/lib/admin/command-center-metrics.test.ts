@@ -123,5 +123,42 @@ describe("command-center-metrics", () => {
     expect(snapshot.commercial.arrCents).toBe((9900 + 8250) * 12);
     expect(snapshot.users.platformOperators).toBe(2);
     expect(snapshot.system).toHaveLength(5);
+    expect(snapshot.activity.latestCriticalErrors).toEqual([]);
+    expect(snapshot.observability.criticalErrorCount).toBe(0);
+  });
+
+  it("surfaces durable critical errors into alerts", () => {
+    const snapshot = buildCommandCenterSnapshot({
+      organizations: [],
+      memberships: [],
+      operatorCount: 0,
+      provisioningJobs: [],
+      purchases: [],
+      webhookEvents: [],
+      lifecycle: [],
+      priceLookup: { unitAmountByOfferKey: {} },
+      criticalErrors: [
+        {
+          id: "err-1",
+          at: "2026-08-11T00:00:00.000Z",
+          title: "[critical] boom",
+          detail: "POST /api/x · req r1",
+          href: "/admin#critical-errors"
+        }
+      ],
+      sentryConfigured: true,
+      system: {
+        stripeConfigured: true,
+        stripeCheckoutReady: true,
+        supabaseOk: true,
+        supabaseDetail: "ok",
+        emailConfigured: true,
+        demoSessions: 0,
+        demoOk: true
+      }
+    });
+    expect(snapshot.observability.criticalErrorCount).toBe(1);
+    expect(snapshot.observability.sentryConfigured).toBe(true);
+    expect(snapshot.alerts.some((alert) => alert.id === "alert-critical-errors")).toBe(true);
   });
 });

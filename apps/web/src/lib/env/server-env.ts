@@ -30,5 +30,9 @@ export const serverEnv = serverEnvSchema.parse({
   RESEND_FROM_EMAIL: process.env["RESEND_FROM_EMAIL"],
   SIGNWELL_API_KEY: process.env["SIGNWELL_API_KEY"],
   SIGNWELL_WEBHOOK_ID: process.env["SIGNWELL_WEBHOOK_ID"],
-  SIGNWELL_TEST_MODE: process.env["SIGNWELL_TEST_MODE"]
+  SIGNWELL_TEST_MODE: process.env["SIGNWELL_TEST_MODE"],
+  SENTRY_DSN: process.env["SENTRY_DSN"],
+  NEXT_PUBLIC_SENTRY_DSN: process.env["NEXT_PUBLIC_SENTRY_DSN"],
+  SENTRY_ENVIRONMENT: process.env["SENTRY_ENVIRONMENT"],
+  DEMO_ENABLED: process.env["DEMO_ENABLED"]
 });

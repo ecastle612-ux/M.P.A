@@ -535,6 +535,39 @@ export function MaintenanceCommandCenter() {
                 </Button>
               </form>
 
+              {!["closed", "cancelled", "completed"].includes(selected.status) ? (
+                <form
+                  className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void run(async () => {
+                      const response = await fetch("/api/pm/maintenance/cancel", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          workOrderId: selected.id,
+                          note: progressNote || "Work order cancelled."
+                        })
+                      });
+                      const body = await response.json();
+                      if (!response.ok) {
+                        throw new Error(body.error ?? "Cancel failed");
+                      }
+                      setProgressNote("");
+                      setNotice("Work order cancelled.");
+                    });
+                  }}
+                >
+                  <h3 className="text-sm font-semibold">Cancel work order</h3>
+                  <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                    Cancels open work that should not continue. Assignees and residents are notified.
+                  </p>
+                  <Button type="submit" variant="secondary" disabled={busy}>
+                    Cancel work order
+                  </Button>
+                </form>
+              ) : null}
+
               <form
                 className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3"
                 onSubmit={(event) => {

@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
-import { COM_002_FLAGS, parseDemoProduct } from "@mpa/shared";
+import { parseDemoProduct } from "@mpa/shared";
 import { DemoChrome } from "../../../../../components/demo/demo-chrome";
 import { DemoSessionBootstrap } from "../../../../../components/demo/demo-session-bootstrap";
 import { DemoSurfaceView } from "../../../../../components/demo/demo-surfaces";
 import { readDemoCookiePair } from "../../../../../lib/demo/cookie";
+import { isDemoRuntimeEnabled } from "../../../../../lib/demo/demo-runtime";
 import { resolveDemoSessionRecord } from "../../../../../lib/demo/session-store";
 
 export default async function DemoSurfacePage({
@@ -11,7 +12,7 @@ export default async function DemoSurfacePage({
 }: {
   params: Promise<{ product: string; surface: string }>;
 }) {
-  if (!COM_002_FLAGS.sliceB_demoPlatform) {
+  if (!isDemoRuntimeEnabled()) {
     redirect("/modules");
   }
   const { product: raw, surface } = await params;
