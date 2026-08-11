@@ -29,6 +29,7 @@ export type UserProfileSnapshot = {
     organizationName: string;
     roles: string[];
     status: string;
+    createdAt: string | null;
     updatedAt: string;
   }>;
   invitations: Array<{
@@ -62,7 +63,7 @@ export async function loadUserProfile(userId: string): Promise<UserProfileSnapsh
       .maybeSingle(),
     client
       .from("organization_memberships")
-      .select("id, organization_id, roles, status, updated_at, organizations(name)")
+      .select("id, organization_id, roles, status, created_at, updated_at, organizations(name)")
       .eq("user_id", userId)
       .order("updated_at", { ascending: false }),
     client
@@ -83,6 +84,7 @@ export async function loadUserProfile(userId: string): Promise<UserProfileSnapsh
     organization_id: string;
     roles: string[] | null;
     status: string;
+    created_at?: string | null;
     updated_at: string;
     organizations: { name?: string } | Array<{ name?: string }> | null;
   }>;
@@ -197,6 +199,7 @@ export async function loadUserProfile(userId: string): Promise<UserProfileSnapsh
         organizationName: org?.name ?? "Organization",
         roles: m.roles ?? [],
         status: m.status,
+        createdAt: m.created_at ?? null,
         updatedAt: m.updated_at
       };
     }),

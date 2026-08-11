@@ -217,6 +217,14 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
       </Section>
 
       <Section id="users" title="Users / Memberships">
+        <p className="mb-3 text-xs">
+          <Link
+            href={`/admin/users?organizationId=${encodeURIComponent(detail.id)}`}
+            className="text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open org memberships in Users →
+          </Link>
+        </p>
         <div className="grid gap-3 lg:grid-cols-2">
           <Panel>
             <h3 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Members</h3>
@@ -230,7 +238,7 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
                     className="border-t border-[var(--mpa-color-border-subtle)] pt-2 first:border-0 first:pt-0"
                   >
                     <Link
-                      href={`/admin/platform/customers/${u.userId}`}
+                      href={`/admin/users/${u.userId}`}
                       className="font-mono text-xs text-[var(--mpa-color-brand-primary)] underline"
                     >
                       {u.userId}
@@ -247,7 +255,7 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
               </ul>
             )}
             <p className="mt-3 text-[11px] text-[var(--mpa-color-text-secondary)]">
-              Inspect-only. Role changes are deferred to MA-3.
+              Inspect-only. Role/membership mutations are deferred to a later MA slice.
             </p>
           </Panel>
           <Panel>
@@ -710,8 +718,14 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
       </Section>
 
       <Section id="audit" title="Audit history">
-        <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-          Organization-scoped support + domain audit. Full fleet audit explorer is MA-3.
+        <p className="mb-3 text-xs text-[var(--mpa-color-text-secondary)]">
+          Organization-scoped support + domain audit.{" "}
+          <Link
+            href={`/admin/audit?organizationId=${encodeURIComponent(detail.id)}`}
+            className="text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Open fleet Audit Log for this org →
+          </Link>
         </p>
         {detail.audit.length === 0 ? (
           <Panel>
@@ -723,12 +737,27 @@ export function Ma2OrganizationDetailPage({ detail }: { detail: Ma2OrgDetailSnap
               <li key={`${a.source}-${a.id}`} className="px-4 py-3 text-xs">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="neutral">{a.source}</Badge>
-                  <span className="font-medium text-[var(--mpa-color-text-primary)]">{a.action}</span>
+                  <Link
+                    href={`/admin/audit/${a.id}`}
+                    className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+                  >
+                    {a.action}
+                  </Link>
                   <span className="text-[var(--mpa-color-text-secondary)]">{a.result}</span>
                 </div>
                 <p className="mt-1 font-mono text-[10px] text-[var(--mpa-color-text-secondary)]">
-                  {a.at ? new Date(a.at).toLocaleString() : "—"} · actor {a.actor ?? "—"} · target{" "}
-                  {a.target}
+                  {a.at ? new Date(a.at).toLocaleString() : "—"} · actor{" "}
+                  {a.actor ? (
+                    <Link
+                      href={`/admin/users/${a.actor}`}
+                      className="text-[var(--mpa-color-brand-primary)] underline"
+                    >
+                      {a.actor}
+                    </Link>
+                  ) : (
+                    "—"
+                  )}{" "}
+                  · target {a.target}
                 </p>
                 {Object.keys(a.context).length > 0 ? (
                   <pre className="mt-1 max-h-24 overflow-auto font-mono text-[10px] text-[var(--mpa-color-text-secondary)]">

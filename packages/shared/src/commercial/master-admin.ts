@@ -15,8 +15,8 @@ export type MasterAdminNavGroup = {
 /**
  * Master Admin / Owner Operations Console navigation.
  *
- * MA-1: Overview + Errors are the Command Center primary surfaces.
- * Existing Owner Ops routes remain (already shipping) — do not add unfinished MA-2+ placeholders.
+ * MA-3 primary surfaces: Overview · Organizations · Users · Audit Log · Errors.
+ * Existing Owner Ops routes remain (already shipping) — no unfinished MA-4+ placeholders.
  */
 export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
   {
@@ -32,6 +32,16 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         href: "/admin/platform/organizations",
         label: "Organizations",
         description: "Organization directory and diagnostic detail."
+      },
+      {
+        href: "/admin/users",
+        label: "Users",
+        description: "Platform users, memberships, and roles (read-only)."
+      },
+      {
+        href: "/admin/audit",
+        label: "Audit Log",
+        description: "Who did what, where, when, with what result."
       },
       {
         href: "/admin/errors",
@@ -63,7 +73,7 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
       {
         href: "/admin/platform/customers",
         label: "Customers",
-        description: "Users, memberships, invitations, and profiles."
+        description: "Legacy membership directory (also covered by Users)."
       },
       {
         href: "/admin/platform/operators",
