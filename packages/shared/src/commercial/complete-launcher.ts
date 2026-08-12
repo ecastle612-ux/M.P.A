@@ -81,9 +81,11 @@ export function navigationGroupTitleForSku(
 }
 
 export function missionControlNavLabelForSku(
-  _surface: "property" | "facility",
-  _sku: ProductSku | null
+  surface: "property" | "facility",
+  sku: ProductSku | null
 ): string {
+  void surface;
+  void sku;
   // Group title already names Property Manager / Facility Operations / Operations.
   return "Mission Control";
 }
