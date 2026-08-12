@@ -53,14 +53,7 @@ export function foBriefFromMissionControlApi(
   };
 }
 
-export function priorityBadgeVariant(
-  tone: CompleteLauncherPriority["tone"]
-): "danger" | "warning" | "neutral" | "success" | "info" {
-  if (tone === "critical") return "danger";
-  if (tone === "watch") return "warning";
-  if (tone === "ok") return "success";
-  return "neutral";
-}
+export { resolvePriorityToneVariant as priorityBadgeVariant } from "@mpa/ui";
 
 export function workspaceSectionLabel(
   workspace: CompleteLauncherPriority["workspace"]

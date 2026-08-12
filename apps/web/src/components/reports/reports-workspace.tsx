@@ -19,11 +19,11 @@ const linkFocus =
 function toneClass(tone?: string): string {
   switch (tone) {
     case "attention":
-      return "border-[var(--mpa-color-border-danger,#C45C4A)]/40 bg-[color-mix(in_srgb,var(--mpa-color-danger,#C45C4A)_8%,white)]";
+      return "border-[var(--mpa-color-status-danger)]/40 bg-[var(--mpa-color-status-danger-subtle)]";
     case "positive":
-      return "border-[var(--mpa-color-border-success,#2F7D5B)]/35 bg-[color-mix(in_srgb,var(--mpa-color-success,#2F7D5B)_8%,white)]";
+      return "border-[var(--mpa-color-status-success)]/35 bg-[var(--mpa-color-status-success-subtle)]";
     case "watch":
-      return "border-[var(--mpa-color-border-warning,#C48A2A)]/40 bg-[color-mix(in_srgb,var(--mpa-color-warning,#C48A2A)_8%,white)]";
+      return "border-[var(--mpa-color-status-warning)]/40 bg-[var(--mpa-color-status-warning-subtle)]";
     default:
       return "border-[var(--mpa-color-border-default)] bg-white";
   }
@@ -257,7 +257,7 @@ export function ReportsWorkspace() {
       </section>
 
       {error ? (
-        <p className="text-sm text-[var(--mpa-color-danger,#C45C4A)]" role="alert">
+        <p className="text-sm text-[var(--mpa-color-status-danger)]" role="alert">
           {error}
         </p>
       ) : null}

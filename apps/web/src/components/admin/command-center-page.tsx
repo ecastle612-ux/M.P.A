@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge } from "@mpa/ui";
+import { Badge, resolveHealthToneVariant } from "@mpa/ui";
 import type {
   CommandCenterActivityItem,
   CommandCenterHealthItem,
@@ -7,21 +7,6 @@ import type {
   HealthTone
 } from "../../lib/admin/command-center-metrics";
 import { OwnerGlobalSearch } from "./owner-global-search";
-
-function toneVariant(tone: HealthTone): "success" | "warning" | "danger" | "neutral" | "info" {
-  switch (tone) {
-    case "ok":
-      return "success";
-    case "warn":
-      return "warning";
-    case "down":
-      return "danger";
-    case "info":
-      return "info";
-    default:
-      return "neutral";
-  }
-}
 
 function MetricCard({
   label,
@@ -40,7 +25,7 @@ function MetricCard({
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           {label}
         </p>
-        {tone ? <Badge variant={toneVariant(tone)}>{tone}</Badge> : null}
+        {tone ? <Badge variant={resolveHealthToneVariant(tone)}>{tone}</Badge> : null}
       </div>
       <p className="mt-2 font-display text-3xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">
         {value}
@@ -104,7 +89,7 @@ function PlatformHealthCard({ item, href }: { item: CommandCenterHealthItem; hre
     >
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">{item.label}</h3>
-        <Badge variant={toneVariant(item.tone)}>{item.tone}</Badge>
+        <Badge variant={resolveHealthToneVariant(item.tone)}>{item.tone}</Badge>
       </div>
       <p className="mt-2 text-xs text-[var(--mpa-color-text-secondary)]">{item.detail}</p>
     </Link>

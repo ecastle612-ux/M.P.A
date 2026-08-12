@@ -34,8 +34,20 @@
 
   --mpa-color-brand-primary: #0f6b56;
   --mpa-color-brand-primary-hover: #0c5a48;
+  --mpa-color-brand-primary-subtle: #e6f4ef;
   --mpa-color-border-focus: #0f6b56;
-  --mpa-color-bg-subtle: #f7f8fa;
+  /* Alias for surfaces that historically used bg-subtle; prefer surface-muted going forward. */
+  --mpa-color-bg-subtle: #eef0f3;
+  --mpa-color-bg-surface-muted: #eef0f3;
+
+  --mpa-color-status-success: #0e7a57;
+  --mpa-color-status-warning: #b45309;
+  --mpa-color-status-danger: #c0392b;
+  --mpa-color-status-info: #1d6aa5;
+  --mpa-color-status-success-subtle: #e3f5ee;
+  --mpa-color-status-warning-subtle: #fef3c7;
+  --mpa-color-status-danger-subtle: #fce8e6;
+  --mpa-color-status-info-subtle: #e5f1fa;
 }
 
 html,

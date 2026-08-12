@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { formatMoney } from "@mpa/shared";
-import { Badge, Button, EmptyState, Input, Select } from "@mpa/ui";
+import { Alert, Badge, Button, EmptyState, Input, Select } from "@mpa/ui";
 
 type Aging = {
   current: number;
@@ -173,7 +173,7 @@ export function CollectionsDesk() {
   return (
     <div className="space-y-6">
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">{error}</p>
+        <Alert variant="danger">{error}</Alert>
       ) : null}
 
       <section

@@ -11,7 +11,7 @@ import {
   type WorkOrderPriority,
   type WorkOrderStatus
 } from "@mpa/shared";
-import { Badge, Button, EmptyState, Input, Select, Skeleton, Textarea } from "@mpa/ui";
+import { resolveStatusBadgeVariant, Alert, Badge, Button, EmptyState, Input, Select, Skeleton, Textarea } from "@mpa/ui";
 import { ConfirmActionModal } from "../shell/confirm-action-modal";
 import { ErrorRetry } from "../shell/error-retry";
 import {
@@ -359,11 +359,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
           }}
         />
       ) : null}
-      {notice ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
-          {notice}
-        </p>
-      ) : null}
+      {notice ? <Alert variant="success">{notice}</Alert> : null}
 
       <form
         className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:grid-cols-2"
@@ -582,9 +578,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                         variant={
                           row.priority === "emergency"
                             ? "danger"
-                            : row.status === "closed"
-                              ? "success"
-                              : "neutral"
+                            : resolveStatusBadgeVariant(row.status)
                         }
                       >
                         {WORK_ORDER_STATUS_LABELS[row.status]}

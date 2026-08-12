@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { completeWorkspaceLabels } from "@mpa/shared";
-import { Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
+import { Alert, Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { ErrorRetry } from "../shell/error-retry";
 import {
@@ -145,11 +145,7 @@ export function FacilityAssetsWorkspace() {
           }}
         />
       ) : null}
-      {notice ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
-          {notice}
-        </p>
-      ) : null}
+      {notice ? <Alert variant="success">{notice}</Alert> : null}
 
       <form
         className="grid max-w-xl gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Badge } from "@mpa/ui";
+import { Badge, buttonClassName, resolveStatusBadgeVariant } from "@mpa/ui";
 import { Breadcrumbs } from "./breadcrumbs";
 
 const linkFocus =
@@ -17,26 +17,7 @@ export function documentsHref(entityType?: string, query?: string): string {
 }
 
 export function PmStatusBadge({ status }: { status: string }) {
-  const normalized = status.toLowerCase();
-  let variant: "success" | "warning" | "danger" | "neutral" | "info" = "neutral";
-  if (["active", "occupied", "paid", "complete", "completed", "closed"].some((k) => normalized.includes(k))) {
-    variant = "success";
-  } else if (
-    ["pending", "draft", "sent", "in_progress", "assigned", "open", "available"].some((k) =>
-      normalized.includes(k)
-    )
-  ) {
-    variant = "warning";
-  } else if (
-    ["overdue", "emergency", "critical", "failed", "cancelled", "delinquent", "vacant"].some((k) =>
-      normalized.includes(k)
-    )
-  ) {
-    variant = "danger";
-  } else if (["info", "trial"].some((k) => normalized.includes(k))) {
-    variant = "info";
-  }
-  return <Badge variant={variant}>{status}</Badge>;
+  return <Badge variant={resolveStatusBadgeVariant(status)}>{status}</Badge>;
 }
 
 export function PmPageChrome({
@@ -146,7 +127,11 @@ export function PmDocumentsStrip({
       </div>
       <Link
         href={documentsHref(entityType)}
-        className={`inline-flex shrink-0 items-center justify-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-brand-primary)] hover:border-[var(--mpa-color-brand-primary)] ${linkFocus}`}
+        className={buttonClassName({
+          variant: "secondary",
+          size: "sm",
+          className: "shrink-0 text-[var(--mpa-color-brand-primary)] hover:border-[var(--mpa-color-brand-primary)]"
+        })}
       >
         Open documents
       </Link>
@@ -162,25 +147,18 @@ export function PmQuickActions({
   if (!actions.length) return null;
   return (
     <nav aria-label="Quick actions" className="flex flex-wrap gap-2">
-      {actions.map((action) =>
-        action.primary ? (
-          <Link
-            key={action.href + action.label}
-            href={action.href}
-            className={`inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-3 text-sm font-medium text-white hover:bg-[#0C5A48] ${linkFocus}`}
-          >
-            {action.label}
-          </Link>
-        ) : (
-          <Link
-            key={action.href + action.label}
-            href={action.href}
-            className={`inline-flex h-9 items-center justify-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 text-sm font-medium text-[var(--mpa-color-text-primary)] hover:border-[var(--mpa-color-brand-primary)] ${linkFocus}`}
-          >
-            {action.label}
-          </Link>
-        )
-      )}
+      {actions.map((action) => (
+        <Link
+          key={action.href + action.label}
+          href={action.href}
+          className={buttonClassName({
+            variant: action.primary ? "primary" : "secondary",
+            className: action.primary ? undefined : "hover:border-[var(--mpa-color-brand-primary)]"
+          })}
+        >
+          {action.label}
+        </Link>
+      ))}
     </nav>
   );
 }

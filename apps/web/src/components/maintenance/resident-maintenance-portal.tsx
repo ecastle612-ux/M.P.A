@@ -7,7 +7,7 @@ import {
   type WorkOrderPriority,
   type WorkOrderStatus
 } from "@mpa/shared";
-import { Badge, Button, EmptyState, Skeleton, Textarea } from "@mpa/ui";
+import { Alert, Badge, Button, EmptyState, Skeleton, Textarea } from "@mpa/ui";
 import { ResidentPageIntro } from "../shell/resident-workspace";
 
 type Entry = {
@@ -219,31 +219,25 @@ export function ResidentMaintenancePortal() {
       />
 
       {error ? (
-        <p className="rounded-xl border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
+<Alert variant="danger">{error}</Alert>
       ) : null}
       {notice ? (
-        <p
-          role="status"
-          className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900"
-        >
-          {notice}
-        </p>
+<Alert variant="success">{notice}</Alert>
       ) : null}
 
       {step === "home" ? (
         <div className="space-y-3">
-          <button
+          <Button
             type="button"
+            size="lg"
+            className="min-h-14 w-full text-base font-semibold"
             onClick={() => {
               setNotice(null);
               setStep("category");
             }}
-            className={`flex min-h-14 w-full items-center justify-center rounded-2xl bg-[var(--mpa-color-brand-primary)] px-4 text-base font-semibold text-white hover:bg-[#0C5A48] ${linkFocus}`}
           >
             Report an issue
-          </button>
+          </Button>
           <p className="text-center text-xs text-[var(--mpa-color-text-secondary)]">
             Routing to your property’s workflow happens automatically.
           </p>
@@ -289,20 +283,21 @@ export function ResidentMaintenancePortal() {
           <div className="space-y-2">
             <p className="text-sm font-semibold">Add photos</p>
             <div className="grid gap-2 sm:grid-cols-2">
-              <button
+              <Button
                 type="button"
+                className="min-h-12 font-semibold"
                 onClick={() => cameraInputRef.current?.click()}
-                className={`inline-flex min-h-12 items-center justify-center rounded-xl bg-[var(--mpa-color-brand-primary)] px-3 text-sm font-semibold text-white ${linkFocus}`}
               >
                 Take photo
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="secondary"
+                className="min-h-12"
                 onClick={() => galleryInputRef.current?.click()}
-                className={`inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--mpa-color-border-default)] px-3 text-sm font-medium ${linkFocus}`}
               >
                 Choose from gallery
-              </button>
+              </Button>
             </div>
             <input
               ref={cameraInputRef}
@@ -414,16 +409,21 @@ export function ResidentMaintenancePortal() {
       ) : null}
 
       {step === "done" ? (
-        <section className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <h2 className="text-base font-semibold text-emerald-950">You’re all set</h2>
-          <p className="text-sm text-emerald-900">
+        <Alert
+          variant="success"
+          className="space-y-3 p-4"
+          title="You’re all set"
+          action={
+            <Button type="button" onClick={resetComposer}>
+              Done
+            </Button>
+          }
+        >
+          <p>
             Your request is in. We’ll route it through your property’s workflow — you don’t need to
             chase anyone.
           </p>
-          <Button type="button" onClick={resetComposer}>
-            Done
-          </Button>
-        </section>
+        </Alert>
       ) : null}
 
       <section className="space-y-3">

@@ -1,4 +1,5 @@
 export * from "./lib/cn";
+export * from "./lib/status";
 export * from "./tokens/canopy";
 export * from "./providers/theme-provider";
 
@@ -12,6 +13,7 @@ export * from "./primitives/modal";
 export * from "./primitives/drawer";
 export * from "./primitives/tooltip";
 export * from "./primitives/badge";
+export * from "./primitives/alert";
 export * from "./primitives/avatar";
 export * from "./primitives/card";
 export * from "./primitives/table";

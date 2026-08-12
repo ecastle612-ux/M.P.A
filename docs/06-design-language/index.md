@@ -37,6 +37,7 @@ This folder is the **permanent visual identity** of M.P.A. Everything built from
 | [Operations Console](./operations-console.md) | Signature PM experience — not a dashboard |
 | [Role Experiences](./role-experiences.md) | Four portals, one language, four feelings |
 | [Improvements Before Implementation](./improvements-before-implementation.md) | Gate checklist before any UI components are built |
+| [Token drift — Wave C1](./token-drift-wave-c1.md) | Remaining dual-token / invented-alias debt (documented, not fully rewritten) |
 
 Related:
 

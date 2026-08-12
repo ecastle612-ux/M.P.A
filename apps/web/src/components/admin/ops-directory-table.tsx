@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { Badge } from "@mpa/ui";
+import { Badge, resolveHealthToneVariant, resolveStatusBadgeVariant } from "@mpa/ui";
 import type { HealthTone } from "../../lib/admin/command-center-metrics";
 
 export type OpsFilterOption = { value: string; label: string };
@@ -13,44 +13,12 @@ export type OpsColumn<T> = {
   sortValue?: (row: T) => string | number;
 };
 
-function toneVariant(tone: HealthTone): "success" | "warning" | "danger" | "neutral" | "info" {
-  switch (tone) {
-    case "ok":
-      return "success";
-    case "warn":
-      return "warning";
-    case "down":
-      return "danger";
-    case "info":
-      return "info";
-    default:
-      return "neutral";
-  }
-}
-
 export function HealthBadge({ tone, label }: { tone: HealthTone; label?: string }) {
-  return <Badge variant={toneVariant(tone)}>{label ?? tone}</Badge>;
+  return <Badge variant={resolveHealthToneVariant(tone)}>{label ?? tone}</Badge>;
 }
 
 export function StatusBadge({ value }: { value: string }) {
-  const normalized = value.toLowerCase();
-  let variant: "success" | "warning" | "danger" | "neutral" | "info" = "neutral";
-  if (["active", "complete", "ok", "accepted", "paid", "succeeded"].some((k) => normalized.includes(k))) {
-    variant = "success";
-  } else if (
-    ["pending", "trial", "processing", "incomplete", "warn"].some((k) => normalized.includes(k))
-  ) {
-    variant = "warning";
-  } else if (
-    ["fail", "suspend", "cancel", "down", "expired", "unpaid", "revoked"].some((k) =>
-      normalized.includes(k)
-    )
-  ) {
-    variant = "danger";
-  } else if (["info", "trialing"].some((k) => normalized.includes(k))) {
-    variant = "info";
-  }
-  return <Badge variant={variant}>{value}</Badge>;
+  return <Badge variant={resolveStatusBadgeVariant(value)}>{value}</Badge>;
 }
 
 export function OpsDirectoryTable<T extends { id: string }>({

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatMoney } from "@mpa/shared";
-import { Badge, Button, EmptyState, Input, Select } from "@mpa/ui";
+import { Alert, Badge, Button, EmptyState, Input, Select } from "@mpa/ui";
 
 type Lease = {
   id: string;
@@ -189,16 +189,8 @@ export function FinanceDesk() {
 
   return (
     <div className="space-y-6">
-      {error ? (
-        <p className="rounded-md border border-[var(--mpa-color-danger,#C0392B)] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
-      ) : null}
-      {notice ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
-          {notice}
-        </p>
-      ) : null}
+      {error ? <Alert variant="danger">{error}</Alert> : null}
+      {notice ? <Alert variant="success">{notice}</Alert> : null}
 
       <section
         id="collect"

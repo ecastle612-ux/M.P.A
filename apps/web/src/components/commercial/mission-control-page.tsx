@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { formatMoney } from "@mpa/shared";
-import { Badge, EmptyState, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
+import { resolveWorkOrderPriorityVariant, buttonClassName, Button, Alert, Badge, EmptyState, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { useOrganizationContext } from "../shell/organization-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
@@ -78,8 +78,8 @@ const linkFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
 
 function urgencyEdge(urgency: string): string {
-  if (urgency === "immediate") return "border-l-[3px] border-l-[#C0392B]";
-  if (urgency === "waiting_on_me") return "border-l-[3px] border-l-[#B45309]";
+  if (urgency === "immediate") return "border-l-[3px] border-l-[var(--mpa-color-status-danger,#C0392B)]";
+  if (urgency === "waiting_on_me") return "border-l-[3px] border-l-[var(--mpa-color-status-warning,#B45309)]";
   return "border-l-[3px] border-l-[var(--mpa-color-border-default)]";
 }
 
@@ -87,13 +87,6 @@ function UrgencyBadge({ urgency }: { urgency: string }) {
   if (urgency === "immediate") return <Badge variant="danger">Immediate</Badge>;
   if (urgency === "waiting_on_me") return <Badge variant="warning">Waiting on me</Badge>;
   return <Badge variant="neutral">Waiting on others</Badge>;
-}
-
-function priorityBadgeVariant(priority: string): "danger" | "warning" | "neutral" {
-  const p = priority.toLowerCase();
-  if (p.includes("urgent") || p.includes("critical") || p === "p0" || p === "high") return "danger";
-  if (p.includes("medium") || p === "p1" || p === "p2") return "warning";
-  return "neutral";
 }
 
 function AttentionList({
@@ -325,19 +318,17 @@ export function MissionControlPage() {
       ) : null}
 
       {error ? (
-        <div
-          className="flex max-w-4xl flex-wrap items-center justify-between gap-3 rounded-md border border-[#C0392B]/40 bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]"
-          role="alert"
+        <Alert
+          variant="danger"
+          className="max-w-4xl"
+          action={
+            <Button type="button" variant="secondary" size="sm" onClick={reload}>
+              Retry
+            </Button>
+          }
         >
-          <p>{error}</p>
-          <button
-            type="button"
-            onClick={reload}
-            className={`rounded-md border border-[#C0392B]/50 bg-white px-3 py-1.5 text-sm font-medium text-[#C0392B] hover:bg-[#FCE8E6] ${linkFocus}`}
-          >
-            Retry
-          </button>
-        </div>
+          {error}
+        </Alert>
       ) : null}
 
       {loading ? (
@@ -366,8 +357,8 @@ export function MissionControlPage() {
             ) : null}
           </div>
           <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            <li className="rounded-md border border-[#C0392B]/25 bg-[#FCE8E6]/40 px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#C0392B]">
+            <li className="rounded-md border border-[var(--mpa-color-status-danger)]/25 bg-[var(--mpa-color-status-danger-subtle)]/40 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-status-danger)]">
                 Immediate attention
               </p>
               <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">
@@ -377,8 +368,8 @@ export function MissionControlPage() {
                 {daily.immediateAttention[0]?.title ?? "Nothing urgent"}
               </p>
             </li>
-            <li className="rounded-md border border-amber-200 bg-amber-50/50 px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#B45309]">Can wait</p>
+            <li className="rounded-md border border-[var(--mpa-color-status-warning)]/30 bg-[var(--mpa-color-status-warning-subtle)]/50 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-status-warning)]">Can wait</p>
               <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">
                 {daily.briefing.waitingOnOthersCount}
               </p>
@@ -469,7 +460,7 @@ export function MissionControlPage() {
           ) : null}
           <Link
             href={nextAction.href}
-            className={`inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48] ${linkFocus}`}
+            className={buttonClassName()}
           >
             {nextAction.title}
           </Link>
@@ -681,7 +672,7 @@ export function MissionControlPage() {
                             </Link>
                             <span className="flex flex-wrap gap-1">
                               <Badge variant="neutral">{row.status}</Badge>
-                              <Badge variant={priorityBadgeVariant(row.priority)}>{row.priority}</Badge>
+                              <Badge variant={resolveWorkOrderPriorityVariant(row.priority)}>{row.priority}</Badge>
                             </span>
                           </li>
                         ))}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatMoney } from "@mpa/shared";
-import { Badge, Button, EmptyState, Skeleton } from "@mpa/ui";
+import { Alert, Badge, Button, EmptyState, Skeleton } from "@mpa/ui";
 
 type ResidentAccount = {
   resident: {
@@ -147,15 +147,10 @@ export function ResidentBillingPortal() {
   return (
     <div className="space-y-6">
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">{error}</p>
+        <Alert variant="danger">{error}</Alert>
       ) : null}
       {paymentNotice ? (
-        <p
-          role="status"
-          className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900"
-        >
-          {paymentNotice}
-        </p>
+<Alert variant="success">{paymentNotice}</Alert>
       ) : null}
 
       {accounts.map((account) => {

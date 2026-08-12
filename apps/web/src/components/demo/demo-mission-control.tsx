@@ -96,12 +96,12 @@ function GlanceStrip({
         At a glance
       </p>
       <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <li className="rounded-md border border-red-200 bg-red-50/40 px-3 py-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#C0392B]">Immediate</p>
+        <li className="rounded-md border border-[var(--mpa-color-status-danger)]/30 bg-[var(--mpa-color-status-danger-subtle)]/40 px-3 py-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-status-danger)]">Immediate</p>
           <p className="mt-1 font-display text-2xl font-semibold tabular-nums">{immediate}</p>
         </li>
-        <li className="rounded-md border border-amber-200 bg-amber-50/40 px-3 py-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#B45309]">Can wait</p>
+        <li className="rounded-md border border-[var(--mpa-color-status-warning)]/30 bg-[var(--mpa-color-status-warning-subtle)]/40 px-3 py-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-status-warning)]">Can wait</p>
           <p className="mt-1 font-display text-2xl font-semibold tabular-nums">{waiting}</p>
         </li>
         <li className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 sm:col-span-2 xl:col-span-1">

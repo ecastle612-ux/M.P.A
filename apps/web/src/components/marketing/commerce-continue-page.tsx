@@ -1,5 +1,6 @@
 "use client";
 
+import { Alert } from "@mpa/ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -333,9 +334,7 @@ export function CommerceContinuePage({
         ) : null}
 
         {error ? (
-          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
-            {error}
-          </p>
+          <Alert variant="danger">{error}</Alert>
         ) : null}
         {status?.hasTemporaryIssue ? (
           <p className="text-sm text-[var(--mpa-color-text-secondary)]" role="status">
