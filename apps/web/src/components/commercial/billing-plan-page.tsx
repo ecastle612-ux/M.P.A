@@ -334,7 +334,7 @@ export function BillingPlanPage() {
             disabled={busy !== null}
             onClick={() => void post("/api/commerce/subscription/reactivate")}
           >
-            {busy ? "Working…" : "Reactivate renewals"}
+            {busy ? "Working…" : "Reactivate subscription"}
           </Button>
         ) : null}
         {subscriptionEnded ? (
@@ -374,18 +374,17 @@ export function BillingPlanPage() {
           <h2 id="cancel-confirm-title" className="font-display text-lg font-semibold">
             Confirm cancellation
           </h2>
-          <ul className="list-disc space-y-2 pl-5 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            <li>Cancelling stops future renewals.</li>
-            <li>
-              You keep access until{" "}
+          <div className="space-y-3 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+            <p>
+              Your subscription will remain active through{" "}
               <strong className="text-[var(--mpa-color-text-primary)]">
                 {paidThrough ?? "the end of your current paid billing period"}
               </strong>
               .
-            </li>
-            <li>No refunds.</li>
-            <li>No prorated refunds.</li>
-          </ul>
+            </p>
+            <p>You will not be charged for another billing period.</p>
+            <p>Cancellations are not refundable or prorated.</p>
+          </div>
           <div className="flex flex-wrap gap-3">
             <Button
               type="button"

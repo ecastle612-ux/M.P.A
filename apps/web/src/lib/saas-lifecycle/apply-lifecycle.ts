@@ -29,6 +29,37 @@ function billingUrl(): string {
   return `${serverEnv.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/billing`;
 }
 
+/** Raised when Stripe subscription sync fails — callers must not report success. */
+export class StripeLifecycleSyncError extends Error {
+  constructor(
+    message: string,
+    readonly causeError?: unknown
+  ) {
+    super(message);
+    this.name = "StripeLifecycleSyncError";
+  }
+}
+
+async function syncStripeCancelAtPeriodEnd(
+  stripeSubscriptionId: string,
+  cancelAtPeriodEnd: boolean
+): Promise<void> {
+  if (process.env["VITEST"]) return;
+  const { getSaasStripeClient } = await import("../saas-stripe/client");
+  const stripe = getSaasStripeClient();
+  if (!stripe) return;
+  try {
+    await stripe.subscriptions.update(stripeSubscriptionId, {
+      cancel_at_period_end: cancelAtPeriodEnd
+    });
+  } catch (causeError) {
+    throw new StripeLifecycleSyncError(
+      cancelAtPeriodEnd ? "stripe_cancel_failed" : "stripe_reactivate_failed",
+      causeError
+    );
+  }
+}
+
 function planLabel(sub: LifecycleSubscription): string {
   const moduleLabel = SKU_SUMMARIES[sub.productSku]?.label ?? "Property Manager";
   // Unit-volume products do not sell Professional/Business tiers to customers.
@@ -558,6 +589,8 @@ export async function enforceGraceExpirations(nowMs: number = Date.now()): Promi
  * Schedule cancellation at period end (no refund, no proration, no immediate access cut).
  * Idempotent: repeating cancel while already scheduled is a no-op.
  * Never calls Stripe refunds / credits / invoice adjustments.
+ * Never calls subscriptions.cancel() for immediate terminate.
+ * When Stripe is configured, syncs cancel_at_period_end before persisting success.
  */
 export async function cancelAtPeriodEnd(input: {
   organizationId: string;
@@ -578,6 +611,9 @@ export async function cancelAtPeriodEnd(input: {
     return sub;
   }
 
+  // Stripe first when configured — do not claim success if renewal was not stopped.
+  await syncStripeCancelAtPeriodEnd(sub.stripeSubscriptionId, true);
+
   sub = await saveLifecycleSubscription({
     ...sub,
     cancelAtPeriodEnd: true,
@@ -593,22 +629,6 @@ export async function cancelAtPeriodEnd(input: {
       }
     ]
   });
-
-  if (!process.env["VITEST"]) {
-    try {
-      const { getSaasStripeClient } = await import("../saas-stripe/client");
-      const stripe = getSaasStripeClient();
-      if (stripe) {
-        // Period-end cancel only — never subscriptions.cancel() immediate terminate,
-        // never refunds.create, never proration_behavior on cancel.
-        await stripe.subscriptions.update(sub.stripeSubscriptionId, {
-          cancel_at_period_end: true
-        });
-      }
-    } catch {
-      // Store remains source for UX; Stripe sync may retry.
-    }
-  }
 
   sub = await notify(
     sub,
@@ -658,18 +678,9 @@ export async function reactivateSubscription(input: {
     return sub;
   }
 
-  if (!process.env["VITEST"]) {
-    try {
-      const { getSaasStripeClient } = await import("../saas-stripe/client");
-      const stripe = getSaasStripeClient();
-      if (stripe && sub.cancelAtPeriodEnd) {
-        await stripe.subscriptions.update(sub.stripeSubscriptionId, {
-          cancel_at_period_end: false
-        });
-      }
-    } catch {
-      // Continue with local restore for observability.
-    }
+  // Undo scheduled cancel in Stripe before claiming local reactivation success.
+  if (sub.cancelAtPeriodEnd) {
+    await syncStripeCancelAtPeriodEnd(sub.stripeSubscriptionId, false);
   }
 
   const nextStatus: SubscriptionPlatformStatus =

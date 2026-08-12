@@ -128,7 +128,8 @@ describe("COM-002 Slice E subscription lifecycle", () => {
       const copy = customerStatusCopy("cancellation_scheduled", {
         currentPeriodEnd: paidThrough
       });
-      expect(copy.title.toLowerCase()).toContain("access continues");
+      expect(copy.title.toLowerCase()).toContain("cancellation scheduled");
+      expect(copy.title.toLowerCase()).toContain("access until");
       expect(copy.detail.toLowerCase()).toContain("no refund");
       expect(copy.detail.toLowerCase()).toContain("prorated");
       expect(copy.title).not.toMatch(/immediately|terminated/i);

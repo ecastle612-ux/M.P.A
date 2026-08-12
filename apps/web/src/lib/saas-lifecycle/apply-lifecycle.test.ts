@@ -133,6 +133,11 @@ describe("COM-002 Slice E lifecycle apply", () => {
     expect(reactivated?.cancelAtPeriodEnd).toBe(false);
     expect(hasLifecycleModuleAccess(reactivated!)).toBe(true);
     expect(customerLifecyclePhase(reactivated!)).not.toBe("cancellation_scheduled");
+
+    // Idempotent second reactivate
+    const reactivatedAgain = await reactivateSubscription({ organizationId: "org_cancel" });
+    expect(reactivatedAgain?.status).toBe("active");
+    expect(reactivatedAgain?.cancelAtPeriodEnd).toBe(false);
   });
 
   it("keeps annual access through paid-through after cancellation schedule", async () => {

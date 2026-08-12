@@ -334,8 +334,8 @@ export function customerStatusCopy(
     case "cancellation_scheduled":
       return {
         title: paidThrough
-          ? `Cancelled — access continues until ${paidThrough}`
-          : "Cancelled — access continues until period end",
+          ? `Cancellation scheduled — access until ${paidThrough}`
+          : "Cancellation scheduled",
         detail: paidThrough
           ? `Cancelling stops future renewals. You keep full access through ${paidThrough}. No refunds or prorated refunds are provided.`
           : "Cancelling stops future renewals. You keep full access through the end of your current paid billing period. No refunds or prorated refunds are provided.",
