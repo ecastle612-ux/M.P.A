@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   DEMO_ANALYTICS_EVENTS,
+  demoComparePlatformsHref,
   demoConversionHref,
   demoConversionLabel,
   demoHonestyBanner,
@@ -220,7 +221,33 @@ export function DemoChrome({
             })}
           </nav>
         </aside>
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0 flex-1 space-y-8">
+          {children}
+          <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
+            <h2 className="font-display text-lg font-semibold">
+              Ready to run your operation with M.P.A.?
+            </h2>
+            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+              You&apos;ve been exploring a read-only demo with synthetic data. Get Started begins
+              plan evaluation — separate from this demo.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => void onCta(primaryCta)}
+                className="rounded-md bg-[var(--mpa-color-brand-primary)] px-4 py-2 text-sm font-semibold text-white"
+              >
+                Get Started
+              </button>
+              <Link
+                href={demoComparePlatformsHref()}
+                className="rounded-md border border-[var(--mpa-color-border-default)] px-4 py-2 text-sm font-medium"
+              >
+                Compare platforms
+              </Link>
+            </div>
+          </section>
+        </main>
       </div>
     </div>
   );

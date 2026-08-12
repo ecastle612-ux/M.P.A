@@ -239,6 +239,9 @@ export function PmMissionControlShowcase({
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
           {showcase.organizationName} · viewing as {personaLabel}
         </p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+          Start here · See today&apos;s work
+        </p>
       </header>
 
       <GlanceStrip

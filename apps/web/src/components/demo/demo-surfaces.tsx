@@ -324,7 +324,13 @@ export function DemoSurfaceView({
       );
     case "maintenance":
       return (
-        <Panel title="Maintenance" description="Work orders across the demo portfolio.">
+        <Panel
+          title="Maintenance"
+          description="Work orders across the demo portfolio. Start here to see request → progress → resolution."
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+            Open a work order below
+          </p>
           <CardList
             items={pm.workOrders.map((wo) => ({
               id: wo.id,
@@ -335,6 +341,40 @@ export function DemoSurfaceView({
           />
         </Panel>
       );
+    case "vendors": {
+      const vendorMap = new Map<string, { title: string; meta: string; detail: string }>();
+      for (const invoice of pm.invoices) {
+        vendorMap.set(invoice.vendor, {
+          title: invoice.vendor,
+          meta: invoice.status.replaceAll("_", " "),
+          detail: `Invoice $${invoice.amount}`
+        });
+      }
+      for (const wo of pm.workOrders) {
+        const name = wo.assignee.trim();
+        if (!name || name === "Unassigned" || /\(Tech\)/i.test(name)) continue;
+        const existing = vendorMap.get(name);
+        vendorMap.set(name, {
+          title: name,
+          meta: existing?.meta ?? wo.status,
+          detail: existing
+            ? `${existing.detail}; WO: ${wo.title}`
+            : `Assigned work: ${wo.title} (${wo.priority})`
+        });
+      }
+      const vendors = [...vendorMap.entries()].map(([id, row]) => ({ id, ...row }));
+      return (
+        <Panel
+          title="Vendors"
+          description="Vendor coordination from demo invoices and assigned work — synthetic records only."
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+            See vendor coordination
+          </p>
+          <CardList items={vendors} />
+        </Panel>
+      );
+    }
     case "financial":
       return (
         <Panel
