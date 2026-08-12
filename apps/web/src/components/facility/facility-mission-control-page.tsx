@@ -12,13 +12,14 @@ import {
   documentsHref
 } from "../shell/fo-workspace";
 import { useCommercialContext } from "../shell/commercial-context";
-import { Button, Skeleton } from "@mpa/ui";
+import { Skeleton } from "@mpa/ui";
 import {
   facilityMissionControlErrorMessage,
   facilityMissionControlGlanceMetrics,
   facilityMissionControlLoadView
 } from "../../lib/facility/mission-control-presentation";
 import type { FacilityMissionControlSnapshot } from "../../lib/maintenance/maintenance-service";
+import { ErrorRetry } from "../shell/error-retry";
 
 const CAPABILITIES = [
   {
@@ -163,20 +164,14 @@ export function FacilityMissionControlPage() {
       ) : null}
 
       {view === "error" ? (
-        <section
-          className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
-          role="alert"
-        >
-          <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-            Facility Mission Control unavailable
-          </p>
-          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            {error ?? "We couldn’t load Facility Mission Control. Check your connection and try again."}
-          </p>
-          <Button type="button" onClick={retry} aria-busy={loading}>
-            Retry
-          </Button>
-        </section>
+        <ErrorRetry
+          title="Facility Mission Control unavailable"
+          description={
+            error ??
+            "We couldn’t load Facility Mission Control. Check your connection and try again."
+          }
+          onRetry={retry}
+        />
       ) : null}
 
       {view === "ready" && snapshot ? (

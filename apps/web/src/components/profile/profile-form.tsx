@@ -151,6 +151,10 @@ export function ProfileForm() {
             <legend className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
               Notification preferences
             </legend>
+            <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+              Email and in-app preferences apply to work-order and operational alerts. SMS delivery
+              is not available.
+            </p>
             <label className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
               <Checkbox
                 checked={profile.notificationPreferences.email}
@@ -159,7 +163,8 @@ export function ProfileForm() {
                     ...current,
                     notificationPreferences: {
                       ...current.notificationPreferences,
-                      email: event.target.checked
+                      email: event.target.checked,
+                      sms: false
                     }
                   }))
                 }
@@ -174,27 +179,13 @@ export function ProfileForm() {
                     ...current,
                     notificationPreferences: {
                       ...current.notificationPreferences,
-                      in_app: event.target.checked
+                      in_app: event.target.checked,
+                      sms: false
                     }
                   }))
                 }
               />
               In-app
-            </label>
-            <label className="flex items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              <Checkbox
-                checked={profile.notificationPreferences.sms}
-                onChange={(event) =>
-                  setProfile((current) => ({
-                    ...current,
-                    notificationPreferences: {
-                      ...current.notificationPreferences,
-                      sms: event.target.checked
-                    }
-                  }))
-                }
-              />
-              SMS
             </label>
           </fieldset>
 

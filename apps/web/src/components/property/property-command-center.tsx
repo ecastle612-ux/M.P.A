@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Badge, EmptyState, Skeleton, TimelineView } from "@mpa/ui";
+import { Badge, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { ErrorRetry } from "../shell/error-retry";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 
 type CommandCenter = {
@@ -87,6 +88,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
   const [data, setData] = useState<CommandCenter | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,9 +101,11 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         }
         if (!cancelled) {
           setData(body as CommandCenter);
+          setError(null);
         }
       } catch (err) {
         if (!cancelled) {
+          setData(null);
           setError(err instanceof Error ? err.message : "Failed to load property");
         }
       } finally {
@@ -113,7 +117,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [propertyId]);
+  }, [propertyId, reloadToken]);
 
   if (loading) {
     return (
@@ -127,7 +131,15 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
   if (error || !data) {
     return (
       <main className="flex-1 p-4 md:p-6">
-        <EmptyState title="Property unavailable" description={error ?? "Try again shortly."} />
+        <ErrorRetry
+          title="Property unavailable"
+          description={error ?? "We couldn’t load this property. Check your connection and try again."}
+          onRetry={() => {
+            setLoading(true);
+            setError(null);
+            setReloadToken((value) => value + 1);
+          }}
+        />
       </main>
     );
   }

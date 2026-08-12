@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { UnifiedNotificationRecord } from "@mpa/shared";
-import { Badge, EmptyState } from "@mpa/ui";
+import { Badge, EmptyState, Skeleton } from "@mpa/ui";
 
 export function NotificationCenter() {
   const [open, setOpen] = useState(false);
@@ -11,14 +11,25 @@ export function NotificationCenter() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const inFlight = useRef<AbortController | null>(null);
 
-  async function load(options?: { showLoading?: boolean }) {
+  const load = useCallback(async (options?: { showLoading?: boolean }) => {
+    inFlight.current?.abort();
+    const controller = new AbortController();
+    inFlight.current = controller;
+
     if (options?.showLoading) {
       setLoading(true);
     }
+
     try {
-      const response = await fetch("/api/shared/communications/notifications");
+      const response = await fetch("/api/shared/communications/notifications", {
+        signal: controller.signal
+      });
       const body = await response.json();
+      if (controller.signal.aborted) {
+        return;
+      }
       if (!response.ok) {
         setItems([]);
         setUnreadCount(0);
@@ -32,47 +43,27 @@ export function NotificationCenter() {
       setItems((body.notifications as UnifiedNotificationRecord[]).slice(0, 12));
       setUnreadCount(Number(body.unreadCount ?? 0));
       setError(null);
-    } catch {
+    } catch (err) {
+      if (controller.signal.aborted) {
+        return;
+      }
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return;
+      }
       setError("Unable to load notifications");
     } finally {
-      if (options?.showLoading) {
+      if (!controller.signal.aborted && options?.showLoading) {
         setLoading(false);
       }
     }
-  }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const response = await fetch("/api/shared/communications/notifications");
-        const body = await response.json();
-        if (cancelled) {
-          return;
-        }
-        if (!response.ok) {
-          setItems([]);
-          setUnreadCount(0);
-          setError(
-            response.status === 403
-              ? "Notifications are not available for this role."
-              : "Unable to load notifications"
-          );
-          return;
-        }
-        setItems((body.notifications as UnifiedNotificationRecord[]).slice(0, 12));
-        setUnreadCount(Number(body.unreadCount ?? 0));
-        setError(null);
-      } catch {
-        if (!cancelled) {
-          setError("Unable to load notifications");
-        }
-      }
-    })();
+    void load();
     return () => {
-      cancelled = true;
+      inFlight.current?.abort();
     };
-  }, []);
+  }, [load]);
 
   async function toggle() {
     const next = !open;
@@ -102,12 +93,14 @@ export function NotificationCenter() {
         aria-label={`Open notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
       >
         Notifications
-        <span
-          className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] px-1 text-xs text-white"
-          aria-hidden="true"
-        >
-          {unreadCount}
-        </span>
+        {unreadCount > 0 ? (
+          <span
+            className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--mpa-color-brand-primary)] px-1 text-xs text-white"
+            aria-hidden="true"
+          >
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        ) : null}
       </button>
 
       {open ? (
@@ -128,7 +121,10 @@ export function NotificationCenter() {
           </div>
           {error ? <p className="text-xs text-[#C0392B]">{error}</p> : null}
           {loading ? (
-            <p className="text-xs text-[var(--mpa-color-text-secondary)]">Loading…</p>
+            <div className="space-y-2" aria-busy="true">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
           ) : items.length === 0 ? (
             <EmptyState
               className="border-0 bg-transparent px-0 py-2"

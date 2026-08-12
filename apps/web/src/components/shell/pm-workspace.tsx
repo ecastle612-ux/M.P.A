@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Badge, Button } from "@mpa/ui";
+import { Badge } from "@mpa/ui";
 import { Breadcrumbs } from "./breadcrumbs";
 
 const linkFocus =
@@ -185,30 +185,7 @@ export function PmQuickActions({
   );
 }
 
-export function PmErrorRetry({
-  title,
-  description,
-  onRetry
-}: {
-  title: string;
-  description: string;
-  onRetry?: () => void;
-}) {
-  return (
-    <div
-      role="alert"
-      className="rounded-md border border-[var(--mpa-color-border-default)] border-l-[3px] border-l-[#C0392B] bg-white p-4"
-    >
-      <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">{title}</p>
-      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{description}</p>
-      {onRetry ? (
-        <Button type="button" className="mt-3" onClick={onRetry}>
-          Retry
-        </Button>
-      ) : null}
-    </div>
-  );
-}
+export { ErrorRetry as PmErrorRetry } from "./error-retry";
 
 export function PmEntityCard({
   title,

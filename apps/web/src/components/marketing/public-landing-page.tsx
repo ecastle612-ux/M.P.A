@@ -423,7 +423,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         <p className="pt-2 text-sm text-[var(--mpa-color-text-secondary)]">
           Want the full module list?{" "}
           <Link href="/modules" className="font-semibold text-[var(--mpa-color-brand-primary)]">
-            View modules
+            Explore platforms
           </Link>{" "}
           or{" "}
           <Link href="/pricing" className="font-semibold text-[var(--mpa-color-brand-primary)]">

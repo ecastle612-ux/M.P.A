@@ -552,7 +552,7 @@ export function DocumentsWorkspace() {
                     Binary stored ({detail.document.byteSize} bytes)
                     {detail.document.fileName ? ` · ${detail.document.fileName}` : ""}.{" "}
                     {previewKind === "cad" || previewKind === "video"
-                      ? "CAD/video placeholder — download to open in a native app."
+                      ? "CAD and video files download for viewing in a native app."
                       : "Preview uses download or professional PDF export."}
                   </p>
                 ) : (

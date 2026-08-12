@@ -29,7 +29,13 @@ const plexMono = IBM_Plex_Mono({
   display: "swap"
 });
 
+const siteUrl = (process.env["NEXT_PUBLIC_APP_URL"] ?? "https://mypropertyassistant.com").replace(
+  /\/$/,
+  ""
+);
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "M.P.A. — My Property Assistant",
   description: "Property operations for portfolio managers, residents, vendors, and owners.",
   applicationName: MPA_BRAND_NAME,
@@ -61,8 +67,11 @@ export const metadata: Metadata = {
     shortcut: MPA_FAVICON_32_PATH
   },
   openGraph: {
+    type: "website",
+    url: siteUrl,
     siteName: MPA_BRAND_NAME,
     title: `${MPA_BRAND_NAME} — ${MPA_BRAND_TAGLINE}`,
+    description: "Property operations for portfolio managers, residents, vendors, and owners.",
     images: [{ url: MPA_LOGO_DARK_PATH, width: 512, height: 512, alt: `${MPA_BRAND_NAME} logo` }]
   }
 };

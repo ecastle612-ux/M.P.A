@@ -49,18 +49,19 @@ export function parseNotificationPreferences(value: unknown): NotificationPrefer
   const raw = value as Record<string, unknown>;
   const email = typeof raw["email"] === "boolean" ? raw["email"] : null;
   const inApp = typeof raw["in_app"] === "boolean" ? raw["in_app"] : null;
-  const sms = typeof raw["sms"] === "boolean" ? raw["sms"] : null;
-  if (email === null || inApp === null || sms === null) {
+  // SMS is never an available delivery channel — ignore stored true values.
+  if (email === null || inApp === null) {
     return null;
   }
-  return { email, in_app: inApp, sms };
+  return { email, in_app: inApp, sms: false };
 }
 
 export function toNotificationPreferencesJson(preferences: NotificationPreferences): Json {
   return {
     email: preferences.email,
     in_app: preferences.in_app,
-    sms: preferences.sms
+    // Persist false so older UIs cannot re-enable a non-existent SMS path.
+    sms: false
   };
 }
 

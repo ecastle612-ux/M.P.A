@@ -1,4 +1,5 @@
 import { sendOperationalNoticeEmail } from "../communications/email";
+import { loadNotificationPreferences } from "../profile/notification-preferences";
 
 type Db = {
   from: (table: string) => {
@@ -16,6 +17,17 @@ type Db = {
         val: string
       ) => Promise<{ error: { message: string } | null }>;
     };
+    select: (cols: string) => {
+      eq: (
+        col: string,
+        val: string
+      ) => {
+        maybeSingle: () => Promise<{
+          data: { notification_preferences?: unknown } | null;
+          error: { message: string } | null;
+        }>;
+      };
+    };
   };
 };
 
@@ -26,6 +38,7 @@ export type LifecycleNotifyResult = {
     | "skipped_no_user"
     | "skipped_no_email"
     | "skipped_not_configured"
+    | "skipped_preference"
     | "sent"
     | "failed"
     | "not_requested";
@@ -50,6 +63,7 @@ async function resolveUserEmail(userId: string): Promise<string | null> {
 
 /**
  * STAB-007 — reuse maintenance_notifications; optional Resend with honest delivery status.
+ * PPS1-011 — honor stored email / in-app preferences; never SMS.
  */
 export async function notifyLifecycle(
   supabase: Db,
@@ -61,7 +75,7 @@ export async function notifyLifecycle(
     title: string;
     body: string;
     href: string;
-    /** When true, attempt email after in-app insert. */
+    /** When true, attempt email after in-app insert (still gated by user email preference). */
     emailCritical?: boolean;
   }
 ): Promise<LifecycleNotifyResult> {
@@ -73,33 +87,44 @@ export async function notifyLifecycle(
     };
   }
 
-  const wantsEmail = Boolean(args.emailCritical);
-  const { data, error } = await supabase
-    .from("maintenance_notifications")
-    .insert({
-      organization_id: args.organizationId,
-      user_id: args.userId,
-      work_order_id: args.workOrderId,
-      notification_key: args.key,
-      title: args.title,
-      body: args.body,
-      href: args.href,
-      channel: wantsEmail ? "in_app_and_email" : "in_app",
-      email_delivery_status: wantsEmail ? "queued" : null
-    })
-    .select("id")
-    .maybeSingle();
+  const preferences = await loadNotificationPreferences(supabase, args.userId);
+  const wantsInApp = preferences.in_app;
+  const wantsEmail = Boolean(args.emailCritical) && preferences.email;
 
-  if (error) {
-    throw new Error(error.message);
+  let notificationId: string | null = null;
+
+  if (wantsInApp) {
+    const { data, error } = await supabase
+      .from("maintenance_notifications")
+      .insert({
+        organization_id: args.organizationId,
+        user_id: args.userId,
+        work_order_id: args.workOrderId,
+        notification_key: args.key,
+        title: args.title,
+        body: args.body,
+        href: args.href,
+        channel: wantsEmail ? "in_app_and_email" : "in_app",
+        email_delivery_status: wantsEmail ? "queued" : null
+      })
+      .select("id")
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+    notificationId = data?.id ?? null;
   }
 
-  const notificationId = data?.id ?? null;
   if (!wantsEmail) {
     return {
-      inApp: true,
+      inApp: wantsInApp,
       notificationId,
-      emailStatus: "not_requested"
+      emailStatus: args.emailCritical
+        ? preferences.email
+          ? "not_requested"
+          : "skipped_preference"
+        : "not_requested"
     };
   }
 
@@ -115,7 +140,7 @@ export async function notifyLifecycle(
         .eq("id", notificationId);
     }
     return {
-      inApp: true,
+      inApp: wantsInApp,
       notificationId,
       emailStatus: "skipped_no_email"
     };
@@ -142,7 +167,7 @@ export async function notifyLifecycle(
         .eq("id", notificationId);
     }
     return {
-      inApp: true,
+      inApp: wantsInApp,
       notificationId,
       emailStatus: "sent",
       emailProviderId: sendResult.providerId
@@ -166,7 +191,7 @@ export async function notifyLifecycle(
   }
 
   return {
-    inApp: true,
+    inApp: wantsInApp,
     notificationId,
     emailStatus: failedStatus,
     emailError: sendResult.error
