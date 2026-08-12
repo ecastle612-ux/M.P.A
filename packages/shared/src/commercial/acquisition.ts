@@ -120,6 +120,21 @@ export function acquisitionHref(
  * When a quote already exists, callers may use `acquisitionHref("checkout", { quoteId })`.
  * `planTier` is omitted from customer URLs (not a commercial product tier).
  */
+/**
+ * Stripe cancel return path for quote-authoritative (unit-volume) Checkout.
+ * Must stay aligned with checkout cancel page recovery (`?quote=`).
+ */
+export function unitVolumeCheckoutCancelPath(quoteId: string): string {
+  return `/checkout/cancel?${ACQUISITION_QUOTE_PARAM}=${encodeURIComponent(quoteId)}`;
+}
+
+/**
+ * Stripe cancel return path for legacy offer-based Checkout.
+ */
+export function legacyOfferCheckoutCancelPath(offerId: string): string {
+  return `/checkout/cancel?offer=${encodeURIComponent(offerId)}`;
+}
+
 export function commercialContinueHref(input: {
   productSku: ProductSku;
   planTier?: PlanTier | null;

@@ -212,79 +212,79 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     entitlement: "facility.operations",
     href: "/facility/operations",
     readiness: "aligned",
-    description: "Facility corrective operations.",
+    description: "Create, assign, start, progress, complete, and cancel facility work orders.",
   },
   {
     id: "assets",
-    label: "Assets",
+    label: "Buildings & Sites",
     owner: "facility_operations",
     entitlement: "facility.assets",
     href: "/facility/assets",
     readiness: "aligned",
-    description: "Asset registry.",
+    description: "Building and site records used as context for facility work orders.",
   },
   {
     id: "inventory",
-    label: "Inventory",
+    label: "Inventory Work",
     owner: "facility_operations",
     entitlement: "facility.inventory",
     href: "/facility/inventory",
     readiness: "aligned",
-    description: "Storerooms and counts.",
+    description: "Facility work orders categorized for inventory and materials tasks.",
   },
   {
     id: "parts",
-    label: "Parts",
+    label: "Parts Work",
     owner: "facility_operations",
     entitlement: "facility.parts",
     href: "/facility/parts",
     readiness: "aligned",
-    description: "Parts catalog and usage.",
+    description: "Facility work orders categorized for parts-related tasks.",
   },
   {
     id: "preventive_maintenance",
-    label: "Preventive Maintenance",
+    label: "Preventive Work",
     owner: "facility_operations",
     entitlement: "facility.preventive",
     href: "/facility/preventive-maintenance",
     readiness: "aligned",
-    description: "Preventive schedules on assets/systems.",
+    description: "Facility work orders categorized for preventive maintenance tasks.",
   },
   {
     id: "inspections",
-    label: "Inspections",
+    label: "Inspection Work",
     owner: "facility_operations",
     entitlement: "facility.inspections",
     href: "/facility/inspections",
     readiness: "aligned",
-    description: "Facility and building inspection programs.",
+    description: "Facility work orders categorized for inspection tasks.",
   },
   {
     id: "safety",
-    label: "Safety",
+    label: "Safety Work",
     owner: "facility_operations",
     entitlement: "facility.safety",
     href: "/facility/safety",
     readiness: "aligned",
-    description: "Safety incidents and protocols.",
+    description: "Facility work orders categorized for safety tasks.",
   },
   {
     id: "compliance",
-    label: "Compliance",
+    label: "Compliance Work",
     owner: "facility_operations",
     entitlement: "facility.compliance",
     href: "/facility/compliance",
     readiness: "aligned",
-    description: "Building and facility compliance programs.",
+    description: "Facility work orders categorized for compliance tasks.",
   },
   {
     id: "building_systems",
-    label: "Building Systems",
+    label: "Building Systems Work",
     owner: "facility_operations",
     entitlement: "facility.building_systems",
     href: "/facility/building-systems",
     readiness: "aligned",
-    description: "HVAC, electrical, fire, and related systems.",
+    description: "Facility work orders categorized for building-systems tasks.",
   },
   {
     id: "capital_projects",
@@ -401,36 +401,51 @@ export function navigationGroupsForSku(
           readiness: "aligned",
           entitlement: "facility.operations"
         },
-        { href: "/facility/assets", label: "Assets", readiness: "aligned", entitlement: "facility.assets" },
+        {
+          href: "/facility/assets",
+          label: "Buildings & Sites",
+          readiness: "aligned",
+          entitlement: "facility.assets"
+        },
         {
           href: "/facility/preventive-maintenance",
-          label: "Preventive Maintenance",
+          label: "Preventive Work",
           readiness: "aligned",
           entitlement: "facility.preventive"
         },
         {
           href: "/facility/inspections",
-          label: "Inspections",
+          label: "Inspection Work",
           readiness: "aligned",
           entitlement: "facility.inspections"
         },
-        { href: "/facility/safety", label: "Safety", readiness: "aligned", entitlement: "facility.safety" },
+        {
+          href: "/facility/safety",
+          label: "Safety Work",
+          readiness: "aligned",
+          entitlement: "facility.safety"
+        },
         {
           href: "/facility/compliance",
-          label: "Compliance",
+          label: "Compliance Work",
           readiness: "aligned",
           entitlement: "facility.compliance"
         },
         {
           href: "/facility/inventory",
-          label: "Inventory",
+          label: "Inventory Work",
           readiness: "aligned",
           entitlement: "facility.inventory"
         },
-        { href: "/facility/parts", label: "Parts", readiness: "aligned", entitlement: "facility.parts" },
+        {
+          href: "/facility/parts",
+          label: "Parts Work",
+          readiness: "aligned",
+          entitlement: "facility.parts"
+        },
         {
           href: "/facility/building-systems",
-          label: "Building Systems",
+          label: "Building Systems Work",
           readiness: "aligned",
           entitlement: "facility.building_systems"
         }
@@ -642,9 +657,10 @@ export function upgradeCuesForSku(sku: ProductSku | null): UpgradeCue[] {
   if (sku === "mpa_property_manager") {
     return [
       {
-        moduleLabel: "Assets, Inventory, Parts, Preventive Maintenance, Facility Inspections, Safety, Compliance, Building Systems",
+        moduleLabel:
+          "Facility Mission Control, Operations, Buildings & Sites, and facility work-order categories (preventive, inspection, safety, compliance, inventory, parts, building systems)",
         requires: "Complete Platform",
-        reason: "These modules belong to Facility Operations. Complete Platform includes both products."
+        reason: "These Facility Operations workflows belong to FO. Complete Platform includes both products."
       }
     ];
   }

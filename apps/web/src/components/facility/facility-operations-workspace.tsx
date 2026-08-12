@@ -86,44 +86,44 @@ const DOMAIN_META: Record<
     createDefaultCategory: "general"
   },
   preventive: {
-    title: "Preventive Maintenance",
-    description: "Preventive facility work due windows and completion tracking.",
+    title: "Preventive Work",
+    description: "Facility work orders categorized for preventive maintenance tasks.",
     category: "preventive",
     createDefaultCategory: "preventive"
   },
   inspections: {
-    title: "Inspections",
-    description: "Inspection work with evidence notes and completion status.",
+    title: "Inspection Work",
+    description: "Facility work orders categorized for inspection tasks.",
     category: "inspection",
     createDefaultCategory: "inspection"
   },
   safety: {
-    title: "Safety",
-    description: "Safety work orders and corrective follow-ups.",
+    title: "Safety Work",
+    description: "Facility work orders categorized for safety tasks.",
     category: "safety",
     createDefaultCategory: "safety"
   },
   compliance: {
-    title: "Compliance",
-    description: "Compliance and certificate-related facility work.",
+    title: "Compliance Work",
+    description: "Facility work orders categorized for compliance tasks.",
     category: "compliance",
     createDefaultCategory: "compliance"
   },
   inventory: {
-    title: "Inventory",
-    description: "Inventory-related facility work and storeroom follow-ups.",
+    title: "Inventory Work",
+    description: "Facility work orders categorized for inventory and materials tasks.",
     category: "inventory",
     createDefaultCategory: "inventory"
   },
   parts: {
-    title: "Parts",
-    description: "Parts-related facility work linked to buildings and systems.",
+    title: "Parts Work",
+    description: "Facility work orders categorized for parts-related tasks.",
     category: "parts",
     createDefaultCategory: "parts"
   },
   building_systems: {
-    title: "Building Systems",
-    description: "HVAC, electrical, fire, and related building-system work.",
+    title: "Building Systems Work",
+    description: "Facility work orders categorized for building-systems tasks.",
     category: "building_system",
     createDefaultCategory: "building_system"
   }

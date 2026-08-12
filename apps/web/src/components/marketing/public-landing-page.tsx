@@ -114,9 +114,9 @@ const PRODUCT_FIT: Record<
   },
   mpa_facility_operations: {
     chooseIf:
-      "Choose Facility Operations if your primary need is facility, maintenance, work-order, vendor, and operational workflows for buildings and sites.",
+      "Choose Facility Operations if your primary need is facility maintenance work orders, assignments, technician execution, vendors, and operational visibility for buildings and sites.",
     whyItMatters:
-      "Give facility and maintenance teams a dedicated operations home for work coverage, assets, and preventive workflows.",
+      "Give facility and maintenance teams a dedicated Mission Control and operations home to create, assign, progress, and complete facility work — with category queues for the work your buildings need.",
     priceLines: (pricing) =>
       `${pricing.foHeadlineMonthly} or ${pricing.foHeadlineAnnual} · ${pricing.foIncludes}`
   },
