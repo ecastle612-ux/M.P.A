@@ -211,9 +211,9 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           aria-hidden
           className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:48px_48px] motion-safe:animate-[mpa-grid-drift_28s_linear_infinite]"
         />
-        <LandingHeroProductVisual />
+        <LandingHeroProductVisual placement="desktop" />
 
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-28 md:px-6 md:pb-24">
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-10 pt-28 md:px-6 md:pb-16 xl:pb-24">
           <div className="max-w-xl space-y-5 motion-safe:animate-[mpa-rise_700ms_ease-out]">
             <p className="font-display text-4xl font-semibold tracking-tight text-white md:text-6xl">
               M.P.A.
@@ -242,6 +242,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             </div>
           </div>
         </div>
+        <LandingHeroProductVisual placement="mobile" />
       </section>
 
       <Section
