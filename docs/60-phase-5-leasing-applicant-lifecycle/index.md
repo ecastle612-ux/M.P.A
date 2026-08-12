@@ -23,7 +23,9 @@ Before creating anything new: can this extend Mission Control, Document Intellig
 | [Architecture Report](./sprint-1-architecture-report.md) | What was extended vs not built |
 | [Workflow Report](./sprint-1-workflow-report.md) | Application → screening placeholder → decision → lease |
 | [Regression Report](./sprint-1-regression-report.md) | Existing surfaces unchanged |
-| [Screenshots](./screenshots-sprint-1/) | Before / after |
+| [LIVE Deployment Report](./sprint-1-live-deployment-report.md) | Production merge, migration, LIVE verify |
+| [Screenshots](./screenshots-sprint-1/) | Before / after (implementation) |
+| [LIVE Screenshots](./screenshots-sprint-1-live/) | Production capture |
 
 ## STOP after LIVE
 
@@ -35,3 +37,5 @@ Before creating anything new: can this extend Mission Control, Document Intellig
 6. Owner LIVE acceptance  
 
 **Then STOP ALL DEVELOPMENT.** Do not begin Sprint 2 (Background Screening Integration) until the Owner authorizes it after dedicated leasing workflow testing.
+
+**Status:** Production deployed (`bbea769e5abc22153e9ab4ac277246b2ffd62b3c`). Awaiting Owner LIVE testing acceptance.
