@@ -19,3 +19,4 @@ export * from "./acquisition-quote";
 export * from "./unit-volume-stripe";
 export * from "./unit-capacity";
 export * from "./pricing-display";
+export * from "./complete-launcher";

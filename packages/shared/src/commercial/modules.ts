@@ -3,6 +3,10 @@ import type { ProductSku } from "./skus";
 import type { UserRole } from "../types/roles";
 import { entitlementsForSku } from "./entitlements";
 import { skuIncludesFacilityOperations, skuIncludesPropertyManager } from "./skus";
+import {
+  missionControlNavLabelForSku,
+  navigationGroupTitleForSku
+} from "./complete-launcher";
 
 /** Staff nav hrefs a role may see. Managers see every SKU-entitled item. */
 const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
@@ -334,13 +338,19 @@ export function navigationGroupsForSku(
       : ["platform.guided_setup", "platform.billing_self", "platform.org", "platform.launcher"]
   );
 
+  const isComplete = sku === "mpa_complete_platform";
   const groups: NavGroup[] = [
     {
       id: "home",
-      title: "Home",
+      title: navigationGroupTitleForSku("home", sku) ?? "Home",
       product: "launcher",
       items: [
-        { href: "/launcher", label: "Workspace Launcher", readiness: "aligned", entitlement: "platform.launcher" },
+        {
+          href: "/launcher",
+          label: isComplete ? "Start here" : "Workspace Launcher",
+          readiness: "aligned",
+          entitlement: "platform.launcher"
+        },
         { href: "/setup", label: "Guided Setup", readiness: "aligned", entitlement: "platform.guided_setup" }
       ]
     }
@@ -349,10 +359,15 @@ export function navigationGroupsForSku(
   if (sku && skuIncludesPropertyManager(sku)) {
     groups.push({
       id: "property_manager",
-      title: "Property Manager",
+      title: navigationGroupTitleForSku("property_manager", sku) ?? "Property Manager",
       product: "property_manager",
       items: [
-        { href: "/pm/mission-control", label: "PM Mission Control", readiness: "aligned", entitlement: "pm.mission_control" },
+        {
+          href: "/pm/mission-control",
+          label: missionControlNavLabelForSku("property", sku),
+          readiness: "aligned",
+          entitlement: "pm.mission_control"
+        },
         { href: "/pm/properties", label: "Properties", readiness: "aligned", entitlement: "pm.properties" },
         { href: "/pm/residents", label: "Residents", readiness: "aligned", entitlement: "pm.residents" },
         { href: "/pm/leasing", label: "Leasing", readiness: "aligned", entitlement: "pm.leasing" },
@@ -371,12 +386,12 @@ export function navigationGroupsForSku(
   if (sku && skuIncludesFacilityOperations(sku)) {
     groups.push({
       id: "facility_operations",
-      title: "Facility Operations",
+      title: navigationGroupTitleForSku("facility_operations", sku) ?? "Facility Operations",
       product: "facility_operations",
       items: [
         {
           href: "/facility/mission-control",
-          label: "Facility Mission Control",
+          label: missionControlNavLabelForSku("facility", sku),
           readiness: "aligned",
           entitlement: "facility.mission_control"
         },
@@ -425,7 +440,7 @@ export function navigationGroupsForSku(
 
   groups.push({
     id: "shared",
-    title: "Shared Platform",
+    title: navigationGroupTitleForSku("shared", sku) ?? "Shared Platform",
     product: "shared",
     items: [
       { href: "/shared/documents", label: "Documents", readiness: "aligned", entitlement: "platform.documents" },
@@ -506,12 +521,16 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
     }
   ];
 
+  const complete = sku === "mpa_complete_platform";
+
   if (skuIncludesPropertyManager(sku)) {
     items.push(
       {
         id: "pm_mc",
-        title: "Property Manager · Mission Control",
-        description: "Attention home for properties, leasing, maintenance, and vendors.",
+        title: complete ? "Property Operations" : "Property Manager · Mission Control",
+        description: complete
+          ? "Portfolio attention home — properties, residents, leasing, and residential maintenance."
+          : "Attention home for properties, leasing, maintenance, and vendors.",
         href: "/pm/mission-control",
         product: "property_manager",
         readiness: "aligned"
@@ -519,7 +538,9 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
       {
         id: "pm_leasing",
         title: "Leasing Pipeline",
-        description: "Property Manager workspace for vacancy-to-lease work.",
+        description: complete
+          ? "Vacancy-to-lease work in Property Operations."
+          : "Property Manager workspace for vacancy-to-lease work.",
         href: "/pm/leasing",
         product: "property_manager",
         readiness: "aligned"
@@ -527,7 +548,9 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
       {
         id: "pm_maintenance",
         title: "Maintenance Triage",
-        description: "Residential maintenance — not Facility Operations.",
+        description: complete
+          ? "Residential maintenance inside Property Operations."
+          : "Residential maintenance — not Facility Operations.",
         href: "/pm/maintenance",
         product: "property_manager",
         readiness: "aligned"
@@ -546,8 +569,10 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
   if (skuIncludesFacilityOperations(sku)) {
     items.push({
       id: "fac_mc",
-      title: "Facility Operations · Mission Control",
-      description: "Attention home for facility, assets, and building operations.",
+      title: complete ? "Facility Operations" : "Facility Operations · Mission Control",
+      description: complete
+        ? "Facility attention home — buildings, work orders, preventive maintenance, and systems."
+        : "Attention home for facility, assets, and building operations.",
       href: "/facility/mission-control",
       product: "facility_operations",
       readiness: "aligned"

@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { completeWorkspaceLabels } from "@mpa/shared";
 import { Button, EmptyState, Skeleton } from "@mpa/ui";
 import { PropertyCreateWizard } from "./property-create-wizard";
+import { useCommercialContext } from "../shell/commercial-context";
 import {
   PmDirectoryToolbar,
   PmDocumentsStrip,
@@ -23,6 +25,9 @@ type PortfolioProperty = {
 
 export function PropertiesDirectory() {
   const searchParams = useSearchParams();
+  const { productSku } = useCommercialContext();
+  const isComplete = productSku === "mpa_complete_platform";
+  const completeLabels = completeWorkspaceLabels();
   const startWithWizard = searchParams.get("new") === "1";
   const [properties, setProperties] = useState<PortfolioProperty[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,9 +85,13 @@ export function PropertiesDirectory() {
         { href: "/pm/mission-control", label: "Mission Control" },
         { label: "Properties" }
       ]}
-      eyebrow="Property Manager · Portfolio"
+      eyebrow={isComplete ? "Property Operations · Portfolio" : "Property Manager · Portfolio"}
       title="Properties"
-      description="Your portfolio directory. Open a property for units, residents, maintenance, and documents — then act from Mission Control."
+      description={
+        isComplete
+          ? `${completeLabels.propertyCreateClarifier} Open a property for units, residents, maintenance, and documents.`
+          : "Your portfolio directory. Open a property for units, residents, maintenance, and documents — then act from Mission Control."
+      }
       actions={
         <Button
           type="button"
@@ -99,9 +108,19 @@ export function PropertiesDirectory() {
         actions={[
           { href: "/pm/mission-control", label: "Mission Control" },
           { href: "/pm/maintenance", label: "Maintenance" },
-          { href: documentsHref("property"), label: "Property documents" }
+          { href: documentsHref("property"), label: "Property documents" },
+          ...(isComplete
+            ? [{ href: "/facility/assets", label: "Facility buildings" }]
+            : [])
         ]}
       />
+
+      {isComplete ? (
+        <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+          Complete tip: add buildings once here as properties. Facility Operations uses the same
+          records under Assets — you do not need a separate portfolio.
+        </p>
+      ) : null}
 
       {showWizard ? (
         <PropertyCreateWizard

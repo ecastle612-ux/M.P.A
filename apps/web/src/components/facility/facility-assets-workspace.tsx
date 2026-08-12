@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { completeWorkspaceLabels } from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
+import { useCommercialContext } from "../shell/commercial-context";
 import {
   FoDocumentsStrip,
   FoPageChrome,
@@ -18,6 +20,9 @@ type Building = {
 };
 
 export function FacilityAssetsWorkspace() {
+  const { productSku } = useCommercialContext();
+  const isComplete = productSku === "mpa_complete_platform";
+  const completeLabels = completeWorkspaceLabels();
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [openByProperty, setOpenByProperty] = useState<Record<string, number>>({});
   const [name, setName] = useState("");
@@ -89,15 +94,36 @@ export function FacilityAssetsWorkspace() {
       ]}
       eyebrow="Facility Operations"
       title="Buildings & assets"
-      description="Buildings are your org properties. Attach an asset or system label when creating facility work."
+      description={
+        isComplete
+          ? completeLabels.buildingCreateClarifier
+          : "Buildings are your org properties. Attach an asset or system label when creating facility work."
+      }
     >
       <FoQuickActions
         actions={[
           { href: "/facility/operations", label: "Create facility work", primary: true },
           { href: "/facility/mission-control", label: "Mission Control" },
+          ...(isComplete
+            ? [{ href: "/pm/properties?new=1", label: "Add property" }]
+            : []),
           { href: documentsHref(undefined, "manual warranty"), label: "Documents" }
         ]}
       />
+
+      {isComplete ? (
+        <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+          Prefer{" "}
+          <Link
+            href="/pm/properties?new=1"
+            className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Add property
+          </Link>{" "}
+          when setting up the portfolio. Use Add building below only if you need a facility-side
+          shortcut to the same org property records.
+        </p>
+      ) : null}
 
       {error ? (
         <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">

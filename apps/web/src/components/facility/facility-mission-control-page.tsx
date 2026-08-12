@@ -136,11 +136,16 @@ export function FacilityMissionControlPage() {
           { href: "/shared/communications", label: "Communications" },
           ...(hasPmMaintenance
             ? [
-                { href: "/pm/maintenance", label: "PM Maintenance" },
+                {
+                  href: "/pm/maintenance",
+                  label: isComplete ? "Property maintenance" : "PM Maintenance"
+                },
                 { href: "/pm/vendors", label: "Vendors" }
               ]
             : []),
-          ...(isComplete ? [{ href: "/pm/mission-control", label: "PM Mission Control" }] : [])
+          ...(isComplete
+            ? [{ href: "/pm/mission-control", label: "Property Operations" }]
+            : [])
         ]}
       />
 
