@@ -1,8 +1,9 @@
 # Owner Operations Stabilization — Master Admin Rebuild
 
-**Status:** Authorized — Implement complete (awaiting Owner acceptance)  
+**Status:** Production deployed — awaiting Owner LIVE acceptance  
 **Date:** 2026-08-10  
-**Authority:** Owner — VERSION 2.0 · OWNER OPERATIONS STABILIZATION · MASTER ADMIN REBUILD
+**Authority:** Owner — VERSION 2.0 · OWNER OPERATIONS STABILIZATION · MASTER ADMIN REBUILD  
+**Production SHA:** `926159e2b538c8b465c1e73f85cb1fcee970dbbd`
 
 ## Mandate
 
@@ -21,6 +22,8 @@ When a customer contacts support, the Owner must diagnose the issue within minut
 - [Simplification Regression Report](./simplification-regression-report.md)
 - [Screenshots](./screenshots.md)
 - [Authorization](./owner-operations-authorization.md)
+- [Production LIVE Verify](./production-live-verify.md)
+- [Production Regression Report](./production-regression-report.md)
 
 ## Not in scope
 
