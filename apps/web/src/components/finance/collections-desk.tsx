@@ -316,51 +316,71 @@ export function CollectionsDesk() {
           }}
         >
           <h4 className="md:col-span-2 lg:col-span-3 text-sm font-semibold">Record payment arrangement</h4>
-          <Select
-            value={arrangementLeaseId}
-            onChange={(event) => setArrangementLeaseId(event.target.value)}
-            required
-          >
-            <option value="">Select overdue lease</option>
-            {overdue.map((item) => (
-              <option key={item.id} value={item.lease_id}>
-                {nestedName(item.lease_residents, "display_name")} · {formatMoney(Number(item.open_balance))}
-              </option>
-            ))}
-          </Select>
-          <Input
-            value={arrangementTotal}
-            onChange={(event) => setArrangementTotal(event.target.value)}
-            type="number"
-            min="0.01"
-            step="0.01"
-            placeholder="Total amount"
-            required
-          />
-          <Input
-            value={arrangementInstallment}
-            onChange={(event) => setArrangementInstallment(event.target.value)}
-            type="number"
-            min="0.01"
-            step="0.01"
-            placeholder="Installment"
-            required
-          />
-          <Input
-            value={arrangementCount}
-            onChange={(event) => setArrangementCount(event.target.value)}
-            type="number"
-            min="1"
-            max="36"
-            placeholder="Installments"
-            required
-          />
-          <Input
-            value={arrangementNextDue}
-            onChange={(event) => setArrangementNextDue(event.target.value)}
-            type="date"
-            required
-          />
+          <label className="block space-y-1 text-sm" htmlFor="arrangement-lease">
+            <span className="text-xs text-[var(--mpa-color-text-secondary)]">Overdue lease</span>
+            <Select
+              id="arrangement-lease"
+              value={arrangementLeaseId}
+              onChange={(event) => setArrangementLeaseId(event.target.value)}
+              required
+            >
+              <option value="">Select overdue lease</option>
+              {overdue.map((item) => (
+                <option key={item.id} value={item.lease_id}>
+                  {nestedName(item.lease_residents, "display_name")} ·{" "}
+                  {formatMoney(Number(item.open_balance))}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="block space-y-1 text-sm" htmlFor="arrangement-total">
+            <span className="text-xs text-[var(--mpa-color-text-secondary)]">Total amount</span>
+            <Input
+              id="arrangement-total"
+              value={arrangementTotal}
+              onChange={(event) => setArrangementTotal(event.target.value)}
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+              required
+            />
+          </label>
+          <label className="block space-y-1 text-sm" htmlFor="arrangement-installment">
+            <span className="text-xs text-[var(--mpa-color-text-secondary)]">Installment amount</span>
+            <Input
+              id="arrangement-installment"
+              value={arrangementInstallment}
+              onChange={(event) => setArrangementInstallment(event.target.value)}
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+              required
+            />
+          </label>
+          <label className="block space-y-1 text-sm" htmlFor="arrangement-count">
+            <span className="text-xs text-[var(--mpa-color-text-secondary)]">Installments</span>
+            <Input
+              id="arrangement-count"
+              value={arrangementCount}
+              onChange={(event) => setArrangementCount(event.target.value)}
+              type="number"
+              min="1"
+              max="36"
+              required
+            />
+          </label>
+          <label className="block space-y-1 text-sm" htmlFor="arrangement-next-due">
+            <span className="text-xs text-[var(--mpa-color-text-secondary)]">Next due date</span>
+            <Input
+              id="arrangement-next-due"
+              value={arrangementNextDue}
+              onChange={(event) => setArrangementNextDue(event.target.value)}
+              type="date"
+              required
+            />
+          </label>
           <Button type="submit" disabled={busy || !arrangementLeaseId}>
             Save arrangement
           </Button>
@@ -468,7 +488,15 @@ export function CollectionsDesk() {
             }}
           >
             <h4 className="text-sm font-semibold">Add vendor</h4>
-            <Input value={vendorName} onChange={(event) => setVendorName(event.target.value)} placeholder="Vendor name" required />
+            <label className="block space-y-1 text-sm" htmlFor="collections-vendor-name">
+              <span className="text-xs text-[var(--mpa-color-text-secondary)]">Vendor name</span>
+              <Input
+                id="collections-vendor-name"
+                value={vendorName}
+                onChange={(event) => setVendorName(event.target.value)}
+                required
+              />
+            </label>
             <Button type="submit" disabled={busy || !vendorName.trim()}>
               Create vendor
             </Button>
@@ -497,37 +525,67 @@ export function CollectionsDesk() {
             }}
           >
             <h4 className="text-sm font-semibold">Submit vendor invoice</h4>
-            <Select value={invoiceVendorId} onChange={(event) => setInvoiceVendorId(event.target.value)} required>
-              <option value="">Select vendor</option>
-              {vendors.map((vendor) => (
-                <option key={vendor.id} value={vendor.id}>
-                  {vendor.name}
-                </option>
-              ))}
-            </Select>
-            <Select value={invoicePropertyId} onChange={(event) => setInvoicePropertyId(event.target.value)}>
-              <option value="">Property (optional)</option>
-              {properties.map((property) => (
-                <option key={property.id} value={property.id}>
-                  {property.name}
-                </option>
-              ))}
-            </Select>
-            <Input value={invoiceNumber} onChange={(event) => setInvoiceNumber(event.target.value)} placeholder="Invoice #" required />
-            <Input
-              value={invoiceAmount}
-              onChange={(event) => setInvoiceAmount(event.target.value)}
-              type="number"
-              min="0.01"
-              step="0.01"
-              placeholder="Amount"
-              required
-            />
-            <Input
-              value={invoiceDescription}
-              onChange={(event) => setInvoiceDescription(event.target.value)}
-              placeholder="Description"
-            />
+            <label className="block space-y-1 text-sm" htmlFor="invoice-vendor">
+              <span className="text-xs text-[var(--mpa-color-text-secondary)]">Vendor</span>
+              <Select
+                id="invoice-vendor"
+                value={invoiceVendorId}
+                onChange={(event) => setInvoiceVendorId(event.target.value)}
+                required
+              >
+                <option value="">Select vendor</option>
+                {vendors.map((vendor) => (
+                  <option key={vendor.id} value={vendor.id}>
+                    {vendor.name}
+                  </option>
+                ))}
+              </Select>
+            </label>
+            <label className="block space-y-1 text-sm" htmlFor="invoice-property">
+              <span className="text-xs text-[var(--mpa-color-text-secondary)]">Property (optional)</span>
+              <Select
+                id="invoice-property"
+                value={invoicePropertyId}
+                onChange={(event) => setInvoicePropertyId(event.target.value)}
+              >
+                <option value="">Select property</option>
+                {properties.map((property) => (
+                  <option key={property.id} value={property.id}>
+                    {property.name}
+                  </option>
+                ))}
+              </Select>
+            </label>
+            <label className="block space-y-1 text-sm" htmlFor="invoice-number">
+              <span className="text-xs text-[var(--mpa-color-text-secondary)]">Invoice number</span>
+              <Input
+                id="invoice-number"
+                value={invoiceNumber}
+                onChange={(event) => setInvoiceNumber(event.target.value)}
+                required
+              />
+            </label>
+            <label className="block space-y-1 text-sm" htmlFor="invoice-amount">
+              <span className="text-xs text-[var(--mpa-color-text-secondary)]">Amount</span>
+              <Input
+                id="invoice-amount"
+                value={invoiceAmount}
+                onChange={(event) => setInvoiceAmount(event.target.value)}
+                type="number"
+                min="0.01"
+                step="0.01"
+                placeholder="0.00"
+                required
+              />
+            </label>
+            <label className="block space-y-1 text-sm" htmlFor="invoice-description">
+              <span className="text-xs text-[var(--mpa-color-text-secondary)]">Description</span>
+              <Input
+                id="invoice-description"
+                value={invoiceDescription}
+                onChange={(event) => setInvoiceDescription(event.target.value)}
+              />
+            </label>
             <Button type="submit" disabled={busy || !invoiceVendorId}>
               Submit invoice
             </Button>

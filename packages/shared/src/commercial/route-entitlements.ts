@@ -180,7 +180,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
   push(decisionPath("/settings/organization", "Organization Settings", "Home", "platform.org"));
 
   if (sku) {
-    push(decisionPath("/pm/mission-control", "Property Manager · Mission Control", "Property Manager", "pm.mission_control"));
+    push(decisionPath("/pm/mission-control", "Mission Control", "Property Manager", "pm.mission_control"));
     push(decisionPath("/pm/properties", "Properties", "Property Manager", "pm.properties"));
     push(
       decisionPath(
@@ -205,7 +205,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations#charges",
-        "FO · Charges & ledger (S1+)",
+        "Charges & ledger",
         "Property Manager",
         "pm.financial_operations"
       )
@@ -213,7 +213,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations#payments",
-        "FO · Payments",
+        "Payments",
         "Property Manager",
         "pm.financial_operations"
       )
@@ -221,7 +221,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations#vendor-invoices",
-        "FO · Vendor invoices (S4+)",
+        "Vendor invoices",
         "Property Manager",
         "pm.financial_operations"
       )
@@ -229,14 +229,14 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(
       decisionPath(
         "/pm/financial-operations#reports",
-        "FO · Reports (S6+)",
+        "Reports",
         "Property Manager",
         "pm.financial_operations"
       )
     );
 
     push(
-      decisionPath("/facility/mission-control", "Facility Operations · Mission Control", "Facility Operations", "facility.mission_control")
+      decisionPath("/facility/mission-control", "Mission Control", "Facility Operations", "facility.mission_control")
     );
     push(decisionPath("/facility/operations", "Facility Operations", "Facility Operations", "facility.operations"));
     push(decisionPath("/facility/assets", "Assets", "Facility Operations", "facility.assets"));

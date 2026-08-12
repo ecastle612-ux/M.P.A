@@ -84,11 +84,10 @@ export function missionControlNavLabelForSku(
   surface: "property" | "facility",
   sku: ProductSku | null
 ): string {
-  if (sku === "mpa_complete_platform") {
-    // Group title already says Property/Facility Operations — keep the item short.
-    return "Mission Control";
-  }
-  return surface === "property" ? "PM Mission Control" : "Facility Mission Control";
+  void surface;
+  void sku;
+  // Group title already names Property Manager / Facility Operations / Operations.
+  return "Mission Control";
 }
 
 /**

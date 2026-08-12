@@ -27,6 +27,12 @@ describe("Complete Platform launcher (PPS1-006)", () => {
     expect(missionControlNavLabelForSku("facility", "mpa_complete_platform")).toBe(
       "Mission Control"
     );
+    expect(missionControlNavLabelForSku("property", "mpa_property_manager")).toBe(
+      "Mission Control"
+    );
+    expect(missionControlNavLabelForSku("facility", "mpa_facility_operations")).toBe(
+      "Mission Control"
+    );
     expect(navigationGroupTitleForSku("home", "mpa_complete_platform")).toBe("Complete");
     expect(navigationGroupTitleForSku("shared", "mpa_complete_platform")).toBe("Shared");
   });

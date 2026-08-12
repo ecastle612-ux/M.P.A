@@ -83,7 +83,7 @@ export async function sendLifecycleEmail(input: {
     },
     subscription_canceled: {
       subject: "Your M.P.A. subscription was canceled",
-      body: `<p><strong>${plan}</strong> is canceled. Your data is retained. Reactivate anytime from Billing.</p><p><a href="${input.billingUrl}">Manage subscription</a></p>`
+      body: `<p><strong>${plan}</strong> is canceled. Access continues through the paid period when one applies; renewal will not continue after that. Reactivate from Billing while access remains, or after access ends to restore your workspace. Your data is retained.</p><p><a href="${input.billingUrl}">Manage subscription</a></p>`
     },
     subscription_restored: {
       subject: "Your M.P.A. subscription is restored",

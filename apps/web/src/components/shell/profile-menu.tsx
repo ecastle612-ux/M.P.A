@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, Button } from "@mpa/ui";
+import { useDismissiblePopover } from "../../lib/ui/use-dismissible-popover";
 import { useOperatorContext } from "./operator-context";
 
 export function ProfileMenu() {
@@ -11,6 +12,8 @@ export function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const [displayName, setDisplayName] = useState("M.P.A.");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const close = useCallback(() => setOpen(false), []);
+  const { rootRef, triggerRef, panelId } = useDismissiblePopover(open, close);
 
   useEffect(() => {
     let isMounted = true;
@@ -53,13 +56,21 @@ export function ProfileMenu() {
     setOpen(false);
   }
 
+  function go(href: string) {
+    setOpen(false);
+    router.push(href);
+  }
+
   return (
-    <div className="relative">
+    <div className="relative" ref={rootRef}>
       <button
+        ref={triggerRef}
         type="button"
+        id={`${panelId}-trigger`}
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-controls={panelId}
         className="rounded-full"
         aria-label="Open profile menu"
       >
@@ -67,6 +78,7 @@ export function ProfileMenu() {
       </button>
       {open ? (
         <div
+          id={panelId}
           role="menu"
           aria-label="Profile menu"
           className="absolute right-0 top-10 z-40 w-56 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-2 shadow-lg"
@@ -76,7 +88,7 @@ export function ProfileMenu() {
             className="mb-2 w-full"
             variant="secondary"
             role="menuitem"
-            onClick={() => router.push("/profile")}
+            onClick={() => go("/profile")}
           >
             Profile
           </Button>
@@ -84,7 +96,7 @@ export function ProfileMenu() {
             className="mb-2 w-full"
             variant="secondary"
             role="menuitem"
-            onClick={() => router.push("/billing")}
+            onClick={() => go("/billing")}
           >
             Billing & Plan
           </Button>
@@ -92,7 +104,7 @@ export function ProfileMenu() {
             className="mb-2 w-full"
             variant="secondary"
             role="menuitem"
-            onClick={() => router.push("/setup")}
+            onClick={() => go("/setup")}
           >
             Guided Setup
           </Button>
@@ -101,9 +113,9 @@ export function ProfileMenu() {
               className="mb-2 w-full"
               variant="secondary"
               role="menuitem"
-              onClick={() => router.push("/admin")}
+              onClick={() => go("/admin")}
             >
-              Master Admin
+              Owner Operations
             </Button>
           ) : null}
           <Button className="w-full" variant="secondary" role="menuitem" onClick={handleLogout}>

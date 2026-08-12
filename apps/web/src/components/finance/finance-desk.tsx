@@ -561,7 +561,7 @@ export function FinanceDesk() {
             });
           }}
         >
-          <label className="block space-y-1 text-sm sm:col-span-1">
+          <label className="block space-y-1 text-sm sm:col-span-1" htmlFor="manual-payment-amount">
             <span className="text-xs text-[var(--mpa-color-text-secondary)]">Amount</span>
             <Input
               id="manual-payment-amount"

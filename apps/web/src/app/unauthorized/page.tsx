@@ -13,7 +13,7 @@ export default async function UnauthorizedPage({ searchParams }: PageProps) {
     reason === "entitlement"
       ? "This workspace is outside your organization's purchased subscription."
       : reason === "admin"
-        ? "Master Admin is available only to authorized platform operators."
+        ? "Owner Operations is available only to authorized platform operators."
         : reason === "role"
           ? "Your account does not have a recognized role for this organization. Ask your administrator to re-invite you with the correct role, then sign in again."
           : "You do not have access to this area.";
