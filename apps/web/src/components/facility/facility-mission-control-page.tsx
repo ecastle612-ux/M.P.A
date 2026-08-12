@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FoCapabilityCard,
   FoDocumentsStrip,
@@ -12,17 +12,13 @@ import {
   documentsHref
 } from "../shell/fo-workspace";
 import { useCommercialContext } from "../shell/commercial-context";
-import { Skeleton } from "@mpa/ui";
-
-type Snapshot = {
-  todayOpen: number;
-  emergency: number;
-  open: number;
-  overdue: number;
-  waitingOnVendor: number;
-  waitingOnTechnician: number;
-  completedRecently: number;
-};
+import { Button, Skeleton } from "@mpa/ui";
+import {
+  facilityMissionControlErrorMessage,
+  facilityMissionControlGlanceMetrics,
+  facilityMissionControlLoadView
+} from "../../lib/facility/mission-control-presentation";
+import type { FacilityMissionControlSnapshot } from "../../lib/maintenance/maintenance-service";
 
 const CAPABILITIES = [
   {
@@ -76,40 +72,51 @@ export function FacilityMissionControlPage() {
   const { productSku, canAccess } = useCommercialContext();
   const isComplete = productSku === "mpa_complete_platform";
   const hasPmMaintenance = canAccess("pm.maintenance") || isComplete;
-  const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
+  const [snapshot, setSnapshot] = useState<FacilityMissionControlSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    const response = await fetch("/api/facility/mission-control");
-    const body = await response.json();
-    if (!response.ok) {
-      throw new Error(body.error ?? "Failed to load Facility Mission Control");
-    }
-    setSnapshot(body.snapshot as Snapshot);
-  }, []);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        await load();
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load");
+    const controller = new AbortController();
+    void fetch("/api/facility/mission-control", { signal: controller.signal })
+      .then(async (response) => {
+        const body = (await response.json().catch(() => ({}))) as {
+          error?: string;
+          snapshot?: FacilityMissionControlSnapshot;
+        };
+        if (!response.ok || !body.snapshot) {
+          throw new Error(body.error ?? "Failed to load Facility Mission Control");
         }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
+        if (controller.signal.aborted) {
+          return;
         }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [load]);
+        setSnapshot(body.snapshot);
+        setError(null);
+        setLoading(false);
+      })
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+        setError(facilityMissionControlErrorMessage(err));
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [reloadToken]);
 
-  const waiting = (snapshot?.waitingOnVendor ?? 0) + (snapshot?.waitingOnTechnician ?? 0);
+  function retry() {
+    setLoading(true);
+    setError(null);
+    setReloadToken((value) => value + 1);
+  }
+
+  const view = facilityMissionControlLoadView({
+    loading,
+    error,
+    hasSnapshot: Boolean(snapshot)
+  });
+  const glanceMetrics = snapshot ? facilityMissionControlGlanceMetrics(snapshot) : [];
 
   return (
     <FoPageChrome
@@ -137,59 +144,49 @@ export function FacilityMissionControlPage() {
         ]}
       />
 
-      {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
+      {view === "loading" ? (
+        <section
+          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+          aria-busy="true"
+          aria-label="Loading Facility Mission Control"
+        >
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </section>
       ) : null}
 
-      {loading || !snapshot ? (
-        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
+      {view === "error" ? (
+        <section
+          className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+          role="alert"
+        >
+          <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+            Facility Mission Control unavailable
+          </p>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            {error ?? "We couldn’t load Facility Mission Control. Check your connection and try again."}
+          </p>
+          <Button type="button" onClick={retry} aria-busy={loading}>
+            Retry
+          </Button>
         </section>
-      ) : (
+      ) : null}
+
+      {view === "ready" && snapshot ? (
         <section aria-label="At a glance" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <FoGlanceCard
-            label="Today's work"
-            value={String(snapshot.todayOpen)}
-            hint="Open work submitted or due today"
-            tone={snapshot.todayOpen > 0 ? "watch" : "ok"}
-          />
-          <FoGlanceCard
-            label="Emergency / critical"
-            value={String(snapshot.emergency)}
-            hint="Open emergency-priority facility work"
-            tone={snapshot.emergency > 0 ? "critical" : "ok"}
-          />
-          <FoGlanceCard
-            label="Open work"
-            value={String(snapshot.open)}
-            hint={`${snapshot.overdue} overdue`}
-            tone={snapshot.overdue > 0 ? "watch" : "neutral"}
-          />
-          <FoGlanceCard
-            label="Waiting on others"
-            value={String(waiting)}
-            hint={`${snapshot.waitingOnTechnician} tech · ${snapshot.waitingOnVendor} vendor`}
-            tone={waiting > 0 ? "watch" : "neutral"}
-          />
-          <FoGlanceCard
-            label="Assigned work"
-            value={String(waiting)}
-            hint="Assigned and awaiting start or progress"
-            tone="neutral"
-          />
-          <FoGlanceCard
-            label="Recently completed"
-            value={String(snapshot.completedRecently)}
-            hint="Completed or closed in the last 7 days"
-            tone="ok"
-          />
+          {glanceMetrics.map((metric) => (
+            <FoGlanceCard
+              key={metric.id}
+              label={metric.label}
+              value={String(metric.value)}
+              hint={metric.hint}
+              tone={metric.tone}
+            />
+          ))}
         </section>
-      )}
+      ) : null}
 
       <section
         aria-label="What to do next"
