@@ -1,0 +1,12 @@
+{
+  "name": "M.P.A. Platform",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "web-dev",
+      "command": "pnpm --filter @mpa/web dev",
+      "description": "Next.js dev server for the M.P.A. web app on http://localhost:3000"
+    }
+  ],
+  "ports": [{ "name": "web", "port": 3000 }]
+}
