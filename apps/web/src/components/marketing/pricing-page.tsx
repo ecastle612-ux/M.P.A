@@ -172,6 +172,14 @@ export function PricingPage({
             </p>
           </article>
           <article className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
+            <h2 className="font-display text-lg font-semibold">
+              {PUBLIC_PRICING_MODEL_COPY.cancellationTitle}
+            </h2>
+            <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              {PUBLIC_PRICING_MODEL_COPY.cancellationSummary}
+            </p>
+          </article>
+          <article className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4">
             <h2 className="font-display text-lg font-semibold">Enterprise</h2>
             <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
               {PUBLIC_PRICING_MODEL_COPY.enterpriseNotProduct}

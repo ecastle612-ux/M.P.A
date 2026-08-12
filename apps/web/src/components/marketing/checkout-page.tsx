@@ -7,6 +7,7 @@ import {
   ACQUISITION_QUOTE_COOKIE,
   ACQUISITION_SKU_COOKIE,
   ACQUISITION_SNAPSHOT_COOKIE,
+  PUBLIC_PRICING_MODEL_COPY,
   SKU_SUMMARIES,
   acquisitionHref,
   confirmPlanCapacityLines,
@@ -272,6 +273,15 @@ export function CheckoutPage({
                   <li key={module.id}>• {module.label}</li>
                 ))}
               </ul>
+            </div>
+
+            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2">
+              <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+                {PUBLIC_PRICING_MODEL_COPY.cancellationTitle}
+              </p>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                {PUBLIC_PRICING_MODEL_COPY.cancellationSummary}
+              </p>
             </div>
 
             {quote && !gated ? (

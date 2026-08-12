@@ -2,8 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Button, Skeleton } from "@mpa/ui";
+import { useEffect, useMemo, useState } from "react";
+import {
+  CANCEL_CONFIRMATION_POINTS,
+  PUBLIC_PRICING_MODEL_COPY,
+  cancelScheduledAccessCopy,
+  formatPaidThroughDate,
+  isProductSku,
+  productWorkspaceHomeLabel,
+  resolveProductWorkspaceHome
+} from "@mpa/shared";
+import { Button, Modal, Skeleton } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import {
@@ -51,7 +60,7 @@ type CapacityPayload = {
 
 export function BillingPlanPage() {
   const router = useRouter();
-  const { productLabel } = useCommercialContext();
+  const { productSku, productLabel } = useCommercialContext();
   const [data, setData] = useState<BillingPayload | null>(null);
   const [capacity, setCapacity] = useState<CapacityPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +69,21 @@ export function BillingPlanPage() {
   const [gateOpen, setGateOpen] = useState(false);
   const [authorizeBusy, setAuthorizeBusy] = useState(false);
   const [authorizeError, setAuthorizeError] = useState<string | null>(null);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+
+  const resolvedSku = useMemo(() => {
+    if (data?.productSku && isProductSku(data.productSku)) {
+      return data.productSku;
+    }
+    return productSku;
+  }, [data?.productSku, productSku]);
+
+  const workspaceHome = resolvedSku
+    ? resolveProductWorkspaceHome(resolvedSku)
+    : "/setup";
+  const workspaceHomeLabel = resolvedSku
+    ? productWorkspaceHomeLabel(resolvedSku)
+    : "Workspace home";
 
   useEffect(() => {
     const controller = new AbortController();
@@ -100,10 +124,18 @@ export function BillingPlanPage() {
     if (!res.ok) {
       const payload = (await res.json().catch(() => ({}))) as { error?: string };
       setError(payload.error ?? "Request failed.");
-      return;
+      return false;
     }
     setReloadToken((value) => value + 1);
     router.refresh();
+    return true;
+  }
+
+  async function confirmCancel() {
+    const ok = await post("/api/commerce/subscription/cancel");
+    if (ok) {
+      setCancelConfirmOpen(false);
+    }
   }
 
   async function authorizeFromBilling() {
@@ -125,6 +157,10 @@ export function BillingPlanPage() {
     router.refresh();
   }
 
+  const paidThroughLabel = data?.currentPeriodEnd
+    ? formatPaidThroughDate(data.currentPeriodEnd)
+    : null;
+
   return (
     <main className="flex-1 space-y-6 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
       <Breadcrumbs items={[{ href: "/launcher", label: "Launcher" }, { label: "Billing & Plan" }]} />
@@ -133,8 +169,8 @@ export function BillingPlanPage() {
           Billing & Plan
         </h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Property Manager, Facility Operations, and Complete Platform renewals, recovery, and
-          Additional Unit Capacity run automatically — no employee involvement.
+          Manage renewals, recovery, and Additional Unit Capacity for{" "}
+          {data?.planLabel ?? productLabel ?? "your plan"}.
         </p>
       </section>
 
@@ -155,10 +191,18 @@ export function BillingPlanPage() {
                 {data.requiredAction}
               </p>
             ) : null}
+            {data.cancelAtPeriodEnd ? (
+              <p
+                className="rounded-md border border-[var(--mpa-color-brand-primary)]/30 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-3 py-2 text-sm text-[var(--mpa-color-text-primary)]"
+                role="status"
+              >
+                {cancelScheduledAccessCopy(data.currentPeriodEnd)}
+              </p>
+            ) : null}
             <dl className="grid gap-2 text-sm sm:grid-cols-2">
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Module</dt>
-                <dd>{data.planLabel ?? productLabel ?? "Property Manager"}</dd>
+                <dd>{data.planLabel ?? productLabel ?? "Your plan"}</dd>
               </div>
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Billing interval</dt>
@@ -202,10 +246,12 @@ export function BillingPlanPage() {
                 </dd>
               </div>
               <div>
-                <dt className="text-[var(--mpa-color-text-muted)]">Next billing date</dt>
+                <dt className="text-[var(--mpa-color-text-muted)]">
+                  {data.cancelAtPeriodEnd ? "Paid through" : "Next billing date"}
+                </dt>
                 <dd>
                   {data.cancelAtPeriodEnd
-                    ? "Cancels at period end"
+                    ? paidThroughLabel ?? "End of current paid period"
                     : data.currentPeriodEnd
                       ? new Date(data.currentPeriodEnd).toLocaleString()
                       : "Automatic on your billing date"}
@@ -230,6 +276,15 @@ export function BillingPlanPage() {
             {data?.message ?? "Subscription details unavailable."}
           </p>
         )}
+      </section>
+
+      <section className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
+        <h2 className="font-display text-lg font-semibold">
+          {PUBLIC_PRICING_MODEL_COPY.cancellationTitle}
+        </h2>
+        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+          {PUBLIC_PRICING_MODEL_COPY.cancellationSummary}
+        </p>
       </section>
 
       {capacity?.linked ? (
@@ -298,14 +353,14 @@ export function BillingPlanPage() {
             type="button"
             variant="secondary"
             disabled={busy !== null}
-            onClick={() => void post("/api/commerce/subscription/cancel")}
+            onClick={() => setCancelConfirmOpen(true)}
           >
-            {busy ? "Working…" : "Cancel at period end"}
+            Cancel at period end
           </Button>
         ) : null}
-        <Link href="/pm/mission-control">
+        <Link href={workspaceHome}>
           <Button type="button" variant="secondary">
-            Mission Control
+            {workspaceHomeLabel}
           </Button>
         </Link>
       </section>
@@ -334,6 +389,50 @@ export function BillingPlanPage() {
           </ul>
         )}
       </section>
+
+      <Modal
+        open={cancelConfirmOpen}
+        onClose={() => setCancelConfirmOpen(false)}
+        title="Cancel at period end?"
+        className="max-w-md"
+        footer={
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={busy !== null}
+              onClick={() => setCancelConfirmOpen(false)}
+            >
+              Keep subscription
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              disabled={busy !== null}
+              aria-busy={busy === "/api/commerce/subscription/cancel"}
+              onClick={() => void confirmCancel()}
+            >
+              {busy === "/api/commerce/subscription/cancel"
+                ? "Canceling…"
+                : "Confirm cancellation"}
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-[var(--mpa-color-text-secondary)]">
+          {PUBLIC_PRICING_MODEL_COPY.cancellationSummary}
+        </p>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-[var(--mpa-color-text-secondary)]">
+          {CANCEL_CONFIRMATION_POINTS.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
+        {data?.currentPeriodEnd ? (
+          <p className="mt-3 font-medium text-[var(--mpa-color-text-primary)]">
+            {cancelScheduledAccessCopy(data.currentPeriodEnd)}
+          </p>
+        ) : null}
+      </Modal>
 
       <AdditionalUnitCapacityGate
         open={gateOpen}

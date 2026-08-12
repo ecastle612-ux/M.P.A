@@ -260,13 +260,15 @@ export function customerStatusCopy(phase: CustomerLifecyclePhase): {
     case "canceled":
       return {
         title: "Canceled",
-        detail: "Your subscription is canceled. Access ends at the close of the current billing period when applicable.",
-        requiredAction: "Reactivate anytime to restore access."
+        detail:
+          "Your subscription is canceled. Access continues through the paid-through date when one applies; renewal will not continue after that.",
+        requiredAction:
+          "Reactivate while access remains to keep automatic renewal. After access ends, reactivate to restore your workspace."
       };
     case "expired":
       return {
         title: "Ended",
-        detail: "Your subscription has ended. Your data is retained. Reactivate to return to Mission Control.",
+        detail: "Your subscription has ended. Your data is retained. Reactivate to return to your workspace.",
         requiredAction: "Reactivate your plan to continue."
       };
   }
