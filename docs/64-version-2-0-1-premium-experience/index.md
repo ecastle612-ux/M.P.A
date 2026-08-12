@@ -52,3 +52,7 @@ PR → Owner acceptance → Merge → Production → LIVE verification → Owner
 - [Resolved Findings Report](./resolved-findings.md)
 - [Regression Report](./regression-report.md)
 - [Before/After Screenshots](./screenshots.md)
+- [Production LIVE Verify](./production-live-verify.md)
+- [Owner LIVE Acceptance Validation](./owner-live-acceptance-validation.md)
+- [Owner Manual LIVE Acceptance Checklist](./owner-manual-live-acceptance-checklist.md)
+- [Owner LIVE Acceptance Result](./owner-live-acceptance-result.md)
