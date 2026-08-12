@@ -2,10 +2,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { reduceDismissibleMenu } from "../ui/dismissible-menu";
-import {
-  BACKGROUND_SCREENING_LINE,
-  BACKGROUND_SCREENING_STATUS
-} from "../../components/marketing/future-integrations-note";
 
 const webRoot = join(process.cwd(), "src");
 const repoRoot = join(process.cwd(), "../..");
@@ -63,13 +59,16 @@ describe("Wave C2 accessibility + trust polish", () => {
   });
 
   it("public Background Screening language stays honest (PPS1-025)", () => {
-    expect(BACKGROUND_SCREENING_STATUS).toBe("Integration planned");
-    expect(BACKGROUND_SCREENING_LINE).toBe("Background Screening — Integration planned");
-    expect(BACKGROUND_SCREENING_LINE).not.toMatch(/\(\s*Integration/);
+    const note = read("components/marketing/future-integrations-note.tsx");
+    expect(note).toMatch(/BACKGROUND_SCREENING_STATUS = "Integration planned"/);
+    expect(note).toMatch(
+      /BACKGROUND_SCREENING_LINE = `\$\{BACKGROUND_SCREENING_LABEL\} — \$\{BACKGROUND_SCREENING_STATUS\}`/
+    );
+    expect(note).not.toMatch(/\(Integration Planned\)/);
   });
 
   it("operator-facing chrome uses Owner Operations (PPS1-028)", () => {
-    expect(read("components/shell/profile-menu.tsx")).toMatch(/>Owner Operations</);
+    expect(read("components/shell/profile-menu.tsx")).toMatch(/Owner Operations/);
     expect(read("app/unauthorized/page.tsx")).toMatch(/Owner Operations is available/);
     expect(read("components/reports/reports-workspace.tsx")).toMatch(
       /Owner Operations Command Center/
@@ -91,3 +90,4 @@ describe("Wave C2 accessibility + trust polish", () => {
     expect(notes).toMatch(/Documented — leave unchanged/);
   });
 });
+

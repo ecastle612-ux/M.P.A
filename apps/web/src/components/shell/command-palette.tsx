@@ -37,9 +37,8 @@ export function CommandPalette() {
     }
     const trimmed = query.trim();
     // PPS1-029 — skip empty-q entity search; debounce typing to avoid duplicate requests.
+    // Clear derived entity hits only after debounce (async), not with sync setState-in-effect.
     if (!trimmed) {
-      setPropertyItems([]);
-      setResidentItems([]);
       return;
     }
     let cancelled = false;
@@ -94,13 +93,13 @@ export function CommandPalette() {
       group.push({ id: item.href, label: item.label });
       byGroup.set(item.group, group);
     }
-    if (propertyItems.length > 0) {
+    if (query.trim() && propertyItems.length > 0) {
       byGroup.set(
         "Properties",
         propertyItems.map((item) => ({ id: item.id, label: item.label }))
       );
     }
-    if (residentItems.length > 0) {
+    if (query.trim() && residentItems.length > 0) {
       byGroup.set(
         "Residents",
         residentItems.map((item) => ({ id: item.id, label: item.label }))

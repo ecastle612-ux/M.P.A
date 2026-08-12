@@ -51,6 +51,34 @@ export function NotificationCenter() {
   const close = useCallback(() => setOpen(false), []);
   const { rootRef, triggerRef, panelId } = useDismissiblePopover(open, close);
 
+  // Mount badge fetch (inline — avoid set-state-in-effect via load()).
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/shared/communications/notifications", { signal: controller.signal })
+      .then(async (response) => {
+        const body = (await response.json()) as NotificationsPayload;
+        if (controller.signal.aborted) {
+          return;
+        }
+        applyNotificationsPayload(body, response.ok, response.status, {
+          setItems,
+          setUnreadCount,
+          setError
+        });
+        lastFetchedAt.current = Date.now();
+      })
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+        setError("Unable to load notifications");
+      });
+    return () => controller.abort();
+  }, []);
+
   const load = useCallback(async (opts?: { force?: boolean; showLoading?: boolean }) => {
     const force = opts?.force ?? false;
     const showLoading = opts?.showLoading ?? true;
@@ -91,11 +119,6 @@ export function NotificationCenter() {
       }
     }
   }, []);
-
-  useEffect(() => {
-    void load({ showLoading: false });
-    return () => inFlight.current?.abort();
-  }, [load]);
 
   async function toggle() {
     const next = !open;
