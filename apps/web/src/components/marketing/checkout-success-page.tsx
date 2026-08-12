@@ -80,7 +80,7 @@ export function CheckoutSuccessPage({
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             {paid
               ? "Your subscription is secured. Continue to claim your workspace — Guided Setup is next."
-              : "Waiting for Stripe confirmation. If you just finished paying, this updates automatically."}
+              : "Waiting for payment confirmation. If you just finished paying, this updates automatically."}
           </p>
         </header>
 

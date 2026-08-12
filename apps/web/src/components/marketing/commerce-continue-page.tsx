@@ -380,7 +380,7 @@ export function CommerceContinuePage({
           <p className="text-xs text-[var(--mpa-color-text-muted)]">Signed in as {userEmail}</p>
         ) : (
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
-            Use the same email address you entered at Stripe Checkout.
+            Use the same email address you used at checkout.
           </p>
         )}
       </main>

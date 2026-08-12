@@ -35,44 +35,54 @@ export function CommandPalette() {
     if (!open || !productSku) {
       return;
     }
+    const trimmed = query.trim();
+    // PPS1-029 — skip empty-q entity search; debounce typing to avoid duplicate requests.
+    if (!trimmed) {
+      setPropertyItems([]);
+      setResidentItems([]);
+      return;
+    }
     let cancelled = false;
-    void (async () => {
-      try {
-        const [propertyResponse, residentResponse] = await Promise.all([
-          fetch(`/api/pm/properties/search?q=${encodeURIComponent(query.trim())}`),
-          fetch(`/api/pm/residents/search?q=${encodeURIComponent(query.trim())}`)
-        ]);
-        if (!cancelled && propertyResponse.ok) {
-          const payload = (await propertyResponse.json()) as {
-            results?: Array<{ id: string; label: string; href: string }>;
-          };
-          setPropertyItems(
-            (payload.results ?? []).map((item) => ({
-              id: item.href,
-              label: item.label
-            }))
-          );
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const [propertyResponse, residentResponse] = await Promise.all([
+            fetch(`/api/pm/properties/search?q=${encodeURIComponent(trimmed)}`),
+            fetch(`/api/pm/residents/search?q=${encodeURIComponent(trimmed)}`)
+          ]);
+          if (!cancelled && propertyResponse.ok) {
+            const payload = (await propertyResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string }>;
+            };
+            setPropertyItems(
+              (payload.results ?? []).map((item) => ({
+                id: item.href,
+                label: item.label
+              }))
+            );
+          }
+          if (!cancelled && residentResponse.ok) {
+            const payload = (await residentResponse.json()) as {
+              results?: Array<{ id: string; label: string; href: string }>;
+            };
+            setResidentItems(
+              (payload.results ?? []).map((item) => ({
+                id: item.href,
+                label: item.label
+              }))
+            );
+          }
+        } catch {
+          if (!cancelled) {
+            setPropertyItems([]);
+            setResidentItems([]);
+          }
         }
-        if (!cancelled && residentResponse.ok) {
-          const payload = (await residentResponse.json()) as {
-            results?: Array<{ id: string; label: string; href: string }>;
-          };
-          setResidentItems(
-            (payload.results ?? []).map((item) => ({
-              id: item.href,
-              label: item.label
-            }))
-          );
-        }
-      } catch {
-        if (!cancelled) {
-          setPropertyItems([]);
-          setResidentItems([]);
-        }
-      }
-    })();
+      })();
+    }, 200);
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
     };
   }, [open, productSku, query]);
 

@@ -527,7 +527,7 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
     items.push(
       {
         id: "pm_mc",
-        title: complete ? "Property Operations" : "Property Manager · Mission Control",
+        title: complete ? "Property Operations" : "Mission Control",
         description: complete
           ? "Portfolio attention home — properties, residents, leasing, and residential maintenance."
           : "Attention home for properties, leasing, maintenance, and vendors.",
@@ -569,7 +569,7 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
   if (skuIncludesFacilityOperations(sku)) {
     items.push({
       id: "fac_mc",
-      title: complete ? "Facility Operations" : "Facility Operations · Mission Control",
+      title: complete ? "Facility Operations" : "Mission Control",
       description: complete
         ? "Facility attention home — buildings, work orders, preventive maintenance, and systems."
         : "Attention home for facility, assets, and building operations.",

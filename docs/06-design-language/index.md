@@ -38,6 +38,7 @@ This folder is the **permanent visual identity** of M.P.A. Everything built from
 | [Role Experiences](./role-experiences.md) | Four portals, one language, four feelings |
 | [Improvements Before Implementation](./improvements-before-implementation.md) | Gate checklist before any UI components are built |
 | [Token drift — Wave C1](./token-drift-wave-c1.md) | Remaining dual-token / invented-alias debt (documented, not fully rewritten) |
+| [Performance notes — Wave C2](./performance-notes-wave-c2.md) | Low-risk PPS1-029 wins + deferred request-dedupe items |
 
 Related:
 

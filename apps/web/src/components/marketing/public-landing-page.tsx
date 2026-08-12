@@ -158,7 +158,7 @@ const COMPARISON_ROWS = [
   },
   {
     topic: "Path after signup",
-    mpa: "Stripe Checkout → create account → Guided Setup → Mission Control.",
+    mpa: "Secure checkout → create account → Guided Setup → Mission Control.",
     rentredi: "Follow their published onboarding path for rent-focused tooling."
   }
 ] as const;

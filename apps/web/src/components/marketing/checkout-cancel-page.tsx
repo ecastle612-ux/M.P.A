@@ -23,12 +23,12 @@ export function CheckoutCancelPage({
       <main className="mx-auto max-w-3xl space-y-8 px-4 pb-16 pt-10 md:px-6">
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Stripe Checkout
+            Checkout
           </p>
           <h1 className="font-display text-3xl font-semibold">Checkout canceled</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             No payment was collected. You can retry checkout or choose a different plan. Duplicate
-            subscriptions are prevented by offer validation and Stripe idempotency.
+            subscriptions are prevented automatically.
           </p>
         </header>
         <div className="flex flex-wrap gap-3">

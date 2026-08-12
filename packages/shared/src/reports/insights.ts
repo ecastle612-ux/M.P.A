@@ -600,7 +600,7 @@ export function buildReportingAreas(facts: RawReportingFacts, now = new Date()):
     ),
     areaBlock(
       "commercial",
-      "This organization’s subscription and activation — platform-wide MRR/ARR remains in Master Admin Command Center.",
+      "This organization’s subscription and activation — platform-wide MRR/ARR remains in Owner Operations Command Center.",
       commercialMetrics,
       [],
       facts.subscription ? undefined : "No subscription row found for this organization."

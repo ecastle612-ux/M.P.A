@@ -4,10 +4,10 @@
  */
 
 export const BACKGROUND_SCREENING_LABEL = "Background Screening";
-export const BACKGROUND_SCREENING_STATUS = "Integration Planned";
+export const BACKGROUND_SCREENING_STATUS = "Integration planned";
 
-/** Concise ecosystem line for cards and tables. */
-export const BACKGROUND_SCREENING_LINE = `${BACKGROUND_SCREENING_LABEL} (${BACKGROUND_SCREENING_STATUS})`;
+/** Concise ecosystem line for cards and tables (honest; no delivery date). */
+export const BACKGROUND_SCREENING_LINE = `${BACKGROUND_SCREENING_LABEL} — ${BACKGROUND_SCREENING_STATUS}`;
 
 export function FutureIntegrationsNote({ className }: { className?: string }) {
   return (

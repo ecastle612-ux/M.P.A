@@ -392,7 +392,7 @@ export function ReportsWorkspace() {
         <p>
           Platform-wide commercial MRR/ARR remains in{" "}
           <Link href="/admin" className={`underline ${linkFocus}`}>
-            Master Admin Command Center
+            Owner Operations Command Center
           </Link>
           . Document exports stay in{" "}
           <Link href="/shared/documents" className={`underline ${linkFocus}`}>

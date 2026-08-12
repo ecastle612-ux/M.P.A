@@ -115,36 +115,68 @@ export function ProfileForm() {
             <div className="text-sm text-[var(--mpa-color-text-secondary)]">{profile.email}</div>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            <Input
-              aria-label="Display name"
-              placeholder="Display name"
-              value={profile.displayName}
-              onChange={(event) => setProfile((current) => ({ ...current, displayName: event.target.value }))}
-            />
-            <Input
-              aria-label="Avatar URL"
-              placeholder="Avatar URL"
-              value={profile.avatarUrl}
-              onChange={(event) => setProfile((current) => ({ ...current, avatarUrl: event.target.value }))}
-            />
-            <Input
-              aria-label="Contact email"
-              placeholder="Contact email"
-              value={profile.contactEmail}
-              onChange={(event) => setProfile((current) => ({ ...current, contactEmail: event.target.value }))}
-            />
-            <Input
-              aria-label="Phone"
-              placeholder="Phone"
-              value={profile.phone}
-              onChange={(event) => setProfile((current) => ({ ...current, phone: event.target.value }))}
-            />
-            <Input
-              aria-label="Timezone"
-              placeholder="Timezone (e.g., America/New_York)"
-              value={profile.timezone}
-              onChange={(event) => setProfile((current) => ({ ...current, timezone: event.target.value }))}
-            />
+            <label className="block space-y-1 text-sm" htmlFor="profile-display-name">
+              <span className="text-xs font-medium text-[var(--mpa-color-text-secondary)]">
+                Display name
+              </span>
+              <Input
+                id="profile-display-name"
+                value={profile.displayName}
+                onChange={(event) =>
+                  setProfile((current) => ({ ...current, displayName: event.target.value }))
+                }
+              />
+            </label>
+            <label className="block space-y-1 text-sm" htmlFor="profile-avatar-url">
+              <span className="text-xs font-medium text-[var(--mpa-color-text-secondary)]">
+                Avatar URL
+              </span>
+              <Input
+                id="profile-avatar-url"
+                placeholder="https://"
+                value={profile.avatarUrl}
+                onChange={(event) =>
+                  setProfile((current) => ({ ...current, avatarUrl: event.target.value }))
+                }
+              />
+            </label>
+            <label className="block space-y-1 text-sm" htmlFor="profile-contact-email">
+              <span className="text-xs font-medium text-[var(--mpa-color-text-secondary)]">
+                Contact email
+              </span>
+              <Input
+                id="profile-contact-email"
+                type="email"
+                value={profile.contactEmail}
+                onChange={(event) =>
+                  setProfile((current) => ({ ...current, contactEmail: event.target.value }))
+                }
+              />
+            </label>
+            <label className="block space-y-1 text-sm" htmlFor="profile-phone">
+              <span className="text-xs font-medium text-[var(--mpa-color-text-secondary)]">Phone</span>
+              <Input
+                id="profile-phone"
+                type="tel"
+                value={profile.phone}
+                onChange={(event) =>
+                  setProfile((current) => ({ ...current, phone: event.target.value }))
+                }
+              />
+            </label>
+            <label className="block space-y-1 text-sm md:col-span-2" htmlFor="profile-timezone">
+              <span className="text-xs font-medium text-[var(--mpa-color-text-secondary)]">
+                Timezone
+              </span>
+              <Input
+                id="profile-timezone"
+                placeholder="e.g., America/New_York"
+                value={profile.timezone}
+                onChange={(event) =>
+                  setProfile((current) => ({ ...current, timezone: event.target.value }))
+                }
+              />
+            </label>
           </div>
 
           <fieldset className="space-y-2">
