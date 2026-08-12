@@ -12,8 +12,8 @@ function withDemoAttribution(href: string, demoSessionId?: string): string {
 }
 
 /**
- * Premium conversion path from Live Demo → commercial funnel.
- * Carries selected product via `intent` (Slice A acquisition).
+ * Live Demo → acquisition.
+ * Primary path is Get Started (/get-started), not checkout or /modules.
  */
 export function demoConversionHref(
   product: DemoProductId,
@@ -25,7 +25,7 @@ export function demoConversionHref(
   }
 
   return withDemoAttribution(
-    acquisitionHref("checkout", {
+    acquisitionHref("questionnaire", {
       sku: product,
       billingCycle: "monthly"
     }),
@@ -41,10 +41,15 @@ export function demoConversionLabel(product: DemoProductId, cta: DemoConversionC
   if (cta === "request_enterprise") {
     return "Enterprise Solutions";
   }
-  return "Start Subscription";
+  return "Get Started";
 }
 
 export function primaryDemoConversionCta(product: DemoProductId): DemoConversionCta {
   void product;
   return "start_subscription";
+}
+
+/** Landing differentiation anchor — separate from Get Started. */
+export function demoComparePlatformsHref(): string {
+  return "/#differentiation";
 }

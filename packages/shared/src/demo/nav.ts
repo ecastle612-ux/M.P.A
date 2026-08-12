@@ -15,6 +15,7 @@ const PM_NAV: DemoNavItem[] = [
   { id: "residents", label: "Residents", surface: "residents", group: "pm" },
   { id: "leasing", label: "Leasing", surface: "leasing", group: "pm" },
   { id: "maintenance", label: "Maintenance", surface: "maintenance", group: "pm" },
+  { id: "vendors", label: "Vendors", surface: "vendors", group: "pm" },
   { id: "financial", label: "Financial Operations", surface: "financial", group: "pm" },
   { id: "documents", label: "Documents", surface: "documents", group: "shared" },
   { id: "reports", label: "Reporting", surface: "reports", group: "shared" },

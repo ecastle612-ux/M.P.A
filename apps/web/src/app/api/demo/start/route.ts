@@ -10,7 +10,8 @@ import { createDemoSessionRecord } from "../../../../lib/demo/session-store";
 
 export async function GET(request: Request) {
   if (!isDemoRuntimeEnabled()) {
-    return NextResponse.redirect(new URL("/modules", request.url));
+    // Never send Live Demo traffic into the product catalog / pricing path.
+    return NextResponse.redirect(new URL("/demo", request.url));
   }
   const url = new URL(request.url);
   const product = parseDemoProduct(url.searchParams.get("product"));
