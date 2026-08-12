@@ -90,10 +90,11 @@ export const PUBLIC_PRICING_MODEL_COPY = {
   foMonthly: FO_MONTHLY_USD,
   foAnnual: FO_ANNUAL_USD,
   pmHeadline: `$${PM_BASE_MONTHLY_USD}/month`,
+  pmHeadlineAnnual: `${formatUsdAmount(PM_BASE_MONTHLY_USD * 12)}/year`,
   foHeadlineMonthly: `$${FO_MONTHLY_USD}/month`,
-  foHeadlineAnnual: `$${FO_ANNUAL_USD}/year`,
+  foHeadlineAnnual: `${formatUsdAmount(FO_ANNUAL_USD)}/year`,
   completeHeadlineMonthly: `$${COMPLETE_BASE_MONTHLY_USD}/month`,
-  completeHeadlineAnnual: `$${COMPLETE_BASE_MONTHLY_USD * 12}/year`,
+  completeHeadlineAnnual: `${formatUsdAmount(COMPLETE_BASE_MONTHLY_USD * 12)}/year`,
   pmIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
   foIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
   completeIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
@@ -117,6 +118,9 @@ export const PUBLIC_PRICING_MODEL_COPY = {
     "30 DAYS FREE for plans with 500 or fewer managed units. Payment card required at signup. After the free trial, automatic billing begins unless you cancel.",
   trialIneligible:
     "For more than 500 managed units: no free trial. Payment card required. You see the calculated price before Checkout.",
+  cancellationTitle: "Cancel anytime",
+  cancellationSummary:
+    "Cancel anytime. No refunds and no prorated refunds. Cancellation takes effect at the end of the paid billing period — access continues through the paid-through date, and future renewal stops.",
   enterpriseNotProduct:
     "Enterprise is not a separate product. It is an optional sales and onboarding path for organizations that need custom contracts, SSO, or dedicated onboarding — not a fourth platform SKU.",
   journeyNote:

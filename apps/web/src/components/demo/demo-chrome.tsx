@@ -148,6 +148,12 @@ export function DemoChrome({
             >
               {demoConversionLabel(product, primaryCta)}
             </button>
+            <Link
+              href="/pricing"
+              className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-1.5 text-sm font-medium text-[var(--mpa-color-text-secondary)]"
+            >
+              Compare Platforms
+            </Link>
             <button
               type="button"
               onClick={() => void onCta("schedule_consultation")}
@@ -220,7 +226,36 @@ export function DemoChrome({
             })}
           </nav>
         </aside>
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0 flex-1 space-y-4">
+          {children}
+          <section
+            aria-label="Ready to continue"
+            className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-4"
+          >
+            <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+              Ready to run your operation with M.P.A.?
+            </h2>
+            <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+              Continue into the Get Started path — questionnaire, quote, Confirm Plan, then Checkout.
+              This demo stays isolated; nothing here creates a subscription.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void onCta(primaryCta)}
+                className="rounded-md bg-[var(--mpa-color-brand-primary)] px-4 py-2 text-sm font-semibold text-white"
+              >
+                Get Started
+              </button>
+              <Link
+                href="/pricing"
+                className="rounded-md border border-[var(--mpa-color-border-default)] px-4 py-2 text-sm font-medium"
+              >
+                Compare Platforms
+              </Link>
+            </div>
+          </section>
+        </main>
       </div>
     </div>
   );

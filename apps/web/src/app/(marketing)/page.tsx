@@ -3,9 +3,9 @@ import { PublicLandingPage } from "../../components/marketing/public-landing-pag
 import { createAuthServerClient } from "../../lib/auth/server";
 
 export const metadata: Metadata = {
-  title: "M.P.A. — My Property Assistant",
+  title: "M.P.A. — Property Operations Platform",
   description:
-    "Run the whole property operation — not just rent collection. M.P.A. is a workflow-first Property Operations Platform for properties, residents, leases, billing, maintenance, vendors, and day-to-day attention."
+    "Workflow-first Property Operations Platform for property managers, owners, and facility teams. Transparent unit-volume pricing. Get Started online."
 };
 
 /**

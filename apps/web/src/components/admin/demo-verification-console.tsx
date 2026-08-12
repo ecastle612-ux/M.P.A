@@ -133,7 +133,7 @@ export function DemoVerificationConsole() {
           <li>Role switching — instant, no logout</li>
           <li>Dataset integrity — synthetic watermarked snapshots</li>
           <li>Reset integrity — overlay clear + 30s cooldown</li>
-          <li>Conversion flow — Start Subscription / Request Enterprise / Schedule Consultation</li>
+          <li>Conversion flow — Get Started / Request Enterprise / Schedule Consultation</li>
         </ul>
       </section>
     </main>

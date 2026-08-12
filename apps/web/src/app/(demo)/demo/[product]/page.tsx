@@ -9,7 +9,7 @@ export default async function DemoProductEntryPage({
   params: Promise<{ product: string }>;
 }) {
   if (!isDemoRuntimeEnabled()) {
-    redirect("/modules");
+    redirect("/demo");
   }
   const { product: raw } = await params;
   const product = parseDemoProduct(raw);
