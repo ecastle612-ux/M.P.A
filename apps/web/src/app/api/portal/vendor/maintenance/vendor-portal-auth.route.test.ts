@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const ASSIGNED_WO = "11111111-1111-4111-8111-111111111111";
+const FOREIGN_WO = "22222222-2222-4222-8222-222222222222";
+
 const state = {
   userId: "vendor_user_1" as string | null,
-  assignedWorkOrderIds: ["wo_assigned"] as string[],
+  assignedWorkOrderIds: [ASSIGNED_WO] as string[],
   progressCalls: [] as Array<{
     organizationId: string;
     actorUserId: string;
@@ -54,7 +57,7 @@ import { GET, POST } from "./route";
 describe("Vendor portal maintenance auth (PPS1-009)", () => {
   beforeEach(() => {
     state.userId = "vendor_user_1";
-    state.assignedWorkOrderIds = ["wo_assigned"];
+    state.assignedWorkOrderIds = [ASSIGNED_WO];
     state.progressCalls = [];
   });
 
@@ -70,7 +73,7 @@ describe("Vendor portal maintenance auth (PPS1-009)", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          workOrderId: "wo_other_org",
+          workOrderId: FOREIGN_WO,
           action: "start",
           note: "Trying foreign work"
         })
@@ -88,7 +91,7 @@ describe("Vendor portal maintenance auth (PPS1-009)", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          workOrderId: "wo_assigned",
+          workOrderId: ASSIGNED_WO,
           action: "start",
           note: "On site"
         })
@@ -100,7 +103,7 @@ describe("Vendor portal maintenance auth (PPS1-009)", () => {
         organizationId: "org_1",
         actorUserId: "vendor_user_1",
         actorRole: "vendor",
-        workOrderId: "wo_assigned"
+        workOrderId: ASSIGNED_WO
       }
     ]);
   });

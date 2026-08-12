@@ -73,8 +73,9 @@ describe("Vendor portal isolation (PPS1-009)", () => {
   });
 
   it("rejects progress when the work order is not linked to the vendor user", async () => {
+    const foreignId = "33333333-3333-4333-8333-333333333333";
     const existing = {
-      id: "wo_foreign",
+      id: foreignId,
       organization_id: "org_b",
       status: "assigned",
       technician_user_id: null,
@@ -93,7 +94,7 @@ describe("Vendor portal isolation (PPS1-009)", () => {
 
     await expect(
       progressWorkOrder(supabase as never, "org_b", "user_vendor_a", "vendor", {
-        workOrderId: "wo_foreign",
+        workOrderId: foreignId,
         action: "start",
         note: "Should fail"
       })

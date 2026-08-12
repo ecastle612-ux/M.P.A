@@ -12,15 +12,15 @@ export type FieldWorkOrderContext = {
   description: string;
   status: WorkOrderStatus;
   priority: WorkOrderPriority;
-  category?: string | null;
-  propertyName?: string | null;
-  unitLabel?: string | null;
-  assetLabel?: string | null;
-  assigneeType?: string | null;
-  technicianLabel?: string | null;
-  vendorName?: string | null;
-  submittedAt?: string | null;
-  dueAt?: string | null;
+  category?: string | null | undefined;
+  propertyName?: string | null | undefined;
+  unitLabel?: string | null | undefined;
+  assetLabel?: string | null | undefined;
+  assigneeType?: string | null | undefined;
+  technicianLabel?: string | null | undefined;
+  vendorName?: string | null | undefined;
+  submittedAt?: string | null | undefined;
+  dueAt?: string | null | undefined;
 };
 
 export type FieldPrimaryAction = "start" | "progress" | "complete" | null;
@@ -64,9 +64,9 @@ export function fieldActionVariant(
 }
 
 export function fieldAssignmentLabel(input: {
-  assigneeType?: string | null;
-  technicianLabel?: string | null;
-  vendorName?: string | null;
+  assigneeType?: string | null | undefined;
+  technicianLabel?: string | null | undefined;
+  vendorName?: string | null | undefined;
 }): string {
   if (input.assigneeType === "vendor") {
     return input.vendorName ? `Vendor · ${input.vendorName}` : "Vendor assigned";
@@ -78,9 +78,9 @@ export function fieldAssignmentLabel(input: {
 }
 
 export function fieldLocationLabel(input: {
-  propertyName?: string | null;
-  unitLabel?: string | null;
-  assetLabel?: string | null;
+  propertyName?: string | null | undefined;
+  unitLabel?: string | null | undefined;
+  assetLabel?: string | null | undefined;
 }): string {
   const parts = [
     input.propertyName?.trim() || "Building",
