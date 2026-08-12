@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { acquisitionHref } from "@mpa/shared";
 import { SiteLogo } from "../branding/site-logo";
+import { MarketingMobileMenu } from "./marketing-mobile-menu";
 
 const primaryCtaClass =
   "inline-flex h-10 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--mpa-color-brand-primary-hover,#0C5A48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
@@ -124,39 +125,22 @@ export function MarketingChrome({
             <AuthNavLinks isAuthenticated={isAuthenticated} denseNav={denseNav} />
           </nav>
 
-          {/* Phone / mid widths — collapsible (PP-008 / PP-012) */}
-          <details className="relative lg:hidden">
-            <summary
-              className={
-                denseNav
-                  ? "cursor-pointer list-none rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-3 py-2 text-sm font-semibold text-[var(--mpa-color-text-primary)] marker:content-none [&::-webkit-details-marker]:hidden"
-                  : "cursor-pointer list-none rounded-md border border-white/30 bg-white/10 px-3 py-2 text-sm font-semibold text-white marker:content-none [&::-webkit-details-marker]:hidden"
-              }
-            >
-              Menu
-            </summary>
-            <div
-              className={
-                denseNav
-                  ? "absolute right-0 z-40 mt-2 flex w-[min(18rem,calc(100vw-2rem))] flex-col gap-1 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-3 shadow-lg"
-                  : "absolute right-0 z-40 mt-2 flex w-[min(18rem,calc(100vw-2rem))] flex-col gap-1 rounded-md border border-white/20 bg-[#0B1F1A]/95 p-3 shadow-lg backdrop-blur"
-              }
-            >
-              <nav aria-label="Public menu" className="flex flex-col gap-1">
-                <PublicNavLinks
-                  denseNav={denseNav}
-                  className="flex flex-col gap-1 [&_a]:w-full [&_a]:justify-start"
-                />
-              </nav>
-              <div className="mt-2 border-t border-[var(--mpa-color-border-subtle)] pt-2">
-                <AuthNavLinks
-                  isAuthenticated={isAuthenticated}
-                  denseNav={denseNav}
-                  stacked
-                />
-              </div>
+          {/* Phone / mid widths — controlled menu closes on navigate (PPS1-005 / PPS1-030) */}
+          <MarketingMobileMenu denseNav={denseNav}>
+            <nav aria-label="Public menu" className="flex flex-col gap-1">
+              <PublicNavLinks
+                denseNav={denseNav}
+                className="flex flex-col gap-1 [&_a]:w-full [&_a]:justify-start"
+              />
+            </nav>
+            <div className="mt-2 border-t border-[var(--mpa-color-border-subtle)] pt-2">
+              <AuthNavLinks
+                isAuthenticated={isAuthenticated}
+                denseNav={denseNav}
+                stacked
+              />
             </div>
-          </details>
+          </MarketingMobileMenu>
         </div>
       </header>
       <div id="main-content">{children}</div>

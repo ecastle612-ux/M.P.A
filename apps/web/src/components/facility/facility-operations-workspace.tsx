@@ -12,6 +12,7 @@ import {
   type WorkOrderStatus
 } from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Select, Skeleton, Textarea } from "@mpa/ui";
+import { ConfirmActionModal } from "../shell/confirm-action-modal";
 import {
   FoDocumentsStrip,
   FoPageChrome,
@@ -19,6 +20,10 @@ import {
   FoQuickActions,
   documentsHref
 } from "../shell/fo-workspace";
+import {
+  workOrderCancelConfirmation,
+  workOrderCompleteConfirmation
+} from "../../lib/ui/destructive-confirm-copy";
 
 type WorkOrder = {
   id: string;
@@ -134,6 +139,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+  const [completeConfirmOpen, setCompleteConfirmOpen] = useState(false);
   const [priority, setPriority] = useState<WorkOrderPriority>("normal");
   const [assigneeType, setAssigneeType] = useState<"technician" | "vendor">("technician");
   const [technicianUserId, setTechnicianUserId] = useState("");
@@ -725,8 +732,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                       {(
                         [
                           ["start", "Start"],
-                          ["progress", "Progress note"],
-                          ["complete", "Complete"]
+                          ["progress", "Progress note"]
                         ] as const
                       ).map(([action, label]) => (
                         <Button
@@ -750,51 +756,37 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                                 throw new Error(body.error ?? "Progress failed");
                               }
                               setProgressNote("");
-                              setNotice(
-                                action === "complete"
-                                  ? "Work completed and closed."
-                                  : action === "start"
-                                    ? "Work started."
-                                    : "Progress saved."
-                              );
+                              setNotice(action === "start" ? "Work started." : "Progress saved.");
                             })
                           }
                         >
                           {label}
                         </Button>
                       ))}
+                      <Button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => setCompleteConfirmOpen(true)}
+                      >
+                        Complete
+                      </Button>
                     </div>
                   </div>
 
-                  <form
-                    className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3"
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      void run(async () => {
-                        const response = await fetch("/api/facility/operations/cancel", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            workOrderId: selected.id,
-                            note: progressNote || "Cancelled from Facility Operations"
-                          })
-                        });
-                        const body = await response.json();
-                        if (!response.ok) {
-                          throw new Error(body.error ?? "Cancel failed");
-                        }
-                        setNotice("Work order cancelled.");
-                      });
-                    }}
-                  >
+                  <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
                     <h3 className="text-sm font-semibold">Cancel</h3>
                     <p className="text-xs text-[var(--mpa-color-text-secondary)]">
                       Use when this work should not continue.
                     </p>
-                    <Button type="submit" disabled={busy} variant="secondary">
+                    <Button
+                      type="button"
+                      disabled={busy}
+                      variant="secondary"
+                      onClick={() => setCancelConfirmOpen(true)}
+                    >
                       Cancel work order
                     </Button>
-                  </form>
+                  </div>
                 </>
               ) : (
                 <p className="text-sm text-[var(--mpa-color-text-secondary)]">
@@ -827,6 +819,93 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
           )}
         </section>
       </div>
+
+      {selected ? (
+        <>
+          <ConfirmActionModal
+            open={cancelConfirmOpen}
+            onClose={() => setCancelConfirmOpen(false)}
+            busy={busy}
+            confirmLabel="Confirm cancellation"
+            cancelLabel="Keep work order"
+            title={workOrderCancelConfirmation({ title: selected.title }).title}
+            onConfirm={() => {
+              void run(async () => {
+                const response = await fetch("/api/facility/operations/cancel", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    workOrderId: selected.id,
+                    note: progressNote || "Cancelled from Facility Operations"
+                  })
+                });
+                const body = await response.json();
+                if (!response.ok) {
+                  throw new Error(body.error ?? "Cancel failed");
+                }
+                setNotice("Work order cancelled.");
+                setCancelConfirmOpen(false);
+              });
+            }}
+          >
+            {(() => {
+              const copy = workOrderCancelConfirmation({
+                title: selected.title,
+                statusLabel: WORK_ORDER_STATUS_LABELS[selected.status]
+              });
+              return (
+                <div className="space-y-2 text-[var(--mpa-color-text-secondary)]">
+                  <p>{copy.what}</p>
+                  <p>{copy.when}</p>
+                  <p className="font-medium text-[var(--mpa-color-text-primary)]">{copy.irreversible}</p>
+                </div>
+              );
+            })()}
+          </ConfirmActionModal>
+
+          <ConfirmActionModal
+            open={completeConfirmOpen}
+            onClose={() => setCompleteConfirmOpen(false)}
+            busy={busy}
+            confirmLabel="Confirm completion"
+            cancelLabel="Keep open"
+            danger={false}
+            title={workOrderCompleteConfirmation({ title: selected.title }).title}
+            onConfirm={() => {
+              void run(async () => {
+                const note = progressNote.trim() || "Complete update";
+                const response = await fetch("/api/facility/operations/progress", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    workOrderId: selected.id,
+                    action: "complete",
+                    note
+                  })
+                });
+                const body = await response.json();
+                if (!response.ok) {
+                  throw new Error(body.error ?? "Progress failed");
+                }
+                setProgressNote("");
+                setNotice("Work completed and closed.");
+                setCompleteConfirmOpen(false);
+              });
+            }}
+          >
+            {(() => {
+              const copy = workOrderCompleteConfirmation({ title: selected.title });
+              return (
+                <div className="space-y-2 text-[var(--mpa-color-text-secondary)]">
+                  <p>{copy.what}</p>
+                  <p>{copy.when}</p>
+                  <p className="font-medium text-[var(--mpa-color-text-primary)]">{copy.irreversible}</p>
+                </div>
+              );
+            })()}
+          </ConfirmActionModal>
+        </>
+      ) : null}
     </FoPageChrome>
   );
 }

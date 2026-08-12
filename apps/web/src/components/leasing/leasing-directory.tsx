@@ -15,6 +15,7 @@ import {
 import { Button, EmptyState, Skeleton } from "@mpa/ui";
 import { LeaseCreateWizard } from "./lease-create-wizard";
 import { ApplicationCreateForm } from "./application-create-form";
+import { ConfirmActionModal } from "../shell/confirm-action-modal";
 import {
   PmDirectoryToolbar,
   PmDocumentsStrip,
@@ -24,6 +25,7 @@ import {
   PmQuickActions,
   documentsHref
 } from "../shell/pm-workspace";
+import { applicationDenyConfirmation } from "../../lib/ui/destructive-confirm-copy";
 
 type DirectoryLease = {
   id: string;
@@ -147,6 +149,7 @@ export function LeasingDirectory() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [wizardDismissed, setWizardDismissed] = useState(false);
+  const [denyTarget, setDenyTarget] = useState<{ id: string; name: string } | null>(null);
   const [manualOpen, setManualOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -411,7 +414,12 @@ export function LeasingDirectory() {
                             size="sm"
                             variant="secondary"
                             disabled={busyId === app.id}
-                            onClick={() => void onAction(app.id, "deny")}
+                            onClick={() =>
+                              setDenyTarget({
+                                id: app.id,
+                                name: app.pm_residents?.display_name ?? "this applicant"
+                              })
+                            }
                           >
                             Deny
                           </Button>
@@ -622,6 +630,35 @@ export function LeasingDirectory() {
 
       {!loading && !error ? (
         <PmDocumentsStrip entityType="lease" title="Lease agreements" />
+      ) : null}
+
+      {denyTarget ? (
+        <ConfirmActionModal
+          open
+          onClose={() => setDenyTarget(null)}
+          busy={busyId === denyTarget.id}
+          confirmLabel="Confirm denial"
+          cancelLabel="Keep application"
+          title={applicationDenyConfirmation({ applicantName: denyTarget.name }).title}
+          onConfirm={() => {
+            const target = denyTarget;
+            void (async () => {
+              await onAction(target.id, "deny");
+              setDenyTarget(null);
+            })();
+          }}
+        >
+          {(() => {
+            const copy = applicationDenyConfirmation({ applicantName: denyTarget.name });
+            return (
+              <div className="space-y-2 text-[var(--mpa-color-text-secondary)]">
+                <p>{copy.what}</p>
+                <p>{copy.when}</p>
+                <p className="font-medium text-[var(--mpa-color-text-primary)]">{copy.irreversible}</p>
+              </div>
+            );
+          })()}
+        </ConfirmActionModal>
       ) : null}
     </PmPageChrome>
   );

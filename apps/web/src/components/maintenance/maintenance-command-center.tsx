@@ -10,7 +10,9 @@ import {
 } from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Select, Skeleton, Textarea } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { ConfirmActionModal } from "../shell/confirm-action-modal";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
+import { workOrderCancelConfirmation } from "../../lib/ui/destructive-confirm-copy";
 
 type WorkOrder = {
   id: string;
@@ -46,6 +48,7 @@ export function MaintenanceCommandCenter() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
   const [priority, setPriority] = useState<WorkOrderPriority>("normal");
   const [assigneeType, setAssigneeType] = useState<"technician" | "vendor">("technician");
   const [technicianUserId, setTechnicianUserId] = useState("");
@@ -536,36 +539,20 @@ export function MaintenanceCommandCenter() {
               </form>
 
               {!["closed", "cancelled", "completed"].includes(selected.status) ? (
-                <form
-                  className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    void run(async () => {
-                      const response = await fetch("/api/pm/maintenance/cancel", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          workOrderId: selected.id,
-                          note: progressNote || "Work order cancelled."
-                        })
-                      });
-                      const body = await response.json();
-                      if (!response.ok) {
-                        throw new Error(body.error ?? "Cancel failed");
-                      }
-                      setProgressNote("");
-                      setNotice("Work order cancelled.");
-                    });
-                  }}
-                >
+                <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
                   <h3 className="text-sm font-semibold">Cancel work order</h3>
                   <p className="text-xs text-[var(--mpa-color-text-secondary)]">
                     Cancels open work that should not continue. Assignees and residents are notified.
                   </p>
-                  <Button type="submit" variant="secondary" disabled={busy}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() => setCancelConfirmOpen(true)}
+                  >
                     Cancel work order
                   </Button>
-                </form>
+                </div>
               ) : null}
 
               <form
@@ -680,6 +667,50 @@ export function MaintenanceCommandCenter() {
           )}
         </section>
       </div>
+
+      {selected ? (
+        <ConfirmActionModal
+          open={cancelConfirmOpen}
+          onClose={() => setCancelConfirmOpen(false)}
+          busy={busy}
+          confirmLabel="Confirm cancellation"
+          cancelLabel="Keep work order"
+          title={workOrderCancelConfirmation({ title: selected.title }).title}
+          onConfirm={() => {
+            void run(async () => {
+              const response = await fetch("/api/pm/maintenance/cancel", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  workOrderId: selected.id,
+                  note: progressNote || "Work order cancelled."
+                })
+              });
+              const body = await response.json();
+              if (!response.ok) {
+                throw new Error(body.error ?? "Cancel failed");
+              }
+              setProgressNote("");
+              setNotice("Work order cancelled.");
+              setCancelConfirmOpen(false);
+            });
+          }}
+        >
+          {(() => {
+            const copy = workOrderCancelConfirmation({
+              title: selected.title,
+              statusLabel: WORK_ORDER_STATUS_LABELS[selected.status]
+            });
+            return (
+              <div className="space-y-2 text-[var(--mpa-color-text-secondary)]">
+                <p>{copy.what}</p>
+                <p>{copy.when}</p>
+                <p className="font-medium text-[var(--mpa-color-text-primary)]">{copy.irreversible}</p>
+              </div>
+            );
+          })()}
+        </ConfirmActionModal>
+      ) : null}
     </main>
   );
 }
