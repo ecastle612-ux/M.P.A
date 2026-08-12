@@ -1,8 +1,9 @@
 # 51 — Phase 3 Production Polish
 
-**Status:** Sprint 3 Mission Control polish **ready for Owner acceptance**  
+**Status:** Sprint 3 Mission Control polish shipped; **Commercial Catalog COMPLETE** (await Owner LIVE acceptance)  
 **Gate:** Bug-fix / polish / commercial UX only — no ADR-019, Checkout architecture, FO_READY, or workflow changes  
-**Authorization:** Phase 3 · Sprints 1 → 1.1 → 2 · Option B · **Sprint 3 Mission Control**
+**Authorization:** Phase 3 · Sprints 1 → 1.1 → 2 · Option B · Sprint 3 · **Commercial Catalog**  
+**Production tip:** `bc893446f061452e338e0332b9478f6af99d2442` · Deploy `dpl_FWF37eoMiYr75ZBHL1p2Bo96qe7c`
 
 ## Sequence
 
@@ -53,6 +54,9 @@ Sprint 3: await Owner acceptance → merge → Production deploy → LIVE verify
 | [Sprint 3 Accessibility Report](./sprint-3-accessibility-report.md) | A11y notes |
 | [Sprint 3 Performance Report](./sprint-3-performance-report.md) | Loading / render |
 | [Dashboard Quality Score](./sprint-3-dashboard-quality-score.md) | Scored dimensions |
+| [Commercial Catalog COMPLETE](./commercial-catalog-complete.md) | Final LIVE deploy + verify |
+| [Catalog Finalization Regression](./commercial-catalog-finalization-regression.md) | Regression after env + redeploy |
+| [Commercial Catalog Certification](./commercial-catalog-certification.md) | Certification — COMPLETE |
 
 ## Constraints (binding)
 
