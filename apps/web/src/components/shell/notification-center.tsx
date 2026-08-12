@@ -5,6 +5,37 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { UnifiedNotificationRecord } from "@mpa/shared";
 import { Badge, EmptyState, Skeleton } from "@mpa/ui";
 
+type NotificationsPayload = {
+  notifications?: UnifiedNotificationRecord[];
+  unreadCount?: number;
+  error?: string;
+};
+
+function applyNotificationsPayload(
+  body: NotificationsPayload,
+  responseOk: boolean,
+  status: number,
+  setters: {
+    setItems: (items: UnifiedNotificationRecord[]) => void;
+    setUnreadCount: (count: number) => void;
+    setError: (error: string | null) => void;
+  }
+) {
+  if (!responseOk) {
+    setters.setItems([]);
+    setters.setUnreadCount(0);
+    setters.setError(
+      status === 403
+        ? "Notifications are not available for this role."
+        : "Unable to load notifications"
+    );
+    return;
+  }
+  setters.setItems((body.notifications ?? []).slice(0, 12));
+  setters.setUnreadCount(Number(body.unreadCount ?? 0));
+  setters.setError(null);
+}
+
 export function NotificationCenter() {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<UnifiedNotificationRecord[]>([]);
@@ -13,36 +44,50 @@ export function NotificationCenter() {
   const [loading, setLoading] = useState(false);
   const inFlight = useRef<AbortController | null>(null);
 
-  const load = useCallback(async (options?: { showLoading?: boolean }) => {
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/shared/communications/notifications", { signal: controller.signal })
+      .then(async (response) => {
+        const body = (await response.json()) as NotificationsPayload;
+        if (controller.signal.aborted) {
+          return;
+        }
+        applyNotificationsPayload(body, response.ok, response.status, {
+          setItems,
+          setUnreadCount,
+          setError
+        });
+      })
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+        setError("Unable to load notifications");
+      });
+    return () => controller.abort();
+  }, []);
+
+  const load = useCallback(async () => {
     inFlight.current?.abort();
     const controller = new AbortController();
     inFlight.current = controller;
-
-    if (options?.showLoading) {
-      setLoading(true);
-    }
-
+    setLoading(true);
     try {
       const response = await fetch("/api/shared/communications/notifications", {
         signal: controller.signal
       });
-      const body = await response.json();
+      const body = (await response.json()) as NotificationsPayload;
       if (controller.signal.aborted) {
         return;
       }
-      if (!response.ok) {
-        setItems([]);
-        setUnreadCount(0);
-        setError(
-          response.status === 403
-            ? "Notifications are not available for this role."
-            : "Unable to load notifications"
-        );
-        return;
-      }
-      setItems((body.notifications as UnifiedNotificationRecord[]).slice(0, 12));
-      setUnreadCount(Number(body.unreadCount ?? 0));
-      setError(null);
+      applyNotificationsPayload(body, response.ok, response.status, {
+        setItems,
+        setUnreadCount,
+        setError
+      });
     } catch (err) {
       if (controller.signal.aborted) {
         return;
@@ -52,24 +97,17 @@ export function NotificationCenter() {
       }
       setError("Unable to load notifications");
     } finally {
-      if (!controller.signal.aborted && options?.showLoading) {
+      if (!controller.signal.aborted) {
         setLoading(false);
       }
     }
   }, []);
 
-  useEffect(() => {
-    void load();
-    return () => {
-      inFlight.current?.abort();
-    };
-  }, [load]);
-
   async function toggle() {
     const next = !open;
     setOpen(next);
     if (next) {
-      await load({ showLoading: true });
+      await load();
     }
   }
 

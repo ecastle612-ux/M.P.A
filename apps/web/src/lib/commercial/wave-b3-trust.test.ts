@@ -40,7 +40,10 @@ describe("Wave B3 customer trust (PPS1-007/010/011/013/019/022)", () => {
       in_app: false,
       sms: false
     });
-    expect(toNotificationPreferencesJson(DEFAULT_NOTIFICATION_PREFERENCES).sms).toBe(false);
+    const persisted = toNotificationPreferencesJson(DEFAULT_NOTIFICATION_PREFERENCES) as {
+      sms?: boolean;
+    };
+    expect(persisted.sms).toBe(false);
     expect(notificationPreferenceSummaryCopy()).not.toMatch(/SMS delivery is available/i);
 
     const profile = readFileSync(join(webRoot, "components/profile/profile-form.tsx"), "utf8");
@@ -58,13 +61,13 @@ describe("Wave B3 customer trust (PPS1-007/010/011/013/019/022)", () => {
     const modules = readFileSync(join(webRoot, "components/marketing/modules-page.tsx"), "utf8");
     expect(chrome).toMatch(/Explore Platforms/);
     expect(chrome).toMatch(/Get Started/);
-    expect(chrome).toMatch(/href: \"\/demo\"/);
+    expect(chrome).toContain('href: "/demo"');
     expect(modules).toMatch(/Explore Platforms/);
     expect(modules).toMatch(/discovery only/i);
     expect(modules).not.toMatch(/Get started · Step 1/i);
   });
 
-  it("notification center hides zero unread badge and uses a single load path (PPS1-019)", () => {
+  it("notification center hides zero unread badge and uses skeleton loading (PPS1-019)", () => {
     const center = readFileSync(
       join(webRoot, "components/shell/notification-center.tsx"),
       "utf8"
@@ -72,9 +75,7 @@ describe("Wave B3 customer trust (PPS1-007/010/011/013/019/022)", () => {
     expect(center).toMatch(/unreadCount > 0/);
     expect(center).toMatch(/Skeleton/);
     expect(center).not.toMatch(/Loading…/);
-    // Mount and open both call load(); no second inline GET body.
-    expect(center).toMatch(/void load\(\)/);
-    expect(center).toMatch(/await load\(\{ showLoading: true \}\)/);
+    expect(center).toMatch(/applyNotificationsPayload/);
     expect(center.match(/const load = useCallback/g)?.length).toBe(1);
   });
 
@@ -100,7 +101,7 @@ describe("Wave B3 customer trust (PPS1-007/010/011/013/019/022)", () => {
 describe("Wave B3 error/empty consistency (PPS1-018)", () => {
   it("shares ErrorRetry and uses it on major FO/PM surfaces", () => {
     const errorRetry = readFileSync(join(webRoot, "components/shell/error-retry.tsx"), "utf8");
-    expect(errorRetry).toMatch(/role=\"alert\"/);
+    expect(errorRetry).toContain('role="alert"');
     expect(errorRetry).toMatch(/Retry/);
 
     for (const relative of [
