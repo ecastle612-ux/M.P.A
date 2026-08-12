@@ -13,7 +13,7 @@ export default async function DemoSurfacePage({
   params: Promise<{ product: string; surface: string }>;
 }) {
   if (!isDemoRuntimeEnabled()) {
-    redirect("/modules");
+    redirect("/demo");
   }
   const { product: raw, surface } = await params;
   const product = parseDemoProduct(raw);

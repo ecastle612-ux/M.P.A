@@ -13,7 +13,8 @@ function withDemoAttribution(href: string, demoSessionId?: string): string {
 
 /**
  * Premium conversion path from Live Demo → commercial funnel.
- * Carries selected product via `intent` (Slice A acquisition).
+ * Primary path is Get Started → questionnaire (authoritative acquisition).
+ * Carries selected product via `intent` when supported.
  */
 export function demoConversionHref(
   product: DemoProductId,
@@ -24,8 +25,10 @@ export function demoConversionHref(
     return withDemoAttribution(acquisitionHref("enterprise", product), demoSessionId);
   }
 
+  // Authoritative funnel: /get-started → questionnaire → quote → Confirm Plan → Checkout.
+  // Do not bypass into /checkout from Live Demo.
   return withDemoAttribution(
-    acquisitionHref("checkout", {
+    acquisitionHref("questionnaire", {
       sku: product,
       billingCycle: "monthly"
     }),
@@ -41,7 +44,7 @@ export function demoConversionLabel(product: DemoProductId, cta: DemoConversionC
   if (cta === "request_enterprise") {
     return "Enterprise Solutions";
   }
-  return "Start Subscription";
+  return "Get Started";
 }
 
 export function primaryDemoConversionCta(product: DemoProductId): DemoConversionCta {

@@ -18,9 +18,10 @@ export function LandingHeroProductVisual({
       <div className="flex items-center justify-between border-b border-[#D7E0DC] bg-[#0B1F1A] px-4 py-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
-            Mission Control
+            Demonstration preview
           </p>
           <p className="font-display text-sm font-semibold text-white">{showcase.organizationName}</p>
+          <p className="text-[10px] text-white/55">Synthetic demo data — not a live customer workspace</p>
         </div>
         <div className="flex gap-3 text-right">
           {showcase.kpis.slice(0, 2).map((kpi) => (
