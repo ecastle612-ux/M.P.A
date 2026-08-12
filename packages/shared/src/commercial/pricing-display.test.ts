@@ -100,7 +100,8 @@ describe("unit-volume pricing display (Slice 5)", () => {
   it("documents public model copy without legacy tiers", () => {
     expect(PUBLIC_PRICING_MODEL_COPY.pmBaseMonthly).toBe(59);
     expect(PUBLIC_PRICING_MODEL_COPY.completeBaseMonthly).toBe(109);
-    expect(PUBLIC_PRICING_MODEL_COPY.completeHeadlineAnnual).toBe("$1308/year");
+    expect(PUBLIC_PRICING_MODEL_COPY.completeHeadlineAnnual).toBe("$1,308/year");
+    expect(PUBLIC_PRICING_MODEL_COPY.pmHeadlineAnnual).toBe("$708/year");
     expect(PUBLIC_PRICING_MODEL_COPY.foMonthly).toBe(59);
     expect(PUBLIC_PRICING_MODEL_COPY.foAnnual).toBe(590);
     expect(PUBLIC_PRICING_MODEL_COPY.additionalBlockMonthly).toBe(39);
@@ -109,5 +110,8 @@ describe("unit-volume pricing display (Slice 5)", () => {
     expect(PUBLIC_PRICING_MODEL_COPY.capacityChange).toMatch(/customer approval/i);
     expect(PUBLIC_PRICING_MODEL_COPY.enterpriseNotProduct).toMatch(/not a separate product/i);
     expect(PUBLIC_PRICING_MODEL_COPY.additionalCapacityAnnualLine).toMatch(/468/);
+    expect(PUBLIC_PRICING_MODEL_COPY.cancellationSummary).toMatch(/Cancel anytime/i);
+    expect(PUBLIC_PRICING_MODEL_COPY.cancellationSummary).toMatch(/No refunds/i);
+    expect(PUBLIC_PRICING_MODEL_COPY.cancellationSummary).toMatch(/paid billing period/i);
   });
 });
