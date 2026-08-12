@@ -32,7 +32,6 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
 
     void (async () => {
       const [pmResult, foResult] = await Promise.allSettled([
@@ -88,6 +87,13 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
     return () => controller.abort();
   }, [reloadToken]);
 
+  function retry() {
+    setLoading(true);
+    setPmError(null);
+    setFoError(null);
+    setReloadToken((value) => value + 1);
+  }
+
   const view = buildCompleteLauncherViewModel({
     sku: productSku,
     pmBody,
@@ -127,16 +133,7 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
             ))}
           </ul>
           <div className="mt-3">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                setLoading(true);
-                setPmError(null);
-                setFoError(null);
-                setReloadToken((value) => value + 1);
-              }}
-            >
+            <Button type="button" variant="secondary" onClick={retry}>
               Retry
             </Button>
           </div>
