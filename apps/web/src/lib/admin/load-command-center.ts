@@ -251,7 +251,7 @@ export async function loadCommandCenterSnapshot(): Promise<CommandCenterSnapshot
     detail: [row.route, row.request_id ? `req ${row.request_id}` : null, row.organization_id]
       .filter(Boolean)
       .join(" · "),
-    href: "/admin#critical-errors"
+    href: "/admin/errors"
   }));
 
   return buildCommandCenterSnapshot({

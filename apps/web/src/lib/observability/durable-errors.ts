@@ -80,6 +80,9 @@ export async function persistPlatformErrorEvent(input: {
   }
 }
 
+const ERROR_SELECT =
+  "id, created_at, severity, message, error_name, stack, request_id, organization_id, actor_id, route, source, metadata";
+
 export async function listRecentPlatformErrorEvents(limit = 25): Promise<PlatformErrorEventRow[]> {
   const service = await tryServiceRole();
   if (!service) {
@@ -88,9 +91,7 @@ export async function listRecentPlatformErrorEvents(limit = 25): Promise<Platfor
   try {
     const { data, error } = await service
       .from("platform_error_events")
-      .select(
-        "id, created_at, severity, message, error_name, stack, request_id, organization_id, actor_id, route, source, metadata"
-      )
+      .select(ERROR_SELECT)
       .order("created_at", { ascending: false })
       .limit(Math.min(Math.max(limit, 1), 100));
     if (error || !data) {
@@ -99,5 +100,99 @@ export async function listRecentPlatformErrorEvents(limit = 25): Promise<Platfor
     return data as PlatformErrorEventRow[];
   } catch {
     return [];
+  }
+}
+
+export type ListPlatformErrorEventsQuery = {
+  limit?: number;
+  severity?: string;
+  organizationId?: string;
+  since?: string;
+  until?: string;
+  routeContains?: string;
+};
+
+/**
+ * MA-1 — operator inspect query over platform_error_events.
+ * Service-role read; caller must enforce platform operator authorization.
+ */
+export async function listPlatformErrorEvents(
+  query: ListPlatformErrorEventsQuery = {}
+): Promise<{ rows: PlatformErrorEventRow[]; degraded: boolean; detail?: string }> {
+  const service = await tryServiceRole();
+  if (!service) {
+    return { rows: [], degraded: true, detail: "Service role unavailable — durable error feed empty" };
+  }
+
+  const limit = Math.min(Math.max(query.limit ?? 50, 1), 200);
+
+  try {
+    // Loose client: generated Database types may lag Sprint 5 table.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- additive ops table
+    let q: any = service
+      .from("platform_error_events")
+      .select(ERROR_SELECT)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (query.severity && query.severity !== "all") {
+      q = q.eq("severity", query.severity);
+    }
+    if (query.organizationId) {
+      q = q.eq("organization_id", query.organizationId);
+    }
+    if (query.since) {
+      q = q.gte("created_at", query.since);
+    }
+    if (query.until) {
+      q = q.lte("created_at", query.until);
+    }
+
+    const { data, error } = await q;
+    if (error) {
+      return { rows: [], degraded: true, detail: error.message };
+    }
+
+    let rows = (data ?? []) as PlatformErrorEventRow[];
+    if (query.routeContains) {
+      const needle = query.routeContains.toLowerCase();
+      rows = rows.filter((row) => {
+        const hay = `${row.route ?? ""} ${row.error_name ?? ""} ${row.message}`.toLowerCase();
+        return hay.includes(needle);
+      });
+    }
+    return { rows, degraded: false };
+  } catch (error) {
+    return {
+      rows: [],
+      degraded: true,
+      detail: error instanceof Error ? error.message : "Failed to load platform_error_events"
+    };
+  }
+}
+
+export async function getPlatformErrorEventById(
+  id: string
+): Promise<{ row: PlatformErrorEventRow | null; degraded: boolean; detail?: string }> {
+  const service = await tryServiceRole();
+  if (!service) {
+    return { row: null, degraded: true, detail: "Service role unavailable" };
+  }
+  try {
+    const { data, error } = await service
+      .from("platform_error_events")
+      .select(ERROR_SELECT)
+      .eq("id", id)
+      .maybeSingle();
+    if (error) {
+      return { row: null, degraded: true, detail: error.message };
+    }
+    return { row: (data as PlatformErrorEventRow | null) ?? null, degraded: false };
+  } catch (error) {
+    return {
+      row: null,
+      degraded: true,
+      detail: error instanceof Error ? error.message : "Failed to load error event"
+    };
   }
 }

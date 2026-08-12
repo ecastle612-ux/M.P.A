@@ -78,6 +78,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 50 | [BUG-010 / BUG-012 Checkout Onboarding](./50-bug-010-stripe-checkout-onboarding/bug-012-execution-report.md) | Onboarding certification · see BUG-012 report |
 | 51 | [Phase 3 Production Polish](./51-phase-3-production-polish/index.md) | Sprint 1 Public Experience — Authorized · polish only |
 | 52 | [Phase 4 Master Admin](./52-phase-4-master-admin/index.md) |
+| 70 | [Master Admin Command Center Blueprint](./70-master-admin-command-center/index.md) | **Draft / Proposed** · post-stabilization control plane · ADR-022 · docs only |
 | 53 | [Phase 4 Property Manager Workspace](./53-phase-4-property-manager-workspace/index.md) | Sprint 3 PM UX · LIVE / Owner-accepted |
 | 54 | [Phase 4 Facility Operations Workspace](./54-phase-4-facility-operations-workspace/index.md) | Sprint 4 FO UX · LIVE |
 | 55 | [Phase 4 Resident Dashboard](./55-phase-4-resident-dashboard/index.md) | Sprint 5 Resident UX · LIVE |

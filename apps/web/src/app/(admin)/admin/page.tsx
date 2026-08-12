@@ -1,7 +1,7 @@
-import { CommandCenterPage } from "../../../components/admin/command-center-page";
-import { loadCommandCenterSnapshot } from "../../../lib/admin/load-command-center";
+import { Ma1OverviewPage } from "../../../components/admin/ma1-overview-page";
+import { loadMa1OverviewSnapshot } from "../../../lib/admin/load-ma1-overview";
 
 export default async function Page() {
-  const snapshot = await loadCommandCenterSnapshot();
-  return <CommandCenterPage snapshot={snapshot} />;
+  const snapshot = await loadMa1OverviewSnapshot();
+  return <Ma1OverviewPage snapshot={snapshot} />;
 }

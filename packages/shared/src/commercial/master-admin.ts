@@ -13,21 +13,32 @@ export type MasterAdminNavGroup = {
 };
 
 /**
- * Owner Operations Console navigation.
+ * Master Admin / Owner Operations Console navigation.
  *
- * Rule: every item must (1) work today and (2) help the Owner operate the platform.
- * Do not list placeholders, future features, or catalog/demo theater.
+ * MA-1: Overview + Errors are the Command Center primary surfaces.
+ * Existing Owner Ops routes remain (already shipping) — do not add unfinished MA-2+ placeholders.
  */
 export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
+  {
+    id: "master-admin",
+    title: "Master Admin",
+    items: [
+      {
+        href: "/admin",
+        label: "Overview",
+        description: "Is M.P.A. healthy right now? Operational health signals."
+      },
+      {
+        href: "/admin/errors",
+        label: "Errors",
+        description: "Critical production errors from the durable platform feed."
+      }
+    ]
+  },
   {
     id: "operations",
     title: "Operations",
     items: [
-      {
-        href: "/admin",
-        label: "Command Center",
-        description: "Platform health, customer search, and live activity."
-      },
       {
         href: "/admin/support",
         label: "Support Center",
