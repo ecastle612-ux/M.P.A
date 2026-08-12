@@ -1,8 +1,39 @@
 import { describe, expect, it } from "vitest";
-import { resolvePostAuthHome } from "./post-auth-home";
+import {
+  defaultHomeForSku,
+  guidedSetupNextActionCopy,
+  productDisplayLabel,
+  productWorkspaceHomeLabel,
+  resolvePostAuthHome,
+  resolveProductWorkspaceHome
+} from "./post-auth-home";
+
+describe("resolveProductWorkspaceHome", () => {
+  it("routes PM / FO / Complete to authoritative product homes", () => {
+    expect(resolveProductWorkspaceHome("mpa_property_manager")).toBe("/pm/mission-control");
+    expect(resolveProductWorkspaceHome("mpa_facility_operations")).toBe(
+      "/facility/mission-control"
+    );
+    expect(resolveProductWorkspaceHome("mpa_complete_platform")).toBe("/launcher");
+  });
+
+  it("aliases defaultHomeForSku with setup fallback when SKU is null", () => {
+    expect(defaultHomeForSku(null)).toBe("/setup");
+    expect(defaultHomeForSku("mpa_facility_operations")).toBe("/facility/mission-control");
+  });
+
+  it("exposes product-aware labels for Guided Setup and Billing", () => {
+    expect(productWorkspaceHomeLabel("mpa_property_manager")).toBe("Mission Control");
+    expect(productWorkspaceHomeLabel("mpa_facility_operations")).toBe("Facility Mission Control");
+    expect(productWorkspaceHomeLabel("mpa_complete_platform")).toBe("Workspace Launcher");
+    expect(productDisplayLabel("mpa_complete_platform")).toBe("Complete Platform");
+    expect(guidedSetupNextActionCopy("mpa_facility_operations")).toMatch(/building/i);
+    expect(guidedSetupNextActionCopy("mpa_property_manager")).toMatch(/property/i);
+  });
+});
 
 describe("resolvePostAuthHome", () => {
-  it("routes staff by role, not SKU", () => {
+  it("routes staff by role for specialized PM roles", () => {
     expect(
       resolvePostAuthHome({
         roles: ["leasing_agent"],
@@ -18,7 +49,9 @@ describe("resolvePostAuthHome", () => {
         setupComplete: true
       })
     ).toBe("/pm/maintenance");
+  });
 
+  it("routes PM manager/admin home via product workspace resolver", () => {
     expect(
       resolvePostAuthHome({
         roles: ["property_manager"],
@@ -36,7 +69,7 @@ describe("resolvePostAuthHome", () => {
     ).toBe("/pm/mission-control");
   });
 
-  it("remaps FO-only staff away from PM module homes", () => {
+  it("routes FO manager/admin to Facility Mission Control", () => {
     expect(
       resolvePostAuthHome({
         roles: ["organization_admin"],
@@ -48,6 +81,34 @@ describe("resolvePostAuthHome", () => {
     expect(
       resolvePostAuthHome({
         roles: ["property_manager"],
+        productSku: "mpa_facility_operations",
+        setupComplete: true
+      })
+    ).toBe("/facility/mission-control");
+  });
+
+  it("routes Complete manager/admin to Workspace Launcher", () => {
+    expect(
+      resolvePostAuthHome({
+        roles: ["organization_admin"],
+        productSku: "mpa_complete_platform",
+        setupComplete: true
+      })
+    ).toBe("/launcher");
+
+    expect(
+      resolvePostAuthHome({
+        roles: ["property_manager"],
+        productSku: "mpa_complete_platform",
+        setupComplete: true
+      })
+    ).toBe("/launcher");
+  });
+
+  it("remaps FO-only specialized staff away from PM module homes", () => {
+    expect(
+      resolvePostAuthHome({
+        roles: ["leasing_agent"],
         productSku: "mpa_facility_operations",
         setupComplete: true
       })

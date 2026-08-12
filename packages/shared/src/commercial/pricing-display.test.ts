@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { calculateUnitVolumeDisplay, PUBLIC_PRICING_MODEL_COPY } from "./pricing-display";
+import {
+  CANCEL_CONFIRMATION_POINTS,
+  calculateUnitVolumeDisplay,
+  cancelScheduledAccessCopy,
+  formatPaidThroughDate,
+  PUBLIC_PRICING_MODEL_COPY
+} from "./pricing-display";
 
 describe("unit-volume pricing display (Slice 5)", () => {
   it("calculates PM examples 500/501/1000/1001", () => {
@@ -113,5 +119,16 @@ describe("unit-volume pricing display (Slice 5)", () => {
     expect(PUBLIC_PRICING_MODEL_COPY.cancellationSummary).toMatch(/Cancel anytime/i);
     expect(PUBLIC_PRICING_MODEL_COPY.cancellationSummary).toMatch(/No refunds/i);
     expect(PUBLIC_PRICING_MODEL_COPY.cancellationSummary).toMatch(/paid billing period/i);
+  });
+
+  it("formats cancel-scheduled paid-through copy from authoritative period end", () => {
+    const iso = "2026-09-15T12:00:00.000Z";
+    expect(formatPaidThroughDate(iso)).toMatch(/2026/);
+    expect(cancelScheduledAccessCopy(iso)).toMatch(/remains active through/i);
+    expect(cancelScheduledAccessCopy(iso)).toMatch(/won't be charged/i);
+    expect(cancelScheduledAccessCopy(null)).toMatch(/paid billing period/i);
+    expect(CANCEL_CONFIRMATION_POINTS).toHaveLength(3);
+    expect(CANCEL_CONFIRMATION_POINTS.join(" ")).toMatch(/No refunds/i);
+    expect(CANCEL_CONFIRMATION_POINTS.join(" ")).toMatch(/period end|paid billing period/i);
   });
 });

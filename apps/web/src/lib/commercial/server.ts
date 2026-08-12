@@ -1,10 +1,13 @@
 import {
+  defaultHomeForSku,
   entitlementsForSku,
   isProductSku,
   toSkuLabel,
   type EntitlementKey,
   type ProductSku
 } from "@mpa/shared";
+
+export { defaultHomeForSku };
 import type { User } from "@supabase/supabase-js";
 import { createAuthServerClient } from "../auth/server";
 
@@ -111,15 +114,3 @@ export async function isPlatformOperatorUser(user: User): Promise<boolean> {
   return Boolean(data);
 }
 
-export function defaultHomeForSku(sku: ProductSku | null): string {
-  if (!sku) {
-    return "/setup";
-  }
-  if (sku === "mpa_facility_operations") {
-    return "/facility/mission-control";
-  }
-  if (sku === "mpa_complete_platform") {
-    return "/launcher";
-  }
-  return "/pm/mission-control";
-}

@@ -98,6 +98,13 @@ describe("COM-002 Slice E subscription lifecycle", () => {
     const copy = customerStatusCopy("grace");
     expect(copy.title.toLowerCase()).not.toContain("stripe");
     expect(copy.requiredAction).toBeTruthy();
+
+    const canceled = customerStatusCopy("canceled");
+    expect(canceled.requiredAction).toMatch(/while access remains/i);
+    expect(canceled.requiredAction).not.toMatch(/Reactivate anytime$/i);
+
+    const expired = customerStatusCopy("expired");
+    expect(expired.requiredAction).toMatch(/Reactivate your plan/i);
   });
 
   it("maps dunning email cadence days", () => {

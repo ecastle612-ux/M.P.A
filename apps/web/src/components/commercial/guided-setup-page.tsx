@@ -6,14 +6,16 @@ import { Button, Input, Skeleton } from "@mpa/ui";
 import {
   ACQUISITION_SKU_COOKIE,
   SKU_SUMMARIES,
+  guidedSetupNextActionCopy,
   parseAcquisitionSku,
+  productDisplayLabel,
+  productWorkspaceHomeLabel,
+  resolveProductWorkspaceHome,
   type ProductSku
 } from "@mpa/shared";
 import { useOrganizationContext } from "../shell/organization-context";
 import { useCommercialContext } from "../shell/commercial-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
-
-const PROPERTY_MANAGER_HOME = "/pm/mission-control";
 
 function readAcquisitionSkuCookie(): ProductSku | null {
   if (typeof document === "undefined") {
@@ -42,6 +44,14 @@ export function GuidedSetupPage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [acquisitionSku] = useState<ProductSku | null>(() => readAcquisitionSkuCookie());
+
+  const effectiveSku = productSku ?? acquisitionSku;
+  const displayLabel = productLabel ?? productDisplayLabel(effectiveSku);
+  const homeHref = effectiveSku ? resolveProductWorkspaceHome(effectiveSku) : "/setup";
+  const homeLabel = effectiveSku ? productWorkspaceHomeLabel(effectiveSku) : "your workspace home";
+  const nextAction = effectiveSku
+    ? guidedSetupNextActionCopy(effectiveSku)
+    : "complete setup for your purchased product";
 
   useEffect(() => {
     if (!activeOrganization) {
@@ -79,7 +89,6 @@ export function GuidedSetupPage() {
 
   const hasOrg = organizations.length > 0;
   const hasProduct = Boolean(productSku);
-  const lockedLabel = productLabel ?? SKU_SUMMARIES.mpa_property_manager.label;
 
   const checklist = useMemo(
     () => [
@@ -89,15 +98,19 @@ export function GuidedSetupPage() {
         done: hasOrg,
         detail: hasOrg
           ? `Active: ${activeOrganization?.name ?? "selected"}`
-          : "Create your organization to begin with Property Manager access."
+          : effectiveSku
+            ? `Create your organization to begin with ${displayLabel} access.`
+            : "Create your organization to begin setup for your purchased product."
       },
       {
         id: "product",
-        label: "Property Manager confirmed",
+        label: effectiveSku ? `${displayLabel} confirmed` : "Product confirmed",
         done: hasProduct,
         detail: hasProduct
-          ? `Plan confirmed: ${lockedLabel}`
-          : "Create the organization to confirm Property Manager for setup."
+          ? `Plan confirmed: ${displayLabel}`
+          : effectiveSku
+            ? `Create the organization to confirm ${displayLabel} for setup.`
+            : "Create the organization to confirm your purchased product for setup."
       },
       {
         id: "billing",
@@ -107,24 +120,30 @@ export function GuidedSetupPage() {
       },
       {
         id: "home",
-        label: "Mission Control is your home",
+        label: `${homeLabel} is your home`,
         done: homeSelected,
-        detail: "After setup you land in Mission Control — your daily operations home."
+        detail:
+          effectiveSku === "mpa_complete_platform"
+            ? "After setup you land in the Workspace Launcher — your start-of-day home for Complete Platform."
+            : `After setup you land in ${homeLabel} — your daily operations home.`
       },
       {
         id: "next",
         label: "Next action understood",
         done: nextStepAcknowledged,
-        detail: "Mission Control will ask you to add your first property."
+        detail: `Your next step is to ${nextAction}.`
       }
     ],
     [
       activeOrganization?.name,
       billingAcknowledged,
+      displayLabel,
+      effectiveSku,
       hasOrg,
       hasProduct,
+      homeLabel,
       homeSelected,
-      lockedLabel,
+      nextAction,
       nextStepAcknowledged
     ]
   );
@@ -141,10 +160,10 @@ export function GuidedSetupPage() {
       : !billingAcknowledged
         ? "Review Billing & Plan, then check the billing acknowledgment."
         : !homeSelected
-          ? "Confirm Mission Control as your home."
+          ? `Confirm ${homeLabel} as your home.`
           : !nextStepAcknowledged
-            ? "Confirm you understand the first Mission Control action."
-            : "Finish setup to enter Mission Control.";
+            ? "Confirm you understand your first workspace action."
+            : `Finish setup to enter ${homeLabel}.`;
 
   async function handleCreateOrganization(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -219,7 +238,7 @@ export function GuidedSetupPage() {
 
   async function finishSetup() {
     if (!canFinish || !productSku) {
-      setError("Complete every setup step before entering Mission Control.");
+      setError(`Complete every setup step before entering ${homeLabel}.`);
       return;
     }
     await persistChecklist({
@@ -228,8 +247,8 @@ export function GuidedSetupPage() {
       home: true,
       nextStep: true
     });
-    setNotice("Congratulations — your organization is ready. Opening Mission Control…");
-    router.push(PROPERTY_MANAGER_HOME);
+    setNotice(`Congratulations — your organization is ready. Opening ${homeLabel}…`);
+    router.push(resolveProductWorkspaceHome(productSku));
   }
 
   return (
@@ -238,14 +257,14 @@ export function GuidedSetupPage() {
 
       <section className="max-w-3xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          You purchased Property Manager
+          {effectiveSku ? `You purchased ${displayLabel}` : "Confirm your purchased product"}
         </p>
         <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)] md:text-3xl">
           Guided Setup
         </h1>
         <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-          Confirm your organization and plan, then enter Mission Control with one clear next step.
-          Plan changes are handled with our commercial team — not from this screen.
+          Confirm your organization and plan, then enter {homeLabel} with one clear next step. Plan
+          changes are handled with our commercial team — not from this screen.
         </p>
         {acquisitionSku ? (
           <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
@@ -253,8 +272,8 @@ export function GuidedSetupPage() {
             <span className="font-semibold text-[var(--mpa-color-text-primary)]">
               {SKU_SUMMARIES[acquisitionSku].label}
             </span>
-            . Your organization begins with Property Manager access. If you selected Facility
-            Operations or Complete Platform when that is your selected plan.
+            . Your organization begins with {SKU_SUMMARIES[acquisitionSku].label} access once
+            provisioning completes.
           </p>
         ) : null}
         {setupComplete ? (
@@ -262,7 +281,7 @@ export function GuidedSetupPage() {
             className="rounded-md border border-[var(--mpa-color-brand-primary)]/30 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-3 py-2 text-sm text-[var(--mpa-color-brand-primary)]"
             role="status"
           >
-            Setup already completed for this organization. You can open Mission Control anytime.
+            Setup already completed for this organization. You can open {homeLabel} anytime.
           </p>
         ) : null}
       </section>
@@ -373,14 +392,14 @@ export function GuidedSetupPage() {
                 <p className="text-sm text-[var(--mpa-color-text-secondary)]">
                   Starting product:{" "}
                   <span className="font-medium text-[var(--mpa-color-text-primary)]">
-                    {SKU_SUMMARIES.mpa_property_manager.label}
+                    {effectiveSku ? displayLabel : "Confirmed at Checkout"}
                   </span>
-                  . Your purchased module (Property Manager, Facility Operations, or Complete
-                  Platform) is provisioned from Checkout.
+                  . Your purchased product is provisioned from Checkout.
                 </p>
                 <label className="block space-y-1 text-sm">
                   <span className="font-medium text-[var(--mpa-color-text-secondary)]">
-                    Organization name <span className="text-[var(--mpa-color-text-muted)]">(required)</span>
+                    Organization name{" "}
+                    <span className="text-[var(--mpa-color-text-muted)]">(required)</span>
                   </span>
                   <Input
                     placeholder="Acme Property Group"
@@ -399,7 +418,7 @@ export function GuidedSetupPage() {
                   Purchased product
                 </h2>
                 <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-                  {lockedLabel}
+                  {displayLabel}
                 </p>
                 <p className="text-xs text-[var(--mpa-color-text-secondary)]">
                   Plan changes are operator-only. Customers cannot modify subscriptions here.
@@ -432,7 +451,7 @@ export function GuidedSetupPage() {
                     void persistChecklist({ billing: event.target.checked });
                   }}
                 />
-                I reviewed what Property Manager includes.
+                I reviewed what {displayLabel} includes.
               </label>
             </div>
 
@@ -441,7 +460,7 @@ export function GuidedSetupPage() {
                 You&apos;re almost in
               </h2>
               <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-                Your product home is Mission Control. The first action there is to add a property.
+                Your product home is {homeLabel}. The first action there is to {nextAction}.
               </p>
               <label className="flex items-start gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
                 <input
@@ -453,7 +472,7 @@ export function GuidedSetupPage() {
                     void persistChecklist({ home: event.target.checked });
                   }}
                 />
-                Confirm Mission Control as my home
+                Confirm {homeLabel} as my home
               </label>
               <label className="flex items-start gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
                 <input
@@ -465,7 +484,7 @@ export function GuidedSetupPage() {
                     void persistChecklist({ nextStep: event.target.checked });
                   }}
                 />
-                I understand the next step is adding my first property
+                I understand the next step is to {nextAction}
               </label>
               <Button
                 type="button"
@@ -473,15 +492,11 @@ export function GuidedSetupPage() {
                 aria-busy={loading}
                 onClick={() => void finishSetup()}
               >
-                {loading ? "Saving…" : "Finish setup — go to Mission Control"}
+                {loading ? "Saving…" : `Finish setup — go to ${homeLabel}`}
               </Button>
               {setupComplete ? (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => router.push(PROPERTY_MANAGER_HOME)}
-                >
-                  Open Mission Control
+                <Button type="button" variant="secondary" onClick={() => router.push(homeHref)}>
+                  Open {homeLabel}
                 </Button>
               ) : null}
             </div>

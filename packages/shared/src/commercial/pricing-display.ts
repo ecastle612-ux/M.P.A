@@ -126,3 +126,35 @@ export const PUBLIC_PRICING_MODEL_COPY = {
   journeyNote:
     "Get Started takes you through questionnaire → product recommendation → unit count → quote → Confirm Plan → Checkout. You do not re-enter pricing math that the calculator already resolved."
 } as const;
+
+/** Points shown in the subscription cancel confirmation dialog. */
+export const CANCEL_CONFIRMATION_POINTS = [
+  "Cancellation takes effect at the end of your current paid billing period.",
+  "Access continues through the paid period.",
+  "No refunds and no prorated refunds are issued."
+] as const;
+
+export function formatPaidThroughDate(
+  iso: string,
+  locale: string = "en-US"
+): string {
+  return new Date(iso).toLocaleDateString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
+
+/**
+ * Customer copy when cancel-at-period-end is already scheduled.
+ * Requires the authoritative `currentPeriodEnd` when available — never invents a date.
+ */
+export function cancelScheduledAccessCopy(
+  currentPeriodEnd: string | null | undefined
+): string {
+  if (currentPeriodEnd) {
+    const date = formatPaidThroughDate(currentPeriodEnd);
+    return `Your subscription remains active through ${date}. You won't be charged for another period.`;
+  }
+  return "Cancellation takes effect at the end of the paid billing period. Access continues through your paid-through date, and you won't be charged for another period.";
+}
