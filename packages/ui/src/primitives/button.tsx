@@ -9,16 +9,18 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: ButtonSize;
 };
 
+export type ButtonClassNameOptions = {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  className?: string | undefined;
+};
+
 /** Shared class recipe so Links and buttons look equivalent (PPS1-014). */
 export function buttonClassName({
   variant = "primary",
   size = "md",
   className
-}: {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  className?: string;
-} = {}): string {
+}: ButtonClassNameOptions = {}): string {
   return cn(
     "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
     size === "sm" && "h-8 px-3 text-sm",
@@ -44,6 +46,10 @@ export function Button({
   ...props
 }: ButtonProps) {
   return (
-    <button type={type} className={buttonClassName({ variant, size, className })} {...props} />
+    <button
+      type={type}
+      className={buttonClassName({ variant, size, className: className ?? undefined })}
+      {...props}
+    />
   );
 }

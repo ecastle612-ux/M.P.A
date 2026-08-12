@@ -10,8 +10,8 @@ import {
   resolveWorkOrderPriorityVariant
 } from "@mpa/ui";
 
-const webRoot = join(__dirname, "../../");
-const uiRoot = join(__dirname, "../../../../packages/ui/src");
+const webRoot = join(process.cwd(), "src");
+const repoRoot = join(process.cwd(), "../..");
 
 function read(rel: string): string {
   return readFileSync(join(webRoot, rel), "utf8");
@@ -40,7 +40,7 @@ describe("Wave C1 Canopy convergence (PPS1-014/015/016/017)", () => {
 
   it("ships Alert primitive and migrates high-vis emerald/red boxes (PPS1-016)", () => {
     expect(typeof Alert).toBe("function");
-    const alertSrc = readFileSync(join(uiRoot, "primitives/alert.tsx"), "utf8");
+    const alertSrc = readFileSync(join(repoRoot, "packages/ui/src/primitives/alert.tsx"), "utf8");
     expect(alertSrc).toMatch(/variant\?: AlertVariant/);
     expect(read("components/shell/error-retry.tsx")).toMatch(/Alert/);
     expect(read("components/commercial/guided-setup-page.tsx")).toMatch(/Alert variant="danger"/);
@@ -54,7 +54,7 @@ describe("Wave C1 Canopy convergence (PPS1-014/015/016/017)", () => {
 
   it("documents remaining token drift without inventing action-primary (PPS1-017)", () => {
     const drift = readFileSync(
-      join(__dirname, "../../../../docs/06-design-language/token-drift-wave-c1.md"),
+      join(repoRoot, "docs/06-design-language/token-drift-wave-c1.md"),
       "utf8"
     );
     expect(drift).toMatch(/Dual token injection/);

@@ -16,6 +16,7 @@ export function ErrorRetry({
 }) {
   return (
     <Alert
+      role="alert"
       variant="danger"
       title={title}
       className="border-l-[3px] border-l-[var(--mpa-color-status-danger,#C0392B)] bg-white text-[var(--mpa-color-text-primary)]"
