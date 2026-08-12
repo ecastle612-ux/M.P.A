@@ -1,8 +1,9 @@
 # 51 — Phase 3 Production Polish
 
-**Status:** Sprint 3 Mission Control polish **ready for Owner acceptance**  
+**Status:** Sprint 3 Mission Control polish **shipped to Production** — awaiting Owner LIVE acceptance  
 **Gate:** Bug-fix / polish / commercial UX only — no ADR-019, Checkout architecture, FO_READY, or workflow changes  
-**Authorization:** Phase 3 · Sprints 1 → 1.1 → 2 · Option B · **Sprint 3 Mission Control**
+**Authorization:** Phase 3 · Sprints 1 → 1.1 → 2 · Option B · **Sprint 3 Mission Control**  
+**Production tip:** `bc893446f061452e338e0332b9478f6af99d2442` · Deploy `7XDFtJd5ZfFHmUciGCdGJKvj6F6V`
 
 ## Sequence
 
@@ -10,8 +11,8 @@
 Design → Document → Approve → Implement
 ```
 
-Sprint 3: await Owner acceptance → merge → Production deploy → LIVE verify → Owner LIVE acceptance.  
-**Do not begin Sprint 4** until all six deployment steps complete.
+Sprint 3: Owner acceptance → merge → Production deploy → LIVE verify (**done**) → **await Owner LIVE acceptance**.  
+**Do not begin Sprint 4** until Owner LIVE acceptance.
 
 ## Sprint 3 — Mission Control Experience
 
@@ -20,7 +21,7 @@ Sprint 3: await Owner acceptance → merge → Production deploy → LIVE verify
 | Property Manager MC | `/pm/mission-control` |
 | Facility Operations MC | `/facility/mission-control` |
 | Complete Launcher | `/launcher` |
-| Demo MC (PM / FO / Complete) | `/demo/...` |
+| Demo MC (PM / FO / Complete) | `/demo/mpa_*/…` |
 
 ## Documents
 
@@ -49,10 +50,11 @@ Sprint 3: await Owner acceptance → merge → Production deploy → LIVE verify
 | [Sprint 3 Issue Register](./sprint-3-issue-register.md) | MC-001–MC-018 |
 | [Mission Control Polish Report](./sprint-3-mission-control-polish-report.md) | Sprint 3 delivery |
 | [Dashboard UX Report](./sprint-3-dashboard-ux-report.md) | Five-second test |
-| [Sprint 3 Regression Report](./sprint-3-regression-report.md) | Verification |
+| [Sprint 3 Regression Report](./sprint-3-regression-report.md) | Pre-merge + Production LIVE regression |
 | [Sprint 3 Accessibility Report](./sprint-3-accessibility-report.md) | A11y notes |
 | [Sprint 3 Performance Report](./sprint-3-performance-report.md) | Loading / render |
 | [Dashboard Quality Score](./sprint-3-dashboard-quality-score.md) | Scored dimensions |
+| [Sprint 3 Production LIVE Verification](./sprint-3-production-live-verification.md) | Deploy IDs + LIVE walkthrough + STOP |
 
 ## Constraints (binding)
 
