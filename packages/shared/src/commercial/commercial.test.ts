@@ -89,6 +89,14 @@ describe("navigation and launcher awareness", () => {
     const groups = navigationGroupsForSku("mpa_complete_platform");
     expect(groups.some((group) => group.id === "property_manager")).toBe(true);
     expect(groups.some((group) => group.id === "facility_operations")).toBe(true);
+    expect(groups.find((group) => group.id === "home")?.title).toBe("Complete");
+    expect(groups.find((group) => group.id === "property_manager")?.title).toBe(
+      "Property Operations"
+    );
+    expect(groups.find((group) => group.id === "facility_operations")?.title).toBe(
+      "Facility Operations"
+    );
+    expect(groups.find((group) => group.id === "shared")?.title).toBe("Shared");
     const fo = groups.find((group) => group.id === "facility_operations");
     expect(fo?.items.map((item) => item.href)).toEqual([
       "/facility/mission-control",
@@ -103,6 +111,12 @@ describe("navigation and launcher awareness", () => {
       "/facility/building-systems"
     ]);
     expect(fo?.items.every((item) => item.readiness === "aligned")).toBe(true);
+    expect(fo?.items[0]?.label).toBe("Mission Control");
+    expect(
+      groups
+        .find((group) => group.id === "property_manager")
+        ?.items.find((item) => item.href === "/pm/mission-control")?.label
+    ).toBe("Mission Control");
   });
 
   it("marks Facility Operations modules aligned except Capital Projects", () => {
