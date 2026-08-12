@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { completeWorkspaceLabels } from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
+import { ErrorRetry } from "../shell/error-retry";
 import {
   FoDocumentsStrip,
   FoPageChrome,
@@ -126,9 +127,23 @@ export function FacilityAssetsWorkspace() {
       ) : null}
 
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
+        <ErrorRetry
+          title="Unable to load buildings"
+          description={error}
+          onRetry={() => {
+            void (async () => {
+              setError(null);
+              setLoading(true);
+              try {
+                await refresh();
+              } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to load");
+              } finally {
+                setLoading(false);
+              }
+            })();
+          }}
+        />
       ) : null}
       {notice ? (
         <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">

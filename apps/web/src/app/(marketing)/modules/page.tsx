@@ -3,8 +3,9 @@ import { ModulesPage } from "../../../components/marketing/modules-page";
 import { createAuthServerClient } from "../../../lib/auth/server";
 
 export const metadata: Metadata = {
-  title: "Choose Your Platform — M.P.A.",
-  description: "Select Property Manager, Facility Operations, or Complete Platform."
+  title: "Explore Platforms — M.P.A.",
+  description:
+    "Compare Property Manager, Facility Operations, and Complete Platform. Use Get Started when you are ready to buy."
 };
 
 export default async function Page() {

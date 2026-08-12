@@ -11,6 +11,7 @@ import {
 import { Badge, Button, EmptyState, Input, Select, Skeleton, Textarea } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ConfirmActionModal } from "../shell/confirm-action-modal";
+import { ErrorRetry } from "../shell/error-retry";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 import { workOrderCancelConfirmation } from "../../lib/ui/destructive-confirm-copy";
 import {
@@ -298,9 +299,20 @@ export function MaintenanceCommandCenter() {
       </section>
 
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
+        <ErrorRetry
+          title="Maintenance error"
+          description={error}
+          onRetry={() => {
+            void (async () => {
+              setError(null);
+              try {
+                await refresh(selectedId || undefined);
+              } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to load");
+              }
+            })();
+          }}
+        />
       ) : null}
       {notice ? (
         <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">

@@ -361,7 +361,7 @@ export function LeasingDirectory() {
                         ? "Screening pending (manual)"
                         : app.incomplete_reason
                           ? `Incomplete: ${app.incomplete_reason}`
-                          : "Review, screen (placeholder), approve, then create lease."
+                          : "Review, complete manual screening, approve, then create lease."
                     }
                   >
                     <div className="mt-3 flex flex-wrap gap-2">

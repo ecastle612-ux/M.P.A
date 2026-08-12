@@ -10,13 +10,15 @@ vi.mock("../communications/email", () => ({
 
 import { sendOperationalNoticeEmail } from "../communications/email";
 
-function createNotifyClient() {
+function createNotifyClient(options?: {
+  preferences?: { email: boolean; in_app: boolean; sms?: boolean } | null;
+}) {
   const updates: Array<Record<string, unknown>> = [];
   const inserts: Array<Record<string, unknown>> = [];
   return {
     updates,
     inserts,
-    from() {
+    from(table: string) {
       return {
         insert(values: Record<string, unknown>) {
           inserts.push(values);
@@ -32,6 +34,30 @@ function createNotifyClient() {
           updates.push(values);
           return {
             eq: async () => ({ error: null })
+          };
+        },
+        select() {
+          return {
+            eq: () => ({
+              maybeSingle: async () => {
+                if (table !== "user_preferences") {
+                  return { data: null, error: null };
+                }
+                if (options?.preferences === null) {
+                  return { data: null, error: null };
+                }
+                return {
+                  data: {
+                    notification_preferences: options?.preferences ?? {
+                      email: true,
+                      in_app: true,
+                      sms: false
+                    }
+                  },
+                  error: null
+                };
+              }
+            })
           };
         }
       };
@@ -99,5 +125,25 @@ describe("STAB-007 lifecycle notifications", () => {
     expect(["skipped_no_email", "skipped_not_configured", "failed"]).toContain(result.emailStatus);
     expect(result.emailStatus).not.toBe("sent");
     expect(CRITICAL_NOTIFICATION_KEYS.has("work_order.cancelled")).toBe(true);
+  });
+
+  it("honors email/in-app preferences and never SMS (PPS1-011)", async () => {
+    const client = createNotifyClient({
+      preferences: { email: false, in_app: false, sms: true }
+    });
+    const result = await notifyLifecycle(client as never, {
+      organizationId: "org_1",
+      userId: "user_1",
+      workOrderId: "wo_1",
+      key: "work_order.assigned",
+      title: "Assigned",
+      body: "You were assigned",
+      href: "/pm/maintenance",
+      emailCritical: true
+    });
+    expect(result.inApp).toBe(false);
+    expect(result.emailStatus).toBe("skipped_preference");
+    expect(client.inserts).toHaveLength(0);
+    expect(sendOperationalNoticeEmail).not.toHaveBeenCalled();
   });
 });

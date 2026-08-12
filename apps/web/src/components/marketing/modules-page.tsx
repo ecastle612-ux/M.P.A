@@ -19,25 +19,27 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
       <main className={marketingPageMainClass}>
         <header className="max-w-2xl space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            Get started · Step 1
+            Explore Platforms
           </p>
           <h1 className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
-            Choose Your Platform
+            Compare Property Manager, Facility Operations, and Complete
           </h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Select Property Manager, Facility Operations, or Complete Platform. Next you will choose
-            monthly or annual billing.
+            This page explains what each product includes. When you are ready to buy, use Get Started
+            for the guided path: questionnaire → plan → confirmation → checkout.
           </p>
         </header>
 
-        <ol className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-          <li className="rounded-md bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-2 py-1 text-[var(--mpa-color-brand-primary)]">
-            1 · Modules
-          </li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">2 · Pricing</li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">3 · Confirm Plan</li>
-          <li className="rounded-md bg-[var(--mpa-color-bg-subtle)] px-2 py-1">4 · Checkout</li>
-        </ol>
+        <p className="max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
+          Acquisition path:{" "}
+          <Link
+            href={acquisitionHref("questionnaire")}
+            className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+          >
+            Get Started
+          </Link>{" "}
+          is the purchase entry. Explore Platforms is discovery only — it does not replace checkout.
+        </p>
 
         <ul className="grid gap-4 md:grid-cols-3">
           {PRODUCT_SKUS.map((sku) => {
@@ -62,17 +64,17 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
                   <li className="text-[var(--mpa-color-text-muted)]">• {BACKGROUND_SCREENING_LINE}</li>
                 </ul>
                 <div className="mt-4 flex flex-col gap-2">
-                  <Link href={acquisitionHref("pricing", sku)} className={marketingPrimaryCtaClass}>
-                    View pricing
-                  </Link>
                   <Link
                     href={acquisitionHref("questionnaire", {
                       sku,
                       billingCycle: "monthly"
                     })}
-                    className={marketingSecondaryCtaClass}
+                    className={marketingPrimaryCtaClass}
                   >
                     Get started with {SKU_SUMMARIES[sku].label}
+                  </Link>
+                  <Link href={acquisitionHref("pricing", sku)} className={marketingSecondaryCtaClass}>
+                    View pricing
                   </Link>
                 </div>
               </li>

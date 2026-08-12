@@ -16,7 +16,7 @@ const heroNavLinkClass =
 const publicNav = [
   { href: "/", label: "Home" },
   { href: "/demo", label: "Live Demo" },
-  { href: "/modules", label: "Modules" },
+  { href: "/modules", label: "Explore Platforms" },
   { href: "/pricing", label: "Pricing" },
   {
     href: acquisitionHref("questionnaire"),
@@ -155,7 +155,7 @@ export function MarketingChrome({
               Live Demo
             </Link>
             <Link href="/modules" className="hover:text-[var(--mpa-color-text-primary)]">
-              Modules
+              Explore Platforms
             </Link>
             <Link href="/pricing" className="hover:text-[var(--mpa-color-text-primary)]">
               Pricing

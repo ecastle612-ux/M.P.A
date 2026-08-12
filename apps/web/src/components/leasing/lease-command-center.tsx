@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Badge, Button, EmptyState, Skeleton, TimelineView } from "@mpa/ui";
+import { Badge, Button, Skeleton, TimelineView } from "@mpa/ui";
 import { formatMoney } from "@mpa/shared";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { ErrorRetry } from "../shell/error-retry";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 
 type CommandCenter = {
@@ -143,7 +144,23 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
   if (!data) {
     return (
       <main className="flex-1 p-4 md:p-6">
-        <EmptyState title="Lease unavailable" description={error ?? "Try again shortly."} />
+        <ErrorRetry
+          title="Lease unavailable"
+          description={error ?? "We couldn’t load this lease. Check your connection and try again."}
+          onRetry={() => {
+            void (async () => {
+              setLoading(true);
+              setError(null);
+              try {
+                await load();
+              } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to load lease");
+              } finally {
+                setLoading(false);
+              }
+            })();
+          }}
+        />
       </main>
     );
   }
