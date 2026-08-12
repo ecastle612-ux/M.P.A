@@ -24,6 +24,13 @@ import {
   workOrderCancelConfirmation,
   workOrderCompleteConfirmation
 } from "../../lib/ui/destructive-confirm-copy";
+import {
+  fieldActionVariant,
+  fieldPrimaryAction,
+  fieldWorkOrderScanLines,
+  resolveCancelNote,
+  resolveProgressNote
+} from "../../lib/facility/field-work-order-presentation";
 
 type WorkOrder = {
   id: string;
@@ -146,6 +153,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [technicianUserId, setTechnicianUserId] = useState("");
   const [vendorId, setVendorId] = useState("");
   const [progressNote, setProgressNote] = useState("");
+  const [cancelNote, setCancelNote] = useState("");
   const [queueQuery, setQueueQuery] = useState("");
   const [createTitle, setCreateTitle] = useState("");
   const [createDescription, setCreateDescription] = useState("");
@@ -280,6 +288,30 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     (row) => row.priority === "emergency" && isOpen(row.status)
   ).length;
   const canMutate = selected && isOpen(selected.status) && selected.status !== "completed";
+  const primaryAction = selected ? fieldPrimaryAction(selected.status) : null;
+  const selectedTechnicianLabel =
+    selected?.technician_user_id != null
+      ? (technicians.find((tech) => tech.userId === selected.technician_user_id)?.displayName ??
+        null)
+      : null;
+  const detailScanLines = selected
+    ? fieldWorkOrderScanLines({
+        title: selected.title,
+        description: selected.description,
+        status: selected.status,
+        priority: selected.priority,
+        category: selected.category,
+        propertyName: selected.property_properties?.name,
+        unitLabel: selected.property_units?.unit_label,
+        assetLabel: selected.facility_asset_label,
+        assigneeType: selected.assignee_type,
+        technicianLabel: selectedTechnicianLabel,
+        vendorName: selected.vendor_vendors?.name,
+        submittedAt: selected.submitted_at,
+        dueAt: selected.due_at
+      })
+    : [];
+  const mobileDetailOpen = Boolean(selected);
 
   return (
     <FoPageChrome
@@ -489,7 +521,11 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       <FoPriorityLegend />
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-        <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section
+          className={`space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 ${
+            mobileDetailOpen ? "hidden xl:block" : ""
+          }`}
+        >
           <div className="flex flex-wrap items-end justify-between gap-2">
             <h2 className="text-sm font-semibold">Work queue</h2>
             <label className="min-w-[12rem] flex-1 text-xs">
@@ -516,7 +552,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                   <button
                     type="button"
                     onClick={() => void selectWorkOrder(row.id)}
-                    className={`w-full rounded-md border border-l-[3px] px-3 py-2 text-left text-sm ${
+                    className={`min-h-14 w-full rounded-md border border-l-[3px] px-3 py-3 text-left text-sm ${
                       row.priority === "emergency"
                         ? "border-l-[#C0392B]"
                         : row.priority === "high"
@@ -555,7 +591,11 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
           )}
         </section>
 
-        <section className="space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <section
+          className={`space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 ${
+            !selected ? "hidden xl:block" : ""
+          }`}
+        >
           {!selected ? (
             <EmptyState
               title="Select facility work"
@@ -563,208 +603,129 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             />
           ) : (
             <>
-              <div>
-                <h2 className="font-display text-xl font-semibold">{selected.title}</h2>
-                <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                  {selected.description}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Badge variant="neutral">{WORK_ORDER_STATUS_LABELS[selected.status]}</Badge>
-                  <Badge variant={selected.priority === "emergency" ? "danger" : "info"}>
-                    {WORK_ORDER_PRIORITY_LABELS[selected.priority]}
-                  </Badge>
-                  <Badge variant="neutral">
-                    {WORK_ORDER_CATEGORY_LABELS[selected.category as WorkOrderCategory] ??
-                      selected.category}
-                  </Badge>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-start justify-between gap-2 xl:hidden">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="min-h-11"
+                    onClick={() => {
+                      setSelectedId("");
+                      setUpdates([]);
+                      setCancelNote("");
+                      setProgressNote("");
+                    }}
+                  >
+                    Back to queue
+                  </Button>
                 </div>
-                <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
-                  Building: {selected.property_properties?.name ?? "—"}
-                  {selected.facility_asset_label ? ` · Asset: ${selected.facility_asset_label}` : ""}
-                  {selected.due_at
-                    ? ` · Due ${new Date(selected.due_at).toLocaleString()}`
-                    : ""}
-                  {selected.assignee_type === "vendor" && selected.vendor_vendors?.name
-                    ? ` · Vendor: ${selected.vendor_vendors.name}`
-                    : null}
-                  {selected.assignee_type === "technician" && selected.technician_user_id
-                    ? " · Technician assigned"
-                    : null}
-                </p>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                    Work order
+                  </p>
+                  <h2 className="font-display text-xl font-semibold md:text-2xl">{selected.title}</h2>
+                  <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                    {selected.description}
+                  </p>
+                </div>
+                <dl className="grid gap-2 sm:grid-cols-2">
+                  {detailScanLines.map((line) => (
+                    <div
+                      key={line.id}
+                      className="rounded-md border border-[var(--mpa-color-border-subtle)] px-3 py-2"
+                    >
+                      <dt className="text-[11px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                        {line.label}
+                      </dt>
+                      <dd className="mt-0.5 text-sm text-[var(--mpa-color-text-primary)]">
+                        {line.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
 
               {canMutate ? (
                 <>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <form
-                      className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3"
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        void run(async () => {
-                          const response = await fetch("/api/facility/operations/triage", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ workOrderId: selected.id, priority })
-                          });
-                          const body = await response.json();
-                          if (!response.ok) {
-                            throw new Error(body.error ?? "Triage failed");
-                          }
-                          setNotice("Priority updated.");
-                        });
-                      }}
-                    >
-                      <h3 className="text-sm font-semibold">Prioritize</h3>
-                      <Select
-                        value={priority}
-                        onChange={(event) => setPriority(event.target.value as WorkOrderPriority)}
-                      >
-                        {Object.entries(WORK_ORDER_PRIORITY_LABELS).map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </Select>
-                      <Button type="submit" disabled={busy}>
-                        Save priority
-                      </Button>
-                    </form>
-
-                    <form
-                      className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3"
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        void run(async () => {
-                          const response = await fetch("/api/facility/operations/assign", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              workOrderId: selected.id,
-                              assigneeType,
-                              technicianUserId:
-                                assigneeType === "technician"
-                                  ? technicianUserId || undefined
-                                  : undefined,
-                              vendorId: assigneeType === "vendor" ? vendorId || undefined : undefined
-                            })
-                          });
-                          const body = await response.json();
-                          if (!response.ok) {
-                            throw new Error(body.error ?? "Assign failed");
-                          }
-                          const handoff = body.vendorPortalHandoff as
-                            | {
-                                firstLoginMessage?: string;
-                                magicLink?: string | null;
-                                loginHref?: string;
-                              }
-                            | null
-                            | undefined;
-                          if (handoff?.firstLoginMessage) {
-                            setNotice(
-                              [
-                                "Assignment sent.",
-                                handoff.firstLoginMessage,
-                                handoff.magicLink ? `Magic link: ${handoff.magicLink}` : null,
-                                handoff.loginHref ? `Login: ${handoff.loginHref}` : null
-                              ]
-                                .filter(Boolean)
-                                .join(" ")
-                            );
-                          } else {
-                            setNotice("Assignment sent.");
-                          }
-                        });
-                      }}
-                    >
-                      <h3 className="text-sm font-semibold">Assign technician or vendor</h3>
-                      <Select
-                        value={assigneeType}
-                        onChange={(event) =>
-                          setAssigneeType(event.target.value as "technician" | "vendor")
-                        }
-                      >
-                        <option value="technician">Technician</option>
-                        <option value="vendor">Vendor</option>
-                      </Select>
-                      {assigneeType === "technician" ? (
-                        <Select
-                          value={technicianUserId}
-                          onChange={(event) => setTechnicianUserId(event.target.value)}
-                          required
-                        >
-                          <option value="">Select technician</option>
-                          {technicians.map((tech) => (
-                            <option key={tech.userId} value={tech.userId}>
-                              {tech.displayName}
-                            </option>
-                          ))}
-                        </Select>
-                      ) : (
-                        <Select
-                          value={vendorId}
-                          onChange={(event) => setVendorId(event.target.value)}
-                          required
-                        >
-                          <option value="">Select vendor</option>
-                          {vendors.map((vendor) => (
-                            <option key={vendor.id} value={vendor.id}>
-                              {vendor.name}
-                            </option>
-                          ))}
-                        </Select>
-                      )}
-                      <Button type="submit" disabled={busy}>
-                        Assign
-                      </Button>
-                    </form>
-                  </div>
-
-                  <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
-                    <h3 className="text-sm font-semibold">Progress</h3>
+                  <div className="space-y-3 rounded-md border border-[var(--mpa-color-brand-primary)]/25 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] p-3">
+                    <div>
+                      <h3 className="text-sm font-semibold">What to do next</h3>
+                      <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                        {primaryAction === "start"
+                          ? "Start this work when you begin on site."
+                          : primaryAction === "complete"
+                            ? "Record progress as needed, then complete when finished."
+                            : "Update progress or complete when the job is done."}
+                      </p>
+                    </div>
                     <Textarea
                       value={progressNote}
                       onChange={(e) => setProgressNote(e.target.value)}
                       rows={3}
-                      placeholder="What changed?"
+                      placeholder="Optional progress note"
+                      aria-label="Progress note"
                     />
-                    <div className="flex flex-wrap gap-2">
-                      {(
-                        [
-                          ["start", "Start"],
-                          ["progress", "Progress note"]
-                        ] as const
-                      ).map(([action, label]) => (
-                        <Button
-                          key={action}
-                          type="button"
-                          disabled={busy}
-                          onClick={() =>
-                            void run(async () => {
-                              const note = progressNote.trim() || `${label} update`;
-                              const response = await fetch("/api/facility/operations/progress", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                  workOrderId: selected.id,
-                                  action,
-                                  note
-                                })
-                              });
-                              const body = await response.json();
-                              if (!response.ok) {
-                                throw new Error(body.error ?? "Progress failed");
-                              }
-                              setProgressNote("");
-                              setNotice(action === "start" ? "Work started." : "Progress saved.");
-                            })
-                          }
-                        >
-                          {label}
-                        </Button>
-                      ))}
+                    <div className="grid gap-2 sm:grid-cols-3">
                       <Button
                         type="button"
+                        className="min-h-11"
+                        variant={fieldActionVariant("start", primaryAction)}
+                        disabled={busy}
+                        onClick={() =>
+                          void run(async () => {
+                            const note = resolveProgressNote(progressNote, "start");
+                            const response = await fetch("/api/facility/operations/progress", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                workOrderId: selected.id,
+                                action: "start",
+                                note
+                              })
+                            });
+                            const body = await response.json();
+                            if (!response.ok) {
+                              throw new Error(body.error ?? "Progress failed");
+                            }
+                            setProgressNote("");
+                            setNotice("Work started.");
+                          })
+                        }
+                      >
+                        Start
+                      </Button>
+                      <Button
+                        type="button"
+                        className="min-h-11"
+                        variant={fieldActionVariant("progress", primaryAction)}
+                        disabled={busy}
+                        onClick={() =>
+                          void run(async () => {
+                            const note = resolveProgressNote(progressNote, "progress");
+                            const response = await fetch("/api/facility/operations/progress", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                workOrderId: selected.id,
+                                action: "progress",
+                                note
+                              })
+                            });
+                            const body = await response.json();
+                            if (!response.ok) {
+                              throw new Error(body.error ?? "Progress failed");
+                            }
+                            setProgressNote("");
+                            setNotice("Progress saved.");
+                          })
+                        }
+                      >
+                        Progress
+                      </Button>
+                      <Button
+                        type="button"
+                        className="min-h-11"
+                        variant={fieldActionVariant("complete", primaryAction)}
                         disabled={busy}
                         onClick={() => setCompleteConfirmOpen(true)}
                       >
@@ -773,15 +734,147 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-[var(--mpa-color-text-secondary)]">
+                      Dispatch controls
+                    </h3>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <form
+                        className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3"
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          void run(async () => {
+                            const response = await fetch("/api/facility/operations/triage", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ workOrderId: selected.id, priority })
+                            });
+                            const body = await response.json();
+                            if (!response.ok) {
+                              throw new Error(body.error ?? "Triage failed");
+                            }
+                            setNotice("Priority updated.");
+                          });
+                        }}
+                      >
+                        <h3 className="text-sm font-semibold">Prioritize</h3>
+                        <Select
+                          value={priority}
+                          onChange={(event) => setPriority(event.target.value as WorkOrderPriority)}
+                        >
+                          {Object.entries(WORK_ORDER_PRIORITY_LABELS).map(([value, label]) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </Select>
+                        <Button type="submit" className="min-h-11" disabled={busy}>
+                          Save priority
+                        </Button>
+                      </form>
+
+                      <form
+                        className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3"
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          void run(async () => {
+                            const response = await fetch("/api/facility/operations/assign", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                workOrderId: selected.id,
+                                assigneeType,
+                                technicianUserId:
+                                  assigneeType === "technician"
+                                    ? technicianUserId || undefined
+                                    : undefined,
+                                vendorId:
+                                  assigneeType === "vendor" ? vendorId || undefined : undefined
+                              })
+                            });
+                            const body = await response.json();
+                            if (!response.ok) {
+                              throw new Error(body.error ?? "Assign failed");
+                            }
+                            const handoff = body.vendorPortalHandoff as
+                              | {
+                                  firstLoginMessage?: string;
+                                  magicLink?: string | null;
+                                  loginHref?: string;
+                                }
+                              | null
+                              | undefined;
+                            if (handoff?.firstLoginMessage) {
+                              setNotice(
+                                [
+                                  "Assignment sent.",
+                                  handoff.firstLoginMessage,
+                                  handoff.magicLink ? `Magic link: ${handoff.magicLink}` : null,
+                                  handoff.loginHref ? `Login: ${handoff.loginHref}` : null
+                                ]
+                                  .filter(Boolean)
+                                  .join(" ")
+                              );
+                            } else {
+                              setNotice("Assignment sent.");
+                            }
+                          });
+                        }}
+                      >
+                        <h3 className="text-sm font-semibold">Assign technician or vendor</h3>
+                        <Select
+                          value={assigneeType}
+                          onChange={(event) =>
+                            setAssigneeType(event.target.value as "technician" | "vendor")
+                          }
+                        >
+                          <option value="technician">Technician</option>
+                          <option value="vendor">Vendor</option>
+                        </Select>
+                        {assigneeType === "technician" ? (
+                          <Select
+                            value={technicianUserId}
+                            onChange={(event) => setTechnicianUserId(event.target.value)}
+                            required
+                          >
+                            <option value="">Select technician</option>
+                            {technicians.map((tech) => (
+                              <option key={tech.userId} value={tech.userId}>
+                                {tech.displayName}
+                              </option>
+                            ))}
+                          </Select>
+                        ) : (
+                          <Select
+                            value={vendorId}
+                            onChange={(event) => setVendorId(event.target.value)}
+                            required
+                          >
+                            <option value="">Select vendor</option>
+                            {vendors.map((vendor) => (
+                              <option key={vendor.id} value={vendor.id}>
+                                {vendor.name}
+                              </option>
+                            ))}
+                          </Select>
+                        )}
+                        <Button type="submit" className="min-h-11" disabled={busy}>
+                          Assign
+                        </Button>
+                      </form>
+                    </div>
+                  </div>
+
                   <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
                     <h3 className="text-sm font-semibold">Cancel</h3>
                     <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                      Use when this work should not continue.
+                      Cancellation uses its own reason — not the progress note above.
                     </p>
                     <Button
                       type="button"
                       disabled={busy}
                       variant="secondary"
+                      className="min-h-11"
                       onClick={() => setCancelConfirmOpen(true)}
                     >
                       Cancel work order
@@ -806,7 +899,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                         key={update.id}
                         className="rounded-md border border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm"
                       >
-                        <p>{update.body}</p>
+                        <p className="break-words">{update.body}</p>
                         <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
                           {update.actor_role} · {new Date(update.created_at).toLocaleString()}
                         </p>
@@ -836,13 +929,14 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
                     workOrderId: selected.id,
-                    note: progressNote || "Cancelled from Facility Operations"
+                    note: resolveCancelNote(cancelNote)
                   })
                 });
                 const body = await response.json();
                 if (!response.ok) {
                   throw new Error(body.error ?? "Cancel failed");
                 }
+                setCancelNote("");
                 setNotice("Work order cancelled.");
                 setCancelConfirmOpen(false);
               });
@@ -854,10 +948,21 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                 statusLabel: WORK_ORDER_STATUS_LABELS[selected.status]
               });
               return (
-                <div className="space-y-2 text-[var(--mpa-color-text-secondary)]">
+                <div className="space-y-3 text-[var(--mpa-color-text-secondary)]">
                   <p>{copy.what}</p>
                   <p>{copy.when}</p>
                   <p className="font-medium text-[var(--mpa-color-text-primary)]">{copy.irreversible}</p>
+                  <label className="block space-y-1 text-sm">
+                    <span className="text-xs font-medium text-[var(--mpa-color-text-primary)]">
+                      Cancellation reason (optional)
+                    </span>
+                    <Textarea
+                      value={cancelNote}
+                      onChange={(event) => setCancelNote(event.target.value)}
+                      rows={3}
+                      placeholder="Why is this work being cancelled?"
+                    />
+                  </label>
                 </div>
               );
             })()}
@@ -873,7 +978,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             title={workOrderCompleteConfirmation({ title: selected.title }).title}
             onConfirm={() => {
               void run(async () => {
-                const note = progressNote.trim() || "Complete update";
+                const note = resolveProgressNote(progressNote, "complete");
                 const response = await fetch("/api/facility/operations/progress", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -900,6 +1005,11 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                   <p>{copy.what}</p>
                   <p>{copy.when}</p>
                   <p className="font-medium text-[var(--mpa-color-text-primary)]">{copy.irreversible}</p>
+                  {progressNote.trim() ? (
+                    <p className="text-sm">
+                      Completion note: <span className="text-[var(--mpa-color-text-primary)]">{progressNote.trim()}</span>
+                    </p>
+                  ) : null}
                 </div>
               );
             })()}

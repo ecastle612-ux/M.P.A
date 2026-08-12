@@ -33,7 +33,7 @@ export function RolePortalFrame({
   subtitle: string;
   roleBadgeLabel: string;
   navigation: readonly PortalNavigationItem[];
-  experience?: "default" | "resident" | "technician";
+  experience?: "default" | "resident" | "technician" | "vendor";
 }) {
   return (
     <AuthenticatedContextProviders

@@ -38,13 +38,19 @@ export function PortalShell({
   roleBadgeLabel: string;
   navigation: readonly PortalNavigationItem[];
   children: ReactNode;
-  experience?: "default" | "resident" | "technician";
+  experience?: "default" | "resident" | "technician" | "vendor";
 }) {
   const pathname = usePathname() ?? "";
   const isResident = experience === "resident";
   const isTechnician = experience === "technician";
-  const useMobileBottomNav = isResident || isTechnician;
+  const isVendor = experience === "vendor";
+  const useMobileBottomNav = isResident || isTechnician || isVendor;
   const bottomCols = Math.min(Math.max(navigation.length, 2), 5);
+  const shortcutsLabel = isVendor
+    ? "Vendor shortcuts"
+    : isTechnician
+      ? "Technician shortcuts"
+      : "Resident shortcuts";
 
   return (
     <div
@@ -138,7 +144,7 @@ export function PortalShell({
 
       {useMobileBottomNav ? (
         <nav
-          aria-label={isTechnician ? "Technician shortcuts" : "Resident shortcuts"}
+          aria-label={shortcutsLabel}
           className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--mpa-color-border-default)] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 lg:hidden"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
