@@ -1,3 +1,4 @@
+import { Badge, buttonClassName } from "@mpa/ui";
 import Link from "next/link";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 
@@ -36,15 +37,9 @@ export function ModuleAlignmentPage({
           </h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{description}</p>
           <div className="flex flex-wrap gap-2">
-            <span
-              className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${
-                readiness === "aligned"
-                  ? "bg-[#E3F5EE] text-[#0E7A57]"
-                  : "bg-[#FEF3C7] text-[#B45309]"
-              }`}
-            >
+            <Badge variant={readiness === "aligned" ? "success" : "warning"}>
               {readiness === "aligned" ? "Aligned" : "Planned"}
-            </span>
+            </Badge>
           </div>
         </header>
 
@@ -95,22 +90,13 @@ export function ModuleAlignmentPage({
         </p>
 
         <div className="flex flex-wrap gap-3">
-          <Link
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2"
-            href="/launcher"
-          >
+          <Link className={buttonClassName()} href="/launcher">
             Open Workspace Launcher
           </Link>
-          <Link
-            className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 text-sm font-medium text-[var(--mpa-color-text-primary)] hover:bg-[var(--mpa-color-bg-subtle,#f7faf9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2"
-            href="/billing"
-          >
+          <Link className={buttonClassName({ variant: "secondary" })} href="/billing">
             View Billing & Plan
           </Link>
-          <Link
-            className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 text-sm font-medium text-[var(--mpa-color-text-primary)] hover:bg-[var(--mpa-color-bg-subtle,#f7faf9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2"
-            href="/setup"
-          >
+          <Link className={buttonClassName({ variant: "secondary" })} href="/setup">
             Guided Setup
           </Link>
         </div>

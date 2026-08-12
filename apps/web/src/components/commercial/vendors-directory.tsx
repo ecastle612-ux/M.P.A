@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Button, EmptyState, Input, Skeleton } from "@mpa/ui";
+import { Alert, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
 import { ErrorRetry } from "../shell/error-retry";
 import {
   PmDocumentsStrip,
@@ -147,11 +147,7 @@ export function VendorsDirectory() {
         </Button>
       </form>
 
-      {notice ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
-          {notice}
-        </p>
-      ) : null}
+      {notice ? <Alert variant="success">{notice}</Alert> : null}
 
       {loading ? (
         <div className="space-y-3" aria-busy="true">

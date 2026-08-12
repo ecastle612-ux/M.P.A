@@ -1,14 +1,12 @@
+import { buttonClassName } from "@mpa/ui";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { acquisitionHref } from "@mpa/shared";
 import { SiteLogo } from "../branding/site-logo";
 import { MarketingMobileMenu } from "./marketing-mobile-menu";
 
-const primaryCtaClass =
-  "inline-flex h-10 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--mpa-color-brand-primary-hover,#0C5A48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
-
-const ghostCtaClass =
-  "inline-flex h-10 items-center justify-center rounded-md px-3 text-sm font-medium text-[var(--mpa-color-text-secondary)] transition-colors hover:bg-[var(--mpa-color-bg-subtle,#F7F8FA)] hover:text-[var(--mpa-color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]";
+const primaryCtaClass = buttonClassName({ size: "lg", className: "font-semibold" });
+const ghostCtaClass = buttonClassName({ variant: "ghost", size: "lg" });
 
 const heroNavLinkClass =
   "rounded-md px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
@@ -179,11 +177,17 @@ export function MarketingChrome({
   );
 }
 
-export const marketingPrimaryCtaClass =
-  "inline-flex h-11 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(15,107,86,0.22)] transition-colors duration-200 hover:bg-[var(--mpa-color-brand-primary-hover,#0C5A48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
+export const marketingPrimaryCtaClass = buttonClassName({
+  size: "lg",
+  className:
+    "h-11 px-5 font-semibold shadow-[0_8px_20px_rgba(15,107,86,0.22)] transition-colors duration-200"
+});
 
-export const marketingSecondaryCtaClass =
-  "inline-flex h-11 items-center justify-center rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] px-5 text-sm font-semibold text-[var(--mpa-color-text-primary)] transition-colors duration-200 hover:bg-[var(--mpa-color-bg-subtle,#F7F8FA)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]";
+export const marketingSecondaryCtaClass = buttonClassName({
+  variant: "secondary",
+  size: "lg",
+  className: "h-11 px-5 font-semibold transition-colors duration-200"
+});
 
 export const marketingHeroSecondaryCtaClass =
   "inline-flex h-11 items-center justify-center rounded-md border border-white/35 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/18 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";

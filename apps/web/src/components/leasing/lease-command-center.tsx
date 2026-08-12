@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Badge, Button, Skeleton, TimelineView } from "@mpa/ui";
+import { buttonClassName, Alert, Badge, Button, Skeleton, TimelineView } from "@mpa/ui";
 import { formatMoney } from "@mpa/shared";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ErrorRetry } from "../shell/error-retry";
@@ -217,19 +217,18 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
       />
 
       {justCreated || data.readyMessage ? (
-        <section
+        <Alert
+          variant="success"
+          className="max-w-3xl"
+          title={data.readyMessage ?? "Lease draft is ready."}
           aria-live="polite"
-          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
         >
-          <p className="text-base font-semibold text-emerald-900">
-            {data.readyMessage ?? "Lease draft is ready."}
-          </p>
-          <p className="mt-1 text-sm text-emerald-800">
+          <p>
             {active
               ? "Resident, portal, occupancy, and recurring rent are active."
               : "Review the generated document, then send through SignWell."}
           </p>
-        </section>
+        </Alert>
       ) : null}
 
       <section
@@ -246,7 +245,7 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
         {active && data.nextJourney.href.startsWith("/") ? (
           <Link
             href={data.nextJourney.href}
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48]"
+            className={buttonClassName()}
           >
             {data.nextJourney.title}
           </Link>

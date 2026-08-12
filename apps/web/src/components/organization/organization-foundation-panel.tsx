@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, type FormEvent } from "react";
-import { Button, Card, Input } from "@mpa/ui";
+import { buttonClassName, Alert, Button, Card, Input } from "@mpa/ui";
 import { useOrganizationContext } from "../shell/organization-context";
 
 export function OrganizationFoundationPanel() {
@@ -72,8 +72,16 @@ export function OrganizationFoundationPanel() {
             {loading ? "Creating..." : "Create organization"}
           </Button>
         </form>
-        {error ? <p className="mt-2 text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="mt-2 text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? (
+          <Alert variant="danger" className="mt-2">
+            {error}
+          </Alert>
+        ) : null}
+        {notice ? (
+          <Alert variant="success" className="mt-2">
+            {notice}
+          </Alert>
+        ) : null}
         {hasOrganizations ? (
           <p className="mt-4 text-xs text-[var(--mpa-color-text-secondary)]">
             {organizations.length} organization{organizations.length === 1 ? "" : "s"} available.
@@ -88,7 +96,7 @@ export function OrganizationFoundationPanel() {
         </p>
         <Link
           href="/settings/team"
-          className="mt-4 inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48]"
+          className={buttonClassName({ className: "mt-4" })}
         >
           Open Team invitations
         </Link>

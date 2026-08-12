@@ -7,7 +7,7 @@ import {
   buildFinanceFoundationTimeline,
   type FinanceTimelineItem
 } from "@mpa/shared";
-import { Badge, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
+import { buttonClassName, Badge, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { CollectionsDesk } from "./collections-desk";
 import { FinanceDesk } from "./finance-desk";
@@ -49,27 +49,21 @@ export function FinancialOperationsCommandCenter() {
           open reports without leaving this workspace.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <a
-            href="#collect"
-            className="inline-flex h-9 items-center rounded-md bg-[var(--mpa-color-brand-primary)] px-3 text-sm font-medium text-white hover:bg-[#0C5A48]"
-          >
+          <a href="#collect" className={buttonClassName()}>
             Collect rent
           </a>
-          <a
-            href="#vendor-invoices"
-            className="inline-flex h-9 items-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 text-sm font-medium"
-          >
+          <a href="#vendor-invoices" className={buttonClassName({ variant: "secondary" })}>
             Vendor invoices
           </a>
-          <a
-            href="#reports"
-            className="inline-flex h-9 items-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 text-sm font-medium"
-          >
+          <a href="#reports" className={buttonClassName({ variant: "secondary" })}>
             Snapshot & reports
           </a>
           <Link
             href="/shared/documents?entityType=vendor"
-            className="inline-flex h-9 items-center rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 text-sm font-medium text-[var(--mpa-color-brand-primary)]"
+            className={buttonClassName({
+              variant: "secondary",
+              className: "text-[var(--mpa-color-brand-primary)]"
+            })}
           >
             Invoice documents
           </Link>

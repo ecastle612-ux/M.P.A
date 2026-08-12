@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card } from "@mpa/ui";
+import { buttonClassName, Card } from "@mpa/ui";
 
 export default function NotFoundPage() {
   return (
@@ -12,16 +12,10 @@ export default function NotFoundPage() {
           The route you requested does not exist in the current portal foundation.
         </p>
         <div className="mt-4 flex gap-2">
-          <Link
-            href="/portal"
-            className="rounded-md bg-[var(--mpa-color-action-primary)] px-3 py-2 text-sm text-white"
-          >
+          <Link href="/portal" className={buttonClassName({ variant: "primary", size: "sm" })}>
             Portal home
           </Link>
-          <Link
-            href="/login"
-            className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 text-sm"
-          >
+          <Link href="/login" className={buttonClassName({ variant: "secondary", size: "sm" })}>
             Sign in
           </Link>
         </div>

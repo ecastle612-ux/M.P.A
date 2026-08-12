@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SKU_SUMMARIES, parseAcquisitionSku } from "@mpa/shared";
-import { Button, Card, Input } from "@mpa/ui";
+import { Alert, Button, Card, Input } from "@mpa/ui";
 import { createAuthClient } from "../../lib/auth/client";
 
 type AuthMode = "sign_in" | "sign_up";
@@ -270,22 +270,12 @@ export function LoginForm() {
           </div>
         ) : null}
         {error ? (
-          <p
-            className="rounded-md border border-[#C0392B]/40 bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]"
-            role="alert"
-            aria-live="assertive"
-          >
-            {error}
-          </p>
+          <Alert variant="danger" aria-live="assertive">{error}</Alert>
         ) : null}
         {notice ? (
-          <p
-            className="rounded-md border border-[#0F6B56]/30 bg-[#E6F4EF] px-3 py-2 text-sm text-[#0F6B56]"
-            role="status"
-            aria-live="polite"
-          >
+          <Alert variant="success" aria-live="polite">
             {notice}
-          </p>
+          </Alert>
         ) : null}
         <Button className="w-full" disabled={loading} aria-busy={loading} type="submit">
           {loading

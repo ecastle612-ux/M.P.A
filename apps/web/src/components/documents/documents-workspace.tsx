@@ -13,7 +13,7 @@ import {
   type DocumentRecord,
   type PdfExportTemplate
 } from "@mpa/shared";
-import { Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
+import { Alert, Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
 
 type Target = { id: string; label: string; propertyId?: string | null };
 
@@ -398,9 +398,7 @@ export function DocumentsWorkspace() {
       </section>
 
       {error ? (
-        <p className="rounded-xl border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
+<Alert variant="danger">{error}</Alert>
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">

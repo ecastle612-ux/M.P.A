@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@mpa/ui";
 
 export function EnforceGraceButton() {
   const [busy, setBusy] = useState(false);
@@ -22,14 +23,9 @@ export function EnforceGraceButton() {
 
   return (
     <div className="space-y-1">
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => void run()}
-        className="rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-1.5 text-xs font-semibold"
-      >
+      <Button type="button" variant="secondary" size="sm" disabled={busy} onClick={() => void run()}>
         {busy ? "Enforcing…" : "Enforce grace expirations"}
-      </button>
+      </Button>
       {message ? <p className="text-xs text-[var(--mpa-color-text-muted)]">{message}</p> : null}
     </div>
   );

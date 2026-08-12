@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Badge, Skeleton, TimelineView } from "@mpa/ui";
+import { buttonClassName, Alert, Badge, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ErrorRetry } from "../shell/error-retry";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
@@ -160,49 +160,56 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
       />
 
       {justCreated ? (
-        <section
+        <Alert
+          variant="success"
+          className="max-w-3xl"
+          title={data.readyMessage}
           aria-live="polite"
-          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
         >
-          <p className="text-base font-semibold text-emerald-900">{data.readyMessage}</p>
-          <p className="mt-1 text-sm text-emerald-800">
+          <p>
             {data.resident.displayName} is visible on the property, in the directory, search,
             timeline, and audit.
           </p>
-        </section>
+        </Alert>
       ) : null}
 
       {data.resident.portalStatus === "pending_activation" ? (
-        <section
+        <Alert
+          variant="warning"
+          className="max-w-3xl"
+          title="Resident Portal · Pending Activation"
           aria-label="Portal status"
-          className="max-w-3xl rounded-md border border-amber-200 bg-amber-50 p-4"
         >
-          <p className="text-sm font-semibold text-amber-900">Resident Portal · Pending Activation</p>
-          <p className="mt-1 text-sm text-amber-800">
+          <p>
             The portal is provisioned for this resident. Activation completes after the lease is
             signed.
           </p>
-        </section>
+        </Alert>
       ) : null}
 
       {data.resident.portalStatus === "active" ? (
-        <section
+        <Alert
+          variant="success"
+          className="max-w-3xl"
+          title="Resident Portal · Active"
           aria-label="Portal status"
-          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
+          {...(data.integrations.portal
+            ? {
+                action: (
+                  <Link
+                    href={data.integrations.portal}
+                    className="text-sm font-medium underline"
+                  >
+                    Open Resident Portal
+                  </Link>
+                )
+              }
+            : {})}
         >
-          <p className="text-sm font-semibold text-emerald-900">Resident Portal · Active</p>
-          <p className="mt-1 text-sm text-emerald-800">
+          <p>
             The resident can open the portal for welcome, lease, rent, maintenance, and documents.
           </p>
-          {data.integrations.portal ? (
-            <Link
-              href={data.integrations.portal}
-              className="mt-2 inline-flex text-sm font-medium text-emerald-900 underline"
-            >
-              Open Resident Portal
-            </Link>
-          ) : null}
-        </section>
+        </Alert>
       ) : null}
 
       <section
@@ -218,7 +225,7 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">{data.nextJourney.detail}</p>
         <Link
           href={data.nextJourney.href}
-          className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48]"
+          className={buttonClassName()}
         >
           {data.nextJourney.title}
         </Link>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Badge, Skeleton, TimelineView } from "@mpa/ui";
+import { buttonClassName, Alert, Badge, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ErrorRetry } from "../shell/error-retry";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
@@ -188,15 +188,14 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
       />
 
       {justCreated || data.property.status === "active" ? (
-        <section
+        <Alert
+          variant="success"
+          className="max-w-3xl"
+          title={data.readyMessage}
           aria-live="polite"
-          className="max-w-3xl rounded-md border border-emerald-200 bg-emerald-50 p-4"
         >
-          <p className="text-base font-semibold text-emerald-900">{data.readyMessage}</p>
-          <p className="mt-1 text-sm text-emerald-800">
-            {data.property.name} is active and visible across the platform.
-          </p>
-        </section>
+          <p>{data.property.name} is active and visible across the platform.</p>
+        </Alert>
       ) : null}
 
       <section
@@ -212,7 +211,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">{data.nextJourney.detail}</p>
         <Link
           href={data.nextJourney.href}
-          className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-medium text-white hover:bg-[#0C5A48]"
+          className={buttonClassName()}
         >
           {data.nextJourney.title}
         </Link>

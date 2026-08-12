@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Input, Skeleton } from "@mpa/ui";
+import { Alert, Button, Input, Skeleton } from "@mpa/ui";
 import {
   ACQUISITION_SKU_COOKIE,
   SKU_SUMMARIES,
@@ -289,20 +289,10 @@ export function GuidedSetupPage() {
       {(error || notice || hydrateError) && (
         <div className="max-w-3xl space-y-2">
           {error ? (
-            <p
-              className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
-              role="alert"
-            >
-              {error}
-            </p>
+            <Alert variant="danger">{error}</Alert>
           ) : null}
           {hydrateError ? (
-            <p
-              className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950"
-              role="status"
-            >
-              {hydrateError}
-            </p>
+            <Alert variant="warning">{hydrateError}</Alert>
           ) : null}
           {notice ? (
             <p

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Badge } from "@mpa/ui";
+import { Badge, buttonClassName } from "@mpa/ui";
 
 const linkFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
@@ -34,11 +34,11 @@ export function ResidentGlanceCard({
 }) {
   const edge =
     tone === "urgent"
-      ? "border-l-[#C0392B]"
+      ? "border-l-[var(--mpa-color-status-danger,#C0392B)]"
       : tone === "watch"
-        ? "border-l-[#B45309]"
+        ? "border-l-[var(--mpa-color-status-warning,#B45309)]"
         : tone === "ok"
-          ? "border-l-[#0E7A57]"
+          ? "border-l-[var(--mpa-color-status-success,#0E7A57)]"
           : "border-l-[var(--mpa-color-border-default)]";
 
   const inner = (
@@ -85,11 +85,13 @@ export function ResidentQuickActions({
         <Link
           key={action.href + action.label}
           href={action.href}
-          className={
-            action.primary
-              ? `inline-flex min-h-12 items-center justify-center rounded-xl bg-[var(--mpa-color-brand-primary)] px-4 text-base font-semibold text-white hover:bg-[#0C5A48] ${linkFocus}`
-              : `inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--mpa-color-border-default)] bg-white px-4 text-base font-medium text-[var(--mpa-color-text-primary)] hover:border-[var(--mpa-color-brand-primary)] ${linkFocus}`
-          }
+          className={buttonClassName({
+            variant: action.primary ? "primary" : "secondary",
+            size: "lg",
+            className: action.primary
+              ? "min-h-12 font-semibold"
+              : "min-h-12 hover:border-[var(--mpa-color-brand-primary)]"
+          })}
         >
           {action.label}
         </Link>

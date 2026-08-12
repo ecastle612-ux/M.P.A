@@ -7,7 +7,7 @@ import {
   type WorkOrderPriority,
   type WorkOrderStatus
 } from "@mpa/shared";
-import { Badge, Button, EmptyState, Skeleton, Textarea } from "@mpa/ui";
+import { Alert, Badge, Button, EmptyState, Skeleton, Textarea } from "@mpa/ui";
 import { ConfirmActionModal } from "../shell/confirm-action-modal";
 import { workOrderCompleteConfirmation } from "../../lib/ui/destructive-confirm-copy";
 import {
@@ -130,9 +130,7 @@ export function VendorMaintenancePortal() {
       </header>
 
       {error ? (
-        <p className="rounded-md border border-[#C0392B] bg-[#FCE8E6] px-3 py-2 text-sm text-[#C0392B]">
-          {error}
-        </p>
+<Alert variant="danger">{error}</Alert>
       ) : null}
 
       {entries.length === 0 ? (
