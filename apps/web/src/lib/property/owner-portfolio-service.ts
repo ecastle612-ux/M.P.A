@@ -35,6 +35,7 @@ export async function buildOwnerPortfolioHome(
         .from("maintenance_work_orders")
         .select("id, title, status, priority, property_id, assignee_type, vendor_vendors(name)")
         .eq("organization_id", organizationId)
+        .eq("work_surface", "residential")
         .in("status", ["submitted", "triaged", "assigned", "in_progress", "completed"])
         .order("submitted_at", { ascending: false })
         .limit(12),

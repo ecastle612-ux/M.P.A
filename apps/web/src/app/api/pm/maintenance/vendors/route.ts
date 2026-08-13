@@ -4,7 +4,7 @@ import { requireMaintenancePermission } from "../../../../../lib/maintenance/aut
 import { createVendorDirectory, listVendors } from "../../../../../lib/maintenance/maintenance-service";
 
 export async function GET() {
-  const authz = await requireMaintenancePermission("pm.maintenance:read");
+  const authz = await requireMaintenancePermission("pm.maintenance:read", "pm.vendors");
   if ("error" in authz) {
     return authz.error;
   }
@@ -20,7 +20,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const authz = await requireMaintenancePermission("pm.maintenance:assign");
+  const authz = await requireMaintenancePermission("pm.maintenance:assign", "pm.vendors");
   if ("error" in authz) {
     return authz.error;
   }
