@@ -11,6 +11,7 @@ import {
   SKU_SUMMARIES,
   acquisitionHref,
   confirmPlanCapacityLines,
+  formatUsdAmount,
   marketingModulesForSku,
   parseAcquisitionCycle,
   parseAcquisitionSku,
@@ -25,14 +26,6 @@ import {
   marketingPrimaryCtaClass,
   marketingSecondaryCtaClass
 } from "./marketing-chrome";
-
-function formatUsd(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0
-  }).format(amount);
-}
 
 /**
  * Confirm Plan — shows server quote (managed units / capacity / trial).
@@ -226,20 +219,25 @@ export function CheckoutPage({
               </div>
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Monthly</dt>
-                <dd className="font-semibold">{formatUsd(quote.monthly_amount)}</dd>
+                <dd className="font-semibold">{formatUsdAmount(quote.monthly_amount)}</dd>
               </div>
               <div>
                 <dt className="text-[var(--mpa-color-text-muted)]">Annual</dt>
-                <dd className="font-semibold">{formatUsd(quote.annual_amount)}</dd>
+                <dd className="font-semibold">{formatUsdAmount(quote.annual_amount)}</dd>
               </div>
               <div className="sm:col-span-2">
                 <dt className="text-[var(--mpa-color-text-muted)]">Selected amount</dt>
                 <dd className="font-display text-3xl font-semibold">
-                  {formatUsd(quote.selected_amount)}
+                  {formatUsdAmount(quote.selected_amount)}
                   <span className="ml-2 text-sm font-medium text-[var(--mpa-color-text-secondary)]">
                     / {billingCycle === "annual" ? "year" : "month"}
                   </span>
                 </dd>
+                {billingCycle === "annual" ? (
+                  <p className="mt-1 text-sm font-medium text-[var(--mpa-color-brand-primary)]">
+                    {PUBLIC_PRICING_MODEL_COPY.annualSavingsCopy}.
+                  </p>
+                ) : null}
               </div>
             </dl>
 

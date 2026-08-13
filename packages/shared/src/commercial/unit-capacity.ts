@@ -20,6 +20,7 @@ import {
   type UnitVolumeModule
 } from "./unit-volume";
 import { COMPLETE_READY, FO_READY } from "./commerce-flags";
+import { formatUsdAmount } from "./pricing-display";
 import type { ProductSku } from "./skus";
 
 export const UNIT_CAPACITY_STATUSES = [
@@ -187,7 +188,7 @@ export function recurringMonthlyUsd(input: {
   );
 }
 
-/** Selected recurring amount for the billing interval (FO annual uses $590 base Price). */
+/** Selected recurring amount for the billing interval (annual base is 20% prepaid). */
 export function recurringSelectedUsd(input: {
   module: UnitVolumeModule;
   additionalBlocks: number;
@@ -202,9 +203,9 @@ export function recurringSelectedUsd(input: {
 
 export function priceLabelUsd(amountMonthly: number, billingInterval: BillingCycle): string {
   if (billingInterval === "annual") {
-    return `$${amountMonthly * 12}/year`;
+    return `${formatUsdAmount(amountMonthly * 12)}/year`;
   }
-  return `$${amountMonthly}/month`;
+  return `${formatUsdAmount(amountMonthly)}/month`;
 }
 
 export function priceLabelForBlocks(input: {
@@ -213,20 +214,18 @@ export function priceLabelForBlocks(input: {
   billingInterval: BillingCycle;
 }): string {
   const amount = recurringSelectedUsd(input);
-  return input.billingInterval === "annual" ? `$${amount}/year` : `$${amount}/month`;
+  return input.billingInterval === "annual"
+    ? `${formatUsdAmount(amount)}/year`
+    : `${formatUsdAmount(amount)}/month`;
 }
 
 export function formatAdditionalCapacityCostLabel(
   monthlyUsd: number,
-  billingInterval: BillingCycle,
-  module?: UnitVolumeModule
+  billingInterval: BillingCycle
 ): string {
   if (billingInterval === "annual") {
-    // FO annual base is not monthly×12; block delta still is $39×12.
-    if (module === "mpa_facility_operations") {
-      return `+$${Math.max(0, Math.floor(monthlyUsd)) * 12}/year`;
-    }
-    return `+$${monthlyUsd * 12}/year`;
+    // Block annual remains monthly × 12 (no 20% discount on Additional Unit Capacity).
+    return `+$${Math.max(0, monthlyUsd) * 12}/year`;
   }
   return `+$${monthlyUsd}/month`;
 }
@@ -402,8 +401,7 @@ export function buildCapacityGatePresentation(
     }),
     additionalCapacityLabel: formatAdditionalCapacityCostLabel(
       delta,
-      snapshot.billingInterval,
-      snapshot.module
+      snapshot.billingInterval
     ),
     effectiveLabel: "Your new capacity will take effect with your next billing period.",
     ctaLabel: "Authorize Additional Capacity",

@@ -4,6 +4,7 @@ import {
   calculateUnitVolumeDisplay,
   cancelScheduledAccessCopy,
   formatPaidThroughDate,
+  formatUsdAmount,
   PUBLIC_PRICING_MODEL_COPY
 } from "./pricing-display";
 
@@ -14,7 +15,7 @@ describe("unit-volume pricing display (Slice 5)", () => {
       billingInterval: "monthly"
     });
     expect(at500.monthlyPriceUsd).toBe(59);
-    expect(at500.annualPriceUsd).toBe(708);
+    expect(at500.annualPriceUsd).toBe(566.4);
     expect(at500.trialEligible).toBe(true);
     expect(at500.trialHeadline).toBe("30 DAYS FREE");
     expect(at500.trialDetails.join(" ")).toMatch(/Payment card required/i);
@@ -25,7 +26,7 @@ describe("unit-volume pricing display (Slice 5)", () => {
       billingInterval: "monthly"
     });
     expect(at501.monthlyPriceUsd).toBe(98);
-    expect(at501.annualPriceUsd).toBe(1176);
+    expect(at501.annualPriceUsd).toBe(1034.4);
     expect(at501.trialEligible).toBe(false);
     expect(at501.trialHeadline).toBeNull();
     expect(at501.capacityHeadline).toMatch(/Additional Unit Capacity/i);
@@ -38,17 +39,17 @@ describe("unit-volume pricing display (Slice 5)", () => {
     ).toBe(137);
     expect(
       calculateUnitVolumeDisplay({ managedUnits: 1001, billingInterval: "annual" }).selectedAmount
-    ).toBe(1644);
+    ).toBe(1502.4);
   });
 
-  it("calculates FO examples with approved annual base Price", () => {
+  it("calculates FO examples with 20% annual base Price", () => {
     const at500 = calculateUnitVolumeDisplay({
       module: "mpa_facility_operations",
       managedUnits: 500,
       billingInterval: "monthly"
     });
     expect(at500.monthlyPriceUsd).toBe(59);
-    expect(at500.annualPriceUsd).toBe(590);
+    expect(at500.annualPriceUsd).toBe(566.4);
     expect(at500.trialEligible).toBe(true);
 
     const at501 = calculateUnitVolumeDisplay({
@@ -57,8 +58,8 @@ describe("unit-volume pricing display (Slice 5)", () => {
       billingInterval: "annual"
     });
     expect(at501.monthlyPriceUsd).toBe(98);
-    expect(at501.annualPriceUsd).toBe(1058);
-    expect(at501.selectedAmount).toBe(1058);
+    expect(at501.annualPriceUsd).toBe(1034.4);
+    expect(at501.selectedAmount).toBe(1034.4);
     expect(at501.trialEligible).toBe(false);
 
     expect(
@@ -67,7 +68,7 @@ describe("unit-volume pricing display (Slice 5)", () => {
         managedUnits: 1001,
         billingInterval: "annual"
       }).selectedAmount
-    ).toBe(1526);
+    ).toBe(1502.4);
   });
 
   it("calculates Complete examples 500/501/1000/1001 monthly and annual", () => {
@@ -77,7 +78,7 @@ describe("unit-volume pricing display (Slice 5)", () => {
       billingInterval: "monthly"
     });
     expect(at500.monthlyPriceUsd).toBe(109);
-    expect(at500.annualPriceUsd).toBe(1308);
+    expect(at500.annualPriceUsd).toBe(1046.4);
     expect(at500.trialEligible).toBe(true);
 
     expect(
@@ -93,23 +94,31 @@ describe("unit-volume pricing display (Slice 5)", () => {
         managedUnits: 1000,
         billingInterval: "annual"
       }).selectedAmount
-    ).toBe(1776);
+    ).toBe(1514.4);
     expect(
       calculateUnitVolumeDisplay({
         module: "mpa_complete_platform",
         managedUnits: 1001,
         billingInterval: "annual"
       }).selectedAmount
-    ).toBe(2244);
+    ).toBe(1982.4);
+  });
+
+  it("formats whole dollars without cents and prepaid annual with cents", () => {
+    expect(formatUsdAmount(59)).toBe("$59");
+    expect(formatUsdAmount(566.4)).toBe("$566.40");
+    expect(formatUsdAmount(1046.4)).toBe("$1,046.40");
   });
 
   it("documents public model copy without legacy tiers", () => {
     expect(PUBLIC_PRICING_MODEL_COPY.pmBaseMonthly).toBe(59);
     expect(PUBLIC_PRICING_MODEL_COPY.completeBaseMonthly).toBe(109);
-    expect(PUBLIC_PRICING_MODEL_COPY.completeHeadlineAnnual).toBe("$1,308/year");
-    expect(PUBLIC_PRICING_MODEL_COPY.pmHeadlineAnnual).toBe("$708/year");
+    expect(PUBLIC_PRICING_MODEL_COPY.completeHeadlineAnnual).toBe("$1,046.40/year");
+    expect(PUBLIC_PRICING_MODEL_COPY.pmHeadlineAnnual).toBe("$566.40/year");
     expect(PUBLIC_PRICING_MODEL_COPY.foMonthly).toBe(59);
-    expect(PUBLIC_PRICING_MODEL_COPY.foAnnual).toBe(590);
+    expect(PUBLIC_PRICING_MODEL_COPY.foAnnual).toBe(566.4);
+    expect(PUBLIC_PRICING_MODEL_COPY.annualSavingsCopy).toBe("Save 20% with annual billing");
+    expect(PUBLIC_PRICING_MODEL_COPY.annualNote).toMatch(/Save 20% with annual billing/);
     expect(PUBLIC_PRICING_MODEL_COPY.additionalBlockMonthly).toBe(39);
     expect(PUBLIC_PRICING_MODEL_COPY.pmHeadline).not.toMatch(/99|249|Professional|Business/);
     expect(PUBLIC_PRICING_MODEL_COPY.unitDefinition).toMatch(/1 managed unit/i);

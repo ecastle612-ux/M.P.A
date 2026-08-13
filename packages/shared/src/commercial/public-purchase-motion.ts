@@ -32,7 +32,7 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
       ctaLabel: "Get started with Property Manager",
       availabilityLabel: "Available",
       explanation:
-        "$59/month includes up to 500 managed units. Additional Unit Capacity is +$39/month or +$468/year per additional 500 units. Annual = monthly × 12."
+        "$59/month or $566.40/year includes up to 500 managed units. Save 20% with annual billing. Additional Unit Capacity is +$39/month or +$468/year per additional 500 units."
     };
   }
 
@@ -43,7 +43,7 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
         ctaLabel: "Get started with Facility Operations",
         availabilityLabel: "Available",
         explanation:
-          "$59/month or $590/year includes up to 500 managed units. Additional Unit Capacity is +$39/month or +$468/year per additional 500 units."
+          "$59/month or $566.40/year includes up to 500 managed units. Save 20% with annual billing. Additional Unit Capacity is +$39/month or +$468/year per additional 500 units."
       };
     }
     return {
@@ -51,7 +51,7 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
       ctaLabel: "Request Early Access",
       availabilityLabel: "Not online · gated",
       explanation:
-        "Facility Operations is not available for online purchase yet ($59/month or $590/year when online). Request Early Access to talk with our team."
+        "Facility Operations is not available for online purchase yet ($59/month or $566.40/year when online). Request Early Access to talk with our team."
     };
   }
 
@@ -61,7 +61,7 @@ export function publicPurchaseMotionForSku(sku: ProductSku): PublicPurchaseMotio
       ctaLabel: "Get started with Complete Platform",
       availabilityLabel: "Available",
       explanation:
-        "$109/month or $1,308/year includes up to 500 managed units. Additional Unit Capacity is +$39/month or +$468/year per additional 500 units. Annual = monthly × 12."
+        "$109/month or $1,046.40/year includes up to 500 managed units. Save 20% with annual billing. Additional Unit Capacity is +$39/month or +$468/year per additional 500 units."
     };
   }
 

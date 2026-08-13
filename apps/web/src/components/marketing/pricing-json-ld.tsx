@@ -1,7 +1,9 @@
 import {
+  COMPLETE_BASE_ANNUAL_USD,
   COMPLETE_BASE_MONTHLY_USD,
   FO_ANNUAL_USD,
   FO_MONTHLY_USD,
+  PM_BASE_ANNUAL_USD,
   PM_BASE_MONTHLY_USD,
   UNIT_BLOCK_SIZE
 } from "@mpa/shared";
@@ -25,7 +27,7 @@ export function PricingJsonLd() {
           price: String(PM_BASE_MONTHLY_USD),
           priceCurrency: "USD",
           availability: "https://schema.org/InStock",
-          description: `From $${PM_BASE_MONTHLY_USD}/month`
+          description: `From $${PM_BASE_MONTHLY_USD}/month or $${PM_BASE_ANNUAL_USD.toFixed(2)}/year. Save 20% with annual billing.`
         }
       },
       {
@@ -37,7 +39,7 @@ export function PricingJsonLd() {
           price: String(FO_MONTHLY_USD),
           priceCurrency: "USD",
           availability: "https://schema.org/InStock",
-          description: `$${FO_MONTHLY_USD}/month or $${FO_ANNUAL_USD}/year`
+          description: `$${FO_MONTHLY_USD}/month or $${FO_ANNUAL_USD.toFixed(2)}/year. Save 20% with annual billing.`
         }
       },
       {
@@ -49,7 +51,7 @@ export function PricingJsonLd() {
           price: String(COMPLETE_BASE_MONTHLY_USD),
           priceCurrency: "USD",
           availability: "https://schema.org/InStock",
-          description: `From $${COMPLETE_BASE_MONTHLY_USD}/month or $${COMPLETE_BASE_MONTHLY_USD * 12}/year`
+          description: `From $${COMPLETE_BASE_MONTHLY_USD}/month or $${COMPLETE_BASE_ANNUAL_USD.toFixed(2)}/year. Save 20% with annual billing.`
         }
       }
     ]

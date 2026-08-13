@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   BILLING_CYCLES,
-  FO_ANNUAL_USD,
   PRODUCT_SKUS,
   PUBLIC_PRICING_MODEL_COPY,
   SKU_SUMMARIES,
@@ -426,7 +425,7 @@ function PlatformPriceCard({
           </p>
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
             {billingCycle === "annual"
-              ? "Annual = monthly × 12 (example: $59 → $708/year at 500 units)."
+              ? `${PUBLIC_PRICING_MODEL_COPY.annualSavingsCopy} (example: $59 → ${PUBLIC_PRICING_MODEL_COPY.pmHeadlineAnnual} at 500 units).`
               : "Use the calculator below for your managed-unit total."}
           </p>
         </div>
@@ -447,7 +446,7 @@ function PlatformPriceCard({
           </p>
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
             {billingCycle === "annual"
-              ? `Base annual is $${FO_ANNUAL_USD}. Additional Unit Capacity annual = +$468 per 500 units.`
+              ? `${PUBLIC_PRICING_MODEL_COPY.annualSavingsCopy}. Base annual is ${PUBLIC_PRICING_MODEL_COPY.foHeadlineAnnual}. Additional Unit Capacity annual = +$468 per 500 units.`
               : "Use the calculator below for your managed-unit total."}
           </p>
         </div>
@@ -468,7 +467,7 @@ function PlatformPriceCard({
           </p>
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
             {billingCycle === "annual"
-              ? "Annual = monthly × 12 (example: $109 → $1,308/year at 500 units)."
+              ? `${PUBLIC_PRICING_MODEL_COPY.annualSavingsCopy} (example: $109 → ${PUBLIC_PRICING_MODEL_COPY.completeHeadlineAnnual} at 500 units).`
               : "Use Get Started to confirm your managed-unit plan."}
           </p>
         </div>
