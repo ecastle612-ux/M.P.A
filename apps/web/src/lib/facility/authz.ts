@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import {
-  entitlementsForSku,
-  hasEntitlement,
-  isProductSku,
-  type EntitlementKey,
-  type PermissionCapability
-} from "@mpa/shared";
+import { hasEntitlement, type EntitlementKey, type PermissionCapability } from "@mpa/shared";
 import { createAuthServerClient } from "../auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../auth/authorization";
+import { getOrganizationCommercialState } from "../commercial/server";
 import { getActiveOrganizationIdFromCookie } from "../organization/server";
 
 /**
@@ -54,24 +49,8 @@ export async function requireFacilityOperation(
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
 
-  const { data: subscription } = await supabase
-    .from("organization_subscriptions")
-    .select("sku_code, status")
-    .eq("organization_id", orgId)
-    .maybeSingle();
-
-  const sku =
-    subscription &&
-    isProductSku(subscription.sku_code) &&
-    subscription.status !== "canceled"
-      ? subscription.sku_code
-      : null;
-
-  const granted = sku
-    ? entitlementsForSku(sku)
-    : (["platform.org", "platform.guided_setup", "platform.billing_self", "platform.launcher"] as const);
-
-  if (!hasEntitlement(granted, facilityEntitlement)) {
+  const commercial = await getOrganizationCommercialState(orgId);
+  if (!hasEntitlement(commercial.entitlements, facilityEntitlement)) {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
 

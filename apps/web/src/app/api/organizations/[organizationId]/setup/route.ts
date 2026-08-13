@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
+import { activateComplimentaryGrantForOrganization } from "../../../../../lib/admin/complimentary-grants";
 
 type RouteContext = {
   params: Promise<{ organizationId: string }>;
@@ -83,6 +84,15 @@ export async function PUT(request: Request, context: RouteContext) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  // ADM-001: Guided Setup completion activates INVITED → ACTIVE complimentary grant.
+  // Do not skip setup — activation only runs when complete === true.
+  if (payload.complete === true) {
+    await activateComplimentaryGrantForOrganization({
+      organizationId,
+      actorUserId: user.id
+    }).catch(() => undefined);
   }
 
   return NextResponse.json({ setup: data });

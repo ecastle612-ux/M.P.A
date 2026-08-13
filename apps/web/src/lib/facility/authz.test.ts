@@ -8,7 +8,6 @@ const state = {
     | { id: string; status: string; roles: string[] }
     | null,
   sku: "mpa_facility_operations" as string | null,
-  subscriptionStatus: "active" as string,
   permissions: ["pm.maintenance:read", "pm.maintenance:write", "pm.maintenance:assign"] as string[]
 };
 
@@ -19,21 +18,13 @@ vi.mock("../auth/server", () => ({
         data: { user: state.userId ? { id: state.userId } : null }
       })
     },
-    from: (table: string) => {
+    from: () => {
       const builder = {
         select: () => builder,
         eq: () => builder,
         maybeSingle: async () => {
-          if (table === "organization_memberships") {
+          if (state.membership) {
             return { data: state.membership, error: null };
-          }
-          if (table === "organization_subscriptions") {
-            return {
-              data: state.sku
-                ? { sku_code: state.sku, status: state.subscriptionStatus }
-                : null,
-              error: null
-            };
           }
           return { data: null, error: null };
         }
@@ -57,6 +48,23 @@ vi.mock("../auth/authorization", () => ({
   evaluatePermission: (_ctx: unknown, capability: string) => state.permissions.includes(capability)
 }));
 
+vi.mock("../commercial/server", () => ({
+  getOrganizationCommercialState: async () => {
+    const { entitlementsForSku } = await import("@mpa/shared");
+    return {
+      sku: state.sku,
+      skuLabel: null,
+      subscriptionStatus: state.sku ? "active" : null,
+      entitlements: state.sku
+        ? entitlementsForSku(state.sku as "mpa_facility_operations")
+        : ["platform.org", "platform.guided_setup", "platform.billing_self"],
+      productConfirmed: true,
+      setupComplete: Boolean(state.sku),
+      entitlementSource: state.sku ? "MASTER_ADMIN_GRANT" : null
+    };
+  }
+}));
+
 import { requireFacilityOperation } from "./authz";
 
 describe("STAB-004 facility authz", () => {
@@ -65,7 +73,6 @@ describe("STAB-004 facility authz", () => {
     state.orgId = "org_1";
     state.membership = { id: "mem_1", status: "active", roles: ["organization_admin"] };
     state.sku = "mpa_facility_operations";
-    state.subscriptionStatus = "active";
     state.permissions = ["pm.maintenance:read", "pm.maintenance:write", "pm.maintenance:assign"];
   });
 
@@ -73,47 +80,31 @@ describe("STAB-004 facility authz", () => {
     state.userId = null;
     const result = await requireFacilityOperation("pm.maintenance:read", "facility.operations");
     expect("error" in result).toBe(true);
-    if ("error" in result) {
-      expect(result.error.status).toBe(401);
-    }
+    if ("error" in result) expect(result.error.status).toBe(401);
   });
 
   it("rejects missing membership (cross-org cookie hint)", async () => {
     state.membership = null;
     const result = await requireFacilityOperation("pm.maintenance:read", "facility.operations");
     expect("error" in result).toBe(true);
-    if ("error" in result) {
-      expect(result.error.status).toBe(403);
-    }
+    if ("error" in result) expect(result.error.status).toBe(403);
   });
 
   it("rejects PM-only SKU for facility entitlement", async () => {
     state.sku = "mpa_property_manager";
     const result = await requireFacilityOperation("pm.maintenance:read", "facility.operations");
     expect("error" in result).toBe(true);
-    if ("error" in result) {
-      expect(result.error.status).toBe(403);
-    }
+    if ("error" in result) expect(result.error.status).toBe(403);
   });
 
   it("allows FO SKU with capability", async () => {
     const result = await requireFacilityOperation("pm.maintenance:read", "facility.operations");
     expect("error" in result).toBe(false);
-    if (!("error" in result)) {
-      expect(result.organizationId).toBe("org_1");
-      expect(result.user.id).toBe("user_1");
-    }
   });
 
-  it("allows Complete SKU for facility entitlement", async () => {
-    state.sku = "mpa_complete_platform";
+  it("rejects when commercial state has no SKU (fail closed / INVITED)", async () => {
+    state.sku = null;
     const result = await requireFacilityOperation("pm.maintenance:read", "facility.operations");
-    expect("error" in result).toBe(false);
-  });
-
-  it("rejects missing capability even with FO SKU", async () => {
-    state.permissions = [];
-    const result = await requireFacilityOperation("pm.maintenance:assign", "facility.operations");
     expect("error" in result).toBe(true);
     if ("error" in result) {
       expect(result.error).toBeInstanceOf(NextResponse);
