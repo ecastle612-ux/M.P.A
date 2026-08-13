@@ -11,6 +11,8 @@
   font-display: swap;
 }
 
+/* Body/mono faces: IBM Plex via next/font/local (src/fonts/ibm-plex) — no Google Fonts fetch. */
+
 :root {
   --mpa-font-display: Satoshi, var(--font-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
   --mpa-font-sans: var(--font-plex-sans), "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
