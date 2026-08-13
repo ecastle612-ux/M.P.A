@@ -89,6 +89,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 76 | [Complete Plan Validation Remediation](./76-complete-plan-validation-remediation/index.md) | MEDIA-001 + API/surface isolation · **READY FOR COMPLETE PLAN CUSTOMER TESTING** · no deploy |
 | 77 | [Complete Plan Production Certification Readiness](./77-complete-plan-production-certification-readiness/index.md) | RC validation · prior **BLOCKED** (merge/Preview) · no deploy |
 | 78 | [Vercel Preview Font Remediation](./78-vercel-preview-font-remediation/index.md) | Self-host IBM Plex · **READY** · Preview green · no Production deploy |
+| 79 | [Final Release Certification Readiness](./79-final-release-certification-readiness/index.md) | Combined RC · **BLOCKED** (#175/#177 not on main) · no Production deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
