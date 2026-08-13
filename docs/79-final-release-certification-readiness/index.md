@@ -21,7 +21,7 @@
 | Field | Value |
 |-------|--------|
 | Branch | `cursor/final-release-certification-01f2` |
-| Combined tip | `e0e458a` (+ this certification commit) |
+| Combined tip | `d5b017b59092d1b931a44a47a3f5f19cc996284c` (`d5b017b`) |
 | Composition | `main` + PR #175 tip `de920f6` + PR #177 tip `5c55187` (resolved docs index) |
 
 | Included PR / commit | Content |
@@ -111,12 +111,13 @@ Prior certs: `docs/76` (remediation READY for customer testing), `docs/77` (prod
 | PR #177 Vercel Preview | **SUCCESS** |
 | PR #175 CI `verify` | **SUCCESS** |
 | PR #175 Vercel Preview | **FAIL** (pre-font-fix tip — superseded by #177 / combined RC) |
-| Combined RC CI / Preview | See PR for this certification branch |
+| Combined RC CI `verify` (PR #178) | **SUCCESS** — run `31744509229` |
+| Combined RC Vercel Preview (PR #178) | **SUCCESS** — `H6Ht4bQgHPcpsibiNDEyx5r7NCc2` |
 
 Failures / warnings:
 
-- **Merge gate:** #175 and #177 not on `main`.  
-- PR #175 Preview remains red on its historical tip; font fix lives on #177 / combined RC.
+- **Merge gate:** #175 and #177 not on `main` (blocking production approval).  
+- PR #175 Preview remains red on its historical tip; font fix lives on #177 / combined RC (Preview green).
 
 ---
 
