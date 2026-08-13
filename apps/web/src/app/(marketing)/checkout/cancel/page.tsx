@@ -8,6 +8,7 @@ import {
 } from "@mpa/shared";
 import { CheckoutCancelPage } from "../../../../components/marketing/checkout-cancel-page";
 import { createAuthServerClient } from "../../../../lib/auth/server";
+import { acquisitionStateTokenFromCookies } from "../../../../lib/commerce/acquisition-quote-cookie";
 import { getAcquisitionByQuoteId } from "../../../../lib/commerce/acquisition-session-store";
 
 export const metadata: Metadata = {
@@ -33,7 +34,9 @@ export default async function Page({
   } | null = null;
 
   if (quoteId) {
-    const record = getAcquisitionByQuoteId(quoteId);
+    const record = await getAcquisitionByQuoteId(quoteId, {
+      stateToken: await acquisitionStateTokenFromCookies()
+    });
     if (record && isProductSku(record.quote.module) && isBillingCycle(record.quote.billing_interval)) {
       quoteContext = {
         productSku: record.quote.module,

@@ -12,7 +12,7 @@ import {
   rememberAcquisitionRecord
 } from "../commerce/acquisition-session-store";
 
-function storeQuote(input: {
+async function storeQuote(input: {
   operationalNeed: "property_resident_leasing" | "facility_maintenance" | "both";
   managedUnits: number;
   billingInterval?: "monthly" | "annual";
@@ -27,18 +27,18 @@ function storeQuote(input: {
   }
   const quote = buildCommercialQuote({ answers: validated.answers });
   const snapshot = createAcquisitionSnapshot(quote);
-  rememberAcquisitionRecord({ quote, snapshot, answers: validated.answers });
+  await rememberAcquisitionRecord({ quote, snapshot, answers: validated.answers });
   return { quote, snapshot };
 }
 
 describe("checkout cancel recovery (unit-volume quote)", () => {
-  it("rebuilds FO Confirm Plan retry from stored quote id", () => {
+  it("rebuilds FO Confirm Plan retry from stored quote id", async () => {
     clearAcquisitionSessionStoreForTests();
-    const { quote, snapshot } = storeQuote({
+    const { quote, snapshot } = await storeQuote({
       operationalNeed: "facility_maintenance",
       managedUnits: 500
     });
-    const record = getAcquisitionByQuoteId(quote.quote_id);
+    const record = await getAcquisitionByQuoteId(quote.quote_id);
     expect(record).not.toBeNull();
     const recovery = resolveCheckoutCancelRecovery({
       quote: {
@@ -56,9 +56,9 @@ describe("checkout cancel recovery (unit-volume quote)", () => {
     expect(recovery.pricingHref).toBe("/pricing?intent=mpa_facility_operations");
   });
 
-  it("rebuilds Complete Confirm Plan retry from stored quote id", () => {
+  it("rebuilds Complete Confirm Plan retry from stored quote id", async () => {
     clearAcquisitionSessionStoreForTests();
-    const { quote, snapshot } = storeQuote({
+    const { quote, snapshot } = await storeQuote({
       operationalNeed: "both",
       managedUnits: 1000,
       billingInterval: "annual"
@@ -79,9 +79,9 @@ describe("checkout cancel recovery (unit-volume quote)", () => {
     expect(recovery.retryHref).not.toContain("mpa_property_manager");
   });
 
-  it("rebuilds PM Confirm Plan retry from stored quote id", () => {
+  it("rebuilds PM Confirm Plan retry from stored quote id", async () => {
     clearAcquisitionSessionStoreForTests();
-    const { quote, snapshot } = storeQuote({
+    const { quote, snapshot } = await storeQuote({
       operationalNeed: "property_resident_leasing",
       managedUnits: 500
     });
