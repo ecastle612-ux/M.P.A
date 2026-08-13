@@ -148,6 +148,7 @@ export function FacilityMissionControlPage() {
       <FoQuickActions
         actions={[
           { href: "/facility/operations", label: "Open operations", primary: true },
+          { href: "/facility/vendors", label: "Vendors" },
           { href: "/facility/assets", label: "Buildings" },
           { href: "/shared/documents", label: "Documents" },
           { href: "/shared/communications", label: "Communications" },
@@ -156,8 +157,7 @@ export function FacilityMissionControlPage() {
                 {
                   href: "/pm/maintenance",
                   label: isComplete ? "Property maintenance" : "PM Maintenance"
-                },
-                { href: "/pm/vendors", label: "Vendors" }
+                }
               ]
             : []),
           ...(isComplete

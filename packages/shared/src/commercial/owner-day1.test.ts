@@ -39,12 +39,18 @@ describe("owner Day-1 activation model", () => {
     expect(checklist.items.map((item) => item.id)).toEqual([
       "fo_building",
       "fo_invite",
+      "fo_vendors",
       "fo_work_order",
       "fo_assign",
       "fo_complete"
     ]);
     expect(checklist.items[0]?.href).toBe("/facility/assets");
-    expect(checklist.items[2]?.href).toBe("/facility/operations");
+    expect(checklist.items.find((item) => item.id === "fo_vendors")?.href).toBe(
+      "/facility/vendors"
+    );
+    expect(checklist.items.find((item) => item.id === "fo_work_order")?.href).toBe(
+      "/facility/operations"
+    );
   });
 
   it("builds Complete checklist balancing property and facility workspaces", () => {

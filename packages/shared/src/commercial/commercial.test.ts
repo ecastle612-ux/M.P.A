@@ -31,8 +31,17 @@ describe("commercial subscription model", () => {
     const entitlements = entitlementsForSku("mpa_facility_operations");
     expect(hasEntitlement(entitlements, "facility.mission_control")).toBe(true);
     expect(hasEntitlement(entitlements, "facility.assets")).toBe(true);
+    expect(hasEntitlement(entitlements, "facility.operations")).toBe(true);
     expect(hasEntitlement(entitlements, "pm.leasing")).toBe(false);
+    expect(hasEntitlement(entitlements, "pm.vendors")).toBe(false);
     expect(hasEntitlement(entitlements, "facility.capital_projects")).toBe(false);
+    expect(
+      evaluatePathEntitlement({ pathname: "/facility/vendors", sku: "mpa_facility_operations" })
+        .allowed
+    ).toBe(true);
+    expect(
+      evaluatePathEntitlement({ pathname: "/pm/vendors", sku: "mpa_facility_operations" }).allowed
+    ).toBe(false);
   });
 
   it("Complete Platform is the union of both products", () => {
@@ -103,6 +112,7 @@ describe("navigation and launcher awareness", () => {
     expect(fo?.items.map((item) => item.href)).toEqual([
       "/facility/mission-control",
       "/facility/operations",
+      "/facility/vendors",
       "/facility/assets",
       "/facility/preventive-maintenance",
       "/facility/inspections",
@@ -112,6 +122,9 @@ describe("navigation and launcher awareness", () => {
       "/facility/parts",
       "/facility/building-systems"
     ]);
+    expect(fo?.items.find((item) => item.href === "/facility/vendors")?.entitlement).toBe(
+      "facility.operations"
+    );
     expect(fo?.items.every((item) => item.readiness === "aligned")).toBe(true);
     expect(fo?.items[0]?.label).toBe("Mission Control");
     expect(

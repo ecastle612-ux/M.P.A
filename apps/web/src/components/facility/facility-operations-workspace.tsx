@@ -852,20 +852,41 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                             ))}
                           </Select>
                         ) : (
-                          <Select
-                            value={vendorId}
-                            onChange={(event) => setVendorId(event.target.value)}
-                            required
-                          >
-                            <option value="">Select vendor</option>
-                            {vendors.map((vendor) => (
-                              <option key={vendor.id} value={vendor.id}>
-                                {vendor.name}
-                              </option>
-                            ))}
-                          </Select>
+                          <>
+                            <Select
+                              value={vendorId}
+                              onChange={(event) => setVendorId(event.target.value)}
+                              required
+                            >
+                              <option value="">Select vendor</option>
+                              {vendors.map((vendor) => (
+                                <option key={vendor.id} value={vendor.id}>
+                                  {vendor.name}
+                                </option>
+                              ))}
+                            </Select>
+                            {vendors.length === 0 ? (
+                              <p
+                                className="text-xs text-[var(--mpa-color-text-secondary)]"
+                                data-testid="fo-assign-empty-vendors"
+                              >
+                                No facility vendors yet.{" "}
+                                <Link
+                                  href="/facility/vendors"
+                                  className="font-medium text-[var(--mpa-color-brand-primary)] underline"
+                                >
+                                  Add a vendor
+                                </Link>{" "}
+                                first, then assign this work order.
+                              </p>
+                            ) : null}
+                          </>
                         )}
-                        <Button type="submit" className="min-h-11" disabled={busy}>
+                        <Button
+                          type="submit"
+                          className="min-h-11"
+                          disabled={busy || (assigneeType === "vendor" && vendors.length === 0)}
+                        >
                           Assign
                         </Button>
                       </form>
