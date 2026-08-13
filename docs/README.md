@@ -90,6 +90,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 77 | [Complete Plan Production Certification Readiness](./77-complete-plan-production-certification-readiness/index.md) | RC validation · prior **BLOCKED** (merge/Preview) · no deploy |
 | 78 | [Vercel Preview Font Remediation](./78-vercel-preview-font-remediation/index.md) | Self-host IBM Plex · **READY** · Preview green · no Production deploy |
 | 79 | [Final Release Certification Readiness](./79-final-release-certification-readiness/index.md) | Combined RC · **BLOCKED** (#175/#177 not on main) · no Production deploy |
+| 84 | [Authenticated Production User Acceptance Test](./84-authenticated-production-user-acceptance-test/index.md) | **BLOCKED** — UAT org **M.P.A. UAT Clinic Demo** + FO/PM provisioned; logins OK; FO ops blocked by missing prod FO schema (no DDL applied) |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
