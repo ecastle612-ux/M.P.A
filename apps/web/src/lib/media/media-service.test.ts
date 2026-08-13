@@ -8,13 +8,13 @@ const db = {
 
 function makeClient() {
   return {
-    from: (_table: string) => {
+    from: () => {
       let rows = [...db.rows];
       let patch: Row | null = null;
       let insertPayload: Row | null = null;
 
       const api = {
-        select: (_cols?: string) => api,
+        select: () => api,
         insert: (payload: Row) => {
           insertPayload = { ...payload, deleted_at: null };
           return api;
