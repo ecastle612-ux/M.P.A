@@ -91,7 +91,7 @@ export function FacilityAssetsWorkspace() {
     <FoPageChrome
       crumbs={[
         { href: "/facility/mission-control", label: "Facility Mission Control" },
-        { label: "Assets" }
+        { label: "Buildings & Sites" }
       ]}
       eyebrow="Facility Operations"
       title="Buildings & assets"

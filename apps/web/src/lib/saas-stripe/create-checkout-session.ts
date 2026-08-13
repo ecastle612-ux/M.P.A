@@ -1,7 +1,9 @@
 import type Stripe from "stripe";
 import {
   buildUnitVolumeCheckoutMetadata,
+  legacyOfferCheckoutCancelPath,
   resolveCheckoutLineItems,
+  unitVolumeCheckoutCancelPath,
   validateQuoteForCheckout,
   type CommercialQuote,
   type SaasCheckoutRequest,
@@ -151,7 +153,7 @@ export async function createUnitVolumeCheckoutSession(
         quantity: item.quantity
       })),
       success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/checkout/cancel?quote=${encodeURIComponent(plan.quoteId)}`,
+      cancel_url: `${appUrl}${unitVolumeCheckoutCancelPath(plan.quoteId)}`,
       client_reference_id: plan.quoteId,
       ...(email ? { customer_email: email } : {}),
       allow_promotion_codes: true,
