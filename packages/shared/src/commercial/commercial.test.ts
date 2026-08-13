@@ -89,14 +89,16 @@ describe("navigation and launcher awareness", () => {
     const groups = navigationGroupsForSku("mpa_complete_platform");
     expect(groups.some((group) => group.id === "property_manager")).toBe(true);
     expect(groups.some((group) => group.id === "facility_operations")).toBe(true);
-    expect(groups.find((group) => group.id === "home")?.title).toBe("Complete");
+    expect(groups.find((group) => group.id === "home")?.title).toBe("Complete Platform");
     expect(groups.find((group) => group.id === "property_manager")?.title).toBe(
       "Property Operations"
     );
     expect(groups.find((group) => group.id === "facility_operations")?.title).toBe(
       "Facility Operations"
     );
-    expect(groups.find((group) => group.id === "shared")?.title).toBe("Shared");
+    expect(groups.find((group) => group.id === "shared")?.title).toBe(
+      "Shared across capabilities"
+    );
     const fo = groups.find((group) => group.id === "facility_operations");
     expect(fo?.items.map((item) => item.href)).toEqual([
       "/facility/mission-control",

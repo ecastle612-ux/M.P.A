@@ -204,7 +204,7 @@ export function DemoSurfaceView({
     }
     if (surface === "preventive") {
       return (
-        <Panel title="Preventive Maintenance" description="Scheduled PM tasks.">
+        <Panel title="Preventive Work" description="Preventive work tracking.">
           <CardList
             items={fo.preventiveTasks.map((task) => ({
               id: task.id,
@@ -218,7 +218,10 @@ export function DemoSurfaceView({
     }
     if (surface === "inventory" || surface === "parts") {
       return (
-        <Panel title={surface === "parts" ? "Parts" : "Inventory"} description="Stock positions (synthetic).">
+        <Panel
+          title={surface === "parts" ? "Parts Work" : "Inventory Work"}
+          description="Inventory work tracking (synthetic)."
+        >
           <CardList
             items={fo.inventory.map((row) => ({
               id: row.id,
@@ -232,7 +235,7 @@ export function DemoSurfaceView({
     }
     if (surface === "inspections") {
       return (
-        <Panel title="Inspections" description="Inspection schedule.">
+        <Panel title="Inspection Work" description="Inspection workflows.">
           <CardList
             items={fo.inspections.map((row) => ({
               id: row.id,

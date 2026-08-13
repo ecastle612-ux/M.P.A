@@ -116,8 +116,8 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
           Start here
         </h1>
         <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-          {view.labels.productTagline} Review today&apos;s priorities, then open the workspace that
-          owns the work — two workspaces, one commercial product.
+          {view.labels.productTagline} Review today&apos;s priorities, then open the operational
+          capability that owns the work.
         </p>
       </section>
 
@@ -147,10 +147,13 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
         </section>
       ) : null}
 
-      <section aria-label="Workspaces" className="max-w-4xl space-y-3">
+      <section aria-label="Operational capabilities" className="max-w-4xl space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          Workspaces
+          Operational capabilities
         </h2>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          Same Complete Platform organization — switch capability, not product.
+        </p>
         <ul className="grid gap-3 md:grid-cols-2">
           {view.handoffs.map((handoff) => (
             <li key={handoff.id}>
@@ -177,7 +180,8 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
             Today
           </h2>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            The most important current work from Property Operations and Facility Operations.
+            The most important current work across your organization&apos;s property and facility
+            capabilities.
           </p>
         </div>
 

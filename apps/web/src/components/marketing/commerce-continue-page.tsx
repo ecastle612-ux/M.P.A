@@ -5,6 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  isProductSku,
+  postPurchaseReadyCopy,
+  productDisplayLabel,
+  type ProductSku
+} from "@mpa/shared";
+import {
   MarketingChrome,
   marketingNarrowMainClass,
   marketingPrimaryCtaClass,
@@ -19,6 +25,7 @@ type StatusPayload = {
   maskedOwnerEmail?: string | null;
   organizationPrepared?: boolean;
   hasTemporaryIssue?: boolean;
+  productSku?: ProductSku | string | null;
   steps: Array<{ id: number; done?: boolean; current?: boolean; label?: string }>;
   nextPath: string | null;
 };
@@ -36,14 +43,17 @@ const CUSTOMER_STEP_LABELS: Record<number, string> = {
   9: "Ready for Guided Setup"
 };
 
-function customerPhase(checkpoint: string | undefined): { title: string; detail: string } {
+function customerPhase(
+  checkpoint: string | undefined,
+  productSku: ProductSku | null
+): { title: string; detail: string } {
   switch (checkpoint) {
     case "ready":
     case "welcome_sent":
     case "owner_bound":
       return {
         title: "Workspace ready",
-        detail: "Your organization is set up. Continue to Guided Setup, then Mission Control."
+        detail: postPurchaseReadyCopy(productSku)
       };
     case "owner_pending":
     case "entitled":
@@ -184,7 +194,9 @@ export function CommerceContinuePage({
     status?.checkpoint === "entitled" ||
     status?.checkpoint === "org_created";
 
-  const phase = customerPhase(status?.checkpoint);
+  const statusSku =
+    status?.productSku && isProductSku(status.productSku) ? status.productSku : null;
+  const phase = customerPhase(status?.checkpoint, statusSku);
   const doneCount = status?.steps.filter((step) => step.done).length ?? 0;
   const totalSteps = status?.steps.length ?? 0;
   const currentStep = useMemo(
@@ -233,13 +245,14 @@ export function CommerceContinuePage({
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
             After purchase
+            {statusSku ? ` · ${productDisplayLabel(statusSku)}` : ""}
           </p>
           <h1 className="font-display text-3xl font-semibold">
             {status?.ready || status?.canAccessModules ? "Workspace ready" : phase.title}
           </h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             {status?.ready || status?.canAccessModules
-              ? "Your organization is provisioned. Next: Guided Setup, then Mission Control."
+              ? postPurchaseReadyCopy(statusSku)
               : phase.detail}
           </p>
         </header>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   SKU_SUMMARIES,
+  postPurchaseDestinationLabel,
   toBillingCycleLabel,
   type BillingCycle,
   type ProductSku
@@ -124,8 +125,8 @@ export function CheckoutSuccessPage({
             </Link>
           </div>
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
-            Next: set password with your purchase email → claim organization → Guided Setup → Mission
-            Control.
+            Next: set password with your purchase email → claim organization → Guided Setup →{" "}
+            {postPurchaseDestinationLabel(status?.productSku ?? null)}.
           </p>
         </div>
       </main>

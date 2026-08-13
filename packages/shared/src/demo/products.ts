@@ -36,10 +36,10 @@ export function toDemoProductLabel(product: DemoProductId): string {
 
 export function demoHonestyBanner(product: DemoProductId): string | null {
   if (product === "mpa_facility_operations") {
-    return "Demonstration of Facility product areas — operational depth expands with Enterprise / FO readiness.";
+    return "Synthetic Facility Operations demonstration — work-order style surfaces only; not a live customer workspace.";
   }
   if (product === "mpa_complete_platform") {
-    return "Complete Platform demo — Facility areas show product shape; Property Manager areas are fully interactive.";
+    return "Complete Platform demo — one organization with property and facility workspaces; Facility areas show product shape; Property Manager areas are fully interactive.";
   }
   return null;
 }

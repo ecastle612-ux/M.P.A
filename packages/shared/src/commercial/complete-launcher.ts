@@ -46,7 +46,7 @@ export function completeWorkspaceLabels() {
   return {
     productEyebrow: "Complete Platform",
     productTagline:
-      "Manage property operations and facility operations from one organization.",
+      "One organization. Two operational capabilities — property operations and facility operations — not two separate apps.",
     propertyOperations: "Property Operations",
     facilityOperations: "Facility Operations",
     propertyHome: "Property Operations",
@@ -67,16 +67,16 @@ export function navigationGroupTitleForSku(
   sku: ProductSku | null
 ): string | null {
   if (groupId === "home") {
-    return sku === "mpa_complete_platform" ? "Complete" : "Home";
+    return sku === "mpa_complete_platform" ? "Complete Platform" : "Home";
   }
   if (groupId === "property_manager") {
     return sku === "mpa_complete_platform" ? "Property Operations" : "Property Manager";
   }
   if (groupId === "facility_operations") {
-    return "Facility Operations";
+    return sku === "mpa_complete_platform" ? "Facility Operations" : "Facility Operations";
   }
   if (groupId === "shared") {
-    return sku === "mpa_complete_platform" ? "Shared" : "Shared Platform";
+    return sku === "mpa_complete_platform" ? "Shared across capabilities" : "Shared Platform";
   }
   return null;
 }
@@ -227,9 +227,9 @@ export function buildCompleteWorkspaceHandoffs(sku: ProductSku): CompleteLaunche
   if (skuIncludesPropertyManager(sku)) {
     handoffs.push({
       id: "property_operations",
-      title: labels.propertyOperations,
+      title: labels.propertyHome,
       summary:
-        "Portfolio attention home — properties, residents, leasing, residential maintenance, and vendors.",
+        "One Complete Platform capability — properties, residents, leasing, residential maintenance, and vendors.",
       href: labels.propertyHomeHref,
       cta: "Open Property Operations"
     });
@@ -237,9 +237,9 @@ export function buildCompleteWorkspaceHandoffs(sku: ProductSku): CompleteLaunche
   if (skuIncludesFacilityOperations(sku)) {
     handoffs.push({
       id: "facility_operations",
-      title: labels.facilityOperations,
+      title: labels.facilityHome,
       summary:
-        "Facility attention home — buildings, work orders, preventive maintenance, inspections, and systems.",
+        "One Complete Platform capability — buildings, work orders, and facility execution — not a separate product.",
       href: labels.facilityHomeHref,
       cta: "Open Facility Operations"
     });

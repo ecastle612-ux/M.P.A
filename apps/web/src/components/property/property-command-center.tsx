@@ -148,7 +148,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
     <main className="flex-1 space-y-6 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
       <Breadcrumbs
         items={[
-          { href: "/pm/mission-control", label: "Mission Control" },
+          { href: "/pm/mission-control", label: "Property Manager Mission Control" },
           { href: "/pm/properties", label: "Properties" },
           { label: data.property.name }
         ]}
@@ -170,6 +170,14 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
           {data.property.unitCount} units · {data.property.unitsAvailable} available ·{" "}
           {data.property.unitsOccupied} occupied · {data.property.residentsAssigned} residents
           assigned ({data.property.unitsAssigned} units)
+        </p>
+        <p
+          className="text-sm text-[var(--mpa-color-text-secondary)]"
+          data-testid="property-units-guidance"
+        >
+          {data.property.unitCount > 0
+            ? "Your units were created with this property. Adjust them here, then continue to residents and leasing."
+            : "Add units to begin resident and leasing workflows."}
         </p>
         <PmQuickActions
           actions={[

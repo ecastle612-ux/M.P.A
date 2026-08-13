@@ -78,11 +78,17 @@ export function PropertiesDirectory() {
 
   const empty = !loading && !error && properties.length === 0;
   const showWizard = manualOpen || ((startWithWizard || empty) && !wizardDismissed);
+  const propertiesWithUnits = properties.filter(
+    (property) => (property.property_units?.length ?? 0) > 0
+  ).length;
+  const propertiesWithoutUnits = properties.filter(
+    (property) => (property.property_units?.length ?? 0) === 0
+  ).length;
 
   return (
     <PmPageChrome
       crumbs={[
-        { href: "/pm/mission-control", label: "Mission Control" },
+        { href: "/pm/mission-control", label: "Property Manager Mission Control" },
         { label: "Properties" }
       ]}
       eyebrow={isComplete ? "Property Operations · Portfolio" : "Property Manager · Portfolio"}
@@ -106,7 +112,7 @@ export function PropertiesDirectory() {
     >
       <PmQuickActions
         actions={[
-          { href: "/pm/mission-control", label: "Mission Control" },
+          { href: "/pm/mission-control", label: "Property Manager Mission Control" },
           { href: "/pm/maintenance", label: "Maintenance" },
           { href: documentsHref("property"), label: "Property documents" },
           ...(isComplete
@@ -119,6 +125,19 @@ export function PropertiesDirectory() {
         <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
           Complete tip: add buildings once here as properties. Facility Operations uses the same
           records under Assets — you do not need a separate portfolio.
+        </p>
+      ) : null}
+
+      {!loading && !error && properties.length > 0 ? (
+        <p
+          className="rounded-md border border-[var(--mpa-color-brand-primary)]/30 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]"
+          data-testid="pm-units-day1-guidance"
+        >
+          {propertiesWithUnits > 0
+            ? "Your units were created with this property. Open a property to review units, then add residents and leasing."
+            : propertiesWithoutUnits > 0
+              ? "Add units to begin resident and leasing workflows. Create or reopen a property and set how many units it has."
+              : "Open a property to confirm units before residents and leasing."}
         </p>
       ) : null}
 

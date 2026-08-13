@@ -40,12 +40,12 @@ export function defaultHomeForSku(sku: ProductSku | null): string {
 export function productWorkspaceHomeLabel(productSku: ProductSku): string {
   switch (productSku) {
     case "mpa_facility_operations":
-      return "Facility Mission Control";
+      return "Facility Operations Mission Control";
     case "mpa_complete_platform":
-      return "Workspace Launcher";
+      return "Complete Platform Launcher";
     case "mpa_property_manager":
     default:
-      return "Mission Control";
+      return "Property Manager Mission Control";
   }
 }
 
@@ -62,7 +62,7 @@ export function guidedSetupNextActionCopy(productSku: ProductSku): string {
     case "mpa_facility_operations":
       return "add your first building in Assets (or create facility work in Operations)";
     case "mpa_complete_platform":
-      return "open Mission Control from the Launcher and add your first property";
+      return "open the Complete Platform Launcher and add your first property";
     case "mpa_property_manager":
     default:
       return "add your first property";

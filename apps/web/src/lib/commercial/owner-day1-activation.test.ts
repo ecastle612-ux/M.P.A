@@ -39,7 +39,7 @@ describe("Owner Day-1 activation polish (web wiring)", () => {
     const launcher = read("components/commercial/workspace-launcher.tsx");
     expect(launcher).toMatch(/OwnerDay1ChecklistCard/);
     expect(launcher).toMatch(/ownerDay1ChecklistForSku\("mpa_complete_platform"\)/);
-    expect(launcher).toMatch(/one commercial product/);
+    expect(launcher).toMatch(/Operational capabilities|one organization/i);
     const checklist = ownerDay1ChecklistForSku("mpa_complete_platform");
     expect(checklist.intro).toMatch(/one organization/i);
     expect(checklist.items.some((item) => item.href === "/pm/mission-control")).toBe(true);
@@ -69,7 +69,7 @@ describe("Owner Day-1 activation polish (web wiring)", () => {
 
   it("shows invite role descriptions without changing role labels or inventing roles", () => {
     const invite = read("components/team/team-invite-panel.tsx");
-    expect(invite).toMatch(/toRoleDescription/);
+    expect(invite).toMatch(/toInviteRoleDescription|toRoleDescription/);
     expect(invite).toMatch(/invite-role-description/);
     expect(toRoleLabel("organization_admin")).toBe("Organization Admin");
     expect(toRoleDescription("organization_admin")).toMatch(/Full organization management/i);
