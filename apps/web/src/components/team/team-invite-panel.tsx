@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import {
   LAUNCH_INVITE_ROLES,
   isUserRole,
+  toRoleDescription,
   toRoleLabel,
   type LaunchInviteRole
 } from "@mpa/shared";
@@ -213,6 +214,12 @@ export function TeamInvitePanel() {
                 </option>
               ))}
             </Select>
+            <p
+              className="text-xs text-[var(--mpa-color-text-secondary)]"
+              data-testid="invite-role-description"
+            >
+              {toRoleDescription(role)}
+            </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" disabled={loading || email.trim().length < 3}>

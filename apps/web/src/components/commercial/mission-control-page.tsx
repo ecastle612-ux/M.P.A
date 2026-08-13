@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { formatMoney } from "@mpa/shared";
+import { formatMoney, ownerDay1ChecklistForSku } from "@mpa/shared";
 import { resolveWorkOrderPriorityVariant, buttonClassName, Button, Alert, Badge, EmptyState, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { useOrganizationContext } from "../shell/organization-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { OwnerDay1ChecklistCard } from "./owner-day1-checklist";
 
 type NextAction = {
   id: string;
@@ -310,11 +311,18 @@ export function MissionControlPage() {
             Congratulations. Your organization is now operational.
           </p>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Guided Setup is complete. Begin with one clear task: add your first property. After that,
-            Mission Control will guide inviting your team, residents, leasing, and daily operations —
-            using the same workflows you already have.
+            Guided Setup is complete. You are the Organization Admin for this Property Manager
+            organization. Begin with one clear task: add your first property. After that, Mission
+            Control will guide inviting your team, residents, leasing, and daily operations.
           </p>
         </section>
+      ) : null}
+
+      {isFirstRun ? (
+        <OwnerDay1ChecklistCard
+          checklist={ownerDay1ChecklistForSku("mpa_property_manager")}
+          showOwnerClarity
+        />
       ) : null}
 
       {error ? (
@@ -451,13 +459,6 @@ export function MissionControlPage() {
             {nextAction.title}
           </h2>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">{nextAction.detail}</p>
-          {isFirstRun ? (
-            <ol className="list-decimal space-y-1 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
-              <li>Add your first property (name and units are enough to start).</li>
-              <li>Invite teammates when you are ready.</li>
-              <li>Add residents and create leases from Mission Control guidance.</li>
-            </ol>
-          ) : null}
           <Link
             href={nextAction.href}
             className={buttonClassName()}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ownerDay1ChecklistForSku } from "@mpa/shared";
 import {
   FoCapabilityCard,
   FoDocumentsStrip,
@@ -20,6 +21,7 @@ import {
 } from "../../lib/facility/mission-control-presentation";
 import type { FacilityMissionControlSnapshot } from "../../lib/maintenance/maintenance-service";
 import { ErrorRetry } from "../shell/error-retry";
+import { OwnerDay1ChecklistCard } from "../commercial/owner-day1-checklist";
 
 const CAPABILITIES = [
   {
@@ -118,6 +120,12 @@ export function FacilityMissionControlPage() {
     hasSnapshot: Boolean(snapshot)
   });
   const glanceMetrics = snapshot ? facilityMissionControlGlanceMetrics(snapshot) : [];
+  const isFirstRun =
+    view === "ready" &&
+    Boolean(snapshot) &&
+    (snapshot?.open ?? 0) === 0 &&
+    (snapshot?.emergency ?? 0) === 0 &&
+    (snapshot?.overdue ?? 0) === 0;
 
   return (
     <FoPageChrome
@@ -125,9 +133,17 @@ export function FacilityMissionControlPage() {
         { href: "/launcher", label: "Launcher" },
         { label: "Facility Mission Control" }
       ]}
-      eyebrow="Facility Operations · Attention home"
+      eyebrow={
+        isFirstRun
+          ? "Facility Operations · Getting started"
+          : "Facility Operations · Attention home"
+      }
       title="Facility Mission Control"
-      description="Today’s facility work, emergencies, overdue items, and waiting assignments — then act from Operations."
+      description={
+        isFirstRun
+          ? "Your attention home after Guided Setup — activate your facility operation with one clear Day-1 path."
+          : "Today’s facility work, emergencies, overdue items, and waiting assignments — then act from Operations."
+      }
     >
       <FoQuickActions
         actions={[
@@ -174,6 +190,33 @@ export function FacilityMissionControlPage() {
         />
       ) : null}
 
+      {isFirstRun ? (
+        <section
+          aria-label="Welcome"
+          className="space-y-2 rounded-md border border-[var(--mpa-color-brand-primary)]/30 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] p-5"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+            Welcome
+          </p>
+          <p className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
+            Congratulations. Your facility organization is ready.
+          </p>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            You are the Organization Admin. Start with a building or site, invite technicians, then
+            create and complete your first facility work order.
+          </p>
+        </section>
+      ) : null}
+
+      {isFirstRun ? (
+        <OwnerDay1ChecklistCard
+          checklist={ownerDay1ChecklistForSku(
+            isComplete ? "mpa_complete_platform" : "mpa_facility_operations"
+          )}
+          showOwnerClarity={!isComplete}
+        />
+      ) : null}
+
       {view === "ready" && snapshot ? (
         <section aria-label="At a glance" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {glanceMetrics.map((metric) => (
@@ -202,9 +245,15 @@ export function FacilityMissionControlPage() {
               ? "Clear overdue facility work first."
               : snapshot?.open
                 ? "Work the open facility queue — assign, start, and complete."
-                : "Create facility work from Operations, or add a building in Assets."}
+                : "Add a building in Assets, then create your first work order in Operations."}
         </p>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
+          <li>
+            <Link href="/facility/assets" className="text-[var(--mpa-color-brand-primary)] underline">
+              Buildings &amp; Sites
+            </Link>{" "}
+            — add the place facility work will reference.
+          </li>
           <li>
             <Link href="/facility/operations" className="text-[var(--mpa-color-brand-primary)] underline">
               Facility Operations
@@ -212,11 +261,10 @@ export function FacilityMissionControlPage() {
             — create → assign → start → progress → complete / cancel.
           </li>
           <li>
-            Vendors progress assigned facility work in the{" "}
-            <Link href="/portal/vendor" className="text-[var(--mpa-color-brand-primary)] underline">
-              vendor portal
-            </Link>
-            .
+            <Link href="/settings/team" className="text-[var(--mpa-color-brand-primary)] underline">
+              Team
+            </Link>{" "}
+            — invite Maintenance Technicians to execute work.
           </li>
           {isComplete ? (
             <li>

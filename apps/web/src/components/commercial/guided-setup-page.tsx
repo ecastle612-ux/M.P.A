@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Alert, Button, Input, Skeleton } from "@mpa/ui";
 import {
   ACQUISITION_SKU_COOKIE,
+  ORGANIZATION_ADMIN_CLARITY,
   SKU_SUMMARIES,
   guidedSetupNextActionCopy,
   parseAcquisitionSku,
@@ -284,6 +285,39 @@ export function GuidedSetupPage() {
             Setup already completed for this organization. You can open {homeLabel} anytime.
           </p>
         ) : null}
+      </section>
+
+      <section
+        className="max-w-3xl space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+        data-testid="guided-setup-owner-clarity"
+        aria-label="Organization Admin role"
+      >
+        <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+          {ORGANIZATION_ADMIN_CLARITY.headline}
+        </p>
+        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+          {ORGANIZATION_ADMIN_CLARITY.summary}
+        </p>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+            You manage
+          </p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
+            {ORGANIZATION_ADMIN_CLARITY.manages.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+            You are not
+          </p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
+            {ORGANIZATION_ADMIN_CLARITY.notThese.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       {(error || notice || hydrateError) && (

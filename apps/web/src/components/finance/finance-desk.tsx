@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { formatMoney } from "@mpa/shared";
+import { formatMoney, ownerEmptyStateCopy } from "@mpa/shared";
 import { Alert, Badge, Button, EmptyState, Input, Select } from "@mpa/ui";
 
 type Lease = {
@@ -413,8 +413,16 @@ export function FinanceDesk() {
 
         {!selectedLeaseId ? (
           <EmptyState
-            title="Select a resident lease"
-            description="Create a property and lease, then post rent or one-time charges."
+            title={
+              leases.length === 0
+                ? ownerEmptyStateCopy("finance").title
+                : "Select a resident lease"
+            }
+            description={
+              leases.length === 0
+                ? ownerEmptyStateCopy("finance").description
+                : "Create a property and lease, then post rent or one-time charges."
+            }
           />
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">

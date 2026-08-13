@@ -45,7 +45,8 @@ export type FoLauncherBrief = {
 export function completeWorkspaceLabels() {
   return {
     productEyebrow: "Complete Platform",
-    productTagline: "Your property and facility operation, together.",
+    productTagline:
+      "Manage property operations and facility operations from one organization.",
     propertyOperations: "Property Operations",
     facilityOperations: "Facility Operations",
     propertyHome: "Property Operations",

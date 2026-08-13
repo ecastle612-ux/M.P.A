@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   WORK_ORDER_PRIORITY_LABELS,
   WORK_ORDER_STATUS_LABELS,
+  ownerEmptyStateCopy,
   type WorkOrderPriority,
   type WorkOrderStatus
 } from "@mpa/shared";
@@ -336,8 +337,8 @@ export function MaintenanceCommandCenter() {
           </div>
           {workOrders.length === 0 ? (
             <EmptyState
-              title="No maintenance requests yet"
-              description="When a resident submits a request, it appears here automatically."
+              title={ownerEmptyStateCopy("maintenance").title}
+              description={ownerEmptyStateCopy("maintenance").description}
             />
           ) : filteredQueue.length === 0 ? (
             <EmptyState title="No matching requests" description="Try a different search." />

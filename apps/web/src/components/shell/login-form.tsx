@@ -193,10 +193,22 @@ export function LoginForm() {
               : "Verify your email, then sign in to create your organization."}
       </p>
       {commerceNext ? (
-        <p className="mt-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          Next: set password → claim workspace → Guided Setup → Mission Control. Your organization is
-          prepared automatically from checkout.
-        </p>
+        <div
+          className="mt-3 space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]"
+          data-testid="claim-owner-clarity"
+        >
+          <p>
+            Next: set password → claim workspace → Guided Setup → Mission Control. Your organization
+            is prepared automatically from checkout.
+          </p>
+          <p>
+            <span className="font-semibold text-[var(--mpa-color-text-primary)]">
+              You become the Organization Admin
+            </span>{" "}
+            — you manage properties/sites, team access, operational setup, and workflows. You are not
+            a resident, vendor technician, or employee-only user.
+          </p>
+        </div>
       ) : null}
       {selectedPlanLabel && mode === "sign_up" && !commerceNext ? (
         <p className="mt-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">

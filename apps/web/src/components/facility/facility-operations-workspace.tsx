@@ -7,6 +7,7 @@ import {
   WORK_ORDER_CATEGORY_LABELS,
   WORK_ORDER_PRIORITY_LABELS,
   WORK_ORDER_STATUS_LABELS,
+  ownerEmptyStateCopy,
   type WorkOrderCategory,
   type WorkOrderPriority,
   type WorkOrderStatus
@@ -548,8 +549,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
           </div>
           {workOrders.length === 0 ? (
             <EmptyState
-              title="No facility work yet"
-              description="Create the first facility work order above."
+              title={ownerEmptyStateCopy("fo_operations").title}
+              description={ownerEmptyStateCopy("fo_operations").description}
             />
           ) : filteredQueue.length === 0 ? (
             <EmptyState title="No matching work" description="Try a different search." />

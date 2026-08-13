@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { completeWorkspaceLabels } from "@mpa/shared";
+import { completeWorkspaceLabels, ownerEmptyStateCopy } from "@mpa/shared";
 import { Alert, Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { ErrorRetry } from "../shell/error-retry";
@@ -207,8 +207,8 @@ export function FacilityAssetsWorkspace() {
         <h2 className="text-sm font-semibold">Buildings</h2>
         {buildings.length === 0 ? (
           <EmptyState
-            title="No buildings yet"
-            description="Add a building to create facility work against it."
+            title={ownerEmptyStateCopy("fo_assets").title}
+            description={ownerEmptyStateCopy("fo_assets").description}
           />
         ) : (
           <ul className="grid gap-3 md:grid-cols-2">

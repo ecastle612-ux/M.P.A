@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Badge, Button, EmptyState, Skeleton } from "@mpa/ui";
-import { RESIDENT_STATUS_LABELS, type ResidentStatus } from "@mpa/shared";
+import { RESIDENT_STATUS_LABELS, ownerEmptyStateCopy, type ResidentStatus } from "@mpa/shared";
 import { ResidentCreateWizard } from "./resident-create-wizard";
 import {
   PmDirectoryToolbar,
@@ -95,7 +95,11 @@ export function ResidentsDirectory() {
       ]}
       eyebrow="Property Manager · People"
       title="Residents"
-      description="Resident directory with portal status. Open a resident for lease context, communications, and files."
+      description={
+        empty
+          ? ownerEmptyStateCopy("residents").description
+          : "Resident directory with portal status. Open a resident for lease context, communications, and files."
+      }
       actions={
         <Button
           type="button"
