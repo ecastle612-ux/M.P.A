@@ -54,7 +54,7 @@ describe("FO vendor workflow completion", () => {
     ).toBe(false);
   });
 
-  it("preserves PM vendor create schema (name/email/phone) for regression", () => {
+  it("preserves PM vendor create schema and pm.vendors entitlement gate", () => {
     const parsed = createVendorDirectoryInputSchema.parse({
       name: "Acme HVAC",
       email: "dispatch@acme.example",
@@ -62,7 +62,9 @@ describe("FO vendor workflow completion", () => {
     });
     expect(parsed.name).toBe("Acme HVAC");
     expect(parsed.email).toBe("dispatch@acme.example");
-    expect(read("app/api/pm/maintenance/vendors/route.ts")).toMatch(/createVendorDirectory/);
+    const pmVendorsRoute = read("app/api/pm/maintenance/vendors/route.ts");
+    expect(pmVendorsRoute).toMatch(/createVendorDirectory/);
+    expect(pmVendorsRoute).toMatch(/pm\.vendors/);
     expect(read("components/commercial/vendors-directory.tsx")).toMatch(/\/api\/pm\/maintenance\/vendors/);
   });
 

@@ -33,6 +33,7 @@ import {
   resolveCancelNote,
   resolveProgressNote
 } from "../../lib/facility/field-work-order-presentation";
+import { MediaAttachmentField } from "../media/media-attachment-field";
 
 type WorkOrder = {
   id: string;
@@ -165,6 +166,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [createUnitId, setCreateUnitId] = useState("");
   const [createAssetLabel, setCreateAssetLabel] = useState("");
   const [createDueAt, setCreateDueAt] = useState("");
+  const [pendingMediaIds, setPendingMediaIds] = useState<string[]>([]);
 
   const selected = useMemo(
     () => workOrders.find((row) => row.id === selectedId) ?? null,
@@ -401,13 +403,30 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             if (!response.ok) {
               throw new Error(body.error ?? "Failed to create work");
             }
+            const workOrderId = body.workOrder.id as string;
+            if (pendingMediaIds.length > 0) {
+              const attachResponse = await fetch("/api/shared/media", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  mediaIds: pendingMediaIds,
+                  relatedEntityType: "maintenance",
+                  relatedEntityId: workOrderId
+                })
+              });
+              const attachBody = await attachResponse.json();
+              if (!attachResponse.ok) {
+                throw new Error(attachBody.error ?? "Work created but media attach failed");
+              }
+            }
             setCreateTitle("");
             setCreateDescription("");
             setCreateAssetLabel("");
             setCreateDueAt("");
-            setSelectedId(body.workOrder.id as string);
+            setPendingMediaIds([]);
+            setSelectedId(workOrderId);
             setNotice("Facility work created.");
-            await refresh(body.workOrder.id as string);
+            await refresh(workOrderId);
           });
         }}
       >
@@ -437,8 +456,15 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             required
             minLength={3}
             rows={3}
+            placeholder="Chair broken in Clinic Room 204"
           />
         </label>
+        <MediaAttachmentField
+          relatedEntityType="maintenance"
+          value={pendingMediaIds}
+          onChange={setPendingMediaIds}
+          label="Issue photos & video"
+        />
         <label className="space-y-1 text-xs">
           <span className="font-medium">Building</span>
           <Select
@@ -635,6 +661,13 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                     {selected.description}
                   </p>
                 </div>
+                <MediaAttachmentField
+                  key={selected.id}
+                  relatedEntityType="maintenance"
+                  relatedEntityId={selected.id}
+                  readOnly
+                  label="Issue evidence"
+                />
                 <dl className="grid gap-2 sm:grid-cols-2">
                   {detailScanLines.map((line) => (
                     <div

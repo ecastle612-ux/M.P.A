@@ -84,6 +84,10 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 56 | [Phase 4 Document Intelligence](./56-phase-4-document-intelligence/index.md) | Sprint 6 Document Intelligence Center · LIVE |
 | 57 | [Phase 4 Reporting & Analytics](./57-phase-4-reporting-analytics/index.md) | Sprint 7 Reporting & Analytics Center · implementing |
 | 58 | [V1 Capital Projects CF cleanup](./58-v1-capital-projects-cf-cleanup/index.md) | Capital CF removed + Background Screening Planned messaging · Owner LIVE accepted (PR #99) |
+| 73 | [MEDIA-001 Universal Media Attachment](./73-media-001-universal-media-attachment/index.md) | **Approved** · Universal media framework (ADR-023) |
+| 74 | [MEDIA-001 Implementation Certification](./74-media-001-implementation-certification/index.md) | Phase 1 foundation + FO work orders · no Production deploy |
+| 76 | [Complete Plan Validation Remediation](./76-complete-plan-validation-remediation/index.md) | MEDIA-001 + API/surface isolation · **READY FOR COMPLETE PLAN CUSTOMER TESTING** · no deploy |
+| 77 | [Complete Plan Production Certification Readiness](./77-complete-plan-production-certification-readiness/index.md) | RC `de920f6` · **BLOCKED** (PR #175 not merged; Vercel Preview fail) · no deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
