@@ -1,140 +1,120 @@
 # POST MERGE INTEGRATION VALIDATION
 
 **Status:** **BLOCKED**  
+**Gate:** Final post-merge validation (third pass)  
 **Date:** 2026-08-13  
-**Re-run:** 2026-08-13 (second pass after claimed merges)  
 **Main SHA validated:** `4e46338d781a96d782268cf668c0961092efd0c8`  
 **Production:** NO DEPLOYMENT  
 
 ---
 
-## Merge scope
+## Merge evidence
 
-Intended post-merge scope (claimed merged by Owner; verified against GitHub + `origin/main`):
+Claimed state: PRs #162, #163, #164 “have now been merged.”  
+Observed state against GitHub API + `origin/main` (fresh fetch):
 
-| PR | Intended content | GitHub state at re-run |
-|----|------------------|------------------------|
-| [#162](https://github.com/ecastle612-ux/M.P.A/pull/162) | Annual Billing Discount | **OPEN** — `mergedAt: null`, not an ancestor of `main` |
-| [#163](https://github.com/ecastle612-ux/M.P.A/pull/163) | FO Vendor Workflow Completion | **OPEN** (draft) — `mergedAt: null`, not an ancestor of `main` |
-| [#164](https://github.com/ecastle612-ux/M.P.A/pull/164) | Post Review Merge Readiness Certification | **OPEN** (draft) — `mergedAt: null`, not an ancestor of `main` |
+| PR | Title | State | Draft | `mergedAt` | Merge commit | Ancestor of `main` |
+|----|-------|-------|-------|------------|--------------|--------------------|
+| [#162](https://github.com/ecastle612-ux/M.P.A/pull/162) | Annual Billing Discount | **OPEN** | false | `null` | `null` | **NO** |
+| [#163](https://github.com/ecastle612-ux/M.P.A/pull/163) | FO Vendor Workflow Completion | **OPEN** | **true** | `null` | `null` | **NO** |
+| [#164](https://github.com/ecastle612-ux/M.P.A/pull/164) | Post Review Merge Readiness Certification | **OPEN** | **true** | `null` | `null` | **NO** |
 
-`main` tip remains Wave D merge:
+### Branch / main status
 
-`4e46338` — *Merge pull request #160 … customer-activation-polish-wave-d*
+| Ref | SHA | Notes |
+|-----|-----|-------|
+| `origin/main` tip | `4e46338d781a96d782268cf668c0961092efd0c8` | Still *Merge pull request #160* (Wave D). **0** commits since that tip. |
+| #162 head | `39601244599483a9bab89af64ec42bda5f184275` | Remote branch present; CI green; `MERGEABLE` / `CLEAN` |
+| #163 head | `077e97dc7f09b9d47686f479fd176e0763e68eed` | Remote branch present; CI green; **still draft** |
+| #164 head | `89bb5d523ca15a176277f244982a51fd5b58dfff` | Remote branch present; CI green; **still draft** |
 
-No merge commits for #162 / #163 / #164 exist on `origin/main`.
+No `Merge pull request #162|#163|#164` commits exist in `main` history.
 
----
+### Exact blockers
 
-## Exact blockers
+1. **PR #162 not merged** (open, ready/non-draft, but never merged).  
+2. **PR #163 not merged** (still **draft** + open).  
+3. **PR #164 not merged** (still **draft** + open).
 
-1. **PR #162 is not merged into `main`.** Annual discount application code and `docs/71` are absent.
-2. **PR #163 is not merged into `main`.** `/facility/vendors` page, API, and entitlements are absent.
-3. **PR #164 is not merged into `main`.** Pre-merge readiness record is absent from `main`.
-
-**Required action:** Complete the GitHub merges of #162 and #163 (mark ready / merge; #164 optional docs), then re-run this validation.
-
-Branch tips (present remotely, not on `main`):
-
-| PR | Head SHA |
-|----|----------|
-| #162 | `39601244599483a9bab89af64ec42bda5f184275` |
-| #163 | `077e97dc7f09b9d47686f479fd176e0763e68eed` |
-| #164 | `89bb5d523ca15a176277f244982a51fd5b58dfff` |
+**Owner action required:** Mark #163/#164 ready for review if desired, then **Merge** #162 and #163 into `main` on GitHub. This agent cannot merge (GitHub CLI write/merge disabled; no merge action available). Then re-run this gate.
 
 ---
 
-## PR #162 verification (against current `main`)
+## PR #162 — Annual Billing verification (on `main`)
 
-| Check | Result | Evidence on `main` |
-|-------|--------|--------------------|
-| Annual pricing constants updated (`ANNUAL_PREPAID_MULTIPLIER`, `56640` / `104640`) | **FAIL** | `unit-volume.ts` still has pre-discount `FO_ANNUAL_USD = 590`; no `PM_BASE_ANNUAL_CENTS` |
-| Monthly pricing unchanged | **PASS** (baseline) | Pre-merge monthly bases still $59 / $59 / $109 on `main` |
-| Annual = monthly × 12 × 0.80 | **FAIL** | Discount formula not on `main` (exists only on #162 tip) |
-| Checkout Price ID env key mapping | **PASS** (pre-existing) | Env key names already wired; annual *amounts* in app code not updated on `main` |
-| Quote / customer copy aligned to 20% | **FAIL** | #162 copy/amount changes not on `main` |
-| `docs/71-annual-billing-discount` | **FAIL** | Missing on `main` |
+| Check | Result on `main` |
+|-------|------------------|
+| Monthly PM $59 / FO $59 / Complete $109 | **PASS** (baseline unchanged) |
+| Annual PM $566.40 / FO $566.40 / Complete $1,046.40 | **FAIL** — `main` still has `FO_ANNUAL_USD = 590`; no `56640` / `104640` cents |
+| Formula `monthly × 12 × 0.80` | **FAIL** — `ANNUAL_PREPAID_MULTIPLIER` absent on `main` |
+| Quote calculations / Confirm Plan / pricing copy / JSON-LD | **FAIL** — #162 changes not on `main` |
+| Checkout Price env key mapping names | **PASS** (pre-existing wiring) |
+| Server authoritative validation | **PASS** (pre-existing; not regressing) |
+| Subscription migration logic introduced | **N/A / none on main** (also none on #162 tip per prior audit) |
+| `docs/71-annual-billing-discount` | **FAIL** — missing on `main` |
 
-Contrast — #162 tip **does** contain `ANNUAL_PREPAID_MULTIPLIER = 0.8`, `PM_BASE_ANNUAL_CENTS = 56640`, `FO_ANNUAL_CENTS = 56640`, `COMPLETE_BASE_ANNUAL_CENTS = 104640`.
-
----
-
-## PR #163 verification (against current `main`)
-
-| Check | Result | Evidence on `main` |
-|-------|--------|--------------------|
-| `/facility/vendors` exists | **FAIL** | Path missing in git tree |
-| `GET /api/facility/vendors` exists | **FAIL** | Path missing |
-| `POST /api/facility/vendors` exists | **FAIL** | Path missing |
-| `facility.operations` entitlement controls access | **FAIL** | No `/facility/vendors` route entitlement on `main` |
-| `vendor_vendors` infrastructure reused | **N/A** | FO facade not present; PM path still uses existing service |
-| Production build registers FO vendor routes | **FAIL** | Build route table has `/pm/vendors` only |
+#162 tip **does** contain the approved model (`ANNUAL_PREPAID_MULTIPLIER = 0.8`, `PM_BASE_ANNUAL_CENTS = 56640`, `FO_ANNUAL_CENTS = 56640`, `COMPLETE_BASE_ANNUAL_CENTS = 104640`) — not integrated until merge.
 
 ---
 
-## Environment verification (read-only)
+## PR #163 — FO Vendor Workflow verification (on `main`)
 
-No environment variables were modified in this re-run.
+| Check | Result on `main` |
+|-------|------------------|
+| Route `/facility/vendors` | **FAIL** — missing |
+| `GET /api/facility/vendors` | **FAIL** — missing |
+| `POST /api/facility/vendors` | **FAIL** — missing |
+| `facility.operations` entitlement gate | **FAIL** — no route entry |
+| FO create/view vendors | **FAIL** — surface absent |
+| Assignment lifecycle unchanged | **PASS** (baseline; assign path untouched on `main`) |
+| `vendor_vendors` reuse | **N/A** until FO facade lands |
+| No new RBAC keys / no DB migration | **PASS** on `main` (no #163 commit); #163 tip also introduces none |
 
-### Billing — Vercel Production keys
-
-All eight unit-volume Price env keys remain present for preview + production (`type=sensitive`). Missing keys: **none**.
-
-### Billing — Stripe Price objects (existence / amounts only; no mutations)
-
-| Role | Active | `unit_amount` | Interval |
-|------|--------|---------------|----------|
-| PM base monthly | true | 5900 | month |
-| Unit block monthly | true | 3900 | month |
-| Unit block annual | true | 46800 | year |
-| PM base annual (20%) | true | 56640 | year |
-| FO annual (20%) | true | 56640 | year |
-| Complete annual (20%) | true | 104640 | year |
-
-FO/Complete monthly Prices remain active at prior $59 / $109 amounts (verified via API; plaintext IDs omitted where they match Cursor-injected secrets).
-
-**Note:** Ops already remapped annual env keys to 20% Prices; application `main` still quotes pre-discount annual amounts until #162 merges and Production is later deployed.
+Production build on `main` emits `/pm/vendors` and `/pricing`; **does not** emit `/facility/vendors`.
 
 ---
 
-## Unauthorized-change check
+## Complete main validation results
 
-| Item | Result |
-|------|--------|
-| Stripe Prices modified by this validation | **NO** |
-| Existing subscriptions touched | **NO** |
-| Database migrations on `main` since `4e46338` | **NONE** |
-| RBAC / entitlement key files changed on `main` since `4e46338` | **NONE** |
-| Unrelated refactors on `main` | **NONE** (`main` unchanged since Wave D) |
-
----
-
-## Test results (current `main` @ `4e46338`, re-run)
-
-Baseline health **without** #162/#163:
+Executed against application tree at `main` @ `4e46338` (this docs-only branch is an ancestor of that tip + `docs/73` only).
 
 | Check | Result | Detail |
 |-------|--------|--------|
 | Shared tests | **PASS** | 43 files · **241** tests · 0 failed |
 | Web tests | **PASS** | 45 files · **232** tests · 0 failed |
-| TypeScript (`shared` + `web`) | **PASS** | |
-| Lint (`web`) | **PASS** | 0 errors |
-| Production build | **PASS** | No `/facility/vendors` (expected while #163 unmerged) |
+| TypeScript | **PASS** | `@mpa/shared` + `@mpa/web` |
+| Lint | **PASS** | 0 errors |
+| Production build | **PASS** | Routes include `/pricing`, `/pm/vendors`; **no** `/facility/vendors` |
 | Failures | **None** | |
 | Blocking warnings | **None** | |
 | Flaky tests | **None** | |
 
 ---
 
-## Deployment status
+## Production safety (read-only)
 
-| Item | Status |
+| Area | Result |
 |------|--------|
-| Production deployment | **NO DEPLOYMENT** |
-| Stripe modifications | **NONE** |
+| Stripe Price modifications in this gate | **NONE** |
+| Monthly Stripe Price amounts still active ($59 / $59 / $109 bases; unit block $39) | **PASS** (API read) |
+| Annual 20% Stripe Prices exist ($566.40 / $566.40 / $1,046.40) | **PASS** (API read; ops-created earlier) |
+| Vercel Production unit-volume Price env keys (8/8) | **PRESENT** |
 | Subscription migration | **NONE** |
-| Database migrations | **NONE** |
-| RBAC changes | **NONE** |
+| DB migrations pending from #162/#163 on `main` | **NONE** (`main` unchanged; 0 commits since `4e46338`) |
+| RBAC key changes on `main` | **NONE** |
+| Feature flags required | **N/A** (features not on `main`) |
+| Rollback blockers introduced on `main` | **NONE** |
+
+---
+
+## Production impact summary
+
+| If merged later | Impact |
+|-----------------|--------|
+| #162 | Quotes/copy align to 20% annual; Checkout still uses env Price IDs (already remapped in Vercel — takes effect on **next** Production deploy) |
+| #163 | FO directory at `/facility/vendors` on existing `vendor_vendors` |
+| Existing subscriptions | Remain on prior Prices unless separately migrated (explicitly out of scope) |
+| This gate | **No deploy**, no Stripe/DB/RBAC changes |
 
 ---
 
@@ -142,6 +122,6 @@ Baseline health **without** #162/#163:
 
 ### BLOCKED
 
-Re-run confirms PRs #162, #163, and #164 are still **not merged** into `main`. Feature integration cannot be certified.
+Final gate cannot certify post-merge integration because **#162, #163, and #164 are still not merged into `main`**. `main` remains `4e46338` with pre-discount annual pricing and no FO vendor workflow surface.
 
-After the Owner completes the GitHub merges, re-run this post-merge validation before Production certification.
+After Owner completes the GitHub merges, re-run this validation once; only then create the production certification package.
