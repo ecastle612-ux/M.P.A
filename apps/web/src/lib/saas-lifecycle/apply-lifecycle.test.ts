@@ -57,6 +57,28 @@ describe("COM-002 Slice E lifecycle apply", () => {
     expect(paid?.paymentHistory.some((p) => p.kind === "paid")).toBe(true);
   });
 
+  it("uses invoice customerEmail fallback when no purchase email exists", async () => {
+    const paid = await applyInvoicePaid({
+      stripeSubscriptionId: "sub_life_email_fallback",
+      stripeCustomerId: "cus_life_fallback",
+      customerEmail: "invoice-fallback@example.com",
+      amountCents: 5900,
+      eventId: "evt_paid_fallback_1"
+    });
+    expect(paid?.status).toBe("active");
+    expect(paid?.emailsSent.some((e) => e.startsWith("renewal:"))).toBe(true);
+  });
+
+  it("fails closed when invoice.paid has no subscription id", async () => {
+    const paid = await applyInvoicePaid({
+      stripeSubscriptionId: null,
+      stripeCustomerId: "cus_none",
+      customerEmail: "nobody@example.com",
+      eventId: "evt_paid_nosub"
+    });
+    expect(paid).toBeNull();
+  });
+
   it("enters grace on payment failure and expires after 7 days", async () => {
     seedPurchase("cs_life_2", "sub_life_2");
     await seedLifecycleFromPurchase("cs_life_2");

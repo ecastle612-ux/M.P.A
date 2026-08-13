@@ -1,12 +1,9 @@
 import type Stripe from "stripe";
 import {
-  buildSaasCheckoutMetadata,
   buildUnitVolumeCheckoutMetadata,
-  legacyOfferCheckoutCancelPath,
   resolveCheckoutLineItems,
   unitVolumeCheckoutCancelPath,
   validateQuoteForCheckout,
-  validateSaasCheckoutRequest,
   type CommercialQuote,
   type SaasCheckoutRequest,
   type UnitVolumeCheckoutPlan
@@ -16,7 +13,6 @@ import {
   getSaasStripeClient,
   isUnitVolumeCheckoutReady,
   randomIntegrationSuffix,
-  resolveSaasPriceId,
   resolveUnitVolumePriceEnv,
   saasAutomaticTaxEnabled
 } from "./client";
@@ -64,7 +60,8 @@ export async function createUnitVolumeCheckoutSession(
         ? 409
         : validation.reason === "quote_expired" || validation.reason === "quote_missing"
           ? 410
-          : validation.reason === "price_unconfigured"
+          : validation.reason === "price_unconfigured" ||
+              validation.reason === "superseded_price_blocked"
             ? 503
             : 400;
     return {
@@ -77,7 +74,9 @@ export async function createUnitVolumeCheckoutSession(
         ? { route: "enterprise" as const }
         : validation.reason === "quote_expired" || validation.reason === "quote_missing"
           ? { route: "questionnaire" as const }
-          : {})
+          : validation.reason === "superseded_price_blocked"
+            ? { route: "pricing" as const }
+            : {})
     };
   }
 
@@ -98,9 +97,9 @@ export async function createUnitVolumeCheckoutSession(
     return {
       ok: false,
       status: 503,
-      error: "price_unconfigured",
-      reason: "price_unconfigured",
-      detail: resolved.missingEnvKey,
+      error: resolved.reason,
+      reason: resolved.reason,
+      detail: resolved.priceId ?? resolved.missingEnvKey,
       route: "pricing"
     };
   }
@@ -226,7 +225,11 @@ export function buildUnitVolumeSessionParamsForTest(input: {
 } {
   const resolved = resolveCheckoutLineItems(input.plan, (key) => input.prices[key] ?? null);
   if (!resolved.ok) {
-    throw new Error(resolved.missingEnvKey);
+    throw new Error(
+      resolved.reason === "superseded_price_blocked"
+        ? `superseded_price_blocked:${resolved.priceId ?? resolved.missingEnvKey}`
+        : resolved.missingEnvKey
+    );
   }
   return {
     line_items: resolved.items.map((item) => ({ price: item.price, quantity: item.quantity })),
@@ -243,131 +246,22 @@ export function buildUnitVolumeSessionParamsForTest(input: {
 
 /**
  * Legacy offer-based Checkout (pre–unit-volume).
- * Not reachable from customer Checkout API — retained for admin/historical helpers + tests only.
+ * Hard-disabled for NEW session creation — customer Checkout is unit-volume only.
+ * Fail-closed so obsolete Prices (including superseded provisional $99 Professional)
+ * cannot be attached to new subscriptions via this helper.
  * Do not wire back into `/api/commerce/checkout`.
  */
 export async function createSaasCheckoutSession(
   input: SaasCheckoutRequest
 ): Promise<CreateSaasCheckoutResult> {
-  const validation = validateSaasCheckoutRequest(input, resolveSaasPriceId);
-  if (!validation.ok) {
-    const status =
-      validation.reason === "enterprise_required" || validation.reason === "not_self_serve"
-        ? 409
-        : validation.reason === "slice_disabled"
-          ? 404
-          : 400;
-    return {
-      ok: false,
-      status,
-      error: validation.reason,
-      reason: validation.reason,
-      ...(validation.route ? { route: validation.route } : {})
-    };
-  }
-
-  const stripe = getSaasStripeClient();
-  if (!stripe) {
-    return { ok: false, status: 503, error: "stripe_not_configured" };
-  }
-
-  const offer = validation.offer;
-  const priceId = offer.stripePriceId;
-  if (!priceId) {
-    return { ok: false, status: 503, error: "price_unconfigured", route: "pricing" };
-  }
-
-  if (input.idempotencyKey) {
-    const existing = getSaasPurchaseByIdempotencyKey(input.idempotencyKey);
-    if (existing?.status === "checkout_completed") {
-      return {
-        ok: true,
-        url: `${serverEnv.NEXT_PUBLIC_APP_URL}/checkout/success?session_id=${existing.stripeCheckoutSessionId}`,
-        sessionId: existing.stripeCheckoutSessionId,
-        purchase: existing,
-        reused: true
-      };
-    }
-    if (existing?.status === "checkout_created") {
-      const prior = await stripe.checkout.sessions.retrieve(existing.stripeCheckoutSessionId);
-      if (prior.status === "open" && prior.url) {
-        return {
-          ok: true,
-          url: prior.url,
-          sessionId: existing.stripeCheckoutSessionId,
-          purchase: existing,
-          reused: true
-        };
-      }
-    }
-  }
-
-  const metadata = buildSaasCheckoutMetadata({
-    offer,
-    ...(input.demoSessionId ? { demoSessionId: input.demoSessionId } : {})
-  });
-  const appUrl = serverEnv.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
-  const idempotencyKey =
-    input.idempotencyKey?.trim() ||
-    `saas_checkout:${offer.id}:${input.customerEmail ?? "anon"}:${new Date().toISOString().slice(0, 13)}`;
-
-  try {
-    const sessionParams = {
-      mode: "subscription" as const,
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}${legacyOfferCheckoutCancelPath(offer.id)}`,
-      client_reference_id: offer.id,
-      customer_email: input.customerEmail?.trim() || undefined,
-      allow_promotion_codes: true,
-      billing_address_collection: "required" as const,
-      tax_id_collection: { enabled: true },
-      automatic_tax: { enabled: saasAutomaticTaxEnabled() },
-      payment_method_collection: "always" as const,
-      metadata,
-      subscription_data: {
-        metadata
-      },
-      integration_identifier: `mpa-saas-checkout-${randomIntegrationSuffix()}`
-    };
-    const session = await stripe.checkout.sessions.create(
-      sessionParams as Parameters<Stripe["checkout"]["sessions"]["create"]>[0],
-      { idempotencyKey }
-    );
-
-    if (!session.url) {
-      return { ok: false, status: 502, error: "checkout_url_missing" };
-    }
-
-    const now = new Date().toISOString();
-    const purchase = rememberSaasPurchase({
-      id: crypto.randomUUID(),
-      stripeCheckoutSessionId: session.id,
-      stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
-      stripeSubscriptionId:
-        typeof session.subscription === "string" ? session.subscription : null,
-      catalogOfferId: offer.id,
-      productSku: offer.productSku,
-      planTier: offer.planTier,
-      billingCycle: offer.billingCycle ?? "monthly",
-      status: "checkout_created",
-      customerEmail: input.customerEmail?.trim() || null,
-      idempotencyKey,
-      demoSessionId: input.demoSessionId ?? null,
-      metadata,
-      provisioned: false,
-      organizationId: null,
-      userId: null,
-      createdAt: now,
-      updatedAt: now
-    });
-
-    return { ok: true, url: session.url, sessionId: session.id, purchase, reused: false };
-  } catch (error) {
-    return {
-      ok: false,
-      status: 502,
-      error: error instanceof Error ? error.message : "stripe_checkout_failed"
-    };
-  }
+  void input;
+  return {
+    ok: false,
+    status: 410,
+    error: "legacy_checkout_disabled",
+    reason: "legacy_checkout_disabled",
+    route: "pricing",
+    detail:
+      "Legacy offer Checkout cannot create new Stripe Sessions. Use quote-authoritative unit-volume Checkout."
+  };
 }
