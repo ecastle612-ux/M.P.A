@@ -4,6 +4,7 @@ import {
   acquisitionHref,
   findForbiddenClientQuoteFields
 } from "@mpa/shared";
+import { acquisitionStateTokenFromRequest } from "../../../../lib/commerce/acquisition-quote-cookie";
 import { getAcquisitionByQuoteId } from "../../../../lib/commerce/acquisition-session-store";
 import { createUnitVolumeCheckoutSession } from "../../../../lib/saas-stripe/create-checkout-session";
 import { isUnitVolumeCheckoutReady } from "../../../../lib/saas-stripe/client";
@@ -72,7 +73,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const record = getAcquisitionByQuoteId(quoteId);
+  const record = await getAcquisitionByQuoteId(quoteId, {
+    stateToken: acquisitionStateTokenFromRequest(request)
+  });
   if (!record) {
     return NextResponse.json(
       {

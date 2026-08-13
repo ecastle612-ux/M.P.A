@@ -73,11 +73,11 @@ describe("POST /api/commerce/quote", () => {
     const { getAcquisitionByQuoteId, rememberAcquisitionRecord } = await import(
       "../../../../lib/commerce/acquisition-session-store"
     );
-    const record = getAcquisitionByQuoteId(createdPayload.quote.quote_id);
+    const record = await getAcquisitionByQuoteId(createdPayload.quote.quote_id);
     expect(record).not.toBeNull();
     if (!record) return;
     record.quote.expires_at = new Date(Date.now() - 1000).toISOString();
-    rememberAcquisitionRecord(record);
+    await rememberAcquisitionRecord(record);
 
     const expired = await GET(
       new Request(

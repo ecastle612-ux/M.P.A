@@ -15,6 +15,8 @@ export const ACQUISITION_SKU_COOKIE = "mpa_acquisition_sku";
 export const ACQUISITION_OFFER_COOKIE = "mpa_acquisition_offer";
 export const ACQUISITION_QUOTE_COOKIE = "mpa_acquisition_quote";
 export const ACQUISITION_SNAPSHOT_COOKIE = "mpa_acquisition_snapshot";
+/** HttpOnly signed cookie — durable acquisition quote across serverless isolates. */
+export const ACQUISITION_QUOTE_STATE_COOKIE = "mpa_acquisition_quote_state";
 
 export function parseAcquisitionSku(value: string | null | undefined): ProductSku | null {
   if (!value || !isProductSku(value)) {

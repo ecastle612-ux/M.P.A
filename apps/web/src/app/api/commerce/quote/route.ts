@@ -10,6 +10,8 @@ import {
   validateAcquisitionAnswers,
   type CommercialQuote
 } from "@mpa/shared";
+import { applyAcquisitionQuoteCookies } from "../../../../lib/commerce/acquisition-durable-state";
+import { acquisitionStateTokenFromRequest } from "../../../../lib/commerce/acquisition-quote-cookie";
 import {
   getAcquisitionByQuoteId,
   rememberAcquisitionRecord
@@ -70,7 +72,7 @@ export async function POST(request: Request) {
   }
 
   const snapshot = createAcquisitionSnapshot(quote);
-  rememberAcquisitionRecord({
+  const record = await rememberAcquisitionRecord({
     quote,
     snapshot,
     answers: validated.answers
@@ -86,11 +88,13 @@ export async function POST(request: Request) {
     offerId: snapshot.snapshot_id
   });
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     quote,
     snapshot,
     confirmPlanPath: `/checkout?intent=${encodeURIComponent(quote.module)}&cycle=${encodeURIComponent(quote.billing_interval)}&quote=${encodeURIComponent(quote.quote_id)}&snapshot=${encodeURIComponent(snapshot.snapshot_id)}`
   });
+  applyAcquisitionQuoteCookies(response, record);
+  return response;
 }
 
 export async function GET(request: Request) {
@@ -100,7 +104,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "quote_id_required" }, { status: 400 });
   }
 
-  const record = getAcquisitionByQuoteId(quoteId);
+  const record = await getAcquisitionByQuoteId(quoteId, {
+    stateToken: acquisitionStateTokenFromRequest(request)
+  });
   if (!record) {
     return NextResponse.json({ error: "quote_not_found" }, { status: 404 });
   }
