@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AppProviders } from "./providers";
 import { RegisterServiceWorker } from "../components/pwa/register-service-worker";
@@ -15,16 +15,43 @@ import {
   MPA_LOGO_LIGHT_PATH
 } from "../lib/branding";
 
-const plexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+/** Self-hosted Canopy body face — SIL OFL. See src/fonts/ibm-plex/OFL.txt */
+const plexSans = localFont({
+  src: [
+    {
+      path: "../fonts/ibm-plex/IBMPlexSans-Regular.woff2",
+      weight: "400",
+      style: "normal"
+    },
+    {
+      path: "../fonts/ibm-plex/IBMPlexSans-Medium.woff2",
+      weight: "500",
+      style: "normal"
+    },
+    {
+      path: "../fonts/ibm-plex/IBMPlexSans-SemiBold.woff2",
+      weight: "600",
+      style: "normal"
+    }
+  ],
   variable: "--font-plex-sans",
   display: "swap"
 });
 
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+/** Self-hosted Canopy mono face — SIL OFL. See src/fonts/ibm-plex/OFL.txt */
+const plexMono = localFont({
+  src: [
+    {
+      path: "../fonts/ibm-plex/IBMPlexMono-Regular.woff2",
+      weight: "400",
+      style: "normal"
+    },
+    {
+      path: "../fonts/ibm-plex/IBMPlexMono-Medium.woff2",
+      weight: "500",
+      style: "normal"
+    }
+  ],
   variable: "--font-plex-mono",
   display: "swap"
 });
