@@ -240,6 +240,7 @@ describe("master admin catalog", () => {
       "/admin/platform/customers",
       "/admin/platform/operators",
       "/admin/support/view-as",
+      "/admin/testers",
       "/admin/commercial/billing",
       "/admin/commercial/provisioning",
       "/admin/commercial/lifecycle",

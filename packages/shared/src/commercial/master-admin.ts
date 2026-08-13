@@ -63,6 +63,11 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         href: "/admin/support/view-as",
         label: "View As",
         description: "Secure read-only impersonation for support diagnosis."
+      },
+      {
+        href: "/admin/testers",
+        label: "Testers",
+        description: "Beta tester invitations and complimentary access grants."
       }
     ]
   },

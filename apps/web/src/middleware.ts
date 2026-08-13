@@ -6,8 +6,10 @@ import {
   hasLifecycleModuleAccess,
   IMPERSONATION_COOKIE,
   IMPERSONATION_MODE_COOKIE,
+  isEntitlementActiveComplimentaryGrant,
   isProductSku,
   isSubscriptionPlatformStatus,
+  resolveCommercialEntitlement,
   type ProductSku,
   type SubscriptionPlatformStatus
 } from "@mpa/shared";
@@ -181,13 +183,45 @@ export async function middleware(request: NextRequest) {
     let moduleAccess = true;
 
     if (organizationId) {
-      const { data: subscription } = await supabase
-        .from("organization_subscriptions")
-        .select("sku_code, status, grace_started_at, cancel_at_period_end")
-        .eq("organization_id", organizationId)
-        .maybeSingle();
+      const [{ data: subscription }, { data: grant }] = await Promise.all([
+        supabase
+          .from("organization_subscriptions")
+          .select(
+            "sku_code, status, grace_started_at, cancel_at_period_end, stripe_subscription_id"
+          )
+          .eq("organization_id", organizationId)
+          .maybeSingle(),
+        supabase
+          .from("master_admin_access_grants")
+          .select("plan_granted, status, start_date, expiration_date")
+          .eq("organization_id", organizationId)
+          .in("status", ["INVITED", "ACTIVE"])
+          .maybeSingle()
+      ]);
 
-      if (subscription && isProductSku(subscription.sku_code)) {
+      const resolved = resolveCommercialEntitlement({
+        subscription: subscription
+          ? {
+              sku_code: subscription.sku_code,
+              status: subscription.status,
+              stripe_subscription_id:
+                typeof subscription.stripe_subscription_id === "string"
+                  ? subscription.stripe_subscription_id
+                  : null
+            }
+          : null,
+        grant:
+          grant && isEntitlementActiveComplimentaryGrant(grant)
+            ? {
+                plan_granted: grant.plan_granted,
+                status: grant.status,
+                start_date: grant.start_date,
+                expiration_date: grant.expiration_date
+              }
+            : null
+      });
+
+      if (resolved.source === "STRIPE_SUBSCRIPTION" && subscription && isProductSku(subscription.sku_code)) {
         const status = subscription.status;
         if (COM_002_FLAGS.sliceE_subscriptionLifecycle && isSubscriptionPlatformStatus(status)) {
           moduleAccess = hasLifecycleModuleAccess({
@@ -202,6 +236,8 @@ export async function middleware(request: NextRequest) {
         } else if (status !== "canceled") {
           sku = subscription.sku_code;
         }
+      } else if (resolved.sku) {
+        sku = resolved.sku;
       }
     }
 

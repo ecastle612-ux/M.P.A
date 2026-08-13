@@ -2,14 +2,17 @@ import {
   defaultHomeForSku,
   entitlementsForSku,
   isProductSku,
+  resolveCommercialEntitlement,
   toSkuLabel,
   type EntitlementKey,
+  type EntitlementSource,
   type ProductSku
 } from "@mpa/shared";
 
 export { defaultHomeForSku };
 import type { User } from "@supabase/supabase-js";
 import { createAuthServerClient } from "../auth/server";
+import { loadEntitlementActiveGrantForOrganization } from "../admin/complimentary-grants";
 
 export type OrganizationCommercialState = {
   sku: ProductSku | null;
@@ -28,35 +31,84 @@ export type OrganizationCommercialState = {
   entitlements: EntitlementKey[];
   productConfirmed: boolean;
   setupComplete: boolean;
+  /** ADM-001: how the effective SKU was resolved. */
+  entitlementSource: EntitlementSource | null;
 };
+
+const BASELINE_ENTITLEMENTS: EntitlementKey[] = [
+  "platform.org",
+  "platform.guided_setup",
+  "platform.billing_self"
+];
 
 export async function getOrganizationCommercialState(
   organizationId: string
 ): Promise<OrganizationCommercialState> {
   const supabase = await createAuthServerClient();
 
-  const [{ data: subscription }, { data: setup }] = await Promise.all([
-    supabase
+  // Generated Database types lag Stripe columns on organization_subscriptions.
+  const loose = supabase as unknown as {
+    from: (table: string) => {
+      select: (columns: string) => {
+        eq: (
+          column: string,
+          value: string
+        ) => {
+          maybeSingle: () => Promise<{ data: Record<string, unknown> | null; error: unknown }>;
+        };
+      };
+    };
+  };
+
+  const [{ data: subscription }, { data: setup }, grant] = await Promise.all([
+    loose
       .from("organization_subscriptions")
-      .select("sku_code, status")
+      .select("sku_code, status, stripe_subscription_id")
       .eq("organization_id", organizationId)
       .maybeSingle(),
     supabase
       .from("organization_setup_state")
       .select("product_confirmed, completed_at")
       .eq("organization_id", organizationId)
-      .maybeSingle()
+      .maybeSingle(),
+    loadEntitlementActiveGrantForOrganization(organizationId)
   ]);
 
-  const sku = subscription && isProductSku(subscription.sku_code) ? subscription.sku_code : null;
+  const resolved = resolveCommercialEntitlement({
+    subscription: subscription
+      ? {
+          sku_code: typeof subscription["sku_code"] === "string" ? subscription["sku_code"] : null,
+          status: typeof subscription["status"] === "string" ? subscription["status"] : null,
+          stripe_subscription_id:
+            typeof subscription["stripe_subscription_id"] === "string"
+              ? subscription["stripe_subscription_id"]
+              : null
+        }
+      : null,
+    grant: grant
+      ? {
+          plan_granted: grant.plan_granted,
+          status: grant.status,
+          start_date: grant.start_date,
+          expiration_date: grant.expiration_date
+        }
+      : null
+  });
+
+  const sku = resolved.sku && isProductSku(resolved.sku) ? resolved.sku : null;
+  const subscriptionStatus =
+    typeof subscription?.["status"] === "string"
+      ? (subscription["status"] as OrganizationCommercialState["subscriptionStatus"])
+      : null;
 
   return {
     sku,
     skuLabel: sku ? toSkuLabel(sku) : null,
-    subscriptionStatus: subscription?.status ?? null,
-    entitlements: sku ? entitlementsForSku(sku) : ["platform.org", "platform.guided_setup", "platform.billing_self"],
+    subscriptionStatus,
+    entitlements: sku ? entitlementsForSku(sku) : BASELINE_ENTITLEMENTS,
     productConfirmed: Boolean(setup?.product_confirmed),
-    setupComplete: Boolean(setup?.completed_at)
+    setupComplete: Boolean(setup?.completed_at),
+    entitlementSource: resolved.source
   };
 }
 
@@ -113,4 +165,3 @@ export async function isPlatformOperatorUser(user: User): Promise<boolean> {
 
   return Boolean(data);
 }
-
