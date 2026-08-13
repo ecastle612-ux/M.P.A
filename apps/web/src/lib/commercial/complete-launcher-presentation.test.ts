@@ -88,7 +88,7 @@ describe("Complete launcher presentation (PPS1-006)", () => {
 
   it("keeps Complete navigation entitled and Property/Facility labeled", () => {
     const groups = navigationGroupsForSku("mpa_complete_platform", ["organization_admin"]);
-    expect(groups.find((group) => group.id === "home")?.title).toBe("Complete");
+    expect(groups.find((group) => group.id === "home")?.title).toBe("Complete Platform");
     expect(groups.find((group) => group.id === "property_manager")?.title).toBe(
       "Property Operations"
     );

@@ -139,7 +139,8 @@ export function ownerDay1ChecklistForSku(productSku: ProductSku): OwnerDay1Check
             id: "pm_units",
             label: "Add units",
             href: "/pm/properties",
-            detail: "Units power leasing, residents, and maintenance context."
+            detail:
+              "Units are created with your property. Open a property to confirm units, then continue to residents and leasing."
           },
           {
             id: "pm_invite",

@@ -125,7 +125,7 @@ export function GuidedSetupPage() {
         done: homeSelected,
         detail:
           effectiveSku === "mpa_complete_platform"
-            ? "After setup you land in the Workspace Launcher — your start-of-day home for Complete Platform."
+            ? "After setup you land in the Complete Platform Launcher — one organization start-of-day home."
             : `After setup you land in ${homeLabel} — your daily operations home.`
       },
       {

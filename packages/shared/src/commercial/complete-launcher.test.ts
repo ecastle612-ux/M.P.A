@@ -33,8 +33,10 @@ describe("Complete Platform launcher (PPS1-006)", () => {
     expect(missionControlNavLabelForSku("facility", "mpa_facility_operations")).toBe(
       "Mission Control"
     );
-    expect(navigationGroupTitleForSku("home", "mpa_complete_platform")).toBe("Complete");
-    expect(navigationGroupTitleForSku("shared", "mpa_complete_platform")).toBe("Shared");
+    expect(navigationGroupTitleForSku("home", "mpa_complete_platform")).toBe("Complete Platform");
+    expect(navigationGroupTitleForSku("shared", "mpa_complete_platform")).toBe(
+      "Shared across capabilities"
+    );
   });
 
   it("builds workspace handoffs to PM and FO Mission Controls", () => {

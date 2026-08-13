@@ -1,11 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SKU_SUMMARIES, parseAcquisitionSku } from "@mpa/shared";
+import {
+  ACQUISITION_SKU_COOKIE,
+  SKU_SUMMARIES,
+  parseAcquisitionSku,
+  postPurchaseNextStepCopy,
+  productDisplayLabel,
+  type ProductSku
+} from "@mpa/shared";
 import { Alert, Button, Card, Input } from "@mpa/ui";
 import { createAuthClient } from "../../lib/auth/client";
+
+function readAcquisitionSkuCookie(): ProductSku | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+  const match = document.cookie
+    .split("; ")
+    .find((part) => part.startsWith(`${ACQUISITION_SKU_COOKIE}=`));
+  if (!match) {
+    return null;
+  }
+  return parseAcquisitionSku(decodeURIComponent(match.split("=").slice(1).join("=")));
+}
 
 type AuthMode = "sign_in" | "sign_up";
 
@@ -55,6 +75,10 @@ export function LoginForm() {
   const initialMode: AuthMode = searchParams.get("mode") === "sign_up" ? "sign_up" : "sign_in";
   const selectedSku = parseAcquisitionSku(searchParams.get("intent"));
   const selectedPlanLabel = selectedSku ? SKU_SUMMARIES[selectedSku].label : null;
+  const claimSku = useMemo(
+    () => selectedSku ?? readAcquisitionSkuCookie(),
+    [selectedSku]
+  );
   const supabase = createAuthClient();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
@@ -197,10 +221,15 @@ export function LoginForm() {
           className="mt-3 space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]"
           data-testid="claim-owner-clarity"
         >
-          <p>
-            Next: set password → claim workspace → Guided Setup → Mission Control. Your organization
-            is prepared automatically from checkout.
-          </p>
+          <p>{postPurchaseNextStepCopy(claimSku)}</p>
+          {claimSku ? (
+            <p>
+              Purchased product:{" "}
+              <span className="font-semibold text-[var(--mpa-color-text-primary)]">
+                {productDisplayLabel(claimSku)}
+              </span>
+            </p>
+          ) : null}
           <p>
             <span className="font-semibold text-[var(--mpa-color-text-primary)]">
               You become the Organization Admin

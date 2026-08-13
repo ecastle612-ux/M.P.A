@@ -23,12 +23,19 @@ describe("resolveProductWorkspaceHome", () => {
   });
 
   it("exposes product-aware labels for Guided Setup and Billing", () => {
-    expect(productWorkspaceHomeLabel("mpa_property_manager")).toBe("Mission Control");
-    expect(productWorkspaceHomeLabel("mpa_facility_operations")).toBe("Facility Mission Control");
-    expect(productWorkspaceHomeLabel("mpa_complete_platform")).toBe("Workspace Launcher");
+    expect(productWorkspaceHomeLabel("mpa_property_manager")).toBe(
+      "Property Manager Mission Control"
+    );
+    expect(productWorkspaceHomeLabel("mpa_facility_operations")).toBe(
+      "Facility Operations Mission Control"
+    );
+    expect(productWorkspaceHomeLabel("mpa_complete_platform")).toBe("Complete Platform Launcher");
     expect(productDisplayLabel("mpa_complete_platform")).toBe("Complete Platform");
     expect(guidedSetupNextActionCopy("mpa_facility_operations")).toMatch(/building/i);
     expect(guidedSetupNextActionCopy("mpa_property_manager")).toMatch(/property/i);
+    expect(guidedSetupNextActionCopy("mpa_complete_platform")).toMatch(
+      /Complete Platform Launcher/i
+    );
   });
 });
 

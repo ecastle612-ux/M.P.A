@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
-  LAUNCH_INVITE_ROLES,
+  defaultLaunchInviteRoleForSku,
   isUserRole,
-  toRoleDescription,
+  launchInviteRolesForSku,
+  toInviteRoleDescription,
+  toInviteRoleLabel,
   toRoleLabel,
   type LaunchInviteRole
 } from "@mpa/shared";
 import { Button, Input, Select } from "@mpa/ui";
 import { useOrganizationContext } from "../shell/organization-context";
+import { useCommercialContext } from "../shell/commercial-context";
 
 type InvitationRow = {
   id: string;
@@ -35,8 +38,15 @@ function formatRoles(roles: string[]): string {
 
 export function TeamInvitePanel() {
   const { activeOrganization } = useOrganizationContext();
+  const { productSku } = useCommercialContext();
+  const inviteRoles = useMemo(() => launchInviteRolesForSku(productSku), [productSku]);
+  const defaultRole = useMemo(
+    () => defaultLaunchInviteRoleForSku(productSku),
+    [productSku]
+  );
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<LaunchInviteRole>("property_manager");
+  const [roleOverride, setRoleOverride] = useState<LaunchInviteRole | null>(null);
+  const role = roleOverride ?? defaultRole;
   const [invitations, setInvitations] = useState<InvitationRow[] | null>(null);
   const [memberships, setMemberships] = useState<MembershipRow[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -172,17 +182,19 @@ export function TeamInvitePanel() {
   }
 
   const loaded = invitations !== null && memberships !== null;
+  const isFo = productSku === "mpa_facility_operations";
 
   return (
     <div className="space-y-6">
       <section className="max-w-xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5">
         <header className="space-y-1">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
-            Invite a teammate
+            {isFo ? "Invite facility teammates" : "Invite a teammate"}
           </h2>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            One invitation experience. Assign a launch role; we email the accept link and show it
-            here so nobody is blocked.
+            {isFo
+              ? "Facility Operations invites — start with Facility Technicians, then Facility Managers or vendors as needed."
+              : "One invitation experience. Assign a launch role; we email the accept link and show it here so nobody is blocked."}
           </p>
         </header>
         <form className="space-y-3" onSubmit={onInvite}>
@@ -206,11 +218,12 @@ export function TeamInvitePanel() {
             <Select
               id="invite-role"
               value={role}
-              onChange={(event) => setRole(event.target.value as LaunchInviteRole)}
+              onChange={(event) => setRoleOverride(event.target.value as LaunchInviteRole)}
+              data-testid="invite-role-select"
             >
-              {LAUNCH_INVITE_ROLES.map((inviteRole) => (
+              {inviteRoles.map((inviteRole) => (
                 <option key={inviteRole} value={inviteRole}>
-                  {toRoleLabel(inviteRole)}
+                  {toInviteRoleLabel(inviteRole, productSku)}
                 </option>
               ))}
             </Select>
@@ -218,7 +231,7 @@ export function TeamInvitePanel() {
               className="text-xs text-[var(--mpa-color-text-secondary)]"
               data-testid="invite-role-description"
             >
-              {toRoleDescription(role)}
+              {toInviteRoleDescription(role, productSku)}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
