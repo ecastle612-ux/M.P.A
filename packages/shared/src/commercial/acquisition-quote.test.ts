@@ -105,26 +105,27 @@ describe("server commercial quote", () => {
     for (const units of BOUNDARY) {
       const quote = buildCommercialQuote({ answers: answers({ managedUnits: units }) });
       expect(quote.monthly_amount).toBe(expectedMonthly[units]);
-      expect(quote.annual_amount).toBe(expectedMonthly[units]! * 12);
+      expect(quote.annual_amount).not.toBe(expectedMonthly[units]! * 12);
       expect(quote.stripe_objects_created).toBe(false);
     }
   });
 
-  it("prices PM annual as monthly × 12", () => {
+  it("prices PM annual with 20% prepaid discount", () => {
     const quote = buildCommercialQuote({
       answers: answers({ managedUnits: 501, billingInterval: "annual" })
     });
     expect(quote.billing_interval).toBe("annual");
-    expect(quote.selected_amount).toBe(1176);
-    expect(quote.annual_amount).toBe(quote.monthly_amount * 12);
+    expect(quote.selected_amount).toBe(1034.4);
+    expect(quote.annual_amount).toBe(566.4 + 468);
+    expect(quote.annual_amount).not.toBe(quote.monthly_amount * 12);
   });
 
   it("prices Complete on unit-volume with self-serve available", () => {
     const cases: Array<{ units: number; monthly: number; annual: number; trial: boolean }> = [
-      { units: 500, monthly: 109, annual: 1308, trial: true },
-      { units: 501, monthly: 148, annual: 1776, trial: false },
-      { units: 1000, monthly: 148, annual: 1776, trial: false },
-      { units: 1001, monthly: 187, annual: 2244, trial: false }
+      { units: 500, monthly: 109, annual: 1046.4, trial: true },
+      { units: 501, monthly: 148, annual: 1514.4, trial: false },
+      { units: 1000, monthly: 148, annual: 1514.4, trial: false },
+      { units: 1001, monthly: 187, annual: 1982.4, trial: false }
     ];
     for (const row of cases) {
       const monthly = buildCommercialQuote({
@@ -152,7 +153,7 @@ describe("server commercial quote", () => {
         })
       });
       expect(annual.selected_amount).toBe(row.annual);
-      expect(annual.annual_amount).toBe(annual.monthly_amount * 12);
+      expect(annual.annual_amount).not.toBe(annual.monthly_amount * 12);
     }
   });
 
@@ -166,7 +167,7 @@ describe("server commercial quote", () => {
       })
     });
     expect(at500.monthly_amount).toBe(59);
-    expect(at500.annual_amount).toBe(590);
+    expect(at500.annual_amount).toBe(566.4);
     expect(at500.additional_blocks).toBe(0);
     expect(at500.included_units).toBe(500);
     expect(at500.trial_eligible).toBe(true);
@@ -183,8 +184,8 @@ describe("server commercial quote", () => {
       })
     });
     expect(at501.monthly_amount).toBe(98);
-    expect(at501.annual_amount).toBe(1058);
-    expect(at501.selected_amount).toBe(1058);
+    expect(at501.annual_amount).toBe(1034.4);
+    expect(at501.selected_amount).toBe(1034.4);
     expect(at501.additional_blocks).toBe(1);
     expect(at501.trial_eligible).toBe(false);
     expect(at501.trial_days).toBe(0);
@@ -208,7 +209,7 @@ describe("server commercial quote", () => {
       })
     });
     expect(at1001.monthly_amount).toBe(137);
-    expect(at1001.annual_amount).toBe(1526);
+    expect(at1001.annual_amount).toBe(1502.4);
     expect(at1001.additional_blocks).toBe(2);
     expect(at1001.trial_eligible).toBe(false);
   });

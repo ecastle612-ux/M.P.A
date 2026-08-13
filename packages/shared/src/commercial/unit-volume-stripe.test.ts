@@ -88,6 +88,44 @@ describe("unit-volume Stripe checkout architecture", () => {
     expect(annual.lineItems[0]?.priceEnvKey).toBe("STRIPE_PRICE_PM_BASE_ANNUAL");
   });
 
+  it("keeps annual Checkout Price env keys aligned with 20% quote cents", () => {
+    const pm = quoteFor(500, "annual");
+    expect(pm.billing_interval).toBe("annual");
+    expect(pm.annual_amount).toBe(566.4);
+    expect(Math.round(pm.annual_amount * 100)).toBe(56640);
+    expect(buildUnitVolumeCheckoutPlan(pm)!.lineItems[0]?.priceEnvKey).toBe(
+      "STRIPE_PRICE_PM_BASE_ANNUAL"
+    );
+
+    const foAnswers = validateAcquisitionAnswers({
+      managedUnits: 500,
+      operationalNeed: "facility_maintenance",
+      billingInterval: "annual",
+      selectedModule: "mpa_facility_operations"
+    });
+    if (!foAnswers.ok) throw new Error(foAnswers.reason);
+    const fo = buildCommercialQuote({ answers: foAnswers.answers });
+    expect(fo.annual_amount).toBe(566.4);
+    expect(Math.round(fo.annual_amount * 100)).toBe(56640);
+    expect(buildUnitVolumeCheckoutPlan(fo)!.lineItems[0]?.priceEnvKey).toBe(
+      "STRIPE_PRICE_FO_PROFESSIONAL_ANNUAL"
+    );
+
+    const completeAnswers = validateAcquisitionAnswers({
+      managedUnits: 500,
+      operationalNeed: "both",
+      billingInterval: "annual",
+      selectedModule: "mpa_complete_platform"
+    });
+    if (!completeAnswers.ok) throw new Error(completeAnswers.reason);
+    const complete = buildCommercialQuote({ answers: completeAnswers.answers });
+    expect(complete.annual_amount).toBe(1046.4);
+    expect(Math.round(complete.annual_amount * 100)).toBe(104640);
+    expect(buildUnitVolumeCheckoutPlan(complete)!.lineItems[0]?.priceEnvKey).toBe(
+      "STRIPE_PRICE_COMPLETE_BASE_ANNUAL"
+    );
+  });
+
   it("builds FO Checkout plan with shared unit-block Prices and self-serve allowed", () => {
     const validated = validateAcquisitionAnswers({
       managedUnits: 501,

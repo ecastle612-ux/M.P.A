@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import {
+  PUBLIC_PRICING_MODEL_COPY,
   UNIT_COUNT_RANGES,
   acquisitionHref,
   parseAcquisitionCycle,
@@ -205,7 +206,7 @@ export function AcquisitionQuestionnairePage({
           <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5">
             <h2 className="font-display text-xl font-semibold">Billing preference</h2>
             <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-              Annual equals monthly × 12 — no discount.
+              {PUBLIC_PRICING_MODEL_COPY.annualSavingsCopy}.
             </p>
             <div className="flex flex-wrap gap-3">
               {(

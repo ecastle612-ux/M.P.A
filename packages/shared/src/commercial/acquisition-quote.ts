@@ -5,6 +5,7 @@
 
 import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 import type { BillingCycle } from "./plans";
+import { formatUsdAmount } from "./pricing-display";
 import { publicPurchaseMotionForSku } from "./public-purchase-motion";
 import type { ProductSku } from "./skus";
 import { SKU_SUMMARIES } from "./skus";
@@ -467,7 +468,7 @@ export function confirmPlanCapacityLines(quote: CommercialQuote): {
     trialLabel: quote.trial_eligible ? "30-Day Free Trial" : "No free trial",
     additionalUnitCapacityNotice:
       quote.managed_units > UNIT_BLOCK_SIZE
-        ? `Additional Unit Capacity: ${quote.additional_blocks} × ${UNIT_BLOCK_SIZE}-unit block${quote.additional_blocks === 1 ? "" : "s"} — recurring ${quote.billing_interval === "annual" ? `$${quote.annual_amount}/year` : `$${quote.monthly_amount}/month`}.`
+        ? `Additional Unit Capacity: ${quote.additional_blocks} × ${UNIT_BLOCK_SIZE}-unit block${quote.additional_blocks === 1 ? "" : "s"} — recurring ${quote.billing_interval === "annual" ? `${formatUsdAmount(quote.annual_amount)}/year` : `${formatUsdAmount(quote.monthly_amount)}/month`}.`
         : null
   };
 }

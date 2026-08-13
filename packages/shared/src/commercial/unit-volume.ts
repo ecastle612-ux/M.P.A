@@ -20,15 +20,34 @@ export const PM_BASE_MONTHLY_USD = 59 as const;
 export const COMPLETE_BASE_MONTHLY_USD = 109 as const;
 
 /**
- * Facility Operations base prices (existing approved Stripe Prices).
- * Monthly matches PM ($59). Annual base is the approved FO annual Price ($590),
- * not monthly × 12 — do not create a duplicate FO annual Price.
+ * Annual prepaid discount on the product base Price only.
+ * Annual base = monthly × 12 × 0.80. Additional Unit Capacity is not discounted.
+ */
+export const ANNUAL_PREPAID_MULTIPLIER = 0.8 as const;
+export const ANNUAL_SAVINGS_PERCENT = 20 as const;
+
+/** Stripe `unit_amount` (cents) for annual base Prices — source of truth for quotes. */
+export const PM_BASE_ANNUAL_CENTS = 56640 as const;
+export const FO_ANNUAL_CENTS = 56640 as const;
+export const COMPLETE_BASE_ANNUAL_CENTS = 104640 as const;
+
+export function usdFromCents(cents: number): number {
+  return Math.round(cents) / 100;
+}
+
+export const PM_BASE_ANNUAL_USD = usdFromCents(PM_BASE_ANNUAL_CENTS);
+export const COMPLETE_BASE_ANNUAL_USD = usdFromCents(COMPLETE_BASE_ANNUAL_CENTS);
+
+/**
+ * Facility Operations base prices.
+ * Monthly matches PM ($59). Annual base matches the 20% prepaid Price ($566.40).
  */
 export const FO_MONTHLY_USD = 59 as const;
-export const FO_ANNUAL_USD = 590 as const;
+export const FO_ANNUAL_USD = usdFromCents(FO_ANNUAL_CENTS);
 
 /** Additional Unit Capacity annual = monthly × 12 (no discount on blocks). */
 export const ADDITIONAL_UNIT_BLOCK_ANNUAL_USD = ADDITIONAL_UNIT_BLOCK_MONTHLY_USD * 12;
+export const ADDITIONAL_UNIT_BLOCK_ANNUAL_CENTS = ADDITIONAL_UNIT_BLOCK_ANNUAL_USD * 100;
 
 /** Trial length for Checkout wiring (days). */
 export const UNIT_VOLUME_TRIAL_DAYS = 30 as const;
@@ -91,14 +110,19 @@ export function baseMonthlyUsdForModule(module: UnitVolumeModule): number {
 }
 
 /**
- * Annual base for Checkout line-item 1.
- * FO uses the approved $590 annual Price; PM/Complete use monthly × 12.
+ * Annual base cents for Checkout line-item 1.
+ * Must match Stripe Price `unit_amount` for the module's annual base Price.
  */
-export function baseAnnualUsdForModule(module: UnitVolumeModule): number {
-  if (module === "mpa_facility_operations") {
-    return FO_ANNUAL_USD;
+export function baseAnnualCentsForModule(module: UnitVolumeModule): number {
+  if (module === "mpa_complete_platform") {
+    return COMPLETE_BASE_ANNUAL_CENTS;
   }
-  return baseMonthlyUsdForModule(module) * 12;
+  return PM_BASE_ANNUAL_CENTS;
+}
+
+/** Annual base USD for quotes/display — same cents as Stripe. */
+export function baseAnnualUsdForModule(module: UnitVolumeModule): number {
+  return usdFromCents(baseAnnualCentsForModule(module));
 }
 
 export function monthlyUnitVolumePriceUsd(input: {
@@ -114,7 +138,14 @@ export function annualUnitVolumePriceUsd(input: {
   managedUnits: number;
 }): number {
   const blocks = additionalUnitBlocks(input.managedUnits);
-  return baseAnnualUsdForModule(input.module) + ADDITIONAL_UNIT_BLOCK_ANNUAL_USD * blocks;
+  return usdFromCents(
+    baseAnnualCentsForModule(input.module) + ADDITIONAL_UNIT_BLOCK_ANNUAL_CENTS * blocks
+  );
+}
+
+/** Dollars saved vs paying the monthly total for 12 months. */
+export function annualSavingsVsMonthlyUsd(monthlyUsd: number, annualUsd: number): number {
+  return usdFromCents(Math.round(monthlyUsd * 12 * 100) - Math.round(annualUsd * 100));
 }
 
 /**
@@ -129,7 +160,9 @@ export function quoteUnitVolume(input: {
   const baseMonthlyUsd = baseMonthlyUsdForModule(input.module);
   const baseAnnualUsd = baseAnnualUsdForModule(input.module);
   const monthlyPriceUsd = baseMonthlyUsd + ADDITIONAL_UNIT_BLOCK_MONTHLY_USD * additionalBlocks;
-  const annualPriceUsd = baseAnnualUsd + ADDITIONAL_UNIT_BLOCK_ANNUAL_USD * additionalBlocks;
+  const annualPriceUsd = usdFromCents(
+    baseAnnualCentsForModule(input.module) + ADDITIONAL_UNIT_BLOCK_ANNUAL_CENTS * additionalBlocks
+  );
 
   return {
     managedUnits,

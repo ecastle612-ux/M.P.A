@@ -2,13 +2,21 @@ import { describe, expect, it } from "vitest";
 import {
   ADDITIONAL_UNIT_BLOCK_ANNUAL_USD,
   ADDITIONAL_UNIT_BLOCK_MONTHLY_USD,
+  ANNUAL_PREPAID_MULTIPLIER,
+  ANNUAL_SAVINGS_PERCENT,
+  COMPLETE_BASE_ANNUAL_CENTS,
+  COMPLETE_BASE_ANNUAL_USD,
   COMPLETE_BASE_MONTHLY_USD,
+  FO_ANNUAL_CENTS,
   FO_ANNUAL_USD,
   FO_MONTHLY_USD,
+  PM_BASE_ANNUAL_CENTS,
+  PM_BASE_ANNUAL_USD,
   PM_BASE_MONTHLY_USD,
   UNIT_BLOCK_SIZE,
   UNIT_VOLUME_TRIAL_DAYS,
   additionalUnitBlocks,
+  annualSavingsVsMonthlyUsd,
   annualUnitVolumePriceUsd,
   isUnitVolumeTrialEligible,
   monthlyUnitVolumePriceUsd,
@@ -27,7 +35,20 @@ describe("unit-volume domain", () => {
     expect(ADDITIONAL_UNIT_BLOCK_ANNUAL_USD).toBe(468);
     expect(UNIT_VOLUME_TRIAL_DAYS).toBe(30);
     expect(FO_MONTHLY_USD).toBe(59);
-    expect(FO_ANNUAL_USD).toBe(590);
+    expect(ANNUAL_PREPAID_MULTIPLIER).toBe(0.8);
+    expect(ANNUAL_SAVINGS_PERCENT).toBe(20);
+    expect(PM_BASE_ANNUAL_CENTS).toBe(56640);
+    expect(FO_ANNUAL_CENTS).toBe(56640);
+    expect(COMPLETE_BASE_ANNUAL_CENTS).toBe(104640);
+    expect(PM_BASE_ANNUAL_USD).toBe(566.4);
+    expect(FO_ANNUAL_USD).toBe(566.4);
+    expect(COMPLETE_BASE_ANNUAL_USD).toBe(1046.4);
+    expect(PM_BASE_ANNUAL_CENTS).toBe(
+      Math.round(PM_BASE_MONTHLY_USD * 12 * ANNUAL_PREPAID_MULTIPLIER * 100)
+    );
+    expect(COMPLETE_BASE_ANNUAL_CENTS).toBe(
+      Math.round(COMPLETE_BASE_MONTHLY_USD * 12 * ANNUAL_PREPAID_MULTIPLIER * 100)
+    );
   });
 
   it("computes additional blocks at boundaries", () => {
@@ -44,12 +65,24 @@ describe("unit-volume domain", () => {
     expect(additionalUnitBlocks(1501)).toBe(3);
   });
 
-  it("prices Property Manager at boundaries", () => {
+  it("prices Property Manager monthly and annual with 20% prepaid savings", () => {
     expect(monthlyUnitVolumePriceUsd({ module: "mpa_property_manager", managedUnits: 500 })).toBe(
       59
     );
+    expect(annualUnitVolumePriceUsd({ module: "mpa_property_manager", managedUnits: 500 })).toBe(
+      566.4
+    );
+    expect(
+      annualSavingsVsMonthlyUsd(
+        monthlyUnitVolumePriceUsd({ module: "mpa_property_manager", managedUnits: 500 }),
+        annualUnitVolumePriceUsd({ module: "mpa_property_manager", managedUnits: 500 })
+      )
+    ).toBe(141.6);
     expect(monthlyUnitVolumePriceUsd({ module: "mpa_property_manager", managedUnits: 501 })).toBe(
       98
+    );
+    expect(annualUnitVolumePriceUsd({ module: "mpa_property_manager", managedUnits: 501 })).toBe(
+      1034.4
     );
     expect(monthlyUnitVolumePriceUsd({ module: "mpa_property_manager", managedUnits: 1000 })).toBe(
       98
@@ -65,7 +98,7 @@ describe("unit-volume domain", () => {
     );
   });
 
-  it("prices Facility Operations monthly like PM with approved annual base", () => {
+  it("prices Facility Operations monthly like PM with 20% annual base", () => {
     expect(monthlyUnitVolumePriceUsd({ module: "mpa_facility_operations", managedUnits: 500 })).toBe(
       59
     );
@@ -80,23 +113,38 @@ describe("unit-volume domain", () => {
     );
 
     expect(annualUnitVolumePriceUsd({ module: "mpa_facility_operations", managedUnits: 500 })).toBe(
-      590
+      566.4
     );
+    expect(
+      annualSavingsVsMonthlyUsd(
+        monthlyUnitVolumePriceUsd({ module: "mpa_facility_operations", managedUnits: 500 }),
+        annualUnitVolumePriceUsd({ module: "mpa_facility_operations", managedUnits: 500 })
+      )
+    ).toBe(141.6);
     expect(annualUnitVolumePriceUsd({ module: "mpa_facility_operations", managedUnits: 501 })).toBe(
-      1058
+      1034.4
     );
     expect(annualUnitVolumePriceUsd({ module: "mpa_facility_operations", managedUnits: 1000 })).toBe(
-      1058
+      1034.4
     );
     expect(annualUnitVolumePriceUsd({ module: "mpa_facility_operations", managedUnits: 1001 })).toBe(
-      1526
+      1502.4
     );
   });
 
-  it("prices Complete Platform at boundaries", () => {
+  it("prices Complete Platform monthly and annual with 20% prepaid savings", () => {
     expect(monthlyUnitVolumePriceUsd({ module: "mpa_complete_platform", managedUnits: 500 })).toBe(
       109
     );
+    expect(annualUnitVolumePriceUsd({ module: "mpa_complete_platform", managedUnits: 500 })).toBe(
+      1046.4
+    );
+    expect(
+      annualSavingsVsMonthlyUsd(
+        monthlyUnitVolumePriceUsd({ module: "mpa_complete_platform", managedUnits: 500 }),
+        annualUnitVolumePriceUsd({ module: "mpa_complete_platform", managedUnits: 500 })
+      )
+    ).toBe(261.6);
     expect(monthlyUnitVolumePriceUsd({ module: "mpa_complete_platform", managedUnits: 501 })).toBe(
       148
     );
@@ -108,24 +156,24 @@ describe("unit-volume domain", () => {
     );
   });
 
-  it("sets PM/Complete annual = monthly × 12; FO annual uses $590 base + block annual", () => {
+  it("sets annual = discounted base + undiscounted block annual", () => {
     for (const units of BOUNDARY_UNITS) {
-      for (const module of ["mpa_property_manager", "mpa_complete_platform"] as const) {
+      for (const module of [
+        "mpa_property_manager",
+        "mpa_facility_operations",
+        "mpa_complete_platform"
+      ] as const) {
         const monthly = monthlyUnitVolumePriceUsd({ module, managedUnits: units });
         const annual = annualUnitVolumePriceUsd({ module, managedUnits: units });
-        expect(annual).toBe(monthly * 12);
+        const blocks = additionalUnitBlocks(units);
+        const expectedBase =
+          module === "mpa_complete_platform" ? COMPLETE_BASE_ANNUAL_USD : PM_BASE_ANNUAL_USD;
+        expect(annual).toBe(expectedBase + ADDITIONAL_UNIT_BLOCK_ANNUAL_USD * blocks);
+        expect(annual).not.toBe(monthly * 12);
+        if (blocks === 0 && units > 0) {
+          expect(annual).toBe(monthly * 12 * ANNUAL_PREPAID_MULTIPLIER);
+        }
       }
-      const foMonthly = monthlyUnitVolumePriceUsd({
-        module: "mpa_facility_operations",
-        managedUnits: units
-      });
-      const foAnnual = annualUnitVolumePriceUsd({
-        module: "mpa_facility_operations",
-        managedUnits: units
-      });
-      const blocks = additionalUnitBlocks(units);
-      expect(foAnnual).toBe(FO_ANNUAL_USD + ADDITIONAL_UNIT_BLOCK_ANNUAL_USD * blocks);
-      expect(foMonthly).toBe(FO_MONTHLY_USD + ADDITIONAL_UNIT_BLOCK_MONTHLY_USD * blocks);
     }
   });
 
@@ -145,12 +193,12 @@ describe("unit-volume domain", () => {
       additionalBlocks: 1,
       authorizedUnitCapacity: 1000,
       monthlyPriceUsd: 98,
-      annualPriceUsd: 1058,
+      annualPriceUsd: 1034.4,
       trialEligible: false,
       trialDays: 30,
       module: "mpa_facility_operations",
       baseMonthlyUsd: 59,
-      baseAnnualUsd: 590,
+      baseAnnualUsd: 566.4,
       additionalBlockMonthlyUsd: 39
     });
   });
@@ -171,7 +219,7 @@ describe("unit-volume domain", () => {
     expect(quote).not.toBeNull();
     expect(quote?.module).toBe("mpa_facility_operations");
     expect(quote?.monthlyPriceUsd).toBe(59);
-    expect(quote?.annualPriceUsd).toBe(590);
+    expect(quote?.annualPriceUsd).toBe(566.4);
     expect(quote?.trialEligible).toBe(true);
   });
 });

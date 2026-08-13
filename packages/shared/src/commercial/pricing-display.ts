@@ -6,9 +6,11 @@
 import type { BillingCycle } from "./plans";
 import {
   ADDITIONAL_UNIT_BLOCK_MONTHLY_USD,
+  COMPLETE_BASE_ANNUAL_USD,
   COMPLETE_BASE_MONTHLY_USD,
   FO_ANNUAL_USD,
   FO_MONTHLY_USD,
+  PM_BASE_ANNUAL_USD,
   PM_BASE_MONTHLY_USD,
   UNIT_BLOCK_SIZE,
   quoteUnitVolume,
@@ -27,11 +29,14 @@ export type UnitVolumeCalculatorResult = UnitVolumeQuote & {
 };
 
 export function formatUsdAmount(amount: number): string {
+  const cents = Math.round(amount * 100);
+  const fractionDigits = cents % 100 === 0 ? 0 : 2;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    maximumFractionDigits: 0
-  }).format(amount);
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits
+  }).format(cents / 100);
 }
 
 /** Authoritative calculator preview — same `quoteUnitVolume` as server quotes. */
@@ -82,6 +87,8 @@ export function calculateUnitVolumeDisplay(input: {
   };
 }
 
+export const ANNUAL_SAVINGS_COPY = "Save 20% with annual billing" as const;
+
 export const PUBLIC_PRICING_MODEL_COPY = {
   pmBaseMonthly: PM_BASE_MONTHLY_USD,
   completeBaseMonthly: COMPLETE_BASE_MONTHLY_USD,
@@ -90,11 +97,11 @@ export const PUBLIC_PRICING_MODEL_COPY = {
   foMonthly: FO_MONTHLY_USD,
   foAnnual: FO_ANNUAL_USD,
   pmHeadline: `$${PM_BASE_MONTHLY_USD}/month`,
-  pmHeadlineAnnual: `${formatUsdAmount(PM_BASE_MONTHLY_USD * 12)}/year`,
+  pmHeadlineAnnual: `${formatUsdAmount(PM_BASE_ANNUAL_USD)}/year`,
   foHeadlineMonthly: `$${FO_MONTHLY_USD}/month`,
   foHeadlineAnnual: `${formatUsdAmount(FO_ANNUAL_USD)}/year`,
   completeHeadlineMonthly: `$${COMPLETE_BASE_MONTHLY_USD}/month`,
-  completeHeadlineAnnual: `${formatUsdAmount(COMPLETE_BASE_MONTHLY_USD * 12)}/year`,
+  completeHeadlineAnnual: `${formatUsdAmount(COMPLETE_BASE_ANNUAL_USD)}/year`,
   pmIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
   foIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
   completeIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`,
@@ -102,14 +109,13 @@ export const PUBLIC_PRICING_MODEL_COPY = {
   additionalCapacityAnnualLine: `+$${ADDITIONAL_UNIT_BLOCK_MONTHLY_USD * 12}/year per additional ${UNIT_BLOCK_SIZE} units`,
   includedCapacityPlain: `Your plan includes up to ${UNIT_BLOCK_SIZE} managed units.`,
   additionalCapacityPlain: `Each additional ${UNIT_BLOCK_SIZE}-unit block adds $${ADDITIONAL_UNIT_BLOCK_MONTHLY_USD}/month or $${ADDITIONAL_UNIT_BLOCK_MONTHLY_USD * 12}/year.`,
-  annualNote:
-    "Annual billing: Property Manager and Complete Platform = monthly × 12 (no discount). Facility Operations base annual is $590; Additional Unit Capacity annual is always monthly × 12.",
+  annualSavingsCopy: ANNUAL_SAVINGS_COPY,
+  annualNote: `${ANNUAL_SAVINGS_COPY}. Property Manager and Facility Operations are ${formatUsdAmount(PM_BASE_ANNUAL_USD)}/year; Complete Platform is ${formatUsdAmount(COMPLETE_BASE_ANNUAL_USD)}/year (up to ${UNIT_BLOCK_SIZE} managed units). Additional Unit Capacity annual remains monthly × 12.`,
   unitDefinitionTitle: "What is a managed unit?",
   unitDefinition:
     "A managed unit is a property unit managed through M.P.A. Two tenants living in one unit count as 1 managed unit — not 2. Billing is by unit, not by the number of residents.",
   billingMonthly: "Monthly: base price + applicable Additional Unit Capacity.",
-  billingAnnual:
-    "Annual: Property Manager and Complete Platform charge 12 × the equivalent monthly total (no annual discount). Facility Operations uses a $590 base annual price; Additional Unit Capacity still adds $468/year per 500-unit block.",
+  billingAnnual: `Annual: ${ANNUAL_SAVINGS_COPY} on the product base. Additional Unit Capacity still adds $468/year per 500-unit block.`,
   capacityChangeTitle: "If your unit count increases",
   capacityChange:
     "Unit-count changes do not create surprise mid-period charges. If Additional Unit Capacity must increase, customer approval is required. The new recurring capacity takes effect on the next billing period.",

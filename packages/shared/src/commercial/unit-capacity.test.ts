@@ -195,7 +195,7 @@ describe("unit capacity payment gate (Slice 4)", () => {
     expect(plan.prorationBehavior).toBe("none");
   });
 
-  it("prices FO capacity gate with approved annual base ($590)", () => {
+  it("prices FO capacity gate with 20% annual base ($566.40)", () => {
     const monthly = evaluateUnitCapacityState({
       module: "mpa_facility_operations",
       actualUnits: 500,
@@ -219,8 +219,8 @@ describe("unit capacity payment gate (Slice 4)", () => {
       billingInterval: "annual"
     });
     const annualGate = buildCapacityGatePresentation(annual, 501);
-    expect(annualGate.currentPriceLabel).toBe("$590/year");
-    expect(annualGate.newPriceLabel).toBe("$1058/year");
+    expect(annualGate.currentPriceLabel).toBe("$566.40/year");
+    expect(annualGate.newPriceLabel).toBe("$1,034.40/year");
     expect(annualGate.additionalCapacityLabel).toBe("+$468/year");
   });
 
@@ -250,7 +250,7 @@ describe("unit capacity payment gate (Slice 4)", () => {
     expect(to1001.currentBillingAmountMonthlyUsd).toBe(148);
     expect(to1001.nextBillingAmountMonthlyUsd).toBe(187);
     const gate1001 = buildCapacityGatePresentation(to1001, 1001);
-    expect(gate1001.currentPriceLabel).toBe("$1776/year");
-    expect(gate1001.newPriceLabel).toBe("$2244/year");
+    expect(gate1001.currentPriceLabel).toBe("$1,514.40/year");
+    expect(gate1001.newPriceLabel).toBe("$1,982.40/year");
   });
 });

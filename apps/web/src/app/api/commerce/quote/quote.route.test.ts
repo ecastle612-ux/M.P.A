@@ -31,7 +31,7 @@ describe("POST /api/commerce/quote", () => {
       snapshot: { snapshot_id: string };
     };
     expect(payload.quote.monthly_amount).toBe(98);
-    expect(payload.quote.annual_amount).toBe(1176);
+    expect(payload.quote.annual_amount).toBe(1034.4);
     expect(payload.quote.trial_eligible).toBe(false);
     expect(payload.quote.additional_blocks).toBe(1);
     expect(payload.quote.stripe_objects_created).toBe(false);
@@ -102,7 +102,7 @@ describe("POST /api/commerce/quote", () => {
     expect(regen.status).toBe(200);
     const regenPayload = (await regen.json()) as { quote: { quote_id: string; selected_amount: number } };
     expect(regenPayload.quote.quote_id).not.toBe(createdPayload.quote.quote_id);
-    expect(regenPayload.quote.selected_amount).toBe(708);
+    expect(regenPayload.quote.selected_amount).toBe(566.4);
   });
 
   it("gates Complete recommendation while still calculating price", async () => {

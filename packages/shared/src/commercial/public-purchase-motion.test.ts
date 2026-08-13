@@ -11,6 +11,8 @@ describe("public purchase motion (Option B)", () => {
     const motion = publicPurchaseMotionForSku("mpa_property_manager");
     expect(motion.kind).toBe("self_serve");
     expect(motion.ctaLabel).toMatch(/Property Manager/i);
+    expect(motion.explanation).toMatch(/Save 20% with annual billing/);
+    expect(motion.explanation).toMatch(/\$566\.40\/year/);
   });
 
   it("routes Facility Operations to self-serve when FO_READY", () => {
@@ -19,8 +21,8 @@ describe("public purchase motion (Option B)", () => {
     expect(motion.kind).toBe("self_serve");
     expect(motion.ctaLabel).toMatch(/Facility Operations/i);
     expect(motion.availabilityLabel).toBe("Available");
-    expect(motion.explanation.toLowerCase()).not.toContain("not available");
-    expect(motion.explanation.toLowerCase()).not.toMatch(/coming soon|early access|gated|enterprise only/);
+    expect(motion.explanation).toMatch(/Save 20% with annual billing/);
+    expect(motion.explanation).toMatch(/\$59\/month or \$566\.40\/year/);
   });
 
   it("routes Complete Platform to self-serve when COMPLETE_READY", () => {
@@ -29,10 +31,8 @@ describe("public purchase motion (Option B)", () => {
     expect(motion.kind).toBe("self_serve");
     expect(motion.ctaLabel).toMatch(/Complete Platform/i);
     expect(motion.availabilityLabel).toBe("Available");
-    expect(motion.explanation.toLowerCase()).not.toContain("not available");
-    expect(motion.explanation.toLowerCase()).not.toMatch(
-      /coming soon|early access|gated|enterprise only|consultation only/
-    );
+    expect(motion.explanation).toMatch(/Save 20% with annual billing/);
+    expect(motion.explanation).toMatch(/\$1,046\.40\/year/);
   });
 });
 
