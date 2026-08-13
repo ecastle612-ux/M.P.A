@@ -15,17 +15,18 @@ export const MARKETING_MODULE_COPY: Record<string, string> = {
   financial_operations:
     "Resident billing, rent collection, collections, vendor invoice approval, and owner summaries.",
   facility_mission_control:
-    "Your Facility Operations home for daily attention once your plan is active.",
-  facility_operations: "Facility work coverage included with the Facility Operations plan.",
-  assets: "Equipment and asset coverage included with the Facility Operations plan.",
-  inventory: "Storeroom and materials coverage included with the Facility Operations plan.",
-  parts: "Parts catalog coverage included with the Facility Operations plan.",
+    "Your Facility Operations home for daily attention, open work, and next actions.",
+  facility_operations:
+    "Create, assign, start, progress, complete, and cancel facility work orders — with vendor handoff when needed.",
+  assets: "Building and site records that give facility work orders a place to land.",
+  inventory: "Work-order queue for inventory and materials tasks — not a stock catalog system.",
+  parts: "Work-order queue for parts-related facility tasks — not a catalog or BOM system.",
   preventive_maintenance:
-    "Preventive maintenance coverage included with the Facility Operations plan.",
-  inspections: "Building and facility inspection coverage included with the Facility Operations plan.",
-  safety: "Safety program coverage included with the Facility Operations plan.",
-  compliance: "Facility compliance coverage included with the Facility Operations plan.",
-  building_systems: "Building systems coverage included with the Facility Operations plan."
+    "Work-order queue for preventive facility tasks — not an automated schedule engine.",
+  inspections: "Work-order queue for inspection tasks across buildings and sites.",
+  safety: "Work-order queue for safety-related facility tasks.",
+  compliance: "Work-order queue for compliance-related facility tasks.",
+  building_systems: "Work-order queue for building-systems facility tasks."
 };
 
 export function marketingModuleDescription(moduleId: string, fallback: string): string {

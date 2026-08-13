@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   acquisitionHref,
   commercialContinueHref,
+  legacyOfferCheckoutCancelPath,
   marketingModulesForSku,
   parseAcquisitionSku,
-  skuComparisonRows
+  skuComparisonRows,
+  unitVolumeCheckoutCancelPath
 } from "./acquisition";
 
 describe("commercial acquisition helpers", () => {
@@ -64,6 +66,13 @@ describe("commercial acquisition helpers", () => {
     expect(acquisitionHref("questionnaire")).toBe("/get-started");
     expect(acquisitionHref("enterprise", "mpa_facility_operations")).toBe(
       "/enterprise?intent=mpa_facility_operations"
+    );
+  });
+
+  it("builds matching Stripe cancel paths for quote and offer checkouts", () => {
+    expect(unitVolumeCheckoutCancelPath("cq_123")).toBe("/checkout/cancel?quote=cq_123");
+    expect(legacyOfferCheckoutCancelPath("mpa_facility_operations__professional__monthly")).toBe(
+      "/checkout/cancel?offer=mpa_facility_operations__professional__monthly"
     );
   });
 

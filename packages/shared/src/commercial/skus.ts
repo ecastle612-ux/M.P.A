@@ -60,12 +60,12 @@ export const SKU_SUMMARIES: Record<
     id: "facility_operations",
     label: "Facility Operations",
     description:
-      "Facility product for building teams — work orders, assets, inventory, preventive maintenance, safety, compliance, and building systems."
+      "Facility operations for building teams — Mission Control, work orders, assignments, technician execution, vendors, progress tracking, and operational visibility across facility work categories."
   },
   mpa_complete_platform: {
     id: "complete_platform",
     label: "Complete Platform",
     description:
-      "Property Manager and Facility Operations together — one organization with both product homes and the shared platform foundation."
+      "Property Manager and Facility Operations together — one organization with both product homes, shared context, and the shared platform foundation."
   }
 };

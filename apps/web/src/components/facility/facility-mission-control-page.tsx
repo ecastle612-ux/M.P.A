@@ -28,44 +28,44 @@ const CAPABILITIES = [
     summary: "Corrective facility work — create, assign, progress, complete, cancel."
   },
   {
-    title: "Assets / Buildings",
+    title: "Buildings & Sites",
     href: "/facility/assets",
-    summary: "Buildings and named assets for facility work context."
+    summary: "Building and site records used as context for facility work orders."
   },
   {
-    title: "Preventive Maintenance",
+    title: "Preventive Work",
     href: "/facility/preventive-maintenance",
-    summary: "Preventive facility work queues and due tracking."
+    summary: "Work-order queue for preventive facility tasks."
   },
   {
-    title: "Inspections",
+    title: "Inspection Work",
     href: "/facility/inspections",
-    summary: "Inspection work with evidence notes and completion."
+    summary: "Work-order queue for inspection tasks."
   },
   {
-    title: "Compliance",
+    title: "Compliance Work",
     href: "/facility/compliance",
-    summary: "Compliance and certificate-related facility work."
+    summary: "Work-order queue for compliance-related facility tasks."
   },
   {
-    title: "Inventory",
+    title: "Inventory Work",
     href: "/facility/inventory",
-    summary: "Inventory-related facility follow-ups."
+    summary: "Work-order queue for inventory and materials tasks."
   },
   {
-    title: "Parts",
+    title: "Parts Work",
     href: "/facility/parts",
-    summary: "Parts-related facility work."
+    summary: "Work-order queue for parts-related facility tasks."
   },
   {
-    title: "Safety",
+    title: "Safety Work",
     href: "/facility/safety",
-    summary: "Safety work orders and corrective follow-ups."
+    summary: "Work-order queue for safety-related facility tasks."
   },
   {
-    title: "Building Systems",
+    title: "Building Systems Work",
     href: "/facility/building-systems",
-    summary: "HVAC, electrical, fire, and related systems work."
+    summary: "Work-order queue for building-systems facility tasks."
   }
 ] as const;
 
