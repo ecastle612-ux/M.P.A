@@ -87,6 +87,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
   const facilityRoutes: Array<[string, EntitlementKey]> = [
     ["/facility/mission-control", "facility.mission_control"],
     ["/facility/operations", "facility.operations"],
+    ["/facility/vendors", "facility.operations"],
     ["/facility/assets", "facility.assets"],
     ["/facility/inventory", "facility.inventory"],
     ["/facility/parts", "facility.parts"],
@@ -239,6 +240,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
       decisionPath("/facility/mission-control", "Mission Control", "Facility Operations", "facility.mission_control")
     );
     push(decisionPath("/facility/operations", "Facility Operations", "Facility Operations", "facility.operations"));
+    push(decisionPath("/facility/vendors", "Vendors", "Facility Operations", "facility.operations"));
     push(decisionPath("/facility/assets", "Assets", "Facility Operations", "facility.assets"));
     push(decisionPath("/facility/inventory", "Inventory", "Facility Operations", "facility.inventory"));
     push(decisionPath("/facility/parts", "Parts", "Facility Operations", "facility.parts"));

@@ -215,6 +215,16 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     description: "Create, assign, start, progress, complete, and cancel facility work orders.",
   },
   {
+    id: "facility_vendors",
+    label: "Vendors",
+    owner: "facility_operations",
+    entitlement: "facility.operations",
+    href: "/facility/vendors",
+    readiness: "aligned",
+    description:
+      "Facility vendor directory for HVAC, plumbing, electrical, and contractors — assign from Operations."
+  },
+  {
     id: "assets",
     label: "Buildings & Sites",
     owner: "facility_operations",
@@ -398,6 +408,12 @@ export function navigationGroupsForSku(
         {
           href: "/facility/operations",
           label: "Operations",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
+        {
+          href: "/facility/vendors",
+          label: "Vendors",
           readiness: "aligned",
           entitlement: "facility.operations"
         },

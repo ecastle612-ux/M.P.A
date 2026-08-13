@@ -59,6 +59,13 @@ export function ownerDay1ChecklistForSku(productSku: ProductSku): OwnerDay1Check
             detail: "Give Maintenance Technicians access to execute facility work."
           },
           {
+            id: "fo_vendors",
+            label: "Add facility vendors",
+            href: "/facility/vendors",
+            detail:
+              "Add HVAC, plumbing, or contractor contacts so Operations can assign external work."
+          },
+          {
             id: "fo_work_order",
             label: "Create first work order",
             href: "/facility/operations",
@@ -68,7 +75,8 @@ export function ownerDay1ChecklistForSku(productSku: ProductSku): OwnerDay1Check
             id: "fo_assign",
             label: "Assign work",
             href: "/facility/operations",
-            detail: "Assign to a technician or vendor so execution can start."
+            detail:
+              "Assign to a technician or a facility vendor from your Vendors directory."
           },
           {
             id: "fo_complete",
