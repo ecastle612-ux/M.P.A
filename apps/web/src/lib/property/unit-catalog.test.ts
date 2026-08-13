@@ -154,6 +154,47 @@ describe("unit-catalog (PM unit management)", () => {
     expect(unit.unit_label).toBe("1A");
   });
 
+  it("toggles available and offline status without hard delete", async () => {
+    const availableDb = createMockDb({
+      unit: {
+        id: "u1",
+        organization_id: "org-a",
+        property_id: "prop-a",
+        unit_label: "1",
+        status: "available"
+      }
+    });
+    const offline = await updatePropertyUnit(
+      availableDb as never,
+      "org-a",
+      "actor-1",
+      "prop-a",
+      "u1",
+      { status: "offline" }
+    );
+    expect(offline.status).toBe("offline");
+    expect(availableDb.inserts.length).toBe(0);
+
+    const offlineDb = createMockDb({
+      unit: {
+        id: "u1",
+        organization_id: "org-a",
+        property_id: "prop-a",
+        unit_label: "1",
+        status: "offline"
+      }
+    });
+    const restored = await updatePropertyUnit(
+      offlineDb as never,
+      "org-a",
+      "actor-1",
+      "prop-a",
+      "u1",
+      { status: "available" }
+    );
+    expect(restored.status).toBe("available");
+  });
+
   it("archives available units to offline", async () => {
     const db = createMockDb({
       unit: {
@@ -188,6 +229,42 @@ describe("unit-catalog (PM unit management)", () => {
     ).rejects.toThrow(/resident\/lease/i);
   });
 
+  it("blocks archive when an active lease is attached", async () => {
+    const db = createMockDb({
+      unit: {
+        id: "u1",
+        organization_id: "org-a",
+        property_id: "prop-a",
+        unit_label: "1",
+        status: "available"
+      },
+      residentCount: 0,
+      leaseCount: 1
+    });
+    await expect(
+      archivePropertyUnit(db as never, "org-a", "actor-1", "prop-a", "u1")
+    ).rejects.toThrow(/resident\/lease/i);
+  });
+
+  it("preserves maintenance relationship on archive (no hard delete)", async () => {
+    const db = createMockDb({
+      unit: {
+        id: "u1",
+        organization_id: "org-a",
+        property_id: "prop-a",
+        unit_label: "1",
+        status: "available"
+      },
+      residentCount: 0,
+      leaseCount: 0,
+      openMaintenanceCount: 2
+    });
+    const unit = await archivePropertyUnit(db as never, "org-a", "actor-1", "prop-a", "u1");
+    expect(unit.status).toBe("offline");
+    expect(db.updates.at(-1)).toEqual({ status: "offline" });
+    expect(db.inserts.length).toBe(0);
+  });
+
   it("blocks occupied status edits driven by relationships", async () => {
     const db = createMockDb({
       unit: {
@@ -205,5 +282,17 @@ describe("unit-catalog (PM unit management)", () => {
         status: "available"
       })
     ).rejects.toThrow(/Clear the resident/i);
+  });
+
+  it("blocks cross-org unit updates", async () => {
+    const db = createMockDb({
+      unit: null,
+      otherOrgLeak: true
+    });
+    await expect(
+      updatePropertyUnit(db as never, "org-b", "actor-1", "prop-a", "u1", {
+        unitLabel: "X"
+      })
+    ).rejects.toThrow(/Unit not found/i);
   });
 });

@@ -33,8 +33,23 @@ describe("PM unit management completion", () => {
     ).toBeNull();
     expect(
       unitArchiveBlockReason({
+        status: "available",
+        hasResident: false,
+        hasActiveLease: false,
+        openMaintenanceCount: 3
+      })
+    ).toBeNull();
+    expect(
+      unitArchiveBlockReason({
         status: "occupied",
         hasResident: true,
+        hasActiveLease: true
+      })
+    ).toMatch(/resident\/lease/i);
+    expect(
+      unitArchiveBlockReason({
+        status: "available",
+        hasResident: false,
         hasActiveLease: true
       })
     ).toMatch(/resident\/lease/i);
