@@ -1,7 +1,6 @@
 import type Stripe from "stripe";
 import {
   buildUnitVolumeCheckoutMetadata,
-  legacyOfferCheckoutCancelPath,
   resolveCheckoutLineItems,
   unitVolumeCheckoutCancelPath,
   validateQuoteForCheckout,
