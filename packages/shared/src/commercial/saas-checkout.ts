@@ -7,6 +7,7 @@ import {
 import { COM_002_FLAGS } from "./commerce-flags";
 import type { BillingCycle, PlanTier } from "./plans";
 import type { ProductSku } from "./skus";
+import { isSupersededCheckoutStripePriceId } from "./superseded-stripe-prices";
 
 /** SaaS money-domain marker — never reuse FIN-OPS handlers. */
 export const SAAS_MONEY_DOMAIN = "saas_billing" as const;
@@ -89,10 +90,17 @@ export type SaasCheckoutValidation =
         | "offer_not_found"
         | "not_self_serve"
         | "invalid_plan"
-        | "price_unconfigured";
+        | "price_unconfigured"
+        | "legacy_checkout_disabled"
+        | "superseded_price_blocked";
       route?: "enterprise" | "pricing";
     };
 
+/**
+ * Legacy offer validation (admin/historical helpers + tests).
+ * Customer Checkout API must not call this path — use unit-volume quotes.
+ * Superseded provisional Prices (e.g. legacy $99 Professional) are rejected.
+ */
 export function validateSaasCheckoutRequest(
   input: SaasCheckoutRequest,
   resolvePriceId: (offerId: string) => string | null = () => null
@@ -122,6 +130,9 @@ export function validateSaasCheckoutRequest(
   const priceId = resolvePriceId(offer.id) ?? offer.stripePriceId;
   if (!priceId) {
     return { ok: false, reason: "price_unconfigured", route: "pricing" };
+  }
+  if (isSupersededCheckoutStripePriceId(priceId)) {
+    return { ok: false, reason: "superseded_price_blocked", route: "pricing" };
   }
   return { ok: true, offer: { ...offer, stripePriceId: priceId } };
 }

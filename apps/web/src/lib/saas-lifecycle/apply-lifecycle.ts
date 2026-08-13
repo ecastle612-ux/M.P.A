@@ -98,14 +98,19 @@ async function notify(
   });
 }
 
-function findOwnerEmail(sub: LifecycleSubscription): string | null {
+function findOwnerEmail(
+  sub: LifecycleSubscription,
+  fallbackEmail?: string | null
+): string | null {
   const purchases = listSaasPurchases();
   const match = purchases.find(
     (p) =>
       p.stripeSubscriptionId === sub.stripeSubscriptionId ||
       (sub.organizationId && p.organizationId === sub.organizationId)
   );
-  return match?.customerEmail ?? null;
+  const fromPurchase = match?.customerEmail?.trim() || null;
+  const fromFallback = fallbackEmail?.trim() || null;
+  return fromPurchase ?? fromFallback;
 }
 
 async function resolveOrganizationId(stripeSubscriptionId: string, stripeCustomerId: string | null): Promise<string | null> {
@@ -302,6 +307,7 @@ export async function applySubscriptionCreatedOrUpdated(input: {
 export async function applyInvoicePaid(input: {
   stripeSubscriptionId: string | null;
   stripeCustomerId: string | null;
+  customerEmail?: string | null;
   amountCents?: number;
   eventId: string;
 }): Promise<LifecycleSubscription | null> {
@@ -342,10 +348,11 @@ export async function applyInvoicePaid(input: {
     );
   }
   sub = await saveLifecycleSubscription(sub);
+  const ownerEmail = findOwnerEmail(sub, input.customerEmail);
   if (wasPastDue) {
-    sub = await notify(sub, "subscription_restored", `restored:${input.eventId}`, findOwnerEmail(sub));
+    sub = await notify(sub, "subscription_restored", `restored:${input.eventId}`, ownerEmail);
   } else {
-    sub = await notify(sub, "renewal_success", `renewal:${input.eventId}`, findOwnerEmail(sub));
+    sub = await notify(sub, "renewal_success", `renewal:${input.eventId}`, ownerEmail);
   }
   await persistLifecycleSubscription(sub);
   return sub;
@@ -354,6 +361,7 @@ export async function applyInvoicePaid(input: {
 export async function applyInvoicePaymentFailed(input: {
   stripeSubscriptionId: string | null;
   stripeCustomerId: string | null;
+  customerEmail?: string | null;
   amountCents?: number;
   eventId: string;
 }): Promise<LifecycleSubscription | null> {
@@ -392,7 +400,12 @@ export async function applyInvoicePaymentFailed(input: {
   const day = daysIntoGrace(sub.graceStartedAt) ?? 0;
   const kind = dunningEmailKindForDay(day);
   if (kind === "payment_failed" || kind === "grace_warning") {
-    sub = await notify(sub, kind, `dunning:${day}:${sub.graceStartedAt}`, findOwnerEmail(sub));
+    sub = await notify(
+      sub,
+      kind,
+      `dunning:${day}:${sub.graceStartedAt}`,
+      findOwnerEmail(sub, input.customerEmail)
+    );
   }
   await persistLifecycleSubscription(sub);
   return sub;

@@ -3,6 +3,7 @@ import {
   COM_002_FLAGS,
   isProductSku,
   isSaasCheckoutMetadata,
+  resolveInvoiceSubscriptionId,
   type ProductSku
 } from "@mpa/shared";
 import { serverEnv } from "../env/server-env";
@@ -199,11 +200,8 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
       return;
     }
     case "invoice.created": {
-      const invoice = event.data.object as Stripe.Invoice & {
-        subscription?: string | Stripe.Subscription | null;
-      };
-      const subId =
-        typeof invoice.subscription === "string" ? invoice.subscription : null;
+      const invoice = event.data.object as Stripe.Invoice;
+      const subId = resolveInvoiceSubscriptionId(invoice);
       if (subId) {
         const { applyPendingCapacityAtPeriodBoundary } = await import(
           "../saas-lifecycle/unit-capacity-service"
@@ -216,11 +214,12 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
       return;
     }
     case "invoice.paid": {
-      const invoice = event.data.object as Stripe.Invoice & {
-        subscription?: string | Stripe.Subscription | null;
-      };
-      const subId =
-        typeof invoice.subscription === "string" ? invoice.subscription : null;
+      const invoice = event.data.object as Stripe.Invoice;
+      const subId = resolveInvoiceSubscriptionId(invoice);
+      const customerEmail =
+        typeof invoice.customer_email === "string" && invoice.customer_email.trim()
+          ? invoice.customer_email.trim()
+          : null;
       if (subId) {
         const purchase = listSaasPurchases().find((p) => p.stripeSubscriptionId === subId);
         if (purchase?.stripeCheckoutSessionId) {
@@ -230,31 +229,31 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
       await applyInvoicePaid({
         stripeSubscriptionId: subId,
         stripeCustomerId: typeof invoice.customer === "string" ? invoice.customer : null,
+        customerEmail,
         ...(typeof invoice.amount_paid === "number" ? { amountCents: invoice.amount_paid } : {}),
         eventId: event.id
       });
       return;
     }
     case "invoice.payment_failed": {
-      const invoice = event.data.object as Stripe.Invoice & {
-        subscription?: string | Stripe.Subscription | null;
-      };
+      const invoice = event.data.object as Stripe.Invoice;
+      const customerEmail =
+        typeof invoice.customer_email === "string" && invoice.customer_email.trim()
+          ? invoice.customer_email.trim()
+          : null;
       await applyInvoicePaymentFailed({
-        stripeSubscriptionId:
-          typeof invoice.subscription === "string" ? invoice.subscription : null,
+        stripeSubscriptionId: resolveInvoiceSubscriptionId(invoice),
         stripeCustomerId: typeof invoice.customer === "string" ? invoice.customer : null,
+        customerEmail,
         ...(typeof invoice.amount_due === "number" ? { amountCents: invoice.amount_due } : {}),
         eventId: event.id
       });
       return;
     }
     case "invoice.payment_action_required": {
-      const invoice = event.data.object as Stripe.Invoice & {
-        subscription?: string | Stripe.Subscription | null;
-      };
+      const invoice = event.data.object as Stripe.Invoice;
       await applyInvoicePaymentActionRequired({
-        stripeSubscriptionId:
-          typeof invoice.subscription === "string" ? invoice.subscription : null,
+        stripeSubscriptionId: resolveInvoiceSubscriptionId(invoice),
         stripeCustomerId: typeof invoice.customer === "string" ? invoice.customer : null,
         eventId: event.id
       });

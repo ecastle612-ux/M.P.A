@@ -110,6 +110,7 @@ describe("COM-002 SaaS webhook handling (Slice C + D + E)", () => {
           object: "invoice",
           subscription: "sub_wh_1",
           customer: "cus_wh_1",
+          customer_email: "owner@example.com",
           amount_due: 9900
         }
       }
@@ -131,6 +132,7 @@ describe("COM-002 SaaS webhook handling (Slice C + D + E)", () => {
           object: "invoice",
           subscription: "sub_wh_1",
           customer: "cus_wh_1",
+          customer_email: "owner@example.com",
           amount_paid: 9900
         }
       }
@@ -138,6 +140,84 @@ describe("COM-002 SaaS webhook handling (Slice C + D + E)", () => {
     const paid = await handleSaasStripeEvent(paidEvent as never);
     expect(paid.ok).toBe(true);
     expect((await getLifecycleByStripeSubscriptionId("sub_wh_1"))?.status).toBe("active");
+  });
+
+  it("resolves nested invoice.parent.subscription_details.subscription for renewal lifecycle", async () => {
+    const nestedFail = {
+      id: "evt_fail_nested_1",
+      type: "invoice.payment_failed",
+      data: {
+        object: {
+          id: "in_nested_fail",
+          object: "invoice",
+          subscription: null,
+          parent: {
+            subscription_details: {
+              subscription: "sub_nested_wh_1"
+            }
+          },
+          customer: "cus_nested_1",
+          customer_email: "nested-owner@example.com",
+          amount_due: 5900
+        }
+      }
+    };
+    const fail = await handleSaasStripeEvent(nestedFail as never);
+    expect(fail.ok).toBe(true);
+    const pastDue = await getLifecycleByStripeSubscriptionId("sub_nested_wh_1");
+    expect(pastDue?.status).toBe("past_due");
+    expect(pastDue?.emailsSent.some((e) => e.includes("dunning:"))).toBe(true);
+
+    const nestedPaid = {
+      id: "evt_paid_nested_1",
+      type: "invoice.paid",
+      data: {
+        object: {
+          id: "in_nested_paid",
+          object: "invoice",
+          subscription: null,
+          parent: {
+            subscription_details: {
+              subscription: "sub_nested_wh_1"
+            }
+          },
+          customer: "cus_nested_1",
+          customer_email: "nested-owner@example.com",
+          amount_paid: 5900
+        }
+      }
+    };
+    const paid = await handleSaasStripeEvent(nestedPaid as never);
+    expect(paid.ok).toBe(true);
+    const active = await getLifecycleByStripeSubscriptionId("sub_nested_wh_1");
+    expect(active?.status).toBe("active");
+    expect(active?.emailsSent.some((e) => e.startsWith("restored:") || e.startsWith("renewal:"))).toBe(
+      true
+    );
+
+    const paidDup = await handleSaasStripeEvent(nestedPaid as never);
+    expect(paidDup.ok).toBe(true);
+    if (paidDup.ok) expect(paidDup.duplicate).toBe(true);
+  });
+
+  it("fails closed when invoice has no resolvable subscription", async () => {
+    const orphan = {
+      id: "evt_orphan_invoice_1",
+      type: "invoice.paid",
+      data: {
+        object: {
+          id: "in_orphan",
+          object: "invoice",
+          subscription: null,
+          parent: { subscription_details: null },
+          customer: "cus_orphan",
+          amount_paid: 5900
+        }
+      }
+    };
+    const result = await handleSaasStripeEvent(orphan as never);
+    expect(result.ok).toBe(true);
+    expect(await getLifecycleByStripeSubscriptionId("sub_does_not_exist")).toBeNull();
   });
 
   it("builds a stripe-compatible signature header shape", () => {

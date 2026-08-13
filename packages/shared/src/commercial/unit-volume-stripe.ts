@@ -23,6 +23,7 @@ import {
 } from "./acquisition-quote";
 import { COMPLETE_READY, FO_READY } from "./commerce-flags";
 import { SAAS_MONEY_DOMAIN, SAAS_METADATA_KEYS } from "./saas-checkout";
+import { isSupersededCheckoutStripePriceId } from "./superseded-stripe-prices";
 
 /** Commercial model stamp for Stripe metadata reconciliation. */
 export const COMMERCIAL_MODEL_VERSION = "unit_volume_v1" as const;
@@ -215,7 +216,12 @@ export function resolveCheckoutLineItems(
   resolvePriceId: ResolvePriceId
 ):
   | { ok: true; items: Array<{ price: string; quantity: number; role: CheckoutLineItemPlan["role"] }> }
-  | { ok: false; reason: "price_unconfigured"; missingEnvKey: string } {
+  | {
+      ok: false;
+      reason: "price_unconfigured" | "superseded_price_blocked";
+      missingEnvKey: string;
+      priceId?: string;
+    } {
   const items: Array<{ price: string; quantity: number; role: CheckoutLineItemPlan["role"] }> = [];
   for (const line of plan.lineItems) {
     if (line.quantity <= 0) {
@@ -224,6 +230,14 @@ export function resolveCheckoutLineItems(
     const price = resolvePriceId(line.priceEnvKey);
     if (!price) {
       return { ok: false, reason: "price_unconfigured", missingEnvKey: line.priceEnvKey };
+    }
+    if (isSupersededCheckoutStripePriceId(price)) {
+      return {
+        ok: false,
+        reason: "superseded_price_blocked",
+        missingEnvKey: line.priceEnvKey,
+        priceId: price
+      };
     }
     items.push({ price, quantity: line.quantity, role: line.role });
   }
@@ -251,7 +265,8 @@ export type QuoteCheckoutValidation =
         | "invalid_trial_state"
         | "module_gated"
         | "not_unit_volume_module"
-        | "price_unconfigured";
+        | "price_unconfigured"
+        | "superseded_price_blocked";
       detail?: string;
     };
 
@@ -335,8 +350,11 @@ export function validateQuoteForCheckout(input: {
     if (!resolved.ok) {
       return {
         ok: false,
-        reason: "price_unconfigured",
-        detail: resolved.missingEnvKey
+        reason: resolved.reason,
+        detail:
+          resolved.reason === "superseded_price_blocked"
+            ? resolved.priceId ?? resolved.missingEnvKey
+            : resolved.missingEnvKey
       };
     }
   }

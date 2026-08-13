@@ -4,7 +4,10 @@ import {
   buildUnitVolumeCheckoutPlan,
   validateAcquisitionAnswers
 } from "@mpa/shared";
-import { buildUnitVolumeSessionParamsForTest } from "./create-checkout-session";
+import {
+  buildUnitVolumeSessionParamsForTest,
+  createSaasCheckoutSession
+} from "./create-checkout-session";
 
 function quote(units: number, cycle: "monthly" | "annual" = "monthly") {
   const validated = validateAcquisitionAnswers({
@@ -133,5 +136,34 @@ describe("unit-volume Checkout Session param builder", () => {
     expect(params.payment_method_collection).toBe("always");
     expect(params.subscription_data.trial_period_days).toBeUndefined();
     expect(params.metadata["mpa_product_sku"]).toBe("mpa_complete_platform");
+  });
+
+  it("refuses to build session params when env resolves to superseded $99 Price", () => {
+    const plan = buildUnitVolumeCheckoutPlan(quote(100, "monthly"))!;
+    expect(() =>
+      buildUnitVolumeSessionParamsForTest({
+        plan,
+        prices: {
+          ...prices,
+          STRIPE_PRICE_PM_BASE_MONTHLY: "price_1Tw3Cb8jGrZYUXDtQwHvaXFW"
+        }
+      })
+    ).toThrow(/price_1Tw3Cb8jGrZYUXDtQwHvaXFW|superseded|STRIPE_PRICE_PM_BASE_MONTHLY/);
+  });
+});
+
+describe("legacy offer Checkout Session helper", () => {
+  it("is hard-disabled for NEW session creation", async () => {
+    const result = await createSaasCheckoutSession({
+      productSku: "mpa_property_manager",
+      planTier: "professional",
+      billingCycle: "monthly",
+      customerEmail: "nobody@example.com"
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toBe("legacy_checkout_disabled");
+      expect(result.status).toBe(410);
+    }
   });
 });

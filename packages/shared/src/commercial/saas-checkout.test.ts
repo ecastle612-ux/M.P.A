@@ -109,4 +109,19 @@ describe("COM-002 Slice C SaaS checkout validation", () => {
     expect(isSaasCheckoutMetadata(meta)).toBe(true);
     expect(meta.mpa_demo_session_id).toBe("demo_1");
   });
+
+  it("rejects superseded legacy $99 Professional Price for new acquisition mapping", () => {
+    const result = validateSaasCheckoutRequest(
+      {
+        productSku: "mpa_property_manager",
+        planTier: "professional",
+        billingCycle: "monthly"
+      },
+      () => "price_1Tw3Cb8jGrZYUXDtQwHvaXFW"
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toBe("superseded_price_blocked");
+    }
+  });
 });
