@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  ownerDay1ChecklistForSku,
   skuIncludesFacilityOperations,
   skuIncludesPropertyManager,
   workspaceLauncherItemsForSku,
@@ -18,6 +19,7 @@ import {
   priorityBadgeVariant,
   workspaceSectionLabel
 } from "../../lib/commercial/complete-launcher-presentation";
+import { OwnerDay1ChecklistCard } from "./owner-day1-checklist";
 
 const linkFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
@@ -115,9 +117,14 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
         </h1>
         <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
           {view.labels.productTagline} Review today&apos;s priorities, then open the workspace that
-          owns the work.
+          owns the work — two workspaces, one commercial product.
         </p>
       </section>
+
+      <OwnerDay1ChecklistCard
+        checklist={ownerDay1ChecklistForSku("mpa_complete_platform")}
+        showOwnerClarity
+      />
 
       {view.loadErrors.length > 0 ? (
         <section
