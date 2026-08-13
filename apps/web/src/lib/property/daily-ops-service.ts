@@ -39,6 +39,7 @@ export async function buildDailyOperationsBriefing(
       .from("maintenance_work_orders")
       .select("id, title, status, priority, assignee_type, property_id")
       .eq("organization_id", organizationId)
+      .eq("work_surface", "residential")
       .in("status", ["submitted", "triaged", "assigned", "in_progress", "completed"])
       .order("submitted_at", { ascending: false })
       .limit(40),
