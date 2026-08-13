@@ -21,6 +21,12 @@ export {
   listPropertyTimeline,
   searchPortfolioProperties
 } from "./property-catalog";
+export {
+  archivePropertyUnit,
+  createPropertyUnit,
+  suggestUnitLabelForProperty,
+  updatePropertyUnit
+} from "./unit-catalog";
 export { getPropertyCommandCenter } from "./property-command-center";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

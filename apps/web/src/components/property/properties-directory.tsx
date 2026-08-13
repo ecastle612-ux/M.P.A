@@ -134,10 +134,10 @@ export function PropertiesDirectory() {
           data-testid="pm-units-day1-guidance"
         >
           {propertiesWithUnits > 0
-            ? "Your units were created with this property. Open a property to review units, then add residents and leasing."
+            ? "Open a property to manage units (add, edit, archive), then continue to residents and leasing."
             : propertiesWithoutUnits > 0
-              ? "Add units to begin resident and leasing workflows. Create or reopen a property and set how many units it has."
-              : "Open a property to confirm units before residents and leasing."}
+              ? "Open a property and add units to begin resident and leasing workflows."
+              : "Create a property, then manage units before residents and leasing."}
         </p>
       ) : null}
 

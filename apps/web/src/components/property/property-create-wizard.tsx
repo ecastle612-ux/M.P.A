@@ -167,7 +167,8 @@ export function PropertyCreateWizard({ onCancel }: PropertyCreateWizardProps) {
                 required
               />
               <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                We create units labeled 1…{unitCount}. You can refine later.
+                We create units labeled 1…{unitCount}. You can add, edit, or archive units later on
+                the property.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
