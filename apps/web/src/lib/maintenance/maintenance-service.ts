@@ -146,7 +146,12 @@ async function notify(
   }
 ) {
   // STAB-007 — in-app always when user present; email for critical lifecycle events.
-  await notifyLifecycle(supabase as never, args);
+  // Notification delivery must not reverse a successful work-order mutation (FO UAT UX).
+  try {
+    await notifyLifecycle(supabase as never, args);
+  } catch {
+    // Prefer durable work-order state + UI success over a false error banner.
+  }
 }
 
 const SELECT_WO = `
