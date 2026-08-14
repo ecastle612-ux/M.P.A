@@ -1,10 +1,13 @@
 # ADR-024: COM-002 Tenant Communication Center
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-14
+
+## Accepted
+2026-08-14 — Product Owner + Architect authorization for COM-002 Tenant Communication Center v1 (docs/80 Approved).
 
 ## Context
 
@@ -48,7 +51,7 @@ Related:
 
 8. Security: tenant isolation by lease access; staff by org membership + communications entitlement + property ACL; organization isolation on every row and storage path. Fail closed.
 
-9. This ADR is **Proposed**. Implementation, migrations, and production changes are **forbidden** until Product Owner + Architect set status to **Accepted** and docs/80 to **Approved**.
+9. Implementation is allowed for approved v1 while this ADR is **Accepted** and docs/80 is **Approved**. Material scope changes restart Design → Document → Approve. No Production deploy without Owner authorization.
 
 ## Consequences
 

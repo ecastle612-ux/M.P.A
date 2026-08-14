@@ -1,10 +1,11 @@
 # 80 — COM-002 Tenant Communication Center
 
-**Status:** Draft / Proposed — awaiting Product Owner + Architect approval  
+**Status:** Approved  
 **Date:** 2026-08-14  
-**Gate:** Design → Document → **Approve** → Implement (ADR-012)  
-**Related ADR:** [ADR-024](../18-decision-log/adr-024-com-002-tenant-communication-center.md) (Proposed)  
-**Production:** NO implementation, NO migrations, NO deploy from this package  
+**Approved:** 2026-08-14 — Product Owner + Architect authorization to implement ADR-024 v1  
+**Gate:** Design → Document → Approve → **Implement** (ADR-012)  
+**Related ADR:** [ADR-024](../18-decision-log/adr-024-com-002-tenant-communication-center.md) (Accepted)  
+**Production:** NO Production deploy from this package  
 **Billing:** NO pricing, SKU, Stripe, or entitlement-key changes  
 
 ---
@@ -529,12 +530,10 @@ IA must not add Enterprise, Starter, Pro, or Teams. Facility Operations nav does
 |------|-------|----------------|
 | Design | Engineering | Done in this record. |
 | Document | Blueprint + ADR | Done — `docs/80` + ADR-024 Proposed. |
-| Approve | Product Owner + Architect | **Not done.** |
-| Implement | Engineering | **Forbidden** until status is Approved / Accepted. |
+| Approve | Product Owner + Architect | **Done** — 2026-08-14. |
+| Implement | Engineering | Authorized for approved v1 only. See [docs/81](../81-com-002-implementation-certification/index.md). |
 
-**Stop.** Do not implement schema, UI, APIs, notifications, or MEDIA constraint changes from this document.
-
-When approved, implement **only** the approved v1 scope. Material changes (PDF blobs, tenant-initiated starts, owner/vendor threads, SMS, AI chat, billing) restart the gate.
+Implement **only** the approved v1 scope. Material changes (PDF blobs, tenant-initiated starts, owner/vendor threads, SMS, AI chat, billing) restart the gate. No Production deploy without a separate Owner authorization.
 
 ---
 
