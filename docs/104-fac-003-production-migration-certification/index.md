@@ -23,7 +23,7 @@
 
 The approved FAC-003 migration is additive, Production-compatible with live FAC-001 / FAC-002 / PLAT-002 / MEDIA-001 objects, and has a documented rollback. Existing `facility_assets` rows, work orders, vendors, and serialized `facility_inventory_items` are preserved. New stock objects are absent today and can be created safely.
 
-This record **does not apply** the migration and **does not deploy** the application. A later Owner-authorized apply is a separate step. Application deploy of PR #211 is a later step after apply.
+This record **does not apply** the migration and **does not deploy** the application. Owner-authorized apply is recorded in [docs/105](../105-fac-003-production-migration-apply-certification/index.md). Application deploy of PR #211 remains a later step.
 
 ---
 
