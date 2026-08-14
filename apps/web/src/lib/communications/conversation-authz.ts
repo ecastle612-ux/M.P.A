@@ -166,15 +166,17 @@ export async function requireNotificationCenterActor(): Promise<
   ConversationActor | { error: NextResponse }
 > {
   const staff = await requireCommunicationsPermission("platform.communications:read");
-  if (!("error" in staff)) {
-    return {
-      supabase: staff.supabase,
-      user: staff.user,
-      organizationId: staff.organizationId,
-      plane: "staff",
-      tenantAccountId: null
-    };
+  if ("error" in staff) {
+    if (staff.error.status === 401) {
+      return { error: staff.error };
+    }
+    return requireTenantConversationActor();
   }
-  if (staff.error.status === 401) return staff;
-  return requireTenantConversationActor();
+  return {
+    supabase: staff.supabase,
+    user: staff.user,
+    organizationId: staff.organizationId,
+    plane: "staff",
+    tenantAccountId: null
+  };
 }

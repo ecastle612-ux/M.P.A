@@ -24,8 +24,8 @@ export function RolePortalFrame({
   navigation,
   experience = "default",
   showNotifications = false,
-  notificationsInboxHref,
-  notificationsInboxLabel
+  notificationsInboxHref = "/portal/tenant/messages",
+  notificationsInboxLabel = "Open messages"
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
