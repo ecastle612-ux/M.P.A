@@ -72,6 +72,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     ["/pm/residents", "pm.residents"],
     ["/pm/leasing", "pm.leasing"],
     ["/pm/maintenance", "pm.maintenance"],
+    ["/pm/reports", "pm.maintenance"],
     ["/pm/vendors", "pm.vendors"],
     ["/pm/financial-operations", "pm.financial_operations"]
   ];
@@ -87,6 +88,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
   const facilityRoutes: Array<[string, EntitlementKey]> = [
     ["/facility/mission-control", "facility.mission_control"],
     ["/facility/operations", "facility.operations"],
+    ["/facility/reports", "facility.operations"],
     ["/facility/vendors", "facility.operations"],
     ["/facility/assets", "facility.assets"],
     ["/facility/inventory", "facility.inventory"],
@@ -194,6 +196,14 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     push(decisionPath("/pm/residents", "Residents", "Property Manager", "pm.residents"));
     push(decisionPath("/pm/leasing", "Leasing", "Property Manager", "pm.leasing"));
     push(decisionPath("/pm/maintenance", "Maintenance", "Property Manager", "pm.maintenance"));
+    push(
+      decisionPath(
+        "/pm/reports/work-orders",
+        "Work order reports",
+        "Property Manager",
+        "pm.maintenance"
+      )
+    );
     push(decisionPath("/pm/vendors", "Vendors", "Property Manager", "pm.vendors"));
     push(
       decisionPath(
@@ -240,6 +250,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
       decisionPath("/facility/mission-control", "Mission Control", "Facility Operations", "facility.mission_control")
     );
     push(decisionPath("/facility/operations", "Facility Operations", "Facility Operations", "facility.operations"));
+    push(decisionPath("/facility/reports", "Work order reports", "Facility Operations", "facility.operations"));
     push(decisionPath("/facility/vendors", "Vendors", "Facility Operations", "facility.operations"));
     push(decisionPath("/facility/assets", "Assets", "Facility Operations", "facility.assets"));
     push(decisionPath("/facility/inventory", "Inventory", "Facility Operations", "facility.inventory"));

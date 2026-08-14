@@ -14,6 +14,7 @@ export * from "./team";
 export * from "./documents";
 export * from "./media";
 export * from "./reports";
+export * from "./work-order-reports";
 export * from "./communications";
 export * from "./portal/access";
 export * from "./env/base-env";

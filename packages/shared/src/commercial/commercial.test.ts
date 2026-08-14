@@ -112,6 +112,7 @@ describe("navigation and launcher awareness", () => {
     expect(fo?.items.map((item) => item.href)).toEqual([
       "/facility/mission-control",
       "/facility/operations",
+      "/facility/reports",
       "/facility/vendors",
       "/facility/assets",
       "/facility/preventive-maintenance",
