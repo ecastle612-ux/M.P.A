@@ -85,6 +85,7 @@ export const createFacilityWorkOrderInputSchema = z.object({
   propertyId: z.string().uuid(),
   unitId: z.string().uuid().optional(),
   facilityAssetLabel: z.string().trim().max(160).optional(),
+  facilityAssetId: z.string().uuid().optional(),
   dueAt: z.string().datetime().optional()
 });
 export type CreateFacilityWorkOrderInput = z.infer<typeof createFacilityWorkOrderInputSchema>;

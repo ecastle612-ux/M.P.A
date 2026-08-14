@@ -10,6 +10,7 @@ export * from "./property";
 export * from "./resident";
 export * from "./leasing";
 export * from "./maintenance";
+export * from "./facility";
 export * from "./team";
 export * from "./documents";
 export * from "./media";

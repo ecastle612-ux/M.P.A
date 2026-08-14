@@ -78,7 +78,7 @@ export function FacilityVendorsWorkspace() {
         actions={[
           { href: "/facility/operations", label: "Assign in Operations", primary: true },
           { href: "/facility/mission-control", label: "Mission Control" },
-          { href: "/facility/assets", label: "Buildings & Sites" }
+          { href: "/facility/assets", label: "Assets" }
         ]}
       />
 

@@ -53,6 +53,24 @@ describe("MEDIA-001 upload validation", () => {
     ).toBe(false);
   });
 
+  it("accepts facility_asset parent type", () => {
+    const result = validateMediaUploadIntent({
+      mimeType: "image/jpeg",
+      fileSize: 2048,
+      relatedEntityType: "facility_asset",
+      originalFileName: "ahu.jpg"
+    });
+    expect(result.ok).toBe(true);
+    const path = buildMediaStoragePath({
+      organizationId: "org_1",
+      relatedEntityType: "facility_asset",
+      relatedEntityId: "asset_1",
+      mediaId: "media_2",
+      extension: "jpg"
+    });
+    expect(path).toBe("org_1/facility_asset/asset_1/media_2/original.jpg");
+  });
+
   it("accepts conversation_message parent type", () => {
     const result = validateMediaUploadIntent({
       mimeType: "image/jpeg",

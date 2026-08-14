@@ -1,82 +1,119 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { completeWorkspaceLabels, ownerEmptyStateCopy } from "@mpa/shared";
-import { Alert, Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
-import { useCommercialContext } from "../shell/commercial-context";
-import { ErrorRetry } from "../shell/error-retry";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  FoDocumentsStrip,
-  FoPageChrome,
-  FoQuickActions,
-  documentsHref
-} from "../shell/fo-workspace";
+  FACILITY_ASSET_STATUS_LABELS,
+  FACILITY_ASSET_STATUSES,
+  FACILITY_ASSET_TYPE_LABELS,
+  FACILITY_ASSET_TYPES,
+  ownerEmptyStateCopy,
+  type FacilityAssetStatus,
+  type FacilityAssetType
+} from "@mpa/shared";
+import { Alert, Badge, Button, EmptyState, Input, Select, Skeleton } from "@mpa/ui";
+import { ErrorRetry } from "../shell/error-retry";
+import { FoDocumentsStrip, FoPageChrome, FoQuickActions, documentsHref } from "../shell/fo-workspace";
 
-type Building = {
+type AssetRow = {
   id: string;
   name: string;
-  status: string;
-  property_units?: Array<{ id: string; unit_label: string; status: string }>;
+  asset_code: string;
+  asset_type: FacilityAssetType;
+  custom_type_label: string | null;
+  status: FacilityAssetStatus;
+  floor_label: string | null;
+  room_label: string | null;
+  building_label: string | null;
+  property_properties?: { id: string; name: string } | null;
+  vendor_vendors?: { id: string; name: string } | null;
 };
 
+type PropertyRow = { id: string; name: string };
+type VendorRow = { id: string; name: string };
+
+function statusVariant(status: FacilityAssetStatus) {
+  if (status === "active") return "success" as const;
+  if (status === "maintenance") return "warning" as const;
+  return "neutral" as const;
+}
+
 export function FacilityAssetsWorkspace() {
-  const { productSku } = useCommercialContext();
-  const isComplete = productSku === "mpa_complete_platform";
-  const completeLabels = completeWorkspaceLabels();
-  const [buildings, setBuildings] = useState<Building[]>([]);
-  const [openByProperty, setOpenByProperty] = useState<Record<string, number>>({});
-  const [name, setName] = useState("");
-  const [unitCount, setUnitCount] = useState(1);
+  const [assets, setAssets] = useState<AssetRow[]>([]);
+  const [properties, setProperties] = useState<PropertyRow[]>([]);
+  const [vendors, setVendors] = useState<VendorRow[]>([]);
+  const [canManage, setCanManage] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [siteFilter, setSiteFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [name, setName] = useState("");
+  const [assetCode, setAssetCode] = useState("");
+  const [assetType, setAssetType] = useState<FacilityAssetType>("hvac");
+  const [customTypeLabel, setCustomTypeLabel] = useState("");
+  const [propertyPropertyId, setPropertyPropertyId] = useState("");
+  const [buildingLabel, setBuildingLabel] = useState("");
+  const [floorLabel, setFloorLabel] = useState("");
+  const [roomLabel, setRoomLabel] = useState("");
+  const [scanCode, setScanCode] = useState("");
+  const [purchaseDate, setPurchaseDate] = useState("");
+  const [vendorId, setVendorId] = useState("");
+  const [manufacturer, setManufacturer] = useState("");
+  const [model, setModel] = useState("");
+  const [serialNumber, setSerialNumber] = useState("");
 
   const refresh = useCallback(async () => {
-    const [buildingsResponse, operationsResponse] = await Promise.all([
-      fetch("/api/facility/buildings"),
-      fetch("/api/facility/operations")
-    ]);
-    const buildingsBody = await buildingsResponse.json();
-    const operationsBody = await operationsResponse.json();
-    if (!buildingsResponse.ok) {
-      throw new Error(buildingsBody.error ?? "Failed to load buildings");
+    const response = await fetch("/api/facility/assets");
+    const body = (await response.json()) as {
+      assets?: AssetRow[];
+      properties?: PropertyRow[];
+      vendors?: VendorRow[];
+      canManage?: boolean;
+      error?: string;
+    };
+    if (!response.ok) {
+      throw new Error(body.error ?? "Failed to load assets");
     }
-    if (!operationsResponse.ok) {
-      throw new Error(operationsBody.error ?? "Failed to load facility work");
+    setAssets(body.assets ?? []);
+    setProperties(body.properties ?? []);
+    setVendors(body.vendors ?? []);
+    setCanManage(Boolean(body.canManage));
+    if (!propertyPropertyId && (body.properties ?? []).length === 1) {
+      setPropertyPropertyId(body.properties![0]!.id);
     }
-    setBuildings((buildingsBody.buildings ?? []) as Building[]);
-
-    const recount: Record<string, number> = {};
-    for (const row of (operationsBody.workOrders ?? []) as Array<{
-      status: string;
-      property_id?: string;
-      property_properties?: { id?: string } | null;
-    }>) {
-      if (["closed", "cancelled"].includes(row.status)) continue;
-      const propertyId = row.property_id ?? row.property_properties?.id;
-      if (!propertyId) continue;
-      recount[propertyId] = (recount[propertyId] ?? 0) + 1;
-    }
-    setOpenByProperty(recount);
-  }, []);
+  }, [propertyPropertyId]);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
     void (async () => {
       try {
         await refresh();
+        if (!controller.signal.aborted) {
+          setError(null);
+          setLoading(false);
+        }
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load");
-      } finally {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) {
+          setError(err instanceof Error ? err.message : "Failed to load assets");
+          setLoading(false);
+        }
       }
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [refresh]);
+    return () => controller.abort();
+  }, [refresh, reloadToken]);
+
+  const filtered = useMemo(() => {
+    return assets.filter((asset) => {
+      if (siteFilter && asset.property_properties?.id !== siteFilter) return false;
+      if (typeFilter && asset.asset_type !== typeFilter) return false;
+      if (statusFilter && asset.status !== statusFilter) return false;
+      return true;
+    });
+  }, [assets, siteFilter, typeFilter, statusFilter]);
 
   if (loading) {
     return (
@@ -91,151 +128,296 @@ export function FacilityAssetsWorkspace() {
     <FoPageChrome
       crumbs={[
         { href: "/facility/mission-control", label: "Facility Mission Control" },
-        { label: "Buildings & Sites" }
+        { label: "Assets" }
       ]}
       eyebrow="Facility Operations"
-      title="Buildings & assets"
-      description={
-        isComplete
-          ? completeLabels.buildingCreateClarifier
-          : "Buildings are your org properties. Attach an asset or system label when creating facility work."
-      }
+      title="Facility assets"
+      description="Register equipment, place it on a site, and open its work history. Scan codes are stored for later — there is no scanner in this release."
     >
       <FoQuickActions
         actions={[
           { href: "/facility/operations", label: "Create facility work", primary: true },
-          { href: "/facility/mission-control", label: "Mission Control" },
-          ...(isComplete
-            ? [{ href: "/pm/properties?new=1", label: "Add property" }]
-            : []),
+          { href: "/facility/inventory", label: "Inventory" },
+          { href: "/facility/reports", label: "Reports" },
           { href: documentsHref(undefined, "manual warranty"), label: "Documents" }
         ]}
       />
 
-      {isComplete ? (
-        <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
-          Prefer{" "}
-          <Link
-            href="/pm/properties?new=1"
-            className="font-medium text-[var(--mpa-color-brand-primary)] underline"
-          >
-            Add property
-          </Link>{" "}
-          when setting up the portfolio. Use Add building below only if you need a facility-side
-          shortcut to the same org property records.
-        </p>
-      ) : null}
-
       {error ? (
         <ErrorRetry
-          title="Unable to load buildings"
+          title="Unable to load assets"
           description={error}
           onRetry={() => {
-            void (async () => {
-              setError(null);
-              setLoading(true);
-              try {
-                await refresh();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to load");
-              } finally {
-                setLoading(false);
-              }
-            })();
+            setLoading(true);
+            setError(null);
+            setReloadToken((value) => value + 1);
           }}
         />
       ) : null}
       {notice ? <Alert variant="success">{notice}</Alert> : null}
 
-      <form
-        className="grid max-w-xl gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void (async () => {
-            setBusy(true);
-            setError(null);
-            setNotice(null);
-            try {
-              const response = await fetch("/api/facility/buildings", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, unitCount })
-              });
-              const body = await response.json();
-              if (!response.ok) {
-                throw new Error(body.error ?? "Failed to create building");
+      {canManage ? (
+        <form
+          className="grid max-w-3xl gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:grid-cols-2"
+          data-testid="fo-add-asset-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void (async () => {
+              setBusy(true);
+              setNotice(null);
+              setError(null);
+              try {
+                const response = await fetch("/api/facility/assets", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    name: name.trim(),
+                    assetCode: assetCode.trim(),
+                    assetType,
+                    customTypeLabel: assetType === "other" ? customTypeLabel.trim() : undefined,
+                    propertyPropertyId,
+                    buildingLabel: buildingLabel.trim() || undefined,
+                    floorLabel: floorLabel.trim() || undefined,
+                    roomLabel: roomLabel.trim() || undefined,
+                    scanCode: scanCode.trim() || undefined,
+                    purchaseDate: purchaseDate || undefined,
+                    vendorId: vendorId || undefined,
+                    manufacturer: manufacturer.trim() || undefined,
+                    model: model.trim() || undefined,
+                    serialNumber: serialNumber.trim() || undefined
+                  })
+                });
+                const body = (await response.json()) as { error?: string };
+                if (!response.ok) {
+                  throw new Error(body.error ?? "Failed to create asset");
+                }
+                setName("");
+                setAssetCode("");
+                setCustomTypeLabel("");
+                setBuildingLabel("");
+                setFloorLabel("");
+                setRoomLabel("");
+                setScanCode("");
+                setPurchaseDate("");
+                setVendorId("");
+                setManufacturer("");
+                setModel("");
+                setSerialNumber("");
+                setNotice("Asset registered.");
+                setReloadToken((value) => value + 1);
+              } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to create asset");
+              } finally {
+                setBusy(false);
               }
-              setName("");
-              setUnitCount(1);
-              setNotice("Building added.");
-              await refresh();
-            } catch (err) {
-              setError(err instanceof Error ? err.message : "Failed to create building");
-            } finally {
-              setBusy(false);
-            }
-          })();
-        }}
-      >
-        <h2 className="text-sm font-semibold">Add building</h2>
-        <label className="space-y-1 text-xs">
-          <span className="font-medium">Building name</span>
-          <Input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            minLength={2}
-            placeholder="Main Campus · Building A"
-          />
-        </label>
-        <label className="space-y-1 text-xs">
-          <span className="font-medium">Locations / units</span>
-          <Input
-            type="number"
-            min={1}
-            max={50}
-            value={unitCount}
-            onChange={(e) => setUnitCount(Number(e.target.value) || 1)}
-          />
-        </label>
-        <Button type="submit" disabled={busy}>
-          Add building
-        </Button>
-      </form>
+            })();
+          }}
+        >
+          <h2 className="text-sm font-semibold md:col-span-2">Register asset</h2>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Name</span>
+            <Input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              minLength={2}
+              placeholder="Rooftop AHU-2"
+              data-testid="fo-asset-name"
+            />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Asset tag</span>
+            <Input
+              value={assetCode}
+              onChange={(event) => setAssetCode(event.target.value)}
+              required
+              placeholder="AHU-2"
+              data-testid="fo-asset-code"
+            />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Type</span>
+            <Select
+              value={assetType}
+              onChange={(event) => setAssetType(event.target.value as FacilityAssetType)}
+            >
+              {FACILITY_ASSET_TYPES.map((value) => (
+                <option key={value} value={value}>
+                  {FACILITY_ASSET_TYPE_LABELS[value]}
+                </option>
+              ))}
+            </Select>
+          </label>
+          {assetType === "other" ? (
+            <label className="space-y-1 text-xs">
+              <span className="font-medium">Custom type</span>
+              <Input
+                value={customTypeLabel}
+                onChange={(event) => setCustomTypeLabel(event.target.value)}
+                required
+                placeholder="Lab freezer"
+              />
+            </label>
+          ) : null}
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Site</span>
+            <Select
+              value={propertyPropertyId}
+              onChange={(event) => setPropertyPropertyId(event.target.value)}
+              required
+            >
+              <option value="">Select site</option>
+              {properties.map((property) => (
+                <option key={property.id} value={property.id}>
+                  {property.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Building label</span>
+            <Input
+              value={buildingLabel}
+              onChange={(event) => setBuildingLabel(event.target.value)}
+              placeholder="Building A"
+            />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Floor</span>
+            <Input
+              value={floorLabel}
+              onChange={(event) => setFloorLabel(event.target.value)}
+              placeholder="2"
+            />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Room / location</span>
+            <Input
+              value={roomLabel}
+              onChange={(event) => setRoomLabel(event.target.value)}
+              placeholder="Mechanical penthouse"
+            />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Vendor</span>
+            <Select value={vendorId} onChange={(event) => setVendorId(event.target.value)}>
+              <option value="">None</option>
+              {vendors.map((vendor) => (
+                <option key={vendor.id} value={vendor.id}>
+                  {vendor.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Purchase date</span>
+            <Input type="date" value={purchaseDate} onChange={(event) => setPurchaseDate(event.target.value)} />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Manufacturer</span>
+            <Input value={manufacturer} onChange={(event) => setManufacturer(event.target.value)} />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Model</span>
+            <Input value={model} onChange={(event) => setModel(event.target.value)} />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Serial</span>
+            <Input value={serialNumber} onChange={(event) => setSerialNumber(event.target.value)} />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Scan code (stored only)</span>
+            <Input
+              value={scanCode}
+              onChange={(event) => setScanCode(event.target.value)}
+              placeholder="Optional future QR / barcode value"
+            />
+          </label>
+          <div className="md:col-span-2">
+            <Button type="submit" disabled={busy || properties.length === 0}>
+              {busy ? "Saving…" : "Register asset"}
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+          Assigned work only. You can open assets that appear on your facility work orders.
+        </p>
+      )}
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Buildings</h2>
-        {buildings.length === 0 ? (
+        <div className="flex flex-wrap items-end gap-3">
+          <h2 className="text-sm font-semibold">Asset registry</h2>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Site</span>
+            <Select value={siteFilter} onChange={(event) => setSiteFilter(event.target.value)}>
+              <option value="">All</option>
+              {properties.map((property) => (
+                <option key={property.id} value={property.id}>
+                  {property.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Type</span>
+            <Select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
+              <option value="">All</option>
+              {FACILITY_ASSET_TYPES.map((value) => (
+                <option key={value} value={value}>
+                  {FACILITY_ASSET_TYPE_LABELS[value]}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Status</span>
+            <Select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+              <option value="">All</option>
+              {FACILITY_ASSET_STATUSES.map((value) => (
+                <option key={value} value={value}>
+                  {FACILITY_ASSET_STATUS_LABELS[value]}
+                </option>
+              ))}
+            </Select>
+          </label>
+        </div>
+        {filtered.length === 0 ? (
           <EmptyState
             title={ownerEmptyStateCopy("fo_assets").title}
             description={ownerEmptyStateCopy("fo_assets").description}
           />
         ) : (
           <ul className="grid gap-3 md:grid-cols-2">
-            {buildings.map((building) => (
+            {filtered.map((asset) => (
               <li
-                key={building.id}
+                key={asset.id}
                 className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <h3 className="font-semibold text-[var(--mpa-color-text-primary)]">
-                      {building.name}
-                    </h3>
+                    <h3 className="font-semibold text-[var(--mpa-color-text-primary)]">{asset.name}</h3>
                     <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                      {(building.property_units?.length ?? 0)} locations · {building.status}
+                      {asset.asset_code} · {FACILITY_ASSET_TYPE_LABELS[asset.asset_type]}
+                      {asset.custom_type_label ? ` (${asset.custom_type_label})` : ""}
+                    </p>
+                    <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
+                      {asset.property_properties?.name ?? "Unmapped site"}
+                      {asset.building_label ? ` · ${asset.building_label}` : ""}
+                      {asset.floor_label ? ` · Floor ${asset.floor_label}` : ""}
+                      {asset.room_label ? ` · ${asset.room_label}` : ""}
                     </p>
                   </div>
-                  <Badge variant={(openByProperty[building.id] ?? 0) > 0 ? "warning" : "success"}>
-                    {openByProperty[building.id] ?? 0} open work
+                  <Badge variant={statusVariant(asset.status)}>
+                    {FACILITY_ASSET_STATUS_LABELS[asset.status]}
                   </Badge>
                 </div>
                 <p className="mt-3 text-sm">
                   <Link
-                    href="/facility/operations"
+                    href={`/facility/assets/${asset.id}`}
                     className="text-[var(--mpa-color-brand-primary)] underline"
                   >
-                    Open operations
+                    Open asset
                   </Link>
                 </p>
               </li>
@@ -246,7 +428,7 @@ export function FacilityAssetsWorkspace() {
 
       <FoDocumentsStrip
         title="Equipment manuals & warranties"
-        detail="Manuals, warranty files, and service records live in Documents."
+        detail="PDF manuals and warranty files belong in Documents. Photos attach on the asset."
         query="manual warranty asset"
       />
     </FoPageChrome>

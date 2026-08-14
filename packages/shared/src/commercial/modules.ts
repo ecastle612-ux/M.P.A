@@ -244,21 +244,21 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
   },
   {
     id: "assets",
-    label: "Buildings & Sites",
+    label: "Assets",
     owner: "facility_operations",
     entitlement: "facility.assets",
     href: "/facility/assets",
     readiness: "aligned",
-    description: "Building and site records used as context for facility work orders.",
+    description: "Facility asset registry — equipment, location, lifecycle, and work history.",
   },
   {
     id: "inventory",
-    label: "Inventory Work",
+    label: "Inventory",
     owner: "facility_operations",
     entitlement: "facility.inventory",
     href: "/facility/inventory",
     readiness: "aligned",
-    description: "Facility work orders categorized for inventory and materials tasks.",
+    description: "Facility stock ledger — on-hand quantities, movements, and reorder levels.",
   },
   {
     id: "parts",
@@ -449,7 +449,7 @@ export function navigationGroupsForSku(
         },
         {
           href: "/facility/assets",
-          label: "Buildings & Sites",
+          label: "Assets",
           readiness: "aligned",
           entitlement: "facility.assets"
         },
@@ -479,7 +479,7 @@ export function navigationGroupsForSku(
         },
         {
           href: "/facility/inventory",
-          label: "Inventory Work",
+          label: "Inventory",
           readiness: "aligned",
           entitlement: "facility.inventory"
         },
@@ -704,7 +704,7 @@ export function upgradeCuesForSku(sku: ProductSku | null): UpgradeCue[] {
     return [
       {
         moduleLabel:
-          "Facility Mission Control, Operations, Buildings & Sites, and facility work-order categories (preventive, inspection, safety, compliance, inventory, parts, building systems)",
+          "Facility Mission Control, Operations, Assets, Inventory, and facility work-order categories (preventive, inspection, safety, compliance, parts, building systems)",
         requires: "Complete Platform",
         reason: "These Facility Operations workflows belong to FO. Complete Platform includes both products."
       }

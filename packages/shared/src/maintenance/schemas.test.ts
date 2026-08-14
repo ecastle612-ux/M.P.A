@@ -25,9 +25,13 @@ describe("STAB-004 facility work-order schemas", () => {
       priority: "high",
       propertyId: "11111111-1111-4111-8111-111111111111",
       facilityAssetLabel: "AHU-3",
+      facilityAssetId: "33333333-3333-4333-8333-333333333333",
       dueAt: "2026-08-15T17:00:00.000Z"
     });
     expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.facilityAssetId).toBe("33333333-3333-4333-8333-333333333333");
+    }
   });
 
   it("rejects createFacilityWorkOrder without propertyId", () => {

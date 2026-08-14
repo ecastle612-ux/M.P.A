@@ -4,7 +4,8 @@ export const MEDIA_ENTITY_TYPES = [
   "inspection",
   "incident",
   "organization",
-  "conversation_message"
+  "conversation_message",
+  "facility_asset"
 ] as const;
 
 export type MediaEntityType = (typeof MEDIA_ENTITY_TYPES)[number];
