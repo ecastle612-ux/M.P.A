@@ -1,10 +1,13 @@
 # ADR-025: FAC-002 Reporting and Export
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-14
+
+## Accepted
+2026-08-14 — Product Owner + Architect authorization for FAC-002 Phase 1 Work Order Reporting & Export (docs/88 Approved).
 
 ## Context
 
@@ -60,7 +63,7 @@ Related:
 
 8. **Future report types** (vendor performance, trends, cost, inventory, asset history) extend a shared report-type registry (authz, filters chrome, export renderers, audit) but each requires Design → Document → Approve. Cost reporting remains constrained by ADR-010.
 
-9. **Implementation is forbidden** while this ADR is Proposed and docs/88 is Draft. Material scope changes restart the gate. No Production deploy, billing, or Stripe changes from this decision alone.
+9. **Implementation is allowed** for approved Phase 1 while this ADR is **Accepted** and docs/88 is **Approved**. Material scope changes restart Design → Document → Approve. No Production deploy, billing, or Stripe changes without Owner authorization.
 
 ## Consequences
 

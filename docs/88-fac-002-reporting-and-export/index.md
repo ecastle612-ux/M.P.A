@@ -1,13 +1,13 @@
 # FAC-002 REPORTING AND EXPORT DESIGN
 
-**Status:** Draft — awaiting Product Owner / Architect approval (ADR-012)  
+**Status:** Approved  
 **Date:** 2026-08-14  
+**Approved:** 2026-08-14 — Product Owner + Architect authorization to implement ADR-025 Phase 1  
 **Program:** FAC-002 Reporting & Export  
-**Related ADR:** [ADR-025](../18-decision-log/adr-025-fac-002-reporting-and-export.md) (Proposed)  
-**Gate:** Design → Document → **Approve** → Implement  
-**Production:** No production changes from this package  
-**Billing / Stripe:** No changes  
-**Implementation:** Forbidden until Approved
+**Related ADR:** [ADR-025](../18-decision-log/adr-025-fac-002-reporting-and-export.md) (Accepted)  
+**Gate:** Design → Document → Approve → **Implement** (ADR-012)  
+**Production:** No production deploy from this package  
+**Billing / Stripe:** No changes
 
 ---
 
@@ -375,8 +375,8 @@ Implementation may be claimed complete only when:
 |-------|-------|
 | Design | **Done** (this document) |
 | Document | **Done** |
-| Approve | **Pending** Product Owner + Architect |
-| Implement | **Blocked** until Approve |
+| Approve | **Done** |
+| Implement | **Authorized** for approved Phase 1 scope only |
 
 ---
 
@@ -384,4 +384,4 @@ Implementation may be claimed complete only when:
 
 **FAC-002 Phase 1** is designed as organization-scoped **Work Order Reporting & Export** for Facility Operations and Property Operations (Complete by permission union), with dashboard metrics, filters, CSV, PDF, RBAC reuse, and hard tenant denial — complementary to RAC and FIN-OPS.
 
-**STOP after design. No implementation.**
+**Approved for implementation.** No production deployment from the design package alone.
