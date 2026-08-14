@@ -298,4 +298,4 @@ APPLICATION: pre-OPS-001 SHA aee7fa95 still live
 
 ## Next authorized step
 
-An **OPS-001 application deployment** package only, after Owner authorization. Schema is already live. Do not re-apply this migration. Do not deploy from this record.
+Application deploy is recorded in [docs/116](../116-ops-001-production-release-certification/index.md). That release certification is **BLOCKED** on authenticated UAT credentials. Do not re-apply this migration.
