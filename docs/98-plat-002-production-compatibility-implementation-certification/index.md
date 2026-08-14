@@ -94,4 +94,6 @@ Restore prior policy text from docs/96; recreate the four `*_authorized` policie
 
 ---
 
-**STOP.** Certification only. Do not apply to Production. Do not deploy.
+**Production apply:** [docs/99](../99-plat-002-production-authorization-migration-certification/index.md) — successor applied; **READY FOR APPLICATION DEPLOYMENT**.
+
+**STOP.** This record certified the successor locally. Production apply is docs/99. Do not deploy the application from this record.

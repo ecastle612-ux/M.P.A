@@ -98,6 +98,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 96 | [PLAT-002 Production Authorization Migration Certification](./96-plat-002-production-authorization-migration-certification/index.md) | Production apply of approved PLAT-002 SQL · **BLOCKED** · `maintenance_notifications` missing; ledger unchanged |
 | 97 | [PLAT-002 Production Compatibility Amendment](./97-plat-002-production-compatibility-amendment/index.md) | **Approved** · Conditional notifications DDL + drop leftover `*_authorized` · ADR-027 Accepted |
 | 98 | [PLAT-002 Production Compatibility Amendment Implementation Certification](./98-plat-002-production-compatibility-implementation-certification/index.md) | Successor migration certification · **READY** · no Production apply |
+| 99 | [PLAT-002 Production Authorization Migration Certification](./99-plat-002-production-authorization-migration-certification/index.md) | Successor applied to `mpa-prod` · **READY FOR APPLICATION DEPLOYMENT** · no app deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
