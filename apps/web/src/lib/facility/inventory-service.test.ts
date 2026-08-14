@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const audit = vi.fn(async () => undefined);
+const audit = vi.fn<(payload?: unknown) => Promise<void>>(async () => undefined);
 
 vi.mock("../maintenance/events-audit", () => ({
   writeMaintenanceAudit: (input: unknown) => audit(input)
