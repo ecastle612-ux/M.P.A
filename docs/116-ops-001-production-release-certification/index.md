@@ -18,6 +18,25 @@ Merge and Production application deploy succeeded. Live HTML/JS is the OPS-001 r
 
 No UAT rows were created. No migrations were applied. No passwords are recorded here.
 
+### Authenticated UAT re-run (2026-08-14T23:53Z)
+
+Production state re-checked. **No unexpected change.**
+
+| Check | Result |
+|-------|--------|
+| Production SHA | still `e56a330facf21d548815e95ff2e4c82e3c6077bd` |
+| GitHub Production deployment | still `5915101610` |
+| Vercel | still `dpl_4qLhWzb6ZcK7b1Vk6ccFVnyTC8wt` |
+| Schema ledger | still `20260814233536` / `ops_001_operational_workspace` |
+| Migration re-apply | **not needed / not performed** |
+| `UAT_COMPLETE_MANAGER_PASSWORD` | **absent** from this run |
+| `UAT_PM_PASSWORD` | **absent** |
+| `UAT_TENANT_PASSWORD` | **absent** |
+| Optional vendor/tech secrets | **absent** |
+| Existing `UAT_PASS` | still `invalid_credentials` for Property Demo PM |
+
+Sections 3–14 of the re-run were **not started**. No users invented. No password resets.
+
 ---
 
 ## 1. Merge validation
