@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
 import { isMediaEntityType } from "@mpa/shared";
-import { assertMediaEntityAccess, requireMediaActor } from "../../../../lib/media/authz";
+import { assertMediaEntityAccess, resolveMediaActorForEntity } from "../../../../lib/media/authz";
 import { attachMediaToEntity, listMediaForEntity } from "../../../../lib/media/media-service";
 
 export async function GET(request: Request) {
-  const authz = await requireMediaActor("read");
-  if ("error" in authz) return authz.error;
-
   const url = new URL(request.url);
   const relatedEntityType = url.searchParams.get("relatedEntityType");
   const relatedEntityId = url.searchParams.get("relatedEntityId");
@@ -17,11 +14,17 @@ export async function GET(request: Request) {
     );
   }
 
+  const authz = await resolveMediaActorForEntity("read", relatedEntityType);
+  if ("error" in authz) return authz.error;
+
   const entityAccess = await assertMediaEntityAccess({
     supabase: authz.supabase,
     organizationId: authz.organizationId,
     relatedEntityType,
-    relatedEntityId
+    relatedEntityId,
+    ...("plane" in authz
+      ? { conversationActor: { plane: authz.plane, tenantAccountId: authz.tenantAccountId } }
+      : {})
   });
   if ("error" in entityAccess) return entityAccess.error;
 
@@ -55,9 +58,6 @@ export async function GET(request: Request) {
 
 /** Bind draft/pending-ready media IDs to a workflow entity after create. */
 export async function POST(request: Request) {
-  const authz = await requireMediaActor("write");
-  if ("error" in authz) return authz.error;
-
   const payload = (await request.json().catch(() => null)) as {
     mediaIds?: unknown;
     relatedEntityType?: unknown;
@@ -76,11 +76,17 @@ export async function POST(request: Request) {
     );
   }
 
+  const authz = await resolveMediaActorForEntity("write", payload.relatedEntityType);
+  if ("error" in authz) return authz.error;
+
   const entityAccess = await assertMediaEntityAccess({
     supabase: authz.supabase,
     organizationId: authz.organizationId,
     relatedEntityType: payload.relatedEntityType,
-    relatedEntityId: payload.relatedEntityId
+    relatedEntityId: payload.relatedEntityId,
+    ...("plane" in authz
+      ? { conversationActor: { plane: authz.plane, tenantAccountId: authz.tenantAccountId } }
+      : {})
   });
   if ("error" in entityAccess) return entityAccess.error;
 

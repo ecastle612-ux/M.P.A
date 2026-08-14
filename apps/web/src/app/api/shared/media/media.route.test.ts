@@ -7,31 +7,37 @@ const state = {
   entitlementOk: true
 };
 
-vi.mock("../../../../lib/media/authz", () => ({
-  requireMediaActor: async () => {
-    if (!state.userId) {
-      return { error: new Response(JSON.stringify({ error: "Unauthenticated" }), { status: 401 }) };
-    }
-    if (!state.allowed || !state.entitlementOk) {
-      return { error: new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 }) };
-    }
-    return {
-      supabase: {
-        from: () => ({
-          select: () => ({
+async function mediaActor() {
+  if (!state.userId) {
+    return { error: new Response(JSON.stringify({ error: "Unauthenticated" }), { status: 401 }) };
+  }
+  if (!state.allowed || !state.entitlementOk) {
+    return { error: new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 }) };
+  }
+  return {
+    supabase: {
+      from: () => ({
+        select: () => ({
+          eq: () => ({
             eq: () => ({
-              eq: () => ({
-                maybeSingle: async () => ({ data: null, error: null })
-              })
+              maybeSingle: async () => ({ data: null, error: null })
             })
           })
         })
-      },
-      user: { id: state.userId },
-      organizationId: state.organizationId,
-      roles: ["organization_admin"]
-    };
-  },
+      })
+    },
+    user: { id: state.userId },
+    organizationId: state.organizationId,
+    roles: ["organization_admin"],
+    plane: "staff" as const,
+    tenantAccountId: null
+  };
+}
+
+vi.mock("../../../../lib/media/authz", () => ({
+  requireMediaActor: mediaActor,
+  resolveMediaActorForEntity: mediaActor,
+  resolveMediaActorWithFallback: mediaActor,
   assertMediaEntityAccess: async () => ({ ok: true }),
   isOrgManagerRoles: () => true
 }));

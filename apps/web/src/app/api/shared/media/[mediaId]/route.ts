@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { isOrgManagerRoles, requireMediaActor } from "../../../../../lib/media/authz";
+import { isOrgManagerRoles, resolveMediaActorWithFallback } from "../../../../../lib/media/authz";
 import { softDeleteMedia } from "../../../../../lib/media/media-service";
 
 type RouteContext = { params: Promise<{ mediaId: string }> };
 
 export async function DELETE(_request: Request, context: RouteContext) {
   const { mediaId } = await context.params;
-  const authz = await requireMediaActor("write");
+  const authz = await resolveMediaActorWithFallback("write");
   if ("error" in authz) return authz.error;
 
   const result = await softDeleteMedia({

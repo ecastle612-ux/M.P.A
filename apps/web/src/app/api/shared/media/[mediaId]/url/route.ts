@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { assertMediaEntityAccess, requireMediaActor } from "../../../../../../lib/media/authz";
+import { assertMediaEntityAccess, resolveMediaActorWithFallback } from "../../../../../../lib/media/authz";
 import {
   createSignedDownloadUrl
 } from "../../../../../../lib/media/media-service";
@@ -9,7 +9,7 @@ type RouteContext = { params: Promise<{ mediaId: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   const { mediaId } = await context.params;
-  const authz = await requireMediaActor("read");
+  const authz = await resolveMediaActorWithFallback("read");
   if ("error" in authz) return authz.error;
 
   const { data: media, error } = await authz.supabase
@@ -33,7 +33,8 @@ export async function GET(_request: Request, context: RouteContext) {
     supabase: authz.supabase,
     organizationId: authz.organizationId,
     relatedEntityType: media.related_entity_type as MediaEntityType,
-    relatedEntityId: (media.related_entity_id as string | null) ?? null
+    relatedEntityId: (media.related_entity_id as string | null) ?? null,
+    conversationActor: { plane: authz.plane, tenantAccountId: authz.tenantAccountId }
   });
   if ("error" in entityAccess) return entityAccess.error;
 

@@ -141,6 +141,7 @@ export default async function TenantPortalPage() {
         actions={[
           { href: "/portal/tenant/maintenance", label: "Report an issue", primary: true },
           { href: "/portal/tenant/billing", label: balance > 0 ? "Pay rent" : "View payments" },
+          { href: "/portal/tenant/messages", label: "Messages" },
           { href: "/portal/tenant/documents", label: "Lease & documents" }
         ]}
       />
@@ -171,6 +172,13 @@ export default async function TenantPortalPage() {
           hint={needsConfirm > 0 ? "A request was marked complete — please confirm." : "Track or report an issue"}
           href="/portal/tenant/maintenance"
           tone={maintenanceTone}
+        />
+        <ResidentGlanceCard
+          label="Messages"
+          value="Inbox"
+          hint="Two-way messages from your property team."
+          href="/portal/tenant/messages"
+          tone="neutral"
         />
         <ResidentGlanceCard
           label="Announcements"
