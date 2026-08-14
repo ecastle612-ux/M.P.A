@@ -58,6 +58,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-023](./adr-023-universal-media-attachment-framework.md) | Universal Media Attachment Framework (MEDIA-001) | Accepted | 2026-08-13 |
 | [ADR-024](./adr-024-com-002-tenant-communication-center.md) | COM-002 Tenant Communication Center | Accepted | 2026-08-14 |
 | [ADR-025](./adr-025-fac-002-reporting-and-export.md) | FAC-002 Reporting and Export | Accepted | 2026-08-14 |
+| [ADR-027](./adr-027-plat-002-production-compatibility.md) | PLAT-002 Production Compatibility (Conditional DDL + Leftover Policy Drop) | Proposed | 2026-08-14 |
 
 ---
 
