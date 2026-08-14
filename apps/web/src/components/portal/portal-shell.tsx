@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { Badge } from "@mpa/ui";
 import { OrganizationSwitcher } from "../shell/organization-switcher";
 import { RoleSwitcher } from "../shell/role-switcher";
+import { NotificationCenter } from "../shell/notification-center";
 import { ProfileMenu } from "../shell/profile-menu";
 import { SkipToContent } from "../shell/skip-to-content";
 
@@ -31,7 +32,10 @@ export function PortalShell({
   roleBadgeLabel,
   navigation,
   children,
-  experience = "default"
+  experience = "default",
+  showNotifications = false,
+  notificationsInboxHref = "/portal/tenant/messages",
+  notificationsInboxLabel = "Open messages"
 }: {
   title: string;
   subtitle: string;
@@ -39,6 +43,9 @@ export function PortalShell({
   navigation: readonly PortalNavigationItem[];
   children: ReactNode;
   experience?: "default" | "resident" | "technician" | "vendor";
+  showNotifications?: boolean;
+  notificationsInboxHref?: string;
+  notificationsInboxLabel?: string;
 }) {
   const pathname = usePathname() ?? "";
   const isResident = experience === "resident";
@@ -88,6 +95,12 @@ export function PortalShell({
                 <RoleSwitcher />
               </div>
             )}
+            {showNotifications ? (
+              <NotificationCenter
+                inboxHref={notificationsInboxHref}
+                inboxLabel={notificationsInboxLabel}
+              />
+            ) : null}
             <ProfileMenu />
           </div>
         </div>

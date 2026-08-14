@@ -40,7 +40,13 @@ function applyNotificationsPayload(
   setters.setError(null);
 }
 
-export function NotificationCenter() {
+export function NotificationCenter({
+  inboxHref = "/shared/communications",
+  inboxLabel = "Open Communications"
+}: {
+  inboxHref?: string;
+  inboxLabel?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<UnifiedNotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -172,11 +178,11 @@ export function NotificationCenter() {
           <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">Notifications</p>
             <Link
-              href="/shared/communications"
+              href={inboxHref}
               className="text-xs text-[var(--mpa-color-brand-primary)] underline"
               onClick={close}
             >
-              Open Communications
+              {inboxLabel}
             </Link>
           </div>
           {error ? (
@@ -212,7 +218,12 @@ export function NotificationCenter() {
                       <Link
                         href={item.href}
                         className="text-[var(--mpa-color-brand-primary)] underline"
-                        onClick={close}
+                        onClick={() => {
+                          if (!item.readAt) {
+                            void markRead(item.id);
+                          }
+                          close();
+                        }}
                       >
                         Open
                       </Link>

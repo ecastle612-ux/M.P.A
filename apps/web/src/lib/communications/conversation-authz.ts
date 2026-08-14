@@ -10,6 +10,7 @@ import { createAuthServerClient } from "../auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../auth/authorization";
 import { getActiveOrganizationIdFromCookie } from "../organization/server";
 import { resolveActiveOrganizationIdForUser } from "../organization/resolve-active-organization";
+import { requireCommunicationsPermission } from "./authz";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -153,4 +154,29 @@ export async function requireConversationMediaActor(mode: "read" | "write"): Pro
 
   if (staff.error.status === 401) return staff;
   return requireTenantConversationActor();
+}
+
+/**
+ * Notification Center is the unified alert inbox (ADR-024 §4.3), not a messaging
+ * surface. Staff keep existing communications:read access (finance / maintenance /
+ * comms). Tenants may read and mark their own rows. FO without communications:read
+ * and without a tenant lease still receives 403 — no FO tenant messaging.
+ */
+export async function requireNotificationCenterActor(): Promise<
+  ConversationActor | { error: NextResponse }
+> {
+  const staff = await requireCommunicationsPermission("platform.communications:read");
+  if ("error" in staff) {
+    if (staff.error.status === 401) {
+      return { error: staff.error };
+    }
+    return requireTenantConversationActor();
+  }
+  return {
+    supabase: staff.supabase,
+    user: staff.user,
+    organizationId: staff.organizationId,
+    plane: "staff",
+    tenantAccountId: null
+  };
 }

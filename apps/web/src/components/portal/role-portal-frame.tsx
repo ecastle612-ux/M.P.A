@@ -22,7 +22,10 @@ export function RolePortalFrame({
   subtitle,
   roleBadgeLabel,
   navigation,
-  experience = "default"
+  experience = "default",
+  showNotifications = false,
+  notificationsInboxHref = "/portal/tenant/messages",
+  notificationsInboxLabel = "Open messages"
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -34,6 +37,9 @@ export function RolePortalFrame({
   roleBadgeLabel: string;
   navigation: readonly PortalNavigationItem[];
   experience?: "default" | "resident" | "technician" | "vendor";
+  showNotifications?: boolean;
+  notificationsInboxHref?: string;
+  notificationsInboxLabel?: string;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -48,6 +54,9 @@ export function RolePortalFrame({
         roleBadgeLabel={roleBadgeLabel}
         navigation={navigation}
         experience={experience}
+        showNotifications={showNotifications}
+        notificationsInboxHref={notificationsInboxHref}
+        notificationsInboxLabel={notificationsInboxLabel}
       >
         {children}
       </PortalShell>
