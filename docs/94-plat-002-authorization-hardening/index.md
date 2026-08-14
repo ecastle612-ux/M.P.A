@@ -1,13 +1,15 @@
 # PLAT-002 AUTHORIZATION HARDENING DESIGN
 
-**Status:** Draft — awaiting Product Owner + Architect approval  
+**Status:** Approved  
 **Date:** 2026-08-14  
+**Approved:** 2026-08-14 — Product Owner + Architect authorization to implement ADR-026 (C1–C5)  
 **Program:** PLAT-002  
 **Blueprint record:** `docs/94-plat-002-authorization-hardening/`  
 **Parent audit:** [PLAT-001](../93-plat-001-platform-mismatch-audit/index.md) (C1–C5)  
-**Related ADR:** [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) (Proposed)  
-**Gate:** Design → Document → **Approve** → Implement (ADR-012)  
-**This package:** Design only. **No implementation authorized.**
+**Related ADR:** [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) (Accepted)  
+**Gate:** Design → Document → Approve → **Implement** (ADR-012)  
+**Implementation cert:** [docs/95](../95-plat-002-authorization-hardening-implementation-certification/index.md)  
+**Production:** No production deployment from this package
 
 ---
 
@@ -456,4 +458,4 @@ Product Owner + Architect sign-off required on:
 7. Slice order A→B→C→D
 8. No Stripe / billing / role-catalog changes
 
-**STOP.** Design only. No implementation from this record.
+**Approved.** Implementation proceeds in the PLAT-002 implementation package. No production deployment from the design record.

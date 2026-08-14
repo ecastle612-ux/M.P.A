@@ -1,10 +1,13 @@
 # ADR-026: Authorization Hardening Pipeline (SKU + Surface + Comms Staff)
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-14
+
+## Accepted
+2026-08-14 — Product Owner + Architect authorization for PLAT-002 Authorization Hardening (docs/94 Approved).
 
 ## Context
 
@@ -49,7 +52,7 @@ Related:
 
 5. **Tenant comms staff is a PM desk, not a technician role.** Database helper (new name, e.g. `is_pm_comms_staff`) allows `organization_admin`, `property_manager`, `leasing_agent` only, and only when the org SKU is Property Manager or Complete. `maintenance_technician` is denied on all SKUs. The Next.js staff allowlist must match. Tenant self-access is unchanged.
 
-6. **This ADR does not** add roles, SKUs, Stripe products, or entitlement keys; does not split the work-order table; does not move mutations to Edge Functions (ADR-007 remains a separate discussion); and does not authorize implementation until it is **Accepted** and docs/94 is **Approved**.
+6. **This ADR does not** add roles, SKUs, Stripe products, or entitlement keys; does not split the work-order table; does not move mutations to Edge Functions (ADR-007 remains a separate discussion). Implementation is authorized while this ADR is **Accepted** and docs/94 is **Approved**. No Production deploy without Owner authorization.
 
 ## Consequences
 
