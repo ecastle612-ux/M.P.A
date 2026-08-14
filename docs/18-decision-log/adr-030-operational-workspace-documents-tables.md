@@ -1,10 +1,13 @@
 # ADR-030: Operational Workspace — Documents and Tables (OPS-001)
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-14
+
+## Accepted
+2026-08-14 — Product Owner authorization for OPS-001 Phase 1 with amendment: XLSX export is in Phase 1. DOCX, formulas, FAC-002 report connections, and source-system writeback remain not approved.
 
 ## Context
 
@@ -31,13 +34,13 @@ ADR-027 remains reserved on the unmerged PLAT-002 production-compatibility branc
 
 2. **Documents:** Evolve the existing library. Add **authored** documents (create, templates, rich-text, PDF export; Word/DOCX per approved phase). Do not replace uploads. Do not store job evidence photos here (MEDIA-001).
 
-3. **Tables:** Add operational grids (sort/filter, CSV; formulas and XLSX per approved phase) with **read-only** M.P.A. data connections. FAC-003, work orders, and FAC-002 remain systems of record. Tables must not write stock quantity or asset lifecycle unless a later Approve defines bidirectional sync.
+3. **Tables:** Add operational grids (sort/filter, CSV, and **XLSX export** in Phase 1) with **read-only** M.P.A. data connections. Formulas remain Phase 1b. FAC-003, work orders, and FAC-002 remain systems of record. Tables must not write stock quantity or asset lifecycle. Bidirectional sync is **not approved**.
 
 4. **Authorization:** Reuse `platform.documents` and the ADR-026 pipeline. No new roles. No new entitlement keys in Phase 1. A `platform.tables` key requires a later Approve.
 
 5. **Navigation:** One module. Documents and Tables are sibling surfaces (`/shared/documents`, `/shared/tables` or tabs). Complete does not get two copies.
 
-6. **Implementation is not authorized** until this ADR is Accepted and docs/112 is Approved. Material scope changes restart Design → Document → Approve. No Production apply, billing, or Stripe changes without Owner authorization.
+6. **Implementation is authorized** for Phase 1 while this ADR is **Accepted** and docs/112 is **Approved**. Material scope changes restart Design → Document → Approve. No Production apply, billing, or Stripe changes without Owner authorization. Stop after implementation certification.
 
 ## Consequences
 

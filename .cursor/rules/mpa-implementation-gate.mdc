@@ -36,4 +36,4 @@ Design → Document → Approve → Implement
 - Product Constitution (ADR-019) is accepted — three products; Enterprise sales motion only; commercial flow is binding.
 - LAUNCH-001 Customer Promise Roadmap is approved (ADR-017); implement only authorized journeys (J0–J2 delivered; J3–J8 blocked).
 - New material changes to approved packages require Design → Document → Approve again.
-- OPS-001 Operational Workspace (Documents + Tables) is **DESIGN COMPLETE — APPROVAL REQUIRED** (`docs/112`, ADR-030 Proposed). Covers reserved DOC-001 / SHEET-001. Shared Platform only — not a fourth product. **Do not implement** until Product Owner Accepts ADR-030.
+- OPS-001 Operational Workspace (Documents + Tables) is **Approved** (`docs/112`, ADR-030 Accepted) and Phase 1 is implemented (`docs/113` READY FOR PRODUCTION MIGRATION CERTIFICATION). Shared Platform only. No DOCX, formulas, FAC-002 connections, or writeback. No Production apply or deploy from the implement package.

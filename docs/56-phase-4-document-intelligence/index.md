@@ -25,4 +25,4 @@
 
 Document Intelligence Center on the Shared Documents spine: search/filters, preview, relationships, versions, activity, professional PDF export, additive migration. Nav href unchanged. No Stripe/auth redesign.
 
-Authored documents, templates, rich-text editing, and operational tables are **not** Sprint 6. They are designed as **OPS-001** ([docs/112](../112-ops-001-operational-workspace-documents-tables/index.md), [ADR-030](../18-decision-log/adr-030-operational-workspace-documents-tables.md) Proposed). Evolve this library — do not invent a second vault. **Do not implement OPS-001 until ADR-030 is Accepted.**
+Authored documents, templates, rich-text editing, and operational tables are **not** Sprint 6. They are **OPS-001** ([docs/112](../112-ops-001-operational-workspace-documents-tables/index.md) Approved, [ADR-030](../18-decision-log/adr-030-operational-workspace-documents-tables.md) Accepted, [docs/113](../113-ops-001-operational-workspace-implementation-certification/index.md)). Evolve this library — do not invent a second vault. **No Production apply or deploy from the implement package.**

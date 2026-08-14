@@ -1,12 +1,13 @@
 # M.P.A. OPERATIONAL WORKSPACE — DOCUMENTS AND TABLES DESIGN
 
 **Title:** M.P.A. OPERATIONAL WORKSPACE — DOCUMENTS AND TABLES DESIGN  
-**Status:** DESIGN COMPLETE — APPROVAL REQUIRED  
+**Status:** Approved  
 **Date:** 2026-08-14  
+**Approved:** 2026-08-14 — Product Owner authorization to implement Phase 1 **with amendment** (XLSX export in Phase 1)  
 **Program:** OPS-001 (covers previously reserved **DOC-001** + **SHEET-001**)  
-**Related ADR:** [ADR-030](../18-decision-log/adr-030-operational-workspace-documents-tables.md) (Proposed)  
-**Gate:** Design → Document → **Approve** → Implement (ADR-012)  
-**Production:** No production change from this package  
+**Related ADR:** [ADR-030](../18-decision-log/adr-030-operational-workspace-documents-tables.md) (Accepted)  
+**Gate:** Design → Document → Approve → **Implement** (ADR-012)  
+**Production:** No Production migration apply or deploy from this design record  
 **Billing / Stripe / roles / SKUs:** No changes  
 **New entitlement keys:** None in Phase 1 (reuse `platform.documents`)  
 **New roles:** None  
@@ -15,17 +16,14 @@
 
 ## Constraints honored
 
-This package is **DESIGN + DOCUMENT ONLY**. It does **not**:
+Phase 1 implementation is authorized for the approved scope only. It does **not**:
 
-- Change application code, UI, tests, or scaffolding
-- Write or apply migrations
-- Deploy to Preview or Production
-- Change billing, Stripe, SKUs, or commercial flow
-- Add a fourth product or present Enterprise as a product/tier
+- Add a fourth product, SKU, role, or entitlement key
+- Change billing, Stripe, or commercial flow
 - Replace FAC-003, FAC-002, MEDIA-001, or Document Intelligence with a second system of record
-- Add entitlement keys or roles without a later Approve
-
-Recommended actions are implementable only after **Approve**. They are not work orders from this record.
+- Implement source-system writeback
+- Implement DOCX export, formulas, or FAC-002 report connections (Phase 1b)
+- Apply Production migrations or deploy Production from this design record
 
 ---
 
@@ -120,15 +118,16 @@ An **operational table** is a spreadsheet-style grid owned by the organization.
 | Spreadsheet-style grids | Rows/columns, typed cells (text, number, date, select), pinned header |
 | Formulas | Cell formulas over the grid (Phase 1b — see §6). No VBA / macros |
 | Sort/filter | Column sort and simple filters |
-| CSV/XLSX export | CSV in Phase 1; XLSX in Phase 1b |
+| CSV/XLSX export | CSV and XLSX in Phase 1 (XLSX moved into Phase 1 by Owner amendment) |
 | M.P.A. data connections | **Read-only** live or snapshot queries into approved M.P.A. objects |
 
-Approved connection sources (Phase 1, after Approve):
+Approved connection sources (Phase 1):
 
 - Facility assets (FAC-003)
 - Stock on-hand (FAC-003)
 - Facility / residential work orders (existing WO spine)
-- FAC-002 report row sets (export-shaped, not a second report engine)
+
+FAC-002 report row sets remain **Phase 1b**.
 
 **System of record rule:** connected rows are projections. Edits in a Table never write quantity, asset status, or work-order status unless a later Approve defines a bidirectional contract. FAC-003 negative-stock and append-only ledger stay authoritative.
 
@@ -191,15 +190,15 @@ Ship the outline without boiling the ocean.
 1. Create grid  
 2. Sort / filter  
 3. CSV export  
-4. Read-only connections to FAC-003 assets, FAC-003 stock, and work orders  
+4. XLSX export (Owner amendment — moved from 1b)  
+5. Read-only connections to FAC-003 assets, FAC-003 stock, and work orders  
 
-**Phase 1b (separate Approve if not included now)**
+**Phase 1b (separate Approve)**
 
 - Word/DOCX export  
 - Formulas  
-- XLSX export  
 - FAC-002 report connection  
-- Bidirectional writes (default **no**)
+- Bidirectional writes (default **no** — **not approved**)
 
 **Out of this program**
 
@@ -235,7 +234,7 @@ Do not replay unrelated lineage. Do not store table cell blobs in `media_attachm
 | Use Tables as FAC-003 UI | **Rejected** — ledger and RLS stay on FAC-003 |
 | Replace Document Intelligence | **Rejected** — evolve the library |
 | Store manuals only as MEDIA-001 | **Rejected** — ADR-023 / ADR-028 already send PDFs to DOC-001 |
-| Full Excel compatibility in Phase 1 | **Rejected** — formulas/XLSX wait for 1b |
+| Full Excel compatibility in Phase 1 | **Rejected** — formulas, charts, macros, and round-trip editing wait for 1b. XLSX **export** is Phase 1 by amendment. |
 
 ---
 
@@ -263,10 +262,8 @@ No schema or app change from this record. Existing Document Intelligence, MEDIA-
 
 ---
 
-## 12. Approval ask
+## 12. Approval
 
-Product Owner + Architect: accept ADR-030 and mark this record **Approved** for **Phase 1 only** (§6), or amend Phase 1 to include/exclude DOCX, formulas, and XLSX.
+**Approved 2026-08-14** for Phase 1 only (§6), with amendment: **XLSX export is Phase 1**. DOCX, formulas, FAC-002 report connections, and source-system writeback remain **not approved**.
 
-Until that Approve, status remains **DESIGN COMPLETE — APPROVAL REQUIRED**.
-
-**Do not implement from this record.**
+Implementation must stop after implementation certification. Do not apply Production migration or deploy Production from the implement PR.
