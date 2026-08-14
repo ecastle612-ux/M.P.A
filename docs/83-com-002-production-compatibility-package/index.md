@@ -1,10 +1,11 @@
 # 83 — COM-002 PRODUCTION COMPATIBILITY PACKAGE
 
 **Title:** COM-002 PRODUCTION COMPATIBILITY PACKAGE  
-**Status:** Draft  
+**Status:** Approved  
 **Date:** 2026-08-14  
-**Gate:** Design → Document → **Approve** → Implement (ADR-012)  
-**Related:** [docs/80](https://github.com/ecastle612-ux/M.P.A/blob/cursor/tenant-communication-center-b7a1/docs/80-com-002-tenant-communication-center/index.md) (Approved, PR #188) · [ADR-024](https://github.com/ecastle612-ux/M.P.A/blob/cursor/tenant-communication-center-b7a1/docs/18-decision-log/adr-024-com-002-tenant-communication-center.md) (Accepted, PR #188) · [docs/81](https://github.com/ecastle612-ux/M.P.A/blob/cursor/tenant-communication-center-b7a1/docs/81-com-002-implementation-certification/index.md) · [docs/82](../82-com-002-production-release-certification/index.md) (BLOCKED) · [ADR-025](../18-decision-log/adr-025-com-002-production-compatibility.md) (Proposed)  
+**Approved:** 2026-08-14 — Product Owner + Architect authorization to implement M1 only  
+**Gate:** Design → Document → Approve → **Implement** (ADR-012) — M1 only  
+**Related:** [docs/80](https://github.com/ecastle612-ux/M.P.A/blob/cursor/tenant-communication-center-b7a1/docs/80-com-002-tenant-communication-center/index.md) (Approved, PR #188) · [ADR-024](https://github.com/ecastle612-ux/M.P.A/blob/cursor/tenant-communication-center-b7a1/docs/18-decision-log/adr-024-com-002-tenant-communication-center.md) (Accepted, PR #188) · [docs/81](https://github.com/ecastle612-ux/M.P.A/blob/cursor/tenant-communication-center-b7a1/docs/81-com-002-implementation-certification/index.md) · [docs/82](../82-com-002-production-release-certification/index.md) (BLOCKED) · [ADR-025](../18-decision-log/adr-025-com-002-production-compatibility.md) (Accepted)  
 **Production:** **NO** migration apply · **NO** deploy  
 **Billing / Stripe / commercial flow:** Unchanged  
 
@@ -16,7 +17,7 @@ Identifier note: this package is for **COM-002 Tenant Communication Center** (AD
 
 docs/82 blocked production release because `20260814010000_com_002_tenant_communication_center.sql` is not apply-safe on `mpa-prod`. This record designs the **minimum additive compatibility package** required before that approved migration can run.
 
-This record stops at design. No SQL is added to `supabase/migrations/`. No production change is authorized.
+M1 implementation is authorized. Production apply and deploy remain **not** authorized.
 
 ---
 
@@ -371,12 +372,10 @@ Then apply unchanged `20260814010000_com_002_tenant_communication_center.sql`.
 | Enterprise | Not a product or SKU |
 | Commercial flow | Unchanged |
 | Billing / Stripe | Unchanged |
-| Implementation Gate | Draft — no implement until Approve |
+| Implementation Gate | Approved — M1 implement only; no production apply |
 
 ---
 
 ## Stop
 
-Design complete. **No implementation. No production changes.**
-
-Next gate: Product Owner + Architect **Approve** this record and **Accept** ADR-025. Only then may M1 be written to `supabase/migrations/` and applied.
+Design is **Approved**. M1 may be written to `supabase/migrations/`. **Do not apply M1 to `mpa-prod` and do not deploy** until a later production-release authorization.

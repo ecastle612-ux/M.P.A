@@ -1,10 +1,13 @@
 # ADR-025: COM-002 Tenant Communication Center production compatibility lineage
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-14
+
+## Accepted
+2026-08-14 — Product Owner + Architect authorization for docs/83 M1 only. No production apply from this ADR.
 
 ## Context
 
@@ -37,7 +40,7 @@ This ADR does **not** change ADR-024 product shape (new conversation domain besi
 
 6. Do **not** replace `is_org_member` or `is_org_manager`, and do not change `lease_agreements` RLS in this package.
 
-7. Implementation of the prerequisite SQL is forbidden until this ADR is **Accepted** and docs/83 is **Approved**.
+7. Prerequisite SQL may be added to the repository after this ADR is **Accepted** and docs/83 is **Approved**. Applying it to `mpa-prod` still requires a later production-release authorization.
 
 ## Consequences
 
@@ -56,7 +59,7 @@ This ADR does **not** change ADR-024 product shape (new conversation domain besi
 
 ## Related
 
-- docs/83 — COM-002 Production Compatibility Package (Draft)
+- docs/83 — COM-002 Production Compatibility Package (Approved)
 - docs/82 — production release certification (BLOCKED)
 - ADR-024 — Tenant Communication Center (Accepted on PR #188)
 - ADR-012 — Implementation Gate
