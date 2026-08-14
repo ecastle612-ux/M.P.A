@@ -333,7 +333,7 @@ Rollback is only meaningful after a future approved apply. Design it now.
 
 ## 6. Proposed migration text (specification only)
 
-The following is the approved *shape* for implementers after this document is Approved. It is **not** checked in as a migration in this record.
+The following is the approved *shape*. Implementation lives at `supabase/migrations/20260814005000_com_002_prod_compat_prerequisites.sql`.
 
 ```sql
 -- M1 com_002_prod_compat_prerequisites
