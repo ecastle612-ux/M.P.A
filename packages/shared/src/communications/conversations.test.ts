@@ -3,6 +3,7 @@ import {
   conversationPreviewFromBody,
   defaultConversationSubject,
   isConversationUnread,
+  isPmCommsStaffRole,
   staffHasTenantCommsEntitlement,
   tenantConversationHref,
   validateConversationMessageContent
@@ -57,3 +58,15 @@ describe("COM-002 conversation helpers", () => {
     );
   });
 });
+
+describe("PLAT-002 comms staff roles", () => {
+  it("allows desk roles and denies technicians", () => {
+    expect(isPmCommsStaffRole("organization_admin")).toBe(true);
+    expect(isPmCommsStaffRole("property_manager")).toBe(true);
+    expect(isPmCommsStaffRole("leasing_agent")).toBe(true);
+    expect(isPmCommsStaffRole("maintenance_technician")).toBe(false);
+    expect(isPmCommsStaffRole("tenant")).toBe(false);
+    expect(isPmCommsStaffRole("vendor")).toBe(false);
+  });
+});
+

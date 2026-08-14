@@ -11,7 +11,7 @@ import { buildOrganizationReportingSnapshot } from "../../../../lib/reports/anal
 
 export async function GET(request: Request) {
   const authz = await requireReportPermission();
-  if (authz.error) return authz.error;
+  if ("error" in authz) return authz.error;
 
   const url = new URL(request.url);
   const personaRaw = url.searchParams.get("persona");
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
   };
 
   const snapshot = await buildOrganizationReportingSnapshot(authz.supabase, authz.organizationId, {
-    roles: authz.authorizationContext.roles ?? [],
+    roles: authz.roles,
     filters,
     personaOverride: persona
   });

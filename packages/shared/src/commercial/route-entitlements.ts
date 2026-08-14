@@ -1,6 +1,9 @@
+import { staffHasTenantCommsEntitlement } from "../communications/conversations";
 import type { EntitlementKey } from "./entitlements";
 import { entitlementsForSku, hasEntitlement } from "./entitlements";
 import type { ProductSku } from "./skus";
+
+export type ApiEntitlementRequirement = EntitlementKey | null | "deny" | "tenant_comms_staff";
 
 export type RouteAccessDecision =
   | { allowed: true; entitlement: EntitlementKey | null }
@@ -110,6 +113,136 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
   }
 
   return null;
+}
+
+/**
+ * Coarse API catalog (ADR-026 / PLAT-002 C3).
+ * Pages keep requiredEntitlementForPath (which leaves /api/ as null).
+ * Portal, webhooks, commerce, media, and auth stay null — helpers or signatures own them.
+ */
+export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementRequirement {
+  const path = (pathname.split("?")[0] ?? pathname).split("#")[0] ?? pathname;
+  if (!path.startsWith("/api/")) {
+    return null;
+  }
+
+  if (
+    path.startsWith("/api/admin") ||
+    path.startsWith("/api/portal") ||
+    path.startsWith("/api/auth") ||
+    path.startsWith("/api/commerce") ||
+    path.startsWith("/api/demo") ||
+    path.startsWith("/api/invitations") ||
+    path.startsWith("/api/profile") ||
+    path.startsWith("/api/shared/media")
+  ) {
+    return null;
+  }
+
+  if (
+    path.startsWith("/api/finance/webhooks") ||
+    path.startsWith("/api/finance/resident") ||
+    path.startsWith("/api/finance/checkout")
+  ) {
+    return null;
+  }
+  if (path.startsWith("/api/finance/")) {
+    return "pm.financial_operations";
+  }
+
+  if (path.startsWith("/api/pm/properties") || path.startsWith("/api/pm/mission-control")) {
+    return "pm.properties";
+  }
+  if (path.startsWith("/api/pm/maintenance/vendors") || path.startsWith("/api/pm/vendors")) {
+    return "pm.vendors";
+  }
+  if (path.startsWith("/api/pm/maintenance") || path.startsWith("/api/pm/reports")) {
+    return "pm.maintenance";
+  }
+  if (path.startsWith("/api/pm/residents")) {
+    return "pm.residents";
+  }
+  if (path.startsWith("/api/pm/leasing")) {
+    return "pm.leasing";
+  }
+  if (path.startsWith("/api/pm/")) {
+    return "deny";
+  }
+
+  if (path.startsWith("/api/facility/")) {
+    return requiredEntitlementForPath(path.slice("/api".length));
+  }
+
+  if (path.startsWith("/api/shared/reports")) {
+    return "platform.reports";
+  }
+  if (path.startsWith("/api/shared/documents")) {
+    return "platform.documents";
+  }
+  if (path.startsWith("/api/shared/communications/conversations")) {
+    return "tenant_comms_staff";
+  }
+  if (path.startsWith("/api/shared/communications")) {
+    return "platform.communications";
+  }
+  if (path.startsWith("/api/shared/")) {
+    return "deny";
+  }
+
+  return null;
+}
+
+export function evaluateApiPathEntitlement(input: {
+  pathname: string;
+  sku: ProductSku | null;
+  extraEntitlements?: readonly string[];
+}): RouteAccessDecision {
+  const required = requiredEntitlementForApiPath(input.pathname);
+  if (required === null) {
+    return { allowed: true, entitlement: null };
+  }
+  if (required === "deny") {
+    return { allowed: false, entitlement: null, reason: "Unknown commercial API route" };
+  }
+
+  const granted = [
+    ...(input.sku
+      ? entitlementsForSku(input.sku)
+      : (["platform.org", "platform.guided_setup", "platform.billing_self", "platform.launcher"] as const)),
+    ...(input.extraEntitlements ?? [])
+  ];
+
+  if (required === "tenant_comms_staff") {
+    if (!staffHasTenantCommsEntitlement(granted)) {
+      return {
+        allowed: false,
+        entitlement: "pm.portal_tenant",
+        reason: "Missing tenant communication staff entitlements"
+      };
+    }
+    return { allowed: true, entitlement: "pm.portal_tenant" };
+  }
+
+  if (!input.sku) {
+    const bootstrap = new Set(["platform.org", "platform.guided_setup", "platform.billing_self", "platform.launcher"]);
+    if (!bootstrap.has(required)) {
+      return {
+        allowed: false,
+        entitlement: required,
+        reason: "Organization has no commercial subscription"
+      };
+    }
+  }
+
+  if (!hasEntitlement(granted, required)) {
+    return {
+      allowed: false,
+      entitlement: required,
+      reason: `Missing entitlement ${required}`
+    };
+  }
+
+  return { allowed: true, entitlement: required };
 }
 
 export function evaluatePathEntitlement(input: {
