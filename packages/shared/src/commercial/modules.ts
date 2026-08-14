@@ -20,6 +20,7 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/pm/residents",
     "/pm/leasing",
     "/shared/documents",
+    "/shared/tables",
     "/shared/reports",
     "/shared/communications",
     "/settings/organization"
@@ -41,6 +42,7 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/facility/parts",
     "/facility/building-systems",
     "/shared/documents",
+    "/shared/tables",
     "/shared/reports",
     "/shared/communications",
     "/settings/organization"
@@ -111,7 +113,17 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     href: "/shared/documents",
     readiness: "aligned",
     description:
-      "Document Intelligence Center — one library, many relationships, search, preview, versions, and professional PDF export."
+      "Operational Workspace documents — uploaded files and authored M.P.A. documents, templates, versions, and professional PDF export."
+  },
+  {
+    id: "tables",
+    label: "Tables",
+    owner: "shared_platform",
+    entitlement: "platform.documents",
+    href: "/shared/tables",
+    readiness: "aligned",
+    description:
+      "Operational Workspace tables — spreadsheet-style grids, sort/filter, CSV/XLSX export, and read-only M.P.A. data connections."
   },
   {
     id: "reports",
@@ -505,6 +517,7 @@ export function navigationGroupsForSku(
     product: "shared",
     items: [
       { href: "/shared/documents", label: "Documents", readiness: "aligned", entitlement: "platform.documents" },
+      { href: "/shared/tables", label: "Tables", readiness: "aligned", entitlement: "platform.documents" },
       {
         href: "/shared/reports",
         label: "Reporting & Analytics",
@@ -646,6 +659,14 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
       title: "Documents",
       description: "Shared platform documents.",
       href: "/shared/documents",
+      product: "shared",
+      readiness: "aligned"
+    },
+    {
+      id: "tables",
+      title: "Tables",
+      description: "Operational grids and read-only M.P.A. data connections.",
+      href: "/shared/tables",
       product: "shared",
       readiness: "aligned"
     },

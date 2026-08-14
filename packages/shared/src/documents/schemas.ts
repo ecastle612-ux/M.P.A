@@ -147,6 +147,9 @@ export type DocumentRecord = {
   keywords?: string | null;
   versionNumber?: number;
   links?: DocumentLink[];
+  kind?: "file" | "authored";
+  templateId?: string | null;
+  deletedAt?: string | null;
 };
 
 export function isDocumentEntityType(value: string): value is DocumentEntityType {

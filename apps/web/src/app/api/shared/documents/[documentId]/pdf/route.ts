@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { isPdfExportTemplate } from "@mpa/shared";
+import { flattenAuthoredBody, isPdfExportTemplate } from "@mpa/shared";
+import { auditDocumentExport } from "../../../../../../lib/documents/authored-service";
 import { requireDocumentPermission } from "../../../../../../lib/documents/authz";
 import { getDocumentDetail } from "../../../../../../lib/documents/document-service";
 import { buildProfessionalPdf } from "../../../../../../lib/documents/pdf-export";
@@ -25,11 +26,16 @@ export async function GET(request: Request, context: Params) {
       return NextResponse.json({ error: "Document not found" }, { status: 404 });
     }
 
+    const contentText =
+      detail.document.kind === "authored"
+        ? flattenAuthoredBody(detail.bodyJson) || detail.contentText
+        : detail.contentText;
     const pdf = await buildProfessionalPdf({
       document: detail.document,
-      contentText: detail.contentText,
+      contentText,
       ...(template ? { template } : {})
     });
+    await auditDocumentExport(authz.supabase, authz.organizationId, authz.user.id, documentId, "pdf");
 
     return new NextResponse(Buffer.from(pdf.bytes), {
       status: 200,

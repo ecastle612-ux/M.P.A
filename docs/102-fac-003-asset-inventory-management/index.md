@@ -496,8 +496,8 @@ Canopy only after UI Approve. Honest empty states. No tenant chrome.
 
 | Program | Compatibility |
 |---------|----------------|
-| **DOC-001** Operational documents | Attach manuals/warranties to `facility_asset` / stock item via document entity link — not MEDIA-001 |
-| **SHEET-001** Operational tables | Read-only or synced views of stock on-hand / asset lists; FAC-003 remains system of record |
+| **DOC-001** Operational documents | Now designed as **OPS-001 Documents** ([docs/112](../112-ops-001-operational-workspace-documents-tables/index.md), [ADR-030](../18-decision-log/adr-030-operational-workspace-documents-tables.md) Proposed). Attach manuals/warranties to `facility_asset` / stock via the shared document library — not MEDIA-001. **Do not implement until ADR-030 is Accepted.** |
+| **SHEET-001** Operational tables | Now designed as **OPS-001 Tables** (same package). Read-only connections to stock on-hand / asset lists; FAC-003 remains system of record. **Do not implement until ADR-030 is Accepted.** |
 | **QR / barcode** | `scan_code` on assets (and later stock). Scanner UX and hardware are a later design |
 | **Preventive maintenance** | Existing `facility_pm_schedules.asset_id` can point at evolved `facility_assets`. Generation engine is **not** FAC-003 |
 | **Vendor management** | `vendor_id` on assets and stock uses `vendor_vendors`. No second vendor tree. Marketplace economics unchanged (ADR-004) |

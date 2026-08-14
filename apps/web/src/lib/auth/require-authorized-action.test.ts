@@ -69,6 +69,7 @@ import { requireReportPermission } from "../reports/authz";
 import { requireFacilityOperation } from "../facility/authz";
 import { requireMaintenancePermission } from "../maintenance/authz";
 import { requireStaffConversationPermission } from "../communications/conversation-authz";
+import { requireWorkspaceRead, requireWorkspaceWrite } from "../documents/authz";
 
 describe("PLAT-002 requireAuthorizedAction pipeline", () => {
   beforeEach(() => {
@@ -248,5 +249,38 @@ describe("PLAT-002 tenant communication staff (C5)", () => {
     state.membership = { id: "mem_1", status: "active", roles: ["property_manager"] };
     const result = await requireStaffConversationPermission("platform.communications:read");
     expect("error" in result).toBe(false);
+  });
+});
+
+describe("OPS-001 workspace staff isolation", () => {
+  beforeEach(() => {
+    state.userId = "user_1";
+    state.orgId = "org_1";
+    state.sku = "mpa_complete_platform";
+    state.subscriptionStatus = "active";
+    state.permissions = ["platform.documents:read", "platform.documents:write"];
+    state.membership = { id: "mem_1", status: "active", roles: ["property_manager"] };
+  });
+
+  it("allows managers to read and write the workspace", async () => {
+    expect("error" in (await requireWorkspaceRead())).toBe(false);
+    expect("error" in (await requireWorkspaceWrite())).toBe(false);
+  });
+
+  it("allows technicians to read but not administer", async () => {
+    state.membership = { id: "mem_1", status: "active", roles: ["maintenance_technician"] };
+    expect("error" in (await requireWorkspaceRead())).toBe(false);
+    const write = await requireWorkspaceWrite();
+    expect("error" in write && write.error.status === 403).toBe(true);
+  });
+
+  it("denies tenant, vendor, and owner", async () => {
+    for (const role of ["tenant", "vendor", "property_owner"]) {
+      state.membership = { id: "mem_1", status: "active", roles: [role] };
+      const read = await requireWorkspaceRead();
+      const write = await requireWorkspaceWrite();
+      expect("error" in read && read.error.status === 403).toBe(true);
+      expect("error" in write && write.error.status === 403).toBe(true);
+    }
   });
 });
