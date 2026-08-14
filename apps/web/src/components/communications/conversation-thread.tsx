@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ConversationInboxItem, ConversationMessageRecord } from "@mpa/shared";
 import { Badge, Button, EmptyState, Skeleton } from "@mpa/ui";
 import { MediaAttachmentField } from "../media/media-attachment-field";
@@ -30,6 +30,7 @@ export function ConversationThread({ plane, conversationId, apiBase, onCloseThre
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const sendIdempotencyKeyRef = useRef<string | null>(null);
 
   const canSend = useMemo(() => body.trim().length > 0 || mediaIds.length > 0, [body, mediaIds]);
 
@@ -69,16 +70,24 @@ export function ConversationThread({ plane, conversationId, apiBase, onCloseThre
     if (!canSend) return;
     setSending(true);
     setError(null);
+    if (!sendIdempotencyKeyRef.current) {
+      sendIdempotencyKeyRef.current = crypto.randomUUID();
+    }
     try {
       const response = await fetch(`${apiBase}/${conversationId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body, mediaIds })
+        body: JSON.stringify({
+          body,
+          mediaIds,
+          idempotencyKey: sendIdempotencyKeyRef.current
+        })
       });
       const payload = await response.json();
       if (!response.ok) {
         throw new Error(payload.error ?? "Send failed");
       }
+      sendIdempotencyKeyRef.current = null;
       setBody("");
       setMediaIds([]);
       await loadThread({ silent: true });

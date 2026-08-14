@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireCommunicationsPermission } from "../../../../../lib/communications/authz";
+import { requireNotificationCenterActor } from "../../../../../lib/communications/conversation-authz";
 import {
   listUnifiedNotifications,
   markNotificationRead
@@ -8,7 +8,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const authz = await requireCommunicationsPermission("platform.communications:read");
+  const authz = await requireNotificationCenterActor();
   if ("error" in authz) {
     return authz.error;
   }
@@ -32,7 +32,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const authz = await requireCommunicationsPermission("platform.communications:read");
+  const authz = await requireNotificationCenterActor();
   if ("error" in authz) {
     return authz.error;
   }

@@ -219,6 +219,23 @@ describe("COM-002 conversation lifecycle", () => {
     expect(events.some((item) => item.eventType === "conversation.started")).toBe(true);
     expect(events.some((item) => item.aggregateType === "property_properties")).toBe(true);
 
+    await markConversationRead(
+      supabase as never,
+      org,
+      tenantUser,
+      "tenant",
+      started.conversation.id,
+      "res_1"
+    );
+    expect(
+      db.comms_notifications.some(
+        (row) =>
+          row["user_id"] === tenantUser &&
+          row["read_at"] != null &&
+          row["conversation_id"] === started.conversation.id
+      )
+    ).toBe(true);
+
     const replied = await sendConversationMessage(
       supabase as never,
       org,
@@ -232,6 +249,39 @@ describe("COM-002 conversation lifecycle", () => {
 
     await markConversationRead(supabase as never, org, staff, "staff", started.conversation.id);
     expect(db.comms_message_reads.length).toBeGreaterThan(0);
+    expect(
+      db.comms_notifications.some(
+        (row) => row["user_id"] === staff && row["read_at"] != null && row["conversation_id"] === started.conversation.id
+      )
+    ).toBe(true);
+  });
+
+  it("reuses an idempotency key instead of creating a second message", async () => {
+    const supabase = makeClient();
+    const started = await startConversation(supabase as never, org, staff, {
+      tenantAccountId: "res_1",
+      body: "Welcome home"
+    });
+    const first = await sendConversationMessage(
+      supabase as never,
+      org,
+      tenantUser,
+      "tenant",
+      started.conversation.id,
+      { body: "Thank you", tenantAccountId: "res_1", idempotencyKey: "send-1" }
+    );
+    const second = await sendConversationMessage(
+      supabase as never,
+      org,
+      tenantUser,
+      "tenant",
+      started.conversation.id,
+      { body: "Thank you", tenantAccountId: "res_1", idempotencyKey: "send-1" }
+    );
+    expect(second.messageId).toBe(first.messageId);
+    expect(
+      db.comms_conversation_messages.filter((row) => row["sender_user_id"] === tenantUser)
+    ).toHaveLength(1);
   });
 
   it("reuses the same conversation for the same tenant and work order", async () => {

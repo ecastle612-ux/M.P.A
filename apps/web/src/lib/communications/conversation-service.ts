@@ -715,6 +715,17 @@ export async function markConversationRead(
     );
   }
 
+  const { error: notificationError } = await supabase
+    .from("comms_notifications")
+    .update({ read_at: now })
+    .eq("organization_id", organizationId)
+    .eq("user_id", actorId)
+    .eq("conversation_id", conversation.id)
+    .is("read_at", null);
+  if (notificationError) {
+    throw new ConversationServiceError(notificationError.message, 400);
+  }
+
   await emitConversationEvents({
     supabase,
     organizationId,

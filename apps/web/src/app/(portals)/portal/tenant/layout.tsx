@@ -34,6 +34,9 @@ export default async function TenantPortalLayout({ children }: { children: React
       roleBadgeLabel="Resident"
       navigation={TENANT_PORTAL_NAVIGATION}
       experience="resident"
+      showNotifications
+      notificationsInboxHref="/portal/tenant/messages"
+      notificationsInboxLabel="Open messages"
     >
       {children}
     </RolePortalFrame>

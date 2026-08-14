@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ConversationInboxItem } from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
@@ -29,6 +29,7 @@ export function StaffConversationsDesk() {
   const [forbidden, setForbidden] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const startIdempotencyKeyRef = useRef<string | null>(null);
 
   async function reload() {
     const [listRes, targetRes] = await Promise.all([
@@ -81,19 +82,24 @@ export function StaffConversationsDesk() {
   async function start() {
     setSending(true);
     setError(null);
+    if (!startIdempotencyKeyRef.current) {
+      startIdempotencyKeyRef.current = crypto.randomUUID();
+    }
     try {
       const payload: {
         tenantAccountId: string;
         body: string;
         mediaIds: string[];
         subject: string;
+        idempotencyKey: string;
         linkedEntityType?: string;
         linkedEntityId?: string;
       } = {
         tenantAccountId: resolvedTenant,
         body,
         mediaIds,
-        subject
+        subject,
+        idempotencyKey: startIdempotencyKeyRef.current
       };
       if (prefillWorkOrder) {
         payload.linkedEntityType = "work_order";
@@ -112,6 +118,7 @@ export function StaffConversationsDesk() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Failed to start conversation");
+      startIdempotencyKeyRef.current = null;
       setBody("");
       setSubject("");
       setMediaIds([]);
