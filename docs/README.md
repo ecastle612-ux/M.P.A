@@ -99,6 +99,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 95 | [PLAT-002 Authorization Hardening Implementation Certification](./95-plat-002-authorization-hardening-implementation-certification/index.md) | Implementation certification · **READY** · no Production deploy |
 | 102 | [FAC-003 Asset & Inventory Management Design](./102-fac-003-asset-inventory-management/index.md) | **Approved** · FO asset registry + stock ledger · ADR-028 Accepted · implement Phase 1 |
 | 103 | [FAC-003 Implementation Certification](./103-fac-003-implementation-certification/index.md) | Implementation certification · **READY** · no Production deploy |
+| 107 | [FAC-003 CI Remediation and Merge Readiness](./107-fac-003-ci-remediation-merge-readiness/index.md) | **READY FOR MERGE** · PR #211 undrafted · `verify` green · no deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

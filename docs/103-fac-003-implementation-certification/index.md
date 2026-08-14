@@ -133,4 +133,6 @@ Coverage mapped to the approved acceptance criteria: FO/Complete manage, PM/tena
 
 ---
 
+CI lint on this package was later remediated in [docs/107](../107-fac-003-ci-remediation-merge-readiness/index.md) (**READY FOR MERGE**). No production deployment from this record.
+
 **STOP.** Certification only. No production deployment.
