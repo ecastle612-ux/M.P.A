@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { WORK_ORDER_CATEGORIES, WORK_ORDER_PRIORITIES, WORK_ORDER_STATUSES, WORK_SURFACES } from "../maintenance/schemas";
+import {
+  WORK_ORDER_CATEGORIES,
+  WORK_ORDER_PRIORITIES,
+  WORK_ORDER_STATUSES,
+  type WorkSurface
+} from "../maintenance/schemas";
 
 export const WORK_ORDER_REPORT_CSV_ROW_CAP = 10_000;
 export const WORK_ORDER_REPORT_PDF_ROW_CAP = 500;
@@ -7,7 +12,7 @@ export const WORK_ORDER_REPORT_PDF_ROW_CAP = 500;
 export const WORK_ORDER_REPORT_DATE_MODES = ["created", "completed"] as const;
 export type WorkOrderReportDateMode = (typeof WORK_ORDER_REPORT_DATE_MODES)[number];
 
-export const WORK_ORDER_REPORT_SURFACE_LABELS: Record<(typeof WORK_SURFACES)[number], string> = {
+export const WORK_ORDER_REPORT_SURFACE_LABELS: Record<WorkSurface, string> = {
   facility: "Facility Operations",
   residential: "Property Operations"
 };
