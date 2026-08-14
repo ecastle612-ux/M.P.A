@@ -96,6 +96,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 89 | [FAC-002 Reporting Export Implementation Certification](./89-fac-002-reporting-export-implementation-certification/index.md) | Implementation certification · **READY** · no Production deploy |
 | 91 | [COM-002 UAT Remediation Certification](./91-com-002-uat-remediation-certification/index.md) | Tenant audit RLS + Notification Center · **READY FOR UAT RE-RUN** · schema applied; app in PR #198 |
 | 96 | [PLAT-002 Production Authorization Migration Certification](./96-plat-002-production-authorization-migration-certification/index.md) | Production apply of approved PLAT-002 SQL · **BLOCKED** · `maintenance_notifications` missing; ledger unchanged |
+| 97 | [PLAT-002 Production Compatibility Amendment](./97-plat-002-production-compatibility-amendment/index.md) | **Draft** · Conditional notifications DDL + drop leftover `*_authorized` · ADR-027 Proposed · no implement |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

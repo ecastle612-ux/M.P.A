@@ -199,4 +199,6 @@ Do **not** implement from this record.
 
 ---
 
+**Next design:** [docs/97](../97-plat-002-production-compatibility-amendment/index.md) (Draft) · [ADR-027](../18-decision-log/adr-027-plat-002-production-compatibility.md) (Proposed). Do not implement until Approved / Accepted.
+
 **STOP.** Certification only. Production is unchanged. Not ready for application deployment.
