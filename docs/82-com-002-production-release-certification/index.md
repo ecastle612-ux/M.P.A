@@ -192,7 +192,7 @@ No production incident was opened. No production data was written.
 These are gates, not work authorized by this record:
 
 1. Mark PR #188 ready and **merge into `main`**. Re-record merge commit + release SHA.
-2. Design → Document → Approve a **production-compat apply package** for `mpa-prod` (missing `comms_notifications`, `is_lease_resident` / `lease_residents`). Do not apply FIN-OPS or LAUNCH-001 comms wholesale without that gate.
+2. Design → Document → Approve a **production-compat apply package** for `mpa-prod` (missing `comms_notifications`, `is_lease_resident` / `lease_residents`). Draft: [docs/83](../83-com-002-production-compatibility-package/index.md) + [ADR-025](../18-decision-log/adr-025-com-002-production-compatibility.md) **Proposed**. Do not apply FIN-OPS or LAUNCH-001 comms wholesale without that gate.
 3. Apply the approved production-compat migration to `mpa-prod` and record ID / timestamp / result.
 4. Deploy that `main` SHA to production (`m-p-a-web`) and record deployment ID.
 5. Run authenticated UAT with controlled PM + tenant accounts (production currently has no `pm_residents` / `lease_agreements` rows).
