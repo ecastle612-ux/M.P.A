@@ -102,6 +102,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 107 | [FAC-003 CI Remediation and Merge Readiness](./107-fac-003-ci-remediation-merge-readiness/index.md) | **READY FOR MERGE** · PR #211 undrafted · `verify` green · no deploy |
 | 109 | [FAC-003 Production UAT Remediation Design](./109-fac-003-production-uat-remediation/index.md) | **Approved** · RLS RETURNING + optional notify · ADR-029 Accepted · implement remediation |
 | 110 | [FAC-003 Production UAT Remediation Implementation Certification](./110-fac-003-production-uat-remediation-implementation-certification/index.md) | **READY FOR PRODUCTION REMEDIATION RELEASE** · no Production apply or deploy |
+| 111 | [FAC-003 Production Remediation Release Certification](./111-fac-003-production-remediation-release-certification/index.md) | **READY** · migration applied · `main` `aee7fa95` live · docs/109 §9 UAT 23/23 |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
