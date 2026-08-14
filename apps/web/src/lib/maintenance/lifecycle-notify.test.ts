@@ -1,5 +1,9 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { CRITICAL_NOTIFICATION_KEYS, notifyLifecycle } from "./lifecycle-notify";
+import {
+  CRITICAL_NOTIFICATION_KEYS,
+  isMissingMaintenanceNotificationsRelation,
+  notifyLifecycle
+} from "./lifecycle-notify";
 
 vi.mock("../communications/email", () => ({
   sendOperationalNoticeEmail: vi.fn(async () => ({
@@ -12,6 +16,7 @@ import { sendOperationalNoticeEmail } from "../communications/email";
 
 function createNotifyClient(options?: {
   preferences?: { email: boolean; in_app: boolean; sms?: boolean } | null;
+  insertError?: { code?: string; message: string } | null;
 }) {
   const updates: Array<Record<string, unknown>> = [];
   const inserts: Array<Record<string, unknown>> = [];
@@ -25,7 +30,10 @@ function createNotifyClient(options?: {
           return {
             select() {
               return {
-                maybeSingle: async () => ({ data: { id: "notif_1" }, error: null })
+                maybeSingle: async () =>
+                  options?.insertError
+                    ? { data: null, error: options.insertError }
+                    : { data: { id: "notif_1" }, error: null }
               };
             }
           };
@@ -145,5 +153,64 @@ describe("STAB-007 lifecycle notifications", () => {
     expect(result.emailStatus).toBe("skipped_preference");
     expect(client.inserts).toHaveLength(0);
     expect(sendOperationalNoticeEmail).not.toHaveBeenCalled();
+  });
+
+  it("soft-fails when the legacy notification relation is absent", async () => {
+    const client = createNotifyClient({
+      insertError: {
+        code: "PGRST205",
+        message: "Could not find the table 'public.maintenance_notifications' in the schema cache"
+      }
+    });
+    const result = await notifyLifecycle(client as never, {
+      organizationId: "org_1",
+      userId: "user_1",
+      workOrderId: "wo_1",
+      key: "work_order.started",
+      title: "Facility work started",
+      body: "Started",
+      href: "/facility/operations",
+      emailCritical: true
+    });
+    expect(result.inApp).toBe(false);
+    expect(result.notificationId).toBeNull();
+    expect(result.emailStatus).not.toBe("sent");
+  });
+
+  it("still throws unexpected insert errors when the relation exists", async () => {
+    const client = createNotifyClient({
+      insertError: { code: "42501", message: "new row violates row-level security policy" }
+    });
+    await expect(
+      notifyLifecycle(client as never, {
+        organizationId: "org_1",
+        userId: "user_1",
+        workOrderId: "wo_1",
+        key: "work_order.started",
+        title: "Started",
+        body: "Started",
+        href: "/facility/operations"
+      })
+    ).rejects.toThrow(/row-level security/i);
+  });
+
+  it("detects undefined-table and schema-cache absence codes", () => {
+    expect(
+      isMissingMaintenanceNotificationsRelation({
+        code: "42P01",
+        message: 'relation "maintenance_notifications" does not exist'
+      })
+    ).toBe(true);
+    expect(
+      isMissingMaintenanceNotificationsRelation({
+        code: "PGRST205",
+        message: "Could not find the table 'public.maintenance_notifications' in the schema cache"
+      })
+    ).toBe(true);
+    expect(
+      isMissingMaintenanceNotificationsRelation({
+        message: "new row violates row-level security policy"
+      })
+    ).toBe(false);
   });
 });

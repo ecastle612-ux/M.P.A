@@ -15,6 +15,8 @@ const db: Record<string, Row[]> = {
   maintenance_work_orders: []
 };
 
+let insertError: { code?: string; message: string } | null = null;
+
 function matches(row: Row, filters: Array<{ col: string; value: unknown; mode: "eq" | "is" | "in" | "notNull" }>) {
   return filters.every((filter) => {
     if (filter.mode === "eq") return row[filter.col] === filter.value;
@@ -63,6 +65,11 @@ function makeClient() {
         },
         single: async () => {
           if (insertPayload) {
+            if (insertError) {
+              const error = insertError;
+              insertPayload = null;
+              return { data: null, error };
+            }
             (db[table] ?? []).push(insertPayload);
             const created = insertPayload;
             insertPayload = null;
@@ -93,6 +100,7 @@ function makeClient() {
 
 import {
   createFacilityAsset,
+  FacilityConflictError,
   listAssetWorkHistory,
   listFacilityAssets,
   updateFacilityAsset
@@ -101,13 +109,14 @@ import {
 describe("FAC-003 asset service", () => {
   beforeEach(() => {
     audit.mockClear();
+    insertError = null;
     db["facility_assets"] = [];
     db["property_properties"] = [{ id: "11111111-1111-4111-8111-111111111111", organization_id: "org_1" }];
     db["vendor_vendors"] = [];
     db["maintenance_work_orders"] = [];
   });
 
-  it("creates an asset and writes facility_asset.created", async () => {
+  it("creates an asset via insert().select() and writes facility_asset.created", async () => {
     const asset = await createFacilityAsset(makeClient() as never, "org_1", "user_1", {
       name: "Rooftop AHU-2",
       assetType: "hvac",
@@ -115,10 +124,49 @@ describe("FAC-003 asset service", () => {
       propertyPropertyId: "11111111-1111-4111-8111-111111111111",
       locationScope: "property"
     });
+    expect(asset.id).toBe("asset_1");
     expect(asset.name).toBe("Rooftop AHU-2");
+    expect(asset.asset_code).toBe("AHU-2");
     expect(audit).toHaveBeenCalledWith(
       expect.objectContaining({ action: "facility_asset.created", entityType: "facility_assets" })
     );
+  });
+
+  it("maps duplicate asset_code unique violations to FacilityConflictError", async () => {
+    insertError = {
+      code: "23505",
+      message: 'duplicate key value violates unique constraint "facility_assets_org_code_uidx"'
+    };
+    await expect(
+      createFacilityAsset(makeClient() as never, "org_1", "user_1", {
+        name: "Rooftop AHU-2",
+        assetType: "hvac",
+        assetCode: "AHU-2",
+        propertyPropertyId: "11111111-1111-4111-8111-111111111111",
+        locationScope: "property"
+      })
+    ).rejects.toBeInstanceOf(FacilityConflictError);
+  });
+
+  it("hides soft-deleted assets from list and get", async () => {
+    db["facility_assets"] = [
+      {
+        id: "asset_live",
+        organization_id: "org_1",
+        name: "Live",
+        deleted_at: null,
+        status: "active"
+      },
+      {
+        id: "asset_gone",
+        organization_id: "org_1",
+        name: "Gone",
+        deleted_at: "2026-08-14T00:00:00.000Z",
+        status: "retired"
+      }
+    ];
+    const rows = await listFacilityAssets(makeClient() as never, "org_1");
+    expect(rows.map((row) => row.id)).toEqual(["asset_live"]);
   });
 
   it("writes lifecycle_changed when status changes", async () => {

@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { createFacilityAssetInputSchema, FACILITY_MANAGER_ROLES } from "@mpa/shared";
 import { requireFacilityAssetPermission } from "../../../../lib/facility/authz";
-import { createFacilityAsset, listFacilityAssets } from "../../../../lib/facility/asset-service";
+import {
+  createFacilityAsset,
+  FacilityConflictError,
+  listFacilityAssets
+} from "../../../../lib/facility/asset-service";
 import { listPortfolioProperties } from "../../../../lib/property/property-catalog";
 import { listVendors } from "../../../../lib/maintenance/maintenance-service";
 
@@ -50,9 +54,10 @@ export async function POST(request: Request) {
     );
     return NextResponse.json({ asset }, { status: 201 });
   } catch (error) {
+    const status = error instanceof FacilityConflictError ? error.status : 400;
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to create asset" },
-      { status: 400 }
+      { status }
     );
   }
 }
