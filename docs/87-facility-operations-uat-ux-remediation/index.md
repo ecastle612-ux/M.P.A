@@ -52,7 +52,7 @@
 | PM/Complete isolation | **PASS** — `/pm/maintenance` empty of facility WO | `ux_pm_isolation.webp` |
 | FO create / vendor path | **PASS** (technician path exercised end-to-end; vendor portal provision still requires configured service role in local env) | — |
 
-Demo: `fo_uat_ux_remediation_demo.mp4`
+Demo: `fo_uat_ux_remediation_e2e_demo.mp4` (media → create → assign → start → complete → PM isolation)
 
 ---
 
