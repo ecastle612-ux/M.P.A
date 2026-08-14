@@ -97,6 +97,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 91 | [COM-002 UAT Remediation Certification](./91-com-002-uat-remediation-certification/index.md) | Tenant audit RLS + Notification Center · **READY FOR UAT RE-RUN** · schema applied; app in PR #198 |
 | 94 | [PLAT-002 Authorization Hardening Design](./94-plat-002-authorization-hardening/index.md) | **Approved** · C1–C5 remediation design · ADR-026 Accepted |
 | 95 | [PLAT-002 Authorization Hardening Implementation Certification](./95-plat-002-authorization-hardening-implementation-certification/index.md) | Implementation certification · **READY** · no Production deploy |
+| 100 | [PLAT-002 Application Deployment Certification](./100-plat-002-application-deployment-certification/index.md) | Application merge + Production deploy · **PRODUCTION RELEASE SUCCESSFUL** |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
