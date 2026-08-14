@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextResponse } from "next/server";
 import { FacilityConflictError } from "../../../../lib/facility/asset-service";
+import type * as AssetServiceModule from "../../../../lib/facility/asset-service";
 
 const authz = {
   result: {
@@ -25,9 +26,9 @@ vi.mock("../../../../lib/facility/authz", () => ({
 }));
 
 vi.mock("../../../../lib/facility/asset-service", async () => {
-  const actual = await vi.importActual<typeof import("../../../../lib/facility/asset-service")>(
+  const actual = (await vi.importActual(
     "../../../../lib/facility/asset-service"
-  );
+  )) as typeof AssetServiceModule;
   return {
     ...actual,
     createFacilityAsset: (...args: unknown[]) => createAsset(...args),
