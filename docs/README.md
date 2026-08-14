@@ -92,6 +92,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 79 | [Final Release Certification Readiness](./79-final-release-certification-readiness/index.md) | Combined RC · **BLOCKED** (#175/#177 not on main) · no Production deploy |
 | 82 | [COM-002 Production Release Certification](./82-com-002-production-release-certification/index.md) | Tenant Communication Center · **BLOCKED** (#188 not on main; prod schema gap) · no deploy |
 | 83 | [COM-002 Production Compatibility Package](./83-com-002-production-compatibility-package/index.md) | **Approved** · M1 prerequisites · ADR-025 Accepted · no production apply |
+| 84 | [COM-002 Production Compatibility Implementation Certification](./84-com-002-production-compatibility-implementation-certification/index.md) | M1 implemented · preview apply only · **no production apply** |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

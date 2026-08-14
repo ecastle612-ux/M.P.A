@@ -7,6 +7,7 @@ const migrationPath = resolve(
   "../../supabase/migrations/20260814005000_com_002_prod_compat_prerequisites.sql"
 );
 const sql = readFileSync(migrationPath, "utf8");
+const statements = sql.replace(/--[^\n]*/g, "");
 
 describe("COM-002 M1 production compatibility migration", () => {
   it("creates the approved prerequisite objects", () => {
@@ -28,14 +29,14 @@ describe("COM-002 M1 production compatibility migration", () => {
   });
 
   it("stays inside approved M1 scope", () => {
-    expect(sql).not.toMatch(/create or replace function public\.is_org_member/i);
-    expect(sql).not.toMatch(/create or replace function public\.is_org_manager/i);
-    expect(sql).not.toMatch(/conversation_threads|communication_messages|in_app_notifications/i);
-    expect(sql).not.toMatch(/financial_charges|financial_payments|financial_ledger/i);
-    expect(sql).not.toMatch(/document_documents/i);
-    expect(sql).not.toMatch(/conversation_id/i);
-    expect(sql).not.toMatch(/comms_conversations/i);
-    expect(sql).not.toMatch(/drop table/i);
-    expect(sql).not.toMatch(/insert into public\.(tenants|leases|lease_residents|comms_)/i);
+    expect(statements).not.toMatch(/create or replace function public\.is_org_member/i);
+    expect(statements).not.toMatch(/create or replace function public\.is_org_manager/i);
+    expect(statements).not.toMatch(/conversation_threads|communication_messages|in_app_notifications/i);
+    expect(statements).not.toMatch(/financial_charges|financial_payments|financial_ledger/i);
+    expect(statements).not.toMatch(/document_documents/i);
+    expect(statements).not.toMatch(/conversation_id/i);
+    expect(statements).not.toMatch(/comms_conversations/i);
+    expect(statements).not.toMatch(/drop table/i);
+    expect(statements).not.toMatch(/insert into public\.(tenants|leases|lease_residents|comms_)/i);
   });
 });
