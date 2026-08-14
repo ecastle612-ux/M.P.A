@@ -178,6 +178,15 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     description: "Residential / unit maintenance — not Facility Operations."
   },
   {
+    id: "pm_work_order_reports",
+    label: "Work order reports",
+    owner: "property_manager",
+    entitlement: "pm.maintenance",
+    href: "/pm/reports/work-orders",
+    readiness: "aligned",
+    description: "Operational residential work order reporting with CSV and PDF export."
+  },
+  {
     id: "vendors",
     label: "Vendors",
     owner: "property_manager",
@@ -213,6 +222,15 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     href: "/facility/operations",
     readiness: "aligned",
     description: "Create, assign, start, progress, complete, and cancel facility work orders.",
+  },
+  {
+    id: "facility_reports",
+    label: "Reports",
+    owner: "facility_operations",
+    entitlement: "facility.operations",
+    href: "/facility/reports",
+    readiness: "aligned",
+    description: "Operational work order reporting dashboard with CSV and PDF export."
   },
   {
     id: "facility_vendors",
@@ -382,6 +400,12 @@ export function navigationGroupsForSku(
         { href: "/pm/residents", label: "Residents", readiness: "aligned", entitlement: "pm.residents" },
         { href: "/pm/leasing", label: "Leasing", readiness: "aligned", entitlement: "pm.leasing" },
         { href: "/pm/maintenance", label: "Maintenance", readiness: "aligned", entitlement: "pm.maintenance" },
+        {
+          href: "/pm/reports/work-orders",
+          label: "Work order reports",
+          readiness: "aligned",
+          entitlement: "pm.maintenance"
+        },
         { href: "/pm/vendors", label: "Vendors", readiness: "aligned", entitlement: "pm.vendors" },
         {
           href: "/pm/financial-operations",
@@ -408,6 +432,12 @@ export function navigationGroupsForSku(
         {
           href: "/facility/operations",
           label: "Operations",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
+        {
+          href: "/facility/reports",
+          label: "Reports",
           readiness: "aligned",
           entitlement: "facility.operations"
         },
