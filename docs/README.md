@@ -94,6 +94,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 81 | [COM-002 Implementation Certification](./81-com-002-implementation-certification/index.md) | Implementation certification · **no Production deploy** |
 | 88 | [FAC-002 Reporting and Export Design](./88-fac-002-reporting-and-export/index.md) | **Approved** · Work order reporting & export · ADR-025 Accepted · implement Phase 1 only · no Production deploy |
 | 89 | [FAC-002 Reporting Export Implementation Certification](./89-fac-002-reporting-export-implementation-certification/index.md) | Implementation certification · **READY** · no Production deploy |
+| 90 | [COM-002 Authenticated Production UAT Certification](./90-com-002-authenticated-production-uat-certification/index.md) | Live PM/tenant/media/WO/FO UAT · Notification Center fail · **BLOCKED** |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
