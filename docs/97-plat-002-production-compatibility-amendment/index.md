@@ -1,15 +1,17 @@
 # PLAT-002 PRODUCTION COMPATIBILITY AMENDMENT
 
 **Title:** PLAT-002 PRODUCTION COMPATIBILITY AMENDMENT  
-**Status:** Draft  
+**Status:** Approved  
 **Date:** 2026-08-14  
+**Approved:** 2026-08-14 — Product Owner authorization to implement ADR-027  
 **Program:** PLAT-002  
-**Gate:** Design → Document → **Approve** → Implement  
+**Gate:** Design → Document → Approve → **Implement**  
 **Parent cert:** [docs/96](../96-plat-002-production-authorization-migration-certification/index.md) BLOCKED  
 **Approved design:** [docs/94](../94-plat-002-authorization-hardening/index.md)  
-**Implementation cert:** [docs/95](../95-plat-002-authorization-hardening-implementation-certification/index.md)  
+**PLAT-002 impl cert:** [docs/95](../95-plat-002-authorization-hardening-implementation-certification/index.md)  
 **Parent ADR:** [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) Accepted  
-**This amendment ADR:** [ADR-027](../18-decision-log/adr-027-plat-002-production-compatibility.md) Proposed  
+**This amendment ADR:** [ADR-027](../18-decision-log/adr-027-plat-002-production-compatibility.md) Accepted  
+**Successor impl cert:** [docs/98](../98-plat-002-production-compatibility-implementation-certification/index.md)  
 **Production:** No writes from this record  
 **Billing / Stripe / roles / SKUs:** Unchanged
 
@@ -29,7 +31,7 @@ This package does **not**:
 - Replay `20260806110000` or FO enablement migrations
 - Change ADR-026’s pipeline, Complete union, or comms staff rule
 
-Implement only after this record is **Approved** and ADR-027 is **Accepted**.
+This record is **Approved** and ADR-027 is **Accepted**. Implement only the successor migration and tests. Do not apply to Production from the implementation package.
 
 ---
 
@@ -271,4 +273,4 @@ Implement **only** the successor migration + tests that lock the conditional ski
 
 ---
 
-**STOP.** Design only. Not approved. No implementation.
+**STOP.** Design approved. Implementation is a separate package (docs/98). No Production apply from this record.

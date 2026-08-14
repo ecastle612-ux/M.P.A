@@ -1,10 +1,13 @@
 # ADR-027: PLAT-002 Production Compatibility (Conditional DDL + Leftover Policy Drop)
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-14
+
+## Accepted
+2026-08-14 — Product Owner + Architect authorization for the PLAT-002 production compatibility successor (docs/97 Approved).
 
 ## Context
 
