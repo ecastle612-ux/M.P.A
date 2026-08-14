@@ -4,6 +4,7 @@ export * from "./modules";
 export * from "./master-admin";
 export * from "./impersonation";
 export * from "./route-entitlements";
+export * from "./work-surface";
 export * from "./acquisition";
 export * from "./plans";
 export * from "./commerce-flags";

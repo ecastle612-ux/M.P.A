@@ -13,7 +13,7 @@ import { buildReportingPdf } from "../../../../../lib/reports/pdf-export";
 
 export async function GET(request: Request) {
   const authz = await requireReportPermission();
-  if (authz.error) return authz.error;
+  if ("error" in authz) return authz.error;
 
   const url = new URL(request.url);
   const format = url.searchParams.get("format") ?? "pdf";
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
   };
 
   const snapshot = await buildOrganizationReportingSnapshot(authz.supabase, authz.organizationId, {
-    roles: authz.authorizationContext.roles ?? [],
+    roles: authz.roles,
     filters,
     personaOverride: persona
   });

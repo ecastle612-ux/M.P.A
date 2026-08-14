@@ -109,6 +109,19 @@ export function isConversationUnread(input: {
   return Date.parse(input.lastMessageAt) > Date.parse(input.lastReadAt);
 }
 
+/** PM / Complete desk roles only — technicians are not tenant-inbox staff (ADR-026). */
+export const PM_COMMS_STAFF_ROLES = [
+  "organization_admin",
+  "property_manager",
+  "leasing_agent"
+] as const;
+
+export type PmCommsStaffRole = (typeof PM_COMMS_STAFF_ROLES)[number];
+
+export function isPmCommsStaffRole(role: string): boolean {
+  return (PM_COMMS_STAFF_ROLES as readonly string[]).includes(role);
+}
+
 export function staffHasTenantCommsEntitlement(granted: readonly string[]): boolean {
   return granted.includes("platform.communications") && granted.includes("pm.portal_tenant");
 }

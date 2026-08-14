@@ -3,13 +3,12 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import {
   entitlementsForSku,
   isProductSku,
-  staffHasTenantCommsEntitlement,
+  PM_COMMS_STAFF_ROLES,
   type CommunicationsCapability
 } from "@mpa/shared";
 import { createAuthServerClient } from "../auth/server";
-import { evaluatePermission, resolveAuthorizationContext } from "../auth/authorization";
-import { getActiveOrganizationIdFromCookie } from "../organization/server";
 import { resolveActiveOrganizationIdForUser } from "../organization/resolve-active-organization";
+import { requireAuthorizedAction } from "../auth/require-authorized-action";
 import { requireCommunicationsPermission } from "./authz";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,55 +40,19 @@ export async function loadOrgEntitlements(supabase: Db, organizationId: string):
 export async function requireStaffConversationPermission(
   capability: CommunicationsCapability
 ): Promise<ConversationActor | { error: NextResponse }> {
-  const supabase = await createAuthServerClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { error: NextResponse.json({ error: "Unauthenticated" }, { status: 401 }) };
-  }
-
-  const organizationId = await getActiveOrganizationIdFromCookie();
-  if (!organizationId) {
-    return { error: NextResponse.json({ error: "Organization required" }, { status: 400 }) };
-  }
-
-  const { data: membership } = await supabase
-    .from("organization_memberships")
-    .select("id, status, roles")
-    .eq("organization_id", organizationId)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .maybeSingle();
-  if (!membership) {
-    return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
-  }
-
-  const roles = (membership.roles as string[]) ?? [];
-  const staffRoles = [
-    "organization_admin",
-    "property_manager",
-    "leasing_agent",
-    "maintenance_technician"
-  ];
-  if (!roles.some((role) => staffRoles.includes(role))) {
-    return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
-  }
-
-  const authorizationContext = await resolveAuthorizationContext(user, organizationId);
-  if (!evaluatePermission(authorizationContext, capability)) {
-    return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
-  }
-
-  const entitlements = await loadOrgEntitlements(supabase, organizationId);
-  if (!staffHasTenantCommsEntitlement(entitlements)) {
-    return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+  const result = await requireAuthorizedAction({
+    capability,
+    entitlement: ["platform.communications", "pm.portal_tenant"],
+    allowedRoles: [...PM_COMMS_STAFF_ROLES]
+  });
+  if ("error" in result) {
+    return result;
   }
 
   return {
-    supabase: supabase as Db,
-    user,
-    organizationId,
+    supabase: result.supabase,
+    user: result.user,
+    organizationId: result.organizationId,
     plane: "staff",
     tenantAccountId: null
   };

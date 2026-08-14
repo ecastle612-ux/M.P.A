@@ -2,12 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   COM_002_FLAGS,
+  evaluateApiPathEntitlement,
   evaluatePathEntitlement,
   hasLifecycleModuleAccess,
   IMPERSONATION_COOKIE,
   IMPERSONATION_MODE_COOKIE,
   isProductSku,
   isSubscriptionPlatformStatus,
+  requiredEntitlementForApiPath,
   type ProductSku,
   type SubscriptionPlatformStatus
 } from "@mpa/shared";
@@ -59,6 +61,11 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/shared") ||
     pathname.startsWith("/settings") ||
     pathname.startsWith("/admin");
+
+  const apiEntitlementRequired = requiredEntitlementForApiPath(pathname);
+  if (apiEntitlementRequired !== null && !user) {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  }
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
@@ -127,7 +134,7 @@ export async function middleware(request: NextRequest) {
   // Bootstrap / repair active-org cookie from memberships.
   // Reject stale or forged org cookies that do not match an active membership (STAB-001).
   let organizationId = request.cookies.get(ACTIVE_ORGANIZATION_COOKIE)?.value ?? null;
-  if (user && isProtected) {
+  if (user && (isProtected || apiEntitlementRequired !== null)) {
     let cookieMembershipValid = false;
     if (organizationId) {
       const { data: cookieMembership } = await supabase
@@ -226,6 +233,37 @@ export async function middleware(request: NextRequest) {
         url.search = `?reason=entitlement&required=${encodeURIComponent(decision.entitlement ?? "unknown")}`;
       }
       return NextResponse.redirect(url);
+    }
+  }
+
+  // PLAT-002 C3: catalogued APIs return JSON 401/403 — never redirect.
+  // Helpers remain mandatory. Operators skip (same as pages).
+  if (user && apiEntitlementRequired !== null && !isOperator) {
+    let sku: ProductSku | null = null;
+    if (organizationId) {
+      const { data: subscription } = await supabase
+        .from("organization_subscriptions")
+        .select("sku_code, status")
+        .eq("organization_id", organizationId)
+        .maybeSingle();
+      if (
+        subscription &&
+        isProductSku(subscription.sku_code) &&
+        subscription.status !== "canceled"
+      ) {
+        sku = subscription.sku_code;
+      }
+    }
+    const decision = evaluateApiPathEntitlement({ pathname, sku });
+    if (!decision.allowed) {
+      return NextResponse.json(
+        {
+          error: "Forbidden",
+          code: "entitlement",
+          required: decision.entitlement ?? "unknown"
+        },
+        { status: 403 }
+      );
     }
   }
 

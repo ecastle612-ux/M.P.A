@@ -95,6 +95,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 88 | [FAC-002 Reporting and Export Design](./88-fac-002-reporting-and-export/index.md) | **Approved** · Work order reporting & export · ADR-025 Accepted · implement Phase 1 only · no Production deploy |
 | 89 | [FAC-002 Reporting Export Implementation Certification](./89-fac-002-reporting-export-implementation-certification/index.md) | Implementation certification · **READY** · no Production deploy |
 | 91 | [COM-002 UAT Remediation Certification](./91-com-002-uat-remediation-certification/index.md) | Tenant audit RLS + Notification Center · **READY FOR UAT RE-RUN** · schema applied; app in PR #198 |
+| 94 | [PLAT-002 Authorization Hardening Design](./94-plat-002-authorization-hardening/index.md) | **Approved** · C1–C5 remediation design · ADR-026 Accepted |
+| 95 | [PLAT-002 Authorization Hardening Implementation Certification](./95-plat-002-authorization-hardening-implementation-certification/index.md) | Implementation certification · **READY** · no Production deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
