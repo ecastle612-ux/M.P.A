@@ -6,6 +6,9 @@ Accepted
 ## Accepted
 2026-08-14 — Product Owner authorization for FAC-003 Phase 1 (docs/102 Approved).
 
+## Amendment
+2026-08-14 — [ADR-029](./adr-029-fac-003-production-uat-remediation.md) (Proposed) amends the SELECT-policy *implementation* (RETURNING-safe, equivalent privileges) and states that `maintenance_notifications` is optional/legacy for work-order lifecycle. Privilege, ledger, MEDIA-001, and FAC-002 decisions in this ADR are unchanged.
+
 ## Date
 2026-08-14
 

@@ -59,7 +59,8 @@ What other options were evaluated and why were they rejected?
 | [ADR-024](./adr-024-com-002-tenant-communication-center.md) | COM-002 Tenant Communication Center | Accepted | 2026-08-14 |
 | [ADR-025](./adr-025-fac-002-reporting-and-export.md) | FAC-002 Reporting and Export | Accepted | 2026-08-14 |
 | [ADR-026](./adr-026-authorization-hardening-pipeline.md) | Authorization Hardening Pipeline (SKU + Surface + Comms Staff) | Accepted | 2026-08-14 |
-| [ADR-028](./adr-028-fac-003-asset-inventory-management.md) | FAC-003 Asset and Inventory Management | Accepted | 2026-08-14 |
+| [ADR-028](./adr-028-fac-003-asset-inventory-management.md) | FAC-003 Asset and Inventory Management | Accepted (SELECT/notify amended by ADR-029) | 2026-08-14 |
+| [ADR-029](./adr-029-fac-003-production-uat-remediation.md) | FAC-003 Production UAT Remediation (RETURNING-safe SELECT + optional notifications) | Proposed | 2026-08-14 |
 
 ---
 
