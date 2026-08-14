@@ -7,7 +7,7 @@ type Db = {
       select: (cols: string) => {
         maybeSingle: () => Promise<{
           data: { id: string } | null;
-          error: { message: string } | null;
+          error: { message: string; code?: string } | null;
         }>;
       };
     };
@@ -61,9 +61,24 @@ async function resolveUserEmail(userId: string): Promise<string | null> {
   }
 }
 
+type NotifyError = { code?: string; message?: string } | null;
+
+/** True when the legacy J6 table is absent (Production / PLAT-002). Other errors stay hard. */
+export function isMissingMaintenanceNotificationsRelation(error: NotifyError): boolean {
+  if (!error) return false;
+  const code = error.code ?? "";
+  const message = error.message ?? "";
+  if (code === "42P01" || code === "PGRST205") return true;
+  return (
+    /maintenance_notifications/i.test(message) &&
+    /schema cache|could not find the table|does not exist|undefined_table/i.test(message)
+  );
+}
+
 /**
  * STAB-007 — reuse maintenance_notifications; optional Resend with honest delivery status.
  * PPS1-011 — honor stored email / in-app preferences; never SMS.
+ * ADR-029 — missing maintenance_notifications is optional/legacy; do not fail the lifecycle.
  */
 export async function notifyLifecycle(
   supabase: Db,
@@ -111,14 +126,21 @@ export async function notifyLifecycle(
       .maybeSingle();
 
     if (error) {
-      throw new Error(error.message);
+      if (isMissingMaintenanceNotificationsRelation(error)) {
+        notificationId = null;
+      } else {
+        throw new Error(error.message);
+      }
+    } else {
+      notificationId = data?.id ?? null;
     }
-    notificationId = data?.id ?? null;
   }
+
+  const inAppRecorded = Boolean(notificationId);
 
   if (!wantsEmail) {
     return {
-      inApp: wantsInApp,
+      inApp: inAppRecorded,
       notificationId,
       emailStatus: args.emailCritical
         ? preferences.email
@@ -140,7 +162,7 @@ export async function notifyLifecycle(
         .eq("id", notificationId);
     }
     return {
-      inApp: wantsInApp,
+      inApp: inAppRecorded,
       notificationId,
       emailStatus: "skipped_no_email"
     };
@@ -167,7 +189,7 @@ export async function notifyLifecycle(
         .eq("id", notificationId);
     }
     return {
-      inApp: wantsInApp,
+      inApp: inAppRecorded,
       notificationId,
       emailStatus: "sent",
       emailProviderId: sendResult.providerId
@@ -191,7 +213,7 @@ export async function notifyLifecycle(
   }
 
   return {
-    inApp: wantsInApp,
+    inApp: inAppRecorded,
     notificationId,
     emailStatus: failedStatus,
     emailError: sendResult.error

@@ -132,7 +132,7 @@ describe("FAC-003 inventory service", () => {
     db.rpcError = null;
   });
 
-  it("creates a stock item at quantity zero and audits", async () => {
+  it("creates a stock item via insert().select() at quantity zero and audits", async () => {
     const item = await createFacilityStockItem(makeClient() as never, "org_1", "user_1", {
       name: "MERV-13 filter",
       category: "filters",
@@ -140,6 +140,8 @@ describe("FAC-003 inventory service", () => {
       propertyPropertyId: "11111111-1111-4111-8111-111111111111",
       storageLocationLabel: "Boiler room cage"
     });
+    expect(item.id).toBe("facility_stock_items_1");
+    expect(item.name).toBe("MERV-13 filter");
     expect(item.quantity_on_hand).toBe(0);
     expect(audit).toHaveBeenCalledWith(
       expect.objectContaining({ action: "facility_stock.created" })

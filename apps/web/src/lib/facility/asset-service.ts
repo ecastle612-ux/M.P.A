@@ -59,6 +59,25 @@ function asSingle<T>(value: T | T[] | null | undefined): T | null {
   return Array.isArray(value) ? (value[0] ?? null) : value;
 }
 
+export class FacilityConflictError extends Error {
+  readonly status = 409 as const;
+  constructor(message = "Asset code already exists for this organization") {
+    super(message);
+    this.name = "FacilityConflictError";
+  }
+}
+
+export function isUniqueViolation(error: { code?: string; message?: string } | null | undefined): boolean {
+  if (!error) return false;
+  if (error.code === "23505") return true;
+  const message = (error.message ?? "").toLowerCase();
+  return (
+    message.includes("duplicate key") ||
+    message.includes("unique constraint") ||
+    (message.includes("asset_code") && (message.includes("unique") || message.includes("duplicate")))
+  );
+}
+
 function normalizeAsset(row: Record<string, unknown>): FacilityAssetRow {
   return {
     ...(row as FacilityAssetRow),
@@ -180,7 +199,12 @@ export async function createFacilityAsset(
     })
     .select(SELECT_ASSET)
     .single();
-  if (error || !data) throw new Error(error?.message ?? "Failed to create asset");
+  if (error || !data) {
+    if (isUniqueViolation(error)) {
+      throw new FacilityConflictError();
+    }
+    throw new Error(error?.message ?? "Failed to create asset");
+  }
 
   await writeMaintenanceAudit({
     supabase,

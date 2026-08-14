@@ -1,11 +1,12 @@
 # FAC-003 PRODUCTION UAT REMEDIATION DESIGN
 
 **Title:** FAC-003 PRODUCTION UAT REMEDIATION DESIGN  
-**Status:** DESIGN COMPLETE — APPROVAL REQUIRED  
+**Status:** Approved  
 **Date:** 2026-08-14  
+**Approved:** 2026-08-14 — Product Owner authorization to implement the production UAT remediation  
 **Program:** FAC-003  
-**Gate:** Design → Document → **Approve** → Implement (ADR-012)  
-**Related ADR:** [ADR-029](../18-decision-log/adr-029-fac-003-production-uat-remediation.md) (Proposed)  
+**Gate:** Design → Document → Approve → **Implement** (ADR-012)  
+**Related ADR:** [ADR-029](../18-decision-log/adr-029-fac-003-production-uat-remediation.md) (Accepted)  
 **Amends:** [ADR-028](../18-decision-log/adr-028-fac-003-asset-inventory-management.md) (Accepted) — RLS SELECT contract and notification fail-closed behavior  
 **Parent cert:** [docs/108](../108-fac-003-production-release-certification/index.md) (Production UAT **BLOCKED**)  
 **Feature design:** [docs/102](../102-fac-003-asset-inventory-management/index.md) (Approved)  
@@ -477,15 +478,8 @@ Notification Center need not show a new in-app row. Soft-fail with `inApp: false
 
 ---
 
-## 11. Approval ask
+## 11. Approval
 
-Product Owner + Architect: accept ADR-029 and mark this record **Approved** so a later implement branch may:
+**Approved** 2026-08-14. ADR-029 is **Accepted**. Implementation of §3.4 and §4.4 is authorized on a successor branch. Production apply and deploy remain Owner-authorized and are not granted by this record.
 
-1. Replace the two parent SELECT policies with Option C predicates.
-2. Soft-fail `notifyLifecycle` when `maintenance_notifications` is absent.
-3. Map live `asset_code` unique violations to `409`.
-4. Deploy and re-run the seven checks in §9.
-
-Until that Approve, status remains **DESIGN COMPLETE — APPROVAL REQUIRED**.
-
-**Do not implement from this record.**
+Certification: `docs/110-fac-003-production-uat-remediation-implementation-certification/index.md`.

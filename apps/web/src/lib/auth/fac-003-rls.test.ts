@@ -6,6 +6,13 @@ const migration = readFileSync(
   resolve(process.cwd(), "../../supabase/migrations/20260814200000_fac_003_asset_inventory.sql"),
   "utf8"
 );
+const remediation = readFileSync(
+  resolve(
+    process.cwd(),
+    "../../supabase/migrations/20260814210000_fac_003_production_uat_remediation.sql"
+  ),
+  "utf8"
+);
 
 describe("FAC-003 RLS and schema contract", () => {
   it("evolves facility_assets and does not drop existing rows", () => {
@@ -53,5 +60,25 @@ describe("FAC-003 RLS and schema contract", () => {
     expect(migration).toContain("technician_user_id = auth.uid()");
     expect(migration).toContain("can_manage_facility_ops");
     expect(migration).toContain("org_allows_work_surface(target_org_id, 'facility')");
+  });
+
+  it("rewrites parent SELECT policies to current-row predicates (ADR-029)", () => {
+    expect(remediation).toContain("deleted_at is null");
+    expect(remediation).toContain("can_manage_facility_ops(organization_id)");
+    expect(remediation).toContain("work_orders.facility_asset_id = facility_assets.id");
+    expect(remediation).toContain("technician_user_id = auth.uid()");
+    expect(remediation).toContain("can_select_work_order(work_orders.id)");
+    expect(remediation).not.toMatch(
+      /using\s*\(\s*public\.can_select_facility_asset\s*\(\s*id\s*\)\s*\)/i
+    );
+    expect(remediation).not.toMatch(
+      /using\s*\(\s*public\.can_select_facility_stock_item\s*\(\s*id\s*\)\s*\)/i
+    );
+    expect(remediation).not.toContain("using (true)");
+    expect(remediation).not.toContain("is_org_member");
+    expect(remediation).not.toMatch(/create table/i);
+    expect(remediation).not.toContain("apply_facility_stock_movement");
+    expect(remediation).not.toContain("create policy facility_assets_insert");
+    expect(remediation).not.toContain("create policy facility_stock_items_insert");
   });
 });

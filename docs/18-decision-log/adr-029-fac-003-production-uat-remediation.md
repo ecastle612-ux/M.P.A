@@ -1,7 +1,10 @@
 # ADR-029: FAC-003 Production UAT Remediation (RETURNING-safe SELECT + optional notifications)
 
 ## Status
-Proposed
+Accepted
+
+## Accepted
+2026-08-14 — Product Owner authorization for FAC-003 production UAT remediation (docs/109 Approved).
 
 ## Date
 2026-08-14
@@ -39,7 +42,7 @@ ADR-027 remains reserved on the unmerged PLAT-002 production-compatibility branc
 
 5. **FAC-003 MUST NOT** create, replay, or backfill `maintenance_notifications`, recreate J6, or add a duplicate notification system. Routing lifecycle events into `comms_notifications` requires a separate Approve.
 
-6. **Implementation is not authorized** until this ADR is Accepted and docs/109 is Approved. Material scope changes restart Design → Document → Approve.
+6. **Implementation is authorized** for this remediation while this ADR is **Accepted** and docs/109 is **Approved**. Material scope changes restart Design → Document → Approve. No Production apply or deploy without Owner authorization.
 
 ## Consequences
 
