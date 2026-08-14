@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import type { NextResponse } from "next/server";
 import type { PropertyCapability } from "@mpa/shared";
 import { requireAuthorizedAction } from "../auth/require-authorized-action";
 

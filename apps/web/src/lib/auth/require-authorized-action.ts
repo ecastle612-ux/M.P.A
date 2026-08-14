@@ -92,6 +92,7 @@ export async function requireAuthorizedAction(input: {
   }
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     supabase: supabase as SupabaseClient<any>,
     user,
     organizationId: orgId,
