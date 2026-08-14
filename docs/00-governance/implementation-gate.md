@@ -135,6 +135,7 @@ Authoritative detail: [product-constitution.md](./product-constitution.md) · [A
 | Facility Operations features | **Stopped / deferred** — `AUTHORIZE FACILITY OPERATIONS IMPLEMENTATION` (2026-08-07) **refused**: workflows + schema design package missing ([docs/27-facility-operations](../27-facility-operations/index.md)) |
 | CORE-004 / UX-016 | **Stopped** unless separately re-authorized |
 | Product Constitution (ADR-019) | **Accepted** — three products; Enterprise sales motion only; binding commercial flow |
+| OPS-001 Operational Workspace (Documents + Tables) | **DESIGN COMPLETE — APPROVAL REQUIRED** ([docs/112](../112-ops-001-operational-workspace-documents-tables/index.md), [ADR-030](../18-decision-log/adr-030-operational-workspace-documents-tables.md) Proposed). Covers reserved DOC-001 / SHEET-001. Shared Platform only — not a fourth product. **Do not implement** until ADR-030 is Accepted. |
 
 ---
 
