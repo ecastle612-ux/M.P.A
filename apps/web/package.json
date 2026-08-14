@@ -20,6 +20,7 @@
     "@mpa/ui": "workspace:1.0.0",
     "@supabase/ssr": "0.12.0",
     "@supabase/supabase-js": "2.110.2",
+    "exceljs": "4.4.0",
     "next": "16.2.10",
     "pdf-lib": "1.17.1",
     "react": "19.2.7",

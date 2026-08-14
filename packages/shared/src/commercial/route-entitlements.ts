@@ -56,7 +56,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     return null; // role portals; commercial modules live under /pm and /facility
   }
 
-  if (path.startsWith("/shared/documents")) {
+  if (path.startsWith("/shared/documents") || path.startsWith("/shared/tables")) {
     return "platform.documents";
   }
   if (path.startsWith("/shared/reports")) {
@@ -176,7 +176,7 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
   if (path.startsWith("/api/shared/reports")) {
     return "platform.reports";
   }
-  if (path.startsWith("/api/shared/documents")) {
+  if (path.startsWith("/api/shared/documents") || path.startsWith("/api/shared/tables")) {
     return "platform.documents";
   }
   if (path.startsWith("/api/shared/communications/conversations")) {
@@ -409,6 +409,7 @@ export function searchCatalogForSku(sku: ProductSku | null, query: string): Sear
     );
 
     push(decisionPath("/shared/documents", "Documents", "Shared Platform", "platform.documents"));
+    push(decisionPath("/shared/tables", "Tables", "Shared Platform", "platform.documents"));
     push(decisionPath("/shared/reports", "Reporting & Analytics", "Shared Platform", "platform.reports"));
     push(decisionPath("/shared/communications", "Communications", "Shared Platform", "platform.communications"));
   }

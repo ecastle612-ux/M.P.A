@@ -3,9 +3,13 @@ import {
   DOCUMENT_ENTITY_LABELS,
   isDocumentCategory,
   isDocumentEntityType,
+  isDocumentKind,
   isDocumentStatus,
+  parseAuthoredBody,
+  type AuthoredBody,
   type DocumentCategory,
   type DocumentEntityType,
+  type DocumentKind,
   type DocumentLink,
   type DocumentRecord,
   type DocumentSource,
@@ -24,6 +28,7 @@ const CORE_DOCUMENT_COLUMNS =
   "id, organization_id, entity_type, entity_id, title, category, source, mime_type, file_name, byte_size, signwell_document_id, external_url, property_id, created_at, content_text, content_base64";
 
 const EXTENDED_DOCUMENT_COLUMNS = `${CORE_DOCUMENT_COLUMNS}, tags, notes, status, keywords, version_number`;
+const WORKSPACE_DOCUMENT_COLUMNS = `${EXTENDED_DOCUMENT_COLUMNS}, kind, template_id, body_json, deleted_at`;
 
 export type DocumentActivityItem = {
   at: string;
@@ -35,6 +40,7 @@ export type DocumentDetail = {
   document: DocumentRecord;
   contentText: string | null;
   contentBase64: string | null;
+  bodyJson: AuthoredBody | null;
   signwellStatus: string | null;
   links: DocumentLink[];
   versions: DocumentVersion[];
@@ -54,6 +60,9 @@ function mapRow(row: Record<string, unknown>, entityLabel?: string | null): Docu
   const status: DocumentStatus =
     typeof statusRaw === "string" && isDocumentStatus(statusRaw) ? statusRaw : "active";
   const versionRaw = row["version_number"];
+  const kindRaw = row["kind"];
+  const kind: DocumentKind =
+    typeof kindRaw === "string" && isDocumentKind(kindRaw) ? kindRaw : "file";
   return {
     id: row["id"] as string,
     organizationId: row["organization_id"] as string,
@@ -75,7 +84,10 @@ function mapRow(row: Record<string, unknown>, entityLabel?: string | null): Docu
     notes: (row["notes"] as string | null | undefined) ?? null,
     status,
     keywords: (row["keywords"] as string | null | undefined) ?? null,
-    versionNumber: typeof versionRaw === "number" ? versionRaw : Number(versionRaw ?? 1) || 1
+    versionNumber: typeof versionRaw === "number" ? versionRaw : Number(versionRaw ?? 1) || 1,
+    kind,
+    templateId: (row["template_id"] as string | null | undefined) ?? null,
+    deletedAt: (row["deleted_at"] as string | null | undefined) ?? null
   };
 }
 
@@ -265,6 +277,29 @@ async function selectDocumentRows(
     status?: DocumentStatus;
   }
 ) {
+  let workspaceQuery = supabase
+    .from("document_documents")
+    .select(WORKSPACE_DOCUMENT_COLUMNS)
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (filters?.entityType && filters.entityType !== "all") {
+    workspaceQuery = workspaceQuery.eq("entity_type", filters.entityType);
+  }
+  if (filters?.propertyId) {
+    workspaceQuery = workspaceQuery.eq("property_id", filters.propertyId);
+  }
+  if (filters?.category) {
+    workspaceQuery = workspaceQuery.eq("category", filters.category);
+  }
+  if (filters?.status) {
+    workspaceQuery = workspaceQuery.eq("status", filters.status);
+  }
+  const workspace = await workspaceQuery;
+  if (!workspace.error) {
+    return workspace;
+  }
+
   let extendedQuery = supabase
     .from("document_documents")
     .select(EXTENDED_DOCUMENT_COLUMNS)
@@ -417,6 +452,9 @@ export async function listDocuments(
     propertyId?: string;
     category?: DocumentCategory;
     status?: DocumentStatus;
+    includeAuthored?: boolean;
+    includeDeleted?: boolean;
+    kind?: DocumentKind | "all";
   }
 ): Promise<DocumentRecord[]> {
   const { data, error } = await selectDocumentRows(supabase, organizationId, filters);
@@ -425,6 +463,14 @@ export async function listDocuments(
   }
 
   let uploaded = (data ?? []).map((row) => mapRow(row as Record<string, unknown>));
+  if (!filters?.includeDeleted) {
+    uploaded = uploaded.filter((doc) => !doc.deletedAt);
+  }
+  if (filters?.kind && filters.kind !== "all") {
+    uploaded = uploaded.filter((doc) => (doc.kind ?? "file") === filters.kind);
+  } else if (filters?.includeAuthored === false) {
+    uploaded = uploaded.filter((doc) => (doc.kind ?? "file") !== "authored");
+  }
 
   // When falling back to core columns, category/status may not have been filtered in SQL.
   if (filters?.category) {
@@ -500,7 +546,8 @@ export async function listDocuments(
       notes: null,
       status: "active",
       keywords: null,
-      versionNumber: 1
+      versionNumber: 1,
+      kind: "file"
     });
   }
 
@@ -578,13 +625,15 @@ export async function getDocumentDetail(
       notes: null,
       status: "active",
       keywords: null,
-      versionNumber: 1
+      versionNumber: 1,
+      kind: "file"
     };
 
     return {
       document,
       contentText: (lease.document_body as string | null) ?? null,
       contentBase64: null,
+      bodyJson: null,
       signwellStatus,
       links: [],
       versions: [],
@@ -606,6 +655,9 @@ export async function getDocumentDetail(
   }
 
   const document = mapRow(data as Record<string, unknown>);
+  if (document.deletedAt) {
+    return null;
+  }
   const [links, versions] = await Promise.all([
     listDocumentLinks(supabase, organizationId, documentId),
     listDocumentVersions(supabase, organizationId, documentId)
@@ -615,6 +667,7 @@ export async function getDocumentDetail(
     document: { ...document, links },
     contentText: (data.content_text as string | null) ?? null,
     contentBase64: (data.content_base64 as string | null) ?? null,
+    bodyJson: parseAuthoredBody(data.body_json) ?? null,
     signwellStatus: null,
     links,
     versions,

@@ -39,6 +39,9 @@ describe("PLAT-002 API entitlement catalog", () => {
       "facility.operations"
     );
     expect(requiredEntitlementForApiPath("/api/shared/reports")).toBe("platform.reports");
+    expect(requiredEntitlementForApiPath("/api/shared/documents")).toBe("platform.documents");
+    expect(requiredEntitlementForApiPath("/api/shared/tables")).toBe("platform.documents");
+    expect(requiredEntitlementForPath("/shared/tables")).toBe("platform.documents");
     expect(requiredEntitlementForApiPath("/api/shared/communications")).toBe("platform.communications");
     expect(requiredEntitlementForApiPath("/api/shared/communications/conversations")).toBe("tenant_comms_staff");
     expect(requiredEntitlementForApiPath("/api/portal/tenant/conversations")).toBeNull();

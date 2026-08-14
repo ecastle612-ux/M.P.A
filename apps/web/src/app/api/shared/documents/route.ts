@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
-import { isDocumentCategory, isDocumentEntityType, isDocumentStatus } from "@mpa/shared";
-import { requireDocumentPermission } from "../../../../lib/documents/authz";
+import {
+  hasWorkspaceStaffRole,
+  isDocumentCategory,
+  isDocumentEntityType,
+  isDocumentKind,
+  isDocumentStatus
+} from "@mpa/shared";
+import { createAuthoredDocument } from "../../../../lib/documents/authored-service";
+import { requireDocumentPermission, requireWorkspaceWrite } from "../../../../lib/documents/authz";
 import { listDocuments, uploadDocument } from "../../../../lib/documents/document-service";
 
 export const dynamic = "force-dynamic";
@@ -35,12 +42,17 @@ export async function GET(request: Request) {
   try {
     const q = searchParams.get("q");
     const propertyId = searchParams.get("propertyId");
+    const kindParam = searchParams.get("kind");
+    const kind =
+      kindParam && kindParam !== "all" && isDocumentKind(kindParam) ? kindParam : kindParam === "all" ? "all" : undefined;
     const documents = await listDocuments(authz.supabase, authz.organizationId, {
       entityType,
+      includeAuthored: hasWorkspaceStaffRole(authz.roles),
       ...(q ? { query: q } : {}),
       ...(propertyId ? { propertyId } : {}),
       ...(categoryParam && isDocumentCategory(categoryParam) ? { category: categoryParam } : {}),
-      ...(statusParam && isDocumentStatus(statusParam) ? { status: statusParam } : {})
+      ...(statusParam && isDocumentStatus(statusParam) ? { status: statusParam } : {}),
+      ...(kind ? { kind } : {})
     });
     return NextResponse.json({ documents });
   } catch (error) {
@@ -52,13 +64,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const authz = await requireDocumentPermission("platform.documents:write");
-  if ("error" in authz) {
-    return authz.error;
-  }
-
   try {
     const body = (await request.json()) as {
+      kind?: string;
+      templateId?: string;
       entityType?: string;
       entityId?: string;
       title?: string;
@@ -72,6 +81,26 @@ export async function POST(request: Request) {
       keywords?: string;
       relatedLinks?: Array<{ entityType: string; entityId: string; label?: string }>;
     };
+
+    if (body.kind === "authored") {
+      const authz = await requireWorkspaceWrite();
+      if ("error" in authz) {
+        return authz.error;
+      }
+      const detail = await createAuthoredDocument(authz.supabase, authz.organizationId, authz.user.id, {
+        ...(body.title ? { title: body.title } : {}),
+        ...(body.templateId ? { templateId: body.templateId } : {}),
+        ...(body.entityType ? { entityType: body.entityType } : {}),
+        ...(body.entityId ? { entityId: body.entityId } : {}),
+        ...(body.category ? { category: body.category } : {})
+      });
+      return NextResponse.json(detail, { status: 201 });
+    }
+
+    const authz = await requireDocumentPermission("platform.documents:write");
+    if ("error" in authz) {
+      return authz.error;
+    }
     if (!body.entityType || !body.entityId || !body.title) {
       return NextResponse.json(
         { error: "entityType, entityId, and title are required" },

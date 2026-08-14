@@ -13,6 +13,7 @@ export * from "./maintenance";
 export * from "./facility";
 export * from "./team";
 export * from "./documents";
+export * from "./workspace";
 export * from "./media";
 export * from "./reports";
 export * from "./work-order-reports";
