@@ -69,6 +69,7 @@ export async function requireMediaActor(mode: "read" | "write"): Promise<
 
   const entitled =
     hasEntitlement(entitlements, "facility.operations") ||
+    hasEntitlement(entitlements, "facility.assets") ||
     hasEntitlement(entitlements, "pm.maintenance");
   if (!entitled) {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
@@ -91,6 +92,22 @@ export async function assertMediaEntityAccess(input: {
   conversationActor?: { plane: "staff" | "tenant"; tenantAccountId: string | null };
 }): Promise<{ ok: true } | { error: NextResponse }> {
   if (!input.relatedEntityId) {
+    return { ok: true };
+  }
+  if (input.relatedEntityType === "facility_asset") {
+    if (!input.relatedEntityId) {
+      return { ok: true };
+    }
+    const { data: asset } = await input.supabase
+      .from("facility_assets")
+      .select("id")
+      .eq("organization_id", input.organizationId)
+      .eq("id", input.relatedEntityId)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (!asset) {
+      return { error: NextResponse.json({ error: "Asset not found" }, { status: 404 }) };
+    }
     return { ok: true };
   }
   if (input.relatedEntityType === "maintenance") {

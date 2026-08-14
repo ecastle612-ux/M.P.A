@@ -1,5 +1,5 @@
-import { FacilityDomainWorkspace } from "../../../../components/facility/facility-operations-command-center";
+import { FacilityInventoryWorkspace } from "../../../../components/facility/facility-inventory-workspace";
 
 export default function Page() {
-  return <FacilityDomainWorkspace domain="inventory" />;
+  return <FacilityInventoryWorkspace />;
 }

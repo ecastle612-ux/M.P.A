@@ -18,8 +18,8 @@ export const MARKETING_MODULE_COPY: Record<string, string> = {
     "Your Facility Operations home for daily attention, open work, and next actions.",
   facility_operations:
     "Create, assign, start, progress, complete, and cancel facility work orders — with vendor handoff when needed.",
-  assets: "Building and site records that give facility work orders a place to land.",
-  inventory: "Work-order queue for inventory and materials tasks — not a stock catalog system.",
+  assets: "Facility asset registry for equipment, location, lifecycle, and work history.",
+  inventory: "Facility stock ledger for on-hand quantities, movements, and reorder levels — not a warehouse system.",
   parts: "Work-order queue for parts-related facility tasks — not a catalog or BOM system.",
   preventive_maintenance:
     "Work-order queue for preventive facility tasks — not an automated schedule engine.",

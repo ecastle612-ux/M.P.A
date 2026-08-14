@@ -555,7 +555,7 @@ export function buildReportingAreas(facts: RawReportingFacts, now = new Date()):
   ];
 
   const assetEmpty =
-    "Facility asset registry is planned — no fabricated asset-health scores. Use work orders and documents until Assets is LIVE.";
+    "Facility Assets is live in Facility Operations. Reporting & Analytics does not invent asset-health scores — use Facility Reports for list, status, and repair history.";
   const complianceEmpty =
     facts.documents.some((d) => d.category === "compliance")
       ? undefined

@@ -32,6 +32,12 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForApiPath("/api/pm/leasing")).toBe("pm.leasing");
     expect(requiredEntitlementForApiPath("/api/facility/operations")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/reports")).toBe("facility.operations");
+    expect(requiredEntitlementForApiPath("/api/facility/assets")).toBe("facility.assets");
+    expect(requiredEntitlementForApiPath("/api/facility/inventory")).toBe("facility.inventory");
+    expect(requiredEntitlementForApiPath("/api/facility/reports/assets")).toBe("facility.operations");
+    expect(requiredEntitlementForApiPath("/api/facility/reports/inventory")).toBe(
+      "facility.operations"
+    );
     expect(requiredEntitlementForApiPath("/api/shared/reports")).toBe("platform.reports");
     expect(requiredEntitlementForApiPath("/api/shared/communications")).toBe("platform.communications");
     expect(requiredEntitlementForApiPath("/api/shared/communications/conversations")).toBe("tenant_comms_staff");
@@ -50,6 +56,12 @@ describe("PLAT-002 API entitlement catalog", () => {
       evaluateApiPathEntitlement({ pathname: "/api/facility/operations", sku: "mpa_facility_operations" }).allowed
     ).toBe(true);
     expect(
+      evaluateApiPathEntitlement({ pathname: "/api/facility/assets", sku: "mpa_facility_operations" }).allowed
+    ).toBe(true);
+    expect(
+      evaluateApiPathEntitlement({ pathname: "/api/facility/inventory", sku: "mpa_facility_operations" }).allowed
+    ).toBe(true);
+    expect(
       evaluateApiPathEntitlement({ pathname: "/api/pm/maintenance", sku: "mpa_facility_operations" }).allowed
     ).toBe(false);
   });
@@ -63,6 +75,12 @@ describe("PLAT-002 API entitlement catalog", () => {
     ).toBe(true);
     expect(
       evaluateApiPathEntitlement({ pathname: "/api/facility/operations", sku: "mpa_property_manager" }).allowed
+    ).toBe(false);
+    expect(
+      evaluateApiPathEntitlement({ pathname: "/api/facility/assets", sku: "mpa_property_manager" }).allowed
+    ).toBe(false);
+    expect(
+      evaluateApiPathEntitlement({ pathname: "/api/facility/inventory", sku: "mpa_property_manager" }).allowed
     ).toBe(false);
   });
 

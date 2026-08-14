@@ -209,9 +209,9 @@ export function ownerEmptyStateCopy(
       };
     case "fo_assets":
       return {
-        title: "No buildings yet",
+        title: "No assets yet",
         description:
-          "Buildings and sites are the places facility work references. Add a building to create and assign facility work orders."
+          "Register equipment against a facility site. Add an asset to track location, lifecycle, and work history."
       };
     default:
       return { title: "Nothing here yet", description: "Add your first record to continue." };

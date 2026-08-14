@@ -13,6 +13,7 @@ import {
   type WorkSurface
 } from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
+import { FacilityAssetInventoryReports } from "../facility/facility-asset-inventory-reports";
 import { FoPageChrome } from "../shell/fo-workspace";
 import { PmPageChrome } from "../shell/pm-workspace";
 
@@ -184,8 +185,11 @@ export function WorkOrderReportsWorkspace({
             { label: "Work order reports" }
           ],
     eyebrow: surface === "facility" ? "Facility Operations" : "Property Operations",
-    title: "Work order reports",
-    description: "What happened in operations for the selected period — download CSV or PDF for leadership.",
+    title: surface === "facility" ? "Facility reports" : "Work order reports",
+    description:
+      surface === "facility"
+        ? "Work-order, asset, and inventory reports for Facility Operations — CSV export is audited."
+        : "What happened in operations for the selected period — download CSV or PDF for leadership.",
     actions: (
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" disabled={!!exporting || !snapshot} onClick={() => void download("csv")}>
@@ -200,6 +204,12 @@ export function WorkOrderReportsWorkspace({
 
   const body = (
     <>
+      {surface === "facility" ? <FacilityAssetInventoryReports /> : null}
+      {surface === "facility" ? (
+        <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+          Work order reports
+        </h2>
+      ) : null}
       <section className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
         <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
           Filters

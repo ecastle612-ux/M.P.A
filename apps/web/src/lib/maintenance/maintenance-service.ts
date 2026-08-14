@@ -34,6 +34,7 @@ export type WorkOrderRow = {
   status: WorkOrderStatus;
   work_surface: WorkSurface;
   facility_asset_label: string | null;
+  facility_asset_id: string | null;
   due_at: string | null;
   cancelled_at: string | null;
   assignee_type: "unassigned" | "technician" | "vendor";
@@ -938,6 +939,27 @@ export async function createFacilityWorkOrder(
     throw new Error("Property not found for organization");
   }
 
+  let facilityAssetLabel = input.facilityAssetLabel?.trim() || null;
+  const facilityAssetId: string | null = input.facilityAssetId ?? null;
+  if (facilityAssetId) {
+    const { data: asset, error: assetError } = await supabase
+      .from("facility_assets")
+      .select("id, name, organization_id")
+      .eq("id", facilityAssetId)
+      .eq("organization_id", organizationId)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (assetError) {
+      throw new Error(assetError.message);
+    }
+    if (!asset) {
+      throw new Error("Facility asset not found for organization");
+    }
+    if (!facilityAssetLabel) {
+      facilityAssetLabel = asset.name;
+    }
+  }
+
   if (input.unitId) {
     const { data: unit, error: unitError } = await supabase
       .from("property_units")
@@ -968,7 +990,8 @@ export async function createFacilityWorkOrder(
       status: "submitted",
       assignee_type: "unassigned",
       work_surface: "facility",
-      facility_asset_label: input.facilityAssetLabel?.trim() || null,
+      facility_asset_label: facilityAssetLabel,
+      facility_asset_id: facilityAssetId,
       due_at: input.dueAt ?? null
     })
     .select(SELECT_WO)

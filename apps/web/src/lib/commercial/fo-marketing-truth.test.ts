@@ -9,9 +9,9 @@ import { MARKETING_MODULE_COPY } from "../../components/marketing/marketing-modu
 
 const OVERCLAIM_PATTERNS = [
   /parts catalog/i,
-  /storeroom/i,
+  /warehouse management/i,
   /preventive schedules/i,
-  /asset registry/i,
+  /qr scanner/i,
   /safety incidents and protocols/i,
   /compliance programs/i,
   /inspection programs/i
@@ -32,8 +32,8 @@ describe("FO advertising depth truth", () => {
     const foModules = marketingModulesForSku("mpa_facility_operations");
     const byId = new Map(foModules.map((entry) => [entry.id, entry]));
 
-    expect(byId.get("assets")?.label).toBe("Buildings & Sites");
-    expect(byId.get("inventory")?.label).toBe("Inventory Work");
+    expect(byId.get("assets")?.label).toBe("Assets");
+    expect(byId.get("inventory")?.label).toBe("Inventory");
     expect(byId.get("parts")?.label).toBe("Parts Work");
     expect(byId.get("preventive_maintenance")?.label).toBe("Preventive Work");
     expect(byId.get("inspections")?.label).toBe("Inspection Work");
@@ -52,11 +52,12 @@ describe("FO advertising depth truth", () => {
     const foNav = navigationGroupsForSku("mpa_facility_operations")
       .flatMap((group) => group.items)
       .map((item) => item.label);
-    expect(foNav).toContain("Buildings & Sites");
-    expect(foNav).toContain("Inventory Work");
+    expect(foNav).toContain("Assets");
+    expect(foNav).toContain("Inventory");
     expect(foNav).toContain("Parts Work");
     expect(foNav).toContain("Preventive Work");
-    expect(foNav).not.toContain("Inventory");
+    expect(foNav).not.toContain("Buildings & Sites");
+    expect(foNav).not.toContain("Inventory Work");
     expect(foNav).not.toContain("Parts");
     expect(foNav).not.toContain("Preventive Maintenance");
   });
@@ -74,7 +75,7 @@ describe("FO advertising depth truth", () => {
     ]) {
       const copy = MARKETING_MODULE_COPY[id] ?? "";
       expect(copy.length).toBeGreaterThan(0);
-      expect(copy.toLowerCase()).toMatch(/work|building|site|queue/);
+      expect(copy.toLowerCase()).toMatch(/work|building|site|queue|registry|stock|ledger/);
       for (const pattern of OVERCLAIM_PATTERNS) {
         expect(copy).not.toMatch(pattern);
       }
@@ -85,6 +86,7 @@ describe("FO advertising depth truth", () => {
     const rows = skuComparisonRows().filter((row) => row.fo);
     expect(rows.some((row) => row.id === "capital_projects")).toBe(false);
     expect(rows.some((row) => row.label === "Parts Work")).toBe(true);
-    expect(rows.some((row) => row.label === "Inventory")).toBe(false);
+    expect(rows.some((row) => row.label === "Inventory")).toBe(true);
+    expect(rows.some((row) => row.label === "Assets")).toBe(true);
   });
 });

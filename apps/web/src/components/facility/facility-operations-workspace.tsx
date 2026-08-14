@@ -43,6 +43,7 @@ type WorkOrder = {
   priority: WorkOrderPriority;
   category: string;
   facility_asset_label: string | null;
+  facility_asset_id: string | null;
   due_at: string | null;
   assignee_type: string;
   technician_user_id: string | null;
@@ -60,6 +61,7 @@ type Property = {
   name: string;
   property_units?: Array<{ id: string; unit_label: string }>;
 };
+type AssetOption = { id: string; name: string; asset_code: string; property_property_id: string | null };
 
 export type FacilityWorkspaceDomain =
   | "operations"
@@ -165,6 +167,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [createPropertyId, setCreatePropertyId] = useState("");
   const [createUnitId, setCreateUnitId] = useState("");
   const [createAssetLabel, setCreateAssetLabel] = useState("");
+  const [createAssetId, setCreateAssetId] = useState("");
+  const [assets, setAssets] = useState<AssetOption[]>([]);
   const [createDueAt, setCreateDueAt] = useState("");
   const [pendingMediaIds, setPendingMediaIds] = useState<string[]>([]);
 
@@ -208,7 +212,10 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     async (preferredId?: string) => {
       const categoryParam =
         meta.category === "all" ? "" : `?category=${encodeURIComponent(meta.category)}`;
-      const response = await fetch(`/api/facility/operations${categoryParam}`);
+      const [response, assetsResponse] = await Promise.all([
+        fetch(`/api/facility/operations${categoryParam}`),
+        fetch("/api/facility/assets")
+      ]);
       const body = await response.json();
       if (!response.ok) {
         throw new Error(body.error ?? "Failed to load facility operations");
@@ -218,6 +225,10 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       setTechnicians(body.technicians ?? []);
       setVendors(body.vendors ?? []);
       setProperties(body.properties ?? []);
+      if (assetsResponse.ok) {
+        const assetsBody = (await assetsResponse.json()) as { assets?: AssetOption[] };
+        setAssets(assetsBody.assets ?? []);
+      }
       if (!createPropertyId && body.properties?.[0]?.id) {
         setCreatePropertyId(body.properties[0].id as string);
       }
@@ -339,7 +350,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
         actions={[
           { href: "/facility/mission-control", label: "Mission Control", primary: true },
           { href: "/facility/operations", label: "All operations" },
-          { href: "/facility/assets", label: "Buildings" },
+          { href: "/facility/assets", label: "Assets" },
           { href: documentsHref("maintenance"), label: "Documents" }
         ]}
       />
@@ -396,6 +407,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                 propertyId,
                 unitId: createUnitId || undefined,
                 facilityAssetLabel: createAssetLabel || undefined,
+                facilityAssetId: createAssetId || undefined,
                 dueAt: createDueAt ? new Date(createDueAt).toISOString() : undefined
               })
             });
@@ -422,6 +434,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             setCreateTitle("");
             setCreateDescription("");
             setCreateAssetLabel("");
+            setCreateAssetId("");
             setCreateDueAt("");
             setPendingMediaIds([]);
             setSelectedId(workOrderId);
@@ -435,7 +448,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             Create facility work
           </h2>
           <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-            Building required. Asset label and due date are optional.
+            Building required. Pick a registered asset or keep a free-text label. Due date is optional.
           </p>
         </div>
         <label className="space-y-1 text-xs md:col-span-2">
@@ -516,6 +529,30 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             {Object.entries(WORK_ORDER_PRIORITY_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
+              </option>
+            ))}
+          </Select>
+        </label>
+        <label className="space-y-1 text-xs">
+          <span className="font-medium">Registered asset (optional)</span>
+          <Select
+            value={createAssetId}
+            onChange={(e) => {
+              const nextId = e.target.value;
+              setCreateAssetId(nextId);
+              const selectedAsset = assets.find((asset) => asset.id === nextId);
+              if (selectedAsset) {
+                setCreateAssetLabel(selectedAsset.name);
+                if (selectedAsset.property_property_id) {
+                  setCreatePropertyId(selectedAsset.property_property_id);
+                }
+              }
+            }}
+          >
+            <option value="">None — use label only</option>
+            {assets.map((asset) => (
+              <option key={asset.id} value={asset.id}>
+                {asset.asset_code} · {asset.name}
               </option>
             ))}
           </Select>
@@ -660,6 +697,17 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                   <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                     {selected.description}
                   </p>
+                  {selected.facility_asset_id ? (
+                    <p className="mt-2 text-sm">
+                      <Link
+                        href={`/facility/assets/${selected.facility_asset_id}`}
+                        className="text-[var(--mpa-color-brand-primary)] underline"
+                      >
+                        Open linked asset
+                        {selected.facility_asset_label ? ` · ${selected.facility_asset_label}` : ""}
+                      </Link>
+                    </p>
+                  ) : null}
                 </div>
                 <MediaAttachmentField
                   key={selected.id}

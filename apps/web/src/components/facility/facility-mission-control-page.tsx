@@ -30,9 +30,9 @@ const CAPABILITIES = [
     summary: "Corrective facility work — create, assign, progress, complete, cancel."
   },
   {
-    title: "Buildings & Sites",
+    title: "Assets",
     href: "/facility/assets",
-    summary: "Building and site records used as context for facility work orders."
+    summary: "Equipment registry — location, lifecycle, photos, and work history."
   },
   {
     title: "Preventive Work",
@@ -50,9 +50,9 @@ const CAPABILITIES = [
     summary: "Work-order queue for compliance-related facility tasks."
   },
   {
-    title: "Inventory Work",
+    title: "Inventory",
     href: "/facility/inventory",
-    summary: "Work-order queue for inventory and materials tasks."
+    summary: "Stock ledger — on-hand quantities, movements, and reorder levels."
   },
   {
     title: "Parts Work",
