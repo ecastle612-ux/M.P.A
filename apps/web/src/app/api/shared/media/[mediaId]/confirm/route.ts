@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireMediaActor } from "../../../../../../lib/media/authz";
+import { resolveMediaActorWithFallback } from "../../../../../../lib/media/authz";
 import { confirmMediaUpload } from "../../../../../../lib/media/media-service";
 
 type RouteContext = { params: Promise<{ mediaId: string }> };
 
 export async function POST(_request: Request, context: RouteContext) {
   const { mediaId } = await context.params;
-  const authz = await requireMediaActor("write");
+  const authz = await resolveMediaActorWithFallback("write");
   if ("error" in authz) return authz.error;
 
   const result = await confirmMediaUpload({

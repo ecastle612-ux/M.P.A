@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import type { CommsMessageRecord, UnifiedNotificationRecord } from "@mpa/shared";
 import { Badge, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
+import { StaffConversationsDesk } from "./staff-conversations-desk";
 
 type Target = { id: string; label: string; detail: string | null };
 
@@ -24,6 +25,7 @@ export function CommunicationsWorkspace() {
   const [body, setBody] = useState("");
   const [channel, setChannel] = useState<"in_app" | "email" | "both">("in_app");
   const [sending, setSending] = useState(false);
+  const [desk, setDesk] = useState<"notices" | "conversations">("notices");
 
   useEffect(() => {
     let cancelled = false;
@@ -143,13 +145,36 @@ export function CommunicationsWorkspace() {
           Messages & notifications
         </h1>
         <p className="max-w-3xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Send resident, owner, and vendor messages. System notifications reuse Financial Operations
-          and Maintenance notification rows in one inbox.
+          Send one-way operational notices, or open a two-way tenant conversation. Notifications stay
+          in one inbox.
         </p>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant={desk === "notices" ? "primary" : "secondary"}
+            onClick={() => setDesk("notices")}
+          >
+            Notices
+          </Button>
+          <Button
+            type="button"
+            variant={desk === "conversations" ? "primary" : "secondary"}
+            onClick={() => setDesk("conversations")}
+          >
+            Conversations
+          </Button>
+        </div>
       </header>
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {desk === "conversations" ? (
+        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+          <StaffConversationsDesk />
+        </Suspense>
+      ) : null}
 
+      {desk === "notices" && error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+      {desk === "notices" ? (
+      <>
       <div className="grid gap-4 xl:grid-cols-2">
         <section
           aria-label="Compose message"
@@ -325,6 +350,8 @@ export function CommunicationsWorkspace() {
           </ul>
         )}
       </section>
+      </>
+      ) : null}
     </div>
   );
 }

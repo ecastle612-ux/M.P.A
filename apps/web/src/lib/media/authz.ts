@@ -88,6 +88,7 @@ export async function assertMediaEntityAccess(input: {
   organizationId: string;
   relatedEntityType: MediaEntityType;
   relatedEntityId: string | null;
+  conversationActor?: { plane: "staff" | "tenant"; tenantAccountId: string | null };
 }): Promise<{ ok: true } | { error: NextResponse }> {
   if (!input.relatedEntityId) {
     return { ok: true };
@@ -103,7 +104,23 @@ export async function assertMediaEntityAccess(input: {
     }
     return { ok: true };
   }
-  // Phase 1 focuses on maintenance; other entity types reserved.
+  if (input.relatedEntityType === "conversation_message") {
+    const { canReadConversationMessageMedia } = await import("../communications/conversation-service");
+    const allowed = await canReadConversationMessageMedia(
+      input.supabase,
+      {
+        organizationId: input.organizationId,
+        plane: input.conversationActor?.plane ?? "staff",
+        tenantAccountId: input.conversationActor?.tenantAccountId ?? null
+      },
+      input.relatedEntityId
+    );
+    if (!allowed) {
+      return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+    }
+    return { ok: true };
+  }
+  // Other entity types reserved.
   if (!isMediaEntityType(input.relatedEntityType)) {
     return { error: NextResponse.json({ error: "Unsupported entity type" }, { status: 400 }) };
   }
@@ -112,4 +129,27 @@ export async function assertMediaEntityAccess(input: {
 
 export function isOrgManagerRoles(roles: readonly string[]): boolean {
   return roles.includes("organization_admin") || roles.includes("property_manager");
+}
+
+export async function resolveMediaActorForEntity(
+  mode: "read" | "write",
+  relatedEntityType: MediaEntityType
+) {
+  if (relatedEntityType === "conversation_message") {
+    const { requireConversationMediaActor } = await import("../communications/conversation-authz");
+    return requireConversationMediaActor(mode);
+  }
+  return requireMediaActor(mode);
+}
+
+export async function resolveMediaActorWithFallback(mode: "read" | "write") {
+  const staff = await requireMediaActor(mode);
+  if (!("error" in staff)) {
+    return { ...staff, plane: "staff" as const, tenantAccountId: null };
+  }
+  if (staff.error.status === 401) return staff;
+  const { requireConversationMediaActor } = await import("../communications/conversation-authz");
+  const conversation = await requireConversationMediaActor(mode);
+  if ("error" in conversation) return conversation;
+  return { ...conversation, roles: [] as string[] };
 }

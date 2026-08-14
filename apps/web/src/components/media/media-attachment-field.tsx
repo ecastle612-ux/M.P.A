@@ -21,6 +21,8 @@ export type MediaAttachmentItem = {
 type Props = {
   relatedEntityType: MediaEntityType;
   relatedEntityId?: string | null;
+  conversationId?: string | null;
+  tenantAccountId?: string | null;
   value?: string[];
   onChange?: (mediaIds: string[]) => void;
   readOnly?: boolean;
@@ -75,6 +77,8 @@ function FilePickerButton(props: {
 export function MediaAttachmentField({
   relatedEntityType,
   relatedEntityId = null,
+  conversationId = null,
+  tenantAccountId = null,
   value,
   onChange,
   readOnly = false,
@@ -141,7 +145,9 @@ export function MediaAttachmentField({
             fileSize: file.size,
             relatedEntityType,
             relatedEntityId: relatedEntityId ?? undefined,
-            originalFileName: file.name
+            originalFileName: file.name,
+            ...(conversationId ? { conversationId } : {}),
+            ...(tenantAccountId ? { tenantAccountId } : {})
           })
         });
         const intent = (await intentResponse.json()) as {

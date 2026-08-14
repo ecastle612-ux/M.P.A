@@ -426,6 +426,16 @@ export function MaintenanceCommandCenter() {
                       Resident: {selected.pm_residents.display_name}
                     </p>
                   ) : null}
+                  {selected.pm_residents ? (
+                    <p className="mt-2">
+                      <Link
+                        href={`/shared/communications/conversations/new?workOrderId=${selected.id}`}
+                        className="text-sm font-medium text-[var(--mpa-color-brand-primary)] underline"
+                      >
+                        Message tenant
+                      </Link>
+                    </p>
+                  ) : null}
                 </div>
                 <dl className="grid gap-2 sm:grid-cols-2">
                   {detailScanLines.map((line) => (

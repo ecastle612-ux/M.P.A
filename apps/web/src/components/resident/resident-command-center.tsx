@@ -147,6 +147,7 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
           actions={[
             { href: `/pm/properties/${data.resident.propertyId}`, label: "Property" },
             { href: "/pm/leasing", label: "Leasing" },
+            { href: `/shared/communications?residentId=${data.resident.id}`, label: "Message tenant" },
             { href: "/shared/communications", label: "Communications" },
             { href: documentsHref("resident", data.resident.displayName), label: "Files" }
           ]}

@@ -53,6 +53,16 @@ describe("MEDIA-001 upload validation", () => {
     ).toBe(false);
   });
 
+  it("accepts conversation_message parent type", () => {
+    const result = validateMediaUploadIntent({
+      mimeType: "image/jpeg",
+      fileSize: 2048,
+      relatedEntityType: "conversation_message",
+      originalFileName: "note.jpg"
+    });
+    expect(result.ok).toBe(true);
+  });
+
   it("builds org-isolated storage paths", () => {
     const path = buildMediaStoragePath({
       organizationId: "org_1",
