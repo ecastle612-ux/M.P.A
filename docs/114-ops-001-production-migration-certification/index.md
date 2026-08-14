@@ -444,10 +444,4 @@ This is the same apply-time versioning pattern Production already used for FAC-0
 
 ## Next authorized step
 
-A **Production migration apply** package only:
-
-- Apply the **same** approved statements
-- Stamp a successor version `> 20260814224518`
-- Do not deploy from that apply package unless a separate release certification authorizes it
-
-**Do not apply from this record.**
+Apply completed in [docs/115](../115-ops-001-production-migration-application-certification/index.md) (**READY FOR APPLICATION DEPLOYMENT**). Production ledger: `20260814233536` / `ops_001_operational_workspace`. Do not re-apply from this record. Do not deploy from this record.

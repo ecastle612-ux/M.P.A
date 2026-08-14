@@ -122,7 +122,7 @@ Covered: authored kind/templates/flatten; table CRUD logic, sort/filter, CSV, XL
 
 ## Migration
 
-Not applied to Production. Production migration certification is [docs/114](../114-ops-001-production-migration-certification/index.md) (**READY FOR PRODUCTION MIGRATION APPLICATION**). No apply or deploy from this record.
+Schema apply is recorded in [docs/115](../115-ops-001-production-migration-application-certification/index.md) (**READY FOR APPLICATION DEPLOYMENT**). No application deploy from this record.
 
 ---
 
