@@ -40,6 +40,46 @@ type RawWorkOrder = {
   property_units?: { id: string; unit_label: string } | null;
 };
 
+function asSingleRelation<T extends Record<string, unknown>>(
+  value: T | T[] | null | undefined
+): T | null {
+  if (!value) {
+    return null;
+  }
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+}
+
+function normalizeWorkOrderRow(row: Record<string, unknown>): RawWorkOrder {
+  return {
+    id: String(row.id),
+    organization_id: String(row.organization_id),
+    property_id: String(row.property_id),
+    unit_id: (row.unit_id as string | null) ?? null,
+    requested_by_user_id: (row.requested_by_user_id as string | null) ?? null,
+    title: String(row.title ?? ""),
+    description: String(row.description ?? ""),
+    category: String(row.category ?? "general"),
+    priority: row.priority as WorkOrderPriority,
+    status: row.status as WorkOrderStatus,
+    work_surface: row.work_surface as WorkSurface,
+    facility_asset_label: (row.facility_asset_label as string | null) ?? null,
+    assignee_type: (row.assignee_type as RawWorkOrder["assignee_type"]) ?? "unassigned",
+    technician_user_id: (row.technician_user_id as string | null) ?? null,
+    vendor_id: (row.vendor_id as string | null) ?? null,
+    created_at: String(row.created_at),
+    completed_at: (row.completed_at as string | null) ?? null,
+    property_properties: asSingleRelation(
+      row.property_properties as { id: string; name: string } | { id: string; name: string }[] | null
+    ),
+    property_units: asSingleRelation(
+      row.property_units as
+        | { id: string; unit_label: string }
+        | { id: string; unit_label: string }[]
+        | null
+    )
+  };
+}
+
 function locationFor(row: RawWorkOrder): string {
   const parts = [
     row.property_properties?.name,
@@ -146,15 +186,15 @@ export async function buildWorkOrderReportSnapshot(input: {
     throw new Error(error.message);
   }
 
-  let rows = ((data ?? []) as RawWorkOrder[]).filter(
-    (row) => matchesLocation(row, filters.location) && matchesVendorFilter(row, filters)
-  );
+  let rows = ((data ?? []) as Record<string, unknown>[])
+    .map((row) => normalizeWorkOrderRow(row))
+    .filter((row) => matchesLocation(row, filters.location) && matchesVendorFilter(row, filters));
 
   // Defense in depth: never leak other surfaces even if DB filter fails.
   rows = rows.filter((row) => row.work_surface === surface && row.organization_id === organizationId);
 
-  const truncated = rows.length > WORK_ORDER_REPORT_CSV_ROW_CAP;
-  const totalMatched = truncated ? rows.length : rows.length;
+  const matchedBeforeCap = rows.length;
+  const truncated = matchedBeforeCap > WORK_ORDER_REPORT_CSV_ROW_CAP;
   if (truncated) {
     rows = rows.slice(0, WORK_ORDER_REPORT_CSV_ROW_CAP);
   }
@@ -269,7 +309,7 @@ export async function buildWorkOrderReportSnapshot(input: {
     metrics,
     rows: exportRows,
     truncated,
-    totalMatched: truncated ? WORK_ORDER_REPORT_CSV_ROW_CAP + 1 : exportRows.length
+    totalMatched: matchedBeforeCap
   };
 
   return {
