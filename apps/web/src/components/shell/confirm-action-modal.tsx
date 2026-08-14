@@ -40,7 +40,10 @@ export function ConfirmActionModal({
             variant={danger ? "danger" : "primary"}
             disabled={busy}
             aria-busy={busy}
-            onClick={onConfirm}
+            onClick={() => {
+              if (busy) return;
+              onConfirm();
+            }}
           >
             {busy ? "Working…" : confirmLabel}
           </Button>

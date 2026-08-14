@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   WORK_ORDER_CATEGORIES,
   WORK_ORDER_CATEGORY_LABELS,
@@ -30,6 +30,8 @@ import {
   fieldActionVariant,
   fieldPrimaryAction,
   fieldWorkOrderScanLines,
+  formatFacilityAssignmentNotice,
+  formatFacilityLifecycleNotice,
   resolveCancelNote,
   resolveProgressNote
 } from "../../lib/facility/field-work-order-presentation";
@@ -158,6 +160,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [progressNote, setProgressNote] = useState("");
   const [cancelNote, setCancelNote] = useState("");
   const [queueQuery, setQueueQuery] = useState("");
+  const actionLockRef = useRef(false);
   const [createTitle, setCreateTitle] = useState("");
   const [createDescription, setCreateDescription] = useState("");
   const [createCategory, setCreateCategory] = useState<WorkOrderCategory>(meta.createDefaultCategory);
@@ -188,6 +191,22 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     );
   }, [workOrders, queueQuery]);
 
+  const applyWorkOrder = useCallback((workOrder: WorkOrder) => {
+    setWorkOrders((rows) => {
+      const index = rows.findIndex((row) => row.id === workOrder.id);
+      if (index === -1) {
+        return [workOrder, ...rows];
+      }
+      const next = rows.slice();
+      next[index] = { ...rows[index], ...workOrder };
+      return next;
+    });
+    setSelectedId(workOrder.id);
+    if (workOrder.priority) {
+      setPriority(workOrder.priority);
+    }
+  }, []);
+
   const loadDetail = useCallback(async (workOrderId: string) => {
     if (!workOrderId) {
       setUpdates([]);
@@ -199,10 +218,10 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       throw new Error(body.error ?? "Failed to load work order");
     }
     setUpdates(body.updates ?? []);
-    if (body.workOrder?.priority) {
-      setPriority(body.workOrder.priority as WorkOrderPriority);
+    if (body.workOrder) {
+      applyWorkOrder(body.workOrder as WorkOrder);
     }
-  }, []);
+  }, [applyWorkOrder]);
 
   const refresh = useCallback(
     async (preferredId?: string) => {
@@ -264,16 +283,50 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     }
   }
 
-  async function run(action: () => Promise<void>) {
+  async function run(
+    action: () => Promise<
+      string | { notice?: string; refreshId?: string } | void
+    >
+  ) {
+    if (actionLockRef.current) {
+      return;
+    }
+    actionLockRef.current = true;
     setBusy(true);
     setError(null);
     setNotice(null);
+    let successNotice: string | null = null;
+    let refreshId = selectedId;
     try {
-      await action();
-      await refresh(selectedId);
+      const result = await action();
+      if (typeof result === "string" && result.trim()) {
+        successNotice = result.trim();
+      } else if (result && typeof result === "object") {
+        if (result.notice?.trim()) {
+          successNotice = result.notice.trim();
+        }
+        if (result.refreshId) {
+          refreshId = result.refreshId;
+        }
+      }
+      try {
+        await refresh(refreshId);
+      } catch (refreshErr) {
+        // Mutation already succeeded and local state was patched — do not replace
+        // success with a stale follow-up error (e.g. double-complete / closed refresh).
+        if (successNotice) {
+          setNotice(successNotice);
+          return;
+        }
+        throw refreshErr;
+      }
+      if (successNotice) {
+        setNotice(successNotice);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Action failed");
     } finally {
+      actionLockRef.current = false;
       setBusy(false);
     }
   }
@@ -404,6 +457,9 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
               throw new Error(body.error ?? "Failed to create work");
             }
             const workOrderId = body.workOrder.id as string;
+            if (body.workOrder) {
+              applyWorkOrder(body.workOrder as WorkOrder);
+            }
             if (pendingMediaIds.length > 0) {
               const attachResponse = await fetch("/api/shared/media", {
                 method: "POST",
@@ -425,8 +481,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             setCreateDueAt("");
             setPendingMediaIds([]);
             setSelectedId(workOrderId);
-            setNotice("Facility work created.");
-            await refresh(workOrderId);
+            return { notice: "Facility work created.", refreshId: workOrderId };
           });
         }}
       >
@@ -727,8 +782,14 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                             if (!response.ok) {
                               throw new Error(body.error ?? "Progress failed");
                             }
+                            if (body.workOrder) {
+                              applyWorkOrder(body.workOrder as WorkOrder);
+                            }
                             setProgressNote("");
-                            setNotice("Work started.");
+                            return formatFacilityLifecycleNotice(
+                              "start",
+                              (body.workOrder as WorkOrder | undefined)?.status ?? "in_progress"
+                            );
                           })
                         }
                       >
@@ -755,8 +816,14 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                             if (!response.ok) {
                               throw new Error(body.error ?? "Progress failed");
                             }
+                            if (body.workOrder) {
+                              applyWorkOrder(body.workOrder as WorkOrder);
+                            }
                             setProgressNote("");
-                            setNotice("Progress saved.");
+                            return formatFacilityLifecycleNotice(
+                              "progress",
+                              (body.workOrder as WorkOrder | undefined)?.status ?? selected.status
+                            );
                           })
                         }
                       >
@@ -793,7 +860,10 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                             if (!response.ok) {
                               throw new Error(body.error ?? "Triage failed");
                             }
-                            setNotice("Priority updated.");
+                            if (body.workOrder) {
+                              applyWorkOrder(body.workOrder as WorkOrder);
+                            }
+                            return "Priority updated.";
                           });
                         }}
                       >
@@ -818,6 +888,12 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                         onSubmit={(event) => {
                           event.preventDefault();
                           void run(async () => {
+                            if (assigneeType === "vendor" && !vendorId) {
+                              throw new Error("Select a vendor before assigning.");
+                            }
+                            if (assigneeType === "technician" && !technicianUserId) {
+                              throw new Error("Select a technician before assigning.");
+                            }
                             const response = await fetch("/api/facility/operations/assign", {
                               method: "POST",
                               headers: { "Content-Type": "application/json" },
@@ -836,6 +912,21 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                             if (!response.ok) {
                               throw new Error(body.error ?? "Assign failed");
                             }
+                            if (body.workOrder) {
+                              applyWorkOrder(body.workOrder as WorkOrder);
+                            }
+                            const assigneeName =
+                              assigneeType === "vendor"
+                                ? ((body.workOrder as WorkOrder | undefined)?.vendor_vendors?.name ??
+                                  vendors.find((vendor) => vendor.id === vendorId)?.name ??
+                                  null)
+                                : (technicians.find((tech) => tech.userId === technicianUserId)
+                                    ?.displayName ?? null);
+                            const assignmentNotice = formatFacilityAssignmentNotice({
+                              assigneeType,
+                              assigneeName,
+                              status: (body.workOrder as WorkOrder | undefined)?.status ?? "assigned"
+                            });
                             const handoff = body.vendorPortalHandoff as
                               | {
                                   firstLoginMessage?: string;
@@ -845,19 +936,16 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                               | null
                               | undefined;
                             if (handoff?.firstLoginMessage) {
-                              setNotice(
-                                [
-                                  "Assignment sent.",
-                                  handoff.firstLoginMessage,
-                                  handoff.magicLink ? `Magic link: ${handoff.magicLink}` : null,
-                                  handoff.loginHref ? `Login: ${handoff.loginHref}` : null
-                                ]
-                                  .filter(Boolean)
-                                  .join(" ")
-                              );
-                            } else {
-                              setNotice("Assignment sent.");
+                              return [
+                                assignmentNotice,
+                                handoff.firstLoginMessage,
+                                handoff.magicLink ? `Magic link: ${handoff.magicLink}` : null,
+                                handoff.loginHref ? `Login: ${handoff.loginHref}` : null
+                              ]
+                                .filter(Boolean)
+                                .join(" ");
                             }
+                            return assignmentNotice;
                           });
                         }}
                       >
@@ -919,8 +1007,9 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                           type="submit"
                           className="min-h-11"
                           disabled={busy || (assigneeType === "vendor" && vendors.length === 0)}
+                          aria-busy={busy}
                         >
-                          Assign
+                          {busy ? "Assigning…" : "Assign"}
                         </Button>
                       </form>
                     </div>
@@ -997,9 +1086,12 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                 if (!response.ok) {
                   throw new Error(body.error ?? "Cancel failed");
                 }
+                if (body.workOrder) {
+                  applyWorkOrder(body.workOrder as WorkOrder);
+                }
                 setCancelNote("");
-                setNotice("Work order cancelled.");
                 setCancelConfirmOpen(false);
+                return "Work order cancelled.";
               });
             }}
           >
@@ -1053,9 +1145,15 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                 if (!response.ok) {
                   throw new Error(body.error ?? "Progress failed");
                 }
+                if (body.workOrder) {
+                  applyWorkOrder(body.workOrder as WorkOrder);
+                }
                 setProgressNote("");
-                setNotice("Work completed and closed.");
                 setCompleteConfirmOpen(false);
+                return formatFacilityLifecycleNotice(
+                  "complete",
+                  (body.workOrder as WorkOrder | undefined)?.status ?? "closed"
+                );
               });
             }}
           >
