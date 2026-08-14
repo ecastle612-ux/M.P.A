@@ -51,28 +51,31 @@ function asSingleRelation<T extends Record<string, unknown>>(
 
 function normalizeWorkOrderRow(row: Record<string, unknown>): RawWorkOrder {
   return {
-    id: String(row.id),
-    organization_id: String(row.organization_id),
-    property_id: String(row.property_id),
-    unit_id: (row.unit_id as string | null) ?? null,
-    requested_by_user_id: (row.requested_by_user_id as string | null) ?? null,
-    title: String(row.title ?? ""),
-    description: String(row.description ?? ""),
-    category: String(row.category ?? "general"),
-    priority: row.priority as WorkOrderPriority,
-    status: row.status as WorkOrderStatus,
-    work_surface: row.work_surface as WorkSurface,
-    facility_asset_label: (row.facility_asset_label as string | null) ?? null,
-    assignee_type: (row.assignee_type as RawWorkOrder["assignee_type"]) ?? "unassigned",
-    technician_user_id: (row.technician_user_id as string | null) ?? null,
-    vendor_id: (row.vendor_id as string | null) ?? null,
-    created_at: String(row.created_at),
-    completed_at: (row.completed_at as string | null) ?? null,
+    id: String(row["id"]),
+    organization_id: String(row["organization_id"]),
+    property_id: String(row["property_id"]),
+    unit_id: (row["unit_id"] as string | null) ?? null,
+    requested_by_user_id: (row["requested_by_user_id"] as string | null) ?? null,
+    title: String(row["title"] ?? ""),
+    description: String(row["description"] ?? ""),
+    category: String(row["category"] ?? "general"),
+    priority: row["priority"] as WorkOrderPriority,
+    status: row["status"] as WorkOrderStatus,
+    work_surface: row["work_surface"] as WorkSurface,
+    facility_asset_label: (row["facility_asset_label"] as string | null) ?? null,
+    assignee_type: (row["assignee_type"] as RawWorkOrder["assignee_type"]) ?? "unassigned",
+    technician_user_id: (row["technician_user_id"] as string | null) ?? null,
+    vendor_id: (row["vendor_id"] as string | null) ?? null,
+    created_at: String(row["created_at"]),
+    completed_at: (row["completed_at"] as string | null) ?? null,
     property_properties: asSingleRelation(
-      row.property_properties as { id: string; name: string } | { id: string; name: string }[] | null
+      row["property_properties"] as
+        | { id: string; name: string }
+        | { id: string; name: string }[]
+        | null
     ),
     property_units: asSingleRelation(
-      row.property_units as
+      row["property_units"] as
         | { id: string; unit_label: string }
         | { id: string; unit_label: string }[]
         | null

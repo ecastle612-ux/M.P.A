@@ -71,7 +71,7 @@ export type WorkOrderReportSnapshot = {
   organizationId: string;
   organizationName: string;
   organizationSlug: string;
-  surface: (typeof WORK_SURFACES)[number];
+  surface: WorkSurface;
   surfaceLabel: string;
   generatedAt: string;
   generatedByUserId: string;
