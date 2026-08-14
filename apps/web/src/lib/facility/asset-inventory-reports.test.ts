@@ -44,7 +44,7 @@ vi.mock("./inventory-service", () => ({
   ]
 }));
 
-const audit = vi.fn(async (_input?: unknown) => undefined);
+const audit = vi.fn(async () => undefined);
 vi.mock("../maintenance/events-audit", () => ({
   writeMaintenanceAudit: (input: unknown) => audit(input)
 }));

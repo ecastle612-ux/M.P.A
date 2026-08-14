@@ -940,7 +940,7 @@ export async function createFacilityWorkOrder(
   }
 
   let facilityAssetLabel = input.facilityAssetLabel?.trim() || null;
-  let facilityAssetId: string | null = input.facilityAssetId ?? null;
+  const facilityAssetId: string | null = input.facilityAssetId ?? null;
   if (facilityAssetId) {
     const { data: asset, error: assetError } = await supabase
       .from("facility_assets")

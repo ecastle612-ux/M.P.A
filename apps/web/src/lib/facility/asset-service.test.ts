@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const audit = vi.fn(async (_input?: unknown) => undefined);
+const audit = vi.fn(async () => undefined);
 
 vi.mock("../maintenance/events-audit", () => ({
   writeMaintenanceAudit: (input: unknown) => audit(input)
@@ -27,7 +27,7 @@ function matches(row: Row, filters: Array<{ col: string; value: unknown; mode: "
 function makeClient() {
   return {
     from(table: string) {
-      let filters: Array<{ col: string; value: unknown; mode: "eq" | "is" | "in" | "notNull" }> = [];
+      const filters: Array<{ col: string; value: unknown; mode: "eq" | "is" | "in" | "notNull" }> = [];
       let insertPayload: Row | null = null;
       let patch: Row | null = null;
       const api = {

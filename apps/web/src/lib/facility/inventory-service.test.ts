@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const audit = vi.fn(async (_input?: unknown) => undefined);
+const audit = vi.fn(async () => undefined);
 
 vi.mock("../maintenance/events-audit", () => ({
   writeMaintenanceAudit: (input: unknown) => audit(input)
@@ -25,7 +25,7 @@ const db: {
 function makeClient() {
   return {
     from(table: string) {
-      let filters: Array<{ col: string; value: unknown }> = [];
+      const filters: Array<{ col: string; value: unknown }> = [];
       let insertPayload: Row | null = null;
       const rowsFor = () => {
         if (table === "facility_stock_items") return db.items;
