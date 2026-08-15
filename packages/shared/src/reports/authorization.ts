@@ -194,8 +194,8 @@ function finalizeShape(input: {
   includesPm: boolean;
   includesFo: boolean;
   loadFinance: boolean;
-  personaOverride?: string | null;
-  areaOverride?: string | null;
+  personaOverride?: string | null | undefined;
+  areaOverride?: string | null | undefined;
 }): AuthorizedReportShape {
   let persona = input.defaultPersona;
   if (isExecutivePersona(input.personaOverride) && input.allowedPersonas.includes(input.personaOverride)) {
