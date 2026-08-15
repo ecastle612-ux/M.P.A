@@ -1,19 +1,30 @@
 # 127 — Complete Delegated Operations / Member Operating Scope
 
 **Title:** COMPLETE DELEGATED OPERATIONS  
-**Status:** DESIGN COMPLETE — APPROVAL REQUIRED  
+**Status:** Approved  
 **Date:** 2026-08-15  
+**Approved:** 2026-08-15 — Product Owner `APPROVE docs/127`  
 **Program:** Complete Delegated Operations  
-**Gate:** Design → Document → **Approve (missing)** → Implement  
-**ADR:** [ADR-033 Proposed](../18-decision-log/adr-033-member-operating-scope.md)  
+**Gate:** Design → Document → Approve → **Implement (authorized)**  
+**ADR:** [ADR-033 Accepted](../18-decision-log/adr-033-member-operating-scope.md)  
 **Related:** [ADR-015](../18-decision-log/adr-015-three-commercial-products-master-admin.md) · [ADR-019](../18-decision-log/adr-019-product-constitution.md) · [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) · [ADR-032](../18-decision-log/adr-032-report-shape-and-post-auth-home.md) · [docs/24](../24-product-architecture/index.md) · [docs/121](../121-plat-006-finance-reports-routing-remediation/index.md) · [docs/126](../126-fin-ops-production-reconciliation-audit/index.md) (FIN-OPS audit; remains blocked)  
-**This package:** Design + read-only authorization audit. **No SQL. No application code. No Production write. No deploy. No billing/Stripe change.**
+**This package:** Approved design. Implementation authorized in-repo (ADR-033). **No Production apply. No deploy. No billing/Stripe change. No FIN-OPS schema.**
 
 ---
 
 ## Verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED.**
+**Approved.** Product Owner accepted the binding formula:
+
+```
+effective access =
+  SKU surfaces
+  ∩ member operating scope
+  ∩ role / module permission
+  ∩ action
+```
+
+Implementation is authorized for this contract only. docs/126 remains blocked. No new SKU, role, organization, or Stripe change.
 
 Complete is already the **organization-level entitlement union**. It cannot distinguish “this manager operates Property Operations” from “this manager operates Facility Operations.” That gap is architectural, not a missing SKU.
 
@@ -41,14 +52,13 @@ Not a SKU. Not billing. Not a second organization. Not an OPS-001 “workspace�
 
 ## What this package does not do
 
-- Does not implement, migrate, or deploy
-- Does not write Production
+- Does not write Production or apply the repo migration there
 - Does not change Stripe, SKUs, prices, or commercial flow
 - Does not split Complete into two products or two subscriptions
 - Does not add `facility_manager` or revive `facility_technician` as a `USER_ROLES` value
 - Does not approve docs/126 Options A/B/C
+- Does not create `financial_*` tables or replay FIN-OPS S0/S1/S2
 - Does not alter FAC-003 data or FAC-002 `work_surface` meaning
-- Does not modify PLAT-006 code in this task
 
 ---
 
@@ -578,7 +588,7 @@ Nav and launcher items use `effective_entitlements`. A PROPERTY Complete manager
 
 ---
 
-## 15. Data model (design only — no SQL)
+## 15. Data model
 
 ### Decision
 
@@ -714,7 +724,9 @@ That is the critical Complete × finance failure this ADR exists to prevent.
 
 ADR-033 (Proposed) records member operating scope as the fifth authorization step under ADR-026, without new SKUs or roles.
 
-### 19.2 Eventual rollout slices (not authorized)
+### 19.2 Rollout slices
+
+Repo implementation of A–D is authorized. Slice E (Production apply + UAT) remains Owner-authorized only.
 
 | Slice | Scope | Notes |
 |-------|-------|-------|
@@ -744,9 +756,7 @@ Do not use Production customer passwords in docs. Do not apply FIN-OPS schema as
 
 ### 19.4 Approval
 
-This package is **Draft / Proposed** until Product Owner + Architect mark it **Approved** and ADR-033 **Accepted**.
-
-Until then: **no implementation, no SQL, no Production writes, no deployment.**
+Approved 2026-08-15. ADR-033 Accepted. Implementation of the member-operating-scope contract is authorized. Production apply is not. docs/126 remains blocked.
 
 ---
 
@@ -754,7 +764,7 @@ Until then: **no implementation, no SQL, no Production writes, no deployment.**
 
 - Product Constitution: three products; Complete remains one subscription
 - Commercial flow unchanged
-- Implementation Gate: documentation only
+- Implementation Gate: design approved; implement only this contract
 - ADR-026 pipeline extended, not replaced
 - ADR-032 report/home rules extended, not weakened
 - ADR-024 tenant comms remain a PM desk

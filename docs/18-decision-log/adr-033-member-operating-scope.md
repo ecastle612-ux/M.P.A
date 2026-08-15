@@ -1,7 +1,10 @@
 # ADR-033: Member Operating Scope (Complete Delegated Operations)
 
 ## Status
-Proposed
+Accepted
+
+## Accepted
+2026-08-15 — Product Owner + Architect: `ACCEPT ADR-033` with docs/127 Approved.
 
 ## Date
 2026-08-15
@@ -44,7 +47,7 @@ Authoritative design: `docs/127-complete-delegated-operations/`.
 
 6. **Existing memberships:** PM staff → `property_operations`; FO staff → `facility_operations`; Complete admins → `both`; other existing Complete staff → `NULL` with compatibility BOTH until an admin assigns. New Complete invites require an explicit scope. Do not silently strip access.
 
-7. **This ADR does not** change Stripe or SKUs; does not approve FIN-OPS schema remediation (docs/126 remains blocked); does not implement UI, SQL, or RLS; does not revive `facility_technician` as a role.
+7. **This ADR does not** change Stripe or SKUs; does not approve FIN-OPS schema remediation (docs/126 remains blocked); does not revive `facility_technician` as a role.
 
 ## Consequences
 
@@ -63,4 +66,4 @@ Authoritative design: `docs/127-complete-delegated-operations/`.
 
 ## Approval
 
-Proposed with docs/127. Implementation is **not** authorized until this ADR is **Accepted** and docs/127 is **Approved**.
+Accepted with docs/127 Approved. Implementation of the member-operating-scope contract is authorized. FIN-OPS schema remediation is not.
