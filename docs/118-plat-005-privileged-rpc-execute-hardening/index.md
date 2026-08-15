@@ -266,7 +266,9 @@ Re-grant the pre-change matrix recorded in §5 (anon/PUBLIC/authenticated as inv
 
 ---
 
-## 8. Testing strategy (after Approved implement — not this package)
+## 8. Testing strategy
+
+Static grant-matrix tests belong to the in-repo implement ([docs/119](../119-plat-005-privileged-rpc-execute-hardening-implementation-certification/index.md)). Live PostgREST checks below are Preview / Production-apply only.
 
 Do **not** call `ops_claim_*` or `auth_register_username` during tests (they mutate).
 
