@@ -7,9 +7,11 @@ import {
   hasLifecycleModuleAccess,
   IMPERSONATION_COOKIE,
   IMPERSONATION_MODE_COOKIE,
+  isMemberOperatingScope,
   isProductSku,
   isSubscriptionPlatformStatus,
   requiredEntitlementForApiPath,
+  type MemberOperatingScope,
   type ProductSku,
   type SubscriptionPlatformStatus
 } from "@mpa/shared";
@@ -222,7 +224,21 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    const decision = evaluatePathEntitlement({ pathname, sku });
+    let roles: string[] = [];
+    let storedScope: MemberOperatingScope | null = null;
+    if (organizationId) {
+      const { data: membership } = await supabase
+        .from("organization_memberships")
+        .select("roles, operating_scope")
+        .eq("user_id", user.id)
+        .eq("organization_id", organizationId)
+        .eq("status", "active")
+        .maybeSingle();
+      roles = Array.isArray(membership?.roles) ? (membership.roles as string[]) : [];
+      storedScope = isMemberOperatingScope(membership?.operating_scope) ? membership.operating_scope : null;
+    }
+
+    const decision = evaluatePathEntitlement({ pathname, sku, roles, storedScope });
     if (!decision.allowed) {
       const url = request.nextUrl.clone();
       if (!sku) {
@@ -254,7 +270,20 @@ export async function middleware(request: NextRequest) {
         sku = subscription.sku_code;
       }
     }
-    const decision = evaluateApiPathEntitlement({ pathname, sku });
+    let roles: string[] = [];
+    let storedScope: MemberOperatingScope | null = null;
+    if (organizationId) {
+      const { data: membership } = await supabase
+        .from("organization_memberships")
+        .select("roles, operating_scope")
+        .eq("user_id", user.id)
+        .eq("organization_id", organizationId)
+        .eq("status", "active")
+        .maybeSingle();
+      roles = Array.isArray(membership?.roles) ? (membership.roles as string[]) : [];
+      storedScope = isMemberOperatingScope(membership?.operating_scope) ? membership.operating_scope : null;
+    }
+    const decision = evaluateApiPathEntitlement({ pathname, sku, roles, storedScope });
     if (!decision.allowed) {
       return NextResponse.json(
         {

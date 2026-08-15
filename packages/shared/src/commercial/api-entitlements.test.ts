@@ -87,6 +87,70 @@ describe("PLAT-002 API entitlement catalog", () => {
     ).toBe(false);
   });
 
+  it("Complete + facility_operations denies PM finance and property APIs", () => {
+    expect(
+      evaluateApiPathEntitlement({
+        pathname: "/api/finance/snapshot",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "facility_operations"
+      }).allowed
+    ).toBe(false);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/financial-operations",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "facility_operations"
+      }).allowed
+    ).toBe(false);
+    expect(
+      evaluateApiPathEntitlement({
+        pathname: "/api/facility/assets",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "facility_operations"
+      }).allowed
+    ).toBe(true);
+  });
+
+  it("Complete + property_operations denies Facility APIs and keeps finance", () => {
+    expect(
+      evaluateApiPathEntitlement({
+        pathname: "/api/finance/snapshot",
+        sku: "mpa_complete_platform",
+        storedScope: "property_operations"
+      }).allowed
+    ).toBe(true);
+    expect(
+      evaluateApiPathEntitlement({
+        pathname: "/api/facility/assets",
+        sku: "mpa_complete_platform",
+        storedScope: "property_operations"
+      }).allowed
+    ).toBe(false);
+  });
+
+  it("PM SKU + stored both still cannot open Facility", () => {
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/facility/mission-control",
+        sku: "mpa_property_manager",
+        storedScope: "both"
+      }).allowed
+    ).toBe(false);
+  });
+
+  it("FO SKU + stored both still cannot open PM finance", () => {
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/financial-operations",
+        sku: "mpa_facility_operations",
+        storedScope: "both"
+      }).allowed
+    ).toBe(false);
+  });
+
   it("Complete is the union", () => {
     expect(
       evaluateApiPathEntitlement({ pathname: "/api/finance/snapshot", sku: "mpa_complete_platform" }).allowed

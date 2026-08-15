@@ -1,6 +1,7 @@
+import { entitlementsForMember, type MemberOperatingScope } from "../auth/operating-scope";
 import { staffHasTenantCommsEntitlement } from "../communications/conversations";
 import type { EntitlementKey } from "./entitlements";
-import { entitlementsForSku, hasEntitlement } from "./entitlements";
+import { hasEntitlement } from "./entitlements";
 import type { ProductSku } from "./skus";
 
 export type ApiEntitlementRequirement = EntitlementKey | null | "deny" | "tenant_comms_staff";
@@ -195,7 +196,9 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
 export function evaluateApiPathEntitlement(input: {
   pathname: string;
   sku: ProductSku | null;
-  extraEntitlements?: readonly string[];
+  extraEntitlements?: readonly string[] | undefined;
+  roles?: readonly string[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
 }): RouteAccessDecision {
   const required = requiredEntitlementForApiPath(input.pathname);
   if (required === null) {
@@ -206,9 +209,11 @@ export function evaluateApiPathEntitlement(input: {
   }
 
   const granted = [
-    ...(input.sku
-      ? entitlementsForSku(input.sku)
-      : (["platform.org", "platform.guided_setup", "platform.billing_self", "platform.launcher"] as const)),
+    ...entitlementsForMember({
+      sku: input.sku,
+      roles: input.roles,
+      storedScope: input.storedScope
+    }),
     ...(input.extraEntitlements ?? [])
   ];
 
@@ -248,7 +253,9 @@ export function evaluateApiPathEntitlement(input: {
 export function evaluatePathEntitlement(input: {
   pathname: string;
   sku: ProductSku | null;
-  extraEntitlements?: readonly string[];
+  extraEntitlements?: readonly string[] | undefined;
+  roles?: readonly string[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
 }): RouteAccessDecision {
   const required = requiredEntitlementForPath(input.pathname);
   if (required === null) {
@@ -259,7 +266,11 @@ export function evaluatePathEntitlement(input: {
   }
 
   const granted = new Set<string>([
-    ...(input.sku ? entitlementsForSku(input.sku) : ["platform.org", "platform.guided_setup", "platform.billing_self", "platform.launcher"]),
+    ...entitlementsForMember({
+      sku: input.sku,
+      roles: input.roles,
+      storedScope: input.storedScope
+    }),
     ...(input.extraEntitlements ?? [])
   ]);
 
@@ -294,9 +305,18 @@ export type SearchResultItem = {
   entitlement: EntitlementKey | null;
 };
 
-export function searchCatalogForSku(sku: ProductSku | null, query: string): SearchResultItem[] {
+export function searchCatalogForSku(
+  sku: ProductSku | null,
+  query: string,
+  input: { roles?: readonly string[] | undefined; storedScope?: MemberOperatingScope | null | undefined } = {}
+): SearchResultItem[] {
   const decisionPath = (href: string, label: string, group: string, entitlement: EntitlementKey | null): SearchResultItem | null => {
-    const access = evaluatePathEntitlement({ pathname: href, sku });
+    const access = evaluatePathEntitlement({
+      pathname: href,
+      sku,
+      roles: input.roles,
+      storedScope: input.storedScope
+    });
     if (!access.allowed) {
       return null;
     }

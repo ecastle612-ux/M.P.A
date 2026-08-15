@@ -3,12 +3,19 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   defaultLaunchInviteRoleForSku,
+  derivedOperatingPositionLabel,
+  isMemberOperatingScope,
   isUserRole,
   launchInviteRolesForSku,
+  MEMBER_OPERATING_SCOPES,
+  primaryRole,
   toInviteRoleDescription,
   toInviteRoleLabel,
+  toOperatingScopeLabel,
   toRoleLabel,
-  type LaunchInviteRole
+  type LaunchInviteRole,
+  type MemberOperatingScope,
+  type ProductSku
 } from "@mpa/shared";
 import { Button, Input, Select } from "@mpa/ui";
 import { useOrganizationContext } from "../shell/organization-context";
@@ -23,6 +30,7 @@ type InvitationRow = {
   expires_at: string;
   email_status?: string;
   acceptUrl?: string | null;
+  operating_scope?: string | null;
 };
 
 type MembershipRow = {
@@ -30,10 +38,21 @@ type MembershipRow = {
   user_id: string;
   roles: string[];
   status: string;
+  operating_scope?: string | null;
 };
 
 function formatRoles(roles: string[]): string {
   return roles.map((role) => (isUserRole(role) ? toRoleLabel(role) : role)).join(", ");
+}
+
+function formatScope(scope: string | null | undefined, sku: ProductSku | null): string {
+  if (sku !== "mpa_complete_platform") {
+    return "";
+  }
+  if (!scope) {
+    return "Needs operational responsibility (currently has both)";
+  }
+  return isMemberOperatingScope(scope) ? toOperatingScopeLabel(scope) : scope;
 }
 
 export function TeamInvitePanel() {
@@ -53,6 +72,13 @@ export function TeamInvitePanel() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [lastAcceptUrl, setLastAcceptUrl] = useState<string | null>(null);
+  const [operatingScope, setOperatingScope] = useState<MemberOperatingScope | "">("");
+  const isComplete = productSku === "mpa_complete_platform";
+  const staffInvite = role !== "vendor" && role !== "property_owner";
+  const scopeOptions: MemberOperatingScope[] =
+    role === "leasing_agent" ? ["property_operations"] : [...MEMBER_OPERATING_SCOPES];
+  const inviteOperatingScope: MemberOperatingScope | "" =
+    role === "leasing_agent" ? "property_operations" : operatingScope;
 
   useEffect(() => {
     const organizationId = activeOrganization?.id;
@@ -143,7 +169,13 @@ export function TeamInvitePanel() {
     const response = await fetch(`/api/organizations/${activeOrganization.id}/invitations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, roles: [role] })
+      body: JSON.stringify({
+        email,
+        roles: [role],
+        ...(isComplete && staffInvite && inviteOperatingScope
+          ? { operatingScope: inviteOperatingScope }
+          : {})
+      })
     });
     const payload = (await response.json()) as {
       error?: string;
@@ -161,6 +193,29 @@ export function TeamInvitePanel() {
     setNotice(payload.notice ?? "Invitation created.");
     setLastAcceptUrl(payload.acceptUrl ?? payload.invitation?.acceptUrl ?? null);
     setEmail("");
+    setOperatingScope("");
+    await refresh();
+  }
+
+  async function updateMembershipScope(membershipId: string, nextScope: MemberOperatingScope) {
+    if (!activeOrganization) {
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setNotice(null);
+    const response = await fetch(`/api/organizations/${activeOrganization.id}/memberships`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ membershipId, operatingScope: nextScope })
+    });
+    const payload = (await response.json()) as { error?: string };
+    setLoading(false);
+    if (!response.ok) {
+      setError(payload.error ?? "Could not update operational responsibility.");
+      return;
+    }
+    setNotice("Operational responsibility updated.");
     await refresh();
   }
 
@@ -218,7 +273,13 @@ export function TeamInvitePanel() {
             <Select
               id="invite-role"
               value={role}
-              onChange={(event) => setRoleOverride(event.target.value as LaunchInviteRole)}
+              onChange={(event) => {
+                const nextRole = event.target.value as LaunchInviteRole;
+                setRoleOverride(nextRole);
+                if (nextRole === "leasing_agent") {
+                  setOperatingScope("property_operations");
+                }
+              }}
               data-testid="invite-role-select"
             >
               {inviteRoles.map((inviteRole) => (
@@ -234,8 +295,42 @@ export function TeamInvitePanel() {
               {toInviteRoleDescription(role, productSku)}
             </p>
           </div>
+          {isComplete && staffInvite ? (
+            <div className="space-y-1">
+              <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="invite-scope">
+                Operational responsibility
+              </label>
+              <Select
+                id="invite-scope"
+                required
+                value={inviteOperatingScope}
+                onChange={(event) =>
+                  setOperatingScope(event.target.value as MemberOperatingScope | "")
+                }
+                data-testid="invite-operating-scope"
+              >
+                <option value="">Choose operational responsibility</option>
+                {scopeOptions.map((scope) => (
+                  <option key={scope} value={scope}>
+                    {toOperatingScopeLabel(scope)}
+                  </option>
+                ))}
+              </Select>
+              <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                This teammate operates only the selected part of Complete. It does not change the
+                subscription.
+              </p>
+            </div>
+          ) : null}
           <div className="flex flex-wrap gap-2">
-            <Button type="submit" disabled={loading || email.trim().length < 3}>
+            <Button
+              type="submit"
+              disabled={
+                loading ||
+                email.trim().length < 3 ||
+                (isComplete && staffInvite && inviteOperatingScope.length === 0)
+              }
+            >
               {loading ? "Sending…" : "Send invitation"}
             </Button>
             <Button type="button" variant="secondary" onClick={() => void refresh()}>
@@ -278,7 +373,11 @@ export function TeamInvitePanel() {
                   >
                     <p className="font-medium">{invitation.email}</p>
                     <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                      {formatRoles(invitation.roles)} · email {invitation.email_status ?? "pending"}
+                      {formatRoles(invitation.roles)}
+                      {formatScope(invitation.operating_scope, productSku)
+                        ? ` · ${formatScope(invitation.operating_scope, productSku)}`
+                        : ""}{" "}
+                      · email {invitation.email_status ?? "pending"}
                     </p>
                     {invitation.acceptUrl ? (
                       <Button
@@ -306,13 +405,51 @@ export function TeamInvitePanel() {
             <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">No memberships loaded.</p>
           ) : (
             <ul className="mt-3 space-y-2 text-sm text-[var(--mpa-color-text-secondary)]">
-              {memberships.map((membership) => (
-                <li key={membership.id}>
-                  <span className="font-mono text-xs">{membership.user_id.slice(0, 8)}…</span>
-                  {" — "}
-                  {formatRoles(membership.roles)} ({membership.status})
-                </li>
-              ))}
+              {memberships.map((membership) => {
+                const role = primaryRole(membership.roles.filter(isUserRole));
+                const stored = isMemberOperatingScope(membership.operating_scope)
+                  ? membership.operating_scope
+                  : null;
+                return (
+                  <li key={membership.id} className="space-y-1">
+                    <p>
+                      <span className="font-mono text-xs">{membership.user_id.slice(0, 8)}…</span>
+                      {" — "}
+                      {derivedOperatingPositionLabel({
+                        role,
+                        scope: stored,
+                        sku: productSku
+                      })}{" "}
+                      ({membership.status})
+                    </p>
+                    {isComplete ? (
+                      <div className="space-y-1">
+                        <p className="text-xs">{formatScope(membership.operating_scope, productSku)}</p>
+                        <Select
+                          aria-label="Operational responsibility"
+                          value={stored ?? ""}
+                          disabled={loading}
+                          onChange={(event) => {
+                            const next = event.target.value;
+                            if (isMemberOperatingScope(next)) {
+                              void updateMembershipScope(membership.id, next);
+                            }
+                          }}
+                        >
+                          <option value="" disabled>
+                            Assign operational responsibility
+                          </option>
+                          {MEMBER_OPERATING_SCOPES.map((scope) => (
+                            <option key={scope} value={scope}>
+                              {toOperatingScopeLabel(scope)}
+                            </option>
+                          ))}
+                        </Select>
+                      </div>
+                    ) : null}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isLaunchInviteRole } from "@mpa/shared";
+import { isLaunchInviteRole, isProductSku, validateInviteOperatingScope } from "@mpa/shared";
 import { parseInviteOrganizationMemberInput } from "../../../../../lib/organization/contracts";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import {
@@ -43,7 +43,7 @@ export async function GET(_request: Request, context: { params: Promise<{ organi
   const { data, error } = await supabase
     .from("organization_invitations")
     .select(
-      "id, email, roles, status, token, expires_at, created_at, email_status, email_sent_at, email_provider_id, email_error"
+      "id, email, roles, status, token, expires_at, created_at, email_status, email_sent_at, email_provider_id, email_error, operating_scope"
     )
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false });
@@ -87,6 +87,24 @@ export async function POST(request: Request, context: { params: Promise<{ organi
     );
   }
 
+  const { data: subscription } = await supabase
+    .from("organization_subscriptions")
+    .select("sku_code, status")
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  const sku =
+    subscription && isProductSku(subscription.sku_code) && subscription.status !== "canceled"
+      ? subscription.sku_code
+      : null;
+  const scopeDecision = validateInviteOperatingScope({
+    sku,
+    roles: parsed.roles,
+    storedScope: parsed.operatingScope ?? null
+  });
+  if (!scopeDecision.ok) {
+    return NextResponse.json({ error: scopeDecision.error }, { status: 400 });
+  }
+
   const { data: organization } = await supabase
     .from("organizations")
     .select("name")
@@ -101,6 +119,7 @@ export async function POST(request: Request, context: { params: Promise<{ organi
       email: parsed.email,
       roles: parsed.roles,
       organizationName: organization?.name ?? "your organization",
+      operatingScope: scopeDecision.scope,
       ...(authz.user.email ? { inviterLabel: authz.user.email } : {})
     });
 

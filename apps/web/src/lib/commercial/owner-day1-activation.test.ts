@@ -58,6 +58,8 @@ describe("Owner Day-1 activation polish (web wiring)", () => {
     const setup = read("components/commercial/guided-setup-page.tsx");
     expect(setup).toMatch(/ORGANIZATION_ADMIN_CLARITY/);
     expect(setup).toMatch(/guided-setup-owner-clarity/);
+    expect(setup).toMatch(/guided-setup-operating-model/);
+    expect(setup).toMatch(/How will you manage your operations/);
     expect(ORGANIZATION_ADMIN_CLARITY.headline).toBe("You are the Organization Admin");
 
     const login = read("components/shell/login-form.tsx");
@@ -71,6 +73,8 @@ describe("Owner Day-1 activation polish (web wiring)", () => {
     const invite = read("components/team/team-invite-panel.tsx");
     expect(invite).toMatch(/toInviteRoleDescription|toRoleDescription/);
     expect(invite).toMatch(/invite-role-description/);
+    expect(invite).toMatch(/invite-operating-scope/);
+    expect(invite).toMatch(/Operational responsibility/);
     expect(toRoleLabel("organization_admin")).toBe("Organization Admin");
     expect(toRoleDescription("organization_admin")).toMatch(/Full organization management/i);
     expect(toRoleDescription("property_manager")).toMatch(/property operations/i);

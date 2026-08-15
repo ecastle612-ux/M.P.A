@@ -5,7 +5,12 @@ import { createAuthServerClient } from "../auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../auth/authorization";
 import { getActiveOrganizationIdFromCookie } from "../organization/server";
 import { getWorkOrder } from "../maintenance/maintenance-service";
-import { hasEntitlement, entitlementsForSku, isProductSku } from "@mpa/shared";
+import {
+  entitlementsForMember,
+  hasEntitlement,
+  isMemberOperatingScope,
+  isProductSku
+} from "@mpa/shared";
 
 export type MediaAuthzContext = {
   supabase: SupabaseClient;
@@ -36,7 +41,7 @@ export async function requireMediaActor(mode: "read" | "write"): Promise<
 
   const { data: membership } = await supabase
     .from("organization_memberships")
-    .select("id, status, roles")
+    .select("id, status, roles, operating_scope")
     .eq("organization_id", organizationId)
     .eq("user_id", user.id)
     .eq("status", "active")
@@ -63,9 +68,12 @@ export async function requireMediaActor(mode: "read" | "write"): Promise<
     subscription && isProductSku(subscription.sku_code) && subscription.status !== "canceled"
       ? subscription.sku_code
       : null;
-  const entitlements = sku
-    ? entitlementsForSku(sku)
-    : (["platform.org", "platform.guided_setup", "platform.billing_self"] as const);
+  const storedScope = isMemberOperatingScope(membership.operating_scope) ? membership.operating_scope : null;
+  const entitlements = entitlementsForMember({
+    sku,
+    roles: (membership.roles as string[]) ?? [],
+    storedScope
+  });
 
   const entitled =
     hasEntitlement(entitlements, "facility.operations") ||

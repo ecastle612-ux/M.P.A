@@ -108,6 +108,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 115 | [OPS-001 Phase 1 Production Migration Application Certification](./115-ops-001-production-migration-application-certification/index.md) | **READY FOR APPLICATION DEPLOYMENT** · schema live `20260814233536` · app still `aee7fa95` · no deploy |
 | 121 | [PLAT-006 Finance, Report Surface & FO Routing](./121-plat-006-finance-reports-routing-remediation/index.md) | **Approved** · ADR-032 Accepted · implement Slices A–C only · no Production apply or deploy |
 | 122 | [PLAT-006 Finance, Report Surface & Routing Implementation Certification](./122-plat-006-finance-reports-routing-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
+| 127 | [Complete Delegated Operations](./127-complete-delegated-operations/index.md) | **Approved** · ADR-033 Accepted · member operating scope implement authorized |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -170,6 +171,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [S2 Certification](./25-fin-ops-001/s2/index.md) | Delinquency, late fees & vendor AP |
 | [S3 Certification](./25-fin-ops-001/s3/index.md) | Command Center & owner reporting |
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
+| [127 Complete Delegated Operations](./127-complete-delegated-operations/index.md) | Approved member operating scope — FACILITY-only Complete must not inherit PM finance |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
@@ -181,6 +183,13 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Customer Journeys](./26-launch-001-onboarding/customer-journeys.md) | Outcome order (replaces eng slices) |
 | [Master Admin Certification Console](./26-launch-001-onboarding/master-admin-certification-console.md) | How operators certify each promise |
 | [Launch Readiness Gate](./26-launch-001-onboarding/launch-readiness-gate.md) | GO only when journeys work unaided |
+
+### 127 Complete Delegated Operations
+
+| Document | Purpose |
+|----------|---------|
+| [Package Index](./127-complete-delegated-operations/index.md) | Member operating scope — **Approved** |
+| [ADR-033](./18-decision-log/adr-033-member-operating-scope.md) | Accepted — SKU ∩ scope ∩ role |
 
 ### Governance & gates
 

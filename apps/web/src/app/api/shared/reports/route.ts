@@ -28,7 +28,8 @@ export async function GET(request: Request) {
     entitlements: authz.entitlements,
     capabilities: authz.permissions,
     personaOverride: personaRaw,
-    areaOverride: areaRaw
+    areaOverride: areaRaw,
+    storedScope: authz.storedScope
   });
   if (!shape.allowed || !shape.persona) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

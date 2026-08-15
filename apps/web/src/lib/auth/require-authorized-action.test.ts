@@ -5,7 +5,7 @@ const state = {
   userId: "user_1" as string | null,
   orgId: "org_1" as string | null,
   membership: { id: "mem_1", status: "active", roles: ["organization_admin"] } as
-    | { id: string; status: string; roles: string[] }
+    | { id: string; status: string; roles: string[]; operating_scope?: string | null }
     | null,
   sku: "mpa_property_manager" as string | null,
   subscriptionStatus: "active" as string,
@@ -155,6 +155,72 @@ describe("PLAT-002 finance and property entitlements (C1/C2)", () => {
     state.sku = "mpa_complete_platform";
     expect("error" in (await requireFinancePermission("pm.finance:read"))).toBe(false);
     expect("error" in (await requirePropertyPermission("pm.properties:read"))).toBe(false);
+  });
+});
+
+describe("ADR-033 member operating scope (Complete delegated operations)", () => {
+  beforeEach(() => {
+    state.userId = "user_1";
+    state.orgId = "org_1";
+    state.subscriptionStatus = "active";
+    state.permissions = [
+      "pm.finance:read",
+      "pm.properties:read",
+      "pm.maintenance:read",
+      "platform.communications:read",
+      "platform.communications:write"
+    ];
+  });
+
+  it("denies Complete + facility_operations finance even with pm.finance:* and property_manager", async () => {
+    state.sku = "mpa_complete_platform";
+    state.membership = {
+      id: "mem_1",
+      status: "active",
+      roles: ["property_manager"],
+      operating_scope: "facility_operations"
+    };
+    const finance = await requireFinancePermission("pm.finance:read");
+    const property = await requirePropertyPermission("pm.properties:read");
+    const comms = await requireStaffConversationPermission("platform.communications:read");
+    expect("error" in finance && finance.error.status === 403).toBe(true);
+    expect("error" in property && property.error.status === 403).toBe(true);
+    expect("error" in comms && comms.error.status === 403).toBe(true);
+  });
+
+  it("allows Complete + property_operations finance and denies facility operations", async () => {
+    state.sku = "mpa_complete_platform";
+    state.membership = {
+      id: "mem_1",
+      status: "active",
+      roles: ["property_manager"],
+      operating_scope: "property_operations"
+    };
+    expect("error" in (await requireFinancePermission("pm.finance:read"))).toBe(false);
+    const facility = await requireFacilityOperation("pm.maintenance:read", "facility.operations");
+    expect("error" in facility && facility.error.status === 403).toBe(true);
+  });
+
+  it("keeps Complete + unassigned staff on the compatibility union including finance", async () => {
+    state.sku = "mpa_complete_platform";
+    state.membership = { id: "mem_1", status: "active", roles: ["property_manager"] };
+    expect("error" in (await requireFinancePermission("pm.finance:read"))).toBe(false);
+    expect("error" in (await requireFacilityOperation("pm.maintenance:read", "facility.operations"))).toBe(
+      false
+    );
+  });
+
+  it("PM SKU still denies Facility even when stored scope is both", async () => {
+    state.sku = "mpa_property_manager";
+    state.membership = {
+      id: "mem_1",
+      status: "active",
+      roles: ["property_manager"],
+      operating_scope: "both"
+    };
+    const facility = await requireFacilityOperation("pm.maintenance:read", "facility.operations");
+    expect("error" in facility && facility.error.status === 403).toBe(true);
+    expect("error" in (await requireFinancePermission("pm.finance:read"))).toBe(false);
   });
 });
 

@@ -171,7 +171,7 @@ describe("resolvePostAuthHome", () => {
     ).toBe("/unauthorized?reason=role");
   });
 
-  it("routes FO technician to Facility Mission Control and Complete technician to PM maintenance", () => {
+  it("routes FO technician to Facility Mission Control and unassigned Complete technician to launcher", () => {
     expect(
       resolvePostAuthHome({
         roles: ["maintenance_technician"],
@@ -186,7 +186,42 @@ describe("resolvePostAuthHome", () => {
         productSku: "mpa_complete_platform",
         setupComplete: true
       })
+    ).toBe("/launcher");
+  });
+
+  it("routes Complete staff by member operating scope", () => {
+    expect(
+      resolvePostAuthHome({
+        roles: ["property_manager"],
+        productSku: "mpa_complete_platform",
+        setupComplete: true,
+        storedScope: "property_operations"
+      })
+    ).toBe("/pm/mission-control");
+    expect(
+      resolvePostAuthHome({
+        roles: ["property_manager"],
+        productSku: "mpa_complete_platform",
+        setupComplete: true,
+        storedScope: "facility_operations"
+      })
+    ).toBe("/facility/mission-control");
+    expect(
+      resolvePostAuthHome({
+        roles: ["maintenance_technician"],
+        productSku: "mpa_complete_platform",
+        setupComplete: true,
+        storedScope: "property_operations"
+      })
     ).toBe("/pm/maintenance");
+    expect(
+      resolvePostAuthHome({
+        roles: ["maintenance_technician"],
+        productSku: "mpa_complete_platform",
+        setupComplete: true,
+        storedScope: "facility_operations"
+      })
+    ).toBe("/facility/mission-control");
   });
 
   it("prefers primary role when multiple roles exist", () => {

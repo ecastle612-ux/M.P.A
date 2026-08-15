@@ -39,6 +39,7 @@ export function GuidedSetupPage() {
   const [billingAcknowledged, setBillingAcknowledged] = useState(false);
   const [homeSelected, setHomeSelected] = useState(false);
   const [nextStepAcknowledged, setNextStepAcknowledged] = useState(false);
+  const [operatingModel, setOperatingModel] = useState<"self" | "delegated" | null>(null);
   const [loading, setLoading] = useState(false);
   const [hydrating, setHydrating] = useState(Boolean(activeOrganization));
   const [hydrateError, setHydrateError] = useState<string | null>(null);
@@ -78,6 +79,9 @@ export function GuidedSetupPage() {
         setBillingAcknowledged(Boolean(checklist["billing_acknowledged"]));
         setHomeSelected(Boolean(checklist["home_selected"]));
         setNextStepAcknowledged(Boolean(checklist["next_step_acknowledged"]));
+        if (checklist["operating_model_chosen"]) {
+          setOperatingModel(checklist["operating_model_assign_managers"] ? "delegated" : "self");
+        }
         setHydrating(false);
       }
     })();
@@ -133,7 +137,22 @@ export function GuidedSetupPage() {
         label: "Next action understood",
         done: nextStepAcknowledged,
         detail: `Your next step is to ${nextAction}.`
-      }
+      },
+      ...(effectiveSku === "mpa_complete_platform"
+        ? [
+            {
+              id: "operating_model",
+              label: "Operating model chosen",
+              done: operatingModel !== null,
+              detail:
+                operatingModel === "delegated"
+                  ? "You will assign managers to each operation. You remain Organization Admin for both."
+                  : operatingModel === "self"
+                    ? "You will manage Property and Facility Operations yourself."
+                    : "Choose how this Complete organization will operate."
+            }
+          ]
+        : [])
     ],
     [
       activeOrganization?.name,
@@ -145,14 +164,21 @@ export function GuidedSetupPage() {
       homeLabel,
       homeSelected,
       nextAction,
-      nextStepAcknowledged
+      nextStepAcknowledged,
+      operatingModel
     ]
   );
 
   const doneCount = checklist.filter((item) => item.done).length;
   const totalSteps = checklist.length;
+  const operatingModelReady = effectiveSku !== "mpa_complete_platform" || operatingModel !== null;
   const canFinish =
-    hasOrg && hasProduct && billingAcknowledged && homeSelected && nextStepAcknowledged;
+    hasOrg &&
+    hasProduct &&
+    billingAcknowledged &&
+    homeSelected &&
+    nextStepAcknowledged &&
+    operatingModelReady;
 
   const nextHint = !hasOrg
     ? "Create your organization to continue."
@@ -164,7 +190,9 @@ export function GuidedSetupPage() {
           ? `Confirm ${homeLabel} as your home.`
           : !nextStepAcknowledged
             ? "Confirm you understand your first workspace action."
-            : `Finish setup to enter ${homeLabel}.`;
+            : !operatingModelReady
+              ? "Choose how you will manage Property and Facility Operations."
+              : `Finish setup to enter ${homeLabel}.`;
 
   async function handleCreateOrganization(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -198,6 +226,7 @@ export function GuidedSetupPage() {
     home?: boolean;
     nextStep?: boolean;
     complete?: boolean;
+    operatingModel?: "self" | "delegated" | null;
   }) {
     if (!activeOrganization || !productSku) {
       return;
@@ -213,7 +242,9 @@ export function GuidedSetupPage() {
           billing_acknowledged: next.billing ?? billingAcknowledged,
           home_selected: next.home ?? homeSelected,
           next_step_acknowledged: next.nextStep ?? nextStepAcknowledged,
-          modules_reviewed: next.billing ?? billingAcknowledged
+          modules_reviewed: next.billing ?? billingAcknowledged,
+          operating_model_chosen: (next.operatingModel ?? operatingModel) !== null,
+          operating_model_assign_managers: (next.operatingModel ?? operatingModel) === "delegated"
         },
         complete: Boolean(next.complete)
       })
@@ -233,6 +264,9 @@ export function GuidedSetupPage() {
     if (next.nextStep !== undefined) {
       setNextStepAcknowledged(next.nextStep);
     }
+    if (next.operatingModel !== undefined) {
+      setOperatingModel(next.operatingModel);
+    }
     await refreshOrganizations();
     router.refresh();
   }
@@ -246,7 +280,8 @@ export function GuidedSetupPage() {
       complete: true,
       billing: true,
       home: true,
-      nextStep: true
+      nextStep: true,
+      operatingModel
     });
     setNotice(`Congratulations — your organization is ready. Opening ${homeLabel}…`);
     router.push(resolveProductWorkspaceHome(productSku));
@@ -478,6 +513,53 @@ export function GuidedSetupPage() {
                 I reviewed what {displayLabel} includes.
               </label>
             </div>
+
+            {effectiveSku === "mpa_complete_platform" ? (
+              <div
+                className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+                data-testid="guided-setup-operating-model"
+              >
+                <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+                  How will you manage your operations?
+                </h2>
+                <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                  Complete includes Property Operations and Facility Operations in one subscription.
+                  You stay Organization Admin for both either way.
+                </p>
+                <label className="flex items-start gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                  <input
+                    type="radio"
+                    className="mt-1"
+                    name="operating-model"
+                    checked={operatingModel === "self"}
+                    disabled={!hasProduct || loading}
+                    onChange={() => {
+                      void persistChecklist({ operatingModel: "self" });
+                    }}
+                  />
+                  I manage Property &amp; Facility Operations
+                </label>
+                <label className="flex items-start gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
+                  <input
+                    type="radio"
+                    className="mt-1"
+                    name="operating-model"
+                    checked={operatingModel === "delegated"}
+                    disabled={!hasProduct || loading}
+                    onChange={() => {
+                      void persistChecklist({ operatingModel: "delegated" });
+                    }}
+                  />
+                  Assign managers to each operation
+                </label>
+                {operatingModel === "delegated" ? (
+                  <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                    After setup, invite a Property Operations Manager and a Facility Operations
+                    Manager from Team &amp; Access. Your admin access stays Both.
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
               <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">

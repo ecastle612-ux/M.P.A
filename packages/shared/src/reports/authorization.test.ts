@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { entitlementsForSku } from "../commercial/entitlements";
+import { entitlementsForMember } from "../auth/operating-scope";
 import { resolveAuthorizedReportShape } from "./authorization";
 
 const ADMIN_FINANCE_CAPS = [
@@ -16,14 +16,20 @@ function shape(input: {
   capabilities?: readonly string[];
   personaOverride?: string | null;
   areaOverride?: string | null;
+  storedScope?: "property_operations" | "facility_operations" | "both" | null;
 }) {
   return resolveAuthorizedReportShape({
     roles: input.roles,
     sku: input.sku,
-    entitlements: input.sku ? entitlementsForSku(input.sku) : [],
+    entitlements: entitlementsForMember({
+      sku: input.sku,
+      roles: input.roles,
+      storedScope: input.storedScope
+    }),
     capabilities: input.capabilities ?? ADMIN_FINANCE_CAPS,
     personaOverride: input.personaOverride ?? null,
-    areaOverride: input.areaOverride ?? null
+    areaOverride: input.areaOverride ?? null,
+    storedScope: input.storedScope
   });
 }
 
@@ -191,6 +197,34 @@ describe("PLAT-006 shared report SKU × persona authorization", () => {
     });
     expect(result.areas).not.toContain("facility_operations");
     expect(result.areas).toContain("property_operations");
+  });
+
+  it("Complete + facility_operations cannot escalate to PM finance via persona", () => {
+    const result = shape({
+      roles: ["property_manager"],
+      sku: "mpa_complete_platform",
+      storedScope: "facility_operations",
+      personaOverride: "property_manager",
+      areaOverride: "financial_performance"
+    });
+    expect(result.allowed).toBe(true);
+    expect(result.persona).toBe("facility_manager");
+    expect(result.areas).not.toContain("financial_performance");
+    expect(result.areas).not.toContain("property_operations");
+    expect(result.loadFinance).toBe(false);
+  });
+
+  it("Complete + property_operations keeps PM finance and cannot take FO persona", () => {
+    const result = shape({
+      roles: ["property_manager"],
+      sku: "mpa_complete_platform",
+      storedScope: "property_operations",
+      personaOverride: "facility_manager"
+    });
+    expect(result.persona).toBe("property_manager");
+    expect(result.areas).toContain("financial_performance");
+    expect(result.areas).not.toContain("facility_operations");
+    expect(result.loadFinance).toBe(true);
   });
 
   it("organization_admin on FO does not inherit PM owner shapes", () => {

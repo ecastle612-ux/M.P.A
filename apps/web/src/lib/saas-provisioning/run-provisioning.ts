@@ -1,10 +1,12 @@
 import {
   COM_002_FLAGS,
   defaultOrganizationName,
+  isProductSku,
   isProvisioningCheckpoint,
   markProvisioningRetry,
   nextProvisioningCheckpoint,
   resumeFromRetryable,
+  storedScopeForNewMembership,
   transitionProvisioning,
   type ProvisioningCheckpoint,
   type ProvisioningJob
@@ -184,16 +186,21 @@ async function activateSubscription(input: {
 async function assignAdminMembership(input: {
   organizationId: string;
   ownerUserId: string;
+  sku?: string | null;
 }): Promise<{ error: string | null }> {
   const supabase = await tryServiceRole();
   if (!supabase) return { error: null };
   if (input.ownerUserId.startsWith("pending_user_")) return { error: null };
+  const operatingScope = storedScopeForNewMembership(
+    input.sku && isProductSku(input.sku) ? input.sku : "mpa_property_manager"
+  );
   const { error } = await supabase.from("organization_memberships").upsert(
     {
       organization_id: input.organizationId,
       user_id: input.ownerUserId,
       roles: ["organization_admin", "property_manager"],
-      status: "active"
+      status: "active",
+      operating_scope: operatingScope
     },
     { onConflict: "organization_id,user_id" }
   );
@@ -595,7 +602,8 @@ export async function claimProvisioningOwner(input: {
 
   const membership = await assignAdminMembership({
     organizationId: job.organizationId,
-    ownerUserId: input.userId
+    ownerUserId: input.userId,
+    sku: job.productSku
   });
   if (membership.error) {
     return { ok: false, error: membership.error };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import type { ProductSku, UserRole } from "@mpa/shared";
+import type { MemberOperatingScope, ProductSku, UserRole } from "@mpa/shared";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
 import { OrganizationProvider } from "./organization-context";
 import { RoleProvider } from "./role-context";
@@ -44,6 +44,7 @@ export function AuthenticatedContextProviders({
               productSku: ProductSku | null;
               productLabel: string | null;
               setupComplete: boolean;
+              operatingScope?: MemberOperatingScope | null;
             }>;
           };
           const refreshedOrganizations = (payload.memberships ?? []).map((membership) => ({
@@ -53,7 +54,8 @@ export function AuthenticatedContextProviders({
             roles: membership.roles,
             productSku: membership.productSku,
             productLabel: membership.productLabel,
-            setupComplete: membership.setupComplete
+            setupComplete: membership.setupComplete,
+            operatingScope: membership.operatingScope ?? null
           }));
           setOrganizationState(refreshedOrganizations);
         }}

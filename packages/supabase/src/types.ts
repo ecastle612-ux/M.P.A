@@ -80,6 +80,7 @@ export type Database = {
           id: string;
           invited_by: string;
           organization_id: string;
+          operating_scope: "property_operations" | "facility_operations" | "both" | null;
           roles: string[];
           status: "accepted" | "expired" | "pending" | "revoked";
           token: string;
@@ -98,6 +99,7 @@ export type Database = {
           id?: string;
           invited_by: string;
           organization_id: string;
+          operating_scope?: "property_operations" | "facility_operations" | "both" | null;
           roles?: string[];
           status?: "accepted" | "expired" | "pending" | "revoked";
           token?: string;
@@ -116,6 +118,7 @@ export type Database = {
           id?: string;
           invited_by?: string;
           organization_id?: string;
+          operating_scope?: "property_operations" | "facility_operations" | "both" | null;
           roles?: string[];
           status?: "accepted" | "expired" | "pending" | "revoked";
           token?: string;
@@ -137,6 +140,7 @@ export type Database = {
           id: string;
           invited_by: string | null;
           organization_id: string;
+          operating_scope: "property_operations" | "facility_operations" | "both" | null;
           roles: string[];
           status: "active" | "inactive";
           updated_at: string;
@@ -147,6 +151,7 @@ export type Database = {
           id?: string;
           invited_by?: string | null;
           organization_id: string;
+          operating_scope?: "property_operations" | "facility_operations" | "both" | null;
           roles?: string[];
           status?: "active" | "inactive";
           updated_at?: string;
@@ -157,6 +162,7 @@ export type Database = {
           id?: string;
           invited_by?: string | null;
           organization_id?: string;
+          operating_scope?: "property_operations" | "facility_operations" | "both" | null;
           roles?: string[];
           status?: "active" | "inactive";
           updated_at?: string;
@@ -165,6 +171,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "organization_memberships_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      organization_operating_scope_events: {
+        Row: {
+          actor_id: string | null;
+          created_at: string;
+          from_scope: "property_operations" | "facility_operations" | "both" | null;
+          id: string;
+          invitation_id: string | null;
+          membership_id: string | null;
+          organization_id: string;
+          reason: string | null;
+          to_scope: "property_operations" | "facility_operations" | "both" | null;
+        };
+        Insert: {
+          actor_id?: string | null;
+          created_at?: string;
+          from_scope?: "property_operations" | "facility_operations" | "both" | null;
+          id?: string;
+          invitation_id?: string | null;
+          membership_id?: string | null;
+          organization_id: string;
+          reason?: string | null;
+          to_scope?: "property_operations" | "facility_operations" | "both" | null;
+        };
+        Update: {
+          actor_id?: string | null;
+          created_at?: string;
+          from_scope?: "property_operations" | "facility_operations" | "both" | null;
+          id?: string;
+          invitation_id?: string | null;
+          membership_id?: string | null;
+          organization_id?: string;
+          reason?: string | null;
+          to_scope?: "property_operations" | "facility_operations" | "both" | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_operating_scope_events_organization_id_fkey";
             columns: ["organization_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
@@ -452,6 +502,14 @@ export type Database = {
       };
       is_platform_operator: {
         Args: Record<string, never>;
+        Returns: boolean;
+      };
+      member_operating_scope: {
+        Args: { target_org_id: string; target_user_id?: string };
+        Returns: string | null;
+      };
+      member_allows_work_surface: {
+        Args: { target_org_id: string; target_surface: string; target_user_id?: string };
         Returns: boolean;
       };
     };

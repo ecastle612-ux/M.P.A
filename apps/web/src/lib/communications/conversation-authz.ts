@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import {
-  entitlementsForSku,
+  entitlementsForMember,
+  isMemberOperatingScope,
   isProductSku,
   PM_COMMS_STAFF_ROLES,
   type CommunicationsCapability
@@ -22,7 +23,11 @@ export type ConversationActor = {
   tenantAccountId: string | null;
 };
 
-export async function loadOrgEntitlements(supabase: Db, organizationId: string): Promise<string[]> {
+export async function loadOrgEntitlements(
+  supabase: Db,
+  organizationId: string,
+  userId?: string
+): Promise<string[]> {
   const { data: subscription } = await supabase
     .from("organization_subscriptions")
     .select("sku_code, status")
@@ -32,9 +37,22 @@ export async function loadOrgEntitlements(supabase: Db, organizationId: string):
     subscription && isProductSku(subscription.sku_code) && subscription.status !== "canceled"
       ? subscription.sku_code
       : null;
-  return sku
-    ? entitlementsForSku(sku)
-    : ["platform.org", "platform.guided_setup", "platform.billing_self"];
+
+  let roles: string[] = [];
+  let storedScope: Parameters<typeof entitlementsForMember>[0]["storedScope"] = null;
+  if (userId) {
+    const { data: membership } = await supabase
+      .from("organization_memberships")
+      .select("roles, operating_scope")
+      .eq("organization_id", organizationId)
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .maybeSingle();
+    roles = Array.isArray(membership?.roles) ? (membership.roles as string[]) : [];
+    storedScope = isMemberOperatingScope(membership?.operating_scope) ? membership.operating_scope : null;
+  }
+
+  return entitlementsForMember({ sku, roles, storedScope });
 }
 
 export async function requireStaffConversationPermission(

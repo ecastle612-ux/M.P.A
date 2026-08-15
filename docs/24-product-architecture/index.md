@@ -81,6 +81,7 @@ They may share platform primitives (work orders, vendors, documents, communicati
 | — | [Property Manager Module Map](./property-manager-module-map.md) | Definitive PM modules, nav, workspaces, workflows |
 | — | [Facility Operations Module Map](./facility-operations-module-map.md) | Definitive Facility modules and ownership (document only) |
 | — | [Complete Platform Composition](./complete-platform-composition.md) | How both products combine without duplicate homes |
+| — | [127 Complete Delegated Operations](../127-complete-delegated-operations/index.md) | Proposed member operating scope — **APPROVAL REQUIRED** |
 | — | [Phase 1 Alignment Verification](./phase-1-alignment-verification.md) | Verification of architectural alignment delivery |
 | — | [Commercial Experience Certification](./certification/index.md) | Hardening P0 Pass; FO and Facility remain **NO-GO** |
 | — | [Commercial Hardening Report](./certification/commercial-hardening-report.md) | P0 implementation + re-certification |
