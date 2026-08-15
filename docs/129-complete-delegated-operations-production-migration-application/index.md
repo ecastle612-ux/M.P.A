@@ -320,4 +320,4 @@ APPLICATION: pre-ADR-033 SHA 44d50bf1 still live
 
 ## Next authorized step
 
-Owner-authorized **ADR-033 application deployment** and authenticated Erick / Sarah / Mike UAT. Do not deploy from this record. Do not apply `20260815200000` as a second Production migration.
+Owner-authorized **ADR-033 application deployment** remains a separate gate. The PostgREST residual is designed in [docs/130](../130-complete-delegated-operations-dataplane-scope/index.md) (**Proposed**). Do not deploy from this record. Do not apply `20260815200000` as a second Production migration. Do not implement docs/130 until Approved.
