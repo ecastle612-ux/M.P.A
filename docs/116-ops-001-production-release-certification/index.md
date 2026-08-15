@@ -41,6 +41,21 @@ Secrets were present in this run. Production state re-checked. **No unexpected c
 
 The five named `UAT_*_PASSWORD` secrets are the same value. Sections 4–14 were **not started**. No users invented. No password resets.
 
+### Authorized UAT password-reset attempt (2026-08-15T16:18Z)
+
+Product Owner authorized Admin Auth resets for existing controlled UAT actors only.
+
+| Actor | User ID | Org | `organization_type` | Non-UAT orgs | Action |
+|-------|---------|-----|---------------------|--------------|--------|
+| Clinic Complete manager | `ce12a723-7666-40a0-aa95-bc5671ff669f` | UAT Clinic Demo `a11ce001-…c11c` | `internal_uat` | 0 | Eligible; **not reset** (no service-role key) |
+| Property Demo PM | `0e1fc6e4-278b-4de5-a9e5-2e13acba7371` | UAT Property Demo `a11ce002-…00c2` | `internal_uat` | 0 | Eligible; **not reset** |
+| Property Demo tenant | `6cde6423-ad9b-49fb-aadd-3ea93ec8b040` | same | `internal_uat` | 0 | Eligible; **not reset** |
+| Clinic vendor (optional) | `efd879ed-a6a1-437e-aa35-7fab8fdbdf0e` | UAT Clinic Demo | `internal_uat` | 0 | Eligible; **not reset** |
+| Property Demo FO tech (optional) | `acee99f7-a23a-4c73-b6d9-63c2ffbbc2db` | UAT Property Demo | `internal_uat` | 0 | Eligible; **not reset** |
+| Clinic shared Gmail (non-UAT orgs) | `bbc4cffa-29a4-4a31-aad9-41f6a00f1474` | Clinic UAT **and** two non-UAT orgs | mixed | 2 | **STOPPED** — not a UAT-only account |
+
+No Admin Auth `PUT` was sent. No customer password changed. No new users. Sections 4–14 still not started.
+
 ### Authenticated UAT re-run (2026-08-14T23:53Z)
 
 Production state re-checked. **No unexpected change.**
@@ -124,7 +139,7 @@ Intended actors (existing memberships; passwords not stored):
 
 | Org | SKU | Email | Roles | Planned use |
 |-----|-----|-------|-------|-------------|
-| M.P.A. UAT Clinic Demo `a11ce001-…c11c` | `mpa_complete_platform` | `thebrokermpls@gmail.com` / `fightermpls1366@gmail.com` | org admin + property manager | Authored docs, native table, FAC-003 connections, facility WOs, snapshot, PDF/CSV/XLSX |
+| M.P.A. UAT Clinic Demo `a11ce001-…c11c` | `mpa_complete_platform` | `[REDACTED]` / Clinic Complete manager `ce12a723-…669f` | org admin + property manager | Authored docs, native table, FAC-003 connections, facility WOs, snapshot, PDF/CSV/XLSX |
 | M.P.A. UAT Property Demo `a11ce002-…00c2` | `mpa_property_manager` | `uat.pm.property.demo@my-property-assistant.com` | `property_manager` | Workspace + residential WO only; deny assets/stock |
 | Same | PM | `uat.tenant.property.demo@my-property-assistant.com` | `tenant` | Denied |
 | Clinic | Complete | `uat-vendor@example.com` | `vendor` | Denied |
@@ -193,7 +208,7 @@ Ledger tip remains `20260814233536` / `ops_001_operational_workspace`. No second
 
 **None** for merge or deploy.
 
-**Open blocker:** injected UAT secrets do not authenticate against Production GoTrue (`invalid_credentials`). Working current passwords for the existing controlled actors are still required.
+**Open blocker:** Product Owner authorized Admin Auth password reset for existing internal UAT actors only. Identities were confirmed. The Clinic shared Gmail (`bbc4cffa-…1474`) was **not** reset (active memberships on two non-`internal_uat` organizations). The UAT-only Complete manager is the Clinic Demo owner `ce12a723-…669f`. Admin Auth was **not** called because `SUPABASE_SERVICE_ROLE_KEY` is not available to this agent (Vercel Production has the key but this token cannot decrypt it). No customer password was changed.
 
 ---
 
@@ -205,10 +220,12 @@ Ledger tip remains `20260814233536` / `ops_001_operational_workspace`. No second
 - No billing / Stripe changes
 - No Google/Microsoft integrations
 - No tenant-authored documents
-- No password reset or new UAT users
+- No customer password reset
+- No new UAT users
+- Admin Auth reset of UAT-only actors **not executed** (service-role key unavailable)
 
 ---
 
 ## Next authorized step
 
-Re-inject the **current working** Production passwords for the existing controlled actors (Clinic Complete manager, Property Demo PM, Property Demo tenant; optional vendor / FO tech). Confirm each account can sign in at `https://www.my-property-assistant.com/login` before injecting. Do not reuse a single placeholder for every secret. This agent will not reset passwords. Re-run authenticated UAT sections only. Do not re-merge. Do not re-deploy unless the live SHA is no longer `e56a330f`. Do not re-apply the migration.
+Inject Production `SUPABASE_SERVICE_ROLE_KEY` so Admin Auth can set passwords **only** on confirmed `internal_uat` actors (Clinic Complete manager `ce12a723-…669f`, Property Demo PM, Property Demo tenant; optional vendor / FO tech). Do **not** reset the Clinic shared Gmail (`bbc4cffa-…1474`). Then re-run authenticated UAT. Do not re-merge. Do not re-deploy unless the live SHA is no longer `e56a330f`. Do not re-apply the migration.
