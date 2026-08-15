@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import {
-  EXECUTIVE_PERSONAS,
   REPORT_AREAS,
-  type ExecutivePersona,
+  resolveAuthorizedReportShape,
   type ReportArea,
   type ReportingFilters
 } from "@mpa/shared";
@@ -16,16 +15,24 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const personaRaw = url.searchParams.get("persona");
   const areaRaw = url.searchParams.get("area");
-  const persona =
-    personaRaw && (EXECUTIVE_PERSONAS as readonly string[]).includes(personaRaw)
-      ? (personaRaw as ExecutivePersona)
-      : null;
   const area =
     areaRaw === "all"
       ? "all"
       : areaRaw && (REPORT_AREAS as readonly string[]).includes(areaRaw)
         ? (areaRaw as ReportArea)
         : null;
+
+  const shape = resolveAuthorizedReportShape({
+    roles: authz.roles,
+    sku: authz.sku,
+    entitlements: authz.entitlements,
+    capabilities: authz.permissions,
+    personaOverride: personaRaw,
+    areaOverride: areaRaw
+  });
+  if (!shape.allowed || !shape.persona) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const filters: ReportingFilters = {
     dateFrom: url.searchParams.get("dateFrom"),
@@ -34,13 +41,13 @@ export async function GET(request: Request) {
     category: url.searchParams.get("category"),
     status: url.searchParams.get("status"),
     area,
-    persona
+    persona: shape.persona
   };
 
   const snapshot = await buildOrganizationReportingSnapshot(authz.supabase, authz.organizationId, {
     roles: authz.roles,
     filters,
-    personaOverride: persona
+    shape
   });
 
   return NextResponse.json({ snapshot });

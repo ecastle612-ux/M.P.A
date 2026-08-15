@@ -6,6 +6,7 @@ import {
   isProductSku,
   type EntitlementKey,
   type PermissionCapability,
+  type ProductSku,
   type UserRole
 } from "@mpa/shared";
 import { createAuthServerClient } from "./server";
@@ -19,6 +20,8 @@ export type AuthorizedAction = {
   organizationId: string;
   roles: string[];
   entitlements: readonly string[];
+  sku: ProductSku | null;
+  permissions: readonly string[];
 };
 
 export type AuthorizedActionResult = AuthorizedAction | { error: NextResponse };
@@ -97,6 +100,8 @@ export async function requireAuthorizedAction(input: {
     user,
     organizationId: orgId,
     roles,
-    entitlements
+    entitlements,
+    sku,
+    permissions: authorizationContext.permissions
   };
 }

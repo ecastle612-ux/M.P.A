@@ -1,5 +1,5 @@
 import type { NextResponse } from "next/server";
-import type { ReportCapability } from "@mpa/shared";
+import { SHARED_REPORT_STAFF_ROLES, type ReportCapability } from "@mpa/shared";
 import { requireAuthorizedAction } from "../auth/require-authorized-action";
 
 export async function requireReportPermission(
@@ -9,7 +9,8 @@ export async function requireReportPermission(
   return requireAuthorizedAction({
     capability,
     entitlement: "platform.reports",
-    organizationId
+    organizationId,
+    allowedRoles: SHARED_REPORT_STAFF_ROLES
   });
 }
 
