@@ -106,6 +106,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 113 | [OPS-001 Phase 1 Implementation Certification](./113-ops-001-operational-workspace-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
 | 114 | [OPS-001 Phase 1 Production Migration Certification](./114-ops-001-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only · successor ledger stamp · no apply or deploy |
 | 115 | [OPS-001 Phase 1 Production Migration Application Certification](./115-ops-001-production-migration-application-certification/index.md) | **READY FOR APPLICATION DEPLOYMENT** · schema live `20260814233536` · app still `aee7fa95` · no deploy |
+| 118 | [PLAT-005 Privileged RPC Execute Hardening](./118-plat-005-privileged-rpc-execute-hardening/index.md) | **Approved** · schema-only REVOKE design · parent PLAT-004 H6 · implement authorized |
+| 119 | [PLAT-005 Privileged RPC Execute Hardening Implementation Certification](./119-plat-005-privileged-rpc-execute-hardening-implementation-certification/index.md) | **READY FOR PREVIEW VERIFICATION** · grant-only successor · no Production apply |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
