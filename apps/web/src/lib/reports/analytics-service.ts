@@ -1,10 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   assembleReportingSnapshot,
-  resolveExecutivePersona,
-  skuIncludesFacilityOperations,
-  type ExecutivePersona,
-  type ProductSku,
+  type AuthorizedReportShape,
   type RawReportingFacts,
   type ReportArea,
   type ReportingFilters,
@@ -13,17 +10,6 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
-
-function asSku(value: string | null | undefined): ProductSku | null {
-  if (
-    value === "mpa_property_manager" ||
-    value === "mpa_facility_operations" ||
-    value === "mpa_complete_platform"
-  ) {
-    return value;
-  }
-  return null;
-}
 
 async function safeSelect<T>(promise: PromiseLike<{ data: T | null; error: { message: string } | null }>): Promise<T | null> {
   try {
@@ -35,17 +21,131 @@ async function safeSelect<T>(promise: PromiseLike<{ data: T | null; error: { mes
   }
 }
 
+const emptyFacts = (): RawReportingFacts => ({
+  properties: [],
+  units: [],
+  leases: [],
+  residents: [],
+  workOrders: [],
+  documents: [],
+  finance: null,
+  subscription: null,
+  vendors: [],
+  applications: []
+});
+
 export async function buildOrganizationReportingSnapshot(
   supabase: Db,
   organizationId: string,
   options: {
     roles: readonly string[];
     filters?: ReportingFilters;
-    personaOverride?: ExecutivePersona | null;
+    shape: AuthorizedReportShape;
     isPlatformOperator?: boolean;
   }
 ): Promise<ReportingSnapshot> {
   const filters = options.filters ?? {};
+  const shape = options.shape;
+  const persona = shape.persona ?? "facility_manager";
+
+  const orgPromise = safeSelect(
+    supabase.from("organizations").select("id, name").eq("id", organizationId).maybeSingle()
+  );
+  const subscriptionPromise = safeSelect(
+    supabase
+      .from("organization_subscriptions")
+      .select("status, sku_code, billing_cycle")
+      .eq("organization_id", organizationId)
+      .maybeSingle()
+  );
+  const setupPromise = safeSelect(
+    supabase
+      .from("organization_setup_state")
+      .select("completed_at, product_confirmed")
+      .eq("organization_id", organizationId)
+      .maybeSingle()
+  );
+  const documentsPromise = safeSelect(
+    supabase
+      .from("document_documents")
+      .select("id, title, status, category, created_at, entity_type")
+      .eq("organization_id", organizationId)
+      .order("created_at", { ascending: false })
+      .limit(200)
+  );
+  const vendorsPromise = safeSelect(
+    supabase
+      .from("vendor_vendors")
+      .select("id, name, status")
+      .eq("organization_id", organizationId)
+      .limit(100)
+  );
+
+  let workOrdersQuery = supabase
+    .from("maintenance_work_orders")
+    .select("id, title, status, priority, assignee_type, property_id, submitted_at, completed_at, work_surface")
+    .eq("organization_id", organizationId)
+    .order("submitted_at", { ascending: false })
+    .limit(100);
+  if (shape.workSurface === "residential" || shape.workSurface === "facility") {
+    workOrdersQuery = workOrdersQuery.eq("work_surface", shape.workSurface);
+  }
+
+  const workOrdersPromise = safeSelect(workOrdersQuery);
+
+  const propertiesPromise = shape.loadPropertyFacts
+    ? safeSelect(
+        supabase
+          .from("property_properties")
+          .select("id, name, status")
+          .eq("organization_id", organizationId)
+          .order("name", { ascending: true })
+          .limit(200)
+      )
+    : Promise.resolve(null);
+  const unitsPromise = shape.loadPropertyFacts
+    ? safeSelect(
+        supabase
+          .from("property_units")
+          .select("id, property_id, status")
+          .eq("organization_id", organizationId)
+          .limit(500)
+      )
+    : Promise.resolve(null);
+  const leasesPromise = shape.loadPropertyFacts
+    ? safeSelect(
+        supabase
+          .from("lease_agreements")
+          .select("id, status, start_date, end_date, pm_residents(display_name), property_properties(name)")
+          .eq("organization_id", organizationId)
+          .order("end_date", { ascending: true })
+          .limit(100)
+      )
+    : Promise.resolve(null);
+  const applicationsPromise = shape.loadPropertyFacts
+    ? safeSelect(
+        supabase
+          .from("lease_applications")
+          .select("id, status, submitted_at, decided_at, property_id")
+          .eq("organization_id", organizationId)
+          .order("created_at", { ascending: false })
+          .limit(200)
+      )
+    : Promise.resolve(null);
+  const residentsPromise = shape.loadResidentFacts
+    ? safeSelect(
+        supabase
+          .from("pm_residents")
+          .select("id, display_name, portal_status, status")
+          .eq("organization_id", organizationId)
+          .limit(200)
+      )
+    : Promise.resolve(null);
+  const financePromise = shape.loadFinance
+    ? import("../finance/reporting-service")
+        .then((mod) => mod.getCommandCenterReport(supabase, organizationId))
+        .catch(() => null)
+    : Promise.resolve(null);
 
   const [
     orgRow,
@@ -61,87 +161,18 @@ export async function buildOrganizationReportingSnapshot(
     financeReport,
     applications
   ] = await Promise.all([
-    safeSelect(
-      supabase.from("organizations").select("id, name").eq("id", organizationId).maybeSingle()
-    ),
-    safeSelect(
-      supabase
-        .from("property_properties")
-        .select("id, name, status")
-        .eq("organization_id", organizationId)
-        .order("name", { ascending: true })
-        .limit(200)
-    ),
-    safeSelect(
-      supabase
-        .from("property_units")
-        .select("id, property_id, status")
-        .eq("organization_id", organizationId)
-        .limit(500)
-    ),
-    safeSelect(
-      supabase
-        .from("lease_agreements")
-        .select("id, status, start_date, end_date, pm_residents(display_name), property_properties(name)")
-        .eq("organization_id", organizationId)
-        .order("end_date", { ascending: true })
-        .limit(100)
-    ),
-    safeSelect(
-      supabase
-        .from("pm_residents")
-        .select("id, display_name, portal_status, status")
-        .eq("organization_id", organizationId)
-        .limit(200)
-    ),
-    safeSelect(
-      supabase
-        .from("maintenance_work_orders")
-        .select("id, title, status, priority, assignee_type, property_id, submitted_at, completed_at")
-        .eq("organization_id", organizationId)
-        .order("submitted_at", { ascending: false })
-        .limit(100)
-    ),
-    safeSelect(
-      supabase
-        .from("document_documents")
-        .select("id, title, status, category, created_at, entity_type")
-        .eq("organization_id", organizationId)
-        .order("created_at", { ascending: false })
-        .limit(200)
-    ),
-    safeSelect(
-      supabase
-        .from("vendor_vendors")
-        .select("id, name, status")
-        .eq("organization_id", organizationId)
-        .limit(100)
-    ),
-    safeSelect(
-      supabase
-        .from("organization_subscriptions")
-        .select("status, sku_code, billing_cycle")
-        .eq("organization_id", organizationId)
-        .maybeSingle()
-    ),
-    safeSelect(
-      supabase
-        .from("organization_setup_state")
-        .select("completed_at, product_confirmed")
-        .eq("organization_id", organizationId)
-        .maybeSingle()
-    ),
-    import("../finance/reporting-service")
-      .then((mod) => mod.getCommandCenterReport(supabase, organizationId))
-      .catch(() => null),
-    safeSelect(
-      supabase
-        .from("lease_applications")
-        .select("id, status, submitted_at, decided_at, property_id")
-        .eq("organization_id", organizationId)
-        .order("created_at", { ascending: false })
-        .limit(200)
-    )
+    orgPromise,
+    propertiesPromise,
+    unitsPromise,
+    leasesPromise,
+    residentsPromise,
+    workOrdersPromise,
+    documentsPromise,
+    vendorsPromise,
+    subscriptionPromise,
+    setupPromise,
+    financePromise,
+    applicationsPromise
   ]);
 
   let propertyList = (properties ?? []) as Array<{ id: string; name: string; status?: string | null }>;
@@ -248,23 +279,8 @@ export async function buildOrganizationReportingSnapshot(
   } | null;
   const setup = setupState as { completed_at?: string | null; product_confirmed?: boolean | null } | null;
 
-  const sku = asSku(sub?.sku_code ?? null);
-  const hasFacility = sku ? skuIncludesFacilityOperations(sku) : false;
-
-  const personaArgs: {
-    roles: readonly string[];
-    hasFacilityEntitlement: boolean;
-    isPlatformOperator?: boolean;
-  } = {
-    roles: options.roles,
-    hasFacilityEntitlement: hasFacility
-  };
-  if (options.isPlatformOperator !== undefined) {
-    personaArgs.isPlatformOperator = options.isPlatformOperator;
-  }
-  const persona = options.personaOverride ?? resolveExecutivePersona(personaArgs);
-
   const facts: RawReportingFacts = {
+    ...emptyFacts(),
     properties: propertyList,
     units: unitList.map((u) => {
       const row: RawReportingFacts["units"][number] = { id: u.id, propertyId: u.propertyId };
@@ -330,14 +346,15 @@ export async function buildOrganizationReportingSnapshot(
           unitsOccupied: financeReport.properties.reduce((sum, p) => sum + p.unitsOccupied, 0)
         }
       : null,
-    subscription: sub
-      ? {
-          status: sub.status ?? null,
-          productSku: sub.sku_code ?? null,
-          billingCycle: sub.billing_cycle ?? null,
-          setupComplete: Boolean(setup?.completed_at)
-        }
-      : null,
+    subscription:
+      shape.areas.includes("commercial") && sub
+        ? {
+            status: sub.status ?? null,
+            productSku: sub.sku_code ?? null,
+            billingCycle: sub.billing_cycle ?? null,
+            setupComplete: Boolean(setup?.completed_at)
+          }
+        : null,
     vendors: ((vendors ?? []) as Array<{ id: string; name: string; status?: string | null }>).map((v) => {
       const row: RawReportingFacts["vendors"][number] = { id: v.id, name: v.name };
       if (v.status !== undefined) row.status = v.status;
@@ -360,18 +377,21 @@ export async function buildOrganizationReportingSnapshot(
     }))
   };
 
-  // If property filter removed all properties but ids exist, keep honesty
   void propertyIds;
 
   const snapshot = assembleReportingSnapshot({
     organizationId,
     organizationName: (orgRow as { name?: string } | null)?.name ?? null,
     persona,
-    facts
+    facts,
+    allowedAreas: shape.areas
   });
 
   if (filters.area && filters.area !== "all") {
     const area = filters.area as ReportArea;
+    if (!shape.areas.includes(area)) {
+      return snapshot;
+    }
     return {
       ...snapshot,
       insights: snapshot.insights.filter((i) => i.area === area),
