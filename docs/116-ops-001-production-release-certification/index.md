@@ -2,7 +2,7 @@
 
 **Title:** OPS-001 PHASE 1 PRODUCTION RELEASE CERTIFICATION  
 **Status:** BLOCKED  
-**Date:** 2026-08-14  
+**Date:** 2026-08-15  
 **Program:** OPS-001  
 **Authority:** Owner authorization for application deployment + authenticated UAT · [docs/112](../112-ops-001-operational-workspace-documents-tables/index.md) Approved · [ADR-030](../18-decision-log/adr-030-operational-workspace-documents-tables.md) Accepted · [docs/113](../113-ops-001-operational-workspace-implementation-certification/index.md) · [docs/114](../114-ops-001-production-migration-certification/index.md) · [docs/115](../115-ops-001-production-migration-application-certification/index.md)  
 **Schema:** Production ledger `20260814233536` / `ops_001_operational_workspace` (already live; **not** re-applied)  
@@ -14,9 +14,32 @@
 
 **BLOCKED**
 
-Merge and Production application deploy succeeded. Live HTML/JS is the OPS-001 release. Authenticated document / table / connection / export UAT did **not** run because controlled UAT account passwords are not available to this agent (`UAT_PASS` returns `invalid_credentials` for the existing UAT Clinic Demo and UAT Property Demo actors).
+Merge and Production application deploy succeeded. Live HTML/JS is the OPS-001 release. Authenticated document / table / connection / export UAT did **not** run. Controlled UAT secrets were injected on 2026-08-15; Production GoTrue returned `invalid_credentials` for every Clinic Demo and Property Demo actor. Prior COM-002 Property Demo notes also fail. This agent did **not** reset passwords or invent users.
 
 No UAT rows were created. No migrations were applied. No passwords are recorded here.
+
+### Authenticated UAT re-run (2026-08-15T15:55Z)
+
+Secrets were present in this run. Production state re-checked. **No unexpected change.**
+
+| Check | Result |
+|-------|--------|
+| Production SHA | still `e56a330facf21d548815e95ff2e4c82e3c6077bd` |
+| GitHub Production deployment | still `5915101610` |
+| Vercel / live `data-dpl-id` | still `dpl_4qLhWzb6ZcK7b1Vk6ccFVnyTC8wt` |
+| Schema ledger | still `20260814233536` / `ops_001_operational_workspace` |
+| Migration re-apply | **not needed / not performed** |
+| `UAT_COMPLETE_MANAGER_PASSWORD` | **present** — `invalid_credentials` for Clinic Complete managers |
+| `UAT_PM_PASSWORD` | **present** — `invalid_credentials` for Property Demo PM |
+| `UAT_TENANT_PASSWORD` | **present** — `invalid_credentials` for Property Demo tenant |
+| `UAT_VENDOR_PASSWORD` | **present** — `invalid_credentials` for Clinic vendor |
+| `UAT_FO_TECH_PASSWORD` | **present** — `invalid_credentials` for Property Demo `facility_technician` |
+| Existing `UAT_PASS` | still `invalid_credentials` |
+| Prior COM-002 Property Demo notes | `invalid_credentials` (stale; values not recorded here) |
+| Auth users | confirmed, not banned, email provider; last successful sign-in 2026-08-14 |
+| Anonymous `/api/shared/documents` and `/api/shared/tables` | still **401** |
+
+The five named `UAT_*_PASSWORD` secrets are the same value. Sections 4–14 were **not started**. No users invented. No password resets.
 
 ### Authenticated UAT re-run (2026-08-14T23:53Z)
 
@@ -170,7 +193,7 @@ Ledger tip remains `20260814233536` / `ops_001_operational_workspace`. No second
 
 **None** for merge or deploy.
 
-**Open blocker:** authenticated Production UAT credentials.
+**Open blocker:** injected UAT secrets do not authenticate against Production GoTrue (`invalid_credentials`). Working current passwords for the existing controlled actors are still required.
 
 ---
 
@@ -188,4 +211,4 @@ Ledger tip remains `20260814233536` / `ops_001_operational_workspace`. No second
 
 ## Next authorized step
 
-Provide working passwords for the existing controlled UAT actors (or inject the requested environment secrets). Re-run sections 4–15 only. Do not re-merge. Do not re-deploy unless the live SHA is no longer `e56a330f`. Do not re-apply the migration.
+Re-inject the **current working** Production passwords for the existing controlled actors (Clinic Complete manager, Property Demo PM, Property Demo tenant; optional vendor / FO tech). Confirm each account can sign in at `https://www.my-property-assistant.com/login` before injecting. Do not reuse a single placeholder for every secret. This agent will not reset passwords. Re-run authenticated UAT sections only. Do not re-merge. Do not re-deploy unless the live SHA is no longer `e56a330f`. Do not re-apply the migration.
