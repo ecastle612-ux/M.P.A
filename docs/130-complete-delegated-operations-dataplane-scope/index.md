@@ -1,19 +1,20 @@
 # 130 — ADR-033 Data-Plane Scope Completion
 
 **Title:** ADR-033 COMPLETE DELEGATED OPERATIONS — DATA-PLANE SCOPE COMPLETION  
-**Status:** Proposed  
+**Status:** Approved  
 **Date:** 2026-08-15  
+**Approved:** 2026-08-15 — Product Owner `APPROVE docs/130`  
 **Program:** Complete Delegated Operations — Member Operating Scope  
-**Gate:** Design → Document → **Approve (missing)** → Implement  
+**Gate:** Design → Document → Approve → **Implement (authorized)**  
 **Authority:** [docs/127](../127-complete-delegated-operations/index.md) Approved · [ADR-033](../18-decision-log/adr-033-member-operating-scope.md) Accepted · [docs/128](../128-complete-delegated-operations-production-migration-certification/index.md) · [docs/129](../129-complete-delegated-operations-production-migration-application/index.md)  
-**Target:** `mpa-prod` / `vahnmcrpnuggxkivynvo` (read-only this package)  
-**This package:** **Design + read-only Production audit only.**
+**Target:** `mpa-prod` / `vahnmcrpnuggxkivynvo`  
+**This package:** Approved design. Implement §6 helper + §7 three policy replacements + §13 tests only. **No Production apply. No deploy. No FIN-OPS. No operating_scope assignment.**
 
 ---
 
 ## Verdict
 
-**Proposed. Implementation is not authorized.**
+**Approved.** Implementation of §6 + §7 + §13 is authorized in-repo. Production apply is not. Application deploy is not.
 
 ADR-033’s accepted formula already requires database authorization to intersect SKU with member operating scope. The live Production helper `can_manage_facility_ops` and the work-order **manager ALL** policy still authorize on Complete SKU + manager role alone. A Next.js 403 is not enough.
 
@@ -25,8 +26,8 @@ This record designs the **smallest additive successor** after `20260815185722` /
 
 ## What this package does not do
 
-- Does not write application, UI, test, or SQL files for apply
 - Does not call `apply_migration` or write Production
+- Does not write SQL beyond the approved successor (implement package)
 - Does not deploy
 - Does not assign `operating_scope`
 - Does not implement or remediate docs/126
@@ -268,10 +269,10 @@ Do not open client inserts on `facility_stock_movements`.
 
 **One** successor after `20260815185722`. Do not edit historical migrations. Do not replay `20260815200000`.
 
-Conceptual name: `adr_033_dataplane_member_scope`.  
-Apply-time version must be **greater than** `20260815185722`. If the migration service assigns a different stamp, use the established byte-identical stamp-file procedure.
+Repo stamp: `20260815210000` / `adr_033_dataplane_member_scope`.  
+Apply-time version must be **greater than** `20260815185722`. If the migration service later assigns a different stamp, use the established byte-identical stamp-file procedure. **This record does not apply it.**
 
-Designed statements (specification only — **not applied**, **not added as a repo migration in this package**):
+Designed statements (repo implement after Approve; **not applied to Production from this record**):
 
 1. `CREATE OR REPLACE FUNCTION public.can_manage_facility_ops(uuid)` — body in §6. Keep `SECURITY DEFINER`, `search_path = public`, revoke `public`/`anon`, grant `authenticated`.
 2. `DROP POLICY` / `CREATE POLICY` `maintenance_work_orders_manage_manager` — §7.1.
@@ -314,9 +315,11 @@ Inverse (app deploy + explicit PROPERTY/FACILITY assignment **before** this succ
 
 ---
 
-## 13. Test matrix (implement after Approve)
+## 13. Test matrix (implemented in docs/131)
 
 Automated SQL/RLS with JWT `request.jwt.claim.sub` impersonation. No customer-row fixtures on Production. Use isolated test orgs or local RLS tests.
+
+Repo contract: `apps/web/src/lib/auth/adr-033-dataplane-rls.test.ts` (certified in [docs/131](../131-complete-delegated-operations-dataplane-implementation-certification/index.md)).
 
 SKU × stored scope: PM / FO / Complete × `property_operations` / `facility_operations` / `both` / NULL.
 
@@ -366,23 +369,23 @@ Final FIN-OPS reconciliation remains dependent on the **completed** ADR-033 auth
 | New durable ADR? | **No.** ADR-033 already accepted SKU ∩ scope ∩ role ∩ action at the database. |
 | Amend ADR-033? | **No.** This does not change the accepted decision, scope values, compatibility defaults, or commercial model. |
 | What is this? | Implementation detail / Slice D remainder under ADR-033. |
-| Gate | Design (this record) → Document → **Owner Approve** → Implement one successor migration + tests. |
+| Gate | Design (this record) → Document → **Approved** → Implement one successor migration + tests (docs/131). |
 | Production apply / deploy | Not authorized from this record. |
 
 ---
 
 ## Approval
 
-Owner must `APPROVE docs/130` before any SQL or tests are written.
+Approved 2026-08-15. Implement §6 helper + §7 three policy replacements + §13 tests. FAC-001/002 capability-table follow-on is **not** included.
 
-Recommended approve scope: §6 helper + §7 three policy replacements + §13 tests. FAC-001/002 capability-table follow-on is **not** included unless the Owner explicitly expands Approve.
+Implementation certification: [docs/131](../131-complete-delegated-operations-dataplane-implementation-certification/index.md). **No Production apply. No deploy.**
 
 ---
 
 ## Constraints honored
 
 - Product Constitution: three products; Complete remains one subscription
-- Implementation Gate: design only
+- Implementation Gate: design approved; implement only this successor
 - No Production write
 - No FIN-OPS
 - No Stripe / SKU / subscription change
