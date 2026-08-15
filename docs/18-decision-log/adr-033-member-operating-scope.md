@@ -66,4 +66,4 @@ Authoritative design: `docs/127-complete-delegated-operations/`.
 
 ## Approval
 
-Accepted with docs/127 Approved. Implementation of the member-operating-scope contract is authorized. FIN-OPS schema remediation is not.
+Accepted with docs/127 Approved. Implementation of the member-operating-scope contract is authorized. FIN-OPS schema remediation is not. Production application release is certified in `docs/134` as **PRODUCTION RELEASE SUCCESSFUL**.

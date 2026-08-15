@@ -8,7 +8,7 @@
 **Gate:** Design → Document → Approve → **Implement (authorized)**  
 **ADR:** [ADR-033 Accepted](../18-decision-log/adr-033-member-operating-scope.md)  
 **Related:** [ADR-015](../18-decision-log/adr-015-three-commercial-products-master-admin.md) · [ADR-019](../18-decision-log/adr-019-product-constitution.md) · [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) · [ADR-032](../18-decision-log/adr-032-report-shape-and-post-auth-home.md) · [docs/24](../24-product-architecture/index.md) · [docs/121](../121-plat-006-finance-reports-routing-remediation/index.md) · [docs/126](../126-fin-ops-production-reconciliation-audit/index.md) (FIN-OPS audit; remains blocked)  
-**This package:** Approved design. Implementation authorized in-repo (ADR-033). **No Production apply. No deploy. No billing/Stripe change. No FIN-OPS schema.**
+**This package:** Approved design. Implementation authorized in-repo (ADR-033). Production application release is certified in [docs/134](../134-complete-delegated-operations-production-release-certification/index.md). **No billing/Stripe change. No FIN-OPS schema.**
 
 ---
 
