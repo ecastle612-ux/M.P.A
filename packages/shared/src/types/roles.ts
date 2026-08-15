@@ -76,7 +76,10 @@ export function toRoleDescription(role: UserRole | LaunchInviteRole): string {
   }
 }
 
-/** Post-accept workspace home for a primary role. */
+/**
+ * Role-only home helper. Do not use as a staff `homeHref` when a SKU is known.
+ * Staff post-auth entry must call `resolvePostAuthHome`.
+ */
 export function defaultHomeForRole(role: UserRole | null | undefined): string {
   switch (role) {
     case "organization_admin":

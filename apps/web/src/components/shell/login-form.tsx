@@ -9,6 +9,7 @@ import {
   parseAcquisitionSku,
   postPurchaseNextStepCopy,
   productDisplayLabel,
+  resolveLoginNextPath,
   type ProductSku
 } from "@mpa/shared";
 import { Alert, Button, Card, Input } from "@mpa/ui";
@@ -193,7 +194,7 @@ export function LoginForm() {
     }
 
     setLoading(false);
-    router.replace(nextPath ?? "/dashboard");
+    router.replace(resolveLoginNextPath(nextPath));
   }
 
   return (

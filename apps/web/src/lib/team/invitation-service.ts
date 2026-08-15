@@ -1,8 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
-  defaultHomeForRole,
+  isProductSku,
   primaryRole,
+  resolvePostAuthHome,
   toRoleLabel,
+  type ProductSku,
   type UserRole,
   isUserRole
 } from "@mpa/shared";
@@ -14,6 +16,36 @@ type Db = SupabaseClient<any>;
 
 function appUrl() {
   return process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
+}
+
+export async function resolveInvitationHomeHref(args: {
+  supabase: Db;
+  organizationId: string;
+  roles: readonly UserRole[];
+}): Promise<string> {
+  const [{ data: subscription }, { data: setup }] = await Promise.all([
+    args.supabase
+      .from("organization_subscriptions")
+      .select("sku_code, status")
+      .eq("organization_id", args.organizationId)
+      .maybeSingle(),
+    args.supabase
+      .from("organization_setup_state")
+      .select("completed_at")
+      .eq("organization_id", args.organizationId)
+      .maybeSingle()
+  ]);
+
+  const sku: ProductSku | null =
+    subscription && isProductSku(subscription.sku_code) && subscription.status !== "canceled"
+      ? subscription.sku_code
+      : null;
+
+  return resolvePostAuthHome({
+    roles: args.roles,
+    productSku: sku,
+    setupComplete: Boolean((setup as { completed_at?: string | null } | null)?.completed_at)
+  });
 }
 
 export function buildAcceptUrl(token: string): string {
@@ -150,7 +182,11 @@ export async function createAndSendInvitation(args: {
     invitation: updated,
     acceptUrl,
     roleLabel,
-    homeHref: defaultHomeForRole(role),
+    homeHref: await resolveInvitationHomeHref({
+      supabase: args.supabase,
+      organizationId: args.organizationId,
+      roles: (invitation.roles as string[]).filter(isUserRole)
+    }),
     emailStatus
   };
 }
@@ -237,7 +273,11 @@ export async function acceptInvitation(args: {
   return {
     organizationId: invitation.organization_id as string,
     roles,
-    homeHref: defaultHomeForRole(role),
+    homeHref: await resolveInvitationHomeHref({
+      supabase: args.supabase,
+      organizationId: invitation.organization_id as string,
+      roles
+    }),
     roleLabel: role ? toRoleLabel(role) : "Member"
   };
 }
