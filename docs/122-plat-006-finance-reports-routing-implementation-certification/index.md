@@ -198,10 +198,11 @@ A stale role-only `homeHref` can no longer override the product-aware destinatio
 
 ## Production status
 
+Released. See [docs/125](../125-plat-006-production-release-certification/index.md).
+
 | Item | Status |
 |------|--------|
-| App | still `e56a330f` — this branch is not deployed |
-| Ledger | still `20260815170604` — `20260815190000` is **not applied** |
-| Next Owner step | Production migration certification, then separate apply authorization |
+| App | **`44d50bf1`** — Slices B+C live |
+| Ledger | **`20260815175833` / `plat_006_finance_capability_grants`** — Slice A live; not re-applied |
 
-**STOP. No Production migration. No Production deployment.**
+Slice A apply: [docs/124](../124-plat-006-production-migration-application-certification/index.md). Do not re-apply the grant migration.
