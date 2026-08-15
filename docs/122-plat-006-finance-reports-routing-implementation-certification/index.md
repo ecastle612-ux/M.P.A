@@ -5,7 +5,7 @@
 **Date:** 2026-08-15  
 **Program:** PLAT-006  
 **Authority:** [docs/121](../121-plat-006-finance-reports-routing-remediation/index.md) Approved · [ADR-032](../18-decision-log/adr-032-report-shape-and-post-auth-home.md) Accepted  
-**Related:** [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) remains authoritative for the authorization pipeline · [ADR-031](../18-decision-log/adr-031-trusted-application-mutation-architecture.md) remains authoritative for trusted application mutation  
+**Related:** [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) remains authoritative for the authorization pipeline · ADR-031 remains authoritative for trusted application mutation architecture (accepted on the PLAT-005 package; not required to land in this branch)  
 **Gate:** Design → Document → Approve → **Implement** (ADR-012)  
 **Production:** **No Production migration apply. No Production deploy.**  
 **Billing / Stripe / SKUs / subscriptions:** No changes  
