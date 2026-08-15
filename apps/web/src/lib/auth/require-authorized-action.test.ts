@@ -184,6 +184,52 @@ describe("PLAT-002 FO isolation and Complete union", () => {
   });
 });
 
+describe("PLAT-006 finance capability matrix (SKU then permission)", () => {
+  beforeEach(() => {
+    state.userId = "user_1";
+    state.orgId = "org_1";
+    state.subscriptionStatus = "active";
+  });
+
+  it("allows PM admin and property_manager finance read", async () => {
+    for (const role of ["organization_admin", "property_manager"]) {
+      state.sku = "mpa_property_manager";
+      state.membership = { id: "mem_1", status: "active", roles: [role] };
+      state.permissions = ["pm.finance:read", "pm.finance:charge.write"];
+      expect("error" in (await requireFinancePermission("pm.finance:read"))).toBe(false);
+    }
+  });
+
+  it("allows Complete admin finance and denies FO admin at SKU entitlement", async () => {
+    state.membership = { id: "mem_1", status: "active", roles: ["organization_admin"] };
+    state.permissions = ["pm.finance:read"];
+    state.sku = "mpa_complete_platform";
+    expect("error" in (await requireFinancePermission("pm.finance:read"))).toBe(false);
+    state.sku = "mpa_facility_operations";
+    const fo = await requireFinancePermission("pm.finance:read");
+    expect("error" in fo && fo.error.status === 403).toBe(true);
+  });
+
+  it("allows leasing_agent read and denies leasing write", async () => {
+    state.sku = "mpa_property_manager";
+    state.membership = { id: "mem_1", status: "active", roles: ["leasing_agent"] };
+    state.permissions = ["pm.finance:read"];
+    expect("error" in (await requireFinancePermission("pm.finance:read"))).toBe(false);
+    const write = await requireFinancePermission("pm.finance:charge.write");
+    expect("error" in write && write.error.status === 403).toBe(true);
+  });
+
+  it("denies tenant, vendor, and technician staff finance", async () => {
+    state.sku = "mpa_property_manager";
+    state.permissions = [];
+    for (const role of ["tenant", "vendor", "maintenance_technician"]) {
+      state.membership = { id: "mem_1", status: "active", roles: [role] };
+      const result = await requireFinancePermission("pm.finance:read");
+      expect("error" in result && result.error.status === 403).toBe(true);
+    }
+  });
+});
+
 describe("PLAT-002 shared reports (legacy bypass removed)", () => {
   beforeEach(() => {
     state.userId = "user_1";
@@ -203,6 +249,15 @@ describe("PLAT-002 shared reports (legacy bypass removed)", () => {
     const result = await requireReportPermission();
     expect("error" in result).toBe(true);
     if ("error" in result) expect(result.error.status).toBe(403);
+  });
+
+  it("denies tenant, vendor, and owner on staff shared reports", async () => {
+    state.permissions = ["platform.reports:read"];
+    for (const role of ["tenant", "vendor", "property_owner"]) {
+      state.membership = { id: "mem_1", status: "active", roles: [role] };
+      const result = await requireReportPermission();
+      expect("error" in result && result.error.status === 403).toBe(true);
+    }
   });
 });
 

@@ -91,4 +91,33 @@ describe("reporting insights", () => {
     expect(snap.areas.some((a) => a.area === "commercial")).toBe(false);
     expect(snap.areas.some((a) => a.area === "maintenance")).toBe(true);
   });
+
+  it("does not expand selectedArea beyond the authorized allowlist", () => {
+    const areas = assembleReportingSnapshot({
+      organizationId: "org",
+      organizationName: "Demo",
+      persona: "facility_manager",
+      allowedAreas: ["facility_operations", "maintenance", "documents"],
+      facts: {
+        ...emptyFacts,
+        finance: {
+          expectedRentThisMonth: 1,
+          rentCollectedThisMonth: 1,
+          outstandingRent: 1,
+          outstandingBalance: 1,
+          delinquencyCount: 1,
+          totalDelinquency: 1,
+          vendorPayablesOpen: 1,
+          vendorPaidThisMonth: 1,
+          netOperationalCash: 1,
+          occupancyRate: 90,
+          unitsTotal: 10,
+          unitsOccupied: 9
+        }
+      }
+    });
+    expect(areas.areas.some((a) => a.area === "financial_performance")).toBe(false);
+    expect(areas.areas.some((a) => a.area === "resident_experience")).toBe(false);
+    expect(areas.areas.some((a) => a.area === "facility_operations")).toBe(true);
+  });
 });

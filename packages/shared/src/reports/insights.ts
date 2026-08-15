@@ -685,12 +685,13 @@ export function buildReportingAreas(facts: RawReportingFacts, now = new Date()):
 export function filterAreasForPersona(
   areas: ReportingAreaBlock[],
   persona: ExecutivePersona,
-  selectedArea?: ReportArea | "all" | null
+  selectedArea?: ReportArea | "all" | null,
+  allowedAreas?: readonly ReportArea[]
 ): ReportingAreaBlock[] {
-  const allowed = new Set(PERSONA_DEFAULT_AREAS[persona]);
+  const allowed = new Set(allowedAreas ?? PERSONA_DEFAULT_AREAS[persona]);
   let filtered = areas.filter((a) => allowed.has(a.area));
   if (selectedArea && selectedArea !== "all") {
-    filtered = areas.filter((a) => a.area === selectedArea);
+    filtered = filtered.filter((a) => a.area === selectedArea);
   }
   return filtered;
 }
@@ -698,12 +699,13 @@ export function filterAreasForPersona(
 export function filterInsightsForPersona(
   insights: ReportingInsight[],
   persona: ExecutivePersona,
-  selectedArea?: ReportArea | "all" | null
+  selectedArea?: ReportArea | "all" | null,
+  allowedAreas?: readonly ReportArea[]
 ): ReportingInsight[] {
-  const allowed = new Set(PERSONA_DEFAULT_AREAS[persona]);
+  const allowed = new Set(allowedAreas ?? PERSONA_DEFAULT_AREAS[persona]);
   let filtered = insights.filter((i) => allowed.has(i.area) || i.area === "platform_health");
   if (selectedArea && selectedArea !== "all") {
-    filtered = insights.filter((i) => i.area === selectedArea);
+    filtered = filtered.filter((i) => i.area === selectedArea);
   }
   return filtered;
 }
@@ -714,10 +716,21 @@ export function assembleReportingSnapshot(input: {
   persona: ExecutivePersona;
   facts: RawReportingFacts;
   now?: Date;
+  allowedAreas?: readonly ReportArea[];
 }): ReportingSnapshot {
   const now = input.now ?? new Date();
-  const insights = filterInsightsForPersona(buildReportingInsights(input.facts, now), input.persona);
-  const areas = filterAreasForPersona(buildReportingAreas(input.facts, now), input.persona);
+  const insights = filterInsightsForPersona(
+    buildReportingInsights(input.facts, now),
+    input.persona,
+    null,
+    input.allowedAreas
+  );
+  const areas = filterAreasForPersona(
+    buildReportingAreas(input.facts, now),
+    input.persona,
+    null,
+    input.allowedAreas
+  );
   const honesty: string[] = [
     "Insights use existing organization records only.",
     "Empty domains stay empty — no fabricated charts or satisfaction scores."

@@ -1,5 +1,9 @@
-import { defaultHomeForRole, type UserRole } from "@mpa/shared";
+import { resolvePostAuthHome, type UserRole } from "@mpa/shared";
 
 export function toPortalPath(role: UserRole): string {
-  return defaultHomeForRole(role);
+  return resolvePostAuthHome({
+    roles: [role],
+    productSku: null,
+    setupComplete: false
+  });
 }
