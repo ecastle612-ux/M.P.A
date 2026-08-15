@@ -10,6 +10,8 @@
 
 Complete Platform = **Property Manager ∪ Facility Operations** on one organization, with Shared Platform underneath.
 
+Member-level delegation of that union (who may operate Property Operations, Facility Operations, or both) is designed in [docs/127](../127-complete-delegated-operations/index.md) / [ADR-033 Proposed](../18-decision-log/adr-033-member-operating-scope.md). Until Approved, Complete entitlements remain organization-wide.
+
 It is **not**:
 
 - A third copy of modules
