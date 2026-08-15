@@ -106,8 +106,11 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 113 | [OPS-001 Phase 1 Implementation Certification](./113-ops-001-operational-workspace-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
 | 114 | [OPS-001 Phase 1 Production Migration Certification](./114-ops-001-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only · successor ledger stamp · no apply or deploy |
 | 115 | [OPS-001 Phase 1 Production Migration Application Certification](./115-ops-001-production-migration-application-certification/index.md) | **READY FOR APPLICATION DEPLOYMENT** · schema live `20260814233536` · app still `aee7fa95` · no deploy |
-| 121 | [PLAT-006 Finance, Report Surface & FO Routing](./121-plat-006-finance-reports-routing-remediation/index.md) | **Approved** · ADR-032 Accepted · implement Slices A–C only · no Production apply or deploy |
-| 122 | [PLAT-006 Finance, Report Surface & Routing Implementation Certification](./122-plat-006-finance-reports-routing-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
+| 121 | [PLAT-006 Finance, Report Surface & FO Routing](./121-plat-006-finance-reports-routing-remediation/index.md) | **Approved** · ADR-032 Accepted · Slices A–C released |
+| 122 | [PLAT-006 Finance, Report Surface & Routing Implementation Certification](./122-plat-006-finance-reports-routing-implementation-certification/index.md) | Implementation certified · released in [125](./125-plat-006-production-release-certification/index.md) |
+| 123 | [PLAT-006 Production Migration Certification](./123-plat-006-production-migration-certification/index.md) | Slice A read-only baseline · applied in [124](./124-plat-006-production-migration-application-certification/index.md) |
+| 124 | [PLAT-006 Slice A Production Migration Application Certification](./124-plat-006-production-migration-application-certification/index.md) | Grants live `20260815175833` |
+| 125 | [PLAT-006 Slices B+C Production Release Certification](./125-plat-006-production-release-certification/index.md) | **PRODUCTION RELEASE SUCCESSFUL** · app `44d50bf1` · ledger unchanged |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
