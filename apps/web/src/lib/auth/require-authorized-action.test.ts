@@ -172,7 +172,7 @@ describe("ADR-033 member operating scope (Complete delegated operations)", () =>
     ];
   });
 
-  it("denies Complete + facility_operations finance even with pm.finance:* and property_manager", async () => {
+  it("Mike (property_manager + facility_operations) is denied PM finance, property, and tenant comms", async () => {
     state.sku = "mpa_complete_platform";
     state.membership = {
       id: "mem_1",
@@ -188,7 +188,7 @@ describe("ADR-033 member operating scope (Complete delegated operations)", () =>
     expect("error" in comms && comms.error.status === 403).toBe(true);
   });
 
-  it("allows Complete + property_operations finance and denies facility operations", async () => {
+  it("Sarah (property_manager + property_operations) keeps PM finance and is denied Facility", async () => {
     state.sku = "mpa_complete_platform";
     state.membership = {
       id: "mem_1",
@@ -199,6 +199,20 @@ describe("ADR-033 member operating scope (Complete delegated operations)", () =>
     expect("error" in (await requireFinancePermission("pm.finance:read"))).toBe(false);
     const facility = await requireFacilityOperation("pm.maintenance:read", "facility.operations");
     expect("error" in facility && facility.error.status === 403).toBe(true);
+  });
+
+  it("Erick (organization_admin + both) keeps the Complete union including finance and Facility", async () => {
+    state.sku = "mpa_complete_platform";
+    state.membership = {
+      id: "mem_erick",
+      status: "active",
+      roles: ["organization_admin"],
+      operating_scope: "both"
+    };
+    expect("error" in (await requireFinancePermission("pm.finance:read"))).toBe(false);
+    expect("error" in (await requireFacilityOperation("pm.maintenance:read", "facility.operations"))).toBe(
+      false
+    );
   });
 
   it("keeps Complete + unassigned staff on the compatibility union including finance", async () => {

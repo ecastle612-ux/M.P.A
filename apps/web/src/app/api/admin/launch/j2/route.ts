@@ -7,8 +7,8 @@ type InvitationRow = {
   email: string;
   roles: string[];
   status: string;
-  email_status: string | null;
-  email_sent_at: string | null;
+  delivery_status: string | null;
+  last_delivered_at: string | null;
   accepted_at: string | null;
   created_at: string;
 };
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
     await Promise.all([
       supabase
         .from("organization_invitations")
-        .select("id, email, roles, status, email_status, email_sent_at, accepted_at, created_at")
+        .select("id, email, roles, status, delivery_status, last_delivered_at, accepted_at, created_at")
         .eq("organization_id", organizationId)
         .order("created_at", { ascending: false }),
       supabase
@@ -94,8 +94,8 @@ export async function GET(request: Request) {
     auditEvents: audits,
     checks: {
       invitationCreated: invitations.length > 0,
-      invitationSent: invitations.some((row) => row.email_status === "sent") || invitations.some((row) => row.email_status === "skipped"),
-      invitationEmailDelivered: invitations.some((row) => row.email_status === "sent"),
+      invitationSent: invitations.some((row) => row.delivery_status === "sent"),
+      invitationEmailDelivered: invitations.some((row) => row.delivery_status === "sent"),
       invitationAccepted: accepted,
       roleAssigned: memberships.some((row) => (row.roles?.length ?? 0) > 0),
       workspaceAssignable: true,
@@ -106,6 +106,6 @@ export async function GET(request: Request) {
     },
     assistantRecommendation: teamReady ? "Add your first resident." : "Invite your team.",
     emailNote:
-      "Pass on invitationEmailDelivered requires RESEND_API_KEY. Local/dev may use skipped + accept link."
+      "invitationEmailDelivered means the email provider accepted the send, not inbox confirmation. Local/dev without RESEND_API_KEY stays pending and uses the accept link."
   });
 }

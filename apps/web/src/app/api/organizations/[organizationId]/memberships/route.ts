@@ -141,7 +141,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ organ
       })),
       targetMembershipId: parsed.membershipId,
       nextScope,
-      nextStatus
+      nextStatus,
+      nextRoles
     })
   ) {
     return NextResponse.json(

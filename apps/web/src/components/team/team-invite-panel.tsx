@@ -28,7 +28,8 @@ type InvitationRow = {
   status: string;
   token: string;
   expires_at: string;
-  email_status?: string;
+  emailStatus?: string;
+  delivery_status?: string;
   acceptUrl?: string | null;
   operating_scope?: string | null;
 };
@@ -43,6 +44,16 @@ type MembershipRow = {
 
 function formatRoles(roles: string[]): string {
   return roles.map((role) => (isUserRole(role) ? toRoleLabel(role) : role)).join(", ");
+}
+
+function formatInvitationEmailState(status: string | null | undefined): string {
+  if (status === "sent") {
+    return "Email sent";
+  }
+  if (status === "failed") {
+    return "Email failed";
+  }
+  return "Email pending";
 }
 
 function formatScope(scope: string | null | undefined, sku: ProductSku | null): string {
@@ -377,7 +388,7 @@ export function TeamInvitePanel() {
                       {formatScope(invitation.operating_scope, productSku)
                         ? ` · ${formatScope(invitation.operating_scope, productSku)}`
                         : ""}{" "}
-                      · email {invitation.email_status ?? "pending"}
+                      · {formatInvitationEmailState(invitation.emailStatus ?? invitation.delivery_status)}
                     </p>
                     {invitation.acceptUrl ? (
                       <Button

@@ -308,12 +308,18 @@ export function wouldLeaveCompleteWithoutBothAdmin(input: {
   targetMembershipId: string;
   nextScope: MemberOperatingScope | null;
   nextStatus?: "active" | "inactive";
+  nextRoles?: readonly string[];
+  removed?: boolean;
 }): boolean {
   if (input.sku !== "mpa_complete_platform") {
     return false;
   }
   const remaining = input.admins.filter((admin) => {
-    if (!admin.roles.includes("organization_admin")) {
+    if (admin.id === input.targetMembershipId && input.removed) {
+      return false;
+    }
+    const roles = admin.id === input.targetMembershipId ? (input.nextRoles ?? admin.roles) : admin.roles;
+    if (!roles.includes("organization_admin")) {
       return false;
     }
     const status = admin.id === input.targetMembershipId ? (input.nextStatus ?? "active") : (admin.status ?? "active");
@@ -323,10 +329,46 @@ export function wouldLeaveCompleteWithoutBothAdmin(input: {
     const stored = admin.id === input.targetMembershipId ? input.nextScope : admin.storedScope;
     const effective = resolveMemberOperatingScope({
       sku: input.sku,
-      roles: admin.roles,
+      roles,
       storedScope: stored ?? null
     });
     return effective === "both";
   });
   return remaining.length === 0;
+}
+
+/**
+ * Complete inviter grant cap (docs/127 §6, docs/135).
+ * Evaluated from the inviter's membership, not the request's self-description.
+ */
+export function inviterMayGrantInvitation(input: {
+  sku: ProductSku | null | undefined;
+  inviterRoles: readonly string[];
+  inviterStoredScope?: MemberOperatingScope | null;
+  grantRoles: readonly string[];
+  grantScope: MemberOperatingScope | null;
+}): { ok: true } | { ok: false; error: string } {
+  if (input.grantRoles.includes("organization_admin") && !input.inviterRoles.includes("organization_admin")) {
+    return { ok: false, error: "Only an Organization Admin can invite another Organization Admin." };
+  }
+
+  if (!input.grantScope || input.sku !== "mpa_complete_platform") {
+    return { ok: true };
+  }
+
+  const inviterEffective = resolveMemberOperatingScope({
+    sku: input.sku,
+    roles: input.inviterRoles,
+    storedScope: input.inviterStoredScope ?? null
+  });
+
+  if (inviterEffective === "both") {
+    return { ok: true };
+  }
+
+  if (input.grantScope === "both" || input.grantScope !== inviterEffective) {
+    return { ok: false, error: "You can only assign operational responsibility you hold." };
+  }
+
+  return { ok: true };
 }

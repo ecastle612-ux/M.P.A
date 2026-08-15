@@ -1,11 +1,12 @@
 # 135 — Complete Delegated Operations Invitation & Membership Acceptance Remediation
 
 **Title:** COMPLETE DELEGATED OPERATIONS — INVITATION & MEMBERSHIP ACCEPTANCE REMEDIATION  
-**Status:** Draft / Proposed — **APPROVAL REQUIRED**  
+**Status:** **Approved**  
 **Date:** 2026-08-15  
+**Approved:** 2026-08-15 — Product Owner `APPROVE docs/135`  
 **Program:** Complete Delegated Operations (invitation workflow only)  
-**Gate:** Design → Document → Approve → Implement  
-**This package:** Design and audit only. **No implementation. No Production SQL. No deploy.**  
+**Gate:** Design → Document → Approve → **Implement (authorized)**  
+**This package:** Approved design. Implementation is authorized for slices A, B, C, and E only. **No Production apply. No deploy.**  
 **Parent authorization:** [ADR-033](../18-decision-log/adr-033-member-operating-scope.md) Accepted — **CLOSED and successful**  
 **Parent design:** [docs/127](../127-complete-delegated-operations/index.md) Approved  
 **Authoritative Production release:** [docs/134](../134-complete-delegated-operations-production-release-certification/index.md) — **PRODUCTION RELEASE SUCCESSFUL** (cert branch; facts below are re-audited read-only against live Production)  
@@ -15,7 +16,7 @@
 
 ## Verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved.** Implementation of slices A, B, C, and E is authorized. Production apply and deploy remain separate Owner steps.
 
 ADR-033 authorization is not reopened. The remaining work is the **normal customer invitation workflow**: create a Complete staff invitation and accept it so the resulting membership receives the **server-persisted** role and `operating_scope` without database or admin workarounds.
 
@@ -671,4 +672,4 @@ Implement only the approved slices. Material changes restart Design → Document
 
 ## Final verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved.** Implementation of slices A, B, C, and E is authorized. Production apply and deploy remain separate Owner steps.

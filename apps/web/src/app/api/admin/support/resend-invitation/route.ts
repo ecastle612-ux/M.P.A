@@ -3,6 +3,11 @@ import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { isPlatformOperatorUser } from "../../../../../lib/commercial/server";
 import { writeSupportAudit } from "../../../../../lib/admin/impersonation-service";
 import { serverEnv } from "../../../../../lib/env/server-env";
+import {
+  InvitationCreateError,
+  invitationNoticeCopy,
+  resendInvitationEmail
+} from "../../../../../lib/team/invitation-service";
 
 async function tryServiceRole() {
   try {
@@ -33,43 +38,42 @@ export async function POST(request: Request) {
 
   const service = await tryServiceRole();
   const client = service ?? supabase;
-  const { data: invitation, error } = await client
-    .from("organization_invitations")
-    .select("id, email, organization_id, status, token")
-    .eq("id", body.invitationId)
-    .maybeSingle();
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
-  if (!invitation) {
-    return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
-  }
-  if (invitation.status !== "pending") {
-    return NextResponse.json({ error: "Only pending invitations can be resent" }, { status: 400 });
-  }
 
-  // Use generated invitation columns (email_status / email_sent_at) — not inventing schema.
-  await client
-    .from("organization_invitations")
-    .update({
-      email_status: "pending",
-      email_sent_at: null,
-      email_error: null,
-      updated_at: new Date().toISOString()
-    })
-    .eq("id", invitation.id);
+  try {
+    const result = await resendInvitationEmail({
+      supabase: client,
+      invitationId: body.invitationId,
+      actorId: user.id
+    });
 
-  await writeSupportAudit({
-    operatorUserId: user.id,
-    organizationId: invitation.organization_id as string,
-    action: "invitation.resend",
-    entityType: "organization_invitations",
-    entityId: invitation.id as string,
-    payload: { email: invitation.email }
-  });
+    await writeSupportAudit({
+      operatorUserId: user.id,
+      organizationId: result.organizationId,
+      action: "invitation.resend",
+      entityType: "organization_invitations",
+      entityId: result.invitationId,
+      payload: { email: result.email, deliveryStatus: result.deliveryStatus }
+    });
 
-  return NextResponse.json({
-    ok: true,
-    notice: `Resend queued for ${invitation.email}. Delivery uses the existing invitation engine.`
-  });
+    return NextResponse.json({
+      ok: true,
+      emailStatus: result.emailStatus,
+      deliveryStatus: result.deliveryStatus,
+      acceptUrl: result.acceptUrl,
+      notice:
+        result.emailStatus === "sent"
+          ? `Invitation email sent to ${result.email}.`
+          : result.emailStatus === "failed"
+            ? `Invitation email failed for ${result.email}. Copy the accept link.`
+            : invitationNoticeCopy("skipped")
+    });
+  } catch (error) {
+    if (error instanceof InvitationCreateError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Resend failed" },
+      { status: 400 }
+    );
+  }
 }
