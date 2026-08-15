@@ -32,7 +32,8 @@ export default async function PortalIndexPage() {
       roles: shellContext.availableRoles,
       productSku: active?.productSku ?? null,
       setupComplete: active?.setupComplete ?? false,
-      isPlatformOperator
+      isPlatformOperator,
+      storedScope: active?.operatingScope ?? null
     })
   );
 }

@@ -1,4 +1,12 @@
-import { USER_ROLES, isProductSku, isUserRole, type ProductSku, type UserRole } from "@mpa/shared";
+import {
+  USER_ROLES,
+  isMemberOperatingScope,
+  isProductSku,
+  isUserRole,
+  type MemberOperatingScope,
+  type ProductSku,
+  type UserRole
+} from "@mpa/shared";
 
 export const ACTIVE_ORGANIZATION_COOKIE = "mpa_active_organization_id";
 
@@ -16,12 +24,14 @@ export type SwitchOrganizationInput = {
 export type InviteOrganizationMemberInput = {
   email: string;
   roles: UserRole[];
+  operatingScope?: MemberOperatingScope | null;
 };
 
 export type UpdateOrganizationMembershipInput = {
   membershipId: string;
   roles?: UserRole[];
   status?: "active" | "inactive";
+  operatingScope?: MemberOperatingScope | null;
 };
 
 export type OrganizationSummary = {
@@ -32,6 +42,7 @@ export type OrganizationSummary = {
   productSku: ProductSku | null;
   productLabel: string | null;
   setupComplete: boolean;
+  operatingScope: MemberOperatingScope | null;
 };
 
 export function parseCreateOrganizationInput(payload: unknown): CreateOrganizationInput | null {
@@ -78,10 +89,20 @@ export function parseInviteOrganizationMemberInput(payload: unknown): InviteOrga
   const email = typeof value["email"] === "string" ? value["email"].trim().toLowerCase() : "";
   const rolesRaw = Array.isArray(value["roles"]) ? value["roles"] : [];
   const roles = rolesRaw.filter((role): role is UserRole => isUserRole(role));
+  const operatingScopeRaw = value["operatingScope"];
+  const operatingScope =
+    operatingScopeRaw === null
+      ? null
+      : isMemberOperatingScope(operatingScopeRaw)
+        ? operatingScopeRaw
+        : undefined;
+  if (operatingScopeRaw !== undefined && operatingScope === undefined) {
+    return null;
+  }
   if (!isEmail(email) || roles.length === 0) {
     return null;
   }
-  return { email, roles };
+  return operatingScope !== undefined ? { email, roles, operatingScope } : { email, roles };
 }
 
 export function parseUpdateOrganizationMembershipInput(payload: unknown): UpdateOrganizationMembershipInput | null {
@@ -99,7 +120,18 @@ export function parseUpdateOrganizationMembershipInput(payload: unknown): Update
   const statusRaw = value["status"];
   const status = statusRaw === "active" || statusRaw === "inactive" ? statusRaw : undefined;
 
-  if (!roles && !status) {
+  const operatingScopeRaw = value["operatingScope"];
+  const operatingScope =
+    operatingScopeRaw === null
+      ? null
+      : isMemberOperatingScope(operatingScopeRaw)
+        ? operatingScopeRaw
+        : undefined;
+  if (operatingScopeRaw !== undefined && operatingScope === undefined) {
+    return null;
+  }
+
+  if (!roles && !status && operatingScope === undefined) {
     return null;
   }
 
@@ -109,6 +141,9 @@ export function parseUpdateOrganizationMembershipInput(payload: unknown): Update
   }
   if (status) {
     result.status = status;
+  }
+  if (operatingScope !== undefined) {
+    result.operatingScope = operatingScope;
   }
   return result;
 }

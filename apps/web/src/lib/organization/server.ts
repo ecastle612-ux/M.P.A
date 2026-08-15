@@ -1,6 +1,14 @@
 import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
-import { isProductSku, isUserRole, toSkuLabel, type ProductSku, type UserRole } from "@mpa/shared";
+import {
+  isMemberOperatingScope,
+  isProductSku,
+  isUserRole,
+  toSkuLabel,
+  type MemberOperatingScope,
+  type ProductSku,
+  type UserRole
+} from "@mpa/shared";
 import { createAuthServerClient } from "../auth/server";
 import { ACTIVE_ORGANIZATION_COOKIE, type OrganizationSummary } from "./contracts";
 
@@ -10,6 +18,7 @@ type MembershipWithOrganizationRow = {
   user_id: string;
   roles: string[];
   status: "active" | "inactive";
+  operating_scope: string | null;
   organizations: {
     id: string;
     name: string;
@@ -52,7 +61,7 @@ export async function getOrganizationsForUser(userId: string): Promise<Organizat
   const supabase = await createAuthServerClient();
   const { data, error } = await supabase
     .from("organization_memberships")
-    .select("id, organization_id, user_id, roles, status, organizations(id, name, slug)")
+    .select("id, organization_id, user_id, roles, status, operating_scope, organizations(id, name, slug)")
     .eq("user_id", userId)
     .eq("status", "active");
 
@@ -97,7 +106,10 @@ export async function getOrganizationsForUser(userId: string): Promise<Organizat
         roles: row.roles.filter((role): role is UserRole => isUserRole(role)),
         productSku,
         productLabel: productSku ? toSkuLabel(productSku) : null,
-        setupComplete: setupCompleteByOrg.get(row.organization_id) ?? false
+        setupComplete: setupCompleteByOrg.get(row.organization_id) ?? false,
+        operatingScope: isMemberOperatingScope(row.operating_scope)
+          ? (row.operating_scope as MemberOperatingScope)
+          : null
       };
     });
 }

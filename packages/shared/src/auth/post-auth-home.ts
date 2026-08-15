@@ -1,3 +1,4 @@
+import { effectiveSurfaces, type MemberOperatingScope } from "./operating-scope";
 import type { ProductSku } from "../commercial/skus";
 import { SKU_SUMMARIES } from "../commercial/skus";
 import { defaultHomeForRole, primaryRole, type UserRole } from "../types/roles";
@@ -7,6 +8,7 @@ export type PostAuthHomeInput = {
   productSku: ProductSku | null;
   setupComplete: boolean;
   isPlatformOperator?: boolean;
+  storedScope?: MemberOperatingScope | null;
 };
 
 /**
@@ -69,17 +71,41 @@ export function guidedSetupNextActionCopy(productSku: ProductSku): string {
   }
 }
 
-function homeForStaffRole(role: UserRole, productSku: ProductSku | null): string {
-  // Managers / org admins use the product workspace home (single source of truth).
-  if (
-    (role === "organization_admin" || role === "property_manager") &&
-    productSku
-  ) {
-    return resolveProductWorkspaceHome(productSku);
+function homeForStaffRole(
+  role: UserRole,
+  productSku: ProductSku | null,
+  storedScope?: MemberOperatingScope | null,
+  roles: readonly UserRole[] = []
+): string {
+  const surfaces = effectiveSurfaces({ sku: productSku, roles, storedScope });
+  const propertyOnly = surfaces.has("property") && !surfaces.has("facility");
+  const facilityOnly = surfaces.has("facility") && !surfaces.has("property");
+
+  if (role === "organization_admin" || role === "property_manager") {
+    if (propertyOnly) {
+      return "/pm/mission-control";
+    }
+    if (facilityOnly) {
+      return "/facility/mission-control";
+    }
+    if (productSku) {
+      return resolveProductWorkspaceHome(productSku);
+    }
+  }
+
+  if (role === "maintenance_technician") {
+    if (facilityOnly) {
+      return "/facility/mission-control";
+    }
+    if (propertyOnly) {
+      return "/pm/maintenance";
+    }
+    if (productSku === "mpa_complete_platform") {
+      return "/launcher";
+    }
   }
 
   const roleHome = defaultHomeForRole(role);
-  // FO-only subscriptions do not include PM module homes — remap staff into FO.
   if (
     productSku === "mpa_facility_operations" &&
     (roleHome.startsWith("/pm/") || roleHome === "/launcher")
@@ -114,7 +140,7 @@ export function resolvePostAuthHome(input: PostAuthHomeInput): string {
   }
 
   if (role) {
-    return homeForStaffRole(role, input.productSku);
+    return homeForStaffRole(role, input.productSku, input.storedScope, input.roles);
   }
 
   if (input.isPlatformOperator) {

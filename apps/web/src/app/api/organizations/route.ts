@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { toSkuLabel } from "@mpa/shared";
+import { storedScopeForNewMembership, toSkuLabel } from "@mpa/shared";
 import {
   ACTIVE_ORGANIZATION_COOKIE,
   createOrganizationSlugFromName,
@@ -27,7 +27,7 @@ export async function GET() {
     const organizations = await getOrganizationsForUser(user.id);
     const { data: invitationRows, error: invitationError } = await supabase
       .from("organization_invitations")
-      .select("id, organization_id, email, roles, status, token, expires_at")
+      .select("id, organization_id, email, roles, status, token, expires_at, operating_scope")
       .eq("email", user.email ?? "")
       .eq("status", "pending");
 
@@ -43,7 +43,8 @@ export async function GET() {
         roles: organization.roles,
         productSku: organization.productSku,
         productLabel: organization.productLabel,
-        setupComplete: organization.setupComplete
+        setupComplete: organization.setupComplete,
+        operatingScope: organization.operatingScope
       })),
       invitations: (invitationRows ?? []).map((row) => ({
         id: row.id,
@@ -106,7 +107,8 @@ export async function POST(request: Request) {
     organization_id: organization.id,
     user_id: user.id,
     roles: ["property_manager"],
-    status: "active"
+    status: "active",
+    operating_scope: storedScopeForNewMembership(productSku)
   });
 
   if (membershipError) {

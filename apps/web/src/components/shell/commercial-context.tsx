@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import {
-  entitlementsForSku,
+  entitlementsForMember,
   hasEntitlement,
   navigationGroupsForSku,
   type EntitlementKey,
@@ -27,16 +27,20 @@ export function CommercialProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CommercialContextValue>(() => {
     const productSku = activeOrganization?.productSku ?? null;
-    const entitlements = productSku
-      ? entitlementsForSku(productSku)
-      : (["platform.org", "platform.guided_setup", "platform.billing_self", "platform.launcher"] as EntitlementKey[]);
+    const roles = activeOrganization?.roles ?? [];
+    const storedScope = activeOrganization?.operatingScope ?? null;
+    const entitlements = entitlementsForMember({
+      sku: productSku,
+      roles,
+      storedScope
+    });
 
     return {
       productSku,
       productLabel: activeOrganization?.productLabel ?? null,
       setupComplete: activeOrganization?.setupComplete ?? false,
       entitlements,
-      navigationGroups: navigationGroupsForSku(productSku, activeOrganization?.roles ?? []),
+      navigationGroups: navigationGroupsForSku(productSku, roles, storedScope),
       canAccess: (entitlement) => hasEntitlement(entitlements, entitlement)
     };
   }, [activeOrganization]);

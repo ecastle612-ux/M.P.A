@@ -1,9 +1,6 @@
+import { effectiveSurfaces, type MemberOperatingScope } from "../auth/operating-scope";
 import { hasEntitlement } from "../commercial/entitlements";
-import {
-  skuIncludesFacilityOperations,
-  skuIncludesPropertyManager,
-  type ProductSku
-} from "../commercial/skus";
+import { type ProductSku } from "../commercial/skus";
 import type { ExecutivePersona, ReportArea } from "./schemas";
 import { EXECUTIVE_PERSONAS, REPORT_AREAS } from "./schemas";
 
@@ -59,6 +56,7 @@ export type ResolveAuthorizedReportShapeInput = {
   capabilities: readonly string[];
   personaOverride?: string | null;
   areaOverride?: string | null;
+  storedScope?: MemberOperatingScope | null;
 };
 
 function uniqueAreas(areas: readonly ReportArea[]): ReportArea[] {
@@ -255,8 +253,13 @@ export function resolveAuthorizedReportShape(
     return deny("no_sku");
   }
 
-  const includesPm = skuIncludesPropertyManager(input.sku);
-  const includesFo = skuIncludesFacilityOperations(input.sku);
+  const surfaces = effectiveSurfaces({
+    sku: input.sku,
+    roles: input.roles,
+    storedScope: input.storedScope
+  });
+  const includesPm = surfaces.has("property");
+  const includesFo = surfaces.has("facility");
   const loadFinance = canLoadFinanceFacts(input.entitlements, input.capabilities);
 
   if (isTechnicianOnly(input.roles)) {

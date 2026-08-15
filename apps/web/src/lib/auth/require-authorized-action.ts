@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import {
-  entitlementsForSku,
+  entitlementsForMember,
   hasEntitlement,
+  isMemberOperatingScope,
   isProductSku,
   type EntitlementKey,
+  type MemberOperatingScope,
   type PermissionCapability,
   type ProductSku,
   type UserRole
@@ -21,15 +23,16 @@ export type AuthorizedAction = {
   roles: string[];
   entitlements: readonly string[];
   sku: ProductSku | null;
+  storedScope: MemberOperatingScope | null;
   permissions: readonly string[];
 };
 
 export type AuthorizedActionResult = AuthorizedAction | { error: NextResponse };
 
 /**
- * PLAT-002 / ADR-026 customer API pipeline (fail closed):
- * Authentication → Organization → Role → SKU entitlement → Module permission.
- * Action (surface, assignment, lease) stays in the route / service.
+ * ADR-026 + ADR-033 customer API pipeline (fail closed):
+ * Authentication → Organization → Role → SKU entitlement → Member operating scope
+ * → Module permission. Action (surface, assignment, lease) stays in the route / service.
  */
 export async function requireAuthorizedAction(input: {
   capability: PermissionCapability;
@@ -53,7 +56,7 @@ export async function requireAuthorizedAction(input: {
 
   const { data: membership, error: membershipError } = await supabase
     .from("organization_memberships")
-    .select("id, status, roles")
+    .select("id, status, roles, operating_scope")
     .eq("organization_id", orgId)
     .eq("user_id", user.id)
     .eq("status", "active")
@@ -64,6 +67,7 @@ export async function requireAuthorizedAction(input: {
   }
 
   const roles = (membership.roles as string[]) ?? [];
+  const storedScope = isMemberOperatingScope(membership.operating_scope) ? membership.operating_scope : null;
   if (input.allowedRoles && !roles.some((role) => input.allowedRoles!.includes(role as UserRole))) {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
@@ -79,9 +83,7 @@ export async function requireAuthorizedAction(input: {
       ? subscription.sku_code
       : null;
 
-  const entitlements = sku
-    ? entitlementsForSku(sku)
-    : (["platform.org", "platform.guided_setup", "platform.billing_self", "platform.launcher"] as const);
+  const entitlements = entitlementsForMember({ sku, roles, storedScope });
 
   const required =
     typeof input.entitlement === "string" ? [input.entitlement] : [...input.entitlement];
@@ -102,6 +104,7 @@ export async function requireAuthorizedAction(input: {
     roles,
     entitlements,
     sku,
+    storedScope,
     permissions: authorizationContext.permissions
   };
 }

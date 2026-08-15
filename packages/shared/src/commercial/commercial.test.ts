@@ -136,6 +136,24 @@ describe("navigation and launcher awareness", () => {
     ).toBe("Mission Control");
   });
 
+  it("hides Facility nav for Complete property_operations and PM nav for facility_operations", () => {
+    const propertyGroups = navigationGroupsForSku(
+      "mpa_complete_platform",
+      ["property_manager"],
+      "property_operations"
+    );
+    expect(propertyGroups.some((group) => group.id === "property_manager")).toBe(true);
+    expect(propertyGroups.some((group) => group.id === "facility_operations")).toBe(false);
+
+    const facilityGroups = navigationGroupsForSku(
+      "mpa_complete_platform",
+      ["property_manager"],
+      "facility_operations"
+    );
+    expect(facilityGroups.some((group) => group.id === "facility_operations")).toBe(true);
+    expect(facilityGroups.some((group) => group.id === "property_manager")).toBe(false);
+  });
+
   it("marks Facility Operations modules aligned except Capital Projects", () => {
     const foModules = modulesForSku("mpa_facility_operations").filter(
       (module) => module.owner === "facility_operations"

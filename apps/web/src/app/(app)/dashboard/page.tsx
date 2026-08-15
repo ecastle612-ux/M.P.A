@@ -23,7 +23,8 @@ export default async function DashboardPage() {
       roles: shell.availableRoles,
       productSku: active?.productSku ?? null,
       setupComplete: active?.setupComplete ?? false,
-      isPlatformOperator
+      isPlatformOperator,
+      storedScope: active?.operatingScope ?? null
     })
   );
 }

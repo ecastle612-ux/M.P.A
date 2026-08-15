@@ -1,10 +1,12 @@
-import { evaluatePathEntitlement, type ProductSku } from "@mpa/shared";
+import { evaluatePathEntitlement, type MemberOperatingScope, type ProductSku } from "@mpa/shared";
 import { redirect } from "next/navigation";
 import { getOrganizationCommercialState } from "./server";
 
 export async function assertPathEntitled(input: {
   pathname: string;
   organizationId: string | null;
+  roles?: readonly string[];
+  storedScope?: MemberOperatingScope | null;
 }): Promise<ProductSku | null> {
   const state = input.organizationId
     ? await getOrganizationCommercialState(input.organizationId)
@@ -19,7 +21,9 @@ export async function assertPathEntitled(input: {
 
   const decision = evaluatePathEntitlement({
     pathname: input.pathname,
-    sku: state.sku
+    sku: state.sku,
+    roles: input.roles,
+    storedScope: input.storedScope
   });
 
   if (!decision.allowed) {

@@ -1,8 +1,7 @@
+import { entitlementsForMember, effectiveSurfaces, type MemberOperatingScope } from "../auth/operating-scope";
 import type { EntitlementKey } from "./entitlements";
 import type { ProductSku } from "./skus";
 import type { UserRole } from "../types/roles";
-import { entitlementsForSku } from "./entitlements";
-import { skuIncludesFacilityOperations, skuIncludesPropertyManager } from "./skus";
 import {
   missionControlNavLabelForSku,
   navigationGroupTitleForSku
@@ -352,11 +351,14 @@ export type NavGroup = {
   items: NavItem[];
 };
 
-export function modulesForSku(sku: ProductSku | null): CommercialModule[] {
+export function modulesForSku(
+  sku: ProductSku | null,
+  input: { roles?: readonly UserRole[]; storedScope?: MemberOperatingScope | null } = {}
+): CommercialModule[] {
   if (!sku) {
     return COMMERCIAL_MODULES.filter((module) => module.owner === "shared_platform");
   }
-  const entitlements = new Set(entitlementsForSku(sku));
+  const entitlements = new Set(entitlementsForMember({ sku, roles: input.roles, storedScope: input.storedScope }));
   return COMMERCIAL_MODULES.filter((module) => {
     if (module.id === "capital_projects") {
       return false;
@@ -370,15 +372,19 @@ export function modulesForSku(sku: ProductSku | null): CommercialModule[] {
 
 export function navigationGroupsForSku(
   sku: ProductSku | null,
-  roles: readonly UserRole[] = []
+  roles: readonly UserRole[] = [],
+  storedScope?: MemberOperatingScope | null
 ): NavGroup[] {
   const entitlements = new Set(
-    sku
-      ? entitlementsForSku(sku)
-      : ["platform.guided_setup", "platform.billing_self", "platform.org", "platform.launcher"]
+    entitlementsForMember({
+      sku,
+      roles,
+      storedScope
+    })
   );
+  const surfaces = effectiveSurfaces({ sku, roles, storedScope });
 
-  const isComplete = sku === "mpa_complete_platform";
+  const isComplete = sku === "mpa_complete_platform" && surfaces.has("property") && surfaces.has("facility");
   const groups: NavGroup[] = [
     {
       id: "home",
@@ -396,7 +402,7 @@ export function navigationGroupsForSku(
     }
   ];
 
-  if (sku && skuIncludesPropertyManager(sku)) {
+  if (surfaces.has("property")) {
     groups.push({
       id: "property_manager",
       title: navigationGroupTitleForSku("property_manager", sku) ?? "Property Manager",
@@ -429,7 +435,7 @@ export function navigationGroupsForSku(
     });
   }
 
-  if (sku && skuIncludesFacilityOperations(sku)) {
+  if (surfaces.has("facility")) {
     groups.push({
       id: "facility_operations",
       title: navigationGroupTitleForSku("facility_operations", sku) ?? "Facility Operations",
@@ -562,7 +568,10 @@ export type WorkspaceLauncherItem = {
   readiness: ModuleReadiness;
 };
 
-export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceLauncherItem[] {
+export function workspaceLauncherItemsForSku(
+  sku: ProductSku | null,
+  input: { roles?: readonly UserRole[]; storedScope?: MemberOperatingScope | null } = {}
+): WorkspaceLauncherItem[] {
   if (!sku) {
     return [
       {
@@ -595,9 +604,10 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
     }
   ];
 
-  const complete = sku === "mpa_complete_platform";
+  const surfaces = effectiveSurfaces({ sku, roles: input.roles, storedScope: input.storedScope });
+  const complete = sku === "mpa_complete_platform" && surfaces.has("property") && surfaces.has("facility");
 
-  if (skuIncludesPropertyManager(sku)) {
+  if (surfaces.has("property")) {
     items.push(
       {
         id: "pm_mc",
@@ -640,7 +650,7 @@ export function workspaceLauncherItemsForSku(sku: ProductSku | null): WorkspaceL
     );
   }
 
-  if (skuIncludesFacilityOperations(sku)) {
+  if (surfaces.has("facility")) {
     items.push({
       id: "fac_mc",
       title: complete ? "Facility Operations" : "Mission Control",
