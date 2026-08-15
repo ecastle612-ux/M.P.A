@@ -109,6 +109,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 121 | [PLAT-006 Finance, Report Surface & FO Routing](./121-plat-006-finance-reports-routing-remediation/index.md) | **Approved** · ADR-032 Accepted · implement Slices A–C only · no Production apply or deploy |
 | 122 | [PLAT-006 Finance, Report Surface & Routing Implementation Certification](./122-plat-006-finance-reports-routing-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
 | 127 | [Complete Delegated Operations](./127-complete-delegated-operations/index.md) | **Approved** · ADR-033 Accepted · member operating scope implement authorized |
+| 135 | [Complete Delegated Operations Invitation Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | **Draft / Proposed — APPROVAL REQUIRED** · create/accept workflow only · no implementation |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -172,6 +173,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [S3 Certification](./25-fin-ops-001/s3/index.md) | Command Center & owner reporting |
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
 | [127 Complete Delegated Operations](./127-complete-delegated-operations/index.md) | Approved member operating scope — FACILITY-only Complete must not inherit PM finance |
+| [135 Invitation & Acceptance Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | Draft — Complete invitation create/accept defects from docs/134 UAT · Approve before code |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
@@ -190,6 +192,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 |----------|---------|
 | [Package Index](./127-complete-delegated-operations/index.md) | Member operating scope — **Approved** |
 | [ADR-033](./18-decision-log/adr-033-member-operating-scope.md) | Accepted — SKU ∩ scope ∩ role |
+| [135 Invitation remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | Draft — invitation create/accept · **APPROVAL REQUIRED** · no implementation |
 
 ### Governance & gates
 
