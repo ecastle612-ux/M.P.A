@@ -29,36 +29,27 @@ export const FINANCE_CAPABILITY_DESCRIPTIONS: Record<FinanceCapability, string> 
   "pm.finance:settings.manage": "Manage FO settings and Connect readiness"
 };
 
-/** Default role grants for S0 foundation (read + settings for managers). */
+const ALL_FINANCE_CAPABILITIES: readonly FinanceCapability[] = FINANCE_CAPABILITIES;
+
+/** PLAT-006 approved role grants. Tenant/vendor are intentionally empty. */
 export const FINANCE_ROLE_GRANTS: ReadonlyArray<{
-  role: "property_manager" | "property_owner" | "tenant" | "vendor";
+  role:
+    | "organization_admin"
+    | "property_manager"
+    | "leasing_agent"
+    | "property_owner"
+    | "maintenance_technician"
+    | "tenant"
+    | "vendor";
   capabilities: readonly FinanceCapability[];
 }> = [
-  {
-    role: "property_manager",
-    capabilities: [
-      "pm.finance:read",
-      "pm.finance:charge.write",
-      "pm.finance:payment.refund",
-      "pm.finance:late_fee.manage",
-      "pm.finance:vendor_invoice.review",
-      "pm.finance:vendor_payment.release",
-      "pm.finance:reports.read",
-      "pm.finance:settings.manage"
-    ]
-  },
-  {
-    role: "property_owner",
-    capabilities: ["pm.finance:read", "pm.finance:reports.read"]
-  },
-  {
-    role: "tenant",
-    capabilities: ["pm.finance:read"]
-  },
-  {
-    role: "vendor",
-    capabilities: ["pm.finance:read"]
-  }
+  { role: "organization_admin", capabilities: ALL_FINANCE_CAPABILITIES },
+  { role: "property_manager", capabilities: ALL_FINANCE_CAPABILITIES },
+  { role: "leasing_agent", capabilities: ["pm.finance:read"] },
+  { role: "property_owner", capabilities: ["pm.finance:read", "pm.finance:reports.read"] },
+  { role: "maintenance_technician", capabilities: [] },
+  { role: "tenant", capabilities: [] },
+  { role: "vendor", capabilities: [] }
 ];
 
 export function hasFinanceCapability(

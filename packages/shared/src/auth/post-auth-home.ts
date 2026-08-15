@@ -129,6 +129,37 @@ export function resolvePostAuthHome(input: PostAuthHomeInput): string {
   return "/unauthorized?reason=role";
 }
 
+/**
+ * @deprecated Role-only alias of {@link defaultHomeForRole}.
+ * Staff entry paths must call {@link resolvePostAuthHome} with the org SKU.
+ */
 export function postAuthHomeForRole(role: UserRole): string {
   return defaultHomeForRole(role);
+}
+
+function isSafeRelativeNextPath(value: string | null | undefined): value is string {
+  return Boolean(value && value.startsWith("/") && !value.startsWith("//"));
+}
+
+/**
+ * Login `?next=` keeper. Portal, setup, invitation accept, and commerce paths
+ * are preserved. Staff workspace paths bounce through `/dashboard` so
+ * {@link resolvePostAuthHome} is the only staff landing resolver (ADR-032).
+ */
+export function resolveLoginNextPath(next: string | null | undefined): string {
+  if (!isSafeRelativeNextPath(next)) {
+    return "/dashboard";
+  }
+  if (
+    next.startsWith("/portal/") ||
+    next === "/setup" ||
+    next.startsWith("/setup?") ||
+    next.startsWith("/accept-invitation") ||
+    next.startsWith("/commerce/") ||
+    next === "/billing" ||
+    next.startsWith("/billing?")
+  ) {
+    return next;
+  }
+  return "/dashboard";
 }

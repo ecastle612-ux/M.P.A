@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
-  defaultHomeForRole,
   membershipHasPortalRole,
   mergeRolesWithPortalRole,
+  resolvePostAuthHome,
   type PortalAccessRole
 } from "@mpa/shared";
 import { serverEnv } from "../env/server-env";
@@ -265,7 +265,11 @@ async function emitPortalAccessEvidence(args: {
     role: args.role,
     userId: args.userId,
     email: args.email,
-    homeHref: defaultHomeForRole(args.role),
+    homeHref: resolvePostAuthHome({
+      roles: [args.role],
+      productSku: null,
+      setupComplete: false
+    }),
     createdAuthUser: args.createdAuthUser,
     alreadyHadRole: args.alreadyHadRole,
     source: args.role === "tenant" ? "lease.activation" : "vendor.assignment"
@@ -376,7 +380,11 @@ async function provisionPortalAccess(args: {
     });
   }
 
-  const homeHref = defaultHomeForRole(args.role);
+  const homeHref = resolvePostAuthHome({
+    roles: [args.role],
+    productSku: null,
+    setupComplete: false
+  });
   const magicLink = await buildMagicLink(admin, email, homeHref);
 
   return {

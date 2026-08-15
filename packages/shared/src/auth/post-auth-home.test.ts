@@ -4,6 +4,7 @@ import {
   guidedSetupNextActionCopy,
   productDisplayLabel,
   productWorkspaceHomeLabel,
+  resolveLoginNextPath,
   resolvePostAuthHome,
   resolveProductWorkspaceHome
 } from "./post-auth-home";
@@ -170,6 +171,24 @@ describe("resolvePostAuthHome", () => {
     ).toBe("/unauthorized?reason=role");
   });
 
+  it("routes FO technician to Facility Mission Control and Complete technician to PM maintenance", () => {
+    expect(
+      resolvePostAuthHome({
+        roles: ["maintenance_technician"],
+        productSku: "mpa_facility_operations",
+        setupComplete: true
+      })
+    ).toBe("/facility/mission-control");
+
+    expect(
+      resolvePostAuthHome({
+        roles: ["maintenance_technician"],
+        productSku: "mpa_complete_platform",
+        setupComplete: true
+      })
+    ).toBe("/pm/maintenance");
+  });
+
   it("prefers primary role when multiple roles exist", () => {
     expect(
       resolvePostAuthHome({
@@ -178,5 +197,25 @@ describe("resolvePostAuthHome", () => {
         setupComplete: true
       })
     ).toBe("/pm/mission-control");
+  });
+});
+
+describe("resolveLoginNextPath", () => {
+  it("keeps portal, setup, invitation, and commerce next paths", () => {
+    expect(resolveLoginNextPath("/portal/tenant")).toBe("/portal/tenant");
+    expect(resolveLoginNextPath("/setup")).toBe("/setup");
+    expect(resolveLoginNextPath("/accept-invitation/token-1")).toBe("/accept-invitation/token-1");
+    expect(resolveLoginNextPath("/commerce/continue?session_id=1")).toBe(
+      "/commerce/continue?session_id=1"
+    );
+  });
+
+  it("defers stale staff workspace homes through /dashboard", () => {
+    expect(resolveLoginNextPath("/pm/mission-control")).toBe("/dashboard");
+    expect(resolveLoginNextPath("/facility/mission-control")).toBe("/dashboard");
+    expect(resolveLoginNextPath("/launcher")).toBe("/dashboard");
+    expect(resolveLoginNextPath("/dashboard")).toBe("/dashboard");
+    expect(resolveLoginNextPath("//evil.example")).toBe("/dashboard");
+    expect(resolveLoginNextPath(null)).toBe("/dashboard");
   });
 });
