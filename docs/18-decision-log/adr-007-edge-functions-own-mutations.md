@@ -1,7 +1,7 @@
 # ADR-007: Edge Functions Own Business Mutations
 
 ## Status
-Accepted
+Accepted — **Proposed to be superseded by [ADR-031](./adr-031-nextjs-trusted-api-mutation-plane.md)**
 
 ## Date
 2026-07-11

@@ -95,6 +95,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 88 | [FAC-002 Reporting and Export Design](./88-fac-002-reporting-and-export/index.md) | **Approved** · Work order reporting & export · ADR-025 Accepted · implement Phase 1 only · no Production deploy |
 | 89 | [FAC-002 Reporting Export Implementation Certification](./89-fac-002-reporting-export-implementation-certification/index.md) | Implementation certification · **READY** · no Production deploy |
 | 91 | [COM-002 UAT Remediation Certification](./91-com-002-uat-remediation-certification/index.md) | Tenant audit RLS + Notification Center · **READY FOR UAT RE-RUN** · schema applied; app in PR #198 |
+| 93 | [PLAT-001 Platform Mismatch Audit](./93-plat-001-platform-mismatch-audit/index.md) | **Historical** · C1–C5 + H/M/L at prior SHA · restored verbatim · current residual audit is [117](./117-plat-004-residual-remediation-design/index.md) |
 | 94 | [PLAT-002 Authorization Hardening Design](./94-plat-002-authorization-hardening/index.md) | **Approved** · C1–C5 remediation design · ADR-026 Accepted |
 | 95 | [PLAT-002 Authorization Hardening Implementation Certification](./95-plat-002-authorization-hardening-implementation-certification/index.md) | Implementation certification · **READY** · no Production deploy |
 | 102 | [FAC-003 Asset & Inventory Management Design](./102-fac-003-asset-inventory-management/index.md) | **Approved** · FO asset registry + stock ledger · ADR-028 Accepted · implement Phase 1 |
@@ -106,6 +107,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 113 | [OPS-001 Phase 1 Implementation Certification](./113-ops-001-operational-workspace-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
 | 114 | [OPS-001 Phase 1 Production Migration Certification](./114-ops-001-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only · successor ledger stamp · no apply or deploy |
 | 115 | [OPS-001 Phase 1 Production Migration Application Certification](./115-ops-001-production-migration-application-certification/index.md) | **READY FOR APPLICATION DEPLOYMENT** · schema live `20260814233536` · app still `aee7fa95` · no deploy |
+| 117 | [PLAT-004 Residual Remediation Design](./117-plat-004-residual-remediation-design/index.md) | **Draft / Proposed** · current Production residual audit @ `e56a330f` · ADR-031 Proposed · no implementation |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
