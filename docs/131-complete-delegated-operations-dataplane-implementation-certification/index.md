@@ -190,7 +190,7 @@ This package does not create `financial_charges`, replay S0/S1/S2, or touch July
 
 ## Next authorized step
 
-Owner-authorized **Production migration certification** of `20260815210000` / `adr_033_dataplane_member_scope` (read-only predecessor analysis). That later record may authorize apply only if the Owner says so.
+Read-only Production certification completed in [docs/132](../132-complete-delegated-operations-dataplane-production-migration-certification/index.md) (**READY FOR PRODUCTION MIGRATION APPLICATION**). That later record may authorize apply only if the Owner says so. Do not apply from this record.
 
 From this record:
 

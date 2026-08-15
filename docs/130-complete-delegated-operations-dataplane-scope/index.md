@@ -378,7 +378,7 @@ Final FIN-OPS reconciliation remains dependent on the **completed** ADR-033 auth
 
 Approved 2026-08-15. Implement §6 helper + §7 three policy replacements + §13 tests. FAC-001/002 capability-table follow-on is **not** included.
 
-Implementation certification: [docs/131](../131-complete-delegated-operations-dataplane-implementation-certification/index.md). **No Production apply. No deploy.**
+Implementation certification: [docs/131](../131-complete-delegated-operations-dataplane-implementation-certification/index.md). Production migration certification: [docs/132](../132-complete-delegated-operations-dataplane-production-migration-certification/index.md) **READY FOR PRODUCTION MIGRATION APPLICATION**. **No Production apply. No deploy.**
 
 ---
 
