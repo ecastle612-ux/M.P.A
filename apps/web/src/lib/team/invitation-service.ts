@@ -1,15 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  isMemberOperatingScope,
   isProductSku,
   primaryRole,
   resolvePostAuthHome,
   toRoleLabel,
+  type MemberOperatingScope,
   type ProductSku,
   type UserRole,
   isUserRole
 } from "@mpa/shared";
 import { sendInvitationEmail } from "@mpa/email";
 import { emitTeamEvent, writeTeamAudit } from "./events-audit";
+import { recordOperatingScopeEvent } from "../organization/operating-scope-events";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -22,6 +25,7 @@ export async function resolveInvitationHomeHref(args: {
   supabase: Db;
   organizationId: string;
   roles: readonly UserRole[];
+  storedScope?: MemberOperatingScope | null;
 }): Promise<string> {
   const [{ data: subscription }, { data: setup }] = await Promise.all([
     args.supabase
@@ -44,7 +48,8 @@ export async function resolveInvitationHomeHref(args: {
   return resolvePostAuthHome({
     roles: args.roles,
     productSku: sku,
-    setupComplete: Boolean((setup as { completed_at?: string | null } | null)?.completed_at)
+    setupComplete: Boolean((setup as { completed_at?: string | null } | null)?.completed_at),
+    storedScope: args.storedScope ?? null
   });
 }
 
@@ -60,6 +65,7 @@ export async function createAndSendInvitation(args: {
   roles: UserRole[];
   organizationName: string;
   inviterLabel?: string | undefined;
+  operatingScope?: MemberOperatingScope | null;
 }) {
   const { data: invitation, error } = await args.supabase
     .from("organization_invitations")
@@ -68,15 +74,27 @@ export async function createAndSendInvitation(args: {
       email: args.email,
       roles: args.roles,
       invited_by: args.actorId,
-      email_status: "pending"
+      email_status: "pending",
+      operating_scope: args.operatingScope ?? null
     })
     .select(
-      "id, email, roles, status, token, expires_at, email_status, email_sent_at, email_provider_id, email_error"
+      "id, email, roles, status, token, expires_at, email_status, email_sent_at, email_provider_id, email_error, operating_scope"
     )
     .single();
 
   if (error || !invitation) {
     throw new Error(error?.message ?? "Invitation create failed");
+  }
+
+  if (args.operatingScope) {
+    await recordOperatingScopeEvent({
+      supabase: args.supabase,
+      organizationId: args.organizationId,
+      actorId: args.actorId,
+      invitationId: invitation.id as string,
+      toScope: args.operatingScope,
+      reason: "invitation.created"
+    });
   }
 
   const acceptUrl = buildAcceptUrl(invitation.token as string);
@@ -149,7 +167,7 @@ export async function createAndSendInvitation(args: {
     })
     .eq("id", invitation.id)
     .select(
-      "id, email, roles, status, token, expires_at, email_status, email_sent_at, email_provider_id, email_error"
+      "id, email, roles, status, token, expires_at, email_status, email_sent_at, email_provider_id, email_error, operating_scope"
     )
     .single();
 
@@ -185,7 +203,8 @@ export async function createAndSendInvitation(args: {
     homeHref: await resolveInvitationHomeHref({
       supabase: args.supabase,
       organizationId: args.organizationId,
-      roles: (invitation.roles as string[]).filter(isUserRole)
+      roles: (invitation.roles as string[]).filter(isUserRole),
+      storedScope: isMemberOperatingScope(invitation.operating_scope) ? invitation.operating_scope : null
     }),
     emailStatus
   };
@@ -199,7 +218,7 @@ export async function acceptInvitation(args: {
 }) {
   const { data: invitation, error: invitationError } = await args.supabase
     .from("organization_invitations")
-    .select("id, organization_id, email, roles, status, expires_at")
+    .select("id, organization_id, email, roles, status, expires_at, operating_scope")
     .eq("token", args.token)
     .eq("status", "pending")
     .maybeSingle();
@@ -218,18 +237,42 @@ export async function acceptInvitation(args: {
   }
 
   const roles = (invitation.roles as string[]).filter(isUserRole);
+  const operatingScope = isMemberOperatingScope(invitation.operating_scope) ? invitation.operating_scope : null;
   const { error: membershipError } = await args.supabase.from("organization_memberships").upsert(
     {
       organization_id: invitation.organization_id,
       user_id: args.userId,
       roles,
       status: "active",
-      invited_by: null
+      invited_by: null,
+      operating_scope: operatingScope
     },
     { onConflict: "organization_id,user_id" }
   );
   if (membershipError) {
     throw new Error(membershipError.message);
+  }
+
+  if (operatingScope) {
+    const { data: membership } = await args.supabase
+      .from("organization_memberships")
+      .select("id")
+      .eq("organization_id", invitation.organization_id)
+      .eq("user_id", args.userId)
+      .maybeSingle();
+    try {
+      await recordOperatingScopeEvent({
+        supabase: args.supabase,
+        organizationId: invitation.organization_id as string,
+        actorId: args.userId,
+        membershipId: membership?.id ?? null,
+        invitationId: invitation.id as string,
+        toScope: operatingScope,
+        reason: "invitation.accepted"
+      });
+    } catch {
+      // Accept must not fail if the invitee cannot write the audit row.
+    }
   }
 
   const { error: invitationUpdateError } = await args.supabase
@@ -276,7 +319,8 @@ export async function acceptInvitation(args: {
     homeHref: await resolveInvitationHomeHref({
       supabase: args.supabase,
       organizationId: invitation.organization_id as string,
-      roles
+      roles,
+      storedScope: operatingScope
     }),
     roleLabel: role ? toRoleLabel(role) : "Member"
   };
@@ -287,7 +331,7 @@ export async function getTeamReadiness(supabase: Db, organizationId: string) {
     await Promise.all([
       supabase
         .from("organization_memberships")
-        .select("id, user_id, roles, status")
+        .select("id, user_id, roles, status, operating_scope")
         .eq("organization_id", organizationId)
         .eq("status", "active"),
       supabase
@@ -297,7 +341,7 @@ export async function getTeamReadiness(supabase: Db, organizationId: string) {
         .eq("status", "accepted"),
       supabase
         .from("organization_invitations")
-        .select("id, email, roles, status, token, email_status, expires_at, created_at")
+        .select("id, email, roles, status, token, email_status, expires_at, created_at, operating_scope")
         .eq("organization_id", organizationId)
         .eq("status", "pending")
         .order("created_at", { ascending: false })

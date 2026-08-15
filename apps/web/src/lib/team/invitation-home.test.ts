@@ -42,7 +42,7 @@ describe("PLAT-006 invitation and magic-link home matrix", () => {
         productSku: "mpa_complete_platform",
         setupComplete
       })
-    ).toBe("/pm/maintenance");
+    ).toBe("/launcher");
     expect(
       resolvePostAuthHome({
         roles: ["tenant"],
