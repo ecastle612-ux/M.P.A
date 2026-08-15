@@ -8,7 +8,7 @@ export type PostAuthHomeInput = {
   productSku: ProductSku | null;
   setupComplete: boolean;
   isPlatformOperator?: boolean;
-  storedScope?: MemberOperatingScope | null;
+  storedScope?: MemberOperatingScope | null | undefined;
 };
 
 /**
@@ -74,7 +74,7 @@ export function guidedSetupNextActionCopy(productSku: ProductSku): string {
 function homeForStaffRole(
   role: UserRole,
   productSku: ProductSku | null,
-  storedScope?: MemberOperatingScope | null,
+  storedScope?: MemberOperatingScope | null | undefined,
   roles: readonly UserRole[] = []
 ): string {
   const surfaces = effectiveSurfaces({ sku: productSku, roles, storedScope });

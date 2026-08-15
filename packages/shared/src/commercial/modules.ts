@@ -353,7 +353,7 @@ export type NavGroup = {
 
 export function modulesForSku(
   sku: ProductSku | null,
-  input: { roles?: readonly UserRole[]; storedScope?: MemberOperatingScope | null } = {}
+  input: { roles?: readonly UserRole[] | undefined; storedScope?: MemberOperatingScope | null | undefined } = {}
 ): CommercialModule[] {
   if (!sku) {
     return COMMERCIAL_MODULES.filter((module) => module.owner === "shared_platform");
@@ -373,7 +373,7 @@ export function modulesForSku(
 export function navigationGroupsForSku(
   sku: ProductSku | null,
   roles: readonly UserRole[] = [],
-  storedScope?: MemberOperatingScope | null
+  storedScope?: MemberOperatingScope | null | undefined
 ): NavGroup[] {
   const entitlements = new Set(
     entitlementsForMember({
@@ -570,7 +570,7 @@ export type WorkspaceLauncherItem = {
 
 export function workspaceLauncherItemsForSku(
   sku: ProductSku | null,
-  input: { roles?: readonly UserRole[]; storedScope?: MemberOperatingScope | null } = {}
+  input: { roles?: readonly UserRole[] | undefined; storedScope?: MemberOperatingScope | null | undefined } = {}
 ): WorkspaceLauncherItem[] {
   if (!sku) {
     return [

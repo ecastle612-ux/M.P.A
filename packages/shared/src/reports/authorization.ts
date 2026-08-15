@@ -56,7 +56,7 @@ export type ResolveAuthorizedReportShapeInput = {
   capabilities: readonly string[];
   personaOverride?: string | null;
   areaOverride?: string | null;
-  storedScope?: MemberOperatingScope | null;
+  storedScope?: MemberOperatingScope | null | undefined;
 };
 
 function uniqueAreas(areas: readonly ReportArea[]): ReportArea[] {

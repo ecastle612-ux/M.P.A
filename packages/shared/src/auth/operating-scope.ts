@@ -109,8 +109,8 @@ export function compatibilityDefaultScope(
 
 export function resolveMemberOperatingScope(input: {
   sku: ProductSku | null | undefined;
-  roles?: readonly string[];
-  storedScope?: MemberOperatingScope | null;
+  roles?: readonly string[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
 }): MemberOperatingScope | null {
   const roles = input.roles ?? [];
   if (isPortalOnlyRoles(roles)) {
@@ -129,8 +129,8 @@ export function resolveMemberOperatingScope(input: {
  */
 export function effectiveSurfaces(input: {
   sku: ProductSku | null | undefined;
-  roles?: readonly string[];
-  storedScope?: MemberOperatingScope | null;
+  roles?: readonly string[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
 }): ReadonlySet<OperatingSurface> {
   const purchased = skuSurfaces(input.sku);
   if (purchased.size === 0) {
@@ -163,8 +163,8 @@ export function entitlementProductFamily(entitlement: string): OperatingSurface 
 
 export function entitlementsForMember(input: {
   sku: ProductSku | null | undefined;
-  roles?: readonly string[];
-  storedScope?: MemberOperatingScope | null;
+  roles?: readonly string[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
 }): EntitlementKey[] {
   const skuEntitlements = input.sku ? entitlementsForSku(input.sku) : [...BOOTSTRAP_ENTITLEMENTS];
   const surfaces = effectiveSurfaces(input);
@@ -179,8 +179,8 @@ export function entitlementsForMember(input: {
 
 export function memberAllowsWorkSurface(input: {
   sku: ProductSku | null | undefined;
-  roles?: readonly string[];
-  storedScope?: MemberOperatingScope | null;
+  roles?: readonly string[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
   surface: WorkSurface;
 }): boolean {
   const surfaces = effectiveSurfaces(input);

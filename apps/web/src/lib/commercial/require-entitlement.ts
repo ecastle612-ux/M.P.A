@@ -5,8 +5,8 @@ import { getOrganizationCommercialState } from "./server";
 export async function assertPathEntitled(input: {
   pathname: string;
   organizationId: string | null;
-  roles?: readonly string[];
-  storedScope?: MemberOperatingScope | null;
+  roles?: readonly string[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
 }): Promise<ProductSku | null> {
   const state = input.organizationId
     ? await getOrganizationCommercialState(input.organizationId)

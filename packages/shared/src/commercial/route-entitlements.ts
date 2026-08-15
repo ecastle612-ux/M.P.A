@@ -196,9 +196,9 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
 export function evaluateApiPathEntitlement(input: {
   pathname: string;
   sku: ProductSku | null;
-  extraEntitlements?: readonly string[];
-  roles?: readonly string[];
-  storedScope?: MemberOperatingScope | null;
+  extraEntitlements?: readonly string[] | undefined;
+  roles?: readonly string[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
 }): RouteAccessDecision {
   const required = requiredEntitlementForApiPath(input.pathname);
   if (required === null) {
@@ -253,9 +253,9 @@ export function evaluateApiPathEntitlement(input: {
 export function evaluatePathEntitlement(input: {
   pathname: string;
   sku: ProductSku | null;
-  extraEntitlements?: readonly string[];
-  roles?: readonly string[];
-  storedScope?: MemberOperatingScope | null;
+  extraEntitlements?: readonly string[] | undefined;
+  roles?: readonly string[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
 }): RouteAccessDecision {
   const required = requiredEntitlementForPath(input.pathname);
   if (required === null) {
@@ -308,7 +308,7 @@ export type SearchResultItem = {
 export function searchCatalogForSku(
   sku: ProductSku | null,
   query: string,
-  input: { roles?: readonly string[]; storedScope?: MemberOperatingScope | null } = {}
+  input: { roles?: readonly string[] | undefined; storedScope?: MemberOperatingScope | null | undefined } = {}
 ): SearchResultItem[] {
   const decisionPath = (href: string, label: string, group: string, entitlement: EntitlementKey | null): SearchResultItem | null => {
     const access = evaluatePathEntitlement({

@@ -113,10 +113,11 @@ export async function PATCH(request: Request, context: { params: Promise<{ organ
     }
     nextScope = scopeDecision.scope;
   } else if (nextScope) {
+    const assignedScope = nextScope;
     const staffRoles = nextRoles.filter((role) =>
       ["organization_admin", "property_manager", "leasing_agent", "maintenance_technician"].includes(role)
     );
-    if (staffRoles.some((role) => !roleAllowsOperatingScope(role, nextScope))) {
+    if (staffRoles.some((role) => !roleAllowsOperatingScope(role, assignedScope))) {
       return NextResponse.json(
         { error: "Leasing Agent can only operate Property Operations." },
         { status: 400 }
@@ -152,7 +153,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ organ
   const updateData: {
     roles?: string[];
     status?: "active" | "inactive";
-    operating_scope?: string | null;
+    operating_scope?: "property_operations" | "facility_operations" | "both" | null;
   } = {};
   if (parsed.roles) {
     updateData.roles = parsed.roles;

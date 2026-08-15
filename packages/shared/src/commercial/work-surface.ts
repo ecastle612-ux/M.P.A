@@ -1,4 +1,4 @@
-import { memberAllowsWorkSurface, type MemberOperatingScope } from "../auth/operating-scope";
+import { memberAllowsWorkSurface } from "../auth/operating-scope";
 import type { WorkSurface } from "../maintenance/schemas";
 import type { ProductSku } from "./skus";
 
