@@ -109,6 +109,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 121 | [PLAT-006 Finance, Report Surface & FO Routing](./121-plat-006-finance-reports-routing-remediation/index.md) | **Approved** · ADR-032 Accepted · implement Slices A–C only · no Production apply or deploy |
 | 122 | [PLAT-006 Finance, Report Surface & Routing Implementation Certification](./122-plat-006-finance-reports-routing-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
 | 127 | [Complete Delegated Operations](./127-complete-delegated-operations/index.md) | **Approved** · ADR-033 Accepted · member operating scope implement authorized |
+| 134 | [ADR-033 Complete Delegated Operations Production Release Certification](./134-complete-delegated-operations-production-release-certification/index.md) | **PRODUCTION RELEASE SUCCESSFUL** · app `9b92db37` · ledger remains `20260815193129` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
