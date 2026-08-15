@@ -112,7 +112,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 129 | [Complete Delegated Operations Production Migration Application](./129-complete-delegated-operations-production-migration-application/index.md) | **READY FOR APPLICATION DEPLOYMENT** · schema live `20260815185722` · app still `44d50bf1` · no deploy |
 | 130 | [ADR-033 Data-Plane Scope Completion](./130-complete-delegated-operations-dataplane-scope/index.md) | **Approved** · Slice D remainder · helper + WO manager policies · implement authorized · no Production apply / deploy |
 | 131 | [ADR-033 Slice D Data-Plane Implementation Certification](./131-complete-delegated-operations-dataplane-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · repo-only `20260815210000` · no apply / deploy |
-| 132 | [ADR-033 Slice D Production Migration Certification](./132-complete-delegated-operations-dataplane-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only · successor `20260815210000` · no apply / deploy |
+| 132 | [ADR-033 Slice D Production Migration Certification](./132-complete-delegated-operations-dataplane-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only predecessor · applied as `20260815193129` |
+| 133 | [ADR-033 Slice D Production Migration Application](./133-complete-delegated-operations-dataplane-production-migration-application/index.md) | **READY FOR ADR-033 APPLICATION DEPLOYMENT** · schema live `20260815193129` · app still `44d50bf1` · no deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -179,7 +180,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [129 ADR-033 Production Migration Application](./129-complete-delegated-operations-production-migration-application/index.md) | Schema live; docs/126 still blocked until later app deploy |
 | [130 ADR-033 Data-Plane Scope Completion](./130-complete-delegated-operations-dataplane-scope/index.md) | Approved RLS successor; docs/126 still blocked |
 | [131 ADR-033 Slice D Implementation Certification](./131-complete-delegated-operations-dataplane-implementation-certification/index.md) | Repo-only successor; docs/126 still blocked |
-| [132 ADR-033 Slice D Production Migration Certification](./132-complete-delegated-operations-dataplane-production-migration-certification/index.md) | Read-only successor cert; docs/126 still blocked |
+| [132 ADR-033 Slice D Production Migration Certification](./132-complete-delegated-operations-dataplane-production-migration-certification/index.md) | Read-only successor cert; apply completed in docs/133 |
+| [133 ADR-033 Slice D Production Migration Application](./133-complete-delegated-operations-dataplane-production-migration-application/index.md) | Schema live; docs/126 still blocked until later app deploy |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
@@ -200,7 +202,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [129 Application](./129-complete-delegated-operations-production-migration-application/index.md) | Schema live `20260815185722` — **READY FOR APPLICATION DEPLOYMENT** · no deploy |
 | [130 Data-plane completion](./130-complete-delegated-operations-dataplane-scope/index.md) | **Approved** successor RLS — implement authorized · no Production apply |
 | [131 Implementation certification](./131-complete-delegated-operations-dataplane-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · `20260815210000` repo-only · no apply / deploy |
-| [132 Production migration certification](./132-complete-delegated-operations-dataplane-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only · no apply / deploy |
+| [132 Production migration certification](./132-complete-delegated-operations-dataplane-production-migration-certification/index.md) | Read-only predecessor — apply completed |
+| [133 Application](./133-complete-delegated-operations-dataplane-production-migration-application/index.md) | Schema live `20260815193129` — **READY FOR ADR-033 APPLICATION DEPLOYMENT** · no deploy |
 
 ### Governance & gates
 

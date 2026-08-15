@@ -434,7 +434,7 @@ This record does not apply, deploy, assign scopes, or implement FIN-OPS.
 
 ## Next authorized step
 
-Owner-authorized **Production migration application** of the exact certified statements in `20260815210000_adr_033_dataplane_member_scope.sql`. If the service assigns a different stamp, use the established byte-identical stamp-file procedure. Do not replay `20260815200000`.
+Apply completed in [docs/133](../133-complete-delegated-operations-dataplane-production-migration-application/index.md) (**READY FOR ADR-033 APPLICATION DEPLOYMENT**). Production ledger: `20260815193129` / `adr_033_dataplane_member_scope`. Do not re-apply from this record. Do not apply `20260815210000`. Do not deploy from this record.
 
 From this record:
 

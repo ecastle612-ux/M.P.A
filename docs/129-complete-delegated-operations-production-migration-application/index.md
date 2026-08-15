@@ -320,4 +320,4 @@ APPLICATION: pre-ADR-033 SHA 44d50bf1 still live
 
 ## Next authorized step
 
-Owner-authorized **ADR-033 application deployment** remains a separate gate. The PostgREST residual is designed in [docs/130](../130-complete-delegated-operations-dataplane-scope/index.md) (**Approved**), implemented in [docs/131](../131-complete-delegated-operations-dataplane-implementation-certification/index.md), and certified read-only in [docs/132](../132-complete-delegated-operations-dataplane-production-migration-certification/index.md) (**READY FOR PRODUCTION MIGRATION APPLICATION**). Do not deploy from this record. Do not apply `20260815200000` as a second Production migration. Do not apply `20260815210000` from this record.
+Owner-authorized **ADR-033 application deployment** remains a separate gate. Slice D apply completed in [docs/133](../133-complete-delegated-operations-dataplane-production-migration-application/index.md) (**READY FOR ADR-033 APPLICATION DEPLOYMENT**). Do not deploy from this record. Do not apply `20260815200000` or `20260815210000`.

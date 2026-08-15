@@ -190,7 +190,7 @@ This package does not create `financial_charges`, replay S0/S1/S2, or touch July
 
 ## Next authorized step
 
-Read-only Production certification completed in [docs/132](../132-complete-delegated-operations-dataplane-production-migration-certification/index.md) (**READY FOR PRODUCTION MIGRATION APPLICATION**). That later record may authorize apply only if the Owner says so. Do not apply from this record.
+Read-only Production certification completed in [docs/132](../132-complete-delegated-operations-dataplane-production-migration-certification/index.md). Apply completed in [docs/133](../133-complete-delegated-operations-dataplane-production-migration-application/index.md) (**READY FOR ADR-033 APPLICATION DEPLOYMENT**). Do not apply `20260815210000` from this record. Do not deploy from this record.
 
 From this record:
 
