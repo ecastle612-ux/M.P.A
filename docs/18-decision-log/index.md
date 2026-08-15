@@ -62,6 +62,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-028](./adr-028-fac-003-asset-inventory-management.md) | FAC-003 Asset and Inventory Management | Accepted (SELECT/notify amended by ADR-029) | 2026-08-14 |
 | [ADR-029](./adr-029-fac-003-production-uat-remediation.md) | FAC-003 Production UAT Remediation (RETURNING-safe SELECT + optional notifications) | Accepted | 2026-08-14 |
 | [ADR-030](./adr-030-operational-workspace-documents-tables.md) | Operational Workspace — Documents and Tables (OPS-001) | **Accepted** | 2026-08-14 |
+| [ADR-032](./adr-032-report-shape-and-post-auth-home.md) | Shared Report Shape Isolation and Canonical Post-Auth Home | **Proposed** | 2026-08-15 |
 
 ---
 
