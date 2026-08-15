@@ -42,7 +42,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-004](./adr-004-vendor-marketplace-first-class.md) | Vendor Marketplace as First-Class Domain | Accepted | 2026-07-11 |
 | [ADR-005](./adr-005-domain-events.md) | Domain Event System for Workflow Connectivity | Accepted | 2026-07-11 |
 | [ADR-006](./adr-006-embedded-ai-not-chatbot.md) | Embedded AI Strategy (Not Chatbot-First) | Accepted | 2026-07-11 |
-| [ADR-007](./adr-007-edge-functions-own-mutations.md) | Edge Functions Own Business Mutations | Accepted | 2026-07-11 |
+| [ADR-007](./adr-007-edge-functions-own-mutations.md) | Edge Functions Own Business Mutations | Accepted — Proposed superseded by ADR-031 | 2026-07-11 |
 | [ADR-008](./adr-008-workflow-first-organization.md) | Workflow-First Code Organization | Accepted | 2026-07-11 |
 | [ADR-009](./adr-009-turborepo-monorepo-day-one.md) | Turborepo Monorepo from Day One | Accepted (supersedes ADR-001) | 2026-07-11 |
 | [ADR-010](./adr-010-defer-accounting-not-reject.md) | Defer Full Accounting — Prepare Architecture | Accepted | 2026-07-11 |
@@ -55,13 +55,18 @@ What other options were evaluated and why were they rejected?
 | [ADR-017](./adr-017-launch-001-customer-promise-journeys.md) | LAUNCH-001 Customer Promise Journeys | Accepted | 2026-08-06 |
 | [ADR-018](./adr-018-self-service-commercial-platform.md) | Self-Service Commercial Platform (COM-002) | Accepted (packaging amended by ADR-019) | 2026-08-07 |
 | [ADR-019](./adr-019-product-constitution.md) | M.P.A. Product Constitution | Accepted | 2026-08-08 |
+| [ADR-020](./adr-020-facility-operations-production-mvp.md) | Facility Operations Production MVP | Accepted | 2026-08-11 |
+| [ADR-021](./adr-021-production-stabilization-sprint-5.md) | Production Stabilization Sprint 5 | Accepted | 2026-08-11 |
+| 022 | *(intentionally unused — do not assign)* | — | — |
 | [ADR-023](./adr-023-universal-media-attachment-framework.md) | Universal Media Attachment Framework (MEDIA-001) | Accepted | 2026-08-13 |
 | [ADR-024](./adr-024-com-002-tenant-communication-center.md) | COM-002 Tenant Communication Center | Accepted | 2026-08-14 |
 | [ADR-025](./adr-025-fac-002-reporting-and-export.md) | FAC-002 Reporting and Export | Accepted | 2026-08-14 |
 | [ADR-026](./adr-026-authorization-hardening-pipeline.md) | Authorization Hardening Pipeline (SKU + Surface + Comms Staff) | Accepted | 2026-08-14 |
+| 027 | *(intentionally unused — do not assign)* | — | — |
 | [ADR-028](./adr-028-fac-003-asset-inventory-management.md) | FAC-003 Asset and Inventory Management | Accepted (SELECT/notify amended by ADR-029) | 2026-08-14 |
 | [ADR-029](./adr-029-fac-003-production-uat-remediation.md) | FAC-003 Production UAT Remediation (RETURNING-safe SELECT + optional notifications) | Accepted | 2026-08-14 |
 | [ADR-030](./adr-030-operational-workspace-documents-tables.md) | Operational Workspace — Documents and Tables (OPS-001) | **Accepted** | 2026-08-14 |
+| [ADR-031](./adr-031-nextjs-trusted-api-mutation-plane.md) | Next.js Trusted API Routes Own Business Mutations | **Proposed** (supersedes ADR-007) | 2026-08-15 |
 
 ---
 
