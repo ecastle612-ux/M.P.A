@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const MIGRATION = "20260815180000_plat_005_privileged_rpc_execute_hardening.sql";
+const PRODUCTION_STAMP = "20260815170604_plat_005_privileged_rpc_execute_hardening.sql";
 const PREDECESSOR = "20260814233536";
 
 function loadMigration(): string {
@@ -24,6 +25,13 @@ describe("PLAT-005 privileged RPC EXECUTE hardening", () => {
   it("is a successor after the current Production ledger tip", () => {
     expect(MIGRATION.startsWith("20260815")).toBe(true);
     expect(MIGRATION > `${PREDECESSOR}_`).toBe(true);
+  });
+
+  it("keeps the Production apply stamp byte-identical to the certified source", () => {
+    const source = readFileSync(resolve(process.cwd(), "../../supabase/migrations", MIGRATION));
+    const stamp = readFileSync(resolve(process.cwd(), "../../supabase/migrations", PRODUCTION_STAMP));
+    expect(stamp.equals(source)).toBe(true);
+    expect(PRODUCTION_STAMP.startsWith("20260815170604")).toBe(true);
   });
 
   it("contains only EXECUTE privilege statements", () => {
