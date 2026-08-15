@@ -60,6 +60,7 @@ Financial Operations is **operational finance for property management**, not ent
 | [S1 Certification](./s1/index.md) | Resident billing & rent collection reports |
 | [S2 Certification](./s2/index.md) | Delinquency, late fees & vendor AP reports |
 | [S3 Certification](./s3/index.md) | Command Center & owner reporting reports |
+| [126 Production Reconciliation Audit](../126-fin-ops-production-reconciliation-audit/index.md) | Draft read-only — S0–S2 certified in-repo were **not** applied to Production |
 
 ---
 
