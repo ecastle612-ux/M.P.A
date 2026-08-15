@@ -77,12 +77,8 @@ export function TeamInvitePanel() {
   const staffInvite = role !== "vendor" && role !== "property_owner";
   const scopeOptions: MemberOperatingScope[] =
     role === "leasing_agent" ? ["property_operations"] : [...MEMBER_OPERATING_SCOPES];
-
-  useEffect(() => {
-    if (role === "leasing_agent") {
-      setOperatingScope("property_operations");
-    }
-  }, [role]);
+  const inviteOperatingScope: MemberOperatingScope | "" =
+    role === "leasing_agent" ? "property_operations" : operatingScope;
 
   useEffect(() => {
     const organizationId = activeOrganization?.id;
@@ -176,7 +172,9 @@ export function TeamInvitePanel() {
       body: JSON.stringify({
         email,
         roles: [role],
-        ...(isComplete && staffInvite && operatingScope ? { operatingScope } : {})
+        ...(isComplete && staffInvite && inviteOperatingScope
+          ? { operatingScope: inviteOperatingScope }
+          : {})
       })
     });
     const payload = (await response.json()) as {
@@ -275,7 +273,13 @@ export function TeamInvitePanel() {
             <Select
               id="invite-role"
               value={role}
-              onChange={(event) => setRoleOverride(event.target.value as LaunchInviteRole)}
+              onChange={(event) => {
+                const nextRole = event.target.value as LaunchInviteRole;
+                setRoleOverride(nextRole);
+                if (nextRole === "leasing_agent") {
+                  setOperatingScope("property_operations");
+                }
+              }}
               data-testid="invite-role-select"
             >
               {inviteRoles.map((inviteRole) => (
@@ -299,7 +303,7 @@ export function TeamInvitePanel() {
               <Select
                 id="invite-scope"
                 required
-                value={operatingScope}
+                value={inviteOperatingScope}
                 onChange={(event) =>
                   setOperatingScope(event.target.value as MemberOperatingScope | "")
                 }
@@ -324,7 +328,7 @@ export function TeamInvitePanel() {
               disabled={
                 loading ||
                 email.trim().length < 3 ||
-                (isComplete && staffInvite && operatingScope.length === 0)
+                (isComplete && staffInvite && inviteOperatingScope.length === 0)
               }
             >
               {loading ? "Sending…" : "Send invitation"}
