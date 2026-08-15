@@ -136,6 +136,7 @@ Authoritative detail: [product-constitution.md](./product-constitution.md) · [A
 | CORE-004 / UX-016 | **Stopped** unless separately re-authorized |
 | Product Constitution (ADR-019) | **Accepted** — three products; Enterprise sales motion only; binding commercial flow |
 | OPS-001 Operational Workspace (Documents + Tables) | **Approved** ([docs/112](../112-ops-001-operational-workspace-documents-tables/index.md), [ADR-030](../18-decision-log/adr-030-operational-workspace-documents-tables.md) Accepted). Phase 1 implemented — [docs/113](../113-ops-001-operational-workspace-implementation-certification/index.md) **READY FOR PRODUCTION MIGRATION CERTIFICATION**. Shared Platform only. **No Production apply or deploy** from the implement package. |
+| Complete Delegated Operations (ADR-033) | Design Approved / ADR-033 Accepted. Production schema live `20260815185722` — [docs/129](../129-complete-delegated-operations-production-migration-application/index.md). Data-plane remainder [docs/130](../130-complete-delegated-operations-dataplane-scope/index.md) **Approved**; [docs/131](../131-complete-delegated-operations-dataplane-implementation-certification/index.md) **READY FOR PRODUCTION MIGRATION CERTIFICATION**. Successor `20260815210000` is **repo-only**. Application still `44d50bf1`. **No apply. No deploy. No FIN-OPS.** |
 
 ---
 
