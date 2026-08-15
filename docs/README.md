@@ -111,6 +111,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 127 | [Complete Delegated Operations](./127-complete-delegated-operations/index.md) | **Approved** · ADR-033 Accepted · member operating scope implement authorized |
 | 135 | [Complete Delegated Operations Invitation Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | **Approved** · implement slices A, B, C, E · no Production apply or deploy |
 | 136 | [Complete Invitation Remediation Implementation Certification](./136-complete-delegated-operations-invitation-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no apply or deploy |
+| 137 | [Complete Invitation Remediation Production Migration Certification](./137-complete-delegated-operations-invitation-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only · no apply or deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -175,6 +176,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
 | [127 Complete Delegated Operations](./127-complete-delegated-operations/index.md) | Approved member operating scope — FACILITY-only Complete must not inherit PM finance |
 | [135 Invitation & Acceptance Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | Approved — Complete invitation create/accept remediation · no Production apply |
+| [137 Invitation Production Migration Certification](./137-complete-delegated-operations-invitation-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only · no apply |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
@@ -195,6 +197,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [ADR-033](./18-decision-log/adr-033-member-operating-scope.md) | Accepted — SKU ∩ scope ∩ role |
 | [135 Invitation remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | **Approved** — implement slices A, B, C, E · no Production apply |
 | [136 Implementation certification](./136-complete-delegated-operations-invitation-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no apply or deploy |
+| [137 Production migration certification](./137-complete-delegated-operations-invitation-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only · no apply or deploy |
 
 ### Governance & gates
 
