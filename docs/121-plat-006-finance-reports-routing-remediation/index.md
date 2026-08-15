@@ -1,19 +1,19 @@
 # PLAT-006 — Finance Capability, Report Surface & FO Routing Remediation
 
-**Status:** Draft / Proposed — Design + read-only audit only  
+**Status:** Approved  
 **Date:** 2026-08-15  
 **Program:** PLAT-006  
 **Blueprint record:** `docs/121-plat-006-finance-reports-routing-remediation/`  
 **Parent residuals:** PLAT-004 (`docs/117` on PR #221 if not yet on `main`) N1, H5-shape, N4, M2, M6  
 **Closed predecessor:** PLAT-005 Production hardening (`docs/118`–`120` on PRs #222–#224 if not yet on `main`) **PRODUCTION HARDENING SUCCESSFUL**  
-**Related ADRs:** [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) Accepted · [ADR-032](../18-decision-log/adr-032-report-shape-and-post-auth-home.md) **Proposed**  
-**Gate:** Design → Document → **Approve** → Implement. **No implementation is authorized from this record.**
+**Related ADRs:** [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) Accepted · [ADR-032](../18-decision-log/adr-032-report-shape-and-post-auth-home.md) **Accepted**  
+**Gate:** Design → Document → Approve → **Implement**. Implementation of Slices A, B, and C is authorized. Production apply and deploy remain separate Owner steps.
 
 ---
 
 ## Verdict of this design
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**DESIGN APPROVED — IMPLEMENT SLICES A, B, AND C**
 
 PLAT-006 remediates three independently testable residuals. None reopen PLAT-001 C1–C5. None require new SKUs, roles, entitlement keys, Stripe changes, or Production writes from this package.
 
@@ -25,7 +25,7 @@ PLAT-006 remediates three independently testable residuals. None reopen PLAT-001
 
 **No new entitlement keys.** Existing `pm.financial_operations`, `platform.reports`, `skuIncludesPropertyManager` / `skuIncludesFacilityOperations` already express the product contract.
 
-**ADR-032 is Proposed** because SKU × persona report shapes and a single post-auth resolver are durable platform contracts not stated in ADR-026.
+**ADR-032 is Accepted** because SKU × persona report shapes and a single post-auth resolver are durable platform contracts not stated in ADR-026.
 
 ---
 
@@ -406,4 +406,4 @@ Product Owner + Architect:
 3. Authorize implement of Slices A, B, and C only after that Approve.
 4. Production apply of Slice A remains a separate Owner step.
 
-**STOP. No implementation from this document until Approved.**
+**Approved.** Implement Slices A, B, and C only. Production migration apply and Production deploy remain separate Owner authorizations.

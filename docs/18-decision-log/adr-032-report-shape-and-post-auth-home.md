@@ -1,7 +1,7 @@
 # ADR-032: Shared Report Shape Isolation and Canonical Post-Auth Home
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-15
@@ -20,7 +20,7 @@ PLAT-004 recorded both gaps:
 
 ADR-026 already says FO Organization Admin may *hold* `pm.finance:*` grants and is denied by SKU. Report **data shapes** still leak without a second contract. FAC-002 already isolates work-order registries by `work_surface`; that decision (ADR-025) stays.
 
-Related: `docs/121-plat-006-finance-reports-routing-remediation` · ADR-003 · ADR-019 · ADR-026 · ADR-031 (Proposed, mutation plane).
+Related: `docs/121-plat-006-finance-reports-routing-remediation` · ADR-003 · ADR-019 · ADR-026 · ADR-031 (trusted application mutation architecture).
 
 ## Decision
 
@@ -56,4 +56,4 @@ Related: `docs/121-plat-006-finance-reports-routing-remediation` · ADR-003 · A
 
 ## Approval
 
-Accept with PLAT-006 (`docs/121`). Implementation of Slices B and C is authorized only after this ADR is **Accepted** and `docs/121` is **Approved**.
+Accepted with PLAT-006 (`docs/121` Approved). Implementation of Slices B and C is authorized.
