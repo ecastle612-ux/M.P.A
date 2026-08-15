@@ -346,4 +346,4 @@ Current Production app at `e56a330f` remains compatible: it already requires `pm
 
 ## Next authorized step
 
-Owner apply of **the same** `20260815190000` statements to `mpa-prod`, then a separate application-certification package. **Do not apply from this record. Do not deploy from this record.**
+Owner apply of **the same** `20260815190000` statements to `mpa-prod` was completed in [docs/124](../124-plat-006-production-migration-application-certification/index.md). **Do not re-apply from this record. Do not deploy from this record.**

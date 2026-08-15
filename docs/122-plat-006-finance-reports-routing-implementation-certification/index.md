@@ -206,4 +206,4 @@ A stale role-only `homeHref` can no longer override the product-aware destinatio
 
 **STOP. No Production migration. No Production deployment.**
 
-Successor read-only cert: [docs/123](../123-plat-006-production-migration-certification/index.md) — **READY FOR PRODUCTION MIGRATION APPLICATION**. Do not apply from this record.
+Successor read-only cert: [docs/123](../123-plat-006-production-migration-certification/index.md). Slice A apply: [docs/124](../124-plat-006-production-migration-application-certification/index.md) — **READY FOR APPLICATION DEPLOYMENT**. Do not re-apply or deploy from this record.
