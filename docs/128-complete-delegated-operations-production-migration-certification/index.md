@@ -640,6 +640,12 @@ This record does not apply, deploy, merge for Production release, or implement F
 
 ---
 
+## Next authorized step
+
+Apply completed in [docs/129](../129-complete-delegated-operations-production-migration-application/index.md) (**READY FOR APPLICATION DEPLOYMENT**). Production ledger: `20260815185722` / `adr_033_member_operating_scope`. Do not re-apply from this record. Do not deploy from this record.
+
+---
+
 ## Constraints honored
 
 - Product Constitution: three products; Complete remains one subscription
