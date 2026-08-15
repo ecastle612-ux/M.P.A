@@ -108,6 +108,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 115 | [OPS-001 Phase 1 Production Migration Application Certification](./115-ops-001-production-migration-application-certification/index.md) | **READY FOR APPLICATION DEPLOYMENT** · schema live `20260814233536` · app still `aee7fa95` · no deploy |
 | 121 | [PLAT-006 Finance, Report Surface & FO Routing](./121-plat-006-finance-reports-routing-remediation/index.md) | **Approved** · ADR-032 Accepted · implement Slices A–C only · no Production apply or deploy |
 | 122 | [PLAT-006 Finance, Report Surface & Routing Implementation Certification](./122-plat-006-finance-reports-routing-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
+| 123 | [PLAT-006 Production Migration Certification](./123-plat-006-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · read-only · no apply or deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
