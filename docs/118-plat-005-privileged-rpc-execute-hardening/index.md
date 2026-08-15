@@ -1,19 +1,20 @@
 # PLAT-005 — Privileged RPC Execute Hardening
 
-**Status:** Draft / Proposed — Design only  
+**Status:** Approved  
 **Date:** 2026-08-15  
 **Program:** PLAT-005  
 **Blueprint record:** `docs/118-plat-005-privileged-rpc-execute-hardening/`  
+**Implementation:** [docs/119](../119-plat-005-privileged-rpc-execute-hardening-implementation-certification/index.md) — in-repo only; **not** Production-applied  
 **Parent audit:** [PLAT-004](../117-plat-004-residual-remediation-design/index.md) (H6 / P0; PR #221 if not yet on `main`)  
 **Historical:** [PLAT-001](../93-plat-001-platform-mismatch-audit/index.md) H6  
-**Gate:** Design → Document → **Approve** → Implement (ADR-012)  
+**Gate:** Design → Document → Approve → **Implement** (ADR-012)  
 **Production (do not change from this package):** app `e56a330facf21d548815e95ff2e4c82e3c6077bd` · ledger `20260814233536` / `ops_001_operational_workspace`
 
 ---
 
 ## Verdict of this design
 
-**READY FOR APPROVE — SCHEMA-ONLY**
+**APPROVED — SCHEMA-ONLY**
 
 This package removes unnecessary `PUBLIC` / `anon` (and, where required, `authenticated`) `EXECUTE` on privileged `SECURITY DEFINER` functions. It does **not** change function bodies, table RLS, roles, SKUs, Stripe, or application behavior.
 
@@ -21,15 +22,14 @@ This package removes unnecessary `PUBLIC` / `anon` (and, where required, `authen
 
 **No new ADR.** Grant hygiene is already required by `docs/14` and by ADR-026 (“revoke EXECUTE from `anon`”). ADR-031 (mutation plane) is unrelated and stays with PLAT-004.
 
-**No implementation is authorized until this record is Approved.**
+Implement of §7 is authorized and landed in-repo ([docs/119](../119-plat-005-privileged-rpc-execute-hardening-implementation-certification/index.md)). **Production apply remains a separate Owner step.**
 
 ---
 
 ## Constraints honored
 
-This design does **not**:
+This design (and its authorized implement) does **not**:
 
-- Implement or apply SQL
 - Modify Production
 - Deploy or merge
 - Change application behavior
@@ -301,12 +301,23 @@ Residuals left to later programs: N1 finance grants, H5 report shapes, M2 invite
 
 ---
 
-## 10. Approval ask
+## 10. Approval
 
-Product Owner + Architect:
+Product Owner authorized implement of §7 on 2026-08-15.
 
-1. Accept this record as the PLAT-005 design.
-2. Authorize **implement** of §7 only (one successor migration, grants only).
+1. This record is the Approved PLAT-005 design.
+2. Implement of §7 only (one successor migration, grants only) is authorized.
 3. Production apply remains a separate Owner step after Preview verification.
 
-**STOP. No implementation from this document until Approved.**
+---
+
+## 11. Implementation record (in-repo)
+
+| Item | Value |
+|------|--------|
+| Migration | `supabase/migrations/20260815180000_plat_005_privileged_rpc_execute_hardening.sql` |
+| Tests | `apps/web/src/lib/auth/plat-005-rpc-execute.test.ts` |
+| Certification | [docs/119](../119-plat-005-privileged-rpc-execute-hardening-implementation-certification/index.md) |
+| Production apply | **Not performed** from this package |
+
+§5.2 helpers are restated idempotently in the successor (same Class A matrix). That is not a replay of `20260814160000` or `20260814200000` and does not change intended grants.
