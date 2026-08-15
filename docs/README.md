@@ -110,7 +110,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 122 | [PLAT-006 Finance, Report Surface & Routing Implementation Certification](./122-plat-006-finance-reports-routing-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
 | 128 | [Complete Delegated Operations Production Migration Certification](./128-complete-delegated-operations-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · ADR-033 read-only predecessor · applied as `20260815185722` |
 | 129 | [Complete Delegated Operations Production Migration Application](./129-complete-delegated-operations-production-migration-application/index.md) | **READY FOR APPLICATION DEPLOYMENT** · schema live `20260815185722` · app still `44d50bf1` · no deploy |
-| 130 | [ADR-033 Data-Plane Scope Completion](./130-complete-delegated-operations-dataplane-scope/index.md) | **Proposed** · Slice D remainder · helper + WO manager policies · no implement / apply / deploy |
+| 130 | [ADR-033 Data-Plane Scope Completion](./130-complete-delegated-operations-dataplane-scope/index.md) | **Approved** · Slice D remainder · helper + WO manager policies · implement authorized · no Production apply / deploy |
+| 131 | [ADR-033 Slice D Data-Plane Implementation Certification](./131-complete-delegated-operations-dataplane-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · repo-only `20260815210000` · no apply / deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -175,7 +176,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
 | [128 ADR-033 Production Migration Certification](./128-complete-delegated-operations-production-migration-certification/index.md) | docs/126 remains blocked; schema apply completed in docs/129 |
 | [129 ADR-033 Production Migration Application](./129-complete-delegated-operations-production-migration-application/index.md) | Schema live; docs/126 still blocked until later app deploy |
-| [130 ADR-033 Data-Plane Scope Completion](./130-complete-delegated-operations-dataplane-scope/index.md) | Proposed RLS successor; docs/126 still blocked |
+| [130 ADR-033 Data-Plane Scope Completion](./130-complete-delegated-operations-dataplane-scope/index.md) | Approved RLS successor; docs/126 still blocked |
+| [131 ADR-033 Slice D Implementation Certification](./131-complete-delegated-operations-dataplane-implementation-certification/index.md) | Repo-only successor; docs/126 still blocked |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
@@ -194,7 +196,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 |----------|---------|
 | [128 Certification](./128-complete-delegated-operations-production-migration-certification/index.md) | ADR-033 read-only predecessor — apply completed |
 | [129 Application](./129-complete-delegated-operations-production-migration-application/index.md) | Schema live `20260815185722` — **READY FOR APPLICATION DEPLOYMENT** · no deploy |
-| [130 Data-plane completion](./130-complete-delegated-operations-dataplane-scope/index.md) | Proposed successor RLS — **Approve before implement** |
+| [130 Data-plane completion](./130-complete-delegated-operations-dataplane-scope/index.md) | **Approved** successor RLS — implement authorized · no Production apply |
+| [131 Implementation certification](./131-complete-delegated-operations-dataplane-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · `20260815210000` repo-only · no apply / deploy |
 
 ### Governance & gates
 
