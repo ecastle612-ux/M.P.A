@@ -108,6 +108,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 115 | [OPS-001 Phase 1 Production Migration Application Certification](./115-ops-001-production-migration-application-certification/index.md) | **READY FOR APPLICATION DEPLOYMENT** · schema live `20260814233536` · app still `aee7fa95` · no deploy |
 | 121 | [PLAT-006 Finance, Report Surface & FO Routing](./121-plat-006-finance-reports-routing-remediation/index.md) | **Approved** · ADR-032 Accepted · implement Slices A–C only · no Production apply or deploy |
 | 122 | [PLAT-006 Finance, Report Surface & Routing Implementation Certification](./122-plat-006-finance-reports-routing-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no Production apply or deploy |
+| 128 | [Complete Delegated Operations Production Migration Certification](./128-complete-delegated-operations-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** · ADR-033 read-only · no apply or deploy · no FIN-OPS |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -170,6 +171,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [S2 Certification](./25-fin-ops-001/s2/index.md) | Delinquency, late fees & vendor AP |
 | [S3 Certification](./25-fin-ops-001/s3/index.md) | Command Center & owner reporting |
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
+| [128 ADR-033 Production Migration Certification](./128-complete-delegated-operations-production-migration-certification/index.md) | docs/126 remains blocked; depends on ADR-033 Production certification + later app deploy |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
@@ -181,6 +183,12 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [Customer Journeys](./26-launch-001-onboarding/customer-journeys.md) | Outcome order (replaces eng slices) |
 | [Master Admin Certification Console](./26-launch-001-onboarding/master-admin-certification-console.md) | How operators certify each promise |
 | [Launch Readiness Gate](./26-launch-001-onboarding/launch-readiness-gate.md) | GO only when journeys work unaided |
+
+### 128 Complete Delegated Operations — Production Migration Certification
+
+| Document | Purpose |
+|----------|---------|
+| [Package Index](./128-complete-delegated-operations-production-migration-certification/index.md) | ADR-033 Production migration certification — **READY FOR PRODUCTION MIGRATION APPLICATION** · no apply or deploy |
 
 ### Governance & gates
 
