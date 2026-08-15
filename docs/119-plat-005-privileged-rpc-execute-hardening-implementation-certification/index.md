@@ -1,14 +1,14 @@
 # PLAT-005 PRIVILEGED RPC EXECUTE HARDENING IMPLEMENTATION CERTIFICATION
 
 **Title:** PLAT-005 PRIVILEGED RPC EXECUTE HARDENING IMPLEMENTATION CERTIFICATION  
-**Status:** READY FOR PREVIEW VERIFICATION  
+**Status:** IMPLEMENTED — Production apply certified in [docs/120](../120-plat-005-production-privileged-rpc-hardening-certification/index.md)  
 **Date:** 2026-08-15  
 **Program:** PLAT-005  
 **Authority:** [docs/118](../118-plat-005-privileged-rpc-execute-hardening/index.md) Approved · [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) remains authoritative  
 **No new ADR**  
 **Parent audit:** [PLAT-004](../117-plat-004-residual-remediation-design/index.md) H6 / P0  
 **Gate:** Design → Document → Approve → **Implement** (ADR-012)  
-**Production:** **No Production migration apply. No Production deploy.**  
+**Production:** Grant apply is certified in [docs/120](../120-plat-005-production-privileged-rpc-hardening-certification/index.md). **No application deploy from this record.**  
 **Billing / Stripe:** No changes  
 **Roles / SKUs / entitlement keys:** No additions  
 
@@ -90,10 +90,10 @@ Do **not** call `ops_claim_*` or `auth_register_username` in tests (they mutate)
 - Drop of `username_registry`, QR tables, or July ops claimers
 - Event dispatcher / cron worker
 - Username login product path
-- Production ledger apply
+- Application deploy
 
 ---
 
 ## Next Owner step
 
-Preview / branch database apply, then the live checks in [docs/118 §8](../118-plat-005-privileged-rpc-execute-hardening/index.md). Production apply only with a later Owner authorization. If the repo filename would collide on Production (PLAT-004 H3), use a successor stamp. Do **not** replay `20260814160000` or `20260814200000`.
+Production grant apply is certified in [docs/120](../120-plat-005-production-privileged-rpc-hardening-certification/index.md). **Do not deploy the application from this record.** Do **not** replay `20260814160000` or `20260814200000`.

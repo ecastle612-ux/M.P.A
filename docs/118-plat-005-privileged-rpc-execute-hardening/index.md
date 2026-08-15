@@ -8,7 +8,7 @@
 **Parent audit:** [PLAT-004](../117-plat-004-residual-remediation-design/index.md) (H6 / P0; PR #221 if not yet on `main`)  
 **Historical:** [PLAT-001](../93-plat-001-platform-mismatch-audit/index.md) H6  
 **Gate:** Design → Document → Approve → **Implement** (ADR-012)  
-**Production (do not change from this package):** app `e56a330facf21d548815e95ff2e4c82e3c6077bd` · ledger `20260814233536` / `ops_001_operational_workspace`
+**Production:** app `e56a330facf21d548815e95ff2e4c82e3c6077bd` (unchanged) · ledger **`20260815170604` / `plat_005_privileged_rpc_execute_hardening`** · [docs/120](../120-plat-005-production-privileged-rpc-hardening-certification/index.md) **PRODUCTION HARDENING SUCCESSFUL**
 
 ---
 
@@ -320,6 +320,6 @@ Product Owner authorized implement of §7 on 2026-08-15.
 | Migration | `supabase/migrations/20260815180000_plat_005_privileged_rpc_execute_hardening.sql` |
 | Tests | `apps/web/src/lib/auth/plat-005-rpc-execute.test.ts` |
 | Certification | [docs/119](../119-plat-005-privileged-rpc-execute-hardening-implementation-certification/index.md) |
-| Production apply | **Not performed** from this package |
+| Production apply | Certified in [docs/120](../120-plat-005-production-privileged-rpc-hardening-certification/index.md) as `20260815170604` |
 
 §5.2 helpers are restated idempotently in the successor (same Class A matrix). That is not a replay of `20260814160000` or `20260814200000` and does not change intended grants.
