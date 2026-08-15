@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
-import { isLaunchInviteRole, isProductSku, validateInviteOperatingScope } from "@mpa/shared";
+import {
+  inviterMayGrantInvitation,
+  isLaunchInviteRole,
+  isMemberOperatingScope,
+  isProductSku,
+  validateInviteOperatingScope
+} from "@mpa/shared";
 import { parseInviteOrganizationMemberInput } from "../../../../../lib/organization/contracts";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import {
@@ -8,7 +14,10 @@ import {
 } from "../../../../../lib/auth/authorization";
 import {
   buildAcceptUrl,
-  createAndSendInvitation
+  createAndSendInvitation,
+  InvitationCreateError,
+  INVITATION_ROW_COLUMNS,
+  invitationNoticeCopy
 } from "../../../../../lib/team/invitation-service";
 
 async function requirePermission(
@@ -31,6 +40,16 @@ async function requirePermission(
   return { user };
 }
 
+function toInvitationJson(invitation: Record<string, unknown>) {
+  const deliveryStatus = (invitation["delivery_status"] as string | null) ?? "pending";
+  return {
+    ...invitation,
+    delivery_status: deliveryStatus,
+    emailStatus: deliveryStatus,
+    acceptUrl: invitation["status"] === "pending" ? buildAcceptUrl(invitation["token"] as string) : null
+  };
+}
+
 export async function GET(_request: Request, context: { params: Promise<{ organizationId: string }> }) {
   const { organizationId } = await context.params;
   const supabase = await createAuthServerClient();
@@ -42,9 +61,7 @@ export async function GET(_request: Request, context: { params: Promise<{ organi
 
   const { data, error } = await supabase
     .from("organization_invitations")
-    .select(
-      "id, email, roles, status, token, expires_at, created_at, email_status, email_sent_at, email_provider_id, email_error, operating_scope"
-    )
+    .select(INVITATION_ROW_COLUMNS)
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false });
 
@@ -53,11 +70,7 @@ export async function GET(_request: Request, context: { params: Promise<{ organi
   }
 
   return NextResponse.json({
-    invitations: (data ?? []).map((invitation) => ({
-      ...invitation,
-      acceptUrl:
-        invitation.status === "pending" ? buildAcceptUrl(invitation.token as string) : null
-    }))
+    invitations: (data ?? []).map((invitation) => toInvitationJson(invitation as Record<string, unknown>))
   });
 }
 
@@ -105,6 +118,27 @@ export async function POST(request: Request, context: { params: Promise<{ organi
     return NextResponse.json({ error: scopeDecision.error }, { status: 400 });
   }
 
+  const { data: inviterMembership } = await supabase
+    .from("organization_memberships")
+    .select("roles, operating_scope")
+    .eq("organization_id", organizationId)
+    .eq("user_id", authz.user.id)
+    .eq("status", "active")
+    .maybeSingle();
+
+  const inviterScopeRaw = inviterMembership?.operating_scope;
+  const inviterStoredScope = isMemberOperatingScope(inviterScopeRaw) ? inviterScopeRaw : null;
+  const grantDecision = inviterMayGrantInvitation({
+    sku,
+    inviterRoles: (inviterMembership?.roles as string[] | undefined) ?? [],
+    inviterStoredScope,
+    grantRoles: parsed.roles,
+    grantScope: scopeDecision.scope
+  });
+  if (!grantDecision.ok) {
+    return NextResponse.json({ error: grantDecision.error }, { status: 403 });
+  }
+
   const { data: organization } = await supabase
     .from("organizations")
     .select("name")
@@ -126,22 +160,21 @@ export async function POST(request: Request, context: { params: Promise<{ organi
     return NextResponse.json(
       {
         invitation: {
-          ...result.invitation,
+          ...toInvitationJson(result.invitation as Record<string, unknown>),
           acceptUrl: result.acceptUrl,
           roleLabel: result.roleLabel
         },
         acceptUrl: result.acceptUrl,
         emailStatus: result.emailStatus,
-        notice:
-          result.emailStatus === "sent"
-            ? "Invitation email sent."
-            : result.emailStatus === "failed"
-              ? "Invitation created but email failed — copy the accept link."
-              : "Invitation created. Copy the accept link (email provider not configured)."
+        deliveryStatus: result.deliveryStatus,
+        notice: invitationNoticeCopy(result.emailStatus)
       },
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof InvitationCreateError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Invitation failed" },
       { status: 400 }

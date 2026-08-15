@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { entitlementsForSku } from "../commercial/entitlements";
 import {
   entitlementsForMember,
+  inviterMayGrantInvitation,
   memberAllowsWorkSurface,
   resolveMemberOperatingScope,
   storedScopeForNewMembership,
@@ -153,6 +154,121 @@ describe("member operating scope", () => {
         nextScope: "facility_operations"
       })
     ).toBe(false);
+  });
+
+  it("blocks role demotion of the last Complete BOTH admin", () => {
+    expect(
+      wouldLeaveCompleteWithoutBothAdmin({
+        sku: "mpa_complete_platform",
+        admins: [{ id: "a1", roles: ["organization_admin"], storedScope: "both" }],
+        targetMembershipId: "a1",
+        nextScope: "both",
+        nextRoles: ["property_manager"]
+      })
+    ).toBe(true);
+  });
+
+  it("allows role demotion when another BOTH admin remains", () => {
+    expect(
+      wouldLeaveCompleteWithoutBothAdmin({
+        sku: "mpa_complete_platform",
+        admins: [
+          { id: "a1", roles: ["organization_admin"], storedScope: "both" },
+          { id: "a2", roles: ["organization_admin"], storedScope: null }
+        ],
+        targetMembershipId: "a1",
+        nextScope: "both",
+        nextRoles: ["property_manager"]
+      })
+    ).toBe(false);
+  });
+
+  it("enforces Complete inviter grant caps", () => {
+    const propertyInviter = {
+      sku: "mpa_complete_platform" as const,
+      inviterRoles: ["property_manager"],
+      inviterStoredScope: "property_operations" as const,
+      grantRoles: ["property_manager"]
+    };
+    expect(
+      inviterMayGrantInvitation({
+        ...propertyInviter,
+        grantScope: "property_operations"
+      }).ok
+    ).toBe(true);
+    expect(
+      inviterMayGrantInvitation({
+        ...propertyInviter,
+        grantScope: "facility_operations"
+      }).ok
+    ).toBe(false);
+    expect(
+      inviterMayGrantInvitation({
+        ...propertyInviter,
+        grantScope: "both"
+      }).ok
+    ).toBe(false);
+
+    const facilityInviter = {
+      sku: "mpa_complete_platform" as const,
+      inviterRoles: ["property_manager"],
+      inviterStoredScope: "facility_operations" as const,
+      grantRoles: ["property_manager"]
+    };
+    expect(
+      inviterMayGrantInvitation({
+        ...facilityInviter,
+        grantScope: "facility_operations"
+      }).ok
+    ).toBe(true);
+    expect(
+      inviterMayGrantInvitation({
+        ...facilityInviter,
+        grantScope: "property_operations"
+      }).ok
+    ).toBe(false);
+    expect(
+      inviterMayGrantInvitation({
+        ...facilityInviter,
+        grantScope: "both"
+      }).ok
+    ).toBe(false);
+
+    expect(
+      inviterMayGrantInvitation({
+        sku: "mpa_complete_platform",
+        inviterRoles: ["organization_admin"],
+        inviterStoredScope: "both",
+        grantRoles: ["property_manager"],
+        grantScope: "both"
+      }).ok
+    ).toBe(true);
+    expect(
+      inviterMayGrantInvitation({
+        sku: "mpa_complete_platform",
+        inviterRoles: ["property_manager"],
+        inviterStoredScope: "property_operations",
+        grantRoles: ["organization_admin"],
+        grantScope: "property_operations"
+      }).ok
+    ).toBe(false);
+  });
+
+  it("implies single-product invite scopes", () => {
+    expect(
+      validateInviteOperatingScope({
+        sku: "mpa_property_manager",
+        roles: ["property_manager"],
+        storedScope: null
+      })
+    ).toEqual({ ok: true, scope: "property_operations" });
+    expect(
+      validateInviteOperatingScope({
+        sku: "mpa_facility_operations",
+        roles: ["property_manager"],
+        storedScope: null
+      })
+    ).toEqual({ ok: true, scope: "facility_operations" });
   });
 
   it("stores SKU-implied scope for new founding memberships", () => {

@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { ACTIVE_ORGANIZATION_COOKIE } from "../../../../../lib/organization/contracts";
-import { acceptInvitation } from "../../../../../lib/team/invitation-service";
+import {
+  acceptInvitation,
+  InvitationAcceptanceError
+} from "../../../../../lib/team/invitation-service";
+import { serverEnv } from "../../../../../lib/env/server-env";
 
-export async function POST(_request: Request, context: { params: Promise<{ token: string }> }) {
+export async function POST(request: Request, context: { params: Promise<{ token: string }> }) {
   const { token } = await context.params;
   const supabase = await createAuthServerClient();
 
@@ -15,9 +19,19 @@ export async function POST(_request: Request, context: { params: Promise<{ token
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
+  // Body is ignored. Role and operating_scope come only from the persisted invitation.
+  await request.json().catch(() => null);
+
+  if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: "Invitation acceptance is not configured." }, { status: 500 });
+  }
+
+  const { createServiceRoleClient } = await import("../../../../../lib/supabase/service-role");
+  const service = createServiceRoleClient();
+
   try {
     const result = await acceptInvitation({
-      supabase,
+      supabase: service,
       token,
       userId: user.id,
       userEmail: user.email
@@ -27,8 +41,10 @@ export async function POST(_request: Request, context: { params: Promise<{ token
       ok: true,
       organizationId: result.organizationId,
       roles: result.roles,
+      operatingScope: result.operatingScope,
       homeHref: result.homeHref,
-      roleLabel: result.roleLabel
+      roleLabel: result.roleLabel,
+      idempotent: result.idempotent
     });
 
     response.cookies.set(ACTIVE_ORGANIZATION_COOKIE, result.organizationId, {
@@ -41,15 +57,10 @@ export async function POST(_request: Request, context: { params: Promise<{ token
 
     return response;
   } catch (error) {
+    if (error instanceof InvitationAcceptanceError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     const message = error instanceof Error ? error.message : "Could not accept invitation";
-    const status =
-      message.includes("not found")
-        ? 404
-        : message.includes("expired")
-          ? 410
-          : message.includes("invited email")
-            ? 403
-            : 400;
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

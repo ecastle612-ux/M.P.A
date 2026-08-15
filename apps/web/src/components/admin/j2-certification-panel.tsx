@@ -8,7 +8,13 @@ type J2Report = {
   checks: Record<string, boolean>;
   assistantRecommendation: string;
   emailNote?: string;
-  invitations: Array<{ id: string; email: string; status: string; email_status: string | null; roles: string[] }>;
+  invitations: Array<{
+    id: string;
+    email: string;
+    status: string;
+    delivery_status: string | null;
+    roles: string[];
+  }>;
   memberships: Array<{ id: string; user_id: string; roles: string[] }>;
   timelineEvents: Array<{ id: string; event_type: string; created_at: string }>;
   auditEvents: Array<{ id: string; action: string; created_at: string }>;
@@ -101,7 +107,7 @@ export function J2CertificationPanel() {
             <ul className="mt-1 space-y-1 text-[var(--mpa-color-text-secondary)]">
               {report.invitations.map((invitation) => (
                 <li key={invitation.id}>
-                  {invitation.email} · {invitation.status} · email {invitation.email_status ?? "n/a"} ·{" "}
+                  {invitation.email} · {invitation.status} · email {invitation.delivery_status ?? "pending"} ·{" "}
                   {invitation.roles.join(", ")}
                 </li>
               ))}
