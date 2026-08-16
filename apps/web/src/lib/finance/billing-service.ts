@@ -820,7 +820,7 @@ export async function markPaymentFailed(
   return payment;
 }
 
-export async function refreshResidentFinancialStatus(supabase: Db, organizationId: string, leaseId: string) {
+export async function loadResidentFinancialStatus(supabase: Db, organizationId: string, leaseId: string) {
   const today = new Date().toISOString().slice(0, 10);
   const { data: charges } = await supabase
     .from("financial_charges")
@@ -847,13 +847,17 @@ export async function refreshResidentFinancialStatus(supabase: Db, organizationI
   }
 
   const status = deriveResidentFinancialStatus({ openBalance: roundMoney(openBalance), hasPastDue });
+  return { openBalance: roundMoney(openBalance), hasPastDue, status };
+}
+
+export async function refreshResidentFinancialStatus(supabase: Db, organizationId: string, leaseId: string) {
+  const derived = await loadResidentFinancialStatus(supabase, organizationId, leaseId);
   await supabase
     .from("lease_residents")
-    .update({ financial_status: status })
+    .update({ financial_status: derived.status })
     .eq("organization_id", organizationId)
     .eq("lease_id", leaseId);
-
-  return { openBalance: roundMoney(openBalance), hasPastDue, status };
+  return derived;
 }
 
 export async function getLeaseLedger(supabase: Db, organizationId: string, leaseId: string) {
@@ -876,7 +880,7 @@ export async function getLeaseLedger(supabase: Db, organizationId: string, lease
       .eq("organization_id", organizationId)
       .eq("lease_id", leaseId)
       .order("occurred_at", { ascending: false }),
-    refreshResidentFinancialStatus(supabase, organizationId, leaseId)
+    loadResidentFinancialStatus(supabase, organizationId, leaseId)
   ]);
 
   return {
