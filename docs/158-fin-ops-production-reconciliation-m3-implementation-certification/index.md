@@ -294,11 +294,17 @@ Canopy / PMX / Development remain SKU-denied even for Erick-class helpers (`org_
 | Suite | Result |
 |-------|--------|
 | `scripts/validate-docs-157-m3-sql.sh` | `docs/157 M3 scratch apply: PASS` |
-| `apps/web/src/lib/finance/docs-157-m3-cutover.test.ts` | contract + scratch + endpoint classification |
-| `apps/web/src/lib/auth/require-authorized-action.test.ts` | existing Erick / Sarah / Mike / PLAT-006 API matrix |
-| `apps/web/src/lib/auth/plat-006-finance-grants.test.ts` | live eight keys; tenant/vendor revoke |
-| `apps/web/src/lib/auth/docs-135-rls.test.ts` | PLAT-005 privileged helper revokes |
-| Shared finance + M2/M2D contract tests | no M3 regression intended |
+| `apps/web/src/lib/finance/docs-157-m3-cutover.test.ts` | **9 passed** — contract, endpoint classification, scratch |
+| `apps/web/src/lib/finance/docs-140-m2-backfill.test.ts` + `docs-152-m2d-repair.test.ts` | **8 passed** — no M3 regression |
+| `apps/web/src/lib/auth/require-authorized-action.test.ts` | **passed** — Erick / Sarah / Mike ADR-033 + PLAT-006 API matrix |
+| `apps/web/src/lib/auth/plat-006-finance-grants.test.ts` | **passed** — live eight keys; tenant/vendor revoke |
+| `apps/web/src/lib/auth/docs-135-rls.test.ts` | **passed** — PLAT-005 privileged helper revokes |
+| `packages/shared` `src/finance` | **7 files / 30 tests passed** |
+| `pnpm lint` | **6/6 successful** |
+| `pnpm typecheck` | **6/6 successful** |
+| `pnpm build` | **6/6 successful** |
+
+Unrelated pre-existing Turbo warnings on `pnpm build`: `@mpa/email`, `@mpa/mobile`, `@mpa/shared`, `@mpa/supabase`, and `@mpa/ui` report `no output files found` for their `outputs` key. Those packages are unchanged by M3 and the web production build completed.
 
 ---
 
