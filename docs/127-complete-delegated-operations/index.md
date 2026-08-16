@@ -24,7 +24,7 @@ effective access =
   ∩ action
 ```
 
-Implementation is authorized for this contract only. docs/126 remains blocked. No new SKU, role, organization, or Stripe change.
+Implementation is authorized for this contract only. docs/126 remains the audit. [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) is the FIN-OPS remediation design (**Approved** — M1 only). Production apply is not authorized. No new SKU, role, organization, or Stripe change.
 
 Complete is already the **organization-level entitlement union**. It cannot distinguish “this manager operates Property Operations” from “this manager operates Facility Operations.” That gap is architectural, not a missing SKU.
 
@@ -703,11 +703,10 @@ docs/126 status remains:
 
 **AUDIT COMPLETE · BLOCKED FOR REMEDIATION DESIGN**
 
-This package:
+The remediation design is now [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) (**Approved**). It chooses Option A+C and **requires** member-effective entitlements. This Complete package still:
 
-- Does **not** choose docs/126 Option A, B, C, or D
 - Does **not** create `financial_charges` or replay FIN-OPS migrations
-- **Does** require that any future FIN-OPS remediation design take member operating scope as an input
+- Does **not** apply M1 to Production
 
 Without that, Mike (`property_manager` + Complete + FACILITY) will pass `requireFinancePermission` as soon as schema exists, because:
 
@@ -756,7 +755,7 @@ Do not use Production customer passwords in docs. Do not apply FIN-OPS schema as
 
 ### 19.4 Approval
 
-Approved 2026-08-15. ADR-033 Accepted. Implementation of the member-operating-scope contract is authorized. Production apply is not. docs/126 remains blocked.
+Approved 2026-08-15. ADR-033 Accepted. Implementation of the member-operating-scope contract is authorized. Production apply of this package is closed. docs/126 remains the audit. docs/140 is Approved for M1 only.
 
 ---
 
