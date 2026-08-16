@@ -313,3 +313,5 @@ Until then: July remains authoritative and writable. Migrated FIN-OPS rows, if l
 ## FINAL VERDICT
 
 **READY FOR M2 PRODUCTION BACKFILL CERTIFICATION**
+
+Successor Production read-only cert: [docs/148](../148-fin-ops-production-reconciliation-m2-production-backfill-certification/index.md).
