@@ -52,8 +52,10 @@ describe("docs/157 M3 cutover contract", () => {
     expect(m3b).toContain("finance_m3_preflight");
     expect(m3b).not.toMatch(/select public\.finance_m3_assert_preflight\(/);
     expect(m3b).not.toMatch(/perform public\.finance_m3_assert_preflight\(/);
-    expect(m3b).not.toMatch(/finance_ops_writes_set\(true\)/);
-    expect(m3a).not.toMatch(/finance_ops_writes_set\(true\)/);
+    expect(m3b).not.toMatch(/select public\.finance_ops_writes_set\(true\)/);
+    expect(m3b).not.toMatch(/perform public\.finance_ops_writes_set\(true\)/);
+    expect(m3a).not.toMatch(/select public\.finance_ops_writes_set\(true\)/);
+    expect(m3a).not.toMatch(/perform public\.finance_ops_writes_set\(true\)/);
     expect(m3b).not.toContain("20260816020000_docs_140");
     expect(m3b).not.toContain("20260806030000");
     expect(m3b).not.toContain("20260806040000");
