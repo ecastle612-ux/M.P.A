@@ -477,7 +477,7 @@ using (
     lease_id,
     null,
     null,
-    created_at
+    issued_at
   )
 );
 
