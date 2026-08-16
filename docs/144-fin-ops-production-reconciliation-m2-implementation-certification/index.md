@@ -355,16 +355,18 @@ Do not freeze July writes in that future M2 apply unless a later approved cutove
 
 ## Tests run for this certification
 
-- M2 mapping unit tests
-- M2 transformation / reconciliation / idempotency / fail-closed scratch validator
-- M2 web contract tests
-- Shared finance tests
-- ADR-033 operating-scope tests
-- PLAT-006 finance authorization tests
-- Relevant web finance tests
-- lint / typecheck / production build
+| Suite | Result |
+|-------|--------|
+| `scripts/validate-docs-140-m2-sql.sh` | **PASS** — dry-run, double apply, source-vs-target reconcile, July fingerprint unchanged, required fail-closed cases |
+| `packages/shared` finance + ADR-033 + PLAT-006 auth tests | **332 passed** |
+| `apps/web` `src/lib/finance` (M1 + M2 contract) | **15 passed** |
+| `pnpm lint` | **PASS** |
+| `pnpm typecheck` | **PASS** |
+| `pnpm --filter @mpa/web build` | **PASS** |
 
-Unrelated pre-existing failures, if any, are classified in the implementation PR / test log and are not hidden inside this verdict.
+### Unrelated pre-existing failure
+
+`apps/web/src/app/api/commerce/checkout/checkout.route.test.ts` — `returns price unconfigured when unit-volume env Prices are absent` expects HTTP `503/502/400` when SaaS Price envs are missing. This cloud environment returns **200** because those envs are present. The test is SaaS Checkout, not FIN-OPS. M2 does not touch billing, SKUs, subscriptions, or Stripe Checkout. **Not hidden; not blocking M2.**
 
 ---
 
