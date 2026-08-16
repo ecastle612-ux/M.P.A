@@ -1,0 +1,40 @@
+-- docs/140 FIN-OPS Production Reconciliation — Slice M2
+-- Amended by docs/146 / ADR-035 (M2A currency, M2B proven units, M2C dry-run).
+-- Identity materialization + July → FIN-OPS backfill + ledger reconstruction.
+-- Successor after live Production tip 20260816003005 / docs_140_fin_ops_reconciliation_m1.
+--
+-- This file INSTALLS the trusted backfill mechanism. It does NOT execute the
+-- backfill. Do not apply this file to Production without a later Owner
+-- authorization. Never apply 20260816010000 (already live as 20260816003005).
+-- Never replay 20260806030000 / 40000 / 50000.
+--
+-- Execution identity: postgres / service_role only.
+-- No anon / authenticated EXECUTE.
+-- No client-facing RPC.
+-- July source tables are read-only (no UPDATE / DELETE / TRUNCATE).
+--
+-- Transaction boundaries:
+--   finance_m2_run() is one outer transaction.
+--   Each organization is a PL/pgSQL BEGIN/EXCEPTION subtransaction.
+--   A failed org rolls back its materialization/backfill writes, then records
+--   finance_lineage_map (m2_run → organization, status=failed) in the outer
+--   transaction. Other orgs that already succeeded remain committed to the
+--   outer transaction. Dry-run performs no writes, including no failed-state
+--   lineage rows, and reports READY/BLOCKED per org without aborting the run.
+-- Retry: same source + same target is idempotent. Same source + different
+--   target STOPs. Re-running a previously failed org after the source is
+--   repaired updates the m2_run lineage from failed → migrated.
+-- Dry-run: finance_m2_run(true) returns per-org readiness. It does not write.
+-- Reconciliation: finance_m2_reconcile() recomputes counts/money from tables.
+-- Currency: July rent_charges/payments have no currency column. Materialize
+--   USD as migration_default_usd. Do not ALTER or UPDATE July source rows.
+-- Units: materialize public.units → property_units only when same UUID, org,
+--   and property are proven. unit_property_mismatch STOPs. No invented units.
+
+create or replace function public.finance_m2_version()
+returns text
+language sql
+immutable
+as $$
+  select '20260816020000';
+$$;
