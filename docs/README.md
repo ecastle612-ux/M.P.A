@@ -117,6 +117,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 169 | [Tenant Lifecycle Production Migration Application Certification](./169-tenant-lifecycle-production-migration-application-certification/index.md) | **BLOCKED** — `financial_receipts.created_at` missing · stamp never registered |
 | 170 | [Tenant Lifecycle Financial Receipts Compatibility Amendment](./170-tenant-lifecycle-financial-receipts-compatibility-amendment/index.md) | **Approved** — use `issued_at`; do not add `created_at` |
 | 171 | [Tenant Lifecycle Receipts Compatibility Implementation Certification](./171-tenant-lifecycle-financial-receipts-compatibility-implementation-certification/index.md) | **BLOCKED** — `issued_at` applied in-repo; certified file still cannot apply |
+| 172 | [Tenant Lifecycle SQL Qualification Compatibility Amendment](./172-tenant-lifecycle-sql-qualification-compatibility-amendment/index.md) | **DESIGN COMPLETE — APPROVAL REQUIRED** — qualify WO org + rename helper `record_timestamp` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -193,6 +194,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [169 Tenant Lifecycle Production apply certification](./169-tenant-lifecycle-production-migration-application-certification/index.md) | **BLOCKED** — receipts `created_at` missing; Production unchanged |
 | [170 Receipts compatibility amendment](./170-tenant-lifecycle-financial-receipts-compatibility-amendment/index.md) | **Approved** — pass `issued_at`; do not add `created_at` |
 | [171 Receipts compatibility implementation certification](./171-tenant-lifecycle-financial-receipts-compatibility-implementation-certification/index.md) | **BLOCKED** — one-argument fix in-repo; two further apply/semantic blockers |
+| [172 SQL qualification compatibility amendment](./172-tenant-lifecycle-sql-qualification-compatibility-amendment/index.md) | **DESIGN COMPLETE — APPROVAL REQUIRED** — maintenance `organization_id` + helper `record_timestamp` |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
