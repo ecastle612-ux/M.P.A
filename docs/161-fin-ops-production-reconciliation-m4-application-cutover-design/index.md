@@ -1,7 +1,7 @@
 # 161 — FIN-OPS Production Reconciliation M4 Application Cutover Design
 
 **Title:** FIN-OPS PRODUCTION RECONCILIATION M4 APPLICATION CUTOVER DESIGN  
-**Status:** **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Status:** **Approved**  
 **Date:** 2026-08-16  
 **Program:** Financial Operations Production lineage cutover — application write domain  
 **Authority:** [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) **Approved** · [ADR-034](../18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) **Accepted** · [docs/146](../146-fin-ops-production-reconciliation-m2-compatibility-amendment/index.md) **Approved** · [ADR-035](../18-decision-log/adr-035-fin-ops-m2-identity-and-per-org-backfill.md) **Accepted** · [docs/156](../156-fin-ops-production-reconciliation-m2-development-controlled-backfill-certification/index.md) · [docs/157](../157-fin-ops-production-reconciliation-m3-cutover-design/index.md) **Approved** · [docs/158](../158-fin-ops-production-reconciliation-m3-implementation-certification/index.md) · [docs/159](../159-fin-ops-production-reconciliation-m3-production-migration-certification/index.md) · [docs/160](../160-fin-ops-production-reconciliation-m3-production-application-certification/index.md) **READY FOR M4 APPLICATION CUTOVER DESIGN**  
@@ -12,7 +12,7 @@
 
 ## Verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved** — Owner authorized in-repo M4-APP + M4-RLS implementation only. This approval does **not** authorize Production deploy, M4-RLS Production apply, `finance_ops_writes_set(true)`, first-write, checkout execution, Connect, or M5.
 
 M4 is the smallest safe cutover that makes FIN-OPS the only operational finance write domain. It does **not** require a new ADR. It implements already-accepted ADR-016, ADR-033, ADR-034, ADR-035, PLAT-002, PLAT-005, and PLAT-006.
 

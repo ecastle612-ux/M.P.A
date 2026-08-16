@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
-import { getLeaseLedger, refreshResidentFinancialStatus } from "../../../../../lib/finance/billing-service";
+import { getLeaseLedger } from "../../../../../lib/finance/billing-service";
 import { isStripeConfigured } from "../../../../../lib/finance/stripe";
 
 export async function GET() {
@@ -36,7 +36,7 @@ export async function GET() {
   const accounts = [];
   for (const resident of residents) {
     const ledger = await getLeaseLedger(supabase, resident.organization_id, resident.lease_id);
-    const balance = await refreshResidentFinancialStatus(supabase, resident.organization_id, resident.lease_id);
+    const balance = ledger.balance;
     const today = new Date().toISOString().slice(0, 10);
     const upcoming = (ledger.charges ?? []).filter(
       (charge) =>

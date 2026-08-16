@@ -179,7 +179,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [158 FIN-OPS M3 implementation certification](./158-fin-ops-production-reconciliation-m3-implementation-certification/index.md) | **READY FOR M3 PRODUCTION MIGRATION CERTIFICATION** — in-repo only |
 | [159 FIN-OPS M3 Production migration certification](./159-fin-ops-production-reconciliation-m3-production-migration-certification/index.md) | **READY FOR M3 PRODUCTION APPLICATION** — read-only; no apply |
 | [160 FIN-OPS M3 Production application certification](./160-fin-ops-production-reconciliation-m3-production-application-certification/index.md) | **READY FOR M4 APPLICATION CUTOVER DESIGN** — M3B then M3A live; writes still guarded off |
-| [161 FIN-OPS M4 application cutover design](./161-fin-ops-production-reconciliation-m4-application-cutover-design/index.md) | **DESIGN COMPLETE — APPROVAL REQUIRED** — no write-guard lift; no M4 deploy |
+| [161 FIN-OPS M4 application cutover design](./161-fin-ops-production-reconciliation-m4-application-cutover-design/index.md) | **Approved** — in-repo M4-APP + M4-RLS only; no write-guard lift; no M4 deploy |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 

@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { applySucceededPayment, markPaymentFailed } from "../../../../../lib/finance/billing-service";
+import {
+  resolveCheckoutFailure,
+  resolveCheckoutSessionCompleted
+} from "../../../../../lib/finance/finops-stripe-webhook";
 import { getStripeClient } from "../../../../../lib/finance/stripe";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 import { serverEnv } from "../../../../../lib/env/server-env";
@@ -70,23 +74,34 @@ export async function POST(request: Request) {
 
       const { data: payment } = await supabase
         .from("financial_payments")
-        .select("*")
+        .select("id, organization_id, lease_id, amount, status, stripe_checkout_session_id, currency")
         .eq("id", paymentId)
         .maybeSingle();
 
-      if (payment?.status === "succeeded") {
+      const resolution = resolveCheckoutSessionCompleted({
+        payment,
+        organizationId,
+        leaseId,
+        checkoutSessionId: session.id,
+        amountTotalCents: session.amount_total
+      });
+
+      if (resolution.action === "refuse") {
+        throw new Error(resolution.error);
+      }
+
+      if (resolution.action === "already_succeeded") {
         await supabase
           .from("financial_stripe_webhook_events")
           .update({
             processed_at: new Date().toISOString(),
             organization_id: organizationId,
-            payment_id: paymentId
+            payment_id: resolution.paymentId
           })
           .eq("stripe_event_id", event.id);
         return NextResponse.json({ ok: true, alreadySucceeded: true });
       }
 
-      const amount = session.amount_total != null ? session.amount_total / 100 : Number(payment?.amount ?? 0);
       const intentId =
         typeof session.payment_intent === "string"
           ? session.payment_intent
@@ -95,10 +110,10 @@ export async function POST(request: Request) {
         organizationId,
         actorId: null,
         leaseId,
-        amount,
+        amount: resolution.amount,
         currency: (session.currency ?? payment?.currency ?? "usd").toUpperCase(),
         method: "online_stripe",
-        paymentId,
+        paymentId: resolution.paymentId,
         stripeCheckoutSessionId: session.id,
         stripePaymentIntentId: intentId,
         correlationId: event.id
@@ -109,7 +124,7 @@ export async function POST(request: Request) {
         .update({
           processed_at: new Date().toISOString(),
           organization_id: organizationId,
-          payment_id: paymentId,
+          payment_id: resolution.paymentId,
           error: null
         })
         .eq("stripe_event_id", event.id);
@@ -119,14 +134,29 @@ export async function POST(request: Request) {
       const object = event.data.object as { metadata?: Record<string, string> };
       const paymentId = object.metadata?.["payment_id"];
       const organizationId = object.metadata?.["organization_id"];
-      if (paymentId && organizationId) {
-        await markPaymentFailed(supabase, paymentId, organizationId, event.type, event.id);
+      const { data: payment } = paymentId
+        ? await supabase
+            .from("financial_payments")
+            .select("id, organization_id, lease_id, amount, status, stripe_checkout_session_id")
+            .eq("id", paymentId)
+            .maybeSingle()
+        : { data: null };
+      const resolution = resolveCheckoutFailure({
+        paymentId,
+        organizationId,
+        payment
+      });
+      if (resolution.action === "refuse") {
+        throw new Error(resolution.error);
+      }
+      if (resolution.action === "mark_failed" && organizationId) {
+        await markPaymentFailed(supabase, resolution.paymentId, organizationId, event.type, event.id);
         await supabase
           .from("financial_stripe_webhook_events")
           .update({
             processed_at: new Date().toISOString(),
             organization_id: organizationId,
-            payment_id: paymentId
+            payment_id: resolution.paymentId
           })
           .eq("stripe_event_id", event.id);
       }
