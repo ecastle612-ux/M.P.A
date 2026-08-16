@@ -81,6 +81,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 53 | [Phase 4 Property Manager Workspace](./53-phase-4-property-manager-workspace/index.md) | Sprint 3 PM UX · LIVE / Owner-accepted |
 | 54 | [Phase 4 Facility Operations Workspace](./54-phase-4-facility-operations-workspace/index.md) | Sprint 4 FO UX · LIVE |
 | 55 | [Phase 4 Resident Dashboard](./55-phase-4-resident-dashboard/index.md) | Sprint 5 Resident UX · LIVE |
+| 165 | [Phase 4 PWA Install + Device Experience](./165-phase-4-pwa-install-device-experience/index.md) | **Draft** — Apple / Android / desktop install are separate; install never required |
 | 56 | [Phase 4 Document Intelligence](./56-phase-4-document-intelligence/index.md) | Sprint 6 Document Intelligence Center · LIVE |
 | 57 | [Phase 4 Reporting & Analytics](./57-phase-4-reporting-analytics/index.md) | Sprint 7 Reporting & Analytics Center · implementing |
 | 58 | [V1 Capital Projects CF cleanup](./58-v1-capital-projects-cf-cleanup/index.md) | Capital CF removed + Background Screening Planned messaging · Owner LIVE accepted (PR #99) |
@@ -181,6 +182,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [160 FIN-OPS M3 Production application certification](./160-fin-ops-production-reconciliation-m3-production-application-certification/index.md) | **READY FOR M4 APPLICATION CUTOVER DESIGN** — M3B then M3A live; writes still guarded off |
 | [161 FIN-OPS M4 application cutover design](./161-fin-ops-production-reconciliation-m4-application-cutover-design/index.md) | **Approved** — in-repo M4-APP + M4-RLS only; no write-guard lift; no M4 deploy |
 | [162 FIN-OPS M4 implementation certification](./162-fin-ops-production-reconciliation-m4-implementation-certification/index.md) | **READY FOR M4 PRODUCTION RELEASE CERTIFICATION** — in-repo only; guard remains false |
+| [165 Phase 4 PWA Install + Device Experience](./165-phase-4-pwa-install-device-experience/index.md) | **Draft** — device-specific optional PWA install; no native apps; no implement yet |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
