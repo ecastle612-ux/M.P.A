@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Button } from "@mpa/ui";
 import { appleInstallSteps, detectPwaInstallSurface, type PwaInstallSurface } from "../../lib/pwa/install-experience";
 
@@ -11,23 +11,36 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
+function subscribeDismissed(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  return () => window.removeEventListener("storage", onStoreChange);
+}
+
+function getDismissedSnapshot() {
+  return window.localStorage.getItem(DISMISS_KEY) === "1";
+}
+
+function getServerDismissedSnapshot() {
+  return false;
+}
+
+function readStandalone() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    ("standalone" in window.navigator && Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone))
+  );
+}
+
 export function TenantPwaInstallCard() {
+  const dismissed = useSyncExternalStore(subscribeDismissed, getDismissedSnapshot, getServerDismissedSnapshot);
   const [surface, setSurface] = useState<PwaInstallSurface | null>(null);
   const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
-  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    setDismissed(window.localStorage.getItem(DISMISS_KEY) === "1");
-
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      ("standalone" in window.navigator && Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone));
-
-    let pending: BeforeInstallPromptEvent | null = null;
+    const standalone = readStandalone();
     const onPrompt = (event: Event) => {
       event.preventDefault();
-      pending = event as BeforeInstallPromptEvent;
+      const pending = event as BeforeInstallPromptEvent;
       setPromptEvent(pending);
       setSurface(
         detectPwaInstallSurface({
@@ -38,22 +51,27 @@ export function TenantPwaInstallCard() {
         })
       );
     };
-    window.addEventListener("beforeinstallprompt", onPrompt);
-    window.addEventListener("appinstalled", () => {
+    const onInstalled = () => {
       setSurface("standalone");
+    };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+
+    const frame = window.requestAnimationFrame(() => {
+      setSurface(
+        detectPwaInstallSurface({
+          userAgent: window.navigator.userAgent,
+          standalone,
+          displayModeStandalone: window.matchMedia("(display-mode: standalone)").matches,
+          canPrompt: false
+        })
+      );
     });
 
-    setSurface(
-      detectPwaInstallSurface({
-        userAgent: window.navigator.userAgent,
-        standalone,
-        displayModeStandalone: window.matchMedia("(display-mode: standalone)").matches,
-        canPrompt: false
-      })
-    );
-
     return () => {
+      window.cancelAnimationFrame(frame);
       window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
     };
   }, []);
 
@@ -63,7 +81,7 @@ export function TenantPwaInstallCard() {
 
   function dismiss() {
     window.localStorage.setItem(DISMISS_KEY, "1");
-    setDismissed(true);
+    window.dispatchEvent(new Event("storage"));
   }
 
   async function installAndroid() {

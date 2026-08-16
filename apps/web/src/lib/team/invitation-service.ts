@@ -14,7 +14,8 @@ import {
 import { sendInvitationEmail } from "@mpa/email";
 import { emitTeamEvent, writeTeamAudit } from "./events-audit";
 import { recordOperatingScopeEvent } from "../organization/operating-scope-events";
-import { acceptTenantBinding, TenantLifecycleError } from "../tenant-lifecycle/tenant-lifecycle-service";
+import { acceptTenantBinding } from "../tenant-lifecycle/accept-tenant-binding";
+import { TenantLifecycleError } from "../tenant-lifecycle/occupancy-core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;

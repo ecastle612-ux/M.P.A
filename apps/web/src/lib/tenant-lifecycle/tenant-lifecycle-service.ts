@@ -1,7 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
-  deriveOccupancyAccess,
-  occupancyIsCurrent,
   residentDisplayName,
   utcToday,
   type AddTenantInput,
@@ -11,35 +9,20 @@ import {
   type TenantAccessMode
 } from "@mpa/shared";
 import { createAndSendInvitation, InvitationCreateError } from "../team/invitation-service";
-import { emitResidentEvent, writeResidentAudit } from "../resident/events-audit";
+import { acceptTenantBinding } from "./accept-tenant-binding";
+import {
+  emitLifecycle,
+  occupancyAccess,
+  recomputePersonFromOccupancy,
+  TenantLifecycleError,
+  type OccupancyRow
+} from "./occupancy-core";
+
+export { acceptTenantBinding, occupancyAccess, TenantLifecycleError };
+export type { OccupancyRow };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
-
-export class TenantLifecycleError extends Error {
-  constructor(
-    message: string,
-    readonly status: number
-  ) {
-    super(message);
-    this.name = "TenantLifecycleError";
-  }
-}
-
-export type OccupancyRow = {
-  id: string;
-  organization_id: string;
-  lease_id: string;
-  user_id: string | null;
-  display_name: string;
-  email: string | null;
-  is_primary: boolean;
-  financial_status: string;
-  pm_resident_id: string | null;
-  occupancy_status: OccupancyStatus;
-  occupy_from: string;
-  occupy_to: string | null;
-};
 
 type LeaseRow = {
   id: string;
@@ -66,45 +49,6 @@ type PersonRow = {
   user_id: string | null;
   lease_id: string | null;
 };
-
-async function emitLifecycle(args: {
-  supabase: Db;
-  organizationId: string;
-  actorId: string | null;
-  eventType: string;
-  aggregateId: string;
-  payload: Record<string, unknown>;
-}) {
-  await emitResidentEvent({
-    supabase: args.supabase,
-    organizationId: args.organizationId,
-    actorId: args.actorId,
-    eventType: args.eventType,
-    aggregateType: "lease_residents",
-    aggregateId: args.aggregateId,
-    payload: args.payload
-  });
-  await writeResidentAudit({
-    supabase: args.supabase,
-    organizationId: args.organizationId,
-    actorId: args.actorId,
-    action: args.eventType,
-    entityType: "lease_residents",
-    entityId: args.aggregateId,
-    payload: args.payload
-  });
-}
-
-export function occupancyAccess(row: OccupancyRow, today = utcToday()): TenantAccessMode {
-  return deriveOccupancyAccess(
-    {
-      occupancyStatus: row.occupancy_status,
-      occupyFrom: row.occupy_from,
-      occupyTo: row.occupy_to
-    },
-    today
-  );
-}
 
 export async function listOccupanciesForUser(
   supabase: Db,
@@ -157,71 +101,6 @@ async function loadLease(supabase: Db, organizationId: string, leaseId: string):
     throw new TenantLifecycleError("Lease not found.", 404);
   }
   return data as LeaseRow;
-}
-
-async function recomputePersonFromOccupancy(
-  supabase: Db,
-  organizationId: string,
-  residentId: string
-) {
-  const { data: rows, error } = await supabase
-    .from("lease_residents")
-    .select(
-      "id, lease_id, occupancy_status, occupy_from, occupy_to, user_id"
-    )
-    .eq("organization_id", organizationId)
-    .eq("pm_resident_id", residentId);
-  if (error) {
-    throw new TenantLifecycleError(error.message, 400);
-  }
-  const occupancies = (rows ?? []) as OccupancyRow[];
-  const today = utcToday();
-  const current =
-    occupancies.find((row) => occupancyIsCurrent({
-      occupancyStatus: row.occupancy_status,
-      occupyFrom: row.occupy_from,
-      occupyTo: row.occupy_to
-    }, today)) ??
-    occupancies.find((row) => occupancyAccess(row, today) === "future") ??
-    null;
-
-  let status: ResidentStatus = "former";
-  let portalStatus: ResidentPortalStatus = "disabled";
-  const patch: Record<string, unknown> = {
-    updated_at: new Date().toISOString()
-  };
-
-  if (current && occupancyAccess(current, today) === "active") {
-    status = "active";
-    portalStatus = current.user_id ? "active" : "pending_activation";
-    const { data: lease } = await supabase
-      .from("lease_agreements")
-      .select("property_id, unit_id")
-      .eq("id", current.lease_id)
-      .maybeSingle();
-    patch["lease_id"] = current.lease_id;
-    if (lease?.property_id) patch["property_id"] = lease.property_id;
-    if (lease?.unit_id) patch["unit_id"] = lease.unit_id;
-  } else if (current && occupancyAccess(current, today) === "future") {
-    status = "pending_move_in";
-    portalStatus = current.user_id ? "active" : "pending_activation";
-    patch["lease_id"] = current.lease_id;
-  } else {
-    status = "former";
-    portalStatus = "disabled";
-  }
-
-  patch["status"] = status;
-  patch["portal_status"] = portalStatus;
-
-  const { error: updateError } = await supabase
-    .from("pm_residents")
-    .update(patch)
-    .eq("id", residentId)
-    .eq("organization_id", organizationId);
-  if (updateError) {
-    throw new TenantLifecycleError(updateError.message, 400);
-  }
 }
 
 export async function addTenantToLease(args: {
@@ -406,125 +285,6 @@ export async function addTenantToLease(args: {
       unitLabel: (unit?.unit_label as string | undefined) ?? "—",
       occupyFrom
     }
-  };
-}
-
-export async function acceptTenantBinding(args: {
-  supabase: Db;
-  userId: string;
-  userEmail: string;
-  organizationId: string;
-  invitationId: string;
-  invitationEmail: string;
-  browserOverrides?: Record<string, unknown> | null;
-}) {
-  if (args.browserOverrides && Object.keys(args.browserOverrides).length > 0) {
-    // Body is ignored. Presence of override keys must not change the grant.
-  }
-
-  const { data: binding, error } = await args.supabase
-    .from("organization_invitation_tenant_bindings")
-    .select("invitation_id, organization_id, property_id, unit_id, lease_id, resident_id, lease_resident_id")
-    .eq("invitation_id", args.invitationId)
-    .maybeSingle();
-  if (error) {
-    throw new TenantLifecycleError(error.message, 400);
-  }
-  if (!binding) {
-    throw new TenantLifecycleError("Tenant invitation is missing occupancy binding.", 409);
-  }
-  if (binding.organization_id !== args.organizationId) {
-    throw new TenantLifecycleError("Invitation organization does not match.", 409);
-  }
-  if (args.userEmail.trim().toLowerCase() !== args.invitationEmail.trim().toLowerCase()) {
-    throw new TenantLifecycleError("Sign in with the invited email address to accept.", 403);
-  }
-
-  const { data: person } = await args.supabase
-    .from("pm_residents")
-    .select("id, organization_id, email, user_id, lease_id")
-    .eq("id", binding.resident_id)
-    .eq("organization_id", binding.organization_id)
-    .maybeSingle();
-  if (!person || person.email.trim().toLowerCase() !== args.invitationEmail.trim().toLowerCase()) {
-    throw new TenantLifecycleError("Resident email no longer matches this invitation.", 409);
-  }
-  if (person.user_id && person.user_id !== args.userId) {
-    throw new TenantLifecycleError("This resident is already linked to another account.", 409);
-  }
-
-  const { data: occupancy } = await args.supabase
-    .from("lease_residents")
-    .select(
-      "id, organization_id, lease_id, user_id, pm_resident_id, occupancy_status, occupy_from, occupy_to, email"
-    )
-    .eq("id", binding.lease_resident_id)
-    .maybeSingle();
-  if (!occupancy || occupancy.lease_id !== binding.lease_id || occupancy.pm_resident_id !== binding.resident_id) {
-    throw new TenantLifecycleError("Lease occupancy no longer matches this invitation.", 409);
-  }
-  if (occupancyAccess(occupancy as OccupancyRow) === "moved_out") {
-    throw new TenantLifecycleError("This occupancy has already ended.", 409);
-  }
-  if (occupancy.user_id && occupancy.user_id !== args.userId) {
-    throw new TenantLifecycleError("This occupancy is already linked to another account.", 409);
-  }
-
-  const { data: lease } = await args.supabase
-    .from("lease_agreements")
-    .select("id, status, property_id, unit_id, organization_id")
-    .eq("id", binding.lease_id)
-    .maybeSingle();
-  if (!lease || lease.status === "ended") {
-    throw new TenantLifecycleError("Lease is not eligible for acceptance.", 409);
-  }
-  if (lease.property_id !== binding.property_id || lease.unit_id !== binding.unit_id) {
-    throw new TenantLifecycleError("Lease location no longer matches this invitation.", 409);
-  }
-
-  const alreadyLinked = person.user_id === args.userId && occupancy.user_id === args.userId;
-  if (!person.user_id) {
-    const { error: personError } = await args.supabase
-      .from("pm_residents")
-      .update({ user_id: args.userId, updated_at: new Date().toISOString() })
-      .eq("id", person.id);
-    if (personError) {
-      throw new TenantLifecycleError(personError.message, 400);
-    }
-  }
-  if (!occupancy.user_id) {
-    const { error: occupancyError } = await args.supabase
-      .from("lease_residents")
-      .update({ user_id: args.userId })
-      .eq("id", occupancy.id);
-    if (occupancyError) {
-      throw new TenantLifecycleError(occupancyError.message, 400);
-    }
-  }
-
-  await recomputePersonFromOccupancy(args.supabase, args.organizationId, person.id);
-
-  if (!alreadyLinked) {
-    await emitLifecycle({
-      supabase: args.supabase,
-      organizationId: args.organizationId,
-      actorId: args.userId,
-      eventType: "tenant.invitation_accepted",
-      aggregateId: occupancy.id,
-      payload: {
-        invitationId: args.invitationId,
-        residentId: person.id,
-        leaseId: binding.lease_id,
-        propertyId: binding.property_id,
-        unitId: binding.unit_id
-      }
-    });
-  }
-
-  return {
-    residentId: person.id as string,
-    leaseId: binding.lease_id as string,
-    occupancyId: occupancy.id as string
   };
 }
 
