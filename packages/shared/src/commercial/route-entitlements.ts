@@ -160,7 +160,7 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
   if (path.startsWith("/api/pm/maintenance") || path.startsWith("/api/pm/reports")) {
     return "pm.maintenance";
   }
-  if (path.startsWith("/api/pm/residents")) {
+  if (path.startsWith("/api/pm/residents") || path.startsWith("/api/pm/tenants")) {
     return "pm.residents";
   }
   if (path.startsWith("/api/pm/leasing")) {

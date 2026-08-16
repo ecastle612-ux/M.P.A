@@ -29,6 +29,8 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForApiPath("/api/pm/maintenance/vendors")).toBe("pm.vendors");
     expect(requiredEntitlementForApiPath("/api/pm/reports/work-orders")).toBe("pm.maintenance");
     expect(requiredEntitlementForApiPath("/api/pm/residents")).toBe("pm.residents");
+    expect(requiredEntitlementForApiPath("/api/pm/tenants")).toBe("pm.residents");
+    expect(requiredEntitlementForApiPath("/api/pm/tenants/occupancies/x/move-out")).toBe("pm.residents");
     expect(requiredEntitlementForApiPath("/api/pm/leasing")).toBe("pm.leasing");
     expect(requiredEntitlementForApiPath("/api/facility/operations")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/reports")).toBe("facility.operations");
@@ -56,6 +58,9 @@ describe("PLAT-002 API entitlement catalog", () => {
       evaluateApiPathEntitlement({ pathname: "/api/pm/properties", sku: "mpa_facility_operations" }).allowed
     ).toBe(false);
     expect(
+      evaluateApiPathEntitlement({ pathname: "/api/pm/tenants", sku: "mpa_facility_operations" }).allowed
+    ).toBe(false);
+    expect(
       evaluateApiPathEntitlement({ pathname: "/api/facility/operations", sku: "mpa_facility_operations" }).allowed
     ).toBe(true);
     expect(
@@ -75,6 +80,9 @@ describe("PLAT-002 API entitlement catalog", () => {
     ).toBe(true);
     expect(
       evaluateApiPathEntitlement({ pathname: "/api/pm/properties", sku: "mpa_property_manager" }).allowed
+    ).toBe(true);
+    expect(
+      evaluateApiPathEntitlement({ pathname: "/api/pm/tenants", sku: "mpa_property_manager" }).allowed
     ).toBe(true);
     expect(
       evaluateApiPathEntitlement({ pathname: "/api/facility/operations", sku: "mpa_property_manager" }).allowed
