@@ -8,9 +8,11 @@ This blueprint defines how M.P.A. is designed, built, and evolved. Every enginee
 Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0–
 S3 delivered** and **paused** (S4+ NO-GO). Production FIN-OPS M1 empty schema is
 live as `20260816003005` —
-[docs/143](./143-fin-ops-production-reconciliation-m1-production-migration-application-certification/index.md)
-**READY FOR M2 DESIGN / IMPLEMENTATION AUTHORIZATION** (do not apply M2 in that
-package; do not replay S0–S2).
+[docs/143](./143-fin-ops-production-reconciliation-m1-production-migration-application-certification/index.md).
+M2 is implemented in-repo —
+[docs/144](./144-fin-ops-production-reconciliation-m2-implementation-certification/index.md)
+**READY FOR M2 PRODUCTION BACKFILL CERTIFICATION** (do not apply M2 to
+Production in that package; do not replay S0–S2).
 LAUNCH-001 Customer Promise Roadmap
 **Approved** (ADR-017); journey-gated — **J0–J2 delivered**, J3–J8 not authorized.
 CORE-004 remains stopped. Facility Operations feature Implement authorize (2026-08-07)
@@ -183,6 +185,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [141 FIN-OPS M1 implementation certification](./141-fin-ops-production-reconciliation-m1-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** |
 | [142 FIN-OPS M1 Production migration certification](./142-fin-ops-production-reconciliation-m1-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** — do not apply in that package |
 | [143 FIN-OPS M1 Production migration application](./143-fin-ops-production-reconciliation-m1-production-migration-application-certification/index.md) | **READY FOR M2 DESIGN / IMPLEMENTATION AUTHORIZATION** — M1 live as `20260816003005`; no M2 |
+| [144 FIN-OPS M2 implementation certification](./144-fin-ops-production-reconciliation-m2-implementation-certification/index.md) | **READY FOR M2 PRODUCTION BACKFILL CERTIFICATION** — in-repo only; do not apply to Production |
 | [ADR-034](./18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) | **Accepted** — one `financial_*` domain; successor cutover; no S0–S2 replay |
 | [127 Complete Delegated Operations](./127-complete-delegated-operations/index.md) | Approved member operating scope — FACILITY-only Complete must not inherit PM finance |
 | [135 Invitation & Acceptance Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | Approved — Complete invitation create/accept remediation · no Production apply |
