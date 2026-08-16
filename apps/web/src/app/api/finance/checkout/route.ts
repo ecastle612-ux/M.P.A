@@ -42,13 +42,22 @@ export async function POST(request: Request) {
 
   const { data: residentLink } = await supabase
     .from("lease_residents")
-    .select("id")
+    .select("id, occupancy_status, occupy_from, occupy_to")
     .eq("lease_id", leaseRow.id)
     .eq("user_id", user.id)
     .maybeSingle();
 
+  const { occupancyIsCurrent } = await import("@mpa/shared");
+  const occupying =
+    residentLink &&
+    occupancyIsCurrent({
+      occupancyStatus: (residentLink.occupancy_status as "scheduled" | "occupying" | "moved_out") ?? "occupying",
+      occupyFrom: (residentLink.occupy_from as string | null) ?? "1970-01-01",
+      occupyTo: (residentLink.occupy_to as string | null) ?? null
+    });
+
   const authorized = await authorizeFinanceCheckout({
-    residentLinkId: residentLink?.id ?? null,
+    residentLinkId: occupying ? residentLink.id : null,
     leaseOrganizationId: leaseRow.organization_id
   });
   if ("error" in authorized) {

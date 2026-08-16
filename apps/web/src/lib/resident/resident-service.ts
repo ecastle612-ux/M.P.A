@@ -365,8 +365,17 @@ export async function getResidentCommandCenter(
   }
   const { getMaintenanceReadiness } = await import("../maintenance/maintenance-service");
   const maintenance = await getMaintenanceReadiness(supabase, organizationId);
+  const { data: occupancyRows } = await supabase
+    .from("lease_residents")
+    .select(
+      "id, lease_id, occupancy_status, occupy_from, occupy_to, is_primary, financial_status"
+    )
+    .eq("organization_id", organizationId)
+    .eq("pm_resident_id", residentId)
+    .order("occupy_from", { ascending: false });
 
   return {
+    occupancies: occupancyRows ?? [],
     resident: {
       id: resident.id,
       displayName: resident.display_name,

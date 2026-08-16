@@ -16,9 +16,12 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
+  const { deriveOccupancyAccess, utcToday } = await import("@mpa/shared");
   const { data: residents, error } = await supabase
     .from("lease_residents")
-    .select("id, lease_id, organization_id, display_name, financial_status")
+    .select(
+      "id, lease_id, organization_id, display_name, financial_status, occupancy_status, occupy_from, occupy_to"
+    )
     .eq("user_id", user.id);
 
   if (error) {
@@ -33,11 +36,23 @@ export async function GET() {
     });
   }
 
+  const today = utcToday();
   const accounts = [];
   for (const resident of residents) {
+    const access = deriveOccupancyAccess(
+      {
+        occupancyStatus:
+          (resident.occupancy_status as "scheduled" | "occupying" | "moved_out") ?? "occupying",
+        occupyFrom: (resident.occupy_from as string | null) ?? "1970-01-01",
+        occupyTo: (resident.occupy_to as string | null) ?? null
+      },
+      today
+    );
+    if (access === "future") {
+      continue;
+    }
     const ledger = await getLeaseLedger(supabase, resident.organization_id, resident.lease_id);
     const balance = ledger.balance;
-    const today = new Date().toISOString().slice(0, 10);
     const upcoming = (ledger.charges ?? []).filter(
       (charge) =>
         ["open", "partially_paid"].includes(charge.status) &&
@@ -69,6 +84,8 @@ export async function GET() {
 
     accounts.push({
       resident,
+      accessMode: access,
+      canPay: access === "active",
       balance,
       openCharges,
       paidCharges,

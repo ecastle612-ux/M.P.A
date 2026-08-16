@@ -63,6 +63,30 @@ export const createResidentInputSchema = z.object({
 
 export type CreateResidentInput = z.infer<typeof createResidentInputSchema>;
 
+export const addTenantInputSchema = z.object({
+  firstName: z.string().trim().min(1).max(80),
+  lastName: z.string().trim().min(1).max(80),
+  email: z.string().trim().email().max(254),
+  leaseId: z.string().uuid(),
+  occupyFrom: z.string().date().optional()
+});
+
+export type AddTenantInput = z.infer<typeof addTenantInputSchema>;
+
+export const moveOutInputSchema = z.object({
+  occupyTo: z.string().date(),
+  note: z.string().trim().max(500).optional()
+});
+
+export type MoveOutInput = z.infer<typeof moveOutInputSchema>;
+
+export const correctMoveOutInputSchema = z.object({
+  occupyTo: z.string().date().nullable().optional(),
+  note: z.string().trim().max(500).optional()
+});
+
+export type CorrectMoveOutInput = z.infer<typeof correctMoveOutInputSchema>;
+
 export function residentDisplayName(firstName: string, lastName: string): string {
   return `${firstName.trim()} ${lastName.trim()}`.replace(/\s+/g, " ").trim();
 }

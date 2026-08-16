@@ -7,6 +7,7 @@ import { buttonClassName, Alert, Badge, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ErrorRetry } from "../shell/error-retry";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
+import { MoveOutPanel } from "./move-out-panel";
 
 type CommandCenter = {
   resident: {
@@ -40,6 +41,12 @@ type CommandCenter = {
     maintenance: string;
     portal?: string;
   };
+  occupancies?: Array<{
+    id: string;
+    occupy_from: string;
+    occupy_to: string | null;
+    occupancy_status: string;
+  }>;
 };
 
 function formatWhen(iso: string): string {
@@ -153,6 +160,17 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
           ]}
         />
       </header>
+
+      {(data.occupancies ?? []).map((occupancy) => (
+        <MoveOutPanel
+          key={occupancy.id}
+          occupancy={occupancy}
+          tenantName={data.resident.displayName}
+          propertyName={data.resident.propertyName}
+          unitLabel={data.resident.unitLabel}
+          onDone={() => setReloadToken((value) => value + 1)}
+        />
+      ))}
 
       <PmDocumentsStrip
         entityType="resident"

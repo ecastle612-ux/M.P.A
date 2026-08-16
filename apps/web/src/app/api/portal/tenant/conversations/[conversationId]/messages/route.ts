@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 type RouteContext = { params: Promise<{ conversationId: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
-  const authz = await requireTenantConversationActor();
+  const authz = await requireTenantConversationActor("write");
   if ("error" in authz) return authz.error;
   const { conversationId } = await context.params;
 
