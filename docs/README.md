@@ -186,6 +186,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [151 FIN-OPS M2D Development identity repair](./151-fin-ops-production-reconciliation-m2d-development-identity-repair/index.md) | **BLOCKED — OWNER DATA DECISION REQUIRED** — design only; no Production writes |
 | [152 FIN-OPS M2D Owner unit map](./152-fin-ops-production-reconciliation-m2d-owner-unit-map/index.md) | **BLOCKED — OWNER CHOICE REQUIRED** — candidate pools only; no Production writes |
 | [153 FIN-OPS M2D implementation certification](./153-fin-ops-production-reconciliation-m2d-implementation-certification/index.md) | **READY FOR M2D PRODUCTION REPAIR CERTIFICATION** — in-repo only; no Production apply |
+| [154 FIN-OPS M2D Production repair certification](./154-fin-ops-production-reconciliation-m2d-production-certification/index.md) | **READY FOR M2D PRODUCTION REPAIR APPLICATION** — read-only; no Production apply |
 | [ADR-034](./18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) | Accepted — Production lineage cutover |
 | [ADR-035](./18-decision-log/adr-035-fin-ops-m2-identity-and-per-org-backfill.md) | Accepted — proven unit materialization + per-org fail-closed M2 backfill |
 | [127 Complete Delegated Operations](./127-complete-delegated-operations/index.md) | Approved member operating scope — FACILITY-only Complete must not inherit PM finance |
