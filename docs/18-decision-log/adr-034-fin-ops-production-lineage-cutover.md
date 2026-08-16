@@ -1,7 +1,10 @@
 # ADR-034: FIN-OPS Production Lineage Cutover
 
 ## Status
-Proposed
+Accepted
+
+## Accepted
+2026-08-16 — Product Owner + Architect: `ACCEPT ADR-034` with docs/140 Approved.
 
 ## Date
 2026-08-15
@@ -32,7 +35,7 @@ Authoritative design: `docs/140-fin-ops-production-reconciliation-remediation/`.
 
 6. **Authorization consumes ADR-033.** FIN-OPS staff RLS and APIs use `SKU ∩ member operating scope ∩ role/capability ∩ action`. Facility-scoped Complete is denied at authorization.
 
-7. **This ADR does not** authorize implementation, Production apply, deploy, data movement, or Stripe/billing changes. Those require `APPROVE docs/140` and the normal cert → apply slices.
+7. **This ADR does not** authorize Production apply, deploy, data movement, or Stripe/billing changes. Slice M1 implementation is authorized with `APPROVE docs/140`. M2–M5 remain separately authorized. Production apply remains a later Owner step.
 
 ## Consequences
 
@@ -51,4 +54,4 @@ Authoritative design: `docs/140-fin-ops-production-reconciliation-remediation/`.
 
 ## Approval
 
-Proposed with docs/140. Not Accepted until Architect `ACCEPT ADR-034` with Product Owner `APPROVE docs/140`.
+Accepted 2026-08-16 with docs/140 Approved. M1 implementation is authorized. Production apply is not.

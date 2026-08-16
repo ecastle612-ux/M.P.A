@@ -6,7 +6,7 @@
 **Program:** Financial Operations Production schema/lineage reconciliation  
 **Authority:** Owner request to map the complete mismatch before any remediation. **Not Approved. Does not authorize implement, migrate, or deploy.**  
 **Gate:** Design → Document → **Approve (missing)** → Implement  
-**Successor design:** [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) — **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Successor design:** [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) — **Approved** (M1 implementation authorized; Production apply is not)  
 **Related:** [docs/25](../25-fin-ops-001/index.md) · [ADR-016](../18-decision-log/adr-016-financial-operations-operational-finance.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md) · [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) · [ADR-033](../18-decision-log/adr-033-member-operating-scope.md) · [docs/121](../121-plat-006-finance-reports-routing-remediation/index.md) · [docs/122](../122-plat-006-finance-reports-routing-implementation-certification/index.md)  
 **This package:** Read-only inventory of the live finance application contract, repository FIN-OPS migrations, and actual `mpa-prod` schema. **No SQL. No application code. No Production write.**
 
@@ -383,7 +383,7 @@ Do not treat “create `financial_charges`” as a complete fix. The matrix in �
 
 ## 7. Recommended next gate
 
-**Design a FIN-OPS Production remediation package.** That design now exists as [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) (**DESIGN COMPLETE — APPROVAL REQUIRED**). Missing step: **Approve docs/140** and **Accept ADR-034**.
+**Design a FIN-OPS Production remediation package.** That design is [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) (**Approved**). ADR-034 is **Accepted**. M1 implementation is authorized. Production apply is not.
 
 That later design must, at minimum:
 

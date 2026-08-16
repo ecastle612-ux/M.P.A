@@ -1,12 +1,13 @@
 # 140 — FIN-OPS Production Reconciliation Remediation Design
 
 **Title:** FIN-OPS PRODUCTION RECONCILIATION REMEDIATION DESIGN  
-**Status:** **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Status:** **Approved**  
 **Date:** 2026-08-15  
+**Approved:** 2026-08-16 — Product Owner `APPROVE docs/140`  
 **Program:** Financial Operations Production lineage cutover  
-**Authority:** Owner request to design remediation of [docs/126](../126-fin-ops-production-reconciliation-audit/index.md). **Not Approved. Does not authorize implement, migrate, deploy, or any finance data movement.**  
-**Gate:** Design → Document → **Approve (missing)** → Implement  
-**Durable decision:** [ADR-034](../18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) **Proposed**  
+**Authority:** Owner approval of the remediation of [docs/126](../126-fin-ops-production-reconciliation-audit/index.md). Implementation is authorized for **slice M1 only**. **No Production apply. No deploy. No M2–M5. No finance data movement.**  
+**Gate:** Design → Document → Approve → **Implement (M1 only)**  
+**Durable decision:** [ADR-034](../18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) **Accepted**  
 **Related:** [docs/25](../25-fin-ops-001/index.md) · [ADR-010](../18-decision-log/adr-010-defer-accounting-not-reject.md) · [ADR-016](../18-decision-log/adr-016-financial-operations-operational-finance.md) · [ADR-012](../18-decision-log/adr-012-design-document-approve-implement.md) · [ADR-019](../18-decision-log/adr-019-product-constitution.md) · [ADR-026](../18-decision-log/adr-026-authorization-hardening-pipeline.md) · [ADR-033](../18-decision-log/adr-033-member-operating-scope.md) · [docs/121](../121-plat-006-finance-reports-routing-remediation/index.md) · [docs/127](../127-complete-delegated-operations/index.md)  
 **This package:** Design only. **No SQL. No application code. No Production write. No Stripe/billing change.**
 
@@ -14,7 +15,7 @@
 
 ## Verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved.** Implementation of slice **M1** is authorized. M2–M5, Production apply, and deploy remain separate Owner steps.
 
 Choose **one authoritative operational finance domain:** the August FIN-OPS `financial_*` model already spoken by the live application (ADR-016).
 
@@ -34,7 +35,7 @@ effective access =
 
 A Complete member with `operating_scope = facility_operations` is **denied** Property/PM finance even when the organization owns Complete, the role is `property_manager`, and the role holds `pm.finance:*`.
 
-**Product Owner must approve this record and Accept ADR-034 before any schema, backfill, application cutover, or Production change.**
+**Approved 2026-08-16.** ADR-034 Accepted. Implement M1 only. Do not apply M1 to Production from this authorization.
 
 ---
 
@@ -612,28 +613,17 @@ Do not modify Complete / PM / FO prices, Stripe subscription products, annual di
 
 ## Approve gate
 
-This record is **not** implementation authorization.
-
-Approval evidence required:
+Approved 2026-08-16:
 
 1. Product Owner: `APPROVE docs/140`
 2. Architect: `ACCEPT ADR-034`
 
-After both, implementation is limited to the approved slices (M1–M4; M5 remains separately authorized). Material changes restart Design → Document → Approve.
+Implementation is authorized for **M1 only**. M2–M5 remain separately authorized. Production apply, deploy, and finance data movement are not authorized by this approval.
 
-Until then:
-
-**STOP.**
-
-NO IMPLEMENTATION.  
-NO SQL APPLY.  
-NO PRODUCTION WRITES.  
-NO DEPLOYMENT.  
-NO FINANCE DATA MOVEMENT.  
-NO STRIPE / BILLING CHANGES.
+Material changes restart Design → Document → Approve.
 
 ---
 
 ## Final status
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved.** Implementation of slice **M1** is authorized. M2–M5, Production apply, and deploy remain separate Owner steps.

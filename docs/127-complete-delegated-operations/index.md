@@ -24,7 +24,7 @@ effective access =
   ∩ action
 ```
 
-Implementation is authorized for this contract only. docs/126 remains the audit. [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) is the FIN-OPS remediation design (**DESIGN COMPLETE — APPROVAL REQUIRED**) and is not implementation authorization. No new SKU, role, organization, or Stripe change.
+Implementation is authorized for this contract only. docs/126 remains the audit. [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) is the FIN-OPS remediation design (**Approved** — M1 only). Production apply is not authorized. No new SKU, role, organization, or Stripe change.
 
 Complete is already the **organization-level entitlement union**. It cannot distinguish “this manager operates Property Operations” from “this manager operates Facility Operations.” That gap is architectural, not a missing SKU.
 
@@ -703,10 +703,10 @@ docs/126 status remains:
 
 **AUDIT COMPLETE · BLOCKED FOR REMEDIATION DESIGN**
 
-The remediation design is now [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) (**DESIGN COMPLETE — APPROVAL REQUIRED**). It chooses Option A+C and **requires** member-effective entitlements. This package still:
+The remediation design is now [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) (**Approved**). It chooses Option A+C and **requires** member-effective entitlements. This Complete package still:
 
 - Does **not** create `financial_charges` or replay FIN-OPS migrations
-- Does **not** approve docs/140 implementation
+- Does **not** apply M1 to Production
 
 Without that, Mike (`property_manager` + Complete + FACILITY) will pass `requireFinancePermission` as soon as schema exists, because:
 
@@ -755,7 +755,7 @@ Do not use Production customer passwords in docs. Do not apply FIN-OPS schema as
 
 ### 19.4 Approval
 
-Approved 2026-08-15. ADR-033 Accepted. Implementation of the member-operating-scope contract is authorized. Production apply of this package is closed. docs/126 remains the audit. docs/140 is not approved for implement.
+Approved 2026-08-15. ADR-033 Accepted. Implementation of the member-operating-scope contract is authorized. Production apply of this package is closed. docs/126 remains the audit. docs/140 is Approved for M1 only.
 
 ---
 

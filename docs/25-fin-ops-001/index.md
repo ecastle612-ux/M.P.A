@@ -21,7 +21,7 @@ This package is the **authoritative source** for Financial Operations.
 
 **Pause notice (2026-08-06):** Financial Operations is sufficiently complete for launch planning. Next launch-critical workstream is [LAUNCH-001 Customer Onboarding](../26-launch-001-onboarding/index.md) (docs/audit only until Approve).
 
-**Production lineage (2026-08-15):** In-repo S0–S3 certification is **not** Production apply proof. `mpa-prod` still runs the July operational-finance lineage. Do **not** replay S0/S1/S2. Authoritative audit: [docs/126](../126-fin-ops-production-reconciliation-audit/index.md). Remediation design: [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) (**DESIGN COMPLETE — APPROVAL REQUIRED**). Cutover ADR: [ADR-034](../18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) (Proposed).
+**Production lineage (2026-08-15):** In-repo S0–S3 certification is **not** Production apply proof. `mpa-prod` still runs the July operational-finance lineage. Do **not** replay S0/S1/S2. Authoritative audit: [docs/126](../126-fin-ops-production-reconciliation-audit/index.md). Remediation design: [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) (**Approved** — M1 only). Cutover ADR: [ADR-034](../18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) (**Accepted**).
 
 ### Hard stops
 

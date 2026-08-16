@@ -64,7 +64,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-030](./adr-030-operational-workspace-documents-tables.md) | Operational Workspace — Documents and Tables (OPS-001) | **Accepted** | 2026-08-14 |
 | [ADR-032](./adr-032-report-shape-and-post-auth-home.md) | Shared Report Shape Isolation and Canonical Post-Auth Home | **Accepted** | 2026-08-15 |
 | [ADR-033](./adr-033-member-operating-scope.md) | Member Operating Scope (Complete Delegated Operations) | **Accepted** | 2026-08-15 |
-| [ADR-034](./adr-034-fin-ops-production-lineage-cutover.md) | FIN-OPS Production Lineage Cutover | **Proposed** | 2026-08-15 |
+| [ADR-034](./adr-034-fin-ops-production-lineage-cutover.md) | FIN-OPS Production Lineage Cutover | **Accepted** | 2026-08-16 |
 
 ---
 
