@@ -181,6 +181,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [160 FIN-OPS M3 Production application certification](./160-fin-ops-production-reconciliation-m3-production-application-certification/index.md) | **READY FOR M4 APPLICATION CUTOVER DESIGN** — M3B then M3A live; writes still guarded off |
 | [161 FIN-OPS M4 application cutover design](./161-fin-ops-production-reconciliation-m4-application-cutover-design/index.md) | **Approved** — in-repo M4-APP + M4-RLS only; no write-guard lift; no M4 deploy |
 | [162 FIN-OPS M4 implementation certification](./162-fin-ops-production-reconciliation-m4-implementation-certification/index.md) | **READY FOR M4 PRODUCTION RELEASE CERTIFICATION** — in-repo only; guard remains false |
+| [163 FIN-OPS M4 Production release certification](./163-fin-ops-production-reconciliation-m4-production-release-certification/index.md) | **READY FOR M4 PRODUCTION RELEASE** — read-only; no deploy, apply, or guard lift |
+| [164 FIN-OPS M4 Production release application certification](./164-fin-ops-production-reconciliation-m4-production-release-application-certification/index.md) | **PRODUCTION FIN-OPS CUTOVER SUCCESSFUL** — first write `f2a6d161-…`; July remains frozen; Stripe/M5 off |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
