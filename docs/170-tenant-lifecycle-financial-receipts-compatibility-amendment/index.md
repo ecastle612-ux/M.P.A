@@ -1,12 +1,12 @@
 # 170 — Tenant Lifecycle Financial Receipts Compatibility Amendment
 
 **Title:** TENANT LIFECYCLE RECEIPT RLS COMPATIBILITY AMENDMENT  
-**Status:** **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Status:** **Approved**  
 **Date:** 2026-08-16  
 **Program:** Customer-facing tenant lifecycle — Production apply compatibility  
 **Authority:** [docs/166](../166-tenant-lifecycle-onboarding-portal-move-out/index.md) **Approved** · [docs/167](../167-tenant-lifecycle-implementation-certification/index.md) · [docs/168](../168-tenant-lifecycle-production-migration-certification/index.md) · [docs/169](../169-tenant-lifecycle-production-migration-application-certification/index.md) **BLOCKED** · ADR-012 · ADR-034  
 **Target:** `mpa-prod` / `vahnmcrpnuggxkivynvo`  
-**This package:** Design / read-only only. **No SQL edit. No apply. No deploy. No invitation. No binding. No move-out. No FIN-OPS money mutation. No July reopen. No Stripe execution. No M5. No SKU/pricing change. No native apps. No Web Push.**
+**This package:** Design amendment. Owner approved Option A on 2026-08-16. Authorizes the one-argument in-repo SQL change only. **No Production apply. No deploy. No invitation. No binding. No move-out. No FIN-OPS money mutation. No July reopen. No Stripe execution. No M5. No SKU/pricing change. No native apps. No Web Push.**
 
 Identifier collision: **COM-002** means Tenant Communication Center (ADR-024 / docs/80).
 
@@ -14,9 +14,9 @@ Identifier collision: **COM-002** means Tenant Communication Center (ADR-024 / d
 
 ## Verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved**
 
-Choose **Option A**: the unapplied tenant-lifecycle migration must pass `financial_receipts.issued_at` into `finance_resident_can_select_charge`, not `created_at`.
+Owner approved **Option A** on 2026-08-16: the unapplied tenant-lifecycle migration must pass `financial_receipts.issued_at` into `finance_resident_can_select_charge`, not `created_at`.
 
 That is the live canonical receipt timestamp. It already exists, is `timestamptz NOT NULL`, and is what the billing write path relies on (DB default `timezone('utc', now())`). Adding a duplicate `created_at` is not justified.
 
@@ -24,7 +24,7 @@ The mismatch exists in **one** certified policy. Helper parameter names stay `cr
 
 Historical-access semantics stay occupancy-dated using the receipt’s own issue timestamp — the same shape already used for payments (`payments.created_at`). This remains under approved docs/166. It is not a new person domain, not a money rewrite, and not a July/Stripe/M5 change.
 
-Owner approval of this amendment is required before any in-repo SQL edit or Production retry.
+Owner approved this amendment. Implementation may change only the receipts resident-policy argument (`created_at` → `issued_at`). Production apply is not authorized by this record.
 
 ---
 
@@ -352,15 +352,15 @@ Do not create a charge, payment, receipt, invitation, or move-out in Production 
 | Money / July / Stripe / M5 / SKU? | no |
 | Material design change? | no |
 
-Owner must still **approve this amendment record** before implementation (Implementation Gate). After approval, implement only the one-argument SQL change plus tests. Do not expand scope.
+Owner approved this record on 2026-08-16. Implementation may change only the one receipts-policy argument plus tests. Do not expand scope. This record does not authorize Production apply.
 
 ---
 
 ## 11. Exact next sequence
 
-1. **Owner approves this record**
-2. Implementation: amend unapplied `20260816120000_docs_166_tenant_lifecycle.sql` (`created_at` → `issued_at` on the receipts resident policy only); add scratch/compat tests; certify (suggested docs/171)
-3. Production migration certification of the amended file (suggested docs/172)
+1. **Owner approved this record**
+2. Implementation: amend unapplied `20260816120000_docs_166_tenant_lifecycle.sql` (`created_at` → `issued_at` on the receipts resident policy only); add scratch/compat tests; certify (docs/171)
+3. Production migration re-certification of the amended file (only if the certified file applies as a whole)
 4. Owner-authorized apply of the **amended** `20260816120000` only
 5. Stop — no tenant-lifecycle app deploy in the apply package
 
@@ -370,6 +370,6 @@ Do not retry the original broken SQL.
 
 ## Approval / next gate
 
-This design does **not** authorize implementation or apply.
+**Status: Approved.**
 
-**Status: DESIGN COMPLETE — APPROVAL REQUIRED.**
+Option A is binding. Implementation of the one-argument change is authorized. Production apply is not authorized by this record.
