@@ -111,6 +111,10 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 127 | [Complete Delegated Operations](./127-complete-delegated-operations/index.md) | **Approved** · ADR-033 Accepted · member operating scope implement authorized |
 | 135 | [Complete Delegated Operations Invitation Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | **Approved** · implement slices A, B, C, E · no Production apply or deploy |
 | 136 | [Complete Invitation Remediation Implementation Certification](./136-complete-delegated-operations-invitation-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no apply or deploy |
+| 166 | [Tenant Lifecycle — Onboarding, Portal Access, Move-Out](./166-tenant-lifecycle-onboarding-portal-move-out/index.md) | **Approved** — occupancy + Add Tenant + Move Out · in-repo implement authorized · no Production apply |
+| 167 | [Tenant Lifecycle Implementation Certification](./167-tenant-lifecycle-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION CERTIFICATION** · no Production apply |
+| 168 | [Tenant Lifecycle Production Migration Certification](./168-tenant-lifecycle-production-migration-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** · read-only · no apply or deploy |
+| 169 | [Tenant Lifecycle Production Migration Application Certification](./169-tenant-lifecycle-production-migration-application-certification/index.md) | **BLOCKED** — certified SQL aborted; `financial_receipts` has `issued_at` not `created_at` · no schema landed |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -181,6 +185,10 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [160 FIN-OPS M3 Production application certification](./160-fin-ops-production-reconciliation-m3-production-application-certification/index.md) | **READY FOR M4 APPLICATION CUTOVER DESIGN** — M3B then M3A live; writes still guarded off |
 | [161 FIN-OPS M4 application cutover design](./161-fin-ops-production-reconciliation-m4-application-cutover-design/index.md) | **Approved** — in-repo M4-APP + M4-RLS only; no write-guard lift; no M4 deploy |
 | [162 FIN-OPS M4 implementation certification](./162-fin-ops-production-reconciliation-m4-implementation-certification/index.md) | **READY FOR M4 PRODUCTION RELEASE CERTIFICATION** — in-repo only; guard remains false |
+| [166 Tenant Lifecycle](./166-tenant-lifecycle-onboarding-portal-move-out/index.md) | **Approved** — occupancy authorization + Add Tenant + Move Out; in-repo implement only |
+| [167 Tenant Lifecycle implementation certification](./167-tenant-lifecycle-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION CERTIFICATION** — in-repo only |
+| [168 Tenant Lifecycle Production migration certification](./168-tenant-lifecycle-production-migration-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** — read-only; no apply |
+| [169 Tenant Lifecycle Production migration application certification](./169-tenant-lifecycle-production-migration-application-certification/index.md) | **BLOCKED** — exact certified SQL aborted; Production unchanged |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
