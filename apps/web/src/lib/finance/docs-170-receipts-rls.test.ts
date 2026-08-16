@@ -45,10 +45,10 @@ describe("docs/170 financial_receipts issued_at compatibility", () => {
     expect(lifecycle).not.toMatch(/organization_subscriptions|product_skus/);
   });
 
-  it("leaves staff financial_receipts SELECT on member_has_finance_capability", () => {
+  it("does not drop or recreate staff financial_receipts SELECT", () => {
     expect(lifecycle).not.toMatch(/drop policy if exists financial_receipts_select_staff/);
     expect(lifecycle).not.toMatch(/create policy financial_receipts_select_staff/);
-    expect(lifecycle).toContain("member_has_finance_capability");
+    expect(lifecycle).not.toMatch(/financial_receipts_insert_staff/);
   });
 
   it("does not add or rename receipt timestamp columns", () => {

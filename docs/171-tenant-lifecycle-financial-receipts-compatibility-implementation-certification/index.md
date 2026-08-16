@@ -203,15 +203,25 @@ Fixtures use `issued_at` `2026-07-23 01:36:00.500715+00` (live Production receip
 
 ## 8. Regression tests
 
-Recorded after the in-repo suite run in this package:
-
 | Suite | Result |
 |-------|--------|
-| Occupancy + docs/170 static contract | see follow-up test log in this record |
-| Tenant lifecycle / invitation / FIN-OPS / COM-002 / maintenance / documents / PWA / ADR-033 / PLAT-002 / PLAT-005 | see follow-up test log in this record |
-| lint / typecheck / Production web build | see follow-up test log in this record |
-
-Unrelated pre-existing SaaS checkout env failure (`checkout.route.test.ts` expecting 4xx/5xx and receiving 200) remains classified as **not this package**, matching docs/167.
+| `@mpa/shared` vitest | **333 passed** (docs/167 had 331; +2 occupancy `issued_at` cases) |
+| Occupancy unit tests | Passed, including receipt `issued_at` matrix |
+| docs/170 static contract | **7 passed** — policy uses `issued_at`; no `financial_receipts.created_at`; staff policy not dropped |
+| Tenant lifecycle service | Passed (included in web suite) |
+| Invitation + docs/135 / ADR-033 | Passed (`invitation-service`, `docs-135-rls`, accept route) |
+| FIN-OPS resident / M4 RLS | Passed (`docs-161-m4-rls`, `docs-161-m4-cutover`, `checkout-authz`) |
+| COM-002 conversation authz | Passed |
+| Maintenance / work-surface isolation | Passed (`authz`, `vendor-portal-isolation`, `work-surface-isolation`) |
+| Document tests | `@mpa/shared` `documents.test.ts` passed |
+| PWA install-experience | Passed |
+| PLAT-002 | Passed (`plat-002-rls.test.ts`) |
+| PLAT-005 | No dedicated test file on this branch; certified SQL does not grant or widen privileged RPCs |
+| `@mpa/web` typecheck | **Passed** |
+| `@mpa/shared` typecheck + lint | **Passed** |
+| `@mpa/web` full vitest | **470 passed**; 1 failed: `checkout.route.test.ts` commerce quote expects 4xx/5xx and received 200 — **pre-existing SaaS checkout env**, not this package (same class as docs/167) |
+| `@mpa/web` lint | 1 error in `tenant-pwa-install-card.tsx` `setState` in `useEffect` — **pre-existing docs/165 PWA card**, not modified by this package |
+| `@mpa/web` Production build | **Passed** (Next.js 16.2.10 Turbopack; 174 static pages) |
 
 ---
 
