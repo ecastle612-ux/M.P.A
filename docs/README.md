@@ -120,6 +120,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 172 | [Tenant Lifecycle SQL Qualification Compatibility Amendment](./172-tenant-lifecycle-sql-qualification-compatibility-amendment/index.md) | **Approved** — qualify WO org + rename helper `record_timestamp` |
 | 173 | [Tenant Lifecycle SQL Qualification Compatibility Implementation Certification](./173-tenant-lifecycle-sql-qualification-compatibility-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION RE-CERTIFICATION** · no Production apply |
 | 174 | [Tenant Lifecycle Production Migration Re-Certification](./174-tenant-lifecycle-production-migration-recertification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** · read-only · SHA `dcad8ed6…` only |
+| 175 | [Tenant Lifecycle Production Migration Application Certification](./175-tenant-lifecycle-production-migration-application-certification/index.md) | **READY FOR TENANT LIFECYCLE APPLICATION DEPLOYMENT** · schema live under `20260816094933` · no app deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -199,6 +200,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [172 SQL qualification compatibility amendment](./172-tenant-lifecycle-sql-qualification-compatibility-amendment/index.md) | **Approved** — maintenance `organization_id` + helper `record_timestamp` |
 | [173 SQL qualification compatibility implementation certification](./173-tenant-lifecycle-sql-qualification-compatibility-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION RE-CERTIFICATION** — in-repo only; new SHA only |
 | [174 Tenant Lifecycle Production migration re-certification](./174-tenant-lifecycle-production-migration-recertification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** — read-only; SHA `dcad8ed6…` only |
+| [175 Tenant Lifecycle Production apply certification](./175-tenant-lifecycle-production-migration-application-certification/index.md) | **READY FOR TENANT LIFECYCLE APPLICATION DEPLOYMENT** — stamp `20260816094933` live; do not replay `20260816120000`; no app deploy |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
