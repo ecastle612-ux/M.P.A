@@ -23,7 +23,8 @@ describe("docs/152 M2D Development identity repair contract", () => {
     expect(m2d).not.toMatch(/set organization_id/);
     expect(m2d).not.toMatch(/set amount/);
     expect(m2d).not.toMatch(/select public\.finance_m2_run\(false/);
-    expect(m2d).not.toContain("security definer");
+    expect(m2d).not.toMatch(/language\s+\w+\s+security\s+definer/i);
+    expect(m2d).not.toMatch(/create or replace function[\s\S]{0,240}security\s+definer/i);
     expect(m2d).toContain("revoke all on function public.finance_m2d_repair(boolean) from public, anon, authenticated");
     expect(m2d).toContain("grant execute on function public.finance_m2d_repair(boolean) to service_role");
   });

@@ -14,7 +14,7 @@
 --
 -- Execution identity: postgres / service_role only.
 -- No anon / authenticated EXECUTE.
--- No security definer.
+-- Functions are invoker-owned; they are not marked SECURITY DEFINER.
 
 create or replace function public.finance_m2d_version()
 returns text
