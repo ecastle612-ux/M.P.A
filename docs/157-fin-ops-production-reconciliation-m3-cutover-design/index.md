@@ -1,18 +1,18 @@
 # 157 — FIN-OPS Production Reconciliation M3 Cutover Design
 
 **Title:** FIN-OPS PRODUCTION RECONCILIATION — M3 PRODUCTION CUTOVER DESIGN  
-**Status:** **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Status:** **Approved**  
 **Date:** 2026-08-16  
 **Program:** Financial Operations Production lineage cutover — security boundary, July write freeze, and split-state rules  
 **Authority:** [docs/126](../126-fin-ops-production-reconciliation-audit/index.md) · [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) **Approved** · [ADR-034](../18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) **Accepted** · [docs/146](../146-fin-ops-production-reconciliation-m2-compatibility-amendment/index.md) **Approved** · [ADR-035](../18-decision-log/adr-035-fin-ops-m2-identity-and-per-org-backfill.md) **Accepted** · [docs/150](../150-fin-ops-production-reconciliation-m2-controlled-backfill-certification/index.md) · [docs/155](../155-fin-ops-production-reconciliation-m2d-production-application-certification/index.md) · [docs/156](../156-fin-ops-production-reconciliation-m2-development-controlled-backfill-certification/index.md) **READY FOR M3 PRODUCTION CUTOVER DESIGN** · [ADR-016](../18-decision-log/adr-016-financial-operations-operational-finance.md) · [ADR-033](../18-decision-log/adr-033-member-operating-scope.md) · [docs/94 PLAT-002](../94-plat-002-authorization-hardening/index.md) · [docs/121 PLAT-006](../121-plat-006-finance-reports-routing-remediation/index.md) · PLAT-005 privileged-RPC hardening (accepted; `finance_m2_*` already revoked from `authenticated`)  
 **Target:** `mpa-prod` / `vahnmcrpnuggxkivynvo` (us-west-2)  
-**This package:** Design only. **No Production SQL. No July freeze. No FIN-OPS RLS apply. No authenticated grants. No M4 deploy. No application finance write change. No M5. No Stripe / billing / SKU / role / entitlement change.**
+**This package:** Approved design. Implementation is a separate in-repo package. **No Production SQL. No July freeze. No FIN-OPS RLS apply. No authenticated grants. No M4 deploy. No application finance write change. No M5. No Stripe / billing / SKU / role / entitlement change.**
 
 ---
 
 ## Verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved** — Product Owner `APPROVE docs/157` on 2026-08-16.
 
 M2 is complete for every finance-bearing July organization. M3 is the security and operational cutover boundary between reconciled but fail-closed FIN-OPS data and the later M4 application write cutover.
 
@@ -28,7 +28,7 @@ M3 does **not** make FIN-OPS the live customer write domain. Schema-first July f
 
 No new ADR is required. M3 is implementation detail under ADR-016, ADR-033, ADR-034, ADR-035, PLAT-002, PLAT-005, and PLAT-006.
 
-**Product Owner must `APPROVE docs/157` before any M3 SQL, freeze, grant, or Production apply.**
+**Product Owner approved docs/157.** In-repo M3A + M3B + M3C implementation is authorized. Production apply remains a separate M3D authorization.
 
 ---
 
@@ -611,29 +611,21 @@ M5 remains future-only.
 
 ## 20. Owner approval gate
 
-This record is **not** implementation authorization.
+**Approved** — Product Owner `APPROVE docs/157` on 2026-08-16. Architect confirmation that no new ADR is required remains this record’s §19.
 
-Approval evidence required:
+Authorized implementation is limited to in-repo M3A + M3B + M3C. Production apply is a separate M3D authorization. M4 and M5 remain unauthorized.
 
-1. Product Owner: `APPROVE docs/157`
-2. Architect confirmation that no new ADR is required (this record’s §19)
+This approval does **not** authorize:
 
-After both, implementation is limited to M3A + M3B + M3C. Production apply is a separate M3D authorization. M4 and M5 remain unauthorized.
-
-Until then:
-
-**STOP.**
-
-NO IMPLEMENTATION.  
-NO SQL APPLY.  
-NO JULY FREEZE.  
-NO FIN-OPS RLS ON PRODUCTION.  
-NO AUTHENTICATED GRANTS.  
-NO M4 DEPLOY.  
-NO STRIPE / BILLING / SKU / ROLE CHANGES.
+- Production SQL apply
+- Production July freeze
+- Production FIN-OPS SELECT grants
+- lifting `finance_ops_writes_enabled`
+- M4 deploy or application finance write changes
+- Stripe / billing / SKU / role / entitlement changes
 
 ---
 
 ## FINAL VERDICT
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved**
