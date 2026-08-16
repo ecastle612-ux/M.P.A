@@ -175,6 +175,9 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
 | [127 Complete Delegated Operations](./127-complete-delegated-operations/index.md) | Approved member operating scope — FACILITY-only Complete must not inherit PM finance |
 | [135 Invitation & Acceptance Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | Approved — Complete invitation create/accept remediation · no Production apply |
+| [157 FIN-OPS M3 Production cutover design](./157-fin-ops-production-reconciliation-m3-cutover-design/index.md) | **Approved** — RLS, July freeze, write-guard; no Production apply |
+| [158 FIN-OPS M3 implementation certification](./158-fin-ops-production-reconciliation-m3-implementation-certification/index.md) | **READY FOR M3 PRODUCTION MIGRATION CERTIFICATION** — in-repo only |
+| [159 FIN-OPS M3 Production migration certification](./159-fin-ops-production-reconciliation-m3-production-migration-certification/index.md) | **READY FOR M3 PRODUCTION APPLICATION** — read-only; no apply |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
