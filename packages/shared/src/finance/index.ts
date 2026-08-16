@@ -9,3 +9,4 @@ export * from "./integrations";
 export * from "./billing";
 export * from "./collections";
 export * from "./reporting";
+export * from "./docs-140-m2-maps";
