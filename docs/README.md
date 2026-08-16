@@ -173,6 +173,11 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [S2 Certification](./25-fin-ops-001/s2/index.md) | Delinquency, late fees & vendor AP |
 | [S3 Certification](./25-fin-ops-001/s3/index.md) | Command Center & owner reporting |
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
+| [126 FIN-OPS Production reconciliation audit](./126-fin-ops-production-reconciliation-audit/index.md) | Audit complete |
+| [140 FIN-OPS Production reconciliation remediation](./140-fin-ops-production-reconciliation-remediation/index.md) | Approved — Option A+C |
+| [143 FIN-OPS M1 Production migration application](./143-fin-ops-production-reconciliation-m1-production-migration-application-certification/index.md) | M1 live as `20260816003005` |
+| [144 FIN-OPS M2 implementation certification](./144-fin-ops-production-reconciliation-m2-implementation-certification/index.md) | In-repo M2 mechanism |
+| [145 FIN-OPS M2 Production backfill certification](./145-fin-ops-production-reconciliation-m2-production-backfill-certification/index.md) | **BLOCKED** — do not install M2 functions or call `finance_m2_run` |
 | [127 Complete Delegated Operations](./127-complete-delegated-operations/index.md) | Approved member operating scope — FACILITY-only Complete must not inherit PM finance |
 | [135 Invitation & Acceptance Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | Approved — Complete invitation create/accept remediation · no Production apply |
 
