@@ -21,3 +21,5 @@
 ## Summary
 
 Mobile-first Resident chrome (bottom tabs), Home five-second glance, guided maintenance report flow without resident-facing routing complexity, payments presentation polish, Documents Intelligence readiness. No invented community product modules. No Stripe/schema/auth/nav IA changes.
+
+Related later design (not this sprint): [165 Phase 4 PWA Install + Device Experience](../165-phase-4-pwa-install-device-experience/index.md) — optional, device-specific Home Screen install after Tenant Portal onboarding. Draft until Owner-approved.
