@@ -6,7 +6,13 @@ This blueprint defines how M.P.A. is designed, built, and evolved. Every enginee
 
 **Current status:** Product Architecture Reset **Approved**. Commercial Experience
 Hardening P0 **Pass**. FIN-OPS-001 **Approved** (ADR-016 Accepted); slices **S0–
-S3 delivered** and **paused** (S4+ NO-GO). LAUNCH-001 Customer Promise Roadmap
+S3 delivered** and **paused** (S4+ NO-GO). Production FIN-OPS schema remains
+absent — [docs/126](./126-fin-ops-production-reconciliation-audit/index.md) audit
+complete; [docs/140](./140-fin-ops-production-reconciliation-remediation/index.md)
+**Approved** (M1 only; do not replay S0–S2);
+[docs/142](./142-fin-ops-production-reconciliation-m1-production-migration-certification/index.md)
+**READY FOR PRODUCTION MIGRATION APPLICATION** (do not apply in that package).
+LAUNCH-001 Customer Promise Roadmap
 **Approved** (ADR-017); journey-gated — **J0–J2 delivered**, J3–J8 not authorized.
 CORE-004 remains stopped. Facility Operations feature Implement authorize (2026-08-07)
 **refused** pending workflows + schema design package ([27](./27-facility-operations/index.md)).
@@ -173,6 +179,11 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [S2 Certification](./25-fin-ops-001/s2/index.md) | Delinquency, late fees & vendor AP |
 | [S3 Certification](./25-fin-ops-001/s3/index.md) | Command Center & owner reporting |
 | [ADR-016](./18-decision-log/adr-016-financial-operations-operational-finance.md) | Accepted — operational finance decision |
+| [126 FIN-OPS Production reconciliation audit](./126-fin-ops-production-reconciliation-audit/index.md) | **AUDIT COMPLETE · BLOCKED FOR REMEDIATION DESIGN** |
+| [140 FIN-OPS Production reconciliation remediation](./140-fin-ops-production-reconciliation-remediation/index.md) | **Approved** — M1 authorized; M2–M5 / Production apply not authorized |
+| [141 FIN-OPS M1 implementation certification](./141-fin-ops-production-reconciliation-m1-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** |
+| [142 FIN-OPS M1 Production migration certification](./142-fin-ops-production-reconciliation-m1-production-migration-certification/index.md) | **READY FOR PRODUCTION MIGRATION APPLICATION** — do not apply in that package |
+| [ADR-034](./18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) | **Accepted** — one `financial_*` domain; successor cutover; no S0–S2 replay |
 | [127 Complete Delegated Operations](./127-complete-delegated-operations/index.md) | Approved member operating scope — FACILITY-only Complete must not inherit PM finance |
 | [135 Invitation & Acceptance Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | Approved — Complete invitation create/accept remediation · no Production apply |
 
