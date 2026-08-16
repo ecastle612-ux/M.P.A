@@ -1,14 +1,14 @@
 # 172 — Tenant Lifecycle SQL Qualification Compatibility Amendment
 
 **Title:** TENANT LIFECYCLE SQL QUALIFICATION COMPATIBILITY AMENDMENT  
-**Status:** **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Status:** **Approved**  
 **Date:** 2026-08-16  
 **Program:** Customer-facing tenant lifecycle — certified SQL compile and historical-access compatibility  
 **Authority:** [docs/166](../166-tenant-lifecycle-onboarding-portal-move-out/index.md) **Approved** · [docs/170](../170-tenant-lifecycle-financial-receipts-compatibility-amendment/index.md) **Approved** · [docs/171](../171-tenant-lifecycle-financial-receipts-compatibility-implementation-certification/index.md) **BLOCKED** · ADR-012 · ADR-034  
 **Target:** `mpa-prod` / `vahnmcrpnuggxkivynvo`  
 **Current unapplied file:** `supabase/migrations/20260816120000_docs_166_tenant_lifecycle.sql`  
 **Current unapplied SHA-256 (must not authorize apply):** `1c88c992552fa8a23c3b3016362915ae390eb6e14e78e1bdf8c8c2d51ab52844`  
-**This package:** Design / read-only only. **No SQL edit. No apply. No deploy. No invitation. No binding. No move-out. No FIN-OPS money mutation. No July reopen. No Stripe execution. No M5. No SKU/pricing change. No native apps. No Web Push.**
+**This package:** Design amendment. Owner approved on 2026-08-16. Authorizes the in-place qualification and `record_timestamp` renames only. **No Production apply. No deploy. No invitation. No binding. No move-out. No FIN-OPS money mutation. No July reopen. No Stripe execution. No M5. No SKU/pricing change. No native apps. No Web Push.**
 
 Identifier collision: **COM-002** means Tenant Communication Center (ADR-024 / docs/80).
 
@@ -16,7 +16,7 @@ Identifier collision: **COM-002** means Tenant Communication Center (ADR-024 / d
 
 ## Verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved**
 
 Amend the same unapplied stamp `20260816120000` in place. Do not create a successor. Do not invent a Production ledger row for the failed apply attempts.
 
@@ -417,8 +417,8 @@ This is a compatibility amendment under approved docs/166. Implementation Gate s
 
 ## 9. Exact next sequence
 
-1. **Owner approves this record**
-2. Implementation: in-place amend `20260816120000` with §2.3 + §3.3 + §4.1; scratch-apply the **certified** file; certify (suggested docs/173)
+1. **Owner approved this record**
+2. Implementation: in-place amend `20260816120000` with §2.3 + §3.3 + §4.1; scratch-apply the **certified** file; certify (docs/173)
 3. Production migration re-certification of the new SHA (suggested docs/174)
 4. Owner-authorized apply of that SHA only
 5. Stop — no tenant-lifecycle app deploy in the apply package
@@ -429,6 +429,6 @@ Do not retry SHA `1c88c992…` or `4b1edb1f…`.
 
 ## Approval / next gate
 
-This design does **not** authorize implementation or apply.
+**Status: Approved.**
 
-**Status: DESIGN COMPLETE — APPROVAL REQUIRED.**
+Implementation of the in-place qualification and `record_timestamp` renames is authorized. Production apply is not authorized by this record.

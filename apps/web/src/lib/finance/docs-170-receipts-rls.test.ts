@@ -34,9 +34,15 @@ describe("docs/170 financial_receipts issued_at compatibility", () => {
     expect(lifecycle).not.toMatch(/rename column .*issued_at/i);
   });
 
-  it("keeps the helper parameter named created_at", () => {
+  it("renames the helper timestamp parameter to record_timestamp", () => {
     expect(lifecycle).toContain("create or replace function public.finance_resident_can_select_charge(");
-    expect(lifecycle).toMatch(/finance_resident_can_select_charge\([\s\S]*?created_at timestamptz/);
+    expect(lifecycle).toMatch(
+      /finance_resident_can_select_charge\([\s\S]*?record_timestamp timestamptz/
+    );
+    expect(lifecycle).toContain("tenant_finance_charge_date(period_start, due_at, record_timestamp)");
+    expect(lifecycle).toContain(
+      "revoke all on function public.finance_resident_can_select_charge(uuid, uuid, date, date, timestamptz)"
+    );
   });
 
   it("does not mutate FIN-OPS money, July, Stripe, or SKUs", () => {

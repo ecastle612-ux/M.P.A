@@ -232,7 +232,7 @@ create or replace function public.finance_resident_can_select_charge(
   target_lease_id uuid,
   period_start date,
   due_at date,
-  created_at timestamptz
+  record_timestamp timestamptz
 )
 returns boolean
 language sql
@@ -254,7 +254,7 @@ as $$
         )
         or (
           public.tenant_occupancy_is_historical(occupancy.occupy_from, occupancy.occupy_to)
-          and public.tenant_finance_charge_date(period_start, due_at, created_at)
+          and public.tenant_finance_charge_date(period_start, due_at, record_timestamp)
             between occupancy.occupy_from and occupancy.occupy_to
         )
       )
@@ -349,7 +349,7 @@ create or replace function public.tenant_can_select_document(
   target_org_id uuid,
   entity_type text,
   entity_id uuid,
-  created_at timestamptz
+  record_timestamp timestamptz
 )
 returns boolean
 language sql
@@ -380,7 +380,7 @@ as $$
         )
         or (
           public.tenant_occupancy_is_historical(occupancy.occupy_from, occupancy.occupy_to)
-          and (timezone('utc', created_at))::date <= occupancy.occupy_to
+          and (timezone('utc', record_timestamp))::date <= occupancy.occupy_to
         )
       )
   );
@@ -547,15 +547,15 @@ create policy maintenance_work_orders_insert_resident
 on public.maintenance_work_orders
 for insert
 with check (
-  requested_by_user_id = auth.uid()
+  maintenance_work_orders.requested_by_user_id = auth.uid()
   and exists (
     select 1
     from public.pm_residents residents
     join public.lease_residents occupancy
       on occupancy.pm_resident_id = residents.id
      and occupancy.organization_id = residents.organization_id
-    where residents.id = resident_id
-      and residents.organization_id = organization_id
+    where residents.id = maintenance_work_orders.resident_id
+      and residents.organization_id = maintenance_work_orders.organization_id
       and residents.user_id = auth.uid()
       and occupancy.user_id = auth.uid()
       and public.tenant_occupancy_is_current(
@@ -566,7 +566,7 @@ with check (
       and occupancy.lease_id in (
         select leases.id
         from public.lease_agreements leases
-        where leases.organization_id = organization_id
+        where leases.organization_id = maintenance_work_orders.organization_id
           and leases.property_id = maintenance_work_orders.property_id
           and (leases.unit_id is null or leases.unit_id = maintenance_work_orders.unit_id)
       )

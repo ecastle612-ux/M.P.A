@@ -330,5 +330,8 @@ end
 $$;
 
 grant usage on schema public to authenticated;
+grant usage on schema auth to authenticated;
+grant execute on function auth.uid() to authenticated;
 grant select on all tables in schema public to authenticated;
+grant insert on public.maintenance_work_orders to authenticated;
 alter default privileges in schema public grant select on tables to authenticated;
