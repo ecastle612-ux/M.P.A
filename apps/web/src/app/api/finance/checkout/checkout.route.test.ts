@@ -7,9 +7,10 @@ const { serviceRole, authorize } = vi.hoisted(() => ({
 }));
 
 vi.mock("../../../../lib/finance/checkout-authz", async () => {
-  const actual = await vi.importActual<typeof import("../../../../lib/finance/checkout-authz")>(
-    "../../../../lib/finance/checkout-authz"
-  );
+  const actual = (await vi.importActual("../../../../lib/finance/checkout-authz")) as Record<
+    string,
+    unknown
+  >;
   return {
     ...actual,
     authorizeFinanceCheckout: (...args: unknown[]) => authorize(...args)
