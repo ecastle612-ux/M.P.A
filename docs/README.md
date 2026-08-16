@@ -178,9 +178,9 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [143 FIN-OPS M1 Production migration application](./143-fin-ops-production-reconciliation-m1-production-migration-application-certification/index.md) | M1 live as `20260816003005` |
 | [144 FIN-OPS M2 implementation certification](./144-fin-ops-production-reconciliation-m2-implementation-certification/index.md) | In-repo M2 mechanism |
 | [145 FIN-OPS M2 Production backfill certification](./145-fin-ops-production-reconciliation-m2-production-backfill-certification/index.md) | **BLOCKED** — do not install M2 functions or call `finance_m2_run` |
-| [146 FIN-OPS M2 compatibility amendment](./146-fin-ops-production-reconciliation-m2-compatibility-amendment/index.md) | **DESIGN COMPLETE — APPROVAL REQUIRED** — currency USD default; proven `units` materialization; no per-org cutover |
+| [146 FIN-OPS M2 compatibility amendment](./146-fin-ops-production-reconciliation-m2-compatibility-amendment/index.md) | **Approved** — M2A/B/C authorized; M2D and Production install remain blocked |
 | [ADR-034](./18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) | Accepted — Production lineage cutover |
-| [ADR-035](./18-decision-log/adr-035-fin-ops-m2-identity-and-per-org-backfill.md) | Proposed — proven unit materialization + per-org fail-closed M2 backfill |
+| [ADR-035](./18-decision-log/adr-035-fin-ops-m2-identity-and-per-org-backfill.md) | Accepted — proven unit materialization + per-org fail-closed M2 backfill |
 | [127 Complete Delegated Operations](./127-complete-delegated-operations/index.md) | Approved member operating scope — FACILITY-only Complete must not inherit PM finance |
 | [135 Invitation & Acceptance Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | Approved — Complete invitation create/accept remediation · no Production apply |
 

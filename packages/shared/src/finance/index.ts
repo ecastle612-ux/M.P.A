@@ -1,3 +1,4 @@
+export * from "./docs-140-m2-maps";
 export * from "./domain";
 export * from "./permissions";
 export * from "./events";

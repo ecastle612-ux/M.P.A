@@ -1,7 +1,7 @@
 # ADR-035: FIN-OPS M2 Proven Unit Materialization and Per-Org Fail-Closed Backfill
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-16
@@ -55,4 +55,4 @@ Authoritative design: `docs/146-fin-ops-production-reconciliation-m2-compatibili
 
 ## Approval
 
-Proposed with docs/146. Not Accepted until Architect `ACCEPT ADR-035` with Product Owner `APPROVE docs/146`.
+Accepted 2026-08-16. Product Owner `APPROVE docs/146`. Architect `ACCEPT ADR-035`. Implementation is limited to M2A + M2B + M2C. M2D, Production install, and `finance_m2_run` against Production remain unauthorized.

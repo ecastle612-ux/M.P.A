@@ -1,18 +1,18 @@
 # 146 — FIN-OPS Production Reconciliation M2 Compatibility Amendment
 
 **Title:** FIN-OPS PRODUCTION RECONCILIATION — M2 COMPATIBILITY AMENDMENT  
-**Status:** **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Status:** **Approved**  
 **Date:** 2026-08-16  
 **Program:** Financial Operations Production lineage cutover — M2 compatibility  
-**Authority:** Owner design request · [docs/126](../126-fin-ops-production-reconciliation-audit/index.md) · [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) **Approved** · [ADR-034](../18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) **Accepted** · [docs/143](../143-fin-ops-production-reconciliation-m1-production-migration-application-certification/index.md) · [docs/144](../144-fin-ops-production-reconciliation-m2-implementation-certification/index.md) · [docs/145](../145-fin-ops-production-reconciliation-m2-production-backfill-certification/index.md) **BLOCKED** · [ADR-016](../18-decision-log/adr-016-financial-operations-operational-finance.md) · [ADR-033](../18-decision-log/adr-033-member-operating-scope.md) · proposed [ADR-035](../18-decision-log/adr-035-fin-ops-m2-identity-and-per-org-backfill.md)  
+**Authority:** Product Owner `APPROVE docs/146` · Architect `ACCEPT ADR-035` · [docs/126](../126-fin-ops-production-reconciliation-audit/index.md) · [docs/140](../140-fin-ops-production-reconciliation-remediation/index.md) **Approved** · [ADR-034](../18-decision-log/adr-034-fin-ops-production-lineage-cutover.md) **Accepted** · [docs/143](../143-fin-ops-production-reconciliation-m1-production-migration-application-certification/index.md) · [docs/144](../144-fin-ops-production-reconciliation-m2-implementation-certification/index.md) · [docs/145](../145-fin-ops-production-reconciliation-m2-production-backfill-certification/index.md) **BLOCKED** · [ADR-016](../18-decision-log/adr-016-financial-operations-operational-finance.md) · [ADR-033](../18-decision-log/adr-033-member-operating-scope.md) · [ADR-035](../18-decision-log/adr-035-fin-ops-m2-identity-and-per-org-backfill.md) **Accepted**  
 **Target:** `mpa-prod` / `vahnmcrpnuggxkivynvo` (us-west-2)  
-**This package:** Design only. **No M2 SQL change. No function install. No `finance_m2_run`. No unit creation. No July mutation. No M3–M5. No deploy. No Stripe / billing / SKU / price change.**
+**This package:** Approved design. Implementation is limited to M2A + M2B + M2C. **No Production install. No `finance_m2_run` on Production. No M2D. No M3–M5. No deploy. No Stripe / billing / SKU / price change.**
 
 ---
 
 ## Verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved** — implement M2A + M2B + M2C only. M2D, Production install, and `finance_m2_run` against Production remain unauthorized.
 
 docs/145 remains the Production backfill stop. This record amends the certified M2 *design* so a later implementation can run against live Production without inventing money, currency, or tenancy.
 
@@ -536,7 +536,7 @@ M2A is the only slice required to *observe* Production dry-run. It is not suffic
 | Does currency-only need a new ADR? | **No.** docs/140 / ADR-034 already default USD. |
 | Does ADR-034 need a rewrite? | **No.** Cutover architecture (one `financial_*` domain after M4, no dual-write, no July delete, no invented money) stands. |
 | Is a new ADR required? | **Yes — ADR-035** — because this design (a) permits proven legacy unit materialization and (b) permits per-org **fail-closed M2 backfill** while stating that per-org **cutover is still forbidden**. Those are durable identity / transitional-authority rules. |
-| Implementation Gate | Design → Document → **Approve** → Implement. This record is not implementation authorization. |
+| Implementation Gate | Design → Document → **Approve** → Implement. This record authorizes in-repo M2A + M2B + M2C only. |
 
 ---
 
@@ -564,38 +564,23 @@ Rollback implications:
 
 ## Approve gate
 
-This record is **not** implementation authorization.
-
-Approval evidence required:
+Approval evidence recorded 2026-08-16:
 
 1. Product Owner: `APPROVE docs/146`
 2. Architect: `ACCEPT ADR-035`
 
-After both:
+Authorized after both:
 
 - M2A may be implemented **only** as specified in §2 and §13.
 - M2B may be implemented **only** as specified in §4 Option B / mismatch STOP.
 - M2C may be implemented **only** as specified in §7–§8.
 - M2D requires its own later Approve.
 - M3 / M4 / M5 remain unauthorized.
+- Production install and `finance_m2_run` against Production remain unauthorized.
 - Material changes restart Design → Document → Approve.
-
-Until then:
-
-**STOP.**
-
-NO IMPLEMENTATION.  
-NO M2 FUNCTION INSTALL.  
-NO `finance_m2_run`.  
-NO PRODUCTION DATA MOVEMENT.  
-NO UNIT CREATION.  
-NO JULY ROW CHANGES.  
-NO M3 / M4 / M5.  
-NO DEPLOYMENT.  
-NO STRIPE / BILLING / SUBSCRIPTION / SKU / PRICE CHANGES.
 
 ---
 
 ## Final status
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**Approved** — M2A + M2B + M2C implementation authorized. Production backfill remains unauthorized.
