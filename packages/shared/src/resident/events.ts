@@ -2,7 +2,15 @@ export const RESIDENT_EVENT_TYPES = [
   "resident.created",
   "resident.property_assigned",
   "resident.unit_assigned",
-  "resident.portal_provisioned"
+  "resident.portal_provisioned",
+  "tenant.invited",
+  "tenant.invitation_accepted",
+  "tenant.invitation_revoked",
+  "tenant.moved_out",
+  "tenant.move_out_cancelled",
+  "tenant.move_out_corrected",
+  "tenant.occupancy_started",
+  "tenant.transferred"
 ] as const;
 export type ResidentEventType = (typeof RESIDENT_EVENT_TYPES)[number];
 

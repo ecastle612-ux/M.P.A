@@ -309,14 +309,20 @@ export async function createResidentWorkOrder(
   actorUserId: string,
   input: CreateWorkOrderInput
 ) {
+  const { listOccupanciesForUser, resolveTenantPortalMode } = await import(
+    "../tenant-lifecycle/tenant-lifecycle-service"
+  );
+  const occupancies = await listOccupanciesForUser(supabase, organizationId, actorUserId);
+  const resolved = resolveTenantPortalMode(occupancies);
+  if (resolved.mode !== "active" || !resolved.current?.pm_resident_id) {
+    throw new Error("Active occupancy is required to submit maintenance.");
+  }
+
   const { data: resident, error: residentError } = await supabase
     .from("pm_residents")
     .select("id, property_id, unit_id, display_name, portal_status, status")
     .eq("organization_id", organizationId)
-    .eq("user_id", actorUserId)
-    .eq("portal_status", "active")
-    .order("created_at", { ascending: false })
-    .limit(1)
+    .eq("id", resolved.current.pm_resident_id)
     .maybeSingle();
   if (residentError) {
     throw new Error(residentError.message);

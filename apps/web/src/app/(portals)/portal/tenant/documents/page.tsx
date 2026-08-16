@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { resolveActiveOrganizationIdForUser } from "../../../../../lib/organization/resolve-active-organization";
+import { loadTenantPortalContext } from "../../../../../lib/tenant-lifecycle/portal-context";
 import {
   ResidentDocumentsStrip,
   ResidentPageIntro,
@@ -23,16 +24,8 @@ export default async function TenantDocumentsPage() {
   let documentBody: string | null = null;
 
   if (user && organizationId) {
-    const { data: residentRaw } = await supabase
-      .from("pm_residents")
-      .select("lease_id")
-      .eq("organization_id", organizationId)
-      .or(`user_id.eq.${user.id},email.eq.${user.email ?? ""}`)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const resident = residentRaw as AnyRow | null;
-    const leaseId = (resident?.["lease_id"] as string | null) ?? null;
+    const occupancy = await loadTenantPortalContext(supabase, organizationId, user.id);
+    const leaseId = occupancy.current?.lease_id ?? occupancy.historical[0]?.lease_id ?? null;
 
     if (leaseId) {
       const { data: leaseRaw } = await supabase

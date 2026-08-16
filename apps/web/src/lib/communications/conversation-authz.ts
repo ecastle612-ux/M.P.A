@@ -21,6 +21,7 @@ export type ConversationActor = {
   organizationId: string;
   plane: "staff" | "tenant";
   tenantAccountId: string | null;
+  occupancyMode: "active" | "future" | "moved_out" | "invited" | "staff";
 };
 
 export async function loadOrgEntitlements(
@@ -72,13 +73,14 @@ export async function requireStaffConversationPermission(
     user: result.user,
     organizationId: result.organizationId,
     plane: "staff",
-    tenantAccountId: null
+    tenantAccountId: null,
+    occupancyMode: "staff"
   };
 }
 
-export async function requireTenantConversationActor(): Promise<
-  ConversationActor | { error: NextResponse }
-> {
+export async function requireTenantConversationActor(
+  access: "read" | "write" = "read"
+): Promise<ConversationActor | { error: NextResponse }> {
   const supabase = await createAuthServerClient();
   const {
     data: { user }
@@ -92,27 +94,15 @@ export async function requireTenantConversationActor(): Promise<
     return { error: NextResponse.json({ error: "Organization required" }, { status: 400 }) };
   }
 
-  const { data: residentRaw } = await supabase
-    .from("pm_residents")
-    .select("id, user_id, lease_id")
-    .eq("organization_id", organizationId)
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const resident = residentRaw as { id: string; user_id: string | null; lease_id: string | null } | null;
-
-  if (!resident?.id || !resident.lease_id) {
+  const { listOccupanciesForUser, resolveTenantPortalMode } = await import(
+    "../tenant-lifecycle/tenant-lifecycle-service"
+  );
+  const occupancies = await listOccupanciesForUser(supabase as Db, organizationId, user.id);
+  const resolved = resolveTenantPortalMode(occupancies);
+  if (access === "write" && resolved.mode !== "active") {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
-
-  const { data: leaseResident } = await supabase
-    .from("lease_residents")
-    .select("id")
-    .eq("lease_id", resident.lease_id)
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (!leaseResident) {
+  if (resolved.mode === "invited" || !resolved.current?.pm_resident_id) {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
 
@@ -121,7 +111,8 @@ export async function requireTenantConversationActor(): Promise<
     user,
     organizationId,
     plane: "tenant",
-    tenantAccountId: resident.id
+    tenantAccountId: resolved.current.pm_resident_id,
+    occupancyMode: resolved.mode
   };
 }
 
@@ -134,7 +125,7 @@ export async function requireConversationMediaActor(mode: "read" | "write"): Pro
   if (!("error" in staff)) return staff;
 
   if (staff.error.status === 401) return staff;
-  return requireTenantConversationActor();
+  return requireTenantConversationActor(mode);
 }
 
 /**
@@ -158,6 +149,7 @@ export async function requireNotificationCenterActor(): Promise<
     user: staff.user,
     organizationId: staff.organizationId,
     plane: "staff",
-    tenantAccountId: null
+    tenantAccountId: null,
+    occupancyMode: "staff"
   };
 }

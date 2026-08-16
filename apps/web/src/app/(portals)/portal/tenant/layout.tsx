@@ -4,6 +4,10 @@ import { createAuthServerClient } from "../../../../lib/auth/server";
 import { resolveAuthenticatedShellContext } from "../../../../lib/auth/get-shell-context";
 import { TENANT_PORTAL_NAVIGATION } from "../../../../components/portal/navigation";
 import { RolePortalFrame } from "../../../../components/portal/role-portal-frame";
+import {
+  loadTenantPortalContext,
+  tenantPortalSubtitle
+} from "../../../../lib/tenant-lifecycle/portal-context";
 
 export default async function TenantPortalLayout({ children }: { children: ReactNode }) {
   const supabase = await createAuthServerClient();
@@ -23,15 +27,27 @@ export default async function TenantPortalLayout({ children }: { children: React
     redirect("/unauthorized");
   }
 
+  const occupancy = await loadTenantPortalContext(
+    supabase,
+    shellContext.defaultOrganizationId,
+    user.id
+  );
+  const title =
+    occupancy.mode === "moved_out"
+      ? "Past residence"
+      : occupancy.mode === "future"
+        ? "Upcoming home"
+        : "My Home";
+
   return (
     <RolePortalFrame
       availableRoles={shellContext.availableRoles}
       defaultRole="tenant"
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
-      title="My Home"
-      subtitle="Pay rent, report issues, and find what you need — fast."
-      roleBadgeLabel="Resident"
+      title={title}
+      subtitle={tenantPortalSubtitle(occupancy.mode)}
+      roleBadgeLabel={occupancy.mode === "active" ? "Resident" : occupancy.mode === "moved_out" ? "Former resident" : "Resident"}
       navigation={TENANT_PORTAL_NAVIGATION}
       experience="resident"
       showNotifications

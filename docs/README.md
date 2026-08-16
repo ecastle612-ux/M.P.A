@@ -111,6 +111,16 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 127 | [Complete Delegated Operations](./127-complete-delegated-operations/index.md) | **Approved** · ADR-033 Accepted · member operating scope implement authorized |
 | 135 | [Complete Delegated Operations Invitation Remediation](./135-complete-delegated-operations-invitation-remediation/index.md) | **Approved** · implement slices A, B, C, E · no Production apply or deploy |
 | 136 | [Complete Invitation Remediation Implementation Certification](./136-complete-delegated-operations-invitation-implementation-certification/index.md) | **READY FOR PRODUCTION MIGRATION CERTIFICATION** · no apply or deploy |
+| 166 | [Tenant Lifecycle — Onboarding, Portal Access, Move-Out](./166-tenant-lifecycle-onboarding-portal-move-out/index.md) | **Approved** — occupancy + Add Tenant + Move Out · in-repo implement authorized · no Production apply |
+| 167 | [Tenant Lifecycle Implementation Certification](./167-tenant-lifecycle-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION CERTIFICATION** · no Production apply |
+| 168 | [Tenant Lifecycle Production Migration Certification](./168-tenant-lifecycle-production-migration-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** · read-only · SHA now obsolete |
+| 169 | [Tenant Lifecycle Production Migration Application Certification](./169-tenant-lifecycle-production-migration-application-certification/index.md) | **BLOCKED** — `financial_receipts.created_at` missing · stamp never registered |
+| 170 | [Tenant Lifecycle Financial Receipts Compatibility Amendment](./170-tenant-lifecycle-financial-receipts-compatibility-amendment/index.md) | **Approved** — use `issued_at`; do not add `created_at` |
+| 171 | [Tenant Lifecycle Receipts Compatibility Implementation Certification](./171-tenant-lifecycle-financial-receipts-compatibility-implementation-certification/index.md) | **BLOCKED** — `issued_at` applied in-repo; certified file still cannot apply |
+| 172 | [Tenant Lifecycle SQL Qualification Compatibility Amendment](./172-tenant-lifecycle-sql-qualification-compatibility-amendment/index.md) | **Approved** — qualify WO org + rename helper `record_timestamp` |
+| 173 | [Tenant Lifecycle SQL Qualification Compatibility Implementation Certification](./173-tenant-lifecycle-sql-qualification-compatibility-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION RE-CERTIFICATION** · no Production apply |
+| 174 | [Tenant Lifecycle Production Migration Re-Certification](./174-tenant-lifecycle-production-migration-recertification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** · read-only · SHA `dcad8ed6…` only |
+| 175 | [Tenant Lifecycle Production Migration Application Certification](./175-tenant-lifecycle-production-migration-application-certification/index.md) | **READY FOR TENANT LIFECYCLE APPLICATION DEPLOYMENT** · schema live under `20260816094933` · no app deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -181,6 +191,16 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [160 FIN-OPS M3 Production application certification](./160-fin-ops-production-reconciliation-m3-production-application-certification/index.md) | **READY FOR M4 APPLICATION CUTOVER DESIGN** — M3B then M3A live; writes still guarded off |
 | [161 FIN-OPS M4 application cutover design](./161-fin-ops-production-reconciliation-m4-application-cutover-design/index.md) | **Approved** — in-repo M4-APP + M4-RLS only; no write-guard lift; no M4 deploy |
 | [162 FIN-OPS M4 implementation certification](./162-fin-ops-production-reconciliation-m4-implementation-certification/index.md) | **READY FOR M4 PRODUCTION RELEASE CERTIFICATION** — in-repo only; guard remains false |
+| [166 Tenant Lifecycle](./166-tenant-lifecycle-onboarding-portal-move-out/index.md) | **Approved** — occupancy authorization + Add Tenant + Move Out; in-repo implement only |
+| [167 Tenant Lifecycle implementation certification](./167-tenant-lifecycle-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION CERTIFICATION** — in-repo only |
+| [168 Tenant Lifecycle Production migration certification](./168-tenant-lifecycle-production-migration-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** — read-only; old SHA obsolete |
+| [169 Tenant Lifecycle Production apply certification](./169-tenant-lifecycle-production-migration-application-certification/index.md) | **BLOCKED** — receipts `created_at` missing; Production unchanged |
+| [170 Receipts compatibility amendment](./170-tenant-lifecycle-financial-receipts-compatibility-amendment/index.md) | **Approved** — pass `issued_at`; do not add `created_at` |
+| [171 Receipts compatibility implementation certification](./171-tenant-lifecycle-financial-receipts-compatibility-implementation-certification/index.md) | **BLOCKED** — one-argument fix in-repo; two further apply/semantic blockers |
+| [172 SQL qualification compatibility amendment](./172-tenant-lifecycle-sql-qualification-compatibility-amendment/index.md) | **Approved** — maintenance `organization_id` + helper `record_timestamp` |
+| [173 SQL qualification compatibility implementation certification](./173-tenant-lifecycle-sql-qualification-compatibility-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION RE-CERTIFICATION** — in-repo only; new SHA only |
+| [174 Tenant Lifecycle Production migration re-certification](./174-tenant-lifecycle-production-migration-recertification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** — read-only; SHA `dcad8ed6…` only |
+| [175 Tenant Lifecycle Production apply certification](./175-tenant-lifecycle-production-migration-application-certification/index.md) | **READY FOR TENANT LIFECYCLE APPLICATION DEPLOYMENT** — stamp `20260816094933` live; do not replay `20260816120000`; no app deploy |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 

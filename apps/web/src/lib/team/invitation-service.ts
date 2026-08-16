@@ -14,6 +14,8 @@ import {
 import { sendInvitationEmail } from "@mpa/email";
 import { emitTeamEvent, writeTeamAudit } from "./events-audit";
 import { recordOperatingScopeEvent } from "../organization/operating-scope-events";
+import { acceptTenantBinding } from "../tenant-lifecycle/accept-tenant-binding";
+import { TenantLifecycleError } from "../tenant-lifecycle/occupancy-core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -591,6 +593,29 @@ export async function acceptInvitation(args: {
 
   if ((invitation.email as string).toLowerCase() !== args.userEmail.toLowerCase()) {
     throw new InvitationAcceptanceError("Sign in with the invited email address to accept.", 403);
+  }
+
+  const tenantOnly = roles.length === 1 && roles[0] === "tenant";
+  if (roles.includes("tenant") && !tenantOnly) {
+    throw new InvitationAcceptanceError("Tenant invitations cannot grant staff roles.", 403);
+  }
+  if (tenantOnly) {
+    try {
+      await acceptTenantBinding({
+        supabase: args.supabase,
+        userId: args.userId,
+        userEmail: args.userEmail,
+        organizationId,
+        invitationId: invitation.id as string,
+        invitationEmail: invitation.email as string,
+        browserOverrides: null
+      });
+    } catch (error) {
+      if (error instanceof TenantLifecycleError) {
+        throw new InvitationAcceptanceError(error.message, error.status);
+      }
+      throw error;
+    }
   }
 
   const sku = await resolveOrganizationSku(args.supabase, organizationId);

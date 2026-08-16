@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Badge, Button, EmptyState, Skeleton } from "@mpa/ui";
 import { RESIDENT_STATUS_LABELS, ownerEmptyStateCopy, type ResidentStatus } from "@mpa/shared";
 import { ResidentCreateWizard } from "./resident-create-wizard";
+import { AddTenantForm } from "./add-tenant-form";
 import {
   PmDirectoryToolbar,
   PmDocumentsStrip,
@@ -40,6 +41,7 @@ export function ResidentsDirectory() {
   const [error, setError] = useState<string | null>(null);
   const [wizardDismissed, setWizardDismissed] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
+  const [addTenantOpen, setAddTenantOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -101,15 +103,21 @@ export function ResidentsDirectory() {
           : "Resident directory with portal status. Open a resident for lease context, communications, and files."
       }
       actions={
-        <Button
-          type="button"
-          onClick={() => {
-            setWizardDismissed(false);
-            setManualOpen(true);
-          }}
-        >
-          Add resident
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" onClick={() => setAddTenantOpen(true)}>
+            Add Tenant
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              setWizardDismissed(false);
+              setManualOpen(true);
+            }}
+          >
+            Add resident
+          </Button>
+        </div>
       }
     >
       <PmQuickActions
@@ -125,6 +133,15 @@ export function ResidentsDirectory() {
           {residents.length} residents
           {pendingActivation > 0 ? ` · ${pendingActivation} pending portal activation` : ""}
         </p>
+      ) : null}
+
+      {addTenantOpen ? (
+        <AddTenantForm
+          onDone={() => {
+            setAddTenantOpen(false);
+            setReloadKey((k) => k + 1);
+          }}
+        />
       ) : null}
 
       {showWizard ? (

@@ -3,6 +3,8 @@ import { formatMoney } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import { resolveActiveOrganizationIdForUser } from "../../../../lib/organization/resolve-active-organization";
 import { listResidentWorkOrders } from "../../../../lib/maintenance/maintenance-service";
+import { loadTenantPortalContext } from "../../../../lib/tenant-lifecycle/portal-context";
+import { TenantPwaInstallCard } from "../../../../components/pwa/tenant-pwa-install-card";
 import {
   ResidentDocumentsStrip,
   ResidentGlanceCard,
@@ -35,15 +37,20 @@ export default async function TenantPortalPage() {
   let openMaintenance = 0;
   let needsConfirm = 0;
 
+  const occupancy = user && organizationId
+    ? await loadTenantPortalContext(supabase, organizationId, user.id)
+    : { mode: "invited" as const, current: null, historical: [] };
+
   if (user && organizationId) {
-    const { data: pmResidentRaw } = await supabase
-      .from("pm_residents")
-      .select("display_name, lease_id, property_id, unit_id")
-      .eq("organization_id", organizationId)
-      .or(`user_id.eq.${user.id},email.eq.${user.email ?? ""}`)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const occupancyResidentId = occupancy.current?.pm_resident_id ?? occupancy.historical[0]?.pm_resident_id;
+    const { data: pmResidentRaw } = occupancyResidentId
+      ? await supabase
+          .from("pm_residents")
+          .select("display_name, lease_id, property_id, unit_id")
+          .eq("organization_id", organizationId)
+          .eq("id", occupancyResidentId)
+          .maybeSingle()
+      : { data: null };
     const pmResident = pmResidentRaw as AnyRow | null;
 
     if (pmResident) {
@@ -131,19 +138,33 @@ export default async function TenantPortalPage() {
       <ResidentPageIntro
         title={`Hi, ${residentName}`}
         description={
-          leaseSummary
-            ? `${leaseSummary.propertyName} · Unit ${leaseSummary.unitLabel}`
-            : "Your home portal is ready when your lease is linked."
+          occupancy.mode === "moved_out"
+            ? "Your active property access has ended. You can still review your own history."
+            : occupancy.mode === "future"
+              ? `Your move-in date is ${occupancy.current?.occupy_from ?? "on file"}.`
+            : leaseSummary
+              ? `${leaseSummary.propertyName} · Unit ${leaseSummary.unitLabel}`
+              : "Your home portal is ready when your lease is linked."
         }
       />
 
+      {occupancy.mode === "active" ? <TenantPwaInstallCard /> : null}
+
       <ResidentQuickActions
-        actions={[
-          { href: "/portal/tenant/maintenance", label: "Report an issue", primary: true },
-          { href: "/portal/tenant/billing", label: balance > 0 ? "Pay rent" : "View payments" },
-          { href: "/portal/tenant/messages", label: "Messages" },
-          { href: "/portal/tenant/documents", label: "Lease & documents" }
-        ]}
+        actions={
+          occupancy.mode === "active"
+            ? [
+                { href: "/portal/tenant/maintenance", label: "Report an issue", primary: true },
+                { href: "/portal/tenant/billing", label: balance > 0 ? "Pay rent" : "View payments" },
+                { href: "/portal/tenant/messages", label: "Messages" },
+                { href: "/portal/tenant/documents", label: "Lease & documents" }
+              ]
+            : [
+                { href: "/portal/tenant/billing", label: "Payment history", primary: true },
+                { href: "/portal/tenant/documents", label: "Your documents" },
+                { href: "/portal/tenant/messages", label: "Past messages" }
+              ]
+        }
       />
 
       <section aria-label="At a glance" className="grid gap-3 sm:grid-cols-2">
