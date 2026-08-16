@@ -583,4 +583,4 @@ Authorized after both:
 
 ## Final status
 
-**Approved** — M2A + M2B + M2C implementation authorized. Production backfill remains unauthorized.
+**Approved** — M2A + M2B + M2C implementation authorized. In-repo implementation is certified in [docs/147](../147-fin-ops-production-reconciliation-m2-compatibility-implementation-certification/index.md). Production backfill remains unauthorized.
