@@ -119,6 +119,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 171 | [Tenant Lifecycle Receipts Compatibility Implementation Certification](./171-tenant-lifecycle-financial-receipts-compatibility-implementation-certification/index.md) | **BLOCKED** — `issued_at` applied in-repo; certified file still cannot apply |
 | 172 | [Tenant Lifecycle SQL Qualification Compatibility Amendment](./172-tenant-lifecycle-sql-qualification-compatibility-amendment/index.md) | **Approved** — qualify WO org + rename helper `record_timestamp` |
 | 173 | [Tenant Lifecycle SQL Qualification Compatibility Implementation Certification](./173-tenant-lifecycle-sql-qualification-compatibility-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION RE-CERTIFICATION** · no Production apply |
+| 174 | [Tenant Lifecycle Production Migration Re-Certification](./174-tenant-lifecycle-production-migration-recertification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** · read-only · SHA `dcad8ed6…` only |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -197,6 +198,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [171 Receipts compatibility implementation certification](./171-tenant-lifecycle-financial-receipts-compatibility-implementation-certification/index.md) | **BLOCKED** — one-argument fix in-repo; two further apply/semantic blockers |
 | [172 SQL qualification compatibility amendment](./172-tenant-lifecycle-sql-qualification-compatibility-amendment/index.md) | **Approved** — maintenance `organization_id` + helper `record_timestamp` |
 | [173 SQL qualification compatibility implementation certification](./173-tenant-lifecycle-sql-qualification-compatibility-implementation-certification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION RE-CERTIFICATION** — in-repo only; new SHA only |
+| [174 Tenant Lifecycle Production migration re-certification](./174-tenant-lifecycle-production-migration-recertification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** — read-only; SHA `dcad8ed6…` only |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
