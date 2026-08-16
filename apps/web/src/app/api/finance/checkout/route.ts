@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createCheckoutInputSchema, remainingBalance, roundMoney } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
+import {
+  authorizeFinanceCheckout,
+  orgSkuAllowsResidentialFinance,
+  stripePaymentExecutionDisabledResponse,
+  stripePaymentExecutionEnabled
+} from "../../../../lib/finance/checkout-authz";
 import { emitFinanceEvent, writeFinanceAudit } from "../../../../lib/finance/events-audit";
 import { getStripeClient, isStripeConfigured, randomIntegrationSuffix } from "../../../../lib/finance/stripe";
 import { createServiceRoleClient } from "../../../../lib/supabase/service-role";
@@ -16,21 +22,6 @@ export async function POST(request: Request) {
   } = await authClient.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-  }
-
-  if (!isStripeConfigured()) {
-    return NextResponse.json(
-      {
-        error:
-          "Online payments are not configured. Ask your property manager to record a manual payment, or set STRIPE_SECRET_KEY."
-      },
-      { status: 503 }
-    );
-  }
-
-  const stripe = getStripeClient();
-  if (!stripe) {
-    return NextResponse.json({ error: "Stripe unavailable" }, { status: 503 });
   }
 
   const payload = await request.json().catch(() => null);
@@ -49,29 +40,63 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Lease not found" }, { status: 404 });
   }
 
-  // Resident of lease OR org manager may start checkout.
-  const [{ data: residentLink }, { data: membership }] = await Promise.all([
-    supabase
-      .from("lease_residents")
-      .select("id")
-      .eq("lease_id", leaseRow.id)
-      .eq("user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("organization_memberships")
-      .select("roles")
+  const { data: residentLink } = await supabase
+    .from("lease_residents")
+    .select("id")
+    .eq("lease_id", leaseRow.id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const authorized = await authorizeFinanceCheckout({
+    residentLinkId: residentLink?.id ?? null,
+    leaseOrganizationId: leaseRow.organization_id
+  });
+  if ("error" in authorized) {
+    return authorized.error;
+  }
+
+  let writer;
+  try {
+    writer = createServiceRoleClient();
+  } catch {
+    writer = supabase;
+  }
+
+  const [{ data: subscription }, { data: settings }] = await Promise.all([
+    writer
+      .from("organization_subscriptions")
+      .select("sku_code, status")
       .eq("organization_id", leaseRow.organization_id)
-      .eq("user_id", user.id)
-      .eq("status", "active")
+      .maybeSingle(),
+    writer
+      .from("financial_module_settings")
+      .select("stripe_payment_execution_enabled")
+      .eq("organization_id", leaseRow.organization_id)
       .maybeSingle()
   ]);
 
-  const membershipRoles = (membership?.roles as string[] | null) ?? [];
-  const isManager =
-    membershipRoles.includes("property_manager") ||
-    membershipRoles.includes("organization_admin");
-  if (!residentLink && !isManager) {
+  const skuCode = subscription && subscription.status !== "canceled" ? subscription.sku_code : null;
+  if (!orgSkuAllowsResidentialFinance(skuCode)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (!stripePaymentExecutionEnabled(settings)) {
+    return stripePaymentExecutionDisabledResponse();
+  }
+
+  if (!isStripeConfigured()) {
+    return NextResponse.json(
+      {
+        error:
+          "Online payments are not configured. Ask your property manager to record a manual payment, or set STRIPE_SECRET_KEY."
+      },
+      { status: 503 }
+    );
+  }
+
+  const stripe = getStripeClient();
+  if (!stripe) {
+    return NextResponse.json({ error: "Stripe unavailable" }, { status: 503 });
   }
 
   let chargeQuery = supabase
@@ -113,13 +138,6 @@ export async function POST(request: Request) {
     .eq("lease_id", leaseRow.id)
     .eq("is_primary", true)
     .maybeSingle();
-
-  let writer;
-  try {
-    writer = createServiceRoleClient();
-  } catch {
-    writer = supabase;
-  }
 
   const { data: payment, error: paymentError } = await writer
     .from("financial_payments")

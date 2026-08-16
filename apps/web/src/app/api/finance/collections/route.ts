@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
-import {
-  assessLateFeesInputSchema,
-  createPaymentArrangementInputSchema,
-  sendReminderInputSchema,
-  upsertLateFeePolicyInputSchema
-} from "@mpa/shared";
 import { requireFinancePermission } from "../../../../lib/finance/authz";
 import {
-  assessLateFees,
-  createPaymentArrangement,
-  getCollectionsSnapshot,
-  sendDelinquencyReminder,
-  syncDelinquencyCases,
-  upsertLateFeePolicy
-} from "../../../../lib/finance/collections-service";
+  financeM5CollectionCapability,
+  financeM5NotAuthorizedResponse,
+  isFinanceM5CollectionKind
+} from "../../../../lib/finance/m5-hard-stop";
+import { getCollectionsSnapshot } from "../../../../lib/finance/collections-service";
 
 export async function GET() {
   const authz = await requireFinancePermission("pm.finance:read");
@@ -40,92 +32,17 @@ export async function POST(request: Request) {
   const payload = await request.json().catch(() => null);
   const kind = payload?.kind as string | undefined;
 
-  try {
-    if (kind === "policy") {
-      const authz = await requireFinancePermission("pm.finance:late_fee.manage");
-      if ("error" in authz) {
-        return authz.error;
-      }
-      const parsed = upsertLateFeePolicyInputSchema.safeParse(payload);
-      if (!parsed.success) {
-        return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
-      }
-      const policy = await upsertLateFeePolicy(
-        authz.supabase,
-        authz.organizationId,
-        authz.user.id,
-        parsed.data
-      );
-      return NextResponse.json({ policy }, { status: 201 });
+  if (isFinanceM5CollectionKind(kind)) {
+    const authz = await requireFinancePermission(financeM5CollectionCapability(kind));
+    if ("error" in authz) {
+      return authz.error;
     }
-
-    if (kind === "assess_late_fees") {
-      const authz = await requireFinancePermission("pm.finance:late_fee.manage");
-      if ("error" in authz) {
-        return authz.error;
-      }
-      const parsed = assessLateFeesInputSchema.safeParse(payload ?? {});
-      if (!parsed.success) {
-        return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
-      }
-      const result = await assessLateFees(authz.supabase, authz.organizationId, authz.user.id, {
-        ...(parsed.data.propertyId ? { propertyId: parsed.data.propertyId } : {}),
-        ...(parsed.data.leaseId ? { leaseId: parsed.data.leaseId } : {}),
-        ...(parsed.data.asOfDate ? { asOfDate: parsed.data.asOfDate } : {})
-      });
-      return NextResponse.json(result, { status: 201 });
-    }
-
-    if (kind === "sync_delinquency") {
-      const authz = await requireFinancePermission("pm.finance:read");
-      if ("error" in authz) {
-        return authz.error;
-      }
-      const cases = await syncDelinquencyCases(authz.supabase, authz.organizationId);
-      return NextResponse.json({ cases });
-    }
-
-    if (kind === "reminder") {
-      const authz = await requireFinancePermission("pm.finance:charge.write");
-      if ("error" in authz) {
-        return authz.error;
-      }
-      const parsed = sendReminderInputSchema.safeParse(payload);
-      if (!parsed.success) {
-        return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
-      }
-      const delinquencyCase = await sendDelinquencyReminder(
-        authz.supabase,
-        authz.organizationId,
-        authz.user.id,
-        parsed.data.caseId
-      );
-      return NextResponse.json({ case: delinquencyCase });
-    }
-
-    if (kind === "arrangement") {
-      const authz = await requireFinancePermission("pm.finance:charge.write");
-      if ("error" in authz) {
-        return authz.error;
-      }
-      const parsed = createPaymentArrangementInputSchema.safeParse(payload);
-      if (!parsed.success) {
-        return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
-      }
-      const arrangement = await createPaymentArrangement(
-        authz.supabase,
-        authz.organizationId,
-        authz.user.id,
-        parsed.data
-      );
-      return NextResponse.json({ arrangement }, { status: 201 });
-    }
-
-    return NextResponse.json({ error: "Unknown collections kind" }, { status: 400 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Collections action failed" },
-      { status: 400 }
-    );
+    return financeM5NotAuthorizedResponse();
   }
+
+  const authz = await requireFinancePermission("pm.finance:read");
+  if ("error" in authz) {
+    return authz.error;
+  }
+  return NextResponse.json({ error: "Unknown collections kind" }, { status: 400 });
 }
