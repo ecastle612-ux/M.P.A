@@ -54,6 +54,7 @@ describe("POST /api/finance/resident/autopay occupancy", () => {
         body: JSON.stringify({
           action: "start",
           leaseId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          paymentMethodType: "card",
           consentText:
             "I authorize M.P.A. to automatically charge the payment method I save for posted recurring rent and AutoPay-eligible recurring fees."
         })
@@ -72,6 +73,7 @@ describe("POST /api/finance/resident/autopay occupancy", () => {
         body: JSON.stringify({
           action: "start",
           leaseId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          paymentMethodType: "card",
           consentText:
             "I authorize M.P.A. to automatically charge the payment method I save for posted recurring rent and AutoPay-eligible recurring fees."
         })
