@@ -338,6 +338,34 @@ export function wouldLeaveCompleteWithoutBothAdmin(input: {
 }
 
 /**
+ * Fail-closed last-admin guard. Deactivation must not leave zero active
+ * Organization Admins. Does not invent a new offboarding model.
+ */
+export function wouldLeaveOrganizationWithoutActiveAdmin(input: {
+  members: ReadonlyArray<{
+    id: string;
+    roles: readonly string[];
+    status?: string;
+  }>;
+  targetMembershipId: string;
+  nextStatus?: "active" | "inactive";
+}): boolean {
+  if (input.nextStatus !== "inactive") {
+    return false;
+  }
+  const remainingAdmins = input.members.filter((member) => {
+    if (member.id === input.targetMembershipId) {
+      return false;
+    }
+    if ((member.status ?? "active") !== "active") {
+      return false;
+    }
+    return member.roles.includes("organization_admin");
+  });
+  return remainingAdmins.length === 0;
+}
+
+/**
  * Complete inviter grant cap (docs/127 §6, docs/135).
  * Evaluated from the inviter's membership, not the request's self-description.
  */

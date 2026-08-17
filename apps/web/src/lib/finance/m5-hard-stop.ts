@@ -15,6 +15,11 @@ export function isFinanceM5CollectionKind(kind: string | undefined): kind is Fin
   return FINANCE_M5_COLLECTION_KINDS.includes(kind as FinanceM5CollectionKind);
 }
 
+/** M5 remains unauthorized. Do not implement collections automation here. */
+export function isFinanceM5Authorized(): boolean {
+  return false;
+}
+
 export function financeM5CollectionCapability(kind: FinanceM5CollectionKind): FinanceCapability {
   switch (kind) {
     case "policy":

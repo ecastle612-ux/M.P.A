@@ -190,7 +190,7 @@ export async function getPropertyCommandCenter(
       : hasCollectedRent
         ? buildRentReadyAssistantCopy()
         : hasActiveLease
-          ? "Collect your first rent."
+          ? "Record your first payment."
           : hasResidents
             ? "Create your first lease."
             : buildPropertyReadyAssistantCopy(property.name),
@@ -218,9 +218,9 @@ export async function getPropertyCommandCenter(
             }
           : hasActiveLease
             ? {
-                title: "Collect your first rent",
-                href: "/pm/financial-operations#collect",
-                detail: "Financial Operations is ready for the first collection."
+                title: "Record your first payment",
+                href: "/pm/financial-operations#record",
+                detail: "Financial Operations is ready to record the first payment."
               }
             : hasResidents
               ? {

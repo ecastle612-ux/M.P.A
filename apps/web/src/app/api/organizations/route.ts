@@ -12,6 +12,11 @@ import {
   isPlatformOperatorUser
 } from "../../../lib/commercial/server";
 import { getOrganizationsForUser } from "../../../lib/organization/server";
+import {
+  customerFacingOrgCreateError,
+  decideManualOrganizationCreate
+} from "../../../lib/organization/manual-org-create";
+import { resolveCommerceOrgCreateContext } from "../../../lib/organization/resolve-commerce-org-create";
 
 export async function GET() {
   const supabase = await createAuthServerClient();
@@ -80,11 +85,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload. Organization name is required." }, { status: 400 });
   }
 
-  // J0: Customer self-serve always receives Property Manager — not a SKU shopping cart.
-  // Platform operators may still provision Facility / Complete at create time.
+  // J0: non-commerce customer self-serve still receives Property Manager.
+  // Commerce-backed Guided Setup must keep the purchased SKU (docs/178 P1-05).
   const operator = await isPlatformOperatorUser(user);
-  const productSku =
-    operator && parsed.productSku ? parsed.productSku : "mpa_property_manager";
+  const commerce = await resolveCommerceOrgCreateContext(user.email ?? null);
+  const skuDecision = decideManualOrganizationCreate({
+    isOperator: operator,
+    requestedSku: parsed.productSku,
+    commerce
+  });
+  if (!skuDecision.ok) {
+    return NextResponse.json(
+      { error: customerFacingOrgCreateError(skuDecision.error), code: skuDecision.error },
+      { status: 409 }
+    );
+  }
+  const productSku = skuDecision.sku;
 
   const slugCandidate = parsed.slug ?? createOrganizationSlugFromName(parsed.name);
   const slug = `${slugCandidate}-${crypto.randomUUID().slice(0, 8)}`;

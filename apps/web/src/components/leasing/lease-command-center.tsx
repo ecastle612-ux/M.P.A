@@ -205,7 +205,7 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
               ? [{ href: `/pm/residents/${data.lease.residentId}`, label: "Resident" }]
               : []),
             { href: documentsHref("lease", data.lease.residentName), label: "Lease documents" },
-            { href: "/pm/financial-operations", label: "Collect rent" }
+            { href: "/pm/financial-operations", label: "Record payment" }
           ]}
         />
       </header>

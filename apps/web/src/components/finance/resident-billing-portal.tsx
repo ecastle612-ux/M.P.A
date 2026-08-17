@@ -11,6 +11,8 @@ type ResidentAccount = {
     display_name: string;
     financial_status: string;
   };
+  canPay?: boolean;
+  onlinePaymentsEnabled?: boolean;
   balance: { openBalance: number; hasPastDue: boolean; status: string };
   openCharges: Array<{
     id: string;
@@ -139,7 +141,7 @@ export function ResidentBillingPortal() {
     return (
       <EmptyState
         title="No billing account yet"
-        description="When your property manager links you to a lease, your balance and pay options will show here."
+        description="When your property manager links you to a lease, your balance, payment history, and receipts will show here."
       />
     );
   }
@@ -166,7 +168,8 @@ export function ResidentBillingPortal() {
                   Your balance
                 </h2>
                 <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                  Hi {account.resident.display_name} — pay what’s due when you’re ready.
+                  Hi {account.resident.display_name} — review your balance, payment history, and
+                  receipts.
                 </p>
               </div>
               <Badge variant={status === "delinquent" ? "danger" : status === "current" ? "success" : "info"}>
@@ -179,20 +182,25 @@ export function ResidentBillingPortal() {
               <p className="mt-1 font-display text-4xl font-semibold text-[var(--mpa-color-text-primary)]">
                 {formatMoney(account.balance.openBalance)}
               </p>
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                <Button
-                  onClick={() => void payNow(account.resident.lease_id)}
-                  disabled={!onlinePaymentsEnabled || account.balance.openBalance <= 0 || payingLeaseId === account.resident.lease_id}
-                  className="min-h-12 w-full sm:w-auto"
-                >
-                  {payingLeaseId === account.resident.lease_id ? "Starting checkout…" : "Pay now"}
-                </Button>
-                {!onlinePaymentsEnabled ? (
-                  <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                    Online pay isn’t configured yet — your manager can record a payment for you.
-                  </p>
-                ) : null}
-              </div>
+              {account.canPay !== false &&
+              (account.onlinePaymentsEnabled ?? onlinePaymentsEnabled) ? (
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                  <Button
+                    onClick={() => void payNow(account.resident.lease_id)}
+                    disabled={
+                      account.balance.openBalance <= 0 ||
+                      payingLeaseId === account.resident.lease_id
+                    }
+                    className="min-h-12 w-full sm:w-auto"
+                  >
+                    {payingLeaseId === account.resident.lease_id ? "Starting checkout…" : "Pay now"}
+                  </Button>
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-[var(--mpa-color-text-secondary)]">
+                  Your manager can record a payment. Online payment is not available here.
+                </p>
+              )}
             </div>
 
             {(account.lateFees?.length ?? 0) > 0 ? (
