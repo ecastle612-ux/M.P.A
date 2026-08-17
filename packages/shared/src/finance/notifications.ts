@@ -11,6 +11,8 @@ export const FINANCE_NOTIFICATION_TYPES = [
   "finance.payment.pending",
   "finance.payment.succeeded",
   "finance.payment.failed",
+  "finance.autopay.enrolled",
+  "finance.autopay.revoked",
   "finance.late_fee.applied",
   "finance.vendor_invoice.submitted",
   "finance.vendor_invoice.approved",
@@ -77,6 +79,20 @@ export const FINANCE_NOTIFICATION_CATALOG: readonly FinanceNotificationDefinitio
     label: "Payment failed",
     defaultChannels: ["in_app", "email"],
     audience: ["resident", "staff"],
+    slice: "S2"
+  },
+  {
+    key: "finance.autopay.enrolled",
+    label: "AutoPay turned on",
+    defaultChannels: ["in_app"],
+    audience: ["resident"],
+    slice: "S2"
+  },
+  {
+    key: "finance.autopay.revoked",
+    label: "AutoPay turned off",
+    defaultChannels: ["in_app"],
+    audience: ["resident"],
     slice: "S2"
   },
   {

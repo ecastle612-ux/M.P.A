@@ -78,6 +78,13 @@ export function FinanceDesk() {
   const [notice, setNotice] = useState<string | null>(null);
   const [oneTimeLabel, setOneTimeLabel] = useState("Pet fee");
   const [oneTimeAmount, setOneTimeAmount] = useState("50");
+  const [oneTimeCategory, setOneTimeCategory] = useState("other");
+  const [recurringLabel, setRecurringLabel] = useState("Parking");
+  const [recurringAmount, setRecurringAmount] = useState("");
+  const [recurringCategory, setRecurringCategory] = useState("parking");
+  const [recurringAutopay, setRecurringAutopay] = useState(false);
+  const [lateFeeAmount, setLateFeeAmount] = useState("50");
+  const [connectNotice, setConnectNotice] = useState<string | null>(null);
   const [manualAmount, setManualAmount] = useState("");
   const [manualMethod, setManualMethod] = useState("manual_cash");
 
@@ -90,12 +97,24 @@ export function FinanceDesk() {
 
   const refresh = useCallback(async () => {
     setError(null);
-    const [leasesRes, snapshotRes] = await Promise.all([
+    const [leasesRes, snapshotRes, connectRes] = await Promise.all([
       fetchJson<{ leases: Lease[] }>("/api/finance/leases"),
-      fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot")
+      fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot"),
+      fetch("/api/finance/connect").then(async (response) => {
+        const body = await response.json().catch(() => ({}));
+        return { ok: response.ok, body };
+      })
     ]);
     setLeases(leasesRes.leases);
     setSnapshot(snapshotRes.snapshot);
+    if (connectRes.ok) {
+      setConnectNotice(
+        connectRes.body.ready
+          ? "Stripe Connect is ready for tenant Pay Once and AutoPay."
+          : ((connectRes.body.message as string | undefined) ??
+            "Finish Stripe Connect onboarding before tenants can pay online. Manual FIN-OPS workflows still work.")
+      );
+    }
     if (!selectedLeaseId && leasesRes.leases[0]) {
       setSelectedLeaseId(leasesRes.leases[0].id);
     }
@@ -114,10 +133,21 @@ export function FinanceDesk() {
     let cancelled = false;
     void (async () => {
       try {
-        const [leasesRes, snapshotRes] = await Promise.all([
+        const [leasesRes, snapshotRes, connectRes] = await Promise.all([
           fetchJson<{ leases: Lease[] }>("/api/finance/leases"),
-          fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot")
+          fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot"),
+          fetch("/api/finance/connect").then(async (response) => {
+            const body = await response.json().catch(() => ({}));
+            return { ok: response.ok, body };
+          })
         ]);
+        if (!cancelled && connectRes.ok) {
+          setConnectNotice(
+            connectRes.body.ready
+              ? "Stripe Connect is ready for tenant Pay Once and AutoPay."
+              : (connectRes.body.message as string)
+          );
+        }
         if (cancelled) {
           return;
         }
@@ -148,6 +178,32 @@ export function FinanceDesk() {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [leases, snapshot]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const connect = new URLSearchParams(window.location.search).get("connect");
+    if (connect !== "return" && connect !== "refresh") {
+      return;
+    }
+    void (async () => {
+      try {
+        const body = await fetchJson<{ ready?: boolean; message?: string }>(
+          "/api/finance/connect",
+          { method: "POST", body: JSON.stringify({ action: "sync" }) }
+        );
+        setConnectNotice(
+          body.ready
+            ? "Stripe Connect is ready for tenant Pay Once and AutoPay."
+            : (body.message ??
+              "Finish Stripe Connect onboarding before tenants can pay online. Manual FIN-OPS workflows still work.")
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Connect sync failed");
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     if (!selectedLeaseId) {
@@ -351,7 +407,7 @@ export function FinanceDesk() {
           <h3 className="text-sm font-semibold">Residents & leases</h3>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
             Create residents on Residents (J3) and leases on Leasing (J4) — one path each. Financial
-            Operations consumes activated leases for rent collection.
+            Operations consumes activated leases for posted charges and tenant payments.
           </p>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -375,6 +431,32 @@ export function FinanceDesk() {
           </div>
         </div>
       </section>
+
+      {connectNotice ? (
+        <Alert variant="info">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p>{connectNotice}</p>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={busy}
+              onClick={() =>
+                void run(async () => {
+                  const body = await fetchJson<{ onboardingUrl?: string; ready?: boolean; message?: string }>(
+                    "/api/finance/connect",
+                    { method: "POST", body: JSON.stringify({ action: "start" }) }
+                  );
+                  if (body.onboardingUrl) {
+                    window.location.assign(body.onboardingUrl);
+                  }
+                })
+              }
+            >
+              Continue Stripe Connect
+            </Button>
+          </div>
+        </Alert>
+      ) : null}
 
       <section id="charges" className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
         <div className="flex flex-wrap items-end gap-3">
@@ -463,7 +545,13 @@ export function FinanceDesk() {
                       label: oneTimeLabel,
                       amount: Number(oneTimeAmount),
                       dueAt: new Date().toISOString().slice(0, 10),
-                      chargeType: oneTimeLabel.toLowerCase().includes("credit") ? "credit" : "one_time"
+                      chargeType:
+                        oneTimeCategory === "late_fee"
+                          ? "late_fee"
+                          : oneTimeLabel.toLowerCase().includes("credit")
+                            ? "credit"
+                            : "one_time",
+                      feeCategory: oneTimeCategory
                     })
                   });
                 });
@@ -479,8 +567,112 @@ export function FinanceDesk() {
                 step="0.01"
                 required
               />
+              <Select value={oneTimeCategory} onChange={(event) => setOneTimeCategory(event.target.value)}>
+                <option value="other">Other</option>
+                <option value="parking">Parking</option>
+                <option value="pet">Pet</option>
+                <option value="utilities">Utilities</option>
+                <option value="deposit">Deposit</option>
+                <option value="damage">Damage / repair</option>
+                <option value="late_fee">Late fee (manual)</option>
+              </Select>
               <Button type="submit" disabled={busy}>
                 Post charge
+              </Button>
+            </form>
+
+            <form
+              className="space-y-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void run(async () => {
+                  await fetchJson("/api/finance/charges", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      kind: "recurring",
+                      leaseId: selectedLeaseId,
+                      chargeType: "recurring_fee",
+                      label: recurringLabel,
+                      amount: Number(recurringAmount),
+                      feeCategory: recurringCategory,
+                      autopayEligible: recurringAutopay,
+                      generateCurrentPeriod: true
+                    })
+                  });
+                });
+              }}
+            >
+              <h4 className="text-sm font-semibold">Recurring fee</h4>
+              <Input value={recurringLabel} onChange={(event) => setRecurringLabel(event.target.value)} required />
+              <Input
+                value={recurringAmount}
+                onChange={(event) => setRecurringAmount(event.target.value)}
+                type="number"
+                min="0.01"
+                step="0.01"
+                required
+              />
+              <Select value={recurringCategory} onChange={(event) => setRecurringCategory(event.target.value)}>
+                <option value="parking">Parking</option>
+                <option value="pet">Pet</option>
+                <option value="utilities">Utilities</option>
+                <option value="other">Other</option>
+              </Select>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={recurringAutopay}
+                  onChange={(event) => setRecurringAutopay(event.target.checked)}
+                />
+                Mark AutoPay-eligible
+              </label>
+              <Button type="submit" disabled={busy}>
+                Post recurring fee
+              </Button>
+            </form>
+
+            <form
+              className="space-y-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void run(async () => {
+                  await fetchJson("/api/finance/late-fee-policy", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      feeType: "flat",
+                      feeAmount: Number(lateFeeAmount),
+                      graceDays: 5,
+                      name: "Default late fee"
+                    })
+                  });
+                });
+              }}
+            >
+              <h4 className="text-sm font-semibold">Late-fee rule (configuration only)</h4>
+              <Input
+                value={lateFeeAmount}
+                onChange={(event) => setLateFeeAmount(event.target.value)}
+                type="number"
+                min="0"
+                step="0.01"
+              />
+              <Button type="submit" disabled={busy}>
+                Save late-fee rule
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={busy}
+                onClick={() =>
+                  void run(async () => {
+                    await fetchJson("/api/finance/charges", {
+                      method: "POST",
+                      body: JSON.stringify({ kind: "run_schedules", leaseId: selectedLeaseId })
+                    });
+                  })
+                }
+              >
+                Post due recurring charges
               </Button>
             </form>
           </div>

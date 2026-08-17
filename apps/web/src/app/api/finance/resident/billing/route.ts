@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { getLeaseLedger } from "../../../../../lib/finance/billing-service";
+import { connectAccountReady } from "@mpa/shared";
 import { stripePaymentExecutionEnabled } from "../../../../../lib/finance/checkout-authz";
+import { describeAutopay, loadAutopayEnrollment } from "../../../../../lib/finance/autopay-service";
 import { residentOnlinePayAvailable } from "../../../../../lib/finance/resident-online-pay";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 
@@ -50,16 +52,26 @@ export async function GET() {
     ...new Set(residents.map((resident) => resident.organization_id as string).filter(Boolean))
   ];
   const executionByOrganization = new Map<string, boolean>();
+  const connectReadyByOrganization = new Map<string, boolean>();
   if (organizationIds.length > 0) {
-    const { data: settingsRows } = await settingsReader
-      .from("financial_module_settings")
-      .select("organization_id, stripe_payment_execution_enabled")
-      .in("organization_id", organizationIds);
+    const [{ data: settingsRows }, { data: connectRows }] = await Promise.all([
+      settingsReader
+        .from("financial_module_settings")
+        .select("organization_id, stripe_payment_execution_enabled")
+        .in("organization_id", organizationIds),
+      settingsReader
+        .from("financial_connect_accounts")
+        .select("organization_id, stripe_account_id, status, charges_enabled")
+        .in("organization_id", organizationIds)
+    ]);
     for (const row of settingsRows ?? []) {
       executionByOrganization.set(
         row.organization_id as string,
         stripePaymentExecutionEnabled(row)
       );
+    }
+    for (const row of connectRows ?? []) {
+      connectReadyByOrganization.set(row.organization_id as string, connectAccountReady(row));
     }
   }
 
@@ -116,8 +128,20 @@ export async function GET() {
       onlinePaymentsEnabled: residentOnlinePayAvailable({
         stripePaymentExecutionEnabled:
           executionByOrganization.get(resident.organization_id as string) === true,
-        occupancyAccess: access
+        occupancyAccess: access,
+        connectReady: connectReadyByOrganization.get(resident.organization_id as string) === true
       }),
+      connectReady: connectReadyByOrganization.get(resident.organization_id as string) === true,
+      autopay: describeAutopay(
+        await loadAutopayEnrollment(settingsReader, resident.organization_id as string, resident.lease_id as string),
+        {
+          nextDue: upcoming[0]?.due_at ?? null,
+          nextAmount:
+            upcoming[0] != null
+              ? Number(upcoming[0].amount) - Number(upcoming[0].amount_paid ?? 0)
+              : null
+        }
+      ),
       balance,
       openCharges,
       paidCharges,

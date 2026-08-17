@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createCheckoutInputSchema, remainingBalance, roundMoney } from "@mpa/shared";
+import {
+  connectAccountReady,
+  createCheckoutInputSchema,
+  remainingBalance,
+  resolveCheckoutAmount,
+  roundMoney
+} from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import {
   authorizeFinanceCheckout,
@@ -8,8 +14,14 @@ import {
   stripePaymentExecutionDisabledResponse,
   stripePaymentExecutionEnabled
 } from "../../../../lib/finance/checkout-authz";
+import { connectUnavailableResponse, loadConnectAccount } from "../../../../lib/finance/connect-service";
 import { emitFinanceEvent, writeFinanceAudit } from "../../../../lib/finance/events-audit";
-import { getStripeClient, isStripeConfigured, randomIntegrationSuffix } from "../../../../lib/finance/stripe";
+import {
+  connectedRequestOptions,
+  getStripeClient,
+  isStripeConfigured,
+  randomIntegrationSuffix
+} from "../../../../lib/finance/stripe";
 import { createServiceRoleClient } from "../../../../lib/supabase/service-role";
 import { serverEnv } from "../../../../lib/env/server-env";
 
@@ -93,6 +105,11 @@ export async function POST(request: Request) {
     return stripePaymentExecutionDisabledResponse();
   }
 
+  const connect = await loadConnectAccount(writer, leaseRow.organization_id);
+  if (!connectAccountReady(connect) || !connect?.stripe_account_id) {
+    return NextResponse.json(connectUnavailableResponse(connect), { status: 403 });
+  }
+
   if (!isStripeConfigured()) {
     return NextResponse.json(
       {
@@ -124,7 +141,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: chargesError.message }, { status: 400 });
   }
 
-  const amount = roundMoney(
+  const remaining = roundMoney(
     (charges ?? []).reduce(
       (sum, charge) =>
         sum +
@@ -135,9 +152,46 @@ export async function POST(request: Request) {
       0
     )
   );
+  const amountResult = resolveCheckoutAmount({
+    remaining,
+    ...(parsed.data.amount != null ? { requestedAmount: parsed.data.amount } : {})
+  });
+  if (!amountResult.ok) {
+    return NextResponse.json({ error: amountResult.error }, { status: 400 });
+  }
+  const amount = amountResult.amount;
+  const selectedChargeIds = (charges ?? []).map((charge) => charge.id as string);
 
-  if (amount <= 0) {
-    return NextResponse.json({ error: "Nothing to pay" }, { status: 400 });
+  const { data: existingPending } = await writer
+    .from("financial_payments")
+    .select("id, amount, status, stripe_checkout_session_id")
+    .eq("organization_id", leaseRow.organization_id)
+    .eq("lease_id", leaseRow.id)
+    .eq("status", "pending")
+    .eq("amount", amount)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingPending?.stripe_checkout_session_id) {
+    try {
+      const existingSession = await stripe.checkout.sessions.retrieve(
+        existingPending.stripe_checkout_session_id,
+        {},
+        connectedRequestOptions(connect.stripe_account_id)
+      );
+      if (existingSession.status === "open" && existingSession.url) {
+        return NextResponse.json({
+          checkoutUrl: existingSession.url,
+          sessionId: existingSession.id,
+          paymentId: existingPending.id,
+          amount,
+          reused: true
+        });
+      }
+    } catch {
+      // Create a new session below.
+    }
   }
 
   const currency = (charges?.[0]?.currency ?? "USD").toLowerCase();
@@ -159,7 +213,10 @@ export async function POST(request: Request) {
       currency: currency.toUpperCase(),
       status: "pending",
       method: "online_stripe",
-      recorded_by: user.id
+      recorded_by: user.id,
+      stripe_connect_account_id: connect.stripe_account_id,
+      selected_charge_ids: selectedChargeIds,
+      metadata: { source: "pay_once" }
     })
     .select("*")
     .single();
@@ -175,31 +232,35 @@ export async function POST(request: Request) {
     parsed.data.cancelUrl ?? `${serverEnv.NEXT_PUBLIC_APP_URL}/portal/tenant/billing?payment=cancelled`;
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      client_reference_id: payment.id,
-      metadata: {
-        payment_id: payment.id,
-        organization_id: leaseRow.organization_id,
-        lease_id: leaseRow.id
-      },
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency,
-            unit_amount: Math.round(amount * 100),
-            product_data: {
-              name: "Resident balance payment",
-              description: `Lease ${leaseRow.id.slice(0, 8)}`
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        client_reference_id: payment.id,
+        metadata: {
+          payment_id: payment.id,
+          organization_id: leaseRow.organization_id,
+          lease_id: leaseRow.id,
+          domain: "tenant_property"
+        },
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency,
+              unit_amount: Math.round(amount * 100),
+              product_data: {
+                name: "Resident balance payment",
+                description: `Lease ${leaseRow.id.slice(0, 8)}`
+              }
             }
           }
-        }
-      ],
-      integration_identifier: `mpa-resident-pay-${randomIntegrationSuffix()}`
-    } as Parameters<typeof stripe.checkout.sessions.create>[0]);
+        ],
+        integration_identifier: `mpa-resident-pay-${randomIntegrationSuffix()}`
+      } as Parameters<typeof stripe.checkout.sessions.create>[0],
+      connectedRequestOptions(connect.stripe_account_id, `checkout:${payment.id}`)
+    );
 
     await writer
       .from("financial_payments")
@@ -213,7 +274,7 @@ export async function POST(request: Request) {
       eventType: "finance.payment.pending",
       aggregateType: "financial_payment",
       aggregateId: payment.id,
-      payload: { sessionId: session.id, amount }
+      payload: { sessionId: session.id, amount, source: "pay_once" }
     });
     await writeFinanceAudit({
       supabase: writer,
@@ -222,7 +283,7 @@ export async function POST(request: Request) {
       action: "finance.payment.succeeded",
       entityType: "financial_payment",
       entityId: payment.id,
-      payload: { stage: "checkout_created", sessionId: session.id }
+      payload: { stage: "checkout_created", sessionId: session.id, connectAccount: connect.stripe_account_id }
     });
 
     return NextResponse.json({

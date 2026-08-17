@@ -17,7 +17,7 @@ export const MARKETING_MODULE_COPY: Record<string, string> = {
   maintenance: "Unit and residential maintenance work — distinct from Facility Operations.",
   vendors: "Vendor relationships and work assigned from maintenance.",
   financial_operations:
-    "Operational finance — charges, balances, payment history, vendor invoices, and owner summaries. Control who can access financial operations.",
+    "Operational finance — charges, balances, Pay Once and tenant-authorized AutoPay for posted rent and eligible recurring fees, vendor invoices, and owner summaries. You set the amounts. Late fees are configured and posted by you, not assessed automatically.",
   facility_mission_control:
     "Your Facility Operations home for daily attention, open work, and next actions.",
   facility_operations:

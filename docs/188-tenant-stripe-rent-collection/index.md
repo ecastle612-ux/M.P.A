@@ -1,12 +1,11 @@
 # 188 — Tenant Stripe Rent Collection + Admin-Controlled Fees
 
-**Status:** **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Status:** **APPROVED** — Owner approved A–E 2026-08-17. Implemented in-repo; see [docs/189](../189-tenant-stripe-rent-collection-implementation-certification/index.md).  
 **Date:** 2026-08-17  
-**Gate:** Design → Document → Approve → Implement. This record is the single design. **Do not implement until Owner approves.**  
-**Authority:** Owner pre-launch requirement (2026-08-17) · [ADR-016](../18-decision-log/adr-016-financial-operations-operational-finance.md) · [FIN-OPS Stripe & Ledger](../25-fin-ops-001/stripe-and-ledger-architecture.md) · [docs/161](../161-fin-ops-production-reconciliation-m4-application-cutover-design/index.md) M4 cutover (already applied; execution still off)  
-**This package:** Design / audit only.
+**Gate:** Design → Document → Approve → Implement. Owner approved Slices A–E.  
+**Authority:** Owner pre-launch requirement (2026-08-17) · [ADR-016](../18-decision-log/adr-016-financial-operations-operational-finance.md) · [FIN-OPS Stripe & Ledger](../25-fin-ops-001/stripe-and-ledger-architecture.md) · [docs/161](../161-fin-ops-production-reconciliation-m4-application-cutover-design/index.md) M4 cutover (already applied; execution still off)
 
-**Do not:** enable `stripe_payment_execution_enabled` · process a real tenant payment · change Stripe Prices · touch SaaS Checkout · reopen FIN-OPS / tenant lifecycle / complimentary / PWA / email / M3 / M4 · authorize M5 · unfreeze July.
+**Do not:** enable `stripe_payment_execution_enabled` · process a real tenant payment · change Stripe Prices · touch SaaS Checkout · apply Production migration · complete live Connect onboarding · authorize M5 · unfreeze July.
 
 ---
 
@@ -395,18 +394,18 @@ Refund the UAT live charge if a live card was used.
 
 ## Owner approval checklist
 
-Approve this record to authorize implementation of the checked slices only.
+Owner approved 2026-08-17:
 
-- [ ] **Slices A–C + E** — real online tenant payment of posted charges (pre-launch minimum)
-- [ ] **Slice D** — tenant-authorized automatic payment of posted charges (required only if we will say “automatic rent collection”)
-- [ ] Connect-on-connected-account is the money destination (platform Checkout forbidden for customer orgs)
+- [x] **Slices A–C + E** — real online tenant payment of posted charges
+- [x] **Slice D** — tenant-authorized AutoPay of eligible posted recurring charges
+- [x] Connect-on-connected-account is the money destination (platform Checkout forbidden for customer orgs)
+
+AutoPay V1 pays only recurring rent and recurring fees marked AutoPay-eligible. One-time damage, deposit, ad-hoc, and adjustment charges are excluded.
 
 ---
 
 ## Classification
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**APPROVED — IMPLEMENTED IN-REPO**
 
-Not blocked. Remaining choice is Owner scope (online only vs online + automatic), not an unresolved architecture fork. Connect vs platform is resolved by already-approved FIN-OPS-001: tenant money must not settle on the SaaS platform account.
-
-**STOP.** Do not implement. Do not enable tenant Stripe execution. Do not process a real tenant payment.
+Production execution remains off. Stop before Production migration, Connect onboarding, flag enable, or a real tenant payment.
