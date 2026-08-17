@@ -149,7 +149,19 @@ Owner-required coverage:
 13. Historical membership record is retained (`inactive`)
 14. Billing UI does not claim unsupported Customer Portal / plan-change behavior
 
-Targeted Vitest, lint, typecheck, and Production `next build` are recorded in the implementation PR.
+Verification (this package):
+
+| Gate | Result |
+|------|--------|
+| Targeted Vitest (`@mpa/web` 12 files / 58 tests) | **PASS** |
+| Targeted Vitest (`@mpa/shared` 3 files / 18 tests) | **PASS** |
+| `@mpa/web` lint | **PASS** |
+| `@mpa/shared` lint | **PASS** |
+| `@mpa/web` typecheck | **PASS** |
+| `@mpa/shared` typecheck | **PASS** |
+| Production `next build` | **PASS** — compiled successfully; 174 routes |
+
+Existing enabled-path checkout authorization remains covered by `checkout.route.test.ts` and `checkout-authz.test.ts`. M5 API hard-stop remains covered by `collections.route.test.ts`.
 
 ---
 

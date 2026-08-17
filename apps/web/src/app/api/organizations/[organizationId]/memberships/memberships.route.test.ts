@@ -22,6 +22,7 @@ const state = {
 };
 
 function membershipBuilder(filters: { id?: string } = {}) {
+  let pendingPatch: { status?: string } | null = null;
   const builder: Record<string, unknown> = {
     select: () => builder,
     eq: (column: string, value: string) => {
@@ -36,33 +37,22 @@ function membershipBuilder(filters: { id?: string } = {}) {
       error: null
     }),
     single: async () => {
-      const current = state.memberships.find((row) => row.id === filters.id) ?? state.memberships[0];
-      return { data: current ?? null, error: current ? null : { message: "not found" } };
-    },
-    update: (patch: { status?: string }) => {
-      builder["__patch"] = patch;
-      return builder;
-    },
-    then: (resolve: (value: { data: MembershipRow[]; error: null }) => unknown) =>
-      resolve({ data: state.memberships, error: null })
-  };
-  const originalUpdate = builder.update as (patch: { status?: string }) => Record<string, unknown>;
-  builder.update = (patch: { status?: string }) => {
-    const next = originalUpdate(patch);
-    next.select = () => ({
-      single: async () => {
-        const target = state.memberships.find((row) => row.id === filters.id);
-        if (!target) {
-          return { data: null, error: { message: "not found" } };
-        }
-        if (patch.status) {
-          target.status = patch.status;
+      const target = state.memberships.find((row) => row.id === filters.id);
+      if (pendingPatch && target) {
+        if (pendingPatch.status) {
+          target.status = pendingPatch.status;
         }
         state.lastUpdate = { id: target.id, status: target.status };
         return { data: target, error: null };
       }
-    });
-    return next;
+      return { data: target ?? null, error: target ? null : { message: "not found" } };
+    },
+    then: (resolve: (value: { data: MembershipRow[]; error: null }) => unknown) =>
+      resolve({ data: state.memberships, error: null })
+  };
+  builder["update"] = (patch: { status?: string }) => {
+    pendingPatch = patch;
+    return builder;
   };
   return builder;
 }

@@ -118,7 +118,7 @@ export function CheckoutSuccessPage({
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href={continueHref} className={marketingPrimaryCtaClass}>
-              I've opened my email
+              I have opened my email
             </Link>
             <Link href="/pricing" className={marketingSecondaryCtaClass}>
               Back to pricing
