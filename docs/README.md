@@ -136,6 +136,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 192 | [Stripe Connect UAT — Property Demo](./192-tenant-stripe-connect-uat-property-demo/index.md) | Connect READY · execution OFF |
 | 193 | [Controlled Tenant Payment UAT](./193-tenant-stripe-payment-uat-property-demo/index.md) | **PASS** · Owner accepted · execution OFF |
 | 194 | [Customer Tenant-Payment Activation](./194-customer-tenant-payment-activation/index.md) | **Approved** · Owner authorized S0–S6 · implement in-repo only · no Production deploy · no execution-flag change |
+| 195 | [Customer Tenant-Payment Activation Implementation Certification](./195-customer-tenant-payment-activation-implementation-certification/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** · SHA `eba12ae8` · no deploy · no execution-flag change |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
