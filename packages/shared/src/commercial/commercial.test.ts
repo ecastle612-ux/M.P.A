@@ -296,5 +296,17 @@ describe("master admin catalog", () => {
     expect(
       evaluatePathEntitlement({ pathname: "/pm/financial-operations", sku: "mpa_facility_operations" }).allowed
     ).toBe(false);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/financial-operations/online-payments",
+        sku: "mpa_property_manager"
+      }).allowed
+    ).toBe(true);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/financial-operations/online-payments",
+        sku: "mpa_facility_operations"
+      }).allowed
+    ).toBe(false);
   });
 });

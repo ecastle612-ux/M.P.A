@@ -17,6 +17,7 @@ describe("PLAT-002 API entitlement catalog", () => {
 
   it("maps finance staff APIs and excludes webhooks, resident, checkout", () => {
     expect(requiredEntitlementForApiPath("/api/finance/snapshot")).toBe("pm.financial_operations");
+    expect(requiredEntitlementForApiPath("/api/finance/online-payments")).toBe("pm.financial_operations");
     expect(requiredEntitlementForApiPath("/api/finance/webhooks/stripe")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/finance/resident/billing")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/finance/checkout")).toBeNull();

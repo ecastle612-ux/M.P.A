@@ -54,7 +54,7 @@ export const SKU_SUMMARIES: Record<
     id: "property_manager",
     label: "Property Manager",
     description:
-      "Property operations for residential portfolios — properties and units, residents and leases, Tenant Portal, maintenance, vendors, documents and tables, reports, communications, and operational finance."
+      "Property operations for residential portfolios — properties and units, residents and leases, Tenant Portal, maintenance, vendors, documents and tables, reports, communications, and operational finance. Take rent online with Stripe. Choose bank payments, cards, or both."
   },
   mpa_facility_operations: {
     id: "facility_operations",
@@ -66,6 +66,6 @@ export const SKU_SUMMARIES: Record<
     id: "complete_platform",
     label: "Complete Platform",
     description:
-      "One organization and one subscription that includes both Property Operations and Facility Operations. Oversee both yourself, assign each side to a manager, keep an owner view of both, and move between work surfaces with the Complete launcher."
+      "One organization and one subscription that includes both Property Operations and Facility Operations. Oversee both yourself, assign each side to a manager, keep an owner view of both, and move between work surfaces with the Complete launcher. Take rent online with Stripe — bank payments, cards, or both — when you operate in residential / property scope."
   }
 };
