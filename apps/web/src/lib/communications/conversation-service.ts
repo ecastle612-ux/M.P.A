@@ -247,12 +247,24 @@ async function notifyCounterparty(input: {
     href: input.href
   });
   if (input.email) {
-    await sendOperationalNoticeEmail({
+    const emailResult = await sendOperationalNoticeEmail({
       to: input.email,
       subject: input.title,
       body: `${input.preview}\n\nView in M.P.A.: ${input.href}`,
-      audienceLabel: "Conversation"
-    }).catch(() => undefined);
+      audienceLabel: "Conversation",
+      idempotencyKey: `conversation:${input.notificationKey}`.slice(0, 256)
+    });
+    if (!emailResult.ok) {
+      console.error(
+        JSON.stringify({
+          scope: "mpa.email",
+          template: "conversation",
+          status: "failed",
+          error: emailResult.error,
+          notificationKey: input.notificationKey
+        })
+      );
+    }
   }
 }
 

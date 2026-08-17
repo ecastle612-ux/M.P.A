@@ -60,34 +60,40 @@ export type SendInvitationEmailResult =
   | { ok: true; providerId: string }
   | { ok: false; error: string };
 
-/** Sends via Resend HTTP API (no SDK dependency). */
-export async function sendInvitationEmail(
-  input: SendInvitationEmailInput
-): Promise<SendInvitationEmailResult> {
-  const content = renderInvitationEmail({
-    organizationName: input.organizationName,
-    roleLabel: input.roleLabel,
-    acceptUrl: input.acceptUrl,
-    ...(input.inviterLabel ? { inviterLabel: input.inviterLabel } : {})
-  });
+export type SendResendHttpEmailInput = {
+  apiKey: string;
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  tags?: Array<{ name: string; value: string }>;
+  idempotencyKey?: string;
+};
 
+/** Sends via Resend HTTP API (no SDK dependency). Does not claim inbox delivery. */
+export async function sendResendHttpEmail(
+  input: SendResendHttpEmailInput
+): Promise<SendInvitationEmailResult> {
   try {
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${input.apiKey}`,
+      "Content-Type": "application/json"
+    };
+    if (input.idempotencyKey) {
+      headers["Idempotency-Key"] = input.idempotencyKey.slice(0, 256);
+    }
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${input.apiKey}`,
-        "Content-Type": "application/json"
-      },
+      headers,
       body: JSON.stringify({
         from: input.from,
         to: [input.to],
-        subject: content.subject,
-        html: content.html,
-        text: content.text,
-        tags: [
-          { name: "journey", value: "launch-001-j2" },
-          { name: "template", value: "team-invitation" }
-        ]
+        subject: input.subject,
+        html: input.html,
+        text: input.text,
+        ...(input.tags && input.tags.length > 0 ? { tags: input.tags } : {})
       })
     });
 
@@ -108,9 +114,35 @@ export async function sendInvitationEmail(
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : "Failed to send invitation email"
+      error: error instanceof Error ? error.message : "Failed to send email"
     };
   }
+}
+
+/** Sends via Resend HTTP API (no SDK dependency). */
+export async function sendInvitationEmail(
+  input: SendInvitationEmailInput & { idempotencyKey?: string }
+): Promise<SendInvitationEmailResult> {
+  const content = renderInvitationEmail({
+    organizationName: input.organizationName,
+    roleLabel: input.roleLabel,
+    acceptUrl: input.acceptUrl,
+    ...(input.inviterLabel ? { inviterLabel: input.inviterLabel } : {})
+  });
+
+  return sendResendHttpEmail({
+    apiKey: input.apiKey,
+    from: input.from,
+    to: input.to,
+    subject: content.subject,
+    html: content.html,
+    text: content.text,
+    tags: [
+      { name: "journey", value: "launch-001-j2" },
+      { name: "template", value: "team-invitation" }
+    ],
+    ...(input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : {})
+  });
 }
 
 function escapeHtml(value: string): string {

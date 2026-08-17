@@ -172,7 +172,8 @@ export async function notifyLifecycle(
     to: email,
     subject: args.title,
     body: `${args.body}\n\nOpen: ${args.href}`,
-    audienceLabel: "work-order lifecycle"
+    audienceLabel: "work-order lifecycle",
+    idempotencyKey: `maintenance:${args.key}:${args.userId}:${args.workOrderId}`.slice(0, 256)
   });
 
   const attemptedAt = new Date().toISOString();

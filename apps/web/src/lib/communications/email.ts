@@ -1,5 +1,6 @@
-import { renderFoundationEmail } from "@mpa/email";
-import { serverEnv } from "../env/server-env";
+import { renderFoundationEmail, sendResendHttpEmail } from "@mpa/email";
+import { resolveResendSender } from "@mpa/shared";
+import { logEmailAttempt } from "./email-log";
 
 export type SendOperationalNoticeResult =
   | { ok: true; providerId: string }
@@ -10,8 +11,17 @@ export async function sendOperationalNoticeEmail(input: {
   subject: string;
   body: string;
   audienceLabel?: string;
+  idempotencyKey?: string;
 }): Promise<SendOperationalNoticeResult> {
-  if (!serverEnv.RESEND_API_KEY || !serverEnv.RESEND_FROM_EMAIL) {
+  const sender = resolveResendSender();
+  if (!sender.ok) {
+    logEmailAttempt({
+      template: "operational-notice",
+      to: input.to,
+      status: "skipped",
+      error: sender.error,
+      fromSource: "none"
+    });
     return { ok: false, error: "Email provider is not configured" };
   }
 
@@ -24,43 +34,39 @@ export async function sendOperationalNoticeEmail(input: {
   });
   const text = `${input.subject}\n\n${input.body}`;
 
-  try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${serverEnv.RESEND_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: serverEnv.RESEND_FROM_EMAIL,
-        to: [input.to],
-        subject: input.subject,
-        html,
-        text,
-        tags: [
-          { name: "journey", value: "promise-remediation" },
-          { name: "template", value: "operational-notice" }
-        ]
-      })
+  const result = await sendResendHttpEmail({
+    apiKey: sender.apiKey,
+    from: sender.from,
+    to: input.to,
+    subject: input.subject,
+    html,
+    text,
+    tags: [
+      { name: "journey", value: "promise-remediation" },
+      { name: "template", value: "operational-notice" }
+    ],
+    ...(input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : {})
+  });
+
+  if (result.ok) {
+    logEmailAttempt({
+      template: "operational-notice",
+      to: input.to,
+      status: "provider_accepted",
+      providerId: result.providerId,
+      fromSource: sender.fromSource
     });
-    const payload = (await response.json().catch(() => ({}))) as {
-      id?: string;
-      message?: string;
-      name?: string;
-    };
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: payload.message ?? payload.name ?? `Resend error ${response.status}`
-      };
-    }
-    return { ok: true, providerId: payload.id ?? "unknown" };
-  } catch (error) {
-    return {
-      ok: false,
-      error: error instanceof Error ? error.message : "Failed to send email"
-    };
+    return result;
   }
+
+  logEmailAttempt({
+    template: "operational-notice",
+    to: input.to,
+    status: "failed",
+    error: result.error,
+    fromSource: sender.fromSource
+  });
+  return result;
 }
 
 function escapeHtml(value: string): string {

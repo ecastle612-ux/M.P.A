@@ -6,7 +6,9 @@ import {
   isBillingCycle,
   isProductSku,
   isProvisioningComplete,
+  isResendDeliveryConfigured,
   isTerminalFailure,
+  resolveResendSender,
   toSkuLabel,
   type BillingCycle,
   type ProductSku,
@@ -118,6 +120,22 @@ async function tryServiceRole() {
   } catch {
     return null;
   }
+}
+
+function emailOpsDetail(): string {
+  const sender = resolveResendSender();
+  if (sender.ok && sender.fromSource !== "test_fallback") {
+    return sender.fromSource === "derived_app_url"
+      ? "Resend configured · from derived from APP_URL"
+      : "Resend configured · customer mail delivers";
+  }
+  if (!sender.ok && sender.code === "missing_api_key") {
+    return "Email unavailable · RESEND_API_KEY missing";
+  }
+  if (!sender.ok && sender.code === "test_domain_blocked") {
+    return "Email unavailable · Production cannot send from resend.dev";
+  }
+  return "Email unavailable · set RESEND_FROM_EMAIL to a verified domain address";
 }
 
 type SubRow = {
@@ -527,18 +545,8 @@ export async function loadOpsDirectories(): Promise<{
     {
       id: "email",
       label: "Email",
-      tone:
-        serverEnv.RESEND_API_KEY && serverEnv.RESEND_FROM_EMAIL
-          ? "ok"
-          : "down",
-      detail:
-        serverEnv.RESEND_API_KEY && serverEnv.RESEND_FROM_EMAIL
-          ? "Resend configured · customer mail delivers"
-          : !serverEnv.RESEND_API_KEY && !serverEnv.RESEND_FROM_EMAIL
-            ? "Email unavailable · RESEND_API_KEY and RESEND_FROM_EMAIL missing"
-            : !serverEnv.RESEND_API_KEY
-              ? "Email unavailable · RESEND_API_KEY missing"
-              : "Email unavailable · RESEND_FROM_EMAIL missing"
+      tone: isResendDeliveryConfigured() ? "ok" : "down",
+      detail: emailOpsDetail()
     },
     {
       id: "jobs",

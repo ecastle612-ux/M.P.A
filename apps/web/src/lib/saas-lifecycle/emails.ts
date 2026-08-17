@@ -1,5 +1,6 @@
-import { renderFoundationEmail } from "@mpa/email";
-import { serverEnv } from "../env/server-env";
+import { renderFoundationEmail, sendResendHttpEmail } from "@mpa/email";
+import { resolveResendSender } from "@mpa/shared";
+import { logEmailAttempt } from "../communications/email-log";
 
 export type LifecycleEmailKind =
   | "renewal_success"
@@ -21,40 +22,45 @@ async function sendHtmlEmail(input: {
   subject: string;
   html: string;
   text: string;
+  kind: LifecycleEmailKind;
 }): Promise<{ ok: true; providerId: string; stubbed?: boolean } | { ok: false; error: string }> {
-  if (!serverEnv.RESEND_API_KEY || !serverEnv.RESEND_FROM_EMAIL) {
-    // Never report success when mail cannot be delivered (PRA-001).
+  const sender = resolveResendSender();
+  if (!sender.ok) {
     if (allowDevEmailStub()) {
       return { ok: true, providerId: `stub_${Date.now()}`, stubbed: true };
     }
+    logEmailAttempt({
+      template: `saas-lifecycle.${input.kind}`,
+      to: input.to,
+      status: "skipped",
+      error: sender.error,
+      fromSource: "none"
+    });
     return {
       ok: false,
       error: "email_not_configured: RESEND_API_KEY and RESEND_FROM_EMAIL are required"
     };
   }
-  try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${serverEnv.RESEND_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: serverEnv.RESEND_FROM_EMAIL,
-        to: [input.to],
-        subject: input.subject,
-        html: input.html,
-        text: input.text
-      })
-    });
-    if (!response.ok) {
-      return { ok: false, error: await response.text() };
-    }
-    const data = (await response.json()) as { id?: string };
-    return { ok: true, providerId: data.id ?? "resend" };
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "email_failed" };
-  }
+  const result = await sendResendHttpEmail({
+    apiKey: sender.apiKey,
+    from: sender.from,
+    to: input.to,
+    subject: input.subject,
+    html: input.html,
+    text: input.text,
+    tags: [
+      { name: "journey", value: "saas-lifecycle" },
+      { name: "template", value: input.kind }
+    ]
+  });
+  logEmailAttempt({
+    template: `saas-lifecycle.${input.kind}`,
+    to: input.to,
+    status: result.ok ? "provider_accepted" : "failed",
+    fromSource: sender.fromSource,
+    ...(result.ok ? { providerId: result.providerId } : { error: result.error })
+  });
+  return result;
 }
 
 export async function sendLifecycleEmail(input: {
@@ -100,7 +106,8 @@ export async function sendLifecycleEmail(input: {
     to: input.to,
     subject: selected.subject,
     html,
-    text: `${selected.subject}\n\n${input.billingUrl}`
+    text: `${selected.subject}\n\n${input.billingUrl}`,
+    kind: input.kind
   });
   if (!result.ok) {
     return { ok: false, error: result.error };

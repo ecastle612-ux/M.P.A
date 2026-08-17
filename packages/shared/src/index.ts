@@ -21,3 +21,4 @@ export * from "./work-order-reports";
 export * from "./communications";
 export * from "./portal/access";
 export * from "./env/base-env";
+export * from "./env/resend";
