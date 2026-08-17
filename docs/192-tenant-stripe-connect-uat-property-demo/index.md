@@ -1,86 +1,104 @@
 # 192 — Stripe Connect UAT (Property Demo only)
 
-**Status:** **BLOCKED — STRIPE CONNECT UAT**  
+**Status:** **READY FOR CONTROLLED TENANT PAYMENT UAT**  
 **Date:** 2026-08-17  
 **Authority:** Owner Connect UAT for one synthetic org · [docs/191](../191-tenant-stripe-rent-collection-foundation-release/index.md) foundation certified · [docs/188](../188-tenant-stripe-rent-collection/index.md) Approved  
 **Target org:** M.P.A. UAT Property Demo `a11ce002-0001-4000-8000-0000000000c2`  
-**This package:** Create one Express connected account and hosted Account Link. **No execution flag. No Pay Once. No AutoPay. No tenant money. No other org.**
+**This package:** One Express connected account + hosted onboarding + server-side sync. **No execution flag. No Pay Once. No AutoPay. No tenant money. No other org.**
 
 ---
 
 ## Verdict
 
-**BLOCKED — STRIPE CONNECT UAT**
+**READY FOR CONTROLLED TENANT PAYMENT UAT**
 
-The one authorized Express account now exists and is recorded on Property Demo. Stripe-hosted onboarding is **not** complete. Docs/188 `connectAccountReady` remains false because `charges_enabled` is false and M.P.A. status is `pending`, not `ready`.
+Property Demo Connect now satisfies the docs/188 readiness contract: `stripe_account_id` present, `charges_enabled = true`, M.P.A. status `ready`. `stripe_payment_execution_enabled` remains **FALSE** on every organization.
 
-Do **not** treat “account created” as ready. Do **not** start Pay Once or AutoPay.
+**STOP.** Do not start Pay Once or AutoPay from this record. Those require the next explicit Owner authorization.
 
 ---
 
-## Recorded Connect row
+## 1. Property Demo connected-account status
 
 | Field | Value |
 |-------|--------|
 | Organization | M.P.A. UAT Property Demo `a11ce002-0001-4000-8000-0000000000c2` |
 | Connect row | `195e1085-5dbd-4525-8f07-20bad5e8e86b` |
 | `stripe_account_id` | `acct_1U5MdJ8DmtuNiZTl` |
-| M.P.A. status | `pending` |
-| `charges_enabled` | false |
-| `payouts_enabled` | false |
-| Stripe `details_submitted` | false |
-| Capabilities | `card_payments=inactive`, `transfers=inactive` |
-| `disabled_reason` | `requirements.past_due` |
-| Execution | **OFF** (0 orgs true) |
+| M.P.A. status | **`ready`** |
+| Docs/188 `connectAccountReady` | **true** |
 
-Create log: `req_JMrimwdjqYMjvJ`. Account Link log: `req_M23Wga1fJcRosZ`.
-
-No other organization received a `stripe_account_id`.
+No other organization has a `stripe_account_id` or `ready` Connect row.
 
 ---
 
-## Owner action required (exact)
+## 2. Stripe readiness / capabilities
 
-Open this Stripe-hosted Express onboarding link **now** (single-use, ~5 minutes):
+Synced from live Stripe retrieve `req_I8dPhvHwvoCVRU`:
 
-https://connect.stripe.com/setup/e/acct_1U5MdJ8DmtuNiZTl/Pp2y5f9zQEjw
-
-Complete Stripe’s required steps for this Property Demo connected account:
-
-- business profile / type
-- representative identity
-- bank / payout (`external_account`)
-- statement descriptor
-- agreements / TOS
-
-Do not invent that data here. Do not bypass Stripe verification.
-
-Return URL after Stripe: `https://www.my-property-assistant.com/pm/financial-operations?connect=return`  
-Refresh URL if the link expires: `https://www.my-property-assistant.com/pm/financial-operations?connect=refresh`
-
-If the link expires, sign in as the Property Demo owner and start Connect again from Financial Operations, or re-authorize this UAT for a fresh Account Link.
-
-Leave `stripe_payment_execution_enabled = false`.
-
-After return, re-authorize so this package can sync and certify `ready` + `charges_enabled` before any tenant payment UAT.
+| Field | Value |
+|-------|--------|
+| `details_submitted` | true |
+| `charges_enabled` | true |
+| `payouts_enabled` | true |
+| `card_payments` | active |
+| `transfers` | active |
+| Requirements currently due | none |
+| Past due | none |
+| Eventually due | none |
+| `disabled_reason` | null |
 
 ---
 
-## Requirements currently due (Stripe)
+## 3. Owner interaction
 
-`business_profile.mcc`, `business_profile.url`, `business_type`, `external_account`, representative DOB/name/email, `settings.payments.statement_descriptor`, `tos_acceptance.date`, `tos_acceptance.ip`.
+Completed: live platform Connect signup, platform-profile loss acknowledgment, and Stripe-hosted Express onboarding for Property Demo.
+
+No further Owner Connect action is required for this package.
 
 ---
 
-## Guards still holding
+## 4. Isolation / security
 
-- FIN-OPS: charges 18 / `24708.16` / paid `11111.00`; payments 11; enrollments 0; Stripe customers 0
-- July freeze on; FIN-OPS writes on; M5 unauthorized
-- SaaS prices not mutated
-- Execution all OFF
+- Connected account metadata `organization_id` is Property Demo only; `domain=tenant_property`.
+- Canopy, PMX, Development, complimentary FO, and Clinic Demo were not given a Connect account.
+- SaaS customer/subscription IDs remain on the platform account, not this connected account.
+- Execution was not enabled. No tenant PaymentIntent, SetupIntent, saved method, or AutoPay enrollment was created.
+
+---
+
+## 5. FIN-OPS unchanged proof
+
+| Metric | After sync |
+|--------|------------|
+| Charges | 18 / `24708.16` / paid `11111.00` |
+| Payments | 11 / `11111.00` |
+| Ledger | 42 / `47181.16` |
+| Autopay enrollments | 0 |
+| Stripe customers | 0 |
+| Property Demo payments | 0 |
+| UAT `$17.16` | open, `other`, AutoPay-ineligible |
+
+---
+
+## 6. Execution flag final state
+
+`stripe_payment_execution_enabled` is **FALSE** for every organization (0 true rows).
+
+---
+
+## 7. July / M5 / SaaS Stripe
+
+July freeze on. FIN-OPS writes on. M5 unauthorized (`late_fees_enabled` 0). Public $59 / $59 / $109 unchanged. Production remains `dpl_FhcRTQw8Nh27NXUmyRsBsxrwDZ5L` / SHA `b39acb42`. Stamp `20260817080250` present. Unused `20260817193000` not replayed.
+
+---
+
+## 8. Remaining blocker
+
+None for Connect. Controlled tenant payment UAT (Pay Once / AutoPay) is **not** authorized by this package.
 
 ---
 
 ## Classification
 
-**BLOCKED — STRIPE CONNECT UAT**
+**READY FOR CONTROLLED TENANT PAYMENT UAT**
