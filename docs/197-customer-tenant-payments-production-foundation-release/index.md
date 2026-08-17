@@ -8,6 +8,8 @@
 
 The application and schema are live. Tenant payment execution remains **OFF** everywhere. This record does **not** call the customer payment product activated.
 
+**Successor:** Owner accepted this record as PASS. Property Demo ACH + method-selection UAT is certified in [docs/198](../198-property-demo-ach-payment-method-activation-uat/index.md).
+
 ---
 
 ## Verdict
