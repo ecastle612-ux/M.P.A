@@ -127,7 +127,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 180 | [Final Pre-Marketing Readiness (P1-08 / P1-09 / P1-10)](./180-final-pre-marketing-readiness/index.md) | **Approved** · implemented in-repo · see 181 |
 | 181 | [Final Pre-Marketing Readiness Implementation Certification](./181-final-pre-marketing-readiness-implementation-certification/index.md) | **Implemented / certified** · no Production deploy or apply |
 | 185 | [Complimentary Tester / Gift Access](./185-complimentary-tester-gift-access/index.md) | **Approved** · implemented in-repo · see 186 · no Production deploy |
-| 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **Implemented / certified** · no Production deploy or apply |
+| 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **BLOCKED — feedback@ inbound routing requires Owner Cloudflare Email Routing** · no Production deploy |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
