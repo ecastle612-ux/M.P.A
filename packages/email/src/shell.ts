@@ -1,5 +1,6 @@
 export const MPA_EMAIL_PRODUCTION_ORIGIN = "https://www.my-property-assistant.com";
-export const MPA_EMAIL_LOGO_PATH = "/branding/logo-dark.png";
+/** Official dark mark composited on mist — Gmail inverts table bgcolor, not image pixels. */
+export const MPA_EMAIL_LOGO_PATH = "/branding/logo-email-lockup.png";
 export const MPA_EMAIL_BRAND_NAME = "M.P.A.";
 export const MPA_EMAIL_BRAND_TAGLINE = "My Property Assistant";
 
@@ -9,7 +10,7 @@ const MUTED = "#6B7280";
 const BORDER = "#E5E7EB";
 const PAGE_BG = "#F3F4F6";
 const CARD_BG = "#FFFFFF";
-const LOGO_PLATE_BG = "#FFFFFF";
+const LOGO_PLATE_BG = "#F7F8FA";
 const CTA_BG = "#0F6B56";
 const CTA_TEXT = "#FFFFFF";
 const FONT = 'Arial, Helvetica, sans-serif';
@@ -110,7 +111,7 @@ export function renderBrandedEmail(props: BrandedEmailProps): string {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="mpa-logo-plate" bgcolor="${LOGO_PLATE_BG}" style="background-color:${LOGO_PLATE_BG};border:1px solid ${BORDER};border-radius:8px;">
                 <tr>
                   <td align="center" class="mpa-logo-plate" bgcolor="${LOGO_PLATE_BG}" style="background-color:${LOGO_PLATE_BG};padding:20px 24px;border-radius:8px;">
-                    <img src="${escapeHtml(logoUrl)}" width="180" alt="M.P.A. — My Property Assistant" style="display:block;margin:0 auto;border:0;height:auto;max-width:180px;background-color:${LOGO_PLATE_BG};" />
+                    <img src="${escapeHtml(logoUrl)}" width="200" alt="M.P.A. — My Property Assistant" style="display:block;margin:0 auto;border:0;height:auto;max-width:200px;" />
                     <p class="mpa-logo-plate-text" style="margin:10px 0 0 0;font-family:${FONT};font-size:14px;line-height:20px;color:${GREY_TEXT};">${MPA_EMAIL_BRAND_NAME} / ${MPA_EMAIL_BRAND_TAGLINE}</p>
                   </td>
                 </tr>

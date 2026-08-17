@@ -12,6 +12,8 @@ export const MPA_LOGO_DARK_PATH = "/branding/logo-dark.png";
 export const MPA_LOGO_LIGHT_PATH = "/branding/logo-light.png";
 export const MPA_LOGO_DARK_WEBP_PATH = "/branding/logo-dark.webp";
 export const MPA_LOGO_LIGHT_WEBP_PATH = "/branding/logo-light.webp";
+/** Official dark mark on a mist plate for email clients that invert CSS backgrounds. */
+export const MPA_EMAIL_LOGO_LOCKUP_PATH = "/branding/logo-email-lockup.png";
 
 export const MPA_APP_ICON_192_PATH = "/icons/mpa-mark-192.png";
 export const MPA_APP_ICON_512_PATH = "/icons/mpa-mark-512.png";

@@ -16,7 +16,7 @@ describe("branded email shell", () => {
       "https://www.my-property-assistant.com"
     );
     expect(resolveEmailLogoUrl("http://127.0.0.1:3000")).toBe(
-      "https://www.my-property-assistant.com/branding/logo-dark.png"
+      "https://www.my-property-assistant.com/branding/logo-email-lockup.png"
     );
   });
 
@@ -37,7 +37,7 @@ describe("branded email shell", () => {
     });
 
     expect(html).toContain("M.P.A. — My Property Assistant");
-    expect(html).toContain("https://www.my-property-assistant.com/branding/logo-dark.png");
+    expect(html).toContain("https://www.my-property-assistant.com/branding/logo-email-lockup.png");
     expect(html).toContain("New work order assigned");
     expect(html).toContain("Open Work Order");
     expect(html).toContain("#0F6B56");
@@ -63,7 +63,7 @@ describe("branded email shell", () => {
     expect(html).toContain('content="light only"');
     expect(html).toContain('name="supported-color-schemes"');
     expect(html).toContain("color-scheme: light only");
-    expect(html).toContain("https://www.my-property-assistant.com/branding/logo-dark.png");
+    expect(html).toContain("https://www.my-property-assistant.com/branding/logo-email-lockup.png");
     expect(html).not.toContain("/branding/logo-light.png");
     expect(html).toContain("Accept Invitation");
     expect(html).toContain("https://www.my-property-assistant.com/accept-invitation/token");
