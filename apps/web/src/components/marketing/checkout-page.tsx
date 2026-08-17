@@ -313,6 +313,24 @@ export function CheckoutPage({
           </p>
         ) : null}
 
+        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+          Review the{" "}
+          <Link
+            href="/privacy"
+            className="font-medium text-[var(--mpa-color-text-primary)] underline-offset-2 hover:underline"
+          >
+            Privacy Policy
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/terms"
+            className="font-medium text-[var(--mpa-color-text-primary)] underline-offset-2 hover:underline"
+          >
+            Terms
+          </Link>{" "}
+          before continuing to secure checkout.
+        </p>
+
         <div className="flex flex-wrap gap-3">
           <Link href={acquisitionHref("questionnaire")} className={marketingSecondaryCtaClass}>
             Back to questionnaire

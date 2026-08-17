@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { formatMoney } from "@mpa/shared";
 import { Alert, Badge, Button, EmptyState, Input, Select, TableScroll } from "@mpa/ui";
+import { isFinanceM5Authorized } from "../../lib/finance/m5-hard-stop";
 
 type Aging = {
   current: number;
@@ -169,6 +170,7 @@ export function CollectionsDesk() {
 
   const aging = snapshot?.aging;
   const overdue = snapshot?.residentsOverdue ?? [];
+  const m5Authorized = isFinanceM5Authorized();
 
   return (
     <div className="space-y-6">
@@ -187,8 +189,12 @@ export function CollectionsDesk() {
           {(snapshot?.vendorInvoicesAwaitingApproval.length ?? 0) > 0
             ? `Approve or request changes on ${snapshot?.vendorInvoicesAwaitingApproval.length} vendor invoice(s), then schedule payment.`
             : overdue.length > 0
-              ? `Assess late fees where grace has ended, send reminders for ${overdue.length} overdue resident(s), and record payment arrangements when needed.`
-              : "No active delinquency or AP blockers. Keep late-fee policy current and sync delinquency after posting rent."}
+              ? m5Authorized
+                ? `Assess late fees where grace has ended, send reminders for ${overdue.length} overdue resident(s), and record payment arrangements when needed.`
+                : `Review ${overdue.length} overdue resident(s). Record a payment from Financial Operations when funds are received.`
+              : m5Authorized
+                ? "No active delinquency or AP blockers. Keep late-fee policy current and sync delinquency after posting rent."
+                : "No active delinquency or AP blockers. Review aging and vendor payables here."}
         </p>
       </section>
 
@@ -197,23 +203,27 @@ export function CollectionsDesk() {
           <div>
             <h3 className="text-sm font-semibold">Delinquency dashboard</h3>
             <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-              One collections path: grace → late fee → reminder → arrangement → payment.
+              {m5Authorized
+                ? "One collections path: grace → late fee → reminder → arrangement → payment."
+                : "Aging and overdue balances are informational. Automated collections actions are not available."}
             </p>
           </div>
-          <Button
-            type="button"
-            disabled={busy}
-            onClick={() =>
-              void run(async () => {
-                await fetchJson("/api/finance/collections", {
-                  method: "POST",
-                  body: JSON.stringify({ kind: "sync_delinquency" })
-                });
-              })
-            }
-          >
-            Sync delinquency
-          </Button>
+          {m5Authorized ? (
+            <Button
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                void run(async () => {
+                  await fetchJson("/api/finance/collections", {
+                    method: "POST",
+                    body: JSON.stringify({ kind: "sync_delinquency" })
+                  });
+                })
+              }
+            >
+              Sync delinquency
+            </Button>
+          ) : null}
         </div>
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -244,7 +254,7 @@ export function CollectionsDesk() {
         </div>
 
         {overdue.length === 0 ? (
-          <EmptyState title="No delinquent residents" description="Open balances past due will appear here after sync." />
+          <EmptyState title="No delinquent residents" description="Open balances past due will appear here." />
         ) : (
           <TableScroll>
             <table className="min-w-[40rem] text-left text-sm">
@@ -256,7 +266,7 @@ export function CollectionsDesk() {
                   <th scope="col" className="px-3 py-2">Days</th>
                   <th scope="col" className="px-3 py-2">Bucket</th>
                   <th scope="col" className="px-3 py-2">Status</th>
-                  <th scope="col" className="px-3 py-2">Actions</th>
+                  {m5Authorized ? <th scope="col" className="px-3 py-2">Actions</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -270,23 +280,25 @@ export function CollectionsDesk() {
                     <td className="px-3 py-2">
                       <Badge variant={item.status === "escalated" ? "danger" : "info"}>{item.status}</Badge>
                     </td>
-                    <td className="px-3 py-2">
-                      <button
-                        type="button"
-                        className="text-xs text-[var(--mpa-color-brand-primary)] underline"
-                        disabled={busy}
-                        onClick={() =>
-                          void run(async () => {
-                            await fetchJson("/api/finance/collections", {
-                              method: "POST",
-                              body: JSON.stringify({ kind: "reminder", caseId: item.id })
-                            });
-                          })
-                        }
-                      >
-                        Send reminder ({item.reminder_count})
-                      </button>
-                    </td>
+                    {m5Authorized ? (
+                      <td className="px-3 py-2">
+                        <button
+                          type="button"
+                          className="text-xs text-[var(--mpa-color-brand-primary)] underline"
+                          disabled={busy}
+                          onClick={() =>
+                            void run(async () => {
+                              await fetchJson("/api/finance/collections", {
+                                method: "POST",
+                                body: JSON.stringify({ kind: "reminder", caseId: item.id })
+                              });
+                            })
+                          }
+                        >
+                          Send reminder ({item.reminder_count})
+                        </button>
+                      </td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>
@@ -294,6 +306,7 @@ export function CollectionsDesk() {
           </TableScroll>
         )}
 
+        {m5Authorized ? (
         <form
           className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:grid-cols-2 lg:grid-cols-3"
           onSubmit={(event) => {
@@ -385,6 +398,7 @@ export function CollectionsDesk() {
             Save arrangement
           </Button>
         </form>
+        ) : null}
       </section>
 
       <section id="late-fees" className="scroll-mt-24 space-y-3">
@@ -392,9 +406,12 @@ export function CollectionsDesk() {
           <div>
             <h3 className="text-sm font-semibold">Late fee queue</h3>
             <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-              Assess fees after grace per property policy — residents get a plain-language notice.
+              {m5Authorized
+                ? "Assess fees after grace per property policy — residents get a plain-language notice."
+                : "Open late fees are shown for review. Automated assessment and policy changes are not available."}
             </p>
           </div>
+          {m5Authorized ? (
           <Button
             type="button"
             disabled={busy}
@@ -409,8 +426,10 @@ export function CollectionsDesk() {
           >
             Assess late fees now
           </Button>
+          ) : null}
         </div>
 
+        {m5Authorized ? (
         <form
           className="flex flex-wrap items-end gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
           onSubmit={(event) => {
@@ -449,6 +468,12 @@ export function CollectionsDesk() {
             </p>
           ) : null}
         </form>
+        ) : policies[0] ? (
+          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+            Current policy: {policies[0].grace_days}d grace · {formatMoney(Number(policies[0].fee_amount))}{" "}
+            {policies[0].fee_type}
+          </p>
+        ) : null}
 
         {(snapshot?.upcomingLateFees.length ?? 0) === 0 ? (
           <EmptyState title="No open late fees" description="Assessed late fees still unpaid show here." />

@@ -7,7 +7,7 @@ import {
 import { acquisitionStateTokenFromRequest } from "../../../../lib/commerce/acquisition-quote-cookie";
 import { getAcquisitionByQuoteId } from "../../../../lib/commerce/acquisition-session-store";
 import { createUnitVolumeCheckoutSession } from "../../../../lib/saas-stripe/create-checkout-session";
-import { isUnitVolumeCheckoutReady } from "../../../../lib/saas-stripe/client";
+import { unitVolumeCheckoutGateForQuote } from "../../../../lib/saas-stripe/client";
 
 export const runtime = "nodejs";
 
@@ -87,12 +87,13 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!isUnitVolumeCheckoutReady()) {
+  const gate = unitVolumeCheckoutGateForQuote(record.quote);
+  if (!gate.ready) {
     return NextResponse.json(
       {
         error: "saas_checkout_not_configured",
-        message:
-          "Unit-volume Stripe Price env vars are not configured (STRIPE_PRICE_PM_BASE_* / STRIPE_PRICE_UNIT_BLOCK_*)."
+        missingEnvKey: gate.missingEnvKey,
+        message: `SaaS Checkout Price configuration is missing for this plan (${gate.missingEnvKey}).`
       },
       { status: 503 }
     );

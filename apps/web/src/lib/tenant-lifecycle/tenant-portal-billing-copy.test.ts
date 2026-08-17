@@ -25,6 +25,20 @@ describe("Tenant Portal billing copy while Stripe execution is disabled", () => 
     expect(subtitle).not.toMatch(/Pay rent/);
   });
 
+  it("does not present Pay now from Stripe key presence in the billing API", () => {
+    const route = readFileSync(
+      join(webRoot, "app/api/finance/resident/billing/route.ts"),
+      "utf8"
+    );
+    const portal = readFileSync(
+      join(webRoot, "components/finance/resident-billing-portal.tsx"),
+      "utf8"
+    );
+    expect(route).not.toMatch(/isStripeConfigured/);
+    expect(route).toMatch(/stripe_payment_execution_enabled/);
+    expect(portal).toMatch(/Online payment is not available here/);
+  });
+
   it("keeps Billing navigation and history-oriented subtitle", () => {
     expect(TENANT_PORTAL_NAVIGATION.some((item) => item.label === "Billing")).toBe(true);
     expect(TENANT_PORTAL_NAVIGATION.map((item) => item.label)).not.toContain("Pay");

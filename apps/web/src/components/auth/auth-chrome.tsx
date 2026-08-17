@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PublicLegalLinks } from "../marketing/public-legal-links";
 
 /** Minimal brand chrome for auth surfaces (Login / Sign Up / password flows). */
 export function AuthChrome({ children }: { children: ReactNode }) {
@@ -26,6 +27,12 @@ export function AuthChrome({ children }: { children: ReactNode }) {
       <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-10">
         <div className="w-full max-w-md motion-safe:animate-[mpa-rise_500ms_ease-out]">{children}</div>
       </main>
+      <footer className="relative z-10 mx-auto flex w-full max-w-md justify-center px-4 pb-8">
+        <PublicLegalLinks
+          className="flex flex-wrap justify-center gap-4 text-sm text-[var(--mpa-color-text-secondary)]"
+          linkClassName="underline-offset-2 hover:text-[var(--mpa-color-text-primary)] hover:underline"
+        />
+      </footer>
     </div>
   );
 }

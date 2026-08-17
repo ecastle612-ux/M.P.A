@@ -44,7 +44,7 @@ export function CheckoutCancelPage({
       ? "Your quote expired before checkout finished. Continue Get Started to generate a fresh quote for the same product — no payment was collected."
       : quoteMissing
         ? "We could not reload that quote. Continue Get Started to create a fresh quote — no payment was collected."
-        : "No payment was collected. You can retry Confirm Plan or choose a different plan. Duplicate subscriptions are prevented automatically.";
+        : "No payment was collected. You can retry Confirm Plan or choose a different plan.";
 
   const retryLabel =
     recovery.mode === "quote_expired" || quoteMissing

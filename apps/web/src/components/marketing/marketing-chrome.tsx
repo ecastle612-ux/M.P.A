@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { acquisitionHref } from "@mpa/shared";
 import { SiteLogo } from "../branding/site-logo";
 import { MarketingMobileMenu } from "./marketing-mobile-menu";
+import { PublicLegalLinks } from "./public-legal-links";
 
 const primaryCtaClass = buttonClassName({ size: "lg", className: "font-semibold" });
 const ghostCtaClass = buttonClassName({ variant: "ghost", size: "lg" });
@@ -170,6 +171,7 @@ export function MarketingChrome({
             <Link href="/login" className="hover:text-[var(--mpa-color-text-primary)]">
               Sign In
             </Link>
+            <PublicLegalLinks />
           </div>
         </div>
       </footer>

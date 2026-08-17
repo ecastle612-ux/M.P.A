@@ -14,6 +14,7 @@ import {
 } from "@mpa/shared";
 import { Alert, Button, Card, Input } from "@mpa/ui";
 import { createAuthClient } from "../../lib/auth/client";
+import { friendlyCommerceClaimError } from "../../lib/saas-provisioning/commerce-claim-copy";
 
 function readAcquisitionSkuCookie(): ProductSku | null {
   if (typeof document === "undefined") {
@@ -40,27 +41,6 @@ function safeNextPath(value: string | null): string | null {
 function commerceContinuePath(sessionId: string, bindToken: string | null): string {
   const base = `/commerce/continue?session_id=${encodeURIComponent(sessionId)}`;
   return bindToken ? `${base}&bind_token=${encodeURIComponent(bindToken)}` : base;
-}
-
-/** Presentation-only — does not change claim-password API contracts. */
-function friendlyCommerceClaimError(raw: string): string {
-  const lower = raw.toLowerCase();
-  if (lower.includes("email_mismatch") || (lower.includes("email") && lower.includes("mismatch"))) {
-    return "Use the same email address from your Stripe purchase receipt, then try again.";
-  }
-  if (lower.includes("expired") || lower.includes("invalid") || lower.includes("used")) {
-    return "This claim link is no longer valid. Open your purchase email again, or recover access from Sign in.";
-  }
-  if (lower.includes("password") && (lower.includes("weak") || lower.includes("short") || lower.includes("least"))) {
-    return "Choose a stronger password (at least 8 characters), then try again.";
-  }
-  if (lower.includes("already") && (lower.includes("claim") || lower.includes("bound"))) {
-    return "This workspace may already be claimed. Sign in with your purchase email and password.";
-  }
-  if (lower.includes("session") && (lower.includes("not found") || lower.includes("missing"))) {
-    return "We could not find this purchase session. Open the link from your confirmation email.";
-  }
-  return raw;
 }
 
 export function LoginForm() {

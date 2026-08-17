@@ -251,7 +251,7 @@ export async function buildDailyOperationsBriefing(
       domain: "finance",
       title: `${formatMoney(outstandingRent)} outstanding rent`,
       detail: "Follow up from Financial Operations",
-      href: "/pm/financial-operations#collect",
+      href: "/pm/financial-operations#record",
       urgency: "waiting_on_me"
     });
   }

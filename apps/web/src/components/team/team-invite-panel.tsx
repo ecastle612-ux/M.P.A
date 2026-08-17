@@ -80,6 +80,8 @@ export function TeamInvitePanel() {
   const role = roleOverride ?? defaultRole;
   const [invitations, setInvitations] = useState<InvitationRow[] | null>(null);
   const [memberships, setMemberships] = useState<MembershipRow[] | null>(null);
+  const [canUpdateMemberships, setCanUpdateMemberships] = useState(false);
+  const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -124,11 +126,13 @@ export function TeamInvitePanel() {
       };
       const membershipPayload = (await membershipResponse.json()) as {
         memberships?: MembershipRow[];
+        canUpdateMemberships?: boolean;
       };
       if (!cancelled) {
         setError(null);
         setInvitations(invitationPayload.invitations ?? []);
         setMemberships(membershipPayload.memberships ?? []);
+        setCanUpdateMemberships(Boolean(membershipPayload.canUpdateMemberships));
       }
     })();
     return () => {
@@ -162,10 +166,12 @@ export function TeamInvitePanel() {
     };
     const membershipPayload = (await membershipResponse.json()) as {
       memberships?: MembershipRow[];
+      canUpdateMemberships?: boolean;
     };
     setError(null);
     setInvitations(invitationPayload.invitations ?? []);
     setMemberships(membershipPayload.memberships ?? []);
+    setCanUpdateMemberships(Boolean(membershipPayload.canUpdateMemberships));
   }
 
   async function onInvite(event: FormEvent) {
@@ -233,6 +239,40 @@ export function TeamInvitePanel() {
       return;
     }
     setNotice("Operational responsibility updated.");
+    await refresh();
+  }
+
+  async function deactivateMembership(membershipId: string) {
+    if (!activeOrganization) {
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setNotice(null);
+    const response = await fetch(`/api/organizations/${activeOrganization.id}/memberships`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ membershipId, status: "inactive" })
+    });
+    const payload = (await response.json()) as { error?: string };
+    setLoading(false);
+    setPendingDeactivateId(null);
+    if (!response.ok) {
+      const message = payload.error ?? "Could not deactivate this teammate.";
+      setError(message);
+      notify({
+        variant: "danger",
+        title: "Deactivate failed",
+        description: message
+      });
+      return;
+    }
+    setNotice("Teammate deactivated. Their membership record is retained.");
+    notify({
+      variant: "success",
+      title: "Teammate deactivated",
+      description: "They no longer have access. Their membership record is retained."
+    });
     await refresh();
   }
 
@@ -458,6 +498,42 @@ export function TeamInvitePanel() {
                           ))}
                         </Select>
                       </div>
+                    ) : null}
+                    {canUpdateMemberships && membership.status === "active" ? (
+                      pendingDeactivateId === membership.id ? (
+                        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-app)] p-2">
+                          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                            Deactivate this teammate? They lose access. Their membership record stays.
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              variant="danger"
+                              disabled={loading}
+                              onClick={() => void deactivateMembership(membership.id)}
+                            >
+                              Confirm deactivate
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              disabled={loading}
+                              onClick={() => setPendingDeactivateId(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          disabled={loading}
+                          onClick={() => setPendingDeactivateId(membership.id)}
+                        >
+                          Deactivate
+                        </Button>
+                      )
                     ) : null}
                   </li>
                 );

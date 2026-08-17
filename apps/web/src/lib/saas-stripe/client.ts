@@ -1,8 +1,10 @@
 import Stripe from "stripe";
 import {
+  missingUnitVolumePriceEnvKeysForQuote,
   saasDisplayPriceEnvKeyForOfferId,
   saasPriceEnvKeyForOfferId,
-  unitVolumeCheckoutReadyEnvKeys
+  unitVolumeCheckoutReadyEnvKeys,
+  type BillingCycle
 } from "@mpa/shared";
 import { serverEnv } from "../env/server-env";
 
@@ -11,18 +13,40 @@ export function isSaasStripeConfigured(): boolean {
   return Boolean(serverEnv.STRIPE_SECRET_KEY && serverEnv.STRIPE_SAAS_WEBHOOK_SECRET);
 }
 
-/** True when unit-volume Base + Block Price env vars are present (not created in this slice). */
+function envString(key: string): string | null {
+  const value = serverEnv[key as keyof typeof serverEnv];
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+/** Admin/historical: PM base + unit-block keys. Customer Checkout uses the per-quote gate. */
 export function isUnitVolumeCheckoutReady(): boolean {
   if (!serverEnv.STRIPE_SECRET_KEY) {
     return false;
   }
-  return unitVolumeCheckoutReadyEnvKeys().every((key) => {
-    const value = serverEnv[key as keyof typeof serverEnv];
-    return typeof value === "string" && value.length > 0;
-  });
+  return unitVolumeCheckoutReadyEnvKeys().every((key) => Boolean(envString(key)));
 }
 
-/** Admin/historical readiness helper. Customer Checkout uses `isUnitVolumeCheckoutReady` only. */
+export type UnitVolumeQuoteCheckoutGate =
+  | { ready: true }
+  | { ready: false; missingEnvKey: string };
+
+/** Fail-closed per selected product/cycle. Never returns secret values. */
+export function unitVolumeCheckoutGateForQuote(quote: {
+  module: string;
+  billing_interval: BillingCycle;
+  additional_blocks: number;
+}): UnitVolumeQuoteCheckoutGate {
+  if (!serverEnv.STRIPE_SECRET_KEY) {
+    return { ready: false, missingEnvKey: "STRIPE_SECRET_KEY" };
+  }
+  const missing = missingUnitVolumePriceEnvKeysForQuote(quote, envString);
+  if (missing[0]) {
+    return { ready: false, missingEnvKey: missing[0] };
+  }
+  return { ready: true };
+}
+
+/** Admin/historical readiness helper. Customer Checkout uses `unitVolumeCheckoutGateForQuote`. */
 export function isSaasCheckoutReady(): boolean {
   if (isUnitVolumeCheckoutReady()) {
     return true;

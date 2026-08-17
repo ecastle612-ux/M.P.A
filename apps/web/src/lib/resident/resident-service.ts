@@ -431,9 +431,9 @@ export async function getResidentCommandCenter(
           }
         : active
           ? {
-              title: "Collect your first rent",
-              href: "/pm/financial-operations#collect",
-              detail: "Financial Operations is ready for the first collection."
+              title: "Record your first payment",
+              href: "/pm/financial-operations#record",
+              detail: "Financial Operations is ready to record the first payment."
             }
           : {
               title: "Create your first lease",

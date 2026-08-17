@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { getLeaseLedger } from "../../../../../lib/finance/billing-service";
-import { isStripeConfigured } from "../../../../../lib/finance/stripe";
+import { stripePaymentExecutionEnabled } from "../../../../../lib/finance/checkout-authz";
+import { residentOnlinePayAvailable } from "../../../../../lib/finance/resident-online-pay";
+import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 
 export async function GET() {
   const authClient = await createAuthServerClient();
@@ -31,9 +33,34 @@ export async function GET() {
   if (!residents?.length) {
     return NextResponse.json({
       linked: false,
-      onlinePaymentsEnabled: isStripeConfigured(),
+      onlinePaymentsEnabled: false,
       accounts: []
     });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let settingsReader: SupabaseClient<any> = supabase;
+  try {
+    settingsReader = createServiceRoleClient();
+  } catch {
+    settingsReader = supabase;
+  }
+
+  const organizationIds = [
+    ...new Set(residents.map((resident) => resident.organization_id as string).filter(Boolean))
+  ];
+  const executionByOrganization = new Map<string, boolean>();
+  if (organizationIds.length > 0) {
+    const { data: settingsRows } = await settingsReader
+      .from("financial_module_settings")
+      .select("organization_id, stripe_payment_execution_enabled")
+      .in("organization_id", organizationIds);
+    for (const row of settingsRows ?? []) {
+      executionByOrganization.set(
+        row.organization_id as string,
+        stripePaymentExecutionEnabled(row)
+      );
+    }
   }
 
   const today = utcToday();
@@ -86,6 +113,11 @@ export async function GET() {
       resident,
       accessMode: access,
       canPay: access === "active",
+      onlinePaymentsEnabled: residentOnlinePayAvailable({
+        stripePaymentExecutionEnabled:
+          executionByOrganization.get(resident.organization_id as string) === true,
+        occupancyAccess: access
+      }),
       balance,
       openCharges,
       paidCharges,
@@ -100,7 +132,7 @@ export async function GET() {
 
   return NextResponse.json({
     linked: true,
-    onlinePaymentsEnabled: isStripeConfigured(),
+    onlinePaymentsEnabled: accounts.some((account) => account.onlinePaymentsEnabled),
     accounts
   });
 }

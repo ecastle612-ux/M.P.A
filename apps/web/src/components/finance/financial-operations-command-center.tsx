@@ -45,12 +45,12 @@ export function FinancialOperationsCommandCenter() {
           Financial Operations
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Know what is due, what is paid, and what needs action — then collect, approve invoices, or
-          open reports without leaving this workspace.
+          Know what is due, what is paid, and what needs action — then record a payment, approve
+          invoices, or open reports without leaving this workspace.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <a href="#collect" className={buttonClassName()}>
-            Collect rent
+          <a href="#record" className={buttonClassName()}>
+            Record payment
           </a>
           <a href="#vendor-invoices" className={buttonClassName({ variant: "secondary" })}>
             Vendor invoices

@@ -1,7 +1,18 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { clearAcquisitionSessionStoreForTests } from "../../../../lib/commerce/acquisition-session-store";
 import { POST as quotePost } from "../quote/route";
 import { POST as checkoutPost } from "./route";
+import { unitVolumeCheckoutGateForQuote } from "../../../../lib/saas-stripe/client";
+
+vi.mock("../../../../lib/saas-stripe/client", async (importOriginal) => {
+  const actual = (await importOriginal()) as {
+    unitVolumeCheckoutGateForQuote: typeof unitVolumeCheckoutGateForQuote;
+  };
+  return {
+    ...actual,
+    unitVolumeCheckoutGateForQuote: vi.fn(actual.unitVolumeCheckoutGateForQuote)
+  };
+});
 
 describe("POST /api/commerce/checkout (quote path)", () => {
   beforeEach(() => {
@@ -54,7 +65,11 @@ describe("POST /api/commerce/checkout (quote path)", () => {
     expect(res.status).toBe(410);
   });
 
-  it("returns price unconfigured when unit-volume env Prices are absent", async () => {
+  it("returns price unconfigured when the selected quote Price env is missing", async () => {
+    vi.mocked(unitVolumeCheckoutGateForQuote).mockReturnValueOnce({
+      ready: false,
+      missingEnvKey: "STRIPE_PRICE_PM_BASE_MONTHLY"
+    });
     const quoteId = await createQuote(501);
     const res = await checkoutPost(
       new Request("http://localhost/api/commerce/checkout", {
@@ -63,14 +78,12 @@ describe("POST /api/commerce/checkout (quote path)", () => {
         body: JSON.stringify({ quoteId })
       })
     );
-    // Without STRIPE_SECRET_KEY / unit-volume Price envs in test env → 503
-    expect([503, 502, 400]).toContain(res.status);
-    const body = (await res.json()) as { error: string };
-    expect(
-      ["saas_checkout_not_configured", "unit_volume_prices_unconfigured", "price_unconfigured", "stripe_not_configured"].includes(
-        body.error
-      )
-    ).toBe(true);
+    expect(res.status).toBe(503);
+    const body = (await res.json()) as { error: string; missingEnvKey?: string; message?: string };
+    expect(body.error).toBe("saas_checkout_not_configured");
+    expect(body.missingEnvKey).toBe("STRIPE_PRICE_PM_BASE_MONTHLY");
+    expect(body.message).toContain("STRIPE_PRICE_PM_BASE_MONTHLY");
+    expect(body.message).not.toMatch(/sk_live|sk_test|whsec_/);
   });
 
   it("rejects Checkout without quoteId", async () => {

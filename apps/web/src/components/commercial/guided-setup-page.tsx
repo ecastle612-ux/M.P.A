@@ -94,6 +94,7 @@ export function GuidedSetupPage() {
 
   const hasOrg = organizations.length > 0;
   const hasProduct = Boolean(productSku);
+  const commerceBackedSetup = Boolean(acquisitionSku);
 
   const checklist = useMemo(
     () => [
@@ -103,9 +104,11 @@ export function GuidedSetupPage() {
         done: hasOrg,
         detail: hasOrg
           ? `Active: ${activeOrganization?.name ?? "selected"}`
-          : effectiveSku
-            ? `Create your organization to begin with ${displayLabel} access.`
-            : "Create your organization to begin setup for your purchased product."
+          : commerceBackedSetup
+            ? "Your organization is created from Checkout. Check your email to claim it."
+            : effectiveSku
+              ? `Create your organization to begin with ${displayLabel} access.`
+              : "Create your organization to begin setup for your purchased product."
       },
       {
         id: "product",
@@ -157,6 +160,7 @@ export function GuidedSetupPage() {
     [
       activeOrganization?.name,
       billingAcknowledged,
+      commerceBackedSetup,
       displayLabel,
       effectiveSku,
       hasOrg,
@@ -181,7 +185,9 @@ export function GuidedSetupPage() {
     operatingModelReady;
 
   const nextHint = !hasOrg
-    ? "Create your organization to continue."
+    ? commerceBackedSetup
+      ? "Check your email to finish setting up your M.P.A. account. Your organization is created from Checkout."
+      : "Create your organization to continue."
     : !hasProduct
       ? "Confirm your purchased product appears above, then continue."
       : !billingAcknowledged
@@ -440,7 +446,20 @@ export function GuidedSetupPage() {
           </div>
 
           <div className="space-y-4">
-            {!hasOrg ? (
+            {!hasOrg && commerceBackedSetup ? (
+              <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+                <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+                  Organization from Checkout
+                </h2>
+                <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                  Check your email to finish setting up your M.P.A. account. Your{" "}
+                  <span className="font-medium text-[var(--mpa-color-text-primary)]">
+                    {displayLabel}
+                  </span>{" "}
+                  organization is created from Checkout — do not create a new organization here.
+                </p>
+              </div>
+            ) : !hasOrg ? (
               <form
                 className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
                 onSubmit={handleCreateOrganization}

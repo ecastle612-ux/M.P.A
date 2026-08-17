@@ -152,7 +152,7 @@ export async function GET(request: Request) {
       assistantNextIsCollectRent: leaseReady,
       offlineHonestyAvailable: true
     },
-    assistantRecommendation: leaseReady ? "Collect your first rent." : "Create your first lease.",
+    assistantRecommendation: leaseReady ? "Record your first payment." : "Create your first lease.",
     signWellNote:
       "Pass on signWellSent requires SIGNWELL_API_KEY. Offline signed path remains valid launch honesty when SignWell is not provisioned. portalAccessProvisioned requires linked pm_residents.user_id + tenant membership."
   });

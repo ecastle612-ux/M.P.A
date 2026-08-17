@@ -169,8 +169,9 @@ export function BillingPlanPage() {
           Billing & Plan
         </h1>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-          Manage renewals, recovery, and Additional Unit Capacity for{" "}
-          {data?.planLabel ?? productLabel ?? "your plan"}.
+          Review your current plan, cancel at period end, reactivate, and authorize Additional Unit
+          Capacity for {data?.planLabel ?? productLabel ?? "your plan"}. Card, plan, and billing-cycle
+          changes are not self-service here — contact support if you need a plan change.
         </p>
       </section>
 
