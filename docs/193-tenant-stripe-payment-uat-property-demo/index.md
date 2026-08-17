@@ -1,23 +1,23 @@
 # 193 — Controlled Tenant Payment UAT (Property Demo only)
 
-**Status:** **BLOCKED — STRIPE_CONNECT_WEBHOOK_SECRET NOT IN PRODUCTION**  
+**Status:** **READY FOR TENANT STRIPE PAYMENT ACTIVATION DECISION**  
 **Date:** 2026-08-17  
 **Authority:** Owner-authorized Pay Once + AutoPay UAT + Connect webhook dual-secret follow-up · [docs/192](../192-tenant-stripe-connect-uat-property-demo/index.md) Connect READY · [docs/188](../188-tenant-stripe-rent-collection/index.md) Approved  
 **Target org:** M.P.A. UAT Property Demo `a11ce002-0001-4000-8000-0000000000c2`  
 **Connected account:** `acct_1U5MdJ8DmtuNiZTl`  
-**Platform account:** `acct_1Tv5Lj8jGrZYUXDt`
+**Platform account:** `acct_1Tv5Lj8jGrZYUXDt`  
+**Production SHA:** `fea656802a60932fcca10a708f732743dae84afd`  
+**Production deploy:** `dpl_CFGFxmf7KYftc2Fbtd35Pk3p1Fb4`
 
 ---
 
 ## Verdict
 
-**BLOCKED — STRIPE_CONNECT_WEBHOOK_SECRET NOT IN PRODUCTION**
+**READY FOR TENANT STRIPE PAYMENT ACTIVATION DECISION**
 
-Pay Once **passed**. AutoPay **passed** and is **OFF**. The live Connect destination **exists**. Dual-secret verification is implemented in this branch and is **not** in Production yet.
+Pay Once **passed**. AutoPay **passed** and is **OFF**. Connect destination **exists**. Dual-secret verification is **in Production**. One **new** connected-account `$1.19` event was automatically POSTed to `/api/finance/webhooks/stripe`, verified with `STRIPE_CONNECT_WEBHOOK_SECRET`, and applied in FIN-OPS exactly once. Stripe resend was idempotent.
 
-Stripe will not re-expose the Connect signing secret after create. This environment cannot set `STRIPE_CONNECT_WEBHOOK_SECRET` without the Owner entering it in Vercel. No new payment event was generated. Existing secrets were not overwritten. SaaS webhook was not touched.
-
-Automatic Connect webhook delivery remains **unproven**. Do not replay `evt_3U5Ncs8DmtuNiZTl18SajRZ4` or `evt_3U5NpI8DmtuNiZTl1AjOxyKB`.
+This package does **not** globally activate tenant payments. Customer-org Connect + per-org execution remain a separate Owner decision.
 
 ---
 
@@ -144,21 +144,60 @@ This branch is **not** Production until the Owner sets the env and a matching de
 
 ---
 
-## 8. Exact remaining Owner action
+## 8. Owner secret action — completed
 
-Do **not** paste the signing secret in chat.
+Owner added `STRIPE_CONNECT_WEBHOOK_SECRET` in Vercel Production (and Preview). `STRIPE_WEBHOOK_SECRET` and `STRIPE_SAAS_WEBHOOK_SECRET` were not overwritten. Values were not read in this package.
 
-1. In Stripe Live Dashboard open [https://dashboard.stripe.com/workbench/webhooks](https://dashboard.stripe.com/workbench/webhooks) → **M.P.A. FIN-OPS Connect** (`we_1U5O4G8jGrZYUXDtsWPXVkoX`) → reveal **Signing secret**.
-2. In Vercel open **exactly**:
-   [https://vercel.com/ecastle612-uxs-projects/m-p-a-web/settings/environment-variables](https://vercel.com/ecastle612-uxs-projects/m-p-a-web/settings/environment-variables)
-3. Click **Add New**.
-4. Key (exact): `STRIPE_CONNECT_WEBHOOK_SECRET`
-5. Value: the revealed Connect signing secret (starts with `whsec_`).
-6. Environment: **Production** only for this UAT (Preview optional later).
-7. Save. Do **not** edit `STRIPE_WEBHOOK_SECRET`. Do **not** edit `STRIPE_SAAS_WEBHOOK_SECRET`.
-8. Reply that the name is saved. Then authorize a matching Production deploy + one **new** connected-account delivery UAT.
+---
 
-Do not replay `evt_3U5Ncs8DmtuNiZTl18SajRZ4` or `evt_3U5NpI8DmtuNiZTl1AjOxyKB`.
+## 11. Connect webhook delivery UAT — PASS
+
+Owner added `STRIPE_CONNECT_WEBHOOK_SECRET` in Vercel. Existing `STRIPE_WEBHOOK_SECRET` and `STRIPE_SAAS_WEBHOOK_SECRET` remain present. Values were not read.
+
+Production rebuild from this branch: `dpl_CFGFxmf7KYftc2Fbtd35Pk3p1Fb4` / SHA `fea65680`. Live `data-dpl-id` matches. `/api/commerce/webhooks/stripe` unchanged.
+
+New controlled event (not a replay):
+
+| Field | Value |
+|-------|--------|
+| Charge | `37f1fb50-1ebe-4b96-9a0e-65eaf01377d4` `$1.19` `one_time` ineligible **paid** |
+| Pending then succeeded payment | `08e9f1c1-3647-4523-9931-b3faeeb7488a` |
+| PaymentIntent | `pi_3U5OIF8DmtuNiZTl0e0AFVRY` succeeded on `acct_1U5MdJ8DmtuNiZTl` |
+| Charge object | `ch_3U5OIF8DmtuNiZTl079KiKI7` |
+| Platform PI retrieve | HTTP **404** |
+| Stripe event | `evt_3U5OIF8DmtuNiZTl0HMjtnyg` `payment_intent.succeeded` |
+| AutoPay | not re-enrolled |
+
+Automatic delivery proof:
+
+| Check | Result |
+|-------|--------|
+| Event `pending_webhooks` after create | **1**, then **0** |
+| `financial_stripe_webhook_events` | **1** row, `processed_at` set, `error` null |
+| `payload.mpa_verified_with` | **`connect`** |
+| `payload.account` | `acct_1U5MdJ8DmtuNiZTl` |
+| Prior events replayed | **no** |
+
+FIN-OPS apply once:
+
+| Object | Value |
+|--------|--------|
+| Allocation | `e63e74f7-ac11-4d9d-86f1-adc5115fab1e` `$1.19` to the new charge only |
+| Receipt | `RCPT-2026-08E9F1C1` |
+| Ledger credit | `payment:08e9f1c1-…` `$1.19` |
+| Ledger debit | `charge:37f1fb50-…` `$1.19` (posted to match the app charge-create path after SQL insert) |
+| Historical `$17.16` | still **open**, **0** allocations |
+
+Stripe `POST /v1/events/evt_3U5OIF8DmtuNiZTl0HMjtnyg/retry` set `pending_webhooks` to 1, then 0. After resend: webhook rows **1**, payments **1**, allocations **1**, receipts **1**.
+
+Property Demo isolated totals after this event:
+
+| Metric | Now |
+|--------|-----|
+| Charges | 4 / `20.70` / paid `3.54` |
+| Payments | 3 / `3.54` succeeded |
+| Ledger | 7 / `24.24` |
+| Receipts / allocations | 3 / 3 |
 
 ---
 
@@ -176,16 +215,16 @@ Do not replay `evt_3U5Ncs8DmtuNiZTl18SajRZ4` or `evt_3U5NpI8DmtuNiZTl1AjOxyKB`.
 
 | Organization | `stripe_payment_execution_enabled` |
 |--------------|-------------------------------------|
-| M.P.A. UAT Property Demo `a11ce002-0001-4000-8000-0000000000c2` | **TRUE** (UAT org only; left on for the webhook-delivery retest) |
+| M.P.A. UAT Property Demo `a11ce002-0001-4000-8000-0000000000c2` | **FALSE** |
 | M.P.A. UAT Clinic Demo | FALSE |
 | All other settings rows | FALSE |
 
-True-flag count: **1**.
+True-flag count: **0**. AutoPay active enrollments: **0**. Connect row remains `ready`.
 
 ---
 
 ## Classification
 
-**BLOCKED — STRIPE_CONNECT_WEBHOOK_SECRET NOT IN PRODUCTION**
+**READY FOR TENANT STRIPE PAYMENT ACTIVATION DECISION**
 
-Not ready for a tenant Stripe payment activation decision. Delivery UAT was not started.
+Do not globally enable tenant payments from this record. Customer organizations still require a separate Owner authorization.
