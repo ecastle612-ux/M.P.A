@@ -5,9 +5,9 @@
 **Authority:** Owner final end-to-end flow / mismatch / dead-end audit after [docs/199](../199-final-public-launch-audit-after-tenant-payments/index.md)  
 **Mode:** Audit first. Production-safe reads. Existing synthetic/demo organizations. Existing certified evidence (docs/183–200). Mocked/local tests. **No** SaaS purchase. **No** tenant payment. **No** Connect create. **No** complimentary grant. **No** execution flip. **No** M5. **No** July reopen. **No** Stripe Price or Checkout change. **No** application-behavior fix from this record.
 
-Predecessor: [docs/199](../199-final-public-launch-audit-after-tenant-payments/index.md) (launch-readiness) · [docs/200](../200-public-rent-collection-marketing/index.md) (in-repo marketing copy; not Production-deployed)
+Predecessor: [docs/199](../199-final-public-launch-audit-after-tenant-payments/index.md) (launch-readiness) · [docs/200](../200-public-rent-collection-marketing/index.md) (public marketing copy; live with docs/203)
 
-Successor: [docs/202 — Complete Scoped-Staff Handoff Remediation](../202-complete-scoped-staff-handoff-remediation/index.md) (P1-01 implemented in-repo; STOP before Production deploy).
+Successor: [docs/202 — Complete Scoped-Staff Handoff Remediation](../202-complete-scoped-staff-handoff-remediation/index.md) (P1-01 implemented). Production release: [docs/203](../203-docs-202-production-release/index.md).
 
 This is **not** a feature audit. It traces full flows for dead ends, missing next actions, entitlement mismatches, stale state, broken handoffs, and impossible recovery.
 

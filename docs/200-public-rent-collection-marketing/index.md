@@ -1,19 +1,19 @@
 # 200 — Public Rent Collection Marketing
 
-**Status:** **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION DEPLOY**  
+**Status:** **LIVE** with [docs/203](../203-docs-202-production-release/index.md) Production revision  
 **Date:** 2026-08-17  
 **Authority:** Owner public-marketing update after [docs/199](../199-final-public-launch-audit-after-tenant-payments/index.md)  
 **Mode:** Copy / presentation only. No payment, Stripe, execution, FIN-OPS, pricing-amount, SKU, M5, July, permission, tenant-authorization, or SaaS Checkout change.
 
-Successor: [docs/201 — Final End-to-End Flow / Mismatch / Dead-End Audit](../201-final-end-to-end-flow-audit/index.md).
+Successor: [docs/201 — Final End-to-End Flow / Mismatch / Dead-End Audit](../201-final-end-to-end-flow-audit/index.md). Production release of this copy: [docs/203](../203-docs-202-production-release/index.md).
 
 ---
 
 ## Verdict
 
-Certified tenant rent collection is now a first-class public Property Operations capability in-repo.
+Certified tenant rent collection is now a first-class public Property Operations capability.
 
-**Not deployed to Production** unless separately authorized.
+**Live** on Production with [docs/203](../203-docs-202-production-release/index.md) (`dpl_2s3Jv8CTEy9WrM6L3H7ZKe1gjK2B`).
 
 ---
 

@@ -5,9 +5,10 @@
 **Authority:** Owner authorization to implement the smallest docs/201 P1-01 remediations  
 **Mode:** Implementation correction of already-approved ADR-033 member operating scope. No new product design. No entitlement expansion. No permission-model change. No Stripe / Connect / execution / FIN-OPS / AutoPay / SaaS / complimentary / July / M5 change.
 
-Predecessor: [docs/201 — Final End-to-End Flow Audit](../201-final-end-to-end-flow-audit/index.md)
+Predecessor: [docs/201 — Final End-to-End Flow Audit](../201-final-end-to-end-flow-audit/index.md)  
+Successor: [docs/203 — Final Production Release of docs/202](../203-docs-202-production-release/index.md)
 
-**STOP before Production deployment.** This record does not authorize a Production deploy.
+Owner later authorized Production deploy of this remediations package. Live Production is recorded in docs/203.
 
 ---
 
@@ -224,16 +225,18 @@ docs/201 P2 list remains open and was **not** implemented:
 
 ## 17. Production deployment status
 
-**Not deployed.** In-repo only.
+**Deployed.** See [docs/203](../203-docs-202-production-release/index.md).
 
-Live Production application remains docs/197 `dpl_BjW3Qk3EKEXxP8FvmKUWaJzip6nA` / SHA `0653b428` until a separate Owner-authorized deploy.
+| Field | Value |
+|---|---|
+| SHA | `2e7b5e6d49d334d0259db644cb8ef06653b1fd68` |
+| Vercel Production ID | `dpl_2s3Jv8CTEy9WrM6L3H7ZKe1gjK2B` |
+| Aliases | `www.my-property-assistant.com`, `my-property-assistant.com` |
 
 ---
 
 ## Exact next action
 
-Owner-authorized **Production deploy of this remediations package**, if desired.
+**STOP.** Production release is recorded in docs/203.
 
-Until then: **STOP.**
-
-Do not begin another audit. Do not implement P2 work. Do not Enable Online Payments. Do not process tenant money. Do not buy a SaaS subscription. Do not create Connect. Do not send complimentary email. Do not enable M5. Do not unfreeze July.
+Do not begin another audit. Do not implement P2 work. Do not Enable Online Payments. Do not process tenant money. Do not buy a SaaS subscription. Do not create Connect. Do not send complimentary email. Do not enable M5. Do not unfreeze July. Do not activate Property Demo. Do not manufacture a first customer.
