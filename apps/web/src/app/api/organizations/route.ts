@@ -49,7 +49,9 @@ export async function GET() {
         productSku: organization.productSku,
         productLabel: organization.productLabel,
         setupComplete: organization.setupComplete,
-        operatingScope: organization.operatingScope
+        operatingScope: organization.operatingScope,
+        complimentaryAccess: organization.complimentaryAccess ?? false,
+        complimentaryExpiresAt: organization.complimentaryExpiresAt ?? null
       })),
       invitations: (invitationRows ?? []).map((row) => ({
         id: row.id,
@@ -129,6 +131,23 @@ export async function POST(request: Request) {
 
   if (membershipError) {
     return NextResponse.json({ error: membershipError.message }, { status: 400 });
+  }
+
+  const { attachComplimentaryOrganization } = await import("../../../lib/complimentary-access/service");
+  const attached = await attachComplimentaryOrganization({
+    email: user.email ?? "",
+    organizationId: organization.id,
+    organizationName: organization.name,
+    sku: productSku
+  });
+  if (attached) {
+    try {
+      const { persistComplimentaryGrant } = await import("../../../lib/complimentary-access/durable");
+      const { createServiceRoleClient } = await import("../../../lib/supabase/service-role");
+      await persistComplimentaryGrant(createServiceRoleClient(), attached);
+    } catch {
+      // Service role / table may be absent in tests.
+    }
   }
 
   const subscriptionResult = await assignOrganizationSubscription({

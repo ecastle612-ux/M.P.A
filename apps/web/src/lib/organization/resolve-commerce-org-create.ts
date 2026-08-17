@@ -83,6 +83,20 @@ export async function resolveCommerceOrgCreateContext(
         organizationId: row.organization_id as string | null
       });
     }
+
+    const { data: grants } = await admin
+      .from("complimentary_access_grants")
+      .select("product_sku, organization_id, recipient_email, status")
+      .eq("recipient_email", needle);
+    for (const row of grants ?? []) {
+      if (row.status === "revoked") {
+        continue;
+      }
+      signals.push({
+        productSku: row.product_sku as string | null,
+        organizationId: row.organization_id as string | null
+      });
+    }
   } catch {
     // Memory stores remain authoritative in tests and when service role is absent.
   }

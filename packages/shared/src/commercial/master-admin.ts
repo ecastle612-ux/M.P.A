@@ -91,6 +91,11 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         description: "Inspect and assign organization product SKUs."
       },
       {
+        href: "/admin/commercial/complimentary-access",
+        label: "Complimentary Access",
+        description: "Send tester and gift access. No card. No public free plan."
+      },
+      {
         href: "/admin/commercial/checkout",
         label: "Checkout",
         description: "SaaS checkout verification for payment troubleshooting."

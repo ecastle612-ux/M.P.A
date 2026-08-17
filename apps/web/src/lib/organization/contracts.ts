@@ -43,6 +43,8 @@ export type OrganizationSummary = {
   productLabel: string | null;
   setupComplete: boolean;
   operatingScope: MemberOperatingScope | null;
+  complimentaryAccess?: boolean;
+  complimentaryExpiresAt?: string | null;
 };
 
 export function parseCreateOrganizationInput(payload: unknown): CreateOrganizationInput | null {

@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { Alert, Button, Input, Skeleton } from "@mpa/ui";
 import {
   ACQUISITION_SKU_COOKIE,
+  COMPLIMENTARY_CONVERT_PATH,
   ORGANIZATION_ADMIN_CLARITY,
   SKU_SUMMARIES,
+  complimentaryGrantNeedsExpiryNotice,
   guidedSetupNextActionCopy,
   parseAcquisitionSku,
   productDisplayLabel,
@@ -35,6 +37,7 @@ export function GuidedSetupPage() {
   const router = useRouter();
   const { activeOrganization, organizations, refreshOrganizations } = useOrganizationContext();
   const { productSku, productLabel, setupComplete } = useCommercialContext();
+  const complimentaryAccess = Boolean(activeOrganization?.complimentaryAccess);
   const [organizationName, setOrganizationName] = useState("");
   const [billingAcknowledged, setBillingAcknowledged] = useState(false);
   const [homeSelected, setHomeSelected] = useState(false);
@@ -299,7 +302,11 @@ export function GuidedSetupPage() {
 
       <section className="max-w-3xl space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          {effectiveSku ? `You purchased ${displayLabel}` : "Confirm your purchased product"}
+          {effectiveSku
+            ? complimentaryAccess
+              ? `You have complimentary access to ${displayLabel}`
+              : `You purchased ${displayLabel}`
+            : "Confirm your product"}
         </p>
         <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)] md:text-3xl">
           Guided Setup
@@ -308,6 +315,21 @@ export function GuidedSetupPage() {
           Confirm your organization and plan, then enter {homeLabel} with one clear next step. Plan
           changes are handled with our commercial team — not from this screen.
         </p>
+        {complimentaryAccess &&
+        complimentaryGrantNeedsExpiryNotice({
+          status: "active",
+          expiresAt: activeOrganization?.complimentaryExpiresAt ?? null,
+          expiryNoticeSentAt: null,
+          convertedAt: null
+        }) ? (
+          <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm">
+            Complimentary access is ending soon.{" "}
+            <a className="font-medium underline" href={COMPLIMENTARY_CONVERT_PATH}>
+              Continue With M.P.A.
+            </a>{" "}
+            — you will not be charged automatically.
+          </p>
+        ) : null}
         {acquisitionSku ? (
           <p className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
             Selected plan:{" "}
@@ -472,7 +494,10 @@ export function GuidedSetupPage() {
                   <span className="font-medium text-[var(--mpa-color-text-primary)]">
                     {effectiveSku ? displayLabel : "Confirmed at Checkout"}
                   </span>
-                  . Your purchased product is provisioned from Checkout.
+                  .{" "}
+                  {complimentaryAccess
+                    ? "Your complimentary product is already granted. Creating a second organization is not needed after claim."
+                    : "Your purchased product is provisioned from Checkout."}
                 </p>
                 <label className="block space-y-1 text-sm">
                   <span className="font-medium text-[var(--mpa-color-text-secondary)]">
@@ -493,7 +518,7 @@ export function GuidedSetupPage() {
             ) : (
               <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
                 <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
-                  Purchased product
+                  {complimentaryAccess ? "Granted product" : "Purchased product"}
                 </h2>
                 <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
                   {displayLabel}

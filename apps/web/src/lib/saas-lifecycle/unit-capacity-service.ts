@@ -84,6 +84,13 @@ export type CapacityGateErrorBody = {
   snapshot: UnitCapacitySnapshot;
 };
 
+export type ComplimentaryLimitErrorBody = {
+  error: "complimentary_unit_limit_reached";
+  title: "Unit limit reached";
+  authorizedCapacity: number | null;
+  wouldDelete: false;
+};
+
 /**
  * Pre-check before a capacity-increasing mutation.
  * When blocked, stores a server intent and returns gate payload (HTTP 409).
@@ -97,15 +104,34 @@ export async function assertWithinUnitCapacityOrGate(input: {
 }): Promise<{ ok: true; actualUnits: number; sub: LifecycleSubscription | null } | {
   ok: false;
   status: 409;
-  body: CapacityGateErrorBody;
+  body: CapacityGateErrorBody | ComplimentaryLimitErrorBody;
 }> {
   const sub = await getLifecycleByOrganizationId(input.organizationId);
   if (!sub) {
-    // No commercial subscription linked — do not invent seat/property limits.
     const actualUnits = await countOrganizationPropertyUnits(
       input.supabase,
       input.organizationId
     );
+    const { assertComplimentaryUnitLimit } = await import("../complimentary-access/service");
+    const complimentary = await assertComplimentaryUnitLimit({
+      organizationId: input.organizationId,
+      actualUnits,
+      additionalUnits: input.additionalUnits,
+      stripeSubscriptionId: null,
+      paidStatus: null
+    });
+    if (!complimentary.allowed) {
+      return {
+        ok: false,
+        status: 409,
+        body: {
+          error: "complimentary_unit_limit_reached",
+          title: "Unit limit reached",
+          authorizedCapacity: complimentary.authorizedCapacity,
+          wouldDelete: false
+        }
+      };
+    }
     return { ok: true, actualUnits, sub: null };
   }
 
