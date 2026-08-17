@@ -80,7 +80,7 @@ export function CheckoutSuccessPage({
           </h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             {paid
-              ? "Your subscription is secured. Continue to claim your workspace — Guided Setup is next."
+              ? "Your subscription is secured. Check your email to finish setting up your M.P.A. account — the secure claim link is only in that message."
               : "Waiting for payment confirmation. If you just finished paying, this updates automatically."}
           </p>
         </header>
@@ -118,14 +118,14 @@ export function CheckoutSuccessPage({
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href={continueHref} className={marketingPrimaryCtaClass}>
-              Continue to claim workspace
+              I have opened my email
             </Link>
             <Link href="/pricing" className={marketingSecondaryCtaClass}>
               Back to pricing
             </Link>
           </div>
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
-            Next: set password with your purchase email → claim organization → Guided Setup →{" "}
+            Next: open the email we sent → set your password from that link → Guided Setup →{" "}
             {postPurchaseDestinationLabel(status?.productSku ?? null)}.
           </p>
         </div>

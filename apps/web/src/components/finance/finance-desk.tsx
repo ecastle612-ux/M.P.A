@@ -193,29 +193,28 @@ export function FinanceDesk() {
       {notice ? <Alert variant="success">{notice}</Alert> : null}
 
       <section
-        id="collect"
-        aria-labelledby="collect-first-rent-title"
+        id="record"
+        aria-labelledby="record-payment-title"
         className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
       >
         <h2
-          id="collect-first-rent-title"
+          id="record-payment-title"
           className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]"
         >
-          {firstCollectMode ? "Collect your first rent" : "Collect rent"}
+          {firstCollectMode ? "Record your first payment" : "Record payment"}
         </h2>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          One payment workflow: review upcoming charges, send a payment reminder, then collect online
-          (resident Stripe checkout) or record a manual payment. Receipts, ledger, property money, and
-          owner summary update automatically.
+          One payment workflow: review open balances, send a payment reminder, then record a manual
+          payment. Receipts, ledger, property money, and owner summary update automatically.
         </p>
         {firstCollectMode ? (
           <ol className="list-decimal space-y-1 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
             <li>Confirm the lease has an open rent charge below.</li>
-            <li>Send a payment reminder so the resident opens Billing.</li>
-            <li>Resident pays online, or you record a manual payment + receipt.</li>
+            <li>Send a payment reminder so the resident can open Billing.</li>
+            <li>Record a manual payment and receipt when funds are received.</li>
           </ol>
         ) : (
-          <p className="text-sm font-medium text-emerald-800">My first rent has been collected.</p>
+          <p className="text-sm font-medium text-emerald-800">First payment recorded.</p>
         )}
         <div className="flex flex-wrap gap-2">
           <Button
@@ -293,14 +292,14 @@ export function FinanceDesk() {
         </p>
         <p className="mt-1 text-sm text-[var(--mpa-color-text-primary)]">
           {firstCollectMode
-            ? "Collect your first rent. Review open charges, send a reminder, then take online payment or record a manual payment."
+            ? "Record your first payment. Review open charges, send a reminder if needed, then record a manual payment."
             : (snapshot?.vendorInvoicesAwaitingApproval?.length ?? 0) > 0
               ? `Review ${snapshot?.vendorInvoicesAwaitingApproval?.length} vendor invoice(s) awaiting approval, then schedule payment.`
               : (snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length ?? 0) > 0
-                ? `Focus collections on ${snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length} overdue resident(s). Assess late fees after grace, send a reminder, or record a payment arrangement.`
+                ? `Focus on ${snapshot?.residentsOverdue?.length ?? snapshot?.delinquentResidents.length} overdue resident(s). Open balances and record a payment when funds are received.`
                 : (snapshot?.outstandingBalance ?? 0) > 0
-                  ? "Balances are open but not delinquent yet. Confirm residents can reach Billing → Pay now, or record a manual payment."
-                  : "My first rent has been collected. Review your maintenance queue next."}
+                  ? "Balances are open but not delinquent yet. Open balances and record a manual payment when funds are received."
+                  : "First payment recorded. Review your maintenance queue next."}
         </p>
       </section>
 

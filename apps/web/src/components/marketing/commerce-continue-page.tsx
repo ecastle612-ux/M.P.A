@@ -231,8 +231,11 @@ export function CommerceContinuePage({
     );
   }
 
+  const hasBindToken = Boolean(bindToken && bindToken.length > 0);
   const nextActionLabel = !isAuthenticated
-    ? "Create your password with the same email used at purchase"
+    ? hasBindToken
+      ? "Create your password with the same email used at purchase"
+      : "Check your email to finish setting up your M.P.A. account"
     : awaitingClaim
       ? "Claim your workspace to continue Guided Setup"
       : status?.ready || status?.canAccessModules
@@ -358,14 +361,18 @@ export function CommerceContinuePage({
 
         <div className="flex flex-wrap gap-3">
           {!isAuthenticated ? (
-            <Link
-              href={`/login?mode=sign_up&saas_checkout_session=${encodeURIComponent(sessionId)}${
-                bindToken ? `&bind_token=${encodeURIComponent(bindToken)}` : ""
-              }`}
-              className={marketingPrimaryCtaClass}
-            >
-              Set password & claim workspace
-            </Link>
+            hasBindToken ? (
+              <Link
+                href={`/login?mode=sign_up&saas_checkout_session=${encodeURIComponent(sessionId)}&bind_token=${encodeURIComponent(bindToken!)}`}
+                className={marketingPrimaryCtaClass}
+              >
+                Set password & claim workspace
+              </Link>
+            ) : (
+              <Link href="/login" className={marketingSecondaryCtaClass}>
+                Sign in
+              </Link>
+            )
           ) : awaitingClaim ? (
             <button
               type="button"
@@ -393,7 +400,9 @@ export function CommerceContinuePage({
           <p className="text-xs text-[var(--mpa-color-text-muted)]">Signed in as {userEmail}</p>
         ) : (
           <p className="text-xs text-[var(--mpa-color-text-muted)]">
-            Use the same email address you used at checkout.
+            {hasBindToken
+              ? "Use the same email address you used at checkout."
+              : "Check your email to finish setting up your M.P.A. account. Sign in only if you already set a password."}
           </p>
         )}
       </main>

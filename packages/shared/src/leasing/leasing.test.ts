@@ -47,8 +47,8 @@ describe("LAUNCH-001 J4 leasing domain", () => {
       rentReady: false
     });
     expect(after.id).toBe("collect_first_rent");
-    expect(after.href).toBe("/pm/financial-operations#collect");
-    expect(after.assistantRecommendation).toBe("Collect your first rent.");
-    expect(buildLeaseReadyAssistantCopy("Ada Lovelace")).toContain("Collect your first rent");
+    expect(after.href).toBe("/pm/financial-operations#record");
+    expect(after.assistantRecommendation).toBe("Record your first payment.");
+    expect(buildLeaseReadyAssistantCopy("Ada Lovelace")).toContain("Record your first payment");
   });
 });

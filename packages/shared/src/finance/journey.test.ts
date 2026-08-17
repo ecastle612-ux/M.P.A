@@ -15,8 +15,8 @@ describe("LAUNCH-001 J5 rent collection journey", () => {
       rentReady: false
     });
     expect(before.id).toBe("collect_first_rent");
-    expect(before.href).toBe("/pm/financial-operations#collect");
-    expect(before.assistantRecommendation).toBe("Collect your first rent.");
+    expect(before.href).toBe("/pm/financial-operations#record");
+    expect(before.assistantRecommendation).toBe("Record your first payment.");
 
     const after = buildMissionControlNextAction({
       setupComplete: true,
@@ -30,6 +30,6 @@ describe("LAUNCH-001 J5 rent collection journey", () => {
     expect(after.id).toBe("review_maintenance_queue");
     expect(after.href).toBe("/pm/maintenance");
     expect(after.assistantRecommendation).toBe("Review your maintenance queue.");
-    expect(buildRentReadyAssistantCopy()).toContain("My first rent has been collected");
+    expect(buildRentReadyAssistantCopy()).toContain("First payment recorded");
   });
 });

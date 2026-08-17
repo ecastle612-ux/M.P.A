@@ -7,7 +7,8 @@ import {
   resolveMemberOperatingScope,
   storedScopeForNewMembership,
   validateInviteOperatingScope,
-  wouldLeaveCompleteWithoutBothAdmin
+  wouldLeaveCompleteWithoutBothAdmin,
+  wouldLeaveOrganizationWithoutActiveAdmin
 } from "./operating-scope";
 
 describe("member operating scope", () => {
@@ -166,6 +167,36 @@ describe("member operating scope", () => {
         nextRoles: ["property_manager"]
       })
     ).toBe(true);
+  });
+
+  it("refuses deactivation that would leave zero active Organization Admins", () => {
+    expect(
+      wouldLeaveOrganizationWithoutActiveAdmin({
+        members: [{ id: "a1", roles: ["organization_admin"], status: "active" }],
+        targetMembershipId: "a1",
+        nextStatus: "inactive"
+      })
+    ).toBe(true);
+    expect(
+      wouldLeaveOrganizationWithoutActiveAdmin({
+        members: [
+          { id: "a1", roles: ["organization_admin"], status: "active" },
+          { id: "a2", roles: ["organization_admin"], status: "active" }
+        ],
+        targetMembershipId: "a1",
+        nextStatus: "inactive"
+      })
+    ).toBe(false);
+    expect(
+      wouldLeaveOrganizationWithoutActiveAdmin({
+        members: [
+          { id: "a1", roles: ["property_manager"], status: "active" },
+          { id: "a2", roles: ["organization_admin"], status: "active" }
+        ],
+        targetMembershipId: "a1",
+        nextStatus: "inactive"
+      })
+    ).toBe(false);
   });
 
   it("allows role demotion when another BOTH admin remains", () => {

@@ -4,7 +4,8 @@ import {
   isProductSku,
   roleAllowsOperatingScope,
   validateInviteOperatingScope,
-  wouldLeaveCompleteWithoutBothAdmin
+  wouldLeaveCompleteWithoutBothAdmin,
+  wouldLeaveOrganizationWithoutActiveAdmin
 } from "@mpa/shared";
 import { parseUpdateOrganizationMembershipInput } from "../../../../../lib/organization/contracts";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
@@ -57,7 +58,10 @@ export async function GET(_request: Request, context: { params: Promise<{ organi
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  return NextResponse.json({ memberships: data ?? [] });
+  return NextResponse.json({
+    memberships: data ?? [],
+    canUpdateMemberships: authz.canUpdateMemberships
+  });
 }
 
 export async function PATCH(request: Request, context: { params: Promise<{ organizationId: string }> }) {
@@ -147,6 +151,23 @@ export async function PATCH(request: Request, context: { params: Promise<{ organ
   ) {
     return NextResponse.json(
       { error: "Complete must keep at least one Organization Admin with Both operational responsibility." },
+      { status: 400 }
+    );
+  }
+
+  if (
+    wouldLeaveOrganizationWithoutActiveAdmin({
+      members: (adminRows ?? []).map((row) => ({
+        id: row.id as string,
+        roles: (row.roles as string[]) ?? [],
+        status: row.status as string
+      })),
+      targetMembershipId: parsed.membershipId,
+      nextStatus
+    })
+  ) {
+    return NextResponse.json(
+      { error: "An organization must keep at least one active Organization Admin." },
       { status: 400 }
     );
   }

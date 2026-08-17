@@ -58,7 +58,7 @@ export function J4CertificationPanel() {
     report.checks["occupancyUpdated"] &&
     report.checks["timelineEvent"] &&
     report.checks["auditEvent"] &&
-    report.assistantRecommendation === "Collect your first rent.";
+    report.assistantRecommendation === "Record your first payment.";
 
   return (
     <section className="max-w-3xl space-y-4 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
@@ -69,7 +69,7 @@ export function J4CertificationPanel() {
         <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
           Verify lease create, SignWell (or offline honesty), resident/portal activation, tenant
           membership provisioning, recurring rent, occupancy, timeline, audit, and Mission Control →
-          Collect your first rent.
+          Record your first payment.
         </p>
       </div>
       <div className="flex flex-wrap items-end gap-2">

@@ -151,10 +151,10 @@ export function buildMissionControlNextAction(input: {
   if (!input.rentReady) {
     return {
       id: "collect_first_rent",
-      title: "Collect your first rent",
-      detail: "My resident is fully onboarded. Collect the first rent to continue operations.",
-      href: "/pm/financial-operations#collect",
-      assistantRecommendation: "Collect your first rent."
+      title: "Record your first payment",
+      detail: "My resident is fully onboarded. Record the first payment to continue operations.",
+      href: "/pm/financial-operations#record",
+      assistantRecommendation: "Record your first payment."
     };
   }
 
@@ -163,7 +163,7 @@ export function buildMissionControlNextAction(input: {
       id: "review_maintenance_queue",
       title: "Review your maintenance queue",
       detail:
-        "My first rent has been collected. Open Maintenance to triage resident requests — residents submit from their portal.",
+        "First payment recorded. Open Maintenance to triage resident requests — residents submit from their portal.",
       href: "/pm/maintenance",
       assistantRecommendation: "Review your maintenance queue."
     };
@@ -212,11 +212,11 @@ export function buildResidentReadyAssistantCopy(residentName: string): string {
 }
 
 export function buildLeaseReadyAssistantCopy(residentName: string): string {
-  return `${residentName} is fully onboarded. Collect your first rent.`;
+  return `${residentName} is fully onboarded. Record your first payment.`;
 }
 
 export function buildRentReadyAssistantCopy(): string {
-  return "My first rent has been collected. Review your maintenance queue.";
+  return "First payment recorded. Review your maintenance queue.";
 }
 
 export function buildMaintenanceReadyAssistantCopy(): string {

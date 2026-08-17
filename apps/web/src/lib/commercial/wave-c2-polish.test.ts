@@ -42,7 +42,7 @@ describe("Wave C2 accessibility + trust polish", () => {
     const cancel = read("components/marketing/checkout-cancel-page.tsx");
     expect(cancel).not.toMatch(/Stripe Checkout/);
     expect(cancel).not.toMatch(/idempotency/i);
-    expect(cancel).toMatch(/Duplicate\s+subscriptions are prevented automatically/);
+    expect(cancel).not.toMatch(/Duplicate\s+subscriptions are prevented automatically/);
     expect(read("components/marketing/checkout-success-page.tsx")).toMatch(
       /Waiting for payment confirmation/
     );
