@@ -147,7 +147,9 @@ export const createRecurringScheduleInputSchema = z.object({
   amount: z.number().positive(),
   currency: z.string().length(3).default("USD"),
   dayOfMonth: z.number().int().min(1).max(28).default(1),
-  generateCurrentPeriod: z.boolean().default(true)
+  generateCurrentPeriod: z.boolean().default(true),
+  feeCategory: z.enum(["rent", "parking", "pet", "utilities", "other"]).optional(),
+  autopayEligible: z.boolean().optional()
 });
 
 export const createOneTimeChargeInputSchema = z.object({
@@ -157,7 +159,8 @@ export const createOneTimeChargeInputSchema = z.object({
   currency: z.string().length(3).default("USD"),
   dueAt: z.string().date(),
   memo: z.string().trim().max(500).optional(),
-  chargeType: z.enum(["one_time", "adjustment", "credit"]).default("one_time")
+  chargeType: z.enum(["one_time", "adjustment", "credit", "late_fee"]).default("one_time"),
+  feeCategory: z.enum(["parking", "pet", "utilities", "deposit", "damage", "late_fee", "other"]).optional()
 });
 
 export const adjustChargeInputSchema = z.object({
@@ -179,6 +182,7 @@ export const recordManualPaymentInputSchema = z.object({
 export const createCheckoutInputSchema = z.object({
   leaseId: z.string().uuid(),
   chargeIds: z.array(z.string().uuid()).min(1).optional(),
+  amount: z.number().positive().optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional()
 });

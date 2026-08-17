@@ -129,7 +129,13 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 185 | [Complimentary Tester / Gift Access](./185-complimentary-tester-gift-access/index.md) | **Approved** · implemented · Production applied in 187 |
 | 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** · executed in 187 |
 | 187 | [Complimentary Access Production Release Certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** · stamp `20260817064006` · SHA `f922da26` |
-| 194 | [Customer Tenant-Payment Activation](./194-customer-tenant-payment-activation/index.md) | **Proposed** · awaiting Owner approval · do not implement · depends on docs/188–193 (not yet on `main`) |
+| 188 | [Tenant Stripe Rent Collection + Admin-Controlled Fees](./188-tenant-stripe-rent-collection/index.md) | **Approved** · Owner A–E · implemented in-repo · see 189 |
+| 189 | [Tenant Stripe Rent Collection Implementation Certification](./189-tenant-stripe-rent-collection-implementation-certification/index.md) | **IMPLEMENTED IN-REPO** · execution stays off |
+| 190 | [Tenant Stripe Rent Collection Production UAT Readiness](./190-tenant-stripe-rent-collection-uat-readiness/index.md) | Pre-foundation block · superseded by 191 |
+| 191 | [Tenant Stripe Rent Collection Production Foundation Release](./191-tenant-stripe-rent-collection-foundation-release/index.md) | Foundation released · execution OFF |
+| 192 | [Stripe Connect UAT — Property Demo](./192-tenant-stripe-connect-uat-property-demo/index.md) | Connect READY · execution OFF |
+| 193 | [Controlled Tenant Payment UAT](./193-tenant-stripe-payment-uat-property-demo/index.md) | **PASS** · Owner accepted · execution OFF |
+| 194 | [Customer Tenant-Payment Activation](./194-customer-tenant-payment-activation/index.md) | **Approved** · Owner authorized S0–S6 · implement in-repo only · no Production deploy · no execution-flag change |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

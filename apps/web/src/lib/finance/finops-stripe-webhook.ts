@@ -58,6 +58,18 @@ export function resolveCheckoutSessionCompleted(input: {
   return { action: "apply", paymentId: payment.id, amount: sessionAmount };
 }
 
+export function resolvePaymentIntentSucceeded(input: {
+  payment: FinOpsPendingPayment | null;
+  organizationId: string;
+  leaseId: string;
+  amountTotalCents: number | null;
+}): CheckoutSessionCompletedResolution {
+  return resolveCheckoutSessionCompleted({
+    ...input,
+    checkoutSessionId: input.payment?.stripe_checkout_session_id ?? "pi"
+  });
+}
+
 export function resolveCheckoutFailure(input: {
   paymentId: string | null | undefined;
   organizationId: string | null | undefined;

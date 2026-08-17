@@ -61,6 +61,15 @@ type ResidentAccount = {
   }>;
   receipts: Array<{ receipt_number: string; amount: number; issued_at: string }>;
   recentTransactions: Array<{ id: string; description: string; amount: number; direction: string; occurred_at: string }>;
+  connectReady?: boolean;
+  autopay?: {
+    on?: boolean;
+    status?: string;
+    paymentMethod?: string | null;
+    covers?: string;
+    nextDue?: string | null;
+    nextAmount?: number | null;
+  };
 };
 
 export function ResidentBillingPortal() {
@@ -70,35 +79,67 @@ export function ResidentBillingPortal() {
   const [onlinePaymentsEnabled, setOnlinePaymentsEnabled] = useState(false);
   const [accounts, setAccounts] = useState<ResidentAccount[]>([]);
   const [payingLeaseId, setPayingLeaseId] = useState<string | null>(null);
-  const [paymentNotice] = useState<string | null>(() => {
+  const [autopayBusy, setAutopayBusy] = useState<string | null>(null);
+  const [consentByLease, setConsentByLease] = useState<Record<string, boolean>>({});
+  const [paymentNotice, setPaymentNotice] = useState<string | null>(() => {
     if (typeof window === "undefined") {
       return null;
     }
-    const payment = new URLSearchParams(window.location.search).get("payment");
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get("payment");
     if (payment === "success") {
       return "Payment received. Your balance and receipt update automatically.";
     }
     if (payment === "cancelled") {
       return "Checkout cancelled. No payment was taken.";
     }
+    if (params.get("autopay") === "cancelled") {
+      return "AutoPay setup cancelled. No payment method was saved and AutoPay stays off.";
+    }
     return null;
   });
+
+  async function reloadBilling() {
+    const response = await fetch("/api/finance/resident/billing");
+    const body = await response.json();
+    if (!response.ok) {
+      throw new Error(body.error ?? "Failed to load billing");
+    }
+    setLinked(Boolean(body.linked));
+    setOnlinePaymentsEnabled(Boolean(body.onlinePaymentsEnabled));
+    setAccounts(body.accounts ?? []);
+  }
 
   useEffect(() => {
     void (async () => {
       try {
-        const response = await fetch("/api/finance/resident/billing");
-        const body = await response.json();
-        if (!response.ok) {
-          throw new Error(body.error ?? "Failed to load billing");
+        await reloadBilling();
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("autopay") === "return" && params.get("session_id") && params.get("leaseId")) {
+          setAutopayBusy(params.get("leaseId"));
+          const confirmResponse = await fetch("/api/finance/resident/autopay", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "confirm",
+              leaseId: params.get("leaseId"),
+              checkoutSessionId: params.get("session_id"),
+              consentText:
+                "I authorize M.P.A. to automatically charge the payment method I save for posted recurring rent and AutoPay-eligible recurring fees. I can turn AutoPay off at any time."
+            })
+          });
+          const confirmBody = await confirmResponse.json();
+          if (!confirmResponse.ok) {
+            throw new Error(confirmBody.error ?? "AutoPay confirmation failed");
+          }
+          setPaymentNotice("AutoPay is on. You can turn it off at any time. Posted balances stay in place.");
+          await reloadBilling();
         }
-        setLinked(Boolean(body.linked));
-        setOnlinePaymentsEnabled(Boolean(body.onlinePaymentsEnabled));
-        setAccounts(body.accounts ?? []);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load billing");
       } finally {
         setLoading(false);
+        setAutopayBusy(null);
       }
     })();
   }, []);
@@ -193,14 +234,112 @@ export function ResidentBillingPortal() {
                     }
                     className="min-h-12 w-full sm:w-auto"
                   >
-                    {payingLeaseId === account.resident.lease_id ? "Starting checkout…" : "Pay now"}
+                    {payingLeaseId === account.resident.lease_id ? "Starting checkout…" : "Pay once"}
                   </Button>
                 </div>
               ) : (
                 <p className="mt-4 text-sm text-[var(--mpa-color-text-secondary)]">
-                  Your manager can record a payment. Online payment is not available here.
+                  Your manager can record a payment. Online payment is not available here
+                  {account.connectReady === false
+                    ? " until the property finishes Stripe Connect and enables online payments."
+                    : "."}
                 </p>
               )}
+            </div>
+
+            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] px-4 py-3">
+              <h3 className="text-sm font-semibold">AutoPay</h3>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                {account.autopay?.on ? "AutoPay is on." : "AutoPay is off."}{" "}
+                {account.autopay?.covers ??
+                  "AutoPay covers posted recurring rent and recurring fees marked AutoPay-eligible."}
+              </p>
+              {account.autopay?.paymentMethod ? (
+                <p className="mt-1 text-sm">Payment method: {account.autopay.paymentMethod}</p>
+              ) : null}
+              {account.autopay?.nextDue ? (
+                <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                  Next expected charge date: {account.autopay.nextDue}
+                  {account.autopay.nextAmount != null
+                    ? ` · ${formatMoney(account.autopay.nextAmount)} posted or scheduled`
+                    : ""}
+                </p>
+              ) : (
+                <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                  Next expected charge date appears after a recurring charge is posted.
+                </p>
+              )}
+              {account.canPay !== false &&
+              (account.onlinePaymentsEnabled ?? onlinePaymentsEnabled) ? (
+                <div className="mt-3 space-y-2">
+                  {account.autopay?.on ? null : (
+                    <label className="flex items-start gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={consentByLease[account.resident.lease_id] === true}
+                        onChange={(event) =>
+                          setConsentByLease((current) => ({
+                            ...current,
+                            [account.resident.lease_id]: event.target.checked
+                          }))
+                        }
+                      />
+                      <span>
+                        I authorize AutoPay for posted recurring rent and AutoPay-eligible recurring
+                        fees. My property manager cannot turn AutoPay on for me. One-time charges
+                        such as deposits and damage are not included.
+                      </span>
+                    </label>
+                  )}
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={
+                      autopayBusy === account.resident.lease_id ||
+                      (!account.autopay?.on && consentByLease[account.resident.lease_id] !== true)
+                    }
+                    onClick={() =>
+                      void (async () => {
+                        setAutopayBusy(account.resident.lease_id);
+                        setError(null);
+                        try {
+                          const response = await fetch("/api/finance/resident/autopay", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              action: account.autopay?.on ? "revoke" : "start",
+                              leaseId: account.resident.lease_id,
+                              consentText:
+                                "I authorize M.P.A. to automatically charge the payment method I save for posted recurring rent and AutoPay-eligible recurring fees. I can turn AutoPay off at any time."
+                            })
+                          });
+                          const body = await response.json();
+                          if (!response.ok) {
+                            throw new Error(body.error ?? "AutoPay update failed");
+                          }
+                          if (body.checkoutUrl) {
+                            globalThis.location.assign(body.checkoutUrl as string);
+                            return;
+                          }
+                          setPaymentNotice(
+                            account.autopay?.on
+                              ? "AutoPay is off. Posted balances and charges stay in place."
+                              : "AutoPay updated."
+                          );
+                          await reloadBilling();
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message : "AutoPay update failed");
+                        } finally {
+                          setAutopayBusy(null);
+                        }
+                      })()
+                    }
+                  >
+                    {account.autopay?.on ? "Turn AutoPay off" : "Authorize AutoPay"}
+                  </Button>
+                </div>
+              ) : null}
             </div>
 
             {(account.lateFees?.length ?? 0) > 0 ? (

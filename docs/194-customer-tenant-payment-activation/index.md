@@ -1,13 +1,15 @@
 # 194 — Customer Tenant-Payment Activation
 
-**Status:** Proposed — awaiting Owner approval  
+**Status:** **Approved** — Owner accepted 2026-08-17. S0–S6 authorized in-repo only.  
 **Date:** 2026-08-17  
-**Type:** Design record (Design → Document → Owner Approval)  
-**Prerequisite:** [docs/193](../193-tenant-stripe-payment-uat-property-demo/index.md) accepted as **PASS** (lives on `cursor/tenant-stripe-rent-collection-021b`; not yet on `main`)  
+**Type:** Design record (Design → Document → Approve → Implement)  
+**Prerequisite:** [docs/193](../193-tenant-stripe-payment-uat-property-demo/index.md) accepted as **PASS**  
 **Approved product:** [docs/188](../188-tenant-stripe-rent-collection/index.md)  
-**Implementation:** **FORBIDDEN** until the Owner accepts this record
+**Implementation:** Authorized for S0–S6. **STOP before Production deploy or any execution-flag change.**
 
 This record designs the smallest safe subscriber workflow for activating Stripe tenant payments on eligible Property Manager and Complete organizations. It is a normal product path. Master Admin and developers must not configure Connect or execution for every customer.
+
+Owner accepted this record on 2026-08-17 and authorized S0–S6 in-repo. Strategy A is binding. Do not deploy or flip any execution flag from this package.
 
 ---
 
@@ -586,14 +588,14 @@ No complimentary / gift / UAT org is activated by this plan.
 
 **Yes.**
 
-This record is **Proposed**. It is the Design → Document step.
+This record is **Approved**. Owner accepted S0–S6 on 2026-08-17.
 
 | Gate | Status |
 |---|---|
 | Design | This document |
 | Document | This document |
-| Owner approval | **Required next** |
-| Implement | Blocked until the Owner accepts this record |
+| Owner approval | **Accepted 2026-08-17** |
+| Implement | Authorized for S0–S6 in-repo only. No Production deploy. No execution-flag change. |
 
 Material changes after approval (re-consent-on-every-re-enable, Master Admin Connect gate, ACH, M5, global enable, using platform Checkout) restart Design → Document → Approve.
 
@@ -614,6 +616,4 @@ Please accept or reject the following as a package:
 5. `account.updated` does not clear the flag; money paths fail closed when Connect is not ready; org lookup falls back to `stripe_account_id`.
 6. Public copy updates in the same release, using the recommended production line in §11.
 7. No global enable. Property Demo execution stays false.
-8. Do not implement from this prompt.
-
-**STOP.**
+8. Implement S0–S6 in-repo only. STOP before Production deploy or any execution-flag change.

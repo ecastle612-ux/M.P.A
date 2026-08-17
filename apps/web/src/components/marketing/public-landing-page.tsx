@@ -742,7 +742,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             },
             {
               q: "What does operational finance include?",
-              a: "Charges, balances, payment history, vendor invoices, and owner summaries — with control over who can access financial operations. It does not include automated late fees, automated collections, or live tenant card checkout in this workspace."
+              a: "Charges, balances, payment history, vendor invoices, and owner summaries — with control over who can access financial operations. Tenants can pay posted charges online (Pay Once) or authorize AutoPay for eligible recurring rent and fees after the property completes Stripe Connect and online payments are enabled. You set rent and fee amounts. Late fees can be configured and posted by you. It does not include automated late fees, automated collections, or tenant payments before Stripe Connect and online payments are enabled."
             },
             {
               q: "Does every action send email?",

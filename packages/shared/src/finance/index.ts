@@ -7,5 +7,6 @@ export * from "./search";
 export * from "./feature-flags";
 export * from "./integrations";
 export * from "./billing";
+export * from "./tenant-payments";
 export * from "./collections";
 export * from "./reporting";
