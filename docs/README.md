@@ -123,6 +123,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 175 | [Tenant Lifecycle Production Migration Application Certification](./175-tenant-lifecycle-production-migration-application-certification/index.md) | **READY FOR TENANT LIFECYCLE APPLICATION DEPLOYMENT** · schema live under `20260816094933` · no app deploy |
 | 176 | [Notification Delivery Audit + Fix](./176-notification-delivery-audit-fix/index.md) | **Implemented** · Resend from-address bug fix · no schema change |
 | 177 | [UI / Email Visual Polish](./177-ui-email-visual-polish/index.md) | **Implemented** · Canopy + branded Resend shell · no money/authz/schema change |
+| 180 | [Final Pre-Marketing Readiness (P1-08 / P1-09 / P1-10)](./180-final-pre-marketing-readiness/index.md) | **Design / audit** · awaiting Owner approval · no implement |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
