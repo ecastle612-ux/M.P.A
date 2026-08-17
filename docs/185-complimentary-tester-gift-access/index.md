@@ -146,7 +146,7 @@ Welcome states: complimentary access, granted product, expiration if any, **no p
 
 Tester welcome asks them to **reply to the email** with errors, bugs, confusion, unexpected results, or suggestions — what they were doing, what happened, what they expected, screenshot when useful.
 
-**Reply-To** is Owner-approved: `enterprise@my-property-assistant.com`. Gift omits tester-feedback language unless Owner enables it.
+**Reply-To** is Owner-verified: `feedback@my-property-assistant.com` (forwards to Owner Gmail). Gift uses the same Reply-To and omits tester-feedback language unless Owner enables it.
 
 Expiry mail: complimentary period ending + Continue With M.P.A. (Checkout). No charge in that email.
 
@@ -187,7 +187,7 @@ Approve only if you accept all of these:
 4. Paid active subscription **always** precedes complimentary.  
 5. Expiry retains data; conversion reuses the same org.  
 6. Only Master Admin / platform operators grant or revoke.  
-7. Reply-To inbox is confirmed (or the proposed `enterprise@my-property-assistant.com` is accepted).  
+7. Reply-To inbox is confirmed: `feedback@my-property-assistant.com` → Owner Gmail (Owner-verified inbound).  
 8. Implement stays in-repo until a later Production authorize.
 
 ---

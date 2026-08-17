@@ -1,22 +1,29 @@
 # 186 — Complimentary Tester / Gift Access Implementation Certification
 
-**Status:** Implemented / certified in-repo. **BLOCKED — FEEDBACK EMAIL ROUTING REQUIRES OWNER ACTION.** Not deployed. Migration not applied.  
+**Status:** **READY FOR COMPLIMENTARY ACCESS PRODUCTION RELEASE.** Implemented / certified in-repo. Not deployed. Migration not applied.  
 **Date:** 2026-08-17  
-**Authority:** Owner approval of [docs/185](../185-complimentary-tester-gift-access/index.md)  
+**Authority:** Owner approval of [docs/185](../185-complimentary-tester-gift-access/index.md); Owner-verified `feedback@` inbound  
 **Branch SHA (implement):** `c6da35b27843ae71f8f9b15b4f93105668f297ae`  
-**Production:** **blocked** — inbound `feedback@` is not live; do not deploy; do not apply the docs/185 migration
+**Production:** ready — stop before apply/deploy until Owner authorizes the combined gate below
 
 ---
 
 ## Verdict
 
-**BLOCKED — FEEDBACK EMAIL ROUTING REQUIRES OWNER ACTION.**
+**READY FOR COMPLIMENTARY ACCESS PRODUCTION RELEASE.**
 
-The complimentary package remains implemented in-repo. Tester welcome Reply-To is still `enterprise@my-property-assistant.com`. It was **not** changed to `feedback@my-property-assistant.com` because inbound delivery to `ecastle612@gmail.com` is **not verified**.
+The complimentary package is implemented in-repo. Owner verified inbound routing:
 
-`feedback@my-property-assistant.com` is **not** a working mailbox today. Do not treat it as live.
+`feedback@my-property-assistant.com` → `ecastle612@gmail.com` (real inbound test received).
 
-M.P.A. automates everything after Master Admin **Send Access**. Complimentary access is a server-owned grant, not a Stripe subscription, not a $0 Checkout, and not a public free plan.
+Complimentary TESTER and GIFT welcome mail now uses:
+
+- **From:** `My Property Assistant <noreply@my-property-assistant.com>` (existing Resend sender; unchanged)
+- **Reply-To:** `feedback@my-property-assistant.com`
+
+Tester welcome still asks recipients to reply with bugs/errors, confusing behavior, suggestions, and screenshots when useful. Gift omits that tester-feedback paragraph and still uses the same Reply-To.
+
+Public legal / Enterprise contact remains `enterprise@my-property-assistant.com`. That is not the tester reply path.
 
 **Do not claim paid PM / FO / Complete live subscriptions were completed.** They were not. The docs/183–184 payment-execution waiver still stands.
 
@@ -27,7 +34,7 @@ M.P.A. automates everything after Master Admin **Send Access**. Complimentary ac
 | Decision | Implementation |
 |----------|----------------|
 | Approve Complimentary Tester / Gift Access | This package |
-| Tester feedback Reply-To | Still `enterprise@my-property-assistant.com` until `feedback@` inbound is verified |
+| Tester / Gift Reply-To | `feedback@my-property-assistant.com` (Owner-verified forward to Gmail) |
 | TESTER and GIFT are Master Admin / platform-operator only | Admin routes + RLS write policies |
 | No public free plan | No public signup route; claim is token-gated |
 | No card for complimentary access | Grant + claim never create Stripe objects |
@@ -56,7 +63,7 @@ After Send Access, M.P.A. creates the grant, emails the branded claim link, prov
 |-------|--------|
 | Server-owned grant + audit | `complimentary_access_grants`, `complimentary_access_events` (`20260817180000_docs_185_complimentary_access.sql`) |
 | Secure / idempotent claim | `/complimentary/claim` + `POST /api/complimentary/claim` (hashed token, email lock, SKU lock, existing-user reuse) |
-| Branded welcome email | Resend foundation shell + Reply-To still `enterprise@my-property-assistant.com` (feedback@ blocked) |
+| Branded welcome email | Resend foundation shell; From `noreply@`; Reply-To `feedback@my-property-assistant.com` |
 | Guided Setup / provisioning | Claim creates one org + SKU (no Stripe IDs); Guided Setup keeps granted SKU |
 | Lifecycle | INVITED → ACTIVE → EXPIRED / REVOKED; Convert Tester → Gift; Extend; Change Limit; Remove Expiration |
 | Master Admin directory | `/admin/commercial/complimentary-access` |
@@ -88,6 +95,8 @@ After Send Access, M.P.A. creates the grant, emails the branded claim link, prov
 
 Vitest on this branch: `@mpa/shared` complimentary + commercial + entitlements **37 + 27 passed**; `@mpa/web` complimentary service/routes/org/provisioning **18 + provisioning suite passed**. No Production apply.
 
+Focused Reply-To / complimentary-access re-run after Owner-verified `feedback@` routing: `@mpa/shared` `complimentary-access.test.ts` + `resend.test.ts` **18 passed**; `@mpa/web` complimentary emails / service / commercial-freeze **12 passed**. From remains `My Property Assistant <noreply@my-property-assistant.com>`. Reply-To is `feedback@my-property-assistant.com` for TESTER and GIFT.
+
 | Check | Result |
 |-------|--------|
 | Operator-only grant/change/revoke | **PASS** (admin route 403 for non-operators) |
@@ -100,12 +109,24 @@ Vitest on this branch: `@mpa/shared` complimentary + commercial + entitlements *
 | Conversion does not duplicate org | **PASS** |
 | Expiry does not delete data | **PASS** (`deletedOrganizations: []`) |
 | Limit blocks create, does not delete | **PASS** (`wouldDelete: false`) |
-| Welcome/expiry copy contracts | **PASS** (Reply-To + screenshot ask + no auto-charge) |
+| Welcome/expiry copy contracts | **PASS** (Reply-To `feedback@` + screenshot ask + no auto-charge) |
 | No Stripe Price / July / tenant-execution / M5 mutation | **PASS** |
 
 ---
 
-## Feedback email routing inspection (2026-08-17)
+## Feedback email routing (Owner-verified 2026-08-17)
+
+Owner configured and verified inbound:
+
+`feedback@my-property-assistant.com` → `ecastle612@gmail.com`
+
+A real inbound test was received successfully. App Reply-To for complimentary TESTER and GIFT welcome mail is now `feedback@my-property-assistant.com`. From remains `My Property Assistant <noreply@my-property-assistant.com>`.
+
+Earlier inspect (same day, before Owner action): Resend sending verified / receiving disabled; apex had no MX; Cloudflare Email Routing was the correct inbound host. That blocker is **cleared by Owner verification**. Do not enable Resend receiving on the apex. Do not edit `resend._domainkey` or `send.*` SES records.
+
+---
+
+## Feedback email routing inspection (2026-08-17, superseded)
 
 Owner required From `My Property Assistant <noreply@my-property-assistant.com>` and Reply-To / inbound `feedback@my-property-assistant.com` → `ecastle612@gmail.com` before Production release.
 
@@ -126,8 +147,8 @@ Resend does **not** handle inbound for this domain. Enabling Resend receiving on
 
 ### What this environment did not do
 
-- Did not create `feedback@` forwarding
-- Did not change app Reply-To
+- Did not create `feedback@` forwarding (Owner later configured and verified it)
+- Did not change app Reply-To in that inspect (Reply-To is now `feedback@` after Owner verification)
 - Did not add apex MX
 - Did not enable Resend receiving
 - Did not change `send.*` or `resend._domainkey`
@@ -166,20 +187,21 @@ Use **Cloudflare Email Routing** (DNS is already on Cloudflare). Do **not** use 
 7. Optional: add `enterprise` the same way if that public contact should also land in Gmail (it also has no MX today).
 8. From an external mailbox, send a test to `feedback@my-property-assistant.com` and confirm it arrives in `ecastle612@gmail.com`.
 
-After Owner confirms that inbound test, a follow-up may change complimentary Reply-To to `feedback@my-property-assistant.com` (Gift may use the same). Do not change Reply-To before that confirmation.
+Owner later completed that inbound test. Complimentary TESTER and GIFT Reply-To is now `feedback@my-property-assistant.com`. This inspect remains superseded history.
 
 ---
 
 ## Exact Production release gate
 
-**BLOCKED — FEEDBACK EMAIL ROUTING REQUIRES OWNER ACTION.**
+**READY FOR COMPLIMENTARY ACCESS PRODUCTION RELEASE.**
 
-Do not deploy complimentary access. Do not apply `20260817180000_docs_185_complimentary_access.sql`.
+Prepared only. This certification does **not** apply the migration or deploy Production. Execute the combined gate only after Owner authorization.
 
-After Owner completes the Cloudflare steps above and confirms Gmail receipt, a later package may:
+| Step | Status | Notes |
+|---|---|---|
+| 1. Apply certified complimentary-access migration to Production | **Prepared — not executed** | `supabase/migrations/20260817180000_docs_185_complimentary_access.sql`. |
+| 2. Deploy matching application revision | **Prepared — not executed** | Implement SHA `c6da35b27843ae71f8f9b15b4f93105668f297ae` plus this Reply-To / docs/186 revision. |
+| 3. Controlled UAT with one Owner-controlled tester email | **Prepared — not executed** | One Owner-controlled tester inbox only. |
+| 4. Verify welcome email → claim → Guided Setup → granted SKU → tester reply path | **Prepared — not executed** | Reply-To `feedback@my-property-assistant.com` → Owner Gmail. Tester copy still asks for bugs/errors, confusing behavior, suggestions, and screenshots when useful. |
 
-1. Change tester (and gift) Reply-To to `feedback@my-property-assistant.com`.
-2. Re-run the welcome-email contract tests.
-3. Then, only with a separate Owner authorize, apply the docs/185 migration and deploy the matching app revision together.
-
-Do not create Stripe Prices, $0 Checkouts, or complimentary Stripe subscriptions as part of that gate.
+Do not change Stripe, pricing, public signup, tenant Stripe execution, M5, or July. Do not create Stripe Prices, $0 Checkouts, or complimentary Stripe subscriptions. Do not create another design phase unless a genuine security or commercial blocker is discovered during Production execution.

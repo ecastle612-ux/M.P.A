@@ -20,7 +20,8 @@ describe("docs/185 complimentary email copy", () => {
       },
       claimToken: "tok_test"
     });
-    expect(rendered.replyTo).toBe(TESTER_FEEDBACK_REPLY_TO);
+    expect(TESTER_FEEDBACK_REPLY_TO).toBe("feedback@my-property-assistant.com");
+    expect(rendered.replyTo).toBe("feedback@my-property-assistant.com");
     expect(rendered.subject).toMatch(/tester access/i);
     expect(rendered.html).toMatch(/Set Up Your Account/);
     expect(rendered.html).toMatch(/complimentary\/claim\?token=tok_test/);
@@ -40,6 +41,7 @@ describe("docs/185 complimentary email copy", () => {
       },
       claimToken: "tok_gift"
     });
+    expect(rendered.replyTo).toBe("feedback@my-property-assistant.com");
     expect(rendered.text).not.toMatch(/bugs, errors/i);
     expect(rendered.text).toMatch(/no expiration/i);
   });

@@ -160,13 +160,15 @@ describe("docs/185 complimentary access domain", () => {
     expect(welcome.paymentLine).toMatch(/No payment is required/i);
     expect(welcome.testerFeedback).toMatch(/bugs, errors, confusing behavior, or suggestions/i);
     expect(welcome.testerFeedback).toMatch(/screenshot/i);
-    expect(welcome.replyTo).toBe(TESTER_FEEDBACK_REPLY_TO);
+    expect(TESTER_FEEDBACK_REPLY_TO).toBe("feedback@my-property-assistant.com");
+    expect(welcome.replyTo).toBe("feedback@my-property-assistant.com");
     const gift = complimentaryWelcomeCopy({
       grantType: "gift",
       productSku: "mpa_property_manager",
       expiresAt: null
     });
     expect(gift.testerFeedback).toBeNull();
+    expect(gift.replyTo).toBe("feedback@my-property-assistant.com");
     expect(gift.expirationLine).toMatch(/no expiration/i);
     expect(
       complimentaryGrantNeedsExpiryNotice({

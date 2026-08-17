@@ -25,7 +25,7 @@ export const COMPLIMENTARY_DURATION_PRESETS = [
 
 export type ComplimentaryDurationId = (typeof COMPLIMENTARY_DURATION_PRESETS)[number]["id"];
 
-export const TESTER_FEEDBACK_REPLY_TO = "enterprise@my-property-assistant.com";
+export const TESTER_FEEDBACK_REPLY_TO = "feedback@my-property-assistant.com";
 export const COMPLIMENTARY_CLAIM_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 export const COMPLIMENTARY_EXPIRY_NOTICE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 export const COMPLIMENTARY_CONVERT_PATH = "/pricing?from=complimentary";
