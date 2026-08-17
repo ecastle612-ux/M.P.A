@@ -52,7 +52,12 @@ Stripe response (live platform key): *You can only create new accounts if you've
 
 This run did **not** bypass verification and did **not** write a placeholder account id.
 
-Platform request log (no secrets): Stripe workbench `req_gRicV7TfhGqWNP` on platform account `acct_1Tv5Lj8jGrZYUXDt`.
+Platform request logs (no secrets) on `acct_1Tv5Lj8jGrZYUXDt`:
+
+- First attempt: `req_gRicV7TfhGqWNP`
+- Re-attempt after precheck (new idempotency `connect-uat-property-demo-v2:…`): `req_Gka6sJSRY2BBdx`
+
+`GET /v1/accounts` lists **0** connected accounts. The same HTTP 400 remains. Platform Connect signup is still required.
 
 ---
 
@@ -76,7 +81,7 @@ No other organization received a `stripe_account_id` (count still 0). Canopy, PM
 
 ### 5. FIN-OPS unchanged proof
 
-Charge fingerprint `fe84e9362520f67f9773e75e09d5a76f` (18 / `24708.16` / paid `11111.00`). UAT `$17.16` one-time still open and AutoPay-ineligible. Autopay enrollments 0. Stripe customers 0.
+Certified money totals unchanged: charges 18 / `24708.16` / paid `11111.00`; payments 11 / `11111.00`; ledger 42 / `47181.16`. UAT `$17.16` one-time (`f2a6d161-…`) still open, `other`, AutoPay-ineligible. Property Demo payments 0. Autopay enrollments 0. Stripe customers 0. Docs/191 recorded money/status MD5 `fe84e9362520f67f9773e75e09d5a76f`; this run’s id+amount+paid+status concat is `1b7338ee4df6bf9c2ac9437392fee0ed` (formula difference, not a money rewrite).
 
 ### 6. Execution flag final state
 
