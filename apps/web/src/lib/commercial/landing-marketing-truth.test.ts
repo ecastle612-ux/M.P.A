@@ -63,7 +63,7 @@ describe("public landing marketing truth", () => {
   });
 
   it("does not overclaim finance, push, or engineering terms", () => {
-    expect(MARKETING_MODULE_COPY.financial_operations).not.toMatch(/rent collection|collections,/i);
+    expect(MARKETING_MODULE_COPY["financial_operations"]).not.toMatch(/rent collection|collections,/i);
     expect(landing).toMatch(/operational finance/i);
     expect(landing).toMatch(/does not include automated late fees/i);
     expect(landing).toMatch(/Phone push notifications are not available/i);
