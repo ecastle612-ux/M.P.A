@@ -7,6 +7,8 @@
 
 This package amends the certified docs/195 activation with organization-level accepted tenant payment methods and Stripe ACH Direct Debit on the existing Connect architecture. It does **not** deploy, apply Production migrations, enable any organization, or process a live payment.
 
+**Successor:** Owner accepted this record and SHA `a0610e3f884a52c5bdb5b8afc4e32d0eccc12998`. Production foundation release is certified in [docs/197](../197-customer-tenant-payments-production-foundation-release/index.md). Keep this file. Do not discard docs/195.
+
 ---
 
 ## Stop line
@@ -112,10 +114,10 @@ No live Stripe charge was created. No organization was enabled. The unapplied mi
 
 ## 6. Remaining blockers
 
-1. Production deploy is not authorized by this record.
-2. Production migration apply is not authorized.
-3. No organization, including Property Demo, is enabled.
-4. Live payment UAT is not part of this package.
-5. Platform ACH capability must be confirmed in the Stripe Dashboard before a customer can be offered bank payments.
+In-repo amendment blockers 1–2 were executed under Owner Production authorization in [docs/197](../197-customer-tenant-payments-production-foundation-release/index.md).
 
-**STOP.** In-repo amendment only. Ready for a later Owner Production release certification.
+3. No organization, including Property Demo, is enabled by this record.
+4. Live payment UAT is not part of this package.
+5. Platform ACH was confirmed live-active in docs/197. Connected-account ACH is requested in place at activation time.
+
+**STOP.** In-repo amendment only. Production foundation is a later Owner-authorized record (docs/197).
