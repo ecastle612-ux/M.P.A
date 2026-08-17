@@ -7,7 +7,7 @@ export default function TenantMessagesPage() {
       <ResidentPageIntro
         eyebrow="Messages"
         title="Your inbox"
-        description="Messages from your property team, with history attached to your home."
+        description="Messages from your property team. Open a thread to read, reply, or add a photo."
       />
       <ResidentSection title="Conversations" description="Unread first. Open a thread to reply or add a photo.">
         <TenantMessagesInbox />

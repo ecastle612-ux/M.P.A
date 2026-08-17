@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Button, Input } from "@mpa/ui";
+import { Alert, Button, FormField, Input } from "@mpa/ui";
 
 type Occupancy = {
   id: string;
@@ -73,12 +73,16 @@ export function MoveOutPanel({
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-[var(--mpa-color-border)] p-4">
-      <h2 className="text-base font-semibold">Move Out</h2>
-      <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        Move out this resident? M.P.A. will end their active access to this property. Lease, payment,
-        maintenance, and communication history stay in the record.
-      </p>
+    <section className="space-y-4 rounded-lg border border-[var(--mpa-color-border-default)] bg-white p-5 shadow-[0_1px_0_rgba(18,21,26,0.04)]">
+      <header className="space-y-1">
+        <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+          Move Out
+        </h2>
+        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+          End this resident’s active access to the property. Lease, payment, maintenance, and
+          message history stay in the record.
+        </p>
+      </header>
       <dl className="grid gap-1 text-sm">
         <div className="flex justify-between gap-3">
           <dt className="text-[var(--mpa-color-text-secondary)]">Tenant</dt>
@@ -106,34 +110,38 @@ export function MoveOutPanel({
             });
           }}
         >
-          <p className="text-sm">This resident has already moved out. Correction restores access without deleting history.</p>
-          <label className="block space-y-1 text-sm">
-            <span>Note</span>
-            <Input value={note} onChange={(event) => setNote(event.target.value)} />
-          </label>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            This resident has already moved out. Correction restores access without deleting history.
+          </p>
+          <FormField id="move-out-correct-note" label="Note" optional>
+            <Input
+              id="move-out-correct-note"
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
+          </FormField>
           <Button type="submit" disabled={busy} variant="secondary">
             Correct move-out
           </Button>
         </form>
       ) : (
         <form onSubmit={(event) => void onMoveOut(event)} className="space-y-3">
-          <label className="block space-y-1 text-sm">
-            <span>Effective move-out date</span>
+          <FormField id="move-out-date" label="Effective move-out date" required>
             <Input
+              id="move-out-date"
               type="date"
               value={occupyTo}
               onChange={(event) => setOccupyTo(event.target.value)}
               required
             />
-          </label>
-          <label className="block space-y-1 text-sm">
-            <span>Note (optional)</span>
-            <Input value={note} onChange={(event) => setNote(event.target.value)} />
-          </label>
+          </FormField>
+          <FormField id="move-out-note" label="Note" optional>
+            <Input id="move-out-note" value={note} onChange={(event) => setNote(event.target.value)} />
+          </FormField>
           {confirming ? (
-            <p className="text-sm font-medium">
+            <Alert variant="warning">
               Confirm move-out for {tenantName} at {propertyName} · Unit {unitLabel} on {occupyTo}?
-            </p>
+            </Alert>
           ) : null}
           <div className="flex flex-wrap gap-2">
             <Button type="submit" disabled={busy}>
@@ -156,8 +164,8 @@ export function MoveOutPanel({
           </div>
         </form>
       )}
-      {error ? <p className="text-sm text-[var(--mpa-color-danger)]">{error}</p> : null}
-      {message ? <p className="text-sm">{message}</p> : null}
+      {error ? <Alert variant="danger">{error}</Alert> : null}
+      {message ? <Alert variant="success">{message}</Alert> : null}
     </section>
   );
 }
