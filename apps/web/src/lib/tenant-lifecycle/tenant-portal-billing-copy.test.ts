@@ -27,7 +27,7 @@ describe("Tenant Portal billing copy while Stripe execution is disabled", () => 
 
   it("keeps Billing navigation and history-oriented subtitle", () => {
     expect(TENANT_PORTAL_NAVIGATION.some((item) => item.label === "Billing")).toBe(true);
-    expect(TENANT_PORTAL_NAVIGATION.some((item) => item.label === "Pay")).toBe(false);
+    expect(TENANT_PORTAL_NAVIGATION.map((item) => item.label)).not.toContain("Pay");
     expect(tenantPortalSubtitle("active")).toMatch(/billing/i);
     expect(tenantPortalSubtitle("active")).not.toMatch(/Pay rent/);
     expect(tenantPortalSubtitle("moved_out")).toMatch(/Historical records/i);
