@@ -247,12 +247,28 @@ async function notifyCounterparty(input: {
     href: input.href
   });
   if (input.email) {
-    await sendOperationalNoticeEmail({
+    const emailResult = await sendOperationalNoticeEmail({
       to: input.email,
-      subject: input.title,
-      body: `${input.preview}\n\nView in M.P.A.: ${input.href}`,
-      audienceLabel: "Conversation"
-    }).catch(() => undefined);
+      subject: "New message from your property team",
+      body: input.preview
+        ? `${input.preview}\n\nOpen the message to read the full note and reply.`
+        : "Your property team sent you a new message.",
+      audienceLabel: "Conversation",
+      ctaUrl: input.href,
+      ctaLabel: "Open Message",
+      idempotencyKey: `conversation:${input.notificationKey}`.slice(0, 256)
+    });
+    if (!emailResult.ok) {
+      console.error(
+        JSON.stringify({
+          scope: "mpa.email",
+          template: "conversation",
+          status: "failed",
+          error: emailResult.error,
+          notificationKey: input.notificationKey
+        })
+      );
+    }
   }
 }
 

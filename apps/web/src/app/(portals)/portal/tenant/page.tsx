@@ -136,15 +136,15 @@ export default async function TenantPortalPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <ResidentPageIntro
-        title={`Hi, ${residentName}`}
+        title={occupancy.mode === "moved_out" ? "Welcome back" : `Hi, ${residentName}`}
         description={
           occupancy.mode === "moved_out"
-            ? "Your active property access has ended. You can still review your own history."
+            ? "Your stay has ended. You can still review your own history, payments, and documents."
             : occupancy.mode === "future"
-              ? `Your move-in date is ${occupancy.current?.occupy_from ?? "on file"}.`
+              ? `Your move-in date is ${occupancy.current?.occupy_from ?? "on file"}. You can look around now; some actions unlock after you move in.`
             : leaseSummary
-              ? `${leaseSummary.propertyName} · Unit ${leaseSummary.unitLabel}`
-              : "Your home portal is ready when your lease is linked."
+              ? `Your home at ${leaseSummary.propertyName}, Unit ${leaseSummary.unitLabel}.`
+              : "Your home portal is ready. Details appear here once your lease is linked."
         }
       />
 
@@ -155,7 +155,7 @@ export default async function TenantPortalPage() {
           occupancy.mode === "active"
             ? [
                 { href: "/portal/tenant/maintenance", label: "Report an issue", primary: true },
-                { href: "/portal/tenant/billing", label: balance > 0 ? "Pay rent" : "View payments" },
+                { href: "/portal/tenant/billing", label: "Billing" },
                 { href: "/portal/tenant/messages", label: "Messages" },
                 { href: "/portal/tenant/documents", label: "Lease & documents" }
               ]
@@ -202,9 +202,10 @@ export default async function TenantPortalPage() {
           tone="neutral"
         />
         <ResidentGlanceCard
-          label="Announcements"
-          value="None yet"
-          hint="Community notices from your property will show here."
+          label="Documents"
+          value="Lease & files"
+          hint="Open your lease, notices, and other documents."
+          href="/portal/tenant/documents"
           tone="neutral"
         />
       </section>

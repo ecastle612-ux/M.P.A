@@ -33,7 +33,7 @@ export function Drawer({ open, onClose, title, children, footer, className }: Dr
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          "absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl",
+          "absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl motion-safe:animate-[mpa-rise_200ms_ease-out]",
           className,
         )}
       >
@@ -44,7 +44,7 @@ export function Drawer({ open, onClose, title, children, footer, className }: Dr
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-[var(--mpa-color-text-secondary)] hover:bg-gray-100"
+            className="rounded-md p-1 text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-surface-muted,#EEF0F3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]"
             aria-label="Close drawer"
           >
             ✕

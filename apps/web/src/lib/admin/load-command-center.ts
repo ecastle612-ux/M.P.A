@@ -1,6 +1,7 @@
 import {
   isBillingCycle,
   isProductSku,
+  isResendDeliveryConfigured,
   type BillingCycle,
   type ProductSku
 } from "@mpa/shared";
@@ -273,7 +274,7 @@ export async function loadCommandCenterSnapshot(): Promise<CommandCenterSnapshot
       stripeCheckoutReady: isSaasCheckoutReady(),
       supabaseOk,
       supabaseDetail,
-      emailConfigured: Boolean(serverEnv.RESEND_API_KEY && serverEnv.RESEND_FROM_EMAIL),
+      emailConfigured: isResendDeliveryConfigured(),
       demoSessions: demoSessions.length,
       demoOk: true
     }

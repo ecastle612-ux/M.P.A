@@ -13,7 +13,7 @@ export const OWNER_PORTAL_NAVIGATION = [
 
 export const TENANT_PORTAL_NAVIGATION = [
   { href: "/portal/tenant", label: "Home", shortLabel: "Home" },
-  { href: "/portal/tenant/billing", label: "Pay", shortLabel: "Pay" },
+  { href: "/portal/tenant/billing", label: "Billing", shortLabel: "Billing" },
   { href: "/portal/tenant/maintenance", label: "Maintenance", shortLabel: "Fix" },
   { href: "/portal/tenant/messages", label: "Messages", shortLabel: "Inbox" },
   { href: "/portal/tenant/documents", label: "Documents", shortLabel: "Docs" },

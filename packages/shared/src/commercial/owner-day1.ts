@@ -191,15 +191,15 @@ export function ownerEmptyStateCopy(
       };
     case "maintenance":
       return {
-        title: "No maintenance requests yet",
+        title: "Everything's handled.",
         description:
-          "This queue is where property maintenance is created, assigned, and completed. Create a request yourself, or add residents so they can submit work."
+          "No open work orders need your attention. Create a request yourself, or add residents so they can submit work."
       };
     case "fo_operations":
       return {
-        title: "No facility work yet",
+        title: "Everything's handled.",
         description:
-          "Facility Operations tracks corrective work against buildings and sites. Add a building in Assets if needed, then create your first work order here."
+          "No open work orders need your attention. Add a building in Assets if needed, then create your first work order here."
       };
     case "finance":
       return {

@@ -35,7 +35,7 @@ Set only when the channel is claimed for Customer #1. Otherwise leave unset and 
 | Variable | Channel | Honesty if unset |
 |----------|---------|------------------|
 | `RESEND_API_KEY` | Invite / notice email | Accept link still available in app |
-| `RESEND_FROM_EMAIL` | From address (must be verified domain) | Same |
+| `RESEND_FROM_EMAIL` | From address on a **verified** domain (`Name <email>` allowed). Production must not use `resend.dev`. If unset, the app uses `EMAIL_FROM`, then derives `noreply@{app-host}` from `NEXT_PUBLIC_APP_URL`. | Same |
 | `STRIPE_SECRET_KEY` | Resident Pay Now | Manual rent / FO path |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook verify | Checkout unreliable if secret missing |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Checkout client | Same |

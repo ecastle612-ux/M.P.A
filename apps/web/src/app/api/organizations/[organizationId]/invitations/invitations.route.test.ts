@@ -85,6 +85,22 @@ describe("Complete invitation create grant caps", () => {
     state.created = null;
   });
 
+  it("denies unauthenticated invitation creates", async () => {
+    state.user = null;
+    const response = await POST(
+      new Request("http://localhost/api", {
+        method: "POST",
+        body: JSON.stringify({
+          email: "x@example.com",
+          roles: ["property_manager"]
+        })
+      }),
+      { params: Promise.resolve({ organizationId: "org-complete" }) }
+    );
+    expect(response.status).toBe(401);
+    expect(state.created).toBeNull();
+  });
+
   it("creates Complete Property, Facility, and Both invitations when the inviter is BOTH", async () => {
     for (const scope of ["property_operations", "facility_operations", "both"] as const) {
       const response = await POST(

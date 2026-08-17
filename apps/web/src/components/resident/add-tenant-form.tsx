@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Button, Input, Select } from "@mpa/ui";
+import { Alert, Button, FormField, Input, Select, useToast } from "@mpa/ui";
 
 type LeaseOption = {
   id: string;
@@ -12,6 +12,7 @@ type LeaseOption = {
 };
 
 export function AddTenantForm({ onDone }: { onDone?: () => void }) {
+  const { notify } = useToast();
   const [leases, setLeases] = useState<LeaseOption[]>([]);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -51,9 +52,13 @@ export function AddTenantForm({ onDone }: { onDone?: () => void }) {
       if (!response.ok) {
         throw new Error(body.error ?? "Could not add tenant");
       }
-      setResult(
-        `Invitation ready for ${body.confirmation?.tenantName ?? "tenant"} at ${body.confirmation?.propertyName ?? "property"} · Unit ${body.confirmation?.unitLabel ?? "—"}.`
-      );
+      const confirmation = `Invitation ready for ${body.confirmation?.tenantName ?? "tenant"} at ${body.confirmation?.propertyName ?? "property"} · Unit ${body.confirmation?.unitLabel ?? "—"}.`;
+      setResult(confirmation);
+      notify({
+        variant: "success",
+        title: "Tenant added",
+        description: "Invitation sent. They can accept from email and open Tenant Portal in the browser."
+      });
       onDone?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not add tenant");
@@ -65,42 +70,79 @@ export function AddTenantForm({ onDone }: { onDone?: () => void }) {
   return (
     <form
       onSubmit={(event) => void onSubmit(event)}
-      className="space-y-3 rounded-2xl border border-[var(--mpa-color-border-default)] p-4"
+      className="space-y-4 rounded-lg border border-[var(--mpa-color-border-default)] bg-white p-5 shadow-[0_1px_0_rgba(18,21,26,0.04)]"
     >
-      <h2 className="text-base font-semibold">Add Tenant</h2>
-      <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-        Enter the resident’s name and email. M.P.A. sends the invitation and keeps the lease
-        relationship on the server.
-      </p>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="space-y-1 text-sm">
-          <span>First name</span>
-          <Input value={firstName} onChange={(event) => setFirstName(event.target.value)} required />
-        </label>
-        <label className="space-y-1 text-sm">
-          <span>Last name</span>
-          <Input value={lastName} onChange={(event) => setLastName(event.target.value)} required />
-        </label>
+      <header className="space-y-1">
+        <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+          Add Tenant
+        </h2>
+        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+          Enter the resident’s name and email. M.P.A. sends the invitation and keeps the lease
+          relationship on the server.
+        </p>
+      </header>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField id="tenant-first-name" label="First name" required>
+          <Input
+            id="tenant-first-name"
+            value={firstName}
+            onChange={(event) => setFirstName(event.target.value)}
+            required
+            autoComplete="given-name"
+          />
+        </FormField>
+        <FormField id="tenant-last-name" label="Last name" required>
+          <Input
+            id="tenant-last-name"
+            value={lastName}
+            onChange={(event) => setLastName(event.target.value)}
+            required
+            autoComplete="family-name"
+          />
+        </FormField>
       </div>
-      <label className="block space-y-1 text-sm">
-        <span>Email</span>
-        <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
-      </label>
-      <label className="block space-y-1 text-sm">
-        <span>Lease</span>
-        <Select value={leaseId} onChange={(event) => setLeaseId(event.target.value)} required>
+      <FormField
+        id="tenant-email"
+        label="Email"
+        required
+        hint="The invitation is sent to this address."
+      >
+        <Input
+          id="tenant-email"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          required
+          autoComplete="email"
+        />
+      </FormField>
+      <FormField
+        id="tenant-lease"
+        label="Lease"
+        required
+        hint="Choose the property and unit this resident should join."
+      >
+        <Select
+          id="tenant-lease"
+          value={leaseId}
+          onChange={(event) => setLeaseId(event.target.value)}
+          required
+        >
+          {leases.length === 0 ? <option value="">No active leases yet</option> : null}
           {leases.map((lease) => (
             <option key={lease.id} value={lease.id}>
               {lease.property_properties?.name ?? "Property"} · Unit {lease.property_units?.unit_label ?? "—"}
             </option>
           ))}
         </Select>
-      </label>
-      {error ? <p className="text-sm text-[var(--mpa-color-danger-text)]">{error}</p> : null}
-      {result ? <p className="text-sm text-[var(--mpa-color-text-primary)]">{result}</p> : null}
-      <Button type="submit" disabled={busy || !leaseId}>
-        {busy ? "Sending…" : "Add Tenant"}
-      </Button>
+      </FormField>
+      {error ? <Alert variant="danger">{error}</Alert> : null}
+      {result ? <Alert variant="success">{result}</Alert> : null}
+      <div className="flex flex-wrap justify-end gap-2 pt-1">
+        <Button type="submit" disabled={busy || !leaseId}>
+          {busy ? "Sending…" : "Add Tenant"}
+        </Button>
+      </div>
     </form>
   );
 }

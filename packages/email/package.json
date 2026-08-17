@@ -13,6 +13,7 @@
     "lint": "eslint src --ext .ts,.tsx",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "build": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json}\""
   },
@@ -21,6 +22,7 @@
     "@types/node": "26.1.1",
     "eslint": "9.39.5",
     "prettier": "3.9.5",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vitest": "4.1.10"
   }
 }

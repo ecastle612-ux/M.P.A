@@ -35,20 +35,27 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="fixed right-4 top-4 z-[70] flex w-80 flex-col gap-2">
+      <div className="fixed right-4 top-4 z-[70] flex w-[min(20rem,calc(100vw-2rem))] flex-col gap-2">
         {items.map((item) => (
           <div
             key={item.id}
             role="status"
             className={cn(
-              "rounded-md border bg-white p-3 shadow-md",
-              item.variant === "info" && "border-[#1D6AA5]",
-              item.variant === "success" && "border-[#0E7A57]",
-              item.variant === "warning" && "border-[#B45309]",
-              item.variant === "danger" && "border-[#C0392B]",
+              "rounded-lg border bg-white p-3 shadow-md motion-safe:animate-[mpa-toast-in_200ms_ease-out]",
+              item.variant === "info" && "border-[var(--mpa-color-status-info,#1D6AA5)]",
+              item.variant === "success" && "border-[var(--mpa-color-status-success,#0E7A57)]",
+              item.variant === "warning" && "border-[var(--mpa-color-status-warning,#B45309)]",
+              item.variant === "danger" && "border-[var(--mpa-color-status-danger,#C0392B)]",
             )}
           >
-            <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">{item.title}</p>
+            <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+              {item.variant === "success" ? (
+                <span aria-hidden className="mr-1.5 text-[var(--mpa-color-status-success,#0E7A57)]">
+                  ✓
+                </span>
+              ) : null}
+              {item.title}
+            </p>
             {item.description ? (
               <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{item.description}</p>
             ) : null}

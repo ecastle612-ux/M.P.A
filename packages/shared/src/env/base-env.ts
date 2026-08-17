@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isResendFromAddress } from "./resend";
 
 export const clientEnvSchema = z.object({
   NEXT_PUBLIC_APP_NAME: z.string().min(1),
@@ -44,7 +45,14 @@ export const serverEnvSchema = clientEnvSchema.extend({
   STRIPE_SAAS_AUTOMATIC_TAX: z.string().optional(),
   /** Optional until Resend is provisioned; invites still create + expose accept link. */
   RESEND_API_KEY: z.string().min(1).optional(),
-  RESEND_FROM_EMAIL: z.string().email().optional(),
+  /** Bare email or `Name <email>`. Production must use a verified domain, not resend.dev. */
+  RESEND_FROM_EMAIL: z
+    .string()
+    .min(1)
+    .refine((value) => isResendFromAddress(value), {
+      message: "RESEND_FROM_EMAIL must be an email or Name <email>"
+    })
+    .optional(),
   /** Optional until SignWell is provisioned; offline signed path remains available. */
   SIGNWELL_API_KEY: z.string().min(1).optional(),
   SIGNWELL_WEBHOOK_ID: z.string().min(1).optional(),

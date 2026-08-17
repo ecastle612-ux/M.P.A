@@ -12,6 +12,8 @@ import {
   type UserRole
 } from "@mpa/shared";
 import { sendInvitationEmail } from "@mpa/email";
+import { isProductionEmailRuntime, resolveResendSender } from "@mpa/shared";
+import { logEmailAttempt } from "../communications/email-log";
 import { emitTeamEvent, writeTeamAudit } from "./events-audit";
 import { recordOperatingScopeEvent } from "../organization/operating-scope-events";
 import { acceptTenantBinding } from "../tenant-lifecycle/accept-tenant-binding";
@@ -161,6 +163,7 @@ export async function deliverInvitationEmail(args: {
   inviterLabel?: string | undefined;
   actorId?: string | null;
   sendEmail?: SendInvitationEmailFn;
+  idempotencyKey?: string;
 }): Promise<{
   deliveryStatus: InvitationDeliveryStatus;
   emailNotice: InvitationEmailNotice;
@@ -168,8 +171,9 @@ export async function deliverInvitationEmail(args: {
   providerId: string | null;
   error: string | null;
 }> {
-  const apiKey = process.env["RESEND_API_KEY"];
-  const from = process.env["RESEND_FROM_EMAIL"] ?? "M.P.A. <onboarding@resend.dev>";
+  const sender = resolveResendSender(process.env, {
+    allowTestDomainFallback: !isProductionEmailRuntime()
+  });
   const acceptUrl = buildAcceptUrl(args.invitation.token);
   const role = primaryRole((args.invitation.roles as string[]).filter(isUserRole)) ?? "property_manager";
   const roleLabel = toRoleLabel(role);
@@ -181,30 +185,55 @@ export async function deliverInvitationEmail(args: {
   let emailError: string | null = null;
   let lastDeliveredAt: string | null = null;
 
-  if (apiKey) {
+  if (sender.ok) {
     const sendResult = await sendEmail({
-      apiKey,
-      from,
+      apiKey: sender.apiKey,
+      from: sender.from,
       to: args.invitation.email,
       organizationName: args.organizationName,
       roleLabel,
       acceptUrl,
-      ...(args.inviterLabel ? { inviterLabel: args.inviterLabel } : {})
+      ...(args.inviterLabel ? { inviterLabel: args.inviterLabel } : {}),
+      ...(args.idempotencyKey ? { idempotencyKey: args.idempotencyKey } : {})
     });
     if (sendResult.ok) {
       deliveryStatus = "sent";
       emailNotice = "sent";
       providerId = sendResult.providerId;
       lastDeliveredAt = new Date().toISOString();
+      logEmailAttempt({
+        template: "team-invitation",
+        to: args.invitation.email,
+        status: "provider_accepted",
+        providerId,
+        fromSource: sender.fromSource
+      });
     } else {
       deliveryStatus = "failed";
       emailNotice = "failed";
       emailError = sendResult.error;
+      logEmailAttempt({
+        template: "team-invitation",
+        to: args.invitation.email,
+        status: "failed",
+        error: sendResult.error,
+        fromSource: sender.fromSource
+      });
     }
   } else {
-    deliveryStatus = "pending";
-    emailNotice = "skipped";
-    emailError = "RESEND_API_KEY not configured — accept link available in app";
+    deliveryStatus = sender.code === "missing_api_key" ? "pending" : "failed";
+    emailNotice = sender.code === "missing_api_key" ? "skipped" : "failed";
+    emailError =
+      sender.code === "missing_api_key"
+        ? "RESEND_API_KEY not configured — accept link available in app"
+        : sender.error;
+    logEmailAttempt({
+      template: "team-invitation",
+      to: args.invitation.email,
+      status: "skipped",
+      error: emailError,
+      fromSource: "none"
+    });
   }
 
   const { error: updateError } = await args.supabase
@@ -328,6 +357,7 @@ export async function createAndSendInvitation(args: {
     },
     organizationName: args.organizationName,
     actorId: args.actorId,
+    idempotencyKey: `invitation:${invitation.id as string}`,
     ...(args.inviterLabel ? { inviterLabel: args.inviterLabel } : {}),
     ...(args.sendEmail ? { sendEmail: args.sendEmail } : {})
   });
@@ -396,6 +426,7 @@ export async function resendInvitationEmail(args: {
     },
     organizationName: (organization?.name as string | undefined) ?? "your organization",
     actorId: args.actorId,
+    idempotencyKey: `invitation:${invitation.id as string}:resend:${Date.now()}`,
     ...(args.sendEmail ? { sendEmail: args.sendEmail } : {})
   });
 

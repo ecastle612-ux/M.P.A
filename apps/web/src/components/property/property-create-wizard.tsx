@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Input } from "@mpa/ui";
+import { Alert, Button, FormField, Input } from "@mpa/ui";
 import {
   AdditionalUnitCapacityGate,
   type CapacityGatePayload
@@ -118,10 +118,7 @@ export function PropertyCreateWizard({ onCancel }: PropertyCreateWizardProps) {
               setStep(2);
             }}
           >
-            <div className="space-y-1">
-              <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="property-name">
-                Property name
-              </label>
+            <FormField id="property-name" label="Property name" required>
               <Input
                 id="property-name"
                 value={name}
@@ -132,7 +129,7 @@ export function PropertyCreateWizard({ onCancel }: PropertyCreateWizardProps) {
                 minLength={2}
                 maxLength={120}
               />
-            </div>
+            </FormField>
             <div className="flex flex-wrap gap-2">
               <Button type="submit">Continue</Button>
               {onCancel ? (
@@ -153,10 +150,12 @@ export function PropertyCreateWizard({ onCancel }: PropertyCreateWizardProps) {
               setStep(3);
             }}
           >
-            <div className="space-y-1">
-              <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="unit-count">
-                How many units?
-              </label>
+            <FormField
+              id="unit-count"
+              label="How many units?"
+              required
+              hint={`We create units labeled 1…${unitCount}. You can refine labels later.`}
+            >
               <Input
                 id="unit-count"
                 type="number"
@@ -166,10 +165,7 @@ export function PropertyCreateWizard({ onCancel }: PropertyCreateWizardProps) {
                 onChange={(event) => setUnitCount(Number(event.target.value) || 1)}
                 required
               />
-              <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                We create units labeled 1…{unitCount}. You can refine later.
-              </p>
-            </div>
+            </FormField>
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="secondary" onClick={() => setStep(1)}>
                 Back
@@ -206,7 +202,7 @@ export function PropertyCreateWizard({ onCancel }: PropertyCreateWizardProps) {
           </div>
         ) : null}
 
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
+        {error ? <Alert variant="danger">{error}</Alert> : null}
       </section>
 
       <AdditionalUnitCapacityGate

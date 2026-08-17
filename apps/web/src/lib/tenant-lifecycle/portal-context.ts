@@ -26,7 +26,7 @@ export async function loadTenantPortalContext(
 
 export function tenantPortalSubtitle(mode: TenantAccessMode): string {
   if (mode === "active") {
-    return "Pay rent, report issues, and find what you need — fast.";
+    return "Review billing, report issues, and find what you need — fast.";
   }
   if (mode === "future") {
     return "Your move-in date is on file. Current unit tools open on that date.";

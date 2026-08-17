@@ -5,9 +5,9 @@ export default function TenantBillingPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <ResidentPageIntro
-        eyebrow="Payments"
-        title="Pay rent"
-        description="See what you owe and pay securely. No accounting jargon."
+        eyebrow="Billing"
+        title="Billing"
+        description="See balances, payment history, and receipts. No accounting jargon."
       />
       <ResidentBillingPortal />
     </div>

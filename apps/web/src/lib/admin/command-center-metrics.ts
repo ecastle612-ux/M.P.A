@@ -277,7 +277,7 @@ export function buildCommandCenterSnapshot(input: {
       tone: input.system.emailConfigured ? "ok" : "down",
       detail: input.system.emailConfigured
         ? "Resend configured · customer mail delivers"
-        : "Email unavailable · configure RESEND_API_KEY and RESEND_FROM_EMAIL"
+        : "Email unavailable · configure RESEND_API_KEY and a verified-domain RESEND_FROM_EMAIL"
     },
     {
       id: "demo",

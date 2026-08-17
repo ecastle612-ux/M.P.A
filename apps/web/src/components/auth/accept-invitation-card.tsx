@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card } from "@mpa/ui";
+import { Alert, Button, Card } from "@mpa/ui";
 import { createAuthClient } from "../../lib/auth/client";
 
 type InvitationPreview = {
@@ -76,7 +76,7 @@ export function AcceptInvitationCard({ token }: { token: string }) {
     signedInEmail && preview && signedInEmail.toLowerCase() !== preview.email.toLowerCase();
 
   return (
-    <Card className="w-full max-w-md space-y-3">
+    <Card className="w-full max-w-md space-y-4">
       <h1 className="font-display text-2xl font-semibold text-[var(--mpa-color-text-primary)]">
         Accept invitation
       </h1>
@@ -88,7 +88,7 @@ export function AcceptInvitationCard({ token }: { token: string }) {
           </p>
           <p>Invited email: {preview.email}</p>
           {preview.expired || preview.status !== "pending" ? (
-            <p className="text-[#C0392B]">This invitation is no longer available.</p>
+            <Alert variant="danger">This invitation is no longer available.</Alert>
           ) : null}
         </div>
       ) : (
@@ -114,13 +114,13 @@ export function AcceptInvitationCard({ token }: { token: string }) {
       ) : null}
 
       {emailMismatch ? (
-        <p className="text-sm text-[#C0392B]">
+        <Alert variant="danger">
           You are signed in as {signedInEmail}. Sign in as {preview?.email} to accept.
-        </p>
+        </Alert>
       ) : null}
 
-      {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-      {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+      {error ? <Alert variant="danger">{error}</Alert> : null}
+      {notice ? <Alert variant="success">{notice}</Alert> : null}
 
       {signedInEmail && !emailMismatch && preview && !preview.expired && preview.status === "pending" ? (
         <Button disabled={loading} onClick={() => void acceptInvitation()}>

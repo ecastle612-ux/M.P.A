@@ -348,18 +348,25 @@ export async function sendOperationalMessage(
   let deliveryStatus = "delivered";
   let emailProviderId: string | null = null;
 
-  if ((channel === "email" || channel === "both") && audience.recipientEmail) {
-    const emailResult = await sendOperationalNoticeEmail({
-      to: audience.recipientEmail,
-      subject,
-      body,
-      audienceLabel: audience.audienceLabel
-    });
-    if (emailResult.ok) {
-      deliveryStatus = "email_sent";
-      emailProviderId = emailResult.providerId;
+  if (channel === "email" || channel === "both") {
+    if (!audience.recipientEmail) {
+      deliveryStatus = "email_failed";
     } else {
-      deliveryStatus = channel === "email" ? "email_failed" : "delivered";
+      const emailResult = await sendOperationalNoticeEmail({
+        to: audience.recipientEmail,
+        subject,
+        body,
+        audienceLabel: audience.audienceLabel,
+        ctaUrl: `${(process.env["NEXT_PUBLIC_APP_URL"] ?? "https://www.my-property-assistant.com").replace(/\/$/, "")}/login`,
+        ctaLabel: "Open M.P.A.",
+        idempotencyKey: `comms:${organizationId}:${audience.recipientEmail}:${subject}`.slice(0, 256)
+      });
+      if (emailResult.ok) {
+        deliveryStatus = "email_sent";
+        emailProviderId = emailResult.providerId;
+      } else {
+        deliveryStatus = "email_failed";
+      }
     }
   }
 

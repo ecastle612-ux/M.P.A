@@ -154,22 +154,33 @@ function createMemoryDb() {
   };
 }
 
-const sendEmail = vi.fn(async () => ({ ok: true as const, providerId: "re_test" }));
+const sendEmail = vi.fn(
+  async (input?: Record<string, unknown>): Promise<
+    { ok: true; providerId: string } | { ok: false; error: string }
+  > => {
+    void input;
+    return { ok: true, providerId: "re_test" };
+  }
+);
 
 describe("docs/135 invitation transport and acceptance", () => {
   const originalKey = process.env["RESEND_API_KEY"];
+  const originalFrom = process.env["RESEND_FROM_EMAIL"];
+  const originalAppUrl = process.env["NEXT_PUBLIC_APP_URL"];
+  const originalVercel = process.env["VERCEL_ENV"];
 
   beforeEach(() => {
     sendEmail.mockClear();
     delete process.env["RESEND_API_KEY"];
+    delete process.env["RESEND_FROM_EMAIL"];
+    delete process.env["VERCEL_ENV"];
   });
 
   afterEach(() => {
-    if (originalKey === undefined) {
-      delete process.env["RESEND_API_KEY"];
-    } else {
-      process.env["RESEND_API_KEY"] = originalKey;
-    }
+    restoreEnv("RESEND_API_KEY", originalKey);
+    restoreEnv("RESEND_FROM_EMAIL", originalFrom);
+    restoreEnv("NEXT_PUBLIC_APP_URL", originalAppUrl);
+    restoreEnv("VERCEL_ENV", originalVercel);
   });
 
   it("creates Complete Property and Facility invitations with delivery_status pending when no Resend key", async () => {
@@ -202,6 +213,52 @@ describe("docs/135 invitation transport and acceptance", () => {
     });
     expect(facility.invitation["operating_scope"]).toBe("facility_operations");
     expect(facility.deliveryStatus).toBe("pending");
+  });
+
+  it("uses the verified-domain from in production instead of onboarding@resend.dev", async () => {
+    process.env["RESEND_API_KEY"] = "re_test_key";
+    process.env["VERCEL_ENV"] = "production";
+    process.env["NEXT_PUBLIC_APP_URL"] = "https://www.my-property-assistant.com";
+    const db = createMemoryDb();
+    const created = await createAndSendInvitation({
+      supabase: db.client as never,
+      organizationId: "org-complete",
+      actorId: "erick",
+      email: "uat.invite@example.com",
+      roles: ["property_manager"],
+      organizationName: "Clinic",
+      operatingScope: "property_operations",
+      sendEmail
+    });
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(sendEmail.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({
+        from: "My Property Assistant <noreply@my-property-assistant.com>",
+        to: "uat.invite@example.com",
+        idempotencyKey: `invitation:${created.invitation["id"] as string}`
+      })
+    );
+    expect(created.deliveryStatus).toBe("sent");
+  });
+
+  it("does not claim sent when the provider rejects the send", async () => {
+    process.env["RESEND_API_KEY"] = "re_test_key";
+    sendEmail.mockResolvedValueOnce({ ok: false as const, error: "You can only send testing emails to your own email address" });
+    const db = createMemoryDb();
+    const created = await createAndSendInvitation({
+      supabase: db.client as never,
+      organizationId: "org-complete",
+      actorId: "erick",
+      email: "uat.invite@example.com",
+      roles: ["property_manager"],
+      organizationName: "Clinic",
+      operatingScope: "property_operations",
+      sendEmail
+    });
+    expect(created.deliveryStatus).toBe("failed");
+    expect(created.emailStatus).toBe("failed");
+    expect(created.invitation["delivery_status"]).toBe("failed");
+    expect(created.invitation["last_delivered_at"]).toBeNull();
   });
 
   it("creates Complete Both invitations and records sent transport when the provider accepts", async () => {
@@ -513,6 +570,14 @@ describe("docs/135 invitation transport and acceptance", () => {
     expect(row).toHaveProperty("delivery_status");
   });
 });
+
+function restoreEnv(name: string, value: string | undefined) {
+  if (value === undefined) {
+    delete process.env[name];
+  } else {
+    process.env[name] = value;
+  }
+}
 
 describe("InvitationCreateError", () => {
   it("carries a status", () => {

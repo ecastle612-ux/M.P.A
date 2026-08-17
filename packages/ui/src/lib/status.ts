@@ -8,7 +8,18 @@ export type StatusBadgeVariant = "neutral" | "success" | "warning" | "danger" | 
 export function resolveStatusBadgeVariant(status: string): StatusBadgeVariant {
   const normalized = status.toLowerCase();
   if (
-    ["active", "occupied", "paid", "complete", "completed", "closed", "ok", "accepted", "succeeded", "yes"].some(
+    [
+      "active",
+      "occupied",
+      "paid",
+      "complete",
+      "completed",
+      "closed",
+      "ok",
+      "accepted",
+      "succeeded",
+      "yes"
+    ].some(
       (k) => normalized.includes(k)
     )
   ) {
@@ -17,9 +28,11 @@ export function resolveStatusBadgeVariant(status: string): StatusBadgeVariant {
   if (
     [
       "pending",
+      "invited",
       "draft",
       "sent",
       "in_progress",
+      "in progress",
       "assigned",
       "open",
       "available",
@@ -53,6 +66,9 @@ export function resolveStatusBadgeVariant(status: string): StatusBadgeVariant {
     ].some((k) => normalized.includes(k))
   ) {
     return "danger";
+  }
+  if (["moved_out", "moved out", "former"].some((k) => normalized.includes(k))) {
+    return "neutral";
   }
   if (["info", "trialing"].some((k) => normalized.includes(k))) {
     return "info";

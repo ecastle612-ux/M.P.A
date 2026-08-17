@@ -616,7 +616,10 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
               description={ownerEmptyStateCopy("fo_operations").description}
             />
           ) : filteredQueue.length === 0 ? (
-            <EmptyState title="No matching work" description="Try a different search." />
+            <EmptyState
+              title="Everything's handled."
+              description="No open work orders match this search."
+            />
           ) : (
             <ul className="space-y-2">
               {filteredQueue.map((row) => (

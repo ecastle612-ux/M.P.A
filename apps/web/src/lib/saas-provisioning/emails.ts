@@ -1,5 +1,6 @@
-import { renderFoundationEmail } from "@mpa/email";
-import { serverEnv } from "../env/server-env";
+import { escapeHtml, renderFoundationEmail, sendResendHttpEmail } from "@mpa/email";
+import { resolveResendSender } from "@mpa/shared";
+import { logEmailAttempt } from "../communications/email-log";
 
 export type ProvisionEmailKind =
   | "verification"
@@ -21,43 +22,45 @@ async function sendHtmlEmail(input: {
   subject: string;
   html: string;
   text: string;
-}): Promise<
-  | { ok: true; providerId: string; stubbed?: boolean }
-  | { ok: false; error: string }
-> {
-  if (!serverEnv.RESEND_API_KEY || !serverEnv.RESEND_FROM_EMAIL) {
-    // Never report success when mail cannot be delivered (PRA-001).
+  kind: ProvisionEmailKind;
+}): Promise<{ ok: true; providerId: string; stubbed?: boolean } | { ok: false; error: string }> {
+  const sender = resolveResendSender();
+  if (!sender.ok) {
     if (allowDevEmailStub()) {
       return { ok: true, providerId: `stub_${Date.now()}`, stubbed: true };
     }
+    logEmailAttempt({
+      template: `provisioning.${input.kind}`,
+      to: input.to,
+      status: "skipped",
+      error: sender.error,
+      fromSource: "none"
+    });
     return {
       ok: false,
       error: "email_not_configured: RESEND_API_KEY and RESEND_FROM_EMAIL are required"
     };
   }
-  try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${serverEnv.RESEND_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: serverEnv.RESEND_FROM_EMAIL,
-        to: [input.to],
-        subject: input.subject,
-        html: input.html,
-        text: input.text
-      })
-    });
-    if (!response.ok) {
-      return { ok: false, error: await response.text() };
-    }
-    const data = (await response.json()) as { id?: string };
-    return { ok: true, providerId: data.id ?? "resend" };
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "email_failed" };
-  }
+  const result = await sendResendHttpEmail({
+    apiKey: sender.apiKey,
+    from: sender.from,
+    to: input.to,
+    subject: input.subject,
+    html: input.html,
+    text: input.text,
+    tags: [
+      { name: "journey", value: "saas-provisioning" },
+      { name: "template", value: input.kind }
+    ]
+  });
+  logEmailAttempt({
+    template: `provisioning.${input.kind}`,
+    to: input.to,
+    status: result.ok ? "provider_accepted" : "failed",
+    fromSource: sender.fromSource,
+    ...(result.ok ? { providerId: result.providerId } : { error: result.error })
+  });
+  return result;
 }
 
 export async function sendProvisioningEmail(input: {
@@ -68,39 +71,55 @@ export async function sendProvisioningEmail(input: {
   checkpoint?: string;
 }): Promise<{ ok: boolean; stubbed?: boolean; error?: string }> {
   const org = input.organizationName ?? "your M.P.A. workspace";
-  const copy: Record<ProvisionEmailKind, { subject: string; body: string }> = {
+  const copy: Record<
+    ProvisionEmailKind,
+    { subject: string; body: string; ctaLabel: string; preview: string }
+  > = {
     verification: {
       subject: "Verify your email to claim your M.P.A. workspace",
-      body: `<p>Your payment was successful. Verify ownership of this email, then create your password to claim <strong>${org}</strong>.</p><p><a href="${input.continueUrl}">Continue setup</a></p>`
+      preview: "Your payment succeeded. Continue setup to claim your workspace.",
+      body: `<p>Your payment was successful. Verify this email, then create your password to claim <strong>${escapeHtml(org)}</strong>.</p><p>You are receiving this because you purchased My Property Assistant.</p>`,
+      ctaLabel: "Continue setup"
     },
     welcome: {
       subject: "Welcome to My Property Assistant",
-      body: `<p>Your workspace <strong>${org}</strong> is ready. Continue Guided Setup, then open Mission Control.</p><p><a href="${input.continueUrl}">Continue</a></p>`
+      preview: "Your workspace is ready. Continue Guided Setup.",
+      body: `<p>Your workspace <strong>${escapeHtml(org)}</strong> is ready.</p><p>Continue Guided Setup, then open Mission Control to start daily operations.</p>`,
+      ctaLabel: "Continue"
     },
     progress: {
-      subject: "We’re preparing your M.P.A. workspace",
-      body: `<p>Provisioning is in progress${input.checkpoint ? ` (${input.checkpoint})` : ""}. This is automatic — no action needed unless we email you to claim your account.</p><p><a href="${input.continueUrl}">View progress</a></p>`
+      subject: "We're preparing your M.P.A. workspace",
+      preview: "Provisioning is in progress. No action needed unless we email you again.",
+      body: `<p>Provisioning is in progress${input.checkpoint ? ` (${escapeHtml(input.checkpoint)})` : ""}. This is automatic — no action is needed unless we email you to claim your account.</p>`,
+      ctaLabel: "View progress"
     },
     failure_recovery: {
       subject: "Action needed to finish your M.P.A. setup",
-      body: `<p>We hit a recoverable issue while preparing your workspace. Your payment is safe. Continue to resume.</p><p><a href="${input.continueUrl}">Resume setup</a></p>`
+      preview: "Your payment is safe. Continue to resume setup.",
+      body: `<p>We hit a recoverable issue while preparing your workspace. Your payment is safe.</p><p>Continue to resume setup from where you left off.</p>`,
+      ctaLabel: "Resume setup"
     },
     continue_setup: {
       subject: "Continue your M.P.A. Guided Setup",
-      body: `<p>Your organization is ready. Finish Guided Setup to enter Mission Control.</p><p><a href="${input.continueUrl}">Open Guided Setup</a></p>`
+      preview: "Your organization is ready. Finish Guided Setup.",
+      body: `<p>Your organization is ready. Finish Guided Setup to enter Mission Control.</p>`,
+      ctaLabel: "Open Guided Setup"
     }
   };
   const selected = copy[input.kind];
   const html = renderFoundationEmail({
     title: selected.subject,
-    previewText: "My Property Assistant",
-    body: selected.body
+    previewText: selected.preview,
+    body: selected.body,
+    ctaUrl: input.continueUrl,
+    ctaLabel: selected.ctaLabel
   });
   const result = await sendHtmlEmail({
     to: input.to,
     subject: selected.subject,
     html,
-    text: `${selected.subject}\n\n${input.continueUrl}`
+    text: `${selected.subject}\n\n${selected.ctaLabel}: ${input.continueUrl}`,
+    kind: input.kind
   });
   if (!result.ok) {
     return { ok: false, error: result.error };

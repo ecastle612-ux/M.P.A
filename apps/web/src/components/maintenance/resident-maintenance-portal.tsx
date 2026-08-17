@@ -215,7 +215,7 @@ export function ResidentMaintenancePortal() {
       <ResidentPageIntro
         eyebrow="Maintenance"
         title="Fix something"
-        description="Report an issue in under a minute. We already know your home — you don’t pick property, unit, or technician."
+        description="Report a problem in your home. We already know your unit — you do not pick a property or technician."
       />
 
       {error ? (
