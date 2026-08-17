@@ -22,7 +22,7 @@ export function buttonClassName({
   className
 }: ButtonClassNameOptions = {}): string {
   return cn(
-    "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+    "inline-flex items-center justify-center rounded-md font-medium transition-[color,background-color,transform,box-shadow] duration-200 ease-out motion-safe:active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
     size === "sm" && "h-8 px-3 text-sm",
     size === "md" && "h-9 px-4 text-sm",
     size === "lg" && "h-10 px-5 text-base",

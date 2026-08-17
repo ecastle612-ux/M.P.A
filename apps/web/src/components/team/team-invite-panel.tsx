@@ -17,7 +17,7 @@ import {
   type MemberOperatingScope,
   type ProductSku
 } from "@mpa/shared";
-import { Alert, Button, FormField, Input, Select } from "@mpa/ui";
+import { Alert, Button, FormField, Input, Select, useToast } from "@mpa/ui";
 import { useOrganizationContext } from "../shell/organization-context";
 import { useCommercialContext } from "../shell/commercial-context";
 
@@ -67,6 +67,7 @@ function formatScope(scope: string | null | undefined, sku: ProductSku | null): 
 }
 
 export function TeamInvitePanel() {
+  const { notify } = useToast();
   const { activeOrganization } = useOrganizationContext();
   const { productSku } = useCommercialContext();
   const inviteRoles = useMemo(() => launchInviteRolesForSku(productSku), [productSku]);
@@ -202,6 +203,11 @@ export function TeamInvitePanel() {
     }
 
     setNotice(payload.notice ?? "Invitation created.");
+    notify({
+      variant: "success",
+      title: "Invitation sent",
+      description: payload.notice ?? "They can accept from email and sign in through the browser."
+    });
     setLastAcceptUrl(payload.acceptUrl ?? payload.invitation?.acceptUrl ?? null);
     setEmail("");
     setOperatingScope("");

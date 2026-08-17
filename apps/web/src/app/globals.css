@@ -18,7 +18,7 @@
   --mpa-font-sans: var(--font-plex-sans), "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --mpa-font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
 
-  --mpa-color-bg-app: #f3f4f6;
+  --mpa-color-bg-app: #f4f6f5;
   --mpa-color-bg-sidebar: #12151a;
   --mpa-color-bg-sidebar-elevated: #1a1e25;
   --mpa-color-bg-surface: #ffffff;
@@ -108,5 +108,31 @@ body {
   }
   to {
     background-position: 48px 48px, 48px 48px;
+  }
+}
+
+@keyframes mpa-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .mpa-lift {
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .mpa-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(18, 21, 26, 0.08);
+    }
   }
 }

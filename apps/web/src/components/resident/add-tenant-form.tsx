@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Alert, Button, FormField, Input, Select } from "@mpa/ui";
+import { Alert, Button, FormField, Input, Select, useToast } from "@mpa/ui";
 
 type LeaseOption = {
   id: string;
@@ -12,6 +12,7 @@ type LeaseOption = {
 };
 
 export function AddTenantForm({ onDone }: { onDone?: () => void }) {
+  const { notify } = useToast();
   const [leases, setLeases] = useState<LeaseOption[]>([]);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -51,9 +52,13 @@ export function AddTenantForm({ onDone }: { onDone?: () => void }) {
       if (!response.ok) {
         throw new Error(body.error ?? "Could not add tenant");
       }
-      setResult(
-        `Invitation ready for ${body.confirmation?.tenantName ?? "tenant"} at ${body.confirmation?.propertyName ?? "property"} · Unit ${body.confirmation?.unitLabel ?? "—"}.`
-      );
+      const confirmation = `Invitation ready for ${body.confirmation?.tenantName ?? "tenant"} at ${body.confirmation?.propertyName ?? "property"} · Unit ${body.confirmation?.unitLabel ?? "—"}.`;
+      setResult(confirmation);
+      notify({
+        variant: "success",
+        title: "Tenant added",
+        description: "Invitation sent. They can accept from email and open Tenant Portal in the browser."
+      });
       onDone?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not add tenant");

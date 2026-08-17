@@ -110,7 +110,7 @@ function AttentionList({
         <span className="text-xs tabular-nums text-[var(--mpa-color-text-muted)]">{items.length}</span>
       </div>
       {items.length === 0 ? (
-        <p className="rounded-md border border-dashed border-[var(--mpa-color-border-subtle)] px-3 py-2 text-sm text-[var(--mpa-color-text-secondary)]">
+        <p className="rounded-md border border-dashed border-[var(--mpa-color-border-subtle)] bg-white px-3 py-3 text-sm text-[var(--mpa-color-text-secondary)]">
           {empty}
         </p>
       ) : (
@@ -121,7 +121,7 @@ function AttentionList({
               <li key={item.id}>
                 <Link
                   href={item.href}
-                  className={`block rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2 text-sm transition-colors hover:bg-[var(--mpa-color-bg-subtle,#f7faf9)] ${urgencyEdge(urgency)} ${linkFocus}`}
+                  className={`mpa-lift block rounded-md border border-[var(--mpa-color-border-subtle)] bg-white px-3 py-2.5 text-sm ${urgencyEdge(urgency)} ${linkFocus}`}
                 >
                   <span className="flex flex-wrap items-start justify-between gap-2">
                     <span className="font-medium text-[var(--mpa-color-text-primary)]">{item.title}</span>
@@ -277,15 +277,15 @@ export function MissionControlPage() {
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           {productLabel ?? "Property Manager"} · {eyebrow}
         </p>
-        <h1 className="font-display text-3xl font-semibold text-[var(--mpa-color-text-primary)]">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-[var(--mpa-color-text-primary)]">
           Mission Control
         </h1>
-        <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+        <p className="max-w-2xl text-base leading-7 text-[var(--mpa-color-text-secondary)]">
           {loading
             ? "Loading your attention home…"
             : isFirstRun
               ? "Your attention home after Guided Setup — start with one clear next step."
-              : (daily?.greeting ?? "Your operational heartbeat — start and end the day here.")}
+              : (daily?.greeting ?? "Your operational command center — start and end the day here.")}
         </p>
         <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--mpa-color-text-secondary)]">
           <span>{activeOrganization?.name ?? "Organization"}</span>
@@ -348,10 +348,7 @@ export function MissionControlPage() {
       ) : null}
 
       {!loading && showDailyOps && daily ? (
-        <section
-          aria-label="At a glance"
-          className="max-w-5xl rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
-        >
+        <section aria-label="At a glance" className="max-w-5xl space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
               At a glance
@@ -488,7 +485,7 @@ export function MissionControlPage() {
               <AttentionList
                 title="Immediate attention"
                 items={daily.immediateAttention}
-                empty="Nothing urgent right now — organization looks clear on P0."
+                empty="Everything's handled. No immediate items need your attention."
                 defaultUrgency="immediate"
               />
               <AttentionList

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { formatMoney } from "@mpa/shared";
-import { Alert, Badge, Button, EmptyState, Input, Select } from "@mpa/ui";
+import { resolveStatusBadgeVariant, Alert, Badge, Button, EmptyState, Input, Select, TableScroll } from "@mpa/ui";
 
 type Aging = {
   current: number;
@@ -246,8 +246,8 @@ export function CollectionsDesk() {
         {overdue.length === 0 ? (
           <EmptyState title="No delinquent residents" description="Open balances past due will appear here after sync." />
         ) : (
-          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-white">
-            <table className="min-w-full text-left text-sm">
+          <TableScroll>
+            <table className="min-w-[40rem] text-left text-sm">
               <thead>
                 <tr className="border-b text-[var(--mpa-color-text-secondary)]">
                   <th scope="col" className="px-3 py-2">Resident</th>
@@ -291,7 +291,7 @@ export function CollectionsDesk() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
         )}
 
         <form
@@ -595,8 +595,8 @@ export function CollectionsDesk() {
         {invoices.length === 0 ? (
           <EmptyState title="No vendor invoices" description="Submitted invoices await review here." />
         ) : (
-          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] bg-white">
-            <table className="min-w-full text-left text-sm">
+          <TableScroll>
+            <table className="min-w-[40rem] text-left text-sm">
               <thead>
                 <tr className="border-b text-[var(--mpa-color-text-secondary)]">
                   <th scope="col" className="px-3 py-2">Vendor</th>
@@ -689,7 +689,7 @@ export function CollectionsDesk() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
         )}
       </section>
 

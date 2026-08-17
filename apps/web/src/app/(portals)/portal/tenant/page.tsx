@@ -202,9 +202,10 @@ export default async function TenantPortalPage() {
           tone="neutral"
         />
         <ResidentGlanceCard
-          label="Announcements"
-          value="None yet"
-          hint="Community notices from your property will show here."
+          label="Documents"
+          value="Lease & files"
+          hint="Open your lease, notices, and other documents."
+          href="/portal/tenant/documents"
           tone="neutral"
         />
       </section>

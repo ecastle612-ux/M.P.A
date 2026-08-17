@@ -57,7 +57,7 @@ export function ResidentGlanceCard({
     return (
       <Link
         href={href}
-        className={`block rounded-2xl border border-[var(--mpa-color-border-default)] border-l-[3px] bg-white p-4 shadow-[0_1px_0_rgba(15,27,45,0.04)] ${edge} ${linkFocus}`}
+        className={`mpa-lift block min-h-[7rem] rounded-2xl border border-[var(--mpa-color-border-default)] border-l-[3px] bg-white p-4 shadow-[0_1px_0_rgba(15,27,45,0.04)] ${edge} ${linkFocus}`}
       >
         {inner}
       </Link>
@@ -131,7 +131,7 @@ export function ResidentSection({
 
 export function ResidentDocumentsStrip({
   title = "Your documents",
-  detail = "Lease, renewals, move-in packets, policies, and notices live in your Documents area — organized by Document Intelligence."
+  detail = "Lease, renewals, move-in packets, policies, and notices live in your Documents area."
 }: {
   title?: string;
   detail?: string;

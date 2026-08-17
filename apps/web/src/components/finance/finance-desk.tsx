@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatMoney, ownerEmptyStateCopy } from "@mpa/shared";
-import { Alert, Badge, Button, EmptyState, Input, Select } from "@mpa/ui";
+import { resolveStatusBadgeVariant, Alert, Badge, Button, EmptyState, Input, Select, TableScroll } from "@mpa/ui";
 
 type Lease = {
   id: string;
@@ -488,27 +488,29 @@ export function FinanceDesk() {
         )}
 
         {ledger ? (
-          <div className="mt-4 overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b text-[var(--mpa-color-text-secondary)]">
-                  <th scope="col" className="py-2 pr-3">Charge</th>
-                  <th scope="col" className="py-2 pr-3">Due</th>
-                  <th scope="col" className="py-2 pr-3">Amount</th>
-                  <th scope="col" className="py-2 pr-3">Paid</th>
-                  <th scope="col" className="py-2 pr-3">Status</th>
-                  <th scope="col" className="py-2">Actions</th>
+          <TableScroll className="mt-4">
+            <table className="min-w-[36rem] text-left text-sm">
+              <thead className="bg-[var(--mpa-color-bg-subtle,#F4F6F5)]">
+                <tr className="border-b border-[var(--mpa-color-border-subtle)] text-[var(--mpa-color-text-secondary)]">
+                  <th scope="col" className="px-3 py-2.5">Charge</th>
+                  <th scope="col" className="px-3 py-2.5">Due</th>
+                  <th scope="col" className="px-3 py-2.5 text-right">Amount</th>
+                  <th scope="col" className="px-3 py-2.5 text-right">Paid</th>
+                  <th scope="col" className="px-3 py-2.5">Status</th>
+                  <th scope="col" className="px-3 py-2.5">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {ledger.charges.map((charge) => (
                   <tr key={charge.id} className="border-b border-[var(--mpa-color-border-subtle)]">
-                    <td className="py-2 pr-3">{charge.label}</td>
-                    <td className="py-2 pr-3">{charge.due_at}</td>
-                    <td className="py-2 pr-3">{formatMoney(Number(charge.amount))}</td>
-                    <td className="py-2 pr-3">{formatMoney(Number(charge.amount_paid))}</td>
-                    <td className="py-2 pr-3">{charge.status}</td>
-                    <td className="py-2">
+                    <td className="px-3 py-2.5">{charge.label}</td>
+                    <td className="px-3 py-2.5">{charge.due_at}</td>
+                    <td className="px-3 py-2.5 text-right font-medium tabular-nums">{formatMoney(Number(charge.amount))}</td>
+                    <td className="px-3 py-2.5 text-right tabular-nums">{formatMoney(Number(charge.amount_paid))}</td>
+                    <td className="px-3 py-2.5">
+                      <Badge variant={resolveStatusBadgeVariant(charge.status)}>{charge.status}</Badge>
+                    </td>
+                    <td className="px-3 py-2.5">
                       {charge.status !== "void" && charge.status !== "paid" ? (
                         <button
                           type="button"
@@ -538,7 +540,7 @@ export function FinanceDesk() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
         ) : null}
       </section>
 
@@ -606,7 +608,7 @@ export function FinanceDesk() {
                   key={payment.id}
                   className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--mpa-color-border-subtle)] py-2"
                 >
-                  <span>
+                  <span className="tabular-nums">
                     {formatMoney(Number(payment.amount))} · {payment.method} · {payment.status}
                   </span>
                   <span className="text-[var(--mpa-color-text-secondary)]">
@@ -617,7 +619,10 @@ export function FinanceDesk() {
             })}
           </ul>
         ) : (
-          <p className="text-sm text-[var(--mpa-color-text-secondary)]">No payment history for this lease yet.</p>
+          <EmptyState
+            title="No payment history yet"
+            description="Recorded payments and receipts for this lease will appear here."
+          />
         )}
       </section>
     </div>
@@ -628,7 +633,7 @@ function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white px-4 py-3">
       <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">{label}</p>
-      <p className="mt-1 font-display text-xl font-semibold text-[var(--mpa-color-text-primary)]">{value}</p>
+      <p className="mt-1 font-display text-xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">{value}</p>
     </div>
   );
 }

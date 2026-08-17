@@ -31,7 +31,7 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
         aria-labelledby={titleId}
         onMouseDown={(event) => event.stopPropagation()}
         className={cn(
-          "w-full max-w-lg rounded-xl bg-white p-5 shadow-2xl focus:outline-none",
+          "w-full max-w-lg rounded-xl bg-white p-5 shadow-2xl motion-safe:animate-[mpa-rise_200ms_ease-out] focus:outline-none",
           className,
         )}
       >

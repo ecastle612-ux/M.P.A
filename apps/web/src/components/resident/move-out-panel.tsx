@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Alert, Button, FormField, Input } from "@mpa/ui";
+import { Alert, Button, FormField, Input, useToast } from "@mpa/ui";
 
 type Occupancy = {
   id: string;
@@ -23,6 +23,7 @@ export function MoveOutPanel({
   unitLabel: string;
   onDone?: () => void;
 }) {
+  const { notify } = useToast();
   const today = new Date().toISOString().slice(0, 10);
   const [occupyTo, setOccupyTo] = useState(occupancy.occupy_to ?? today);
   const [note, setNote] = useState("");
@@ -69,6 +70,11 @@ export function MoveOutPanel({
     });
     if (ok) {
       setMessage("Move out recorded. Active property access ends after the effective date. History is kept.");
+      notify({
+        variant: "success",
+        title: "Move Out scheduled",
+        description: "Active access ends after the effective date. History is kept."
+      });
     }
   }
 

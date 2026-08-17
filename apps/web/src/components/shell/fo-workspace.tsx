@@ -162,15 +162,15 @@ export function FoGlanceCard({
 }) {
   const edge =
     tone === "critical"
-      ? "border-l-[#C0392B]"
+      ? "border-l-[#C0392B] bg-[var(--mpa-color-status-danger-subtle,#FCE8E6)]"
       : tone === "watch"
-        ? "border-l-[#B45309]"
+        ? "border-l-[#B45309] bg-[var(--mpa-color-status-warning-subtle,#FEF3C7)]"
         : tone === "ok"
-          ? "border-l-[#0E7A57]"
-          : "border-l-[var(--mpa-color-border-default)]";
+          ? "border-l-[#0E7A57] bg-[var(--mpa-color-status-success-subtle,#E3F5EE)]"
+          : "border-l-[var(--mpa-color-border-default)] bg-white";
   return (
     <article
-      className={`rounded-lg border border-[var(--mpa-color-border-default)] border-l-[3px] bg-white p-4 shadow-[0_1px_0_rgba(18,21,26,0.04)] ${edge}`}
+      className={`rounded-lg border border-[var(--mpa-color-border-default)] border-l-[3px] p-4 shadow-[0_1px_0_rgba(18,21,26,0.04)] ${edge}`}
     >
       <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
         {label}
@@ -198,7 +198,7 @@ export function FoCapabilityCard({
 }) {
   const isLive = status === "aligned" || status === "live";
   return (
-    <li className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 shadow-[0_1px_0_rgba(15,27,45,0.04)]">
+    <li className="mpa-lift rounded-lg border border-[var(--mpa-color-border-default)] bg-white p-4 shadow-[0_1px_0_rgba(15,27,45,0.04)]">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h3 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
           {isLive ? (

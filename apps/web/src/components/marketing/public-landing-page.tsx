@@ -19,7 +19,7 @@ import { LandingHeroProductVisual } from "./landing-hero-product-visual";
 import { FutureIntegrationsNote } from "./future-integrations-note";
 
 const cardClass =
-  "rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5";
+  "mpa-lift rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[0_1px_0_rgba(18,21,26,0.04)]";
 
 function Section({
   id,
