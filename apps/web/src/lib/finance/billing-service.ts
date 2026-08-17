@@ -989,6 +989,44 @@ export async function recordManualPayment(
   });
 }
 
+export async function markPaymentProcessing(
+  supabase: Db,
+  paymentId: string,
+  organizationId: string,
+  reason = "processing"
+) {
+  const { data: current, error: readError } = await supabase
+    .from("financial_payments")
+    .select("id, status")
+    .eq("id", paymentId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  if (readError) {
+    throw new Error(readError.message);
+  }
+  if (!current) {
+    throw new Error("pending_payment_missing");
+  }
+  if (current.status === "succeeded" || current.status === "failed" || current.status === "refunded") {
+    return current;
+  }
+  const { data: payment, error } = await supabase
+    .from("financial_payments")
+    .update({
+      status: "processing",
+      failure_reason: reason,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", paymentId)
+    .eq("organization_id", organizationId)
+    .select("*")
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+  return payment;
+}
+
 export async function markPaymentFailed(
   supabase: Db,
   paymentId: string,
@@ -996,6 +1034,23 @@ export async function markPaymentFailed(
   reason: string,
   correlationId?: string
 ) {
+  const { data: current, error: readError } = await supabase
+    .from("financial_payments")
+    .select("id, status")
+    .eq("id", paymentId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  if (readError) {
+    throw new Error(readError.message);
+  }
+  if (
+    current?.status === "succeeded" ||
+    current?.status === "refunded" ||
+    current?.status === "partially_refunded" ||
+    current?.status === "failed"
+  ) {
+    return current;
+  }
   const { data: payment, error } = await supabase
     .from("financial_payments")
     .update({
@@ -1005,6 +1060,7 @@ export async function markPaymentFailed(
     })
     .eq("id", paymentId)
     .eq("organization_id", organizationId)
+    .in("status", ["pending", "processing"])
     .select("*")
     .single();
   if (error) {

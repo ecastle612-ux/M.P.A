@@ -1,9 +1,35 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type Stripe from "stripe";
 import { connectAccountReady, connectStatusFromStripe, publicConnectView } from "@mpa/shared";
 import { orgSkuAllowsResidentialFinance } from "./checkout-authz";
 import { emitFinanceEvent, writeFinanceAudit } from "./events-audit";
 import { connectedRequestOptions, getStripeClient, isStripeConfigured } from "./stripe";
 import { serverEnv } from "../env/server-env";
+
+const CONNECT_REQUESTED_CAPABILITIES = {
+  card_payments: { requested: true },
+  transfers: { requested: true },
+  us_bank_account_ach_payments: { requested: true }
+} as const;
+
+function connectMetadataFromStripe(
+  existing: Record<string, unknown> | null | undefined,
+  remote: Stripe.Account
+) {
+  const requirements = [
+    ...(remote.requirements?.currently_due ?? []),
+    ...(remote.requirements?.past_due ?? [])
+  ].filter((item) => !item.includes("us_bank_account_ach_payments") && !item.startsWith("capabilities."));
+  return {
+    ...(existing ?? {}),
+    requirements,
+    capabilities: {
+      card_payments: remote.capabilities?.card_payments ?? "inactive",
+      transfers: remote.capabilities?.transfers ?? "inactive",
+      us_bank_account_ach_payments: remote.capabilities?.us_bank_account_ach_payments ?? "inactive"
+    }
+  };
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -73,10 +99,7 @@ export async function startConnectOnboarding(
     const created = await stripe.accounts.create({
       type: "express",
       country: "US",
-      capabilities: {
-        card_payments: { requested: true },
-        transfers: { requested: true }
-      },
+      capabilities: CONNECT_REQUESTED_CAPABILITIES,
       metadata: { organization_id: organizationId, domain: "tenant_property" }
     });
     const { data, error } = await supabase
@@ -98,10 +121,7 @@ export async function startConnectOnboarding(
     const created = await stripe.accounts.create({
       type: "express",
       country: "US",
-      capabilities: {
-        card_payments: { requested: true },
-        transfers: { requested: true }
-      },
+      capabilities: CONNECT_REQUESTED_CAPABILITIES,
       metadata: { organization_id: organizationId, domain: "tenant_property" }
     });
     const { data, error } = await supabase
@@ -118,6 +138,10 @@ export async function startConnectOnboarding(
       throw new Error(error.message);
     }
     account = data;
+  } else if (account.stripe_account_id) {
+    await stripe.accounts.update(account.stripe_account_id as string, {
+      capabilities: CONNECT_REQUESTED_CAPABILITIES
+    });
   }
 
   const link = await stripe.accountLinks.create({
@@ -161,6 +185,10 @@ export async function syncConnectAccount(supabase: Db, organizationId: string, a
       status,
       charges_enabled: remote.charges_enabled === true,
       payouts_enabled: remote.payouts_enabled === true,
+      metadata: connectMetadataFromStripe(
+        (account.metadata as Record<string, unknown> | null) ?? {},
+        remote
+      ),
       updated_at: new Date().toISOString()
     })
     .eq("id", account.id)

@@ -126,7 +126,7 @@ const PRODUCT_FIT: Record<
       "Maintenance and work orders",
       "Tenant communications and vendors",
       "Documents, tables, reports, and operational finance",
-      "Take rent online with Stripe — Pay Once or tenant-authorized AutoPay"
+      "Take rent online with Stripe. Choose bank payments, cards, or both."
     ],
     priceLines: (pricing) =>
       `${pricing.pmHeadline} or ${pricing.pmHeadlineAnnual} · ${pricing.pmIncludes}`
@@ -158,7 +158,7 @@ const PRODUCT_FIT: Record<
       "Property Operations + Facility Operations included",
       "Assign each side to a manager, or keep both",
       "Complete launcher between work surfaces",
-      "Take rent online with Stripe when you operate in residential / property scope"
+      "Take rent online with Stripe — bank payments, cards, or both — when you operate in residential / property scope"
     ],
     priceLines: (pricing) =>
       `${pricing.completeHeadlineMonthly} or ${pricing.completeHeadlineAnnual} · ${pricing.completeIncludes}`
@@ -265,8 +265,9 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               without five disconnected tools.
             </p>
             <p className="max-w-md text-base leading-relaxed text-white/80 md:text-lg">
-              Take rent online with Stripe. Tenants can pay a posted balance once, or turn on
-              AutoPay for recurring rent and eligible fees. You set every amount.
+              Take rent online with Stripe. Choose bank payments, cards, or both. Tenants
+              can pay once or authorize AutoPay for recurring rent and eligible fees. You
+              control the amounts and payment options.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               {isAuthenticated ? (
@@ -748,7 +749,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             },
             {
               q: "What does operational finance include?",
-              a: "Charges, balances, payment history, vendor invoices, and owner summaries — with control over who can access financial operations. Take rent online with Stripe after the property connects Stripe and enables Online Payments. Tenants can pay a posted balance once, or turn on AutoPay for recurring rent and eligible fees. You set every amount. AutoPay is tenant-authorized only. It does not include automated late fees, automated collections, ACH, or staff-enrolled AutoPay."
+              a: "Charges, balances, payment history, vendor invoices, and owner summaries — with control over who can access financial operations. Take rent online with Stripe after the property connects Stripe and enables Online Payments. Choose bank payments, cards, or both. Tenants can pay once or authorize AutoPay for recurring rent and eligible fees. You control the amounts and payment options. AutoPay is tenant-authorized only. It does not include automated late fees, automated collections, instant bank settlement, or staff-enrolled AutoPay."
             },
             {
               q: "Does every action send email?",

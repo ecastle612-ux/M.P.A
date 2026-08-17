@@ -1,3 +1,10 @@
+import {
+  connectPaymentCapabilities,
+  normalizeAcceptedTenantPaymentMethods,
+  offeredTenantPaymentMethods,
+  type AcceptedTenantPaymentMethods,
+  type SupportedTenantPaymentMethods
+} from "./accepted-payment-methods";
 import { AUTOPAY_CONSENT_VERSION, connectAccountReady } from "./tenant-payments";
 
 export const ORGANIZATION_DISABLED_ONLINE_PAYMENTS = "organization_disabled_online_payments" as const;
@@ -49,6 +56,8 @@ export type ConnectPublicView = {
   chargesEnabled: boolean;
   payoutsEnabled: boolean;
   requirements: string[];
+  cardPaymentsSupported: boolean;
+  bankPaymentsSupported: boolean;
 };
 
 export function publicConnectView(account: {
@@ -56,16 +65,25 @@ export function publicConnectView(account: {
   status?: string | null;
   charges_enabled?: boolean | null;
   payouts_enabled?: boolean | null;
-  metadata?: { requirements?: string[] } | null;
+  metadata?: {
+    requirements?: string[];
+    capabilities?: {
+      card_payments?: string | null;
+      us_bank_account_ach_payments?: string | null;
+    } | null;
+  } | null;
 } | null | undefined): ConnectPublicView {
   const requirements = Array.isArray(account?.metadata?.requirements) ? account.metadata.requirements : [];
+  const capabilities = connectPaymentCapabilities(account);
   return {
     connected: Boolean(account?.stripe_account_id),
     ready: connectAccountReady(account),
     status: account?.status ?? "not_started",
     chargesEnabled: account?.charges_enabled === true,
     payoutsEnabled: account?.payouts_enabled === true,
-    requirements
+    requirements,
+    cardPaymentsSupported: capabilities.cardSupported,
+    bankPaymentsSupported: capabilities.achSupported
   };
 }
 
@@ -95,9 +113,17 @@ export function resolveOnlinePaymentStatus(input: {
 export function customerSafeOnlinePayments(input: {
   executionEnabled: boolean;
   connect: ConnectPublicView;
+  accepted?: AcceptedTenantPaymentMethods;
+  supported?: SupportedTenantPaymentMethods;
 }) {
   const status = resolveOnlinePaymentStatus(input);
   const copy = ONLINE_PAYMENT_STATUS_COPY[status];
+  const accepted = input.accepted ?? normalizeAcceptedTenantPaymentMethods(null);
+  const supported = input.supported ?? {
+    cardSupported: input.connect.cardPaymentsSupported,
+    achSupported: input.connect.bankPaymentsSupported
+  };
+  const offered = offeredTenantPaymentMethods(accepted, supported);
   return {
     status,
     label: copy.label,
@@ -107,7 +133,14 @@ export function customerSafeOnlinePayments(input: {
     connect_ready: input.connect.ready,
     requirements: input.connect.requirements,
     primary_action: primaryActionForStatus(status),
-    secondary_action: secondaryActionForStatus(status, input.executionEnabled)
+    secondary_action: secondaryActionForStatus(status, input.executionEnabled),
+    accepted_methods: {
+      ach_enabled: accepted.achEnabled,
+      card_enabled: accepted.cardEnabled,
+      ach_supported: supported.achSupported,
+      card_supported: supported.cardSupported,
+      offered
+    }
   };
 }
 
@@ -142,6 +175,7 @@ export function canResumeAutopayAfterOrgDisable(input: {
   hasPaymentMethod: boolean;
   connectReady: boolean;
   executionEnabled: boolean;
+  methodOffered?: boolean;
 }): boolean {
   return (
     input.status === "paused" &&
@@ -150,7 +184,8 @@ export function canResumeAutopayAfterOrgDisable(input: {
     input.occupancyCurrent === true &&
     input.hasPaymentMethod === true &&
     input.connectReady === true &&
-    input.executionEnabled === true
+    input.executionEnabled === true &&
+    input.methodOffered !== false
   );
 }
 

@@ -18,6 +18,13 @@ type OnlinePaymentsStatus = {
   secondary_action: "manage" | "disable" | null;
   onboardingUrl?: string;
   manageUrl?: string;
+  accepted_methods?: {
+    ach_enabled: boolean;
+    card_enabled: boolean;
+    ach_supported: boolean;
+    card_supported: boolean;
+    offered: Array<"card" | "us_bank_account">;
+  };
 };
 
 const BADGE_VARIANT: Record<OnlinePaymentsStatus["availability"], "neutral" | "warning" | "info" | "success" | "danger"> =
@@ -71,13 +78,13 @@ export function OnlinePaymentsSettings() {
   }, [load]);
 
   const runAction = useCallback(
-    async (action: string) => {
+    async (action: string, extras?: Record<string, unknown>) => {
       setBusy(true);
       setError(null);
       try {
         const body = await fetchJson<OnlinePaymentsStatus>("/api/finance/online-payments", {
           method: "POST",
-          body: JSON.stringify({ action })
+          body: JSON.stringify({ action, ...extras })
         });
         if (body.onboardingUrl) {
           window.location.assign(body.onboardingUrl);
@@ -133,8 +140,9 @@ export function OnlinePaymentsSettings() {
           Online Payments
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Take rent online with Stripe. Tenants can pay a posted balance once, or turn on AutoPay
-          for recurring rent and eligible fees. You set every amount.
+          Take rent online with Stripe. Choose bank payments, cards, or both. Tenants can pay once
+          or authorize AutoPay for recurring rent and eligible fees. You control the amounts and
+          payment options.
         </p>
       </header>
 
@@ -219,6 +227,73 @@ export function OnlinePaymentsSettings() {
               </Button>
             </div>
           </Alert>
+        ) : null}
+
+        {status?.accepted_methods && (status.accepted_methods.ach_supported || status.accepted_methods.card_supported) ? (
+          <div className="space-y-3 rounded-md border border-[var(--mpa-color-border-subtle)] px-3 py-3">
+            <div>
+              <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+                Accepted tenant payment methods
+              </p>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                Bank payments generally cost less to process than cards. Keep at least one method
+                on while Online Payments is active.
+              </p>
+            </div>
+            {status.accepted_methods.ach_supported ? (
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  checked={status.accepted_methods.ach_enabled}
+                  disabled={busy}
+                  onChange={(event) =>
+                    void runAction("update_methods", {
+                      achEnabled: event.target.checked,
+                      cardEnabled: status.accepted_methods?.card_enabled === true
+                    })
+                  }
+                />
+                <span>
+                  <span className="font-medium">Bank account (ACH)</span>
+                  <span className="mt-0.5 block text-[var(--mpa-color-text-secondary)]">
+                    Recommended for rent / generally lower processing cost
+                  </span>
+                </span>
+              </label>
+            ) : null}
+            {status.accepted_methods.card_supported ? (
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  checked={status.accepted_methods.card_enabled}
+                  disabled={busy}
+                  onChange={(event) =>
+                    void runAction("update_methods", {
+                      achEnabled: status.accepted_methods?.ach_enabled === true,
+                      cardEnabled: event.target.checked
+                    })
+                  }
+                />
+                <span>
+                  <span className="font-medium">Credit & debit cards</span>
+                  <span className="mt-0.5 block text-[var(--mpa-color-text-secondary)]">
+                    Convenient / generally higher processing cost
+                  </span>
+                </span>
+              </label>
+            ) : (
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                Card payments become available after Stripe finishes card setup.
+              </p>
+            )}
+            {!status.accepted_methods.ach_supported ? (
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                Bank payments become available after Stripe finishes bank-payment setup.
+              </p>
+            ) : null}
+          </div>
         ) : null}
 
         <div className="flex flex-wrap gap-2">

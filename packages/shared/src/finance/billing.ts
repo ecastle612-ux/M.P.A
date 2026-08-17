@@ -184,7 +184,8 @@ export const createCheckoutInputSchema = z.object({
   chargeIds: z.array(z.string().uuid()).min(1).optional(),
   amount: z.number().positive().optional(),
   successUrl: z.string().url().optional(),
-  cancelUrl: z.string().url().optional()
+  cancelUrl: z.string().url().optional(),
+  paymentMethodType: z.enum(["card", "us_bank_account"])
 });
 
 export type CreatePropertyInput = z.infer<typeof createPropertyInputSchema>;

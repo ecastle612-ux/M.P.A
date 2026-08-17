@@ -2,7 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ORGANIZATION_DISABLED_ONLINE_PAYMENTS } from "@mpa/shared";
 
 const state = {
-  settings: [] as Array<{ id: string; organization_id: string; stripe_payment_execution_enabled: boolean }>,
+  settings: [] as Array<{
+    id: string;
+    organization_id: string;
+    stripe_payment_execution_enabled: boolean;
+    tenant_ach_payments_enabled?: boolean;
+    tenant_card_payments_enabled?: boolean;
+  }>,
   connect: null as Record<string, unknown> | null,
   enrollments: [] as Array<Record<string, unknown>>,
   audits: [] as Array<Record<string, unknown>>
@@ -113,19 +119,32 @@ vi.mock("./stripe", () => ({
   connectedRequestOptions: (id: string) => ({ stripeAccount: id })
 }));
 
-import { disableOnlinePayments, enableOnlinePayments } from "./online-payments-service";
+import {
+  disableOnlinePayments,
+  enableOnlinePayments,
+  updateAcceptedTenantPaymentMethods
+} from "./online-payments-service";
 
 describe("docs/194 enable/disable execution", () => {
   beforeEach(() => {
     state.settings = [
-      { id: "set_1", organization_id: "org_a", stripe_payment_execution_enabled: false }
+      {
+        id: "set_1",
+        organization_id: "org_a",
+        stripe_payment_execution_enabled: false,
+        tenant_ach_payments_enabled: true,
+        tenant_card_payments_enabled: true
+      }
     ];
     state.connect = {
       id: "conn_1",
       organization_id: "org_a",
       stripe_account_id: "acct_ready",
       status: "ready",
-      charges_enabled: true
+      charges_enabled: true,
+      metadata: {
+        capabilities: { card_payments: "active", us_bank_account_ach_payments: "active" }
+      }
     };
     state.enrollments = [
       {
@@ -170,5 +189,35 @@ describe("docs/194 enable/disable execution", () => {
     expect(state.enrollments[0]?.["status"]).toBe("paused");
     expect(state.enrollments[0]?.["paused_reason"]).toBe(ORGANIZATION_DISABLED_ONLINE_PAYMENTS);
     expect(state.enrollments[0]?.["revoked_at"]).toBeUndefined();
+  });
+
+  it("rejects disabling the last accepted method while active", async () => {
+    state.settings[0]!.stripe_payment_execution_enabled = true;
+    await expect(
+      updateAcceptedTenantPaymentMethods(db as never, {
+        organizationId: "org_a",
+        actorId: "user_1",
+        accepted: { achEnabled: false, cardEnabled: false }
+      })
+    ).rejects.toThrow("accepted_payment_method_required");
+  });
+
+  it("pauses ACH AutoPay when ACH is disabled and does not switch it to card", async () => {
+    state.settings[0]!.stripe_payment_execution_enabled = true;
+    state.enrollments[0] = {
+      ...state.enrollments[0],
+      payment_method_type: "us_bank_account",
+      status: "active"
+    };
+    await updateAcceptedTenantPaymentMethods(db as never, {
+      organizationId: "org_a",
+      actorId: "user_1",
+      accepted: { achEnabled: false, cardEnabled: true }
+    });
+    expect(state.enrollments[0]?.["status"]).toBe("paused");
+    expect(state.enrollments[0]?.["paused_reason"]).toBe(
+      "organization_disabled_accepted_payment_method"
+    );
+    expect(state.enrollments[0]?.["payment_method_type"]).toBe("us_bank_account");
   });
 });

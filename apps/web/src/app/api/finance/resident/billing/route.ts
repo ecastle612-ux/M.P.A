@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { getLeaseLedger } from "../../../../../lib/finance/billing-service";
-import { connectAccountReady } from "@mpa/shared";
-import { stripePaymentExecutionEnabled } from "../../../../../lib/finance/checkout-authz";
+import { connectAccountReady, offeredTenantPaymentMethods } from "@mpa/shared";
 import { describeAutopay, loadAutopayEnrollment } from "../../../../../lib/finance/autopay-service";
+import { loadTenantPaymentGate } from "../../../../../lib/finance/online-payments-service";
 import { residentOnlinePayAvailable } from "../../../../../lib/finance/resident-online-pay";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 
@@ -53,25 +53,16 @@ export async function GET() {
   ];
   const executionByOrganization = new Map<string, boolean>();
   const connectReadyByOrganization = new Map<string, boolean>();
+  const offeredMethodsByOrganization = new Map<string, Array<"card" | "us_bank_account">>();
   if (organizationIds.length > 0) {
-    const [{ data: settingsRows }, { data: connectRows }] = await Promise.all([
-      settingsReader
-        .from("financial_module_settings")
-        .select("organization_id, stripe_payment_execution_enabled")
-        .in("organization_id", organizationIds),
-      settingsReader
-        .from("financial_connect_accounts")
-        .select("organization_id, stripe_account_id, status, charges_enabled")
-        .in("organization_id", organizationIds)
-    ]);
-    for (const row of settingsRows ?? []) {
-      executionByOrganization.set(
-        row.organization_id as string,
-        stripePaymentExecutionEnabled(row)
+    for (const organizationId of organizationIds) {
+      const gate = await loadTenantPaymentGate(settingsReader, organizationId);
+      executionByOrganization.set(organizationId, gate.executionEnabled);
+      connectReadyByOrganization.set(organizationId, connectAccountReady(gate.connect));
+      offeredMethodsByOrganization.set(
+        organizationId,
+        offeredTenantPaymentMethods(gate.accepted, gate.supported)
       );
-    }
-    for (const row of connectRows ?? []) {
-      connectReadyByOrganization.set(row.organization_id as string, connectAccountReady(row));
     }
   }
 
@@ -132,6 +123,8 @@ export async function GET() {
         connectReady: connectReadyByOrganization.get(resident.organization_id as string) === true
       }),
       connectReady: connectReadyByOrganization.get(resident.organization_id as string) === true,
+      acceptedPaymentMethods:
+        offeredMethodsByOrganization.get(resident.organization_id as string) ?? [],
       autopay: describeAutopay(
         await loadAutopayEnrollment(settingsReader, resident.organization_id as string, resident.lease_id as string),
         {

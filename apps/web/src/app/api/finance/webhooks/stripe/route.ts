@@ -4,6 +4,7 @@ import {
   applyPaymentRefund,
   applySucceededPayment,
   markPaymentFailed,
+  markPaymentProcessing,
   recordPaymentDispute
 } from "../../../../../lib/finance/billing-service";
 import {
@@ -14,6 +15,7 @@ import {
 import {
   resolveCheckoutFailure,
   resolveCheckoutSessionCompleted,
+  resolveCheckoutSessionLifecycle,
   resolvePaymentIntentSucceeded
 } from "../../../../../lib/finance/finops-stripe-webhook";
 import { getStripeClient } from "../../../../../lib/finance/stripe";
@@ -26,8 +28,10 @@ export const runtime = "nodejs";
 const HANDLED = new Set([
   "checkout.session.completed",
   "checkout.session.expired",
+  "payment_intent.processing",
   "payment_intent.payment_failed",
   "payment_intent.succeeded",
+  "charge.failed",
   "charge.refunded",
   "charge.dispute.created",
   "charge.dispute.closed",
@@ -112,16 +116,39 @@ export async function POST(request: Request) {
         .eq("id", paymentId)
         .maybeSingle();
 
-      const resolution = resolveCheckoutSessionCompleted({
-        payment,
-        organizationId,
-        leaseId,
-        checkoutSessionId: session.id,
-        amountTotalCents: session.amount_total
-      });
+      const resolution =
+        session.payment_status === "paid"
+          ? resolveCheckoutSessionCompleted({
+              payment,
+              organizationId,
+              leaseId,
+              checkoutSessionId: session.id,
+              amountTotalCents: session.amount_total
+            })
+          : resolveCheckoutSessionLifecycle({
+              payment,
+              organizationId,
+              leaseId,
+              checkoutSessionId: session.id,
+              amountTotalCents: session.amount_total,
+              paymentStatus: session.payment_status
+            });
 
       if (resolution.action === "refuse") {
         throw new Error(resolution.error);
+      }
+
+      if (resolution.action === "mark_processing") {
+        await markPaymentProcessing(supabase, resolution.paymentId, organizationId, "ach_submitted");
+        await supabase
+          .from("financial_stripe_webhook_events")
+          .update({
+            processed_at: new Date().toISOString(),
+            organization_id: organizationId,
+            payment_id: resolution.paymentId
+          })
+          .eq("stripe_event_id", event.id);
+        return NextResponse.json({ ok: true, processing: true, verifiedWith });
       }
 
       if (resolution.action === "already_succeeded") {
@@ -134,6 +161,10 @@ export async function POST(request: Request) {
           })
           .eq("stripe_event_id", event.id);
         return NextResponse.json({ ok: true, alreadySucceeded: true, verifiedWith });
+      }
+
+      if (resolution.action !== "apply") {
+        throw new Error("pending_payment_mismatch");
       }
 
       const intentId =
@@ -209,8 +240,63 @@ export async function POST(request: Request) {
       }
     }
 
+    if (event.type === "payment_intent.processing") {
+      const intent = event.data.object as Stripe.PaymentIntent;
+      const paymentId = intent.metadata?.["payment_id"];
+      const organizationId = intent.metadata?.["organization_id"];
+      if (paymentId && organizationId) {
+        await markPaymentProcessing(supabase, paymentId, organizationId, "ach_processing");
+        await supabase
+          .from("financial_stripe_webhook_events")
+          .update({
+            processed_at: new Date().toISOString(),
+            organization_id: organizationId,
+            payment_id: paymentId
+          })
+          .eq("stripe_event_id", event.id);
+      }
+    }
+
+    if (event.type === "charge.failed") {
+      const charge = event.data.object as Stripe.Charge;
+      const paymentId = charge.metadata?.["payment_id"];
+      const organizationId = charge.metadata?.["organization_id"];
+      const { data: payment } = paymentId
+        ? await supabase
+            .from("financial_payments")
+            .select("id, organization_id, lease_id, amount, status, stripe_checkout_session_id")
+            .eq("id", paymentId)
+            .maybeSingle()
+        : { data: null };
+      const resolution = resolveCheckoutFailure({
+        paymentId,
+        organizationId,
+        payment
+      });
+      if (resolution.action === "mark_failed" && organizationId) {
+        const reason =
+          charge.failure_code === "insufficient_funds"
+            ? "insufficient_funds"
+            : charge.failure_code === "account_closed" || charge.failure_code === "no_account"
+              ? "invalid_or_closed_account"
+              : charge.failure_code ?? "ach_failed";
+        await markPaymentFailed(supabase, resolution.paymentId, organizationId, reason, event.id);
+      }
+      await supabase
+        .from("financial_stripe_webhook_events")
+        .update({
+          processed_at: new Date().toISOString(),
+          organization_id: organizationId ?? null,
+          payment_id: paymentId ?? null
+        })
+        .eq("stripe_event_id", event.id);
+    }
+
     if (event.type === "checkout.session.expired" || event.type === "payment_intent.payment_failed") {
-      const object = event.data.object as { metadata?: Record<string, string> };
+      const object = event.data.object as {
+        metadata?: Record<string, string>;
+        last_payment_error?: { code?: string | null } | null;
+      };
       const paymentId = object.metadata?.["payment_id"];
       const organizationId = object.metadata?.["organization_id"];
       const { data: payment } = paymentId
@@ -229,7 +315,14 @@ export async function POST(request: Request) {
         throw new Error(resolution.error);
       }
       if (resolution.action === "mark_failed" && organizationId) {
-        await markPaymentFailed(supabase, resolution.paymentId, organizationId, event.type, event.id);
+        const code = object.last_payment_error?.code;
+        const reason =
+          code === "insufficient_funds"
+            ? "insufficient_funds"
+            : code === "account_closed" || code === "no_account"
+              ? "invalid_or_closed_account"
+              : event.type;
+        await markPaymentFailed(supabase, resolution.paymentId, organizationId, reason, event.id);
         await supabase
           .from("financial_stripe_webhook_events")
           .update({

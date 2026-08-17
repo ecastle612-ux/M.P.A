@@ -1,32 +1,46 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   AUTOPAY_CONSENT_TEXT,
-  AUTOPAY_CONSENT_VERSION,
+  autopayConsentForMethod,
   autopayCoverageCopy,
   chargeIsAutopayEligible,
+  enrollmentPaymentMethodType,
   occupancyIsCurrent,
+  paymentMethodOfferedForOrganization,
   remainingBalance,
   resolveCheckoutAmount,
   roundMoney,
-  type ChargeType
+  stripeHostedPaymentMethodConfig,
+  type ChargeType,
+  type TenantPaymentMethodType
 } from "@mpa/shared";
-import { applySucceededPayment, markPaymentFailed } from "./billing-service";
+import { applySucceededPayment, markPaymentFailed, markPaymentProcessing } from "./billing-service";
 import { stripePaymentExecutionEnabled } from "./checkout-authz";
 import { connectAccountReady, loadConnectAccount } from "./connect-service";
 import { emitFinanceEvent, writeFinanceAudit, writeFinanceNotification } from "./events-audit";
+import { loadTenantPaymentGate, pauseAutopayForDisabledMethod } from "./online-payments-service";
 import { connectedRequestOptions, getStripeClient } from "./stripe";
 import { serverEnv } from "../env/server-env";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
 
-export function tenantConsentAccepted(consentText: string): boolean {
+export function tenantConsentAccepted(
+  consentText: string,
+  paymentMethodType: TenantPaymentMethodType = "card"
+): boolean {
   const normalized = consentText.trim().toLowerCase();
-  return (
+  const base =
     normalized.includes("i authorize") &&
     normalized.includes("autopay") &&
-    !normalized.includes("admin can enroll")
-  );
+    !normalized.includes("admin can enroll");
+  if (!base) {
+    return false;
+  }
+  if (paymentMethodType === "us_bank_account") {
+    return normalized.includes("bank") || normalized.includes("ach");
+  }
+  return true;
 }
 
 export async function loadAutopayEnrollment(supabase: Db, organizationId: string, leaseId: string) {
@@ -48,6 +62,7 @@ export function describeAutopay(
     paused_reason?: string | null;
     payment_method_brand?: string | null;
     payment_method_last4?: string | null;
+    payment_method_type?: string | null;
   } | null,
   extras?: { nextDue?: string | null; nextAmount?: number | null }
 ) {
@@ -56,6 +71,7 @@ export function describeAutopay(
     status: enrollment?.status ?? "off",
     paused: enrollment?.status === "paused",
     pausedReason: enrollment?.paused_reason ?? null,
+    paymentMethodType: enrollmentPaymentMethodType(enrollment),
     paymentMethod:
       enrollment?.payment_method_last4
         ? `${enrollment.payment_method_brand ?? "card"} •••• ${enrollment.payment_method_last4}`
@@ -75,12 +91,23 @@ export async function startAutopaySetup(
     residentId: string;
     userId: string;
     consentText: string;
+    paymentMethodType: TenantPaymentMethodType;
   }
 ) {
-  if (!tenantConsentAccepted(args.consentText)) {
+  if (!tenantConsentAccepted(args.consentText, args.paymentMethodType)) {
     throw new Error("autopay_consent_required");
   }
-  const connect = await loadConnectAccount(supabase, args.organizationId);
+  const gate = await loadTenantPaymentGate(supabase, args.organizationId);
+  if (
+    !paymentMethodOfferedForOrganization({
+      paymentMethodType: args.paymentMethodType,
+      accepted: gate.accepted,
+      supported: gate.supported
+    })
+  ) {
+    throw new Error("accepted_payment_method_disabled");
+  }
+  const connect = gate.connect;
   if (!connectAccountReady(connect)) {
     throw new Error("stripe_connect_not_ready");
   }
@@ -120,28 +147,33 @@ export async function startAutopaySetup(
     });
   }
 
+  const methodConfig = stripeHostedPaymentMethodConfig(args.paymentMethodType);
+  const consent = autopayConsentForMethod(args.paymentMethodType);
   const session = await stripe.checkout.sessions.create(
     {
       mode: "setup",
       customer: customerId,
-      success_url: `${serverEnv.NEXT_PUBLIC_APP_URL}/portal/tenant/billing?autopay=return&leaseId=${args.leaseId}&session_id={CHECKOUT_SESSION_ID}`,
+      ...methodConfig,
+      success_url: `${serverEnv.NEXT_PUBLIC_APP_URL}/portal/tenant/billing?autopay=return&leaseId=${args.leaseId}&method=${args.paymentMethodType}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${serverEnv.NEXT_PUBLIC_APP_URL}/portal/tenant/billing?autopay=cancelled`,
       metadata: {
         organization_id: args.organizationId,
         lease_id: args.leaseId,
         resident_id: args.residentId,
         source: "autopay_setup",
-        domain: "tenant_property"
+        domain: "tenant_property",
+        payment_method_type: args.paymentMethodType
       }
-    },
+    } as unknown as Parameters<typeof stripe.checkout.sessions.create>[0],
     connectedRequestOptions(connect.stripe_account_id, `autopay-setup:${args.leaseId}:${customerId}`)
   );
 
   return {
     checkoutUrl: session.url,
     sessionId: session.id,
-    consentText: AUTOPAY_CONSENT_TEXT,
-    consentVersion: AUTOPAY_CONSENT_VERSION
+    consentText: consent.text,
+    consentVersion: consent.version,
+    paymentMethodType: args.paymentMethodType
   };
 }
 
@@ -155,12 +187,23 @@ export async function confirmAutopayEnrollment(
     setupIntentId?: string;
     checkoutSessionId?: string;
     consentText: string;
+    paymentMethodType: TenantPaymentMethodType;
   }
 ) {
-  if (!tenantConsentAccepted(args.consentText)) {
+  if (!tenantConsentAccepted(args.consentText, args.paymentMethodType)) {
     throw new Error("autopay_consent_required");
   }
-  const connect = await loadConnectAccount(supabase, args.organizationId);
+  const gate = await loadTenantPaymentGate(supabase, args.organizationId);
+  if (
+    !paymentMethodOfferedForOrganization({
+      paymentMethodType: args.paymentMethodType,
+      accepted: gate.accepted,
+      supported: gate.supported
+    })
+  ) {
+    throw new Error("accepted_payment_method_disabled");
+  }
+  const connect = gate.connect;
   if (!connectAccountReady(connect) || !connect?.stripe_account_id) {
     throw new Error("stripe_connect_not_ready");
   }
@@ -205,6 +248,11 @@ export async function confirmAutopayEnrollment(
     {},
     connectedRequestOptions(connect.stripe_account_id)
   );
+  const savedType = method.type === "us_bank_account" ? "us_bank_account" : "card";
+  if (savedType !== args.paymentMethodType) {
+    throw new Error("accepted_payment_method_disabled");
+  }
+  const consent = autopayConsentForMethod(args.paymentMethodType);
 
   const row = {
     organization_id: args.organizationId,
@@ -213,11 +261,13 @@ export async function confirmAutopayEnrollment(
     stripe_account_id: connect.stripe_account_id,
     stripe_customer_id: customerId,
     stripe_payment_method_id: paymentMethodId,
-    payment_method_brand: method.card?.brand ?? method.type ?? "card",
-    payment_method_last4: method.card?.last4 ?? null,
+    payment_method_type: args.paymentMethodType,
+    payment_method_brand:
+      method.card?.brand ?? method.us_bank_account?.bank_name ?? method.type ?? args.paymentMethodType,
+    payment_method_last4: method.card?.last4 ?? method.us_bank_account?.last4 ?? null,
     status: "active",
     consent_text: args.consentText,
-    consent_version: AUTOPAY_CONSENT_VERSION,
+    consent_version: consent.version,
     consented_at: new Date().toISOString(),
     revoked_at: null,
     paused_reason: null,
@@ -315,17 +365,28 @@ export async function runAutopayForLease(
     asOfDate?: string;
   }
 ) {
-  const { data: settings } = await supabase
-    .from("financial_module_settings")
-    .select("stripe_payment_execution_enabled")
-    .eq("organization_id", args.organizationId)
-    .maybeSingle();
-  if (!stripePaymentExecutionEnabled(settings)) {
+  const gate = await loadTenantPaymentGate(supabase, args.organizationId);
+  if (!stripePaymentExecutionEnabled(gate.settings)) {
     throw new Error("stripe_payment_execution_disabled");
   }
   const enrollment = await loadAutopayEnrollment(supabase, args.organizationId, args.leaseId);
   if (!enrollment || enrollment.status !== "active") {
     throw new Error("autopay_disabled");
+  }
+  const enrolledType = enrollmentPaymentMethodType(enrollment);
+  if (
+    !paymentMethodOfferedForOrganization({
+      paymentMethodType: enrolledType,
+      accepted: gate.accepted,
+      supported: gate.supported
+    })
+  ) {
+    await pauseAutopayForDisabledMethod(supabase, {
+      organizationId: args.organizationId,
+      actorId: enrollment.resident_id as string,
+      disabledType: enrolledType
+    });
+    throw new Error("accepted_payment_method_disabled");
   }
   const { data: occupant } = await supabase
     .from("lease_residents")
@@ -403,7 +464,7 @@ export async function runAutopayForLease(
       method: "online_stripe",
       stripe_connect_account_id: connect.stripe_account_id,
       selected_charge_ids: eligible.map((charge) => charge.id),
-      metadata: { source: "autopay" }
+      metadata: { source: "autopay", payment_method_type: enrolledType }
     })
     .select("*")
     .single();
@@ -424,13 +485,15 @@ export async function runAutopayForLease(
         currency: (lease?.currency ?? "usd").toLowerCase(),
         customer: enrollment.stripe_customer_id,
         payment_method: enrollment.stripe_payment_method_id,
+        payment_method_types: [enrolledType],
         off_session: true,
         confirm: true,
         metadata: {
           payment_id: payment.id,
           organization_id: args.organizationId,
           lease_id: args.leaseId,
-          source: "autopay"
+          source: "autopay",
+          payment_method_type: enrolledType
         }
       },
       connectedRequestOptions(connect.stripe_account_id, `autopay:${payment.id}`)
@@ -440,9 +503,14 @@ export async function runAutopayForLease(
       .from("financial_payments")
       .update({
         stripe_payment_intent_id: intent.id,
+        status: intent.status === "processing" ? "processing" : payment.status,
         updated_at: new Date().toISOString()
       })
       .eq("id", payment.id);
+
+    if (intent.status === "processing") {
+      await markPaymentProcessing(supabase, payment.id, args.organizationId, "ach_processing");
+    }
 
     if (intent.status === "succeeded") {
       await applySucceededPayment(supabase, {

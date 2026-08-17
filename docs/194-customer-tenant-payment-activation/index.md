@@ -617,3 +617,88 @@ Please accept or reject the following as a package:
 6. Public copy updates in the same release, using the recommended production line in §11.
 7. No global enable. Property Demo execution stays false.
 8. Implement S0–S6 in-repo only. STOP before Production deploy or any execution-flag change.
+
+---
+
+## 17. Payment-method amendment (Owner 2026-08-17)
+
+**Status:** Owner-authorized successor to the certified docs/195 package. Do not discard docs/195.
+
+Production has not received docs/195. Migration `20260817220000` is unapplied. No customer org is enabled. The Owner changed one product decision before Production: eligible Property Manager / Complete residential subscribers choose accepted tenant payment methods.
+
+### 17.1 Preserved certified behavior
+
+Keep all docs/195 behavior: Stripe Connect per organization; explicit Enable / Disable; Connect-ready + execution fail-closed; Pay Once on the connected account; tenant-authorized AutoPay; admin cannot enroll; AutoPay pause/resume; former-tenant isolation; FIN-OPS ledger; SaaS Stripe isolation; July frozen; M5 disabled; public $59 / $59 / $109.
+
+### 17.2 Accepted methods
+
+Organization settings:
+
+- `tenant_ach_payments_enabled`
+- `tenant_card_payments_enabled`
+
+Exactly three valid combinations while Online Payments is active: ACH only, cards only, ACH + cards. The server rejects a configuration that leaves no **offered** method (org-enabled **and** supported by that Connect account). This is not UI-only.
+
+### 17.3 Stripe ACH architecture
+
+Official Stripe ACH Direct Debit (`us_bank_account`) on the **existing** Express connected account. Same `stripeAccount` / `connectedRequestOptions` direct-charge model as cards.
+
+- Stripe Checkout / Setup collects bank details, verification (Financial Connections or hosted microdeposits), mandate, and tokenization.
+- M.P.A. does not store routing or account numbers.
+- Request `us_bank_account_ach_payments` on create and on in-place update of the existing connected account. Do not create another Property Demo Connect account.
+- The platform Stripe account must also have ACH Direct Debit available. That is Dashboard / platform configuration, not a second Connect account.
+- ACH money paths additionally require the connected-account ACH capability to be `active`. Card money paths continue to use `connectAccountReady`.
+- Customer UI never shows account IDs or capability names.
+
+Sources consulted 2026-08-17:
+
+- https://docs.stripe.com/payments/ach-direct-debit
+- https://docs.stripe.com/connect/account-capabilities
+- https://docs.stripe.com/connect/charges
+- https://stripe.com/pricing
+
+### 17.4 ACH lifecycle
+
+ACH is delayed notification (up to several business days). Do not mark a FIN-OPS charge paid because Checkout completed or a PaymentIntent was created.
+
+| Stripe signal | FIN-OPS |
+|---|---|
+| Checkout completed, `payment_status` not `paid` | `pending` → `processing` (submitted) |
+| `payment_intent.processing` | `processing` |
+| `payment_intent.succeeded` | apply → allocation → receipt → paid |
+| `payment_intent.payment_failed` / `charge.failed` | `failed` (insufficient funds / invalid or closed account when Stripe reports it) |
+| `charge.refunded` after success | reversing refund entries; do not delete history |
+| Duplicate webhook | idempotent; already-succeeded / already-failed ignored |
+
+ACH failure does not create a late fee. M5 stays off.
+
+### 17.5 AutoPay
+
+Tenant chooses which **allowed** method to authorize. ACH AutoPay requires ACH-specific consent. Coverage is unchanged: posted recurring rent and AutoPay-eligible recurring fees only.
+
+If the subscriber disables the enrolled method:
+
+- pause that enrollment
+- retain historical consent
+- do not switch ACH ↔ card
+- tenant must explicitly authorize another allowed method
+
+Re-enabling the **same** method may resume that paused enrollment when consent, occupancy, payment method, Connect, and execution still hold.
+
+### 17.6 Fees (do not invent)
+
+Public Stripe standard pricing (fetched 2026-08-17) lists domestic cards at 2.9% + 30¢ and ACH Direct Debit at 0.8% capped at $5.00, and notes that Connect pricing can differ. For **direct charges on Express**, Stripe processing fees are typically billed to the connected account. M.P.A. does not invent a platform take-rate or hard-code fee numbers in the product UI.
+
+Public UI may say: “Bank payments generally cost less to process than cards.” Do not promise a savings amount.
+
+### 17.7 Migration
+
+Because `20260817220000` never reached Production, amend it in place. Add accepted-method columns, enrollment `payment_method_type`, and `processing` on `financial_payments`. Do not add unnecessary migration lineage. Do not apply from this package.
+
+### 17.8 Public copy
+
+Preferred line:
+
+> Take rent online with Stripe. Choose bank payments, cards, or both. Tenants can pay once or authorize AutoPay for recurring rent and eligible fees. You control the amounts and payment options.
+
+Do not advertise free processing, instant ACH settlement, automatic late fees, M5 collections, or admin-enrolled AutoPay.

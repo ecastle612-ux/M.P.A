@@ -49,10 +49,10 @@ describe("docs/194 customer activation certification", () => {
     const residentAutopay = readRepo("apps/web/src/app/api/finance/resident/autopay/route.ts");
     const runner = readRepo("apps/web/src/app/api/finance/autopay/run/route.ts");
     const service = readRepo("apps/web/src/lib/finance/autopay-service.ts");
-    expect(checkout).toContain("stripePaymentExecutionEnabled");
+    expect(checkout).toContain("gate.executionEnabled");
     expect(checkout).toContain("connectAccountReady");
     expect(checkout).toContain("connectedRequestOptions");
-    expect(residentAutopay).toContain("stripePaymentExecutionEnabled");
+    expect(residentAutopay).toContain("gate.executionEnabled");
     expect(residentAutopay).toContain("connectAccountReady");
     expect(runner).toContain("stripePaymentExecutionEnabled");
     expect(runner).toContain("connectAccountReady");
@@ -170,7 +170,8 @@ describe("docs/194 customer activation certification", () => {
 
   it("does not flip Property Demo or any org execution from this package", () => {
     const migration = readRepo("supabase/migrations/20260817220000_docs_194_online_payments_activation.sql");
-    expect(migration).not.toContain("stripe_payment_execution_enabled");
+    expect(migration).not.toMatch(/stripe_payment_execution_enabled\s*=/);
+    expect(migration).not.toMatch(/update\s+public\.financial_module_settings/i);
     expect(migration).not.toContain(PROPERTY_DEMO_ORG);
     expect(readRepo("apps/web/src/lib/finance/online-payments-service.ts")).toContain(
       ".eq(\"organization_id\", organizationId)"
@@ -182,9 +183,9 @@ describe("docs/194 customer activation certification", () => {
     const legal = readRepo("apps/web/src/lib/legal/public-legal-copy.ts");
     const pricing = readRepo("packages/shared/src/commercial/pricing-display.ts");
     expect(landing).toContain("Take rent online with Stripe");
-    expect(landing).toContain("tenant-authorized AutoPay");
+    expect(landing).toContain("authorize AutoPay");
     expect(landing).not.toMatch(/admin can enroll/i);
-    expect(landing).toContain("It does not include automated late fees, automated collections, ACH");
+    expect(landing).toContain("It does not include automated late fees, automated collections, instant bank settlement");
     expect(legal).toContain("enables Online Payments");
     expect(legal).toContain("does not automatically assess late fees or run collections");
     expect(pricing).toContain("Take rent online with Stripe");

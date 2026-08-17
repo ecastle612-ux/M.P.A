@@ -6,6 +6,8 @@
 **Implementation SHA:** `eba12ae8b631b5dd42b087e8140aff724c654d3e`  
 **S0 merge SHA:** `bd44da30` (docs/188–193 Connect architecture)
 
+**Successor:** Keep this record. It certifies docs/194 S0–S6 at the SHA above. The Owner payment-method amendment is documented in [docs/194 §17](../194-customer-tenant-payment-activation/index.md#17-payment-method-amendment-owner-2026-08-17) and certified in [docs/196](../196-customer-tenant-payment-method-amendment-certification/index.md). Do not discard or rewrite the certified S0–S6 behavior in this file.
+
 This package implements the approved subscriber Online Payments workflow. It does **not** deploy, apply Production migrations, or change any organization’s `stripe_payment_execution_enabled` flag.
 
 ---

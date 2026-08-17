@@ -211,13 +211,15 @@ export const createCheckoutInputSchemaV2 = z.object({
   chargeIds: z.array(z.string().uuid()).min(1).optional(),
   amount: z.number().positive().optional(),
   successUrl: z.string().url().optional(),
-  cancelUrl: z.string().url().optional()
+  cancelUrl: z.string().url().optional(),
+  paymentMethodType: z.enum(["card", "us_bank_account"])
 });
 
 export const autopayStartInputSchema = z.object({
   action: z.literal("start"),
   leaseId: z.string().uuid(),
-  consentText: z.string().trim().min(20)
+  consentText: z.string().trim().min(20),
+  paymentMethodType: z.enum(["card", "us_bank_account"])
 });
 
 export const autopayConfirmInputSchema = z
@@ -226,7 +228,8 @@ export const autopayConfirmInputSchema = z
     leaseId: z.string().uuid(),
     setupIntentId: z.string().min(3).optional(),
     checkoutSessionId: z.string().min(3).optional(),
-    consentText: z.string().trim().min(20)
+    consentText: z.string().trim().min(20),
+    paymentMethodType: z.enum(["card", "us_bank_account"])
   })
   .refine((value) => Boolean(value.setupIntentId || value.checkoutSessionId), {
     message: "setupIntentId or checkoutSessionId required"

@@ -12,7 +12,8 @@ import {
 import {
   customerOnlinePaymentsStatus,
   disableOnlinePayments,
-  enableOnlinePayments
+  enableOnlinePayments,
+  updateAcceptedTenantPaymentMethods
 } from "../../../../lib/finance/online-payments-service";
 import { createServiceRoleClient } from "../../../../lib/supabase/service-role";
 
@@ -131,6 +132,32 @@ export async function POST(request: Request) {
         organizationId: authz.organizationId,
         actorId: authz.user.id
       });
+      const status = await customerOnlinePaymentsStatus(resolved.writer, authz.organizationId);
+      return safeJson(status);
+    }
+
+    if (action === "update_methods") {
+      try {
+        await updateAcceptedTenantPaymentMethods(resolved.writer, {
+          organizationId: authz.organizationId,
+          actorId: authz.user.id,
+          accepted: {
+            achEnabled: payload?.achEnabled === true,
+            cardEnabled: payload?.cardEnabled === true
+          }
+        });
+      } catch (error) {
+        if (error instanceof Error && error.message === "accepted_payment_method_required") {
+          return safeJson(
+            {
+              error: "accepted_payment_method_required",
+              message: "Keep at least one accepted tenant payment method while Online Payments is on."
+            },
+            409
+          );
+        }
+        throw error;
+      }
       const status = await customerOnlinePaymentsStatus(resolved.writer, authz.organizationId);
       return safeJson(status);
     }

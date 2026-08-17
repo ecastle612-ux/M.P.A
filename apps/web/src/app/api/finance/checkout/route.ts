@@ -3,18 +3,21 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   connectAccountReady,
   createCheckoutInputSchema,
+  paymentMethodOfferedForOrganization,
   remainingBalance,
   resolveCheckoutAmount,
-  roundMoney
+  roundMoney,
+  stripeHostedPaymentMethodConfig
 } from "@mpa/shared";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import {
+  acceptedPaymentMethodDeniedResponse,
   authorizeFinanceCheckout,
   orgSkuAllowsResidentialFinance,
-  stripePaymentExecutionDisabledResponse,
-  stripePaymentExecutionEnabled
+  stripePaymentExecutionDisabledResponse
 } from "../../../../lib/finance/checkout-authz";
-import { connectUnavailableResponse, loadConnectAccount } from "../../../../lib/finance/connect-service";
+import { connectUnavailableResponse } from "../../../../lib/finance/connect-service";
+import { loadTenantPaymentGate } from "../../../../lib/finance/online-payments-service";
 import { emitFinanceEvent, writeFinanceAudit } from "../../../../lib/finance/events-audit";
 import {
   connectedRequestOptions,
@@ -83,17 +86,13 @@ export async function POST(request: Request) {
     writer = supabase;
   }
 
-  const [{ data: subscription }, { data: settings }] = await Promise.all([
+  const [{ data: subscription }, gate] = await Promise.all([
     writer
       .from("organization_subscriptions")
       .select("sku_code, status")
       .eq("organization_id", leaseRow.organization_id)
       .maybeSingle(),
-    writer
-      .from("financial_module_settings")
-      .select("stripe_payment_execution_enabled")
-      .eq("organization_id", leaseRow.organization_id)
-      .maybeSingle()
+    loadTenantPaymentGate(writer, leaseRow.organization_id)
   ]);
 
   const skuCode = subscription && subscription.status !== "canceled" ? subscription.sku_code : null;
@@ -101,13 +100,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (!stripePaymentExecutionEnabled(settings)) {
+  if (!gate.executionEnabled) {
     return stripePaymentExecutionDisabledResponse();
   }
 
-  const connect = await loadConnectAccount(writer, leaseRow.organization_id);
+  const connect = gate.connect;
   if (!connectAccountReady(connect) || !connect?.stripe_account_id) {
     return NextResponse.json(connectUnavailableResponse(connect), { status: 403 });
+  }
+
+  if (
+    !paymentMethodOfferedForOrganization({
+      paymentMethodType: parsed.data.paymentMethodType,
+      accepted: gate.accepted,
+      supported: gate.supported
+    })
+  ) {
+    return acceptedPaymentMethodDeniedResponse(parsed.data.paymentMethodType);
   }
 
   if (!isStripeConfigured()) {
@@ -164,7 +173,7 @@ export async function POST(request: Request) {
 
   const { data: existingPending } = await writer
     .from("financial_payments")
-    .select("id, amount, status, stripe_checkout_session_id")
+    .select("id, amount, status, stripe_checkout_session_id, metadata")
     .eq("organization_id", leaseRow.organization_id)
     .eq("lease_id", leaseRow.id)
     .eq("status", "pending")
@@ -180,7 +189,10 @@ export async function POST(request: Request) {
         {},
         connectedRequestOptions(connect.stripe_account_id)
       );
-      if (existingSession.status === "open" && existingSession.url) {
+      const sameMethod =
+        (existingPending.metadata as { payment_method_type?: string } | null)?.payment_method_type ===
+        parsed.data.paymentMethodType;
+      if (existingSession.status === "open" && existingSession.url && sameMethod) {
         return NextResponse.json({
           checkoutUrl: existingSession.url,
           sessionId: existingSession.id,
@@ -216,7 +228,7 @@ export async function POST(request: Request) {
       recorded_by: user.id,
       stripe_connect_account_id: connect.stripe_account_id,
       selected_charge_ids: selectedChargeIds,
-      metadata: { source: "pay_once" }
+      metadata: { source: "pay_once", payment_method_type: parsed.data.paymentMethodType }
     })
     .select("*")
     .single();
@@ -227,14 +239,16 @@ export async function POST(request: Request) {
 
   const successUrl =
     parsed.data.successUrl ??
-    `${serverEnv.NEXT_PUBLIC_APP_URL}/portal/tenant/billing?payment=success&session_id={CHECKOUT_SESSION_ID}`;
+    `${serverEnv.NEXT_PUBLIC_APP_URL}/portal/tenant/billing?payment=success&method=${parsed.data.paymentMethodType}&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl =
     parsed.data.cancelUrl ?? `${serverEnv.NEXT_PUBLIC_APP_URL}/portal/tenant/billing?payment=cancelled`;
+  const methodConfig = stripeHostedPaymentMethodConfig(parsed.data.paymentMethodType);
 
   try {
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
+        ...methodConfig,
         success_url: successUrl,
         cancel_url: cancelUrl,
         client_reference_id: payment.id,
@@ -242,7 +256,8 @@ export async function POST(request: Request) {
           payment_id: payment.id,
           organization_id: leaseRow.organization_id,
           lease_id: leaseRow.id,
-          domain: "tenant_property"
+          domain: "tenant_property",
+          payment_method_type: parsed.data.paymentMethodType
         },
         line_items: [
           {
@@ -258,7 +273,7 @@ export async function POST(request: Request) {
           }
         ],
         integration_identifier: `mpa-resident-pay-${randomIntegrationSuffix()}`
-      } as Parameters<typeof stripe.checkout.sessions.create>[0],
+      } as unknown as Parameters<typeof stripe.checkout.sessions.create>[0],
       connectedRequestOptions(connect.stripe_account_id, `checkout:${payment.id}`)
     );
 

@@ -15,12 +15,14 @@ import {
   startAutopaySetup
 } from "../../../../../lib/finance/autopay-service";
 import {
+  acceptedPaymentMethodDeniedResponse,
   orgSkuAllowsResidentialFinance,
-  stripePaymentExecutionDisabledResponse,
-  stripePaymentExecutionEnabled
+  stripePaymentExecutionDisabledResponse
 } from "../../../../../lib/finance/checkout-authz";
-import { connectAccountReady, connectUnavailableResponse, loadConnectAccount } from "../../../../../lib/finance/connect-service";
+import { connectAccountReady, connectUnavailableResponse } from "../../../../../lib/finance/connect-service";
+import { loadTenantPaymentGate } from "../../../../../lib/finance/online-payments-service";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
+import { paymentMethodOfferedForOrganization } from "@mpa/shared";
 
 async function occupyingResident(userId: string, leaseId: string) {
   const authClient = await createAuthServerClient();
@@ -95,29 +97,38 @@ export async function POST(request: Request) {
   }
 
   const writer = createServiceRoleClient();
-  const [{ data: subscription }, { data: settings }] = await Promise.all([
+  const [{ data: subscription }, gate] = await Promise.all([
     writer
       .from("organization_subscriptions")
       .select("sku_code, status")
       .eq("organization_id", occupying.resident.organization_id)
       .maybeSingle(),
-    writer
-      .from("financial_module_settings")
-      .select("stripe_payment_execution_enabled")
-      .eq("organization_id", occupying.resident.organization_id)
-      .maybeSingle()
+    loadTenantPaymentGate(writer, occupying.resident.organization_id)
   ]);
   const skuCode = subscription && subscription.status !== "canceled" ? subscription.sku_code : null;
   if (!orgSkuAllowsResidentialFinance(skuCode)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   if (parsed.data.action !== "revoke") {
-    if (!stripePaymentExecutionEnabled(settings)) {
+    if (!gate.executionEnabled) {
       return stripePaymentExecutionDisabledResponse();
     }
-    const connect = await loadConnectAccount(writer, occupying.resident.organization_id);
-    if (!connectAccountReady(connect)) {
-      return NextResponse.json(connectUnavailableResponse(connect), { status: 403 });
+    if (!connectAccountReady(gate.connect)) {
+      return NextResponse.json(connectUnavailableResponse(gate.connect), { status: 403 });
+    }
+    const requestedType =
+      parsed.data.action === "start" || parsed.data.action === "confirm"
+        ? parsed.data.paymentMethodType
+        : null;
+    if (
+      requestedType &&
+      !paymentMethodOfferedForOrganization({
+        paymentMethodType: requestedType,
+        accepted: gate.accepted,
+        supported: gate.supported
+      })
+    ) {
+      return acceptedPaymentMethodDeniedResponse(requestedType);
     }
   }
 
@@ -128,7 +139,8 @@ export async function POST(request: Request) {
         leaseId: parsed.data.leaseId,
         residentId: occupying.resident.id,
         userId: user.id,
-        consentText: parsed.data.consentText
+        consentText: parsed.data.consentText,
+        paymentMethodType: parsed.data.paymentMethodType
       });
       return NextResponse.json(setup);
     }
@@ -139,6 +151,7 @@ export async function POST(request: Request) {
         residentId: occupying.resident.id,
         userId: user.id,
         consentText: parsed.data.consentText,
+        paymentMethodType: parsed.data.paymentMethodType,
         ...(parsed.data.setupIntentId ? { setupIntentId: parsed.data.setupIntentId } : {}),
         ...(parsed.data.checkoutSessionId ? { checkoutSessionId: parsed.data.checkoutSessionId } : {})
       });
