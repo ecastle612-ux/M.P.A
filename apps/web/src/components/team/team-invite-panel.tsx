@@ -17,7 +17,7 @@ import {
   type MemberOperatingScope,
   type ProductSku
 } from "@mpa/shared";
-import { Button, Input, Select } from "@mpa/ui";
+import { Alert, Button, FormField, Input, Select } from "@mpa/ui";
 import { useOrganizationContext } from "../shell/organization-context";
 import { useCommercialContext } from "../shell/commercial-context";
 
@@ -263,11 +263,8 @@ export function TeamInvitePanel() {
               : "One invitation experience. Assign a launch role; we email the accept link and show it here so nobody is blocked."}
           </p>
         </header>
-        <form className="space-y-3" onSubmit={onInvite}>
-          <div className="space-y-1">
-            <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="invite-email">
-              Email
-            </label>
+        <form className="space-y-4" onSubmit={onInvite}>
+          <FormField id="invite-email" label="Email" required>
             <Input
               id="invite-email"
               type="email"
@@ -275,12 +272,15 @@ export function TeamInvitePanel() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="teammate@company.com"
+              autoComplete="email"
             />
-          </div>
-          <div className="space-y-1">
-            <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="invite-role">
-              Role
-            </label>
+          </FormField>
+          <FormField
+            id="invite-role"
+            label="Role"
+            required
+            hint={toInviteRoleDescription(role, productSku)}
+          >
             <Select
               id="invite-role"
               value={role}
@@ -299,18 +299,17 @@ export function TeamInvitePanel() {
                 </option>
               ))}
             </Select>
-            <p
-              className="text-xs text-[var(--mpa-color-text-secondary)]"
-              data-testid="invite-role-description"
-            >
+            <p className="sr-only" data-testid="invite-role-description">
               {toInviteRoleDescription(role, productSku)}
             </p>
-          </div>
+          </FormField>
           {isComplete && staffInvite ? (
-            <div className="space-y-1">
-              <label className="text-sm text-[var(--mpa-color-text-secondary)]" htmlFor="invite-scope">
-                Operational responsibility
-              </label>
+            <FormField
+              id="invite-scope"
+              label="Operational responsibility"
+              required
+              hint="This teammate operates only the selected part of Complete. It does not change the subscription."
+            >
               <Select
                 id="invite-scope"
                 required
@@ -327,11 +326,7 @@ export function TeamInvitePanel() {
                   </option>
                 ))}
               </Select>
-              <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                This teammate operates only the selected part of Complete. It does not change the
-                subscription.
-              </p>
-            </div>
+            </FormField>
           ) : null}
           <div className="flex flex-wrap gap-2">
             <Button
@@ -360,8 +355,8 @@ export function TeamInvitePanel() {
             </Button>
           </div>
         ) : null}
-        {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-        {notice ? <p className="text-sm text-[#0F6B56]">{notice}</p> : null}
+        {error ? <Alert variant="danger">{error}</Alert> : null}
+        {notice ? <Alert variant="success">{notice}</Alert> : null}
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
@@ -423,15 +418,15 @@ export function TeamInvitePanel() {
                   : null;
                 return (
                   <li key={membership.id} className="space-y-1">
-                    <p>
-                      <span className="font-mono text-xs">{membership.user_id.slice(0, 8)}…</span>
-                      {" — "}
+                    <p className="text-[var(--mpa-color-text-primary)]">
                       {derivedOperatingPositionLabel({
                         role,
                         scope: stored,
                         sku: productSku
                       })}{" "}
-                      ({membership.status})
+                      <span className="text-[var(--mpa-color-text-secondary)]">
+                        ({membership.status})
+                      </span>
                     </p>
                     {isComplete ? (
                       <div className="space-y-1">

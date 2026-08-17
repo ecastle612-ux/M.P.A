@@ -170,7 +170,7 @@ export function FoGlanceCard({
           : "border-l-[var(--mpa-color-border-default)]";
   return (
     <article
-      className={`rounded-md border border-[var(--mpa-color-border-default)] border-l-[3px] bg-white p-4 ${edge}`}
+      className={`rounded-lg border border-[var(--mpa-color-border-default)] border-l-[3px] bg-white p-4 shadow-[0_1px_0_rgba(18,21,26,0.04)] ${edge}`}
     >
       <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
         {label}

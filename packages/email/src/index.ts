@@ -1,15 +1,43 @@
+import { invitationEmailCopy as invitationCopy } from "./copy";
+import { paragraphsToHtml, renderBrandedEmail } from "./shell";
+
+export {
+  escapeHtml,
+  MPA_EMAIL_BRAND_NAME,
+  MPA_EMAIL_BRAND_TAGLINE,
+  MPA_EMAIL_LOGO_PATH,
+  MPA_EMAIL_PRODUCTION_ORIGIN,
+  paragraphsToHtml,
+  renderBrandedEmail,
+  resolveEmailLogoUrl,
+  resolvePublicBrandOrigin
+} from "./shell";
+export {
+  invitationAudienceFromRoleLabel,
+  invitationEmailCopy,
+  lifecycleEmailPresentation
+} from "./copy";
+
 export type FoundationEmailTemplateProps = {
   title: string;
   previewText?: string;
   body: string;
+  ctaUrl?: string;
+  ctaLabel?: string;
 };
 
 /**
- * Foundation email renderer placeholder for generic HTML bodies.
+ * Branded HTML email used by all Resend customer templates.
+ * `body` may contain simple HTML such as <p> and <strong>.
  */
 export function renderFoundationEmail(props: FoundationEmailTemplateProps): string {
-  const preview = props.previewText ? `<p>${props.previewText}</p>` : "";
-  return `<html><body><h1>${props.title}</h1>${preview}<div>${props.body}</div></body></html>`;
+  return renderBrandedEmail({
+    title: props.title,
+    bodyHtml: props.body,
+    ...(props.previewText ? { previewText: props.previewText } : {}),
+    ...(props.ctaUrl ? { ctaUrl: props.ctaUrl } : {}),
+    ...(props.ctaLabel ? { ctaLabel: props.ctaLabel } : {})
+  });
 }
 
 export type InvitationEmailProps = {
@@ -20,30 +48,21 @@ export type InvitationEmailProps = {
 };
 
 export function renderInvitationEmail(props: InvitationEmailProps): { subject: string; html: string; text: string } {
-  const subject = `You're invited to ${props.organizationName} on M.P.A.`;
-  const who = props.inviterLabel ? `${props.inviterLabel} invited you` : "You've been invited";
-  const text = [
-    subject,
-    "",
-    `${who} to join ${props.organizationName} as ${props.roleLabel}.`,
-    "",
-    `Accept your invitation: ${props.acceptUrl}`,
-    "",
-    "This link expires in 7 days."
-  ].join("\n");
-
-  const html = renderFoundationEmail({
-    title: subject,
-    previewText: `${who} as ${props.roleLabel}.`,
-    body: `
-      <p>${who} to join <strong>${escapeHtml(props.organizationName)}</strong> as <strong>${escapeHtml(props.roleLabel)}</strong>.</p>
-      <p><a href="${escapeHtml(props.acceptUrl)}">Accept invitation</a></p>
-      <p>Or copy this link:<br/><code>${escapeHtml(props.acceptUrl)}</code></p>
-      <p>This link expires in 7 days.</p>
-    `
+  const copy = invitationCopy({
+    organizationName: props.organizationName,
+    roleLabel: props.roleLabel,
+    ...(props.inviterLabel ? { inviterLabel: props.inviterLabel } : {})
+  });
+  const text = [copy.headline, "", ...copy.paragraphs, "", `${copy.ctaLabel}: ${props.acceptUrl}`].join("\n");
+  const html = renderBrandedEmail({
+    title: copy.headline,
+    previewText: copy.previewText,
+    bodyHtml: paragraphsToHtml(copy.paragraphs.join("\n\n")),
+    ctaUrl: props.acceptUrl,
+    ctaLabel: copy.ctaLabel
   });
 
-  return { subject, html, text };
+  return { subject: copy.subject, html, text };
 }
 
 export type SendInvitationEmailInput = {
@@ -143,12 +162,4 @@ export async function sendInvitationEmail(
     ],
     ...(input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : {})
   });
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 }

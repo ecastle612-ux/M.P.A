@@ -249,9 +249,13 @@ async function notifyCounterparty(input: {
   if (input.email) {
     const emailResult = await sendOperationalNoticeEmail({
       to: input.email,
-      subject: input.title,
-      body: `${input.preview}\n\nView in M.P.A.: ${input.href}`,
+      subject: "New message from your property team",
+      body: input.preview
+        ? `${input.preview}\n\nOpen the message to read the full note and reply.`
+        : "Your property team sent you a new message.",
       audienceLabel: "Conversation",
+      ctaUrl: input.href,
+      ctaLabel: "Open Message",
       idempotencyKey: `conversation:${input.notificationKey}`.slice(0, 256)
     });
     if (!emailResult.ok) {

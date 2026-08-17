@@ -91,12 +91,14 @@ export function TenantPwaInstallCard() {
   }
 
   return (
-    <section className="rounded-2xl border border-[var(--mpa-color-border)] bg-[var(--mpa-color-bg-surface)] p-4">
+    <section className="rounded-2xl border border-[var(--mpa-color-border-default)] bg-white p-4 shadow-[0_1px_0_rgba(18,21,26,0.04)]">
       <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
         Optional
       </p>
-      <h2 className="mt-1 text-base font-semibold text-[var(--mpa-color-text-primary)]">Add M.P.A. to this device</h2>
-      <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+      <h2 className="mt-1 font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+        Add M.P.A. to this device
+      </h2>
+      <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
         Installation is optional. You can keep using M.P.A. in the browser.
       </p>
       {surface === "apple" ? (

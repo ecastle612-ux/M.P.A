@@ -15,7 +15,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-start gap-3 rounded-md border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#fafafa)] px-4 py-6",
+        "flex flex-col items-start gap-3 rounded-lg border border-dashed border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface-muted,#EEF0F3)]/60 px-5 py-8",
         className
       )}
     >

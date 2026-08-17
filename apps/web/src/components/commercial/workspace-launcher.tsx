@@ -159,7 +159,7 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
             <li key={handoff.id}>
               <Link
                 href={handoff.href}
-                className={`block min-h-[7.5rem] rounded-md border border-[var(--mpa-color-brand-primary)]/35 bg-white p-4 hover:border-[var(--mpa-color-brand-primary)] ${linkFocus}`}
+                className={`block min-h-[7.5rem] rounded-lg border border-[var(--mpa-color-brand-primary)]/35 bg-white p-5 shadow-[0_1px_0_rgba(18,21,26,0.04)] hover:border-[var(--mpa-color-brand-primary)] ${linkFocus}`}
               >
                 <p className="font-semibold text-[var(--mpa-color-text-primary)]">{handoff.title}</p>
                 <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">

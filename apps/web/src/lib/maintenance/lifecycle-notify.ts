@@ -1,3 +1,4 @@
+import { lifecycleEmailPresentation } from "@mpa/email";
 import { sendOperationalNoticeEmail } from "../communications/email";
 import { loadNotificationPreferences } from "../profile/notification-preferences";
 
@@ -168,11 +169,18 @@ export async function notifyLifecycle(
     };
   }
 
+  const presentation = lifecycleEmailPresentation({
+    key: args.key,
+    title: args.title,
+    body: args.body
+  });
   const sendResult = await sendOperationalNoticeEmail({
     to: email,
-    subject: args.title,
-    body: `${args.body}\n\nOpen: ${args.href}`,
+    subject: presentation.subject,
+    body: presentation.body,
     audienceLabel: "work-order lifecycle",
+    ctaUrl: args.href,
+    ctaLabel: presentation.ctaLabel,
     idempotencyKey: `maintenance:${args.key}:${args.userId}:${args.workOrderId}`.slice(0, 256)
   });
 

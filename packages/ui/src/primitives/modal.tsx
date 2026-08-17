@@ -42,8 +42,8 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-[var(--mpa-color-text-secondary)] hover:bg-gray-100"
-            aria-label="Close modal"
+            className="rounded-md p-1 text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-surface-muted,#EEF0F3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)]"
+            aria-label="Close dialog"
           >
             ✕
           </button>

@@ -6,6 +6,24 @@ import type {
 } from "react";
 import { cn } from "../lib/cn";
 
+export function TableScroll({
+  className,
+  children,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn(
+        "w-full overflow-x-auto rounded-lg border border-[var(--mpa-color-border-default)] bg-white",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function Table({ className, ...props }: TableHTMLAttributes<HTMLTableElement>) {
   return (
     <table className={cn("w-full border-collapse text-sm", className)} {...props} />

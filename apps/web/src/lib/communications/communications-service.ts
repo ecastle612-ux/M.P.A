@@ -357,6 +357,8 @@ export async function sendOperationalMessage(
         subject,
         body,
         audienceLabel: audience.audienceLabel,
+        ctaUrl: `${(process.env["NEXT_PUBLIC_APP_URL"] ?? "https://www.my-property-assistant.com").replace(/\/$/, "")}/login`,
+        ctaLabel: "Open M.P.A.",
         idempotencyKey: `comms:${organizationId}:${audience.recipientEmail}:${subject}`.slice(0, 256)
       });
       if (emailResult.ok) {

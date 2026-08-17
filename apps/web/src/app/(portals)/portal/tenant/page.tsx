@@ -136,15 +136,15 @@ export default async function TenantPortalPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <ResidentPageIntro
-        title={`Hi, ${residentName}`}
+        title={occupancy.mode === "moved_out" ? "Welcome back" : `Hi, ${residentName}`}
         description={
           occupancy.mode === "moved_out"
-            ? "Your active property access has ended. You can still review your own history."
+            ? "Your stay has ended. You can still review your own history, payments, and documents."
             : occupancy.mode === "future"
-              ? `Your move-in date is ${occupancy.current?.occupy_from ?? "on file"}.`
+              ? `Your move-in date is ${occupancy.current?.occupy_from ?? "on file"}. You can look around now; some actions unlock after you move in.`
             : leaseSummary
-              ? `${leaseSummary.propertyName} · Unit ${leaseSummary.unitLabel}`
-              : "Your home portal is ready when your lease is linked."
+              ? `Your home at ${leaseSummary.propertyName}, Unit ${leaseSummary.unitLabel}.`
+              : "Your home portal is ready. Details appear here once your lease is linked."
         }
       />
 

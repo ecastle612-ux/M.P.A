@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { formatMoney, ownerDay1ChecklistForSku } from "@mpa/shared";
-import { resolveWorkOrderPriorityVariant, buttonClassName, Button, Alert, Badge, EmptyState, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
+import { resolveWorkOrderPriorityVariant, buttonClassName, Button, Alert, Badge, EmptyState, MetricCard, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { useOrganizationContext } from "../shell/organization-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
@@ -365,50 +365,45 @@ export function MissionControlPage() {
             ) : null}
           </div>
           <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            <li className="rounded-md border border-[var(--mpa-color-status-danger)]/25 bg-[var(--mpa-color-status-danger-subtle)]/40 px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-status-danger)]">
-                Immediate attention
-              </p>
-              <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">
-                {daily.briefing.immediateCount}
-              </p>
-              <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                {daily.immediateAttention[0]?.title ?? "Nothing urgent"}
-              </p>
+            <li>
+              <MetricCard
+                label="Immediate attention"
+                value={daily.briefing.immediateCount}
+                hint={daily.immediateAttention[0]?.title ?? "Nothing urgent"}
+                tone="danger"
+              />
             </li>
-            <li className="rounded-md border border-[var(--mpa-color-status-warning)]/30 bg-[var(--mpa-color-status-warning-subtle)]/50 px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-status-warning)]">Can wait</p>
-              <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-[var(--mpa-color-text-primary)]">
-                {daily.briefing.waitingOnOthersCount}
-              </p>
-              <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                Waiting on others · {daily.briefing.waitingOnMeCount} on you
-              </p>
+            <li>
+              <MetricCard
+                label="Can wait"
+                value={daily.briefing.waitingOnOthersCount}
+                hint={`Waiting on others · ${daily.briefing.waitingOnMeCount} on you`}
+                tone="warning"
+              />
             </li>
-            <li className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2 sm:col-span-2 xl:col-span-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-                Changed today
-              </p>
-              <p className="mt-2 text-sm font-medium leading-5 text-[var(--mpa-color-text-primary)]">
-                {daily.briefing.changedSinceLastLogin}
-              </p>
+            <li className="sm:col-span-2 xl:col-span-1">
+              <MetricCard
+                label="Changed today"
+                value={daily.briefing.changedSinceLastLogin}
+                tone="neutral"
+                size="copy"
+              />
             </li>
-            <li className="rounded-md border border-[var(--mpa-color-brand-primary)]/25 bg-[var(--mpa-color-brand-primary-subtle,#E6F4EF)] px-3 py-2 sm:col-span-2 xl:col-span-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
-                Do next
-              </p>
-              <p className="mt-2 text-sm font-medium leading-5 text-[var(--mpa-color-text-primary)]">
-                {daily.briefing.firstTask}
-              </p>
+            <li className="sm:col-span-2 xl:col-span-1">
+              <MetricCard
+                label="Do next"
+                value={daily.briefing.firstTask}
+                tone="brand"
+                size="copy"
+              />
             </li>
-            <li className="rounded-md border border-[var(--mpa-color-border-default)] px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-                Health
-              </p>
-              <p className="mt-1 font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
-                {health?.label ?? "—"}
-              </p>
-              <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">{health?.detail}</p>
+            <li>
+              <MetricCard
+                label="Health"
+                value={health?.label ?? "—"}
+                hint={health?.detail}
+                tone={health?.variant ?? "neutral"}
+              />
             </li>
           </ul>
         </section>

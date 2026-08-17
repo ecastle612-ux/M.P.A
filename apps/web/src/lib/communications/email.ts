@@ -11,6 +11,8 @@ export async function sendOperationalNoticeEmail(input: {
   subject: string;
   body: string;
   audienceLabel?: string;
+  ctaUrl?: string;
+  ctaLabel?: string;
   idempotencyKey?: string;
 }): Promise<SendOperationalNoticeResult> {
   const sender = resolveResendSender();
@@ -29,10 +31,18 @@ export async function sendOperationalNoticeEmail(input: {
     title: input.subject,
     previewText: input.audienceLabel
       ? `Message for ${input.audienceLabel}`
-      : "Message from your property manager",
-    body: `<p>${escapeHtml(input.body).replaceAll("\n", "<br/>")}</p>`
+      : "Message from your property team",
+    body: `<p>${escapeHtml(input.body).replaceAll("\n", "<br/>")}</p>`,
+    ...(input.ctaUrl
+      ? {
+          ctaUrl: input.ctaUrl,
+          ctaLabel: input.ctaLabel ?? "Open in M.P.A."
+        }
+      : {})
   });
-  const text = `${input.subject}\n\n${input.body}`;
+  const text = input.ctaUrl
+    ? `${input.subject}\n\n${input.body}\n\n${input.ctaLabel ?? "Open in M.P.A."}: ${input.ctaUrl}`
+    : `${input.subject}\n\n${input.body}`;
 
   const result = await sendResendHttpEmail({
     apiKey: sender.apiKey,
