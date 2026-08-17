@@ -3,6 +3,7 @@
 **Status:** Implemented / certified in-repo. **Not deployed. Migration not applied to Production.**  
 **Date:** 2026-08-17  
 **Authority:** Owner approval of [docs/185](../185-complimentary-tester-gift-access/index.md)  
+**Branch SHA (implement):** `c6da35b27843ae71f8f9b15b4f93105668f297ae`  
 **Production:** stop — no Vercel deploy · no Supabase apply  
 
 ---
