@@ -56,9 +56,11 @@ Pay Once is waiting on Owner-controlled payment credentials at the Stripe-hosted
 | Period | 2026-08-01 … 2026-08-31 (not July history) |
 | Payment | `6d6a8854-8449-4eeb-9219-b6be34f8a091` `pending` |
 | Destination | `acct_1U5MdJ8DmtuNiZTl` |
-| Checkout | `cs_live_a13IVSZgu7Fc6AaePNCCu2KRQKnxDNzOZIlaqpJrlkXhfsv0oBd2ZKCM4H` |
+| Checkout (retry) | `cs_live_a1s7y8QjJubv6CmSrh3Is3fGZxuvRUVlJFE4PtWvJax4K1g0WqHT9CMusa` |
+| Connected customer | `cus_V5YgZXGMnXkEJX` on `acct_1U5MdJ8DmtuNiZTl` (email prefilled; no saved card on this account) |
 | Connected retrieve | HTTP 200, `$1.17`, unpaid |
 | Platform retrieve | HTTP 404 — session is not on the SaaS account |
+| Platform customers for that email | exist, **no card on file**; one has an active SaaS subscription and was **not** charged |
 | Historical `$17.16` | unchanged, open, AutoPay-ineligible |
 
 ---
@@ -67,7 +69,7 @@ Pay Once is waiting on Owner-controlled payment credentials at the Stripe-hosted
 
 Pay **$1.17** on this Stripe-hosted Checkout page. Do not send card numbers in chat.
 
-https://checkout.stripe.com/c/pay/cs_live_a13IVSZgu7Fc6AaePNCCu2KRQKnxDNzOZIlaqpJrlkXhfsv0oBd2ZKCM4H
+https://checkout.stripe.com/c/pay/cs_live_a1s7y8QjJubv6CmSrh3Is3fGZxuvRUVlJFE4PtWvJax4K1g0WqHT9CMusa
 
 After Stripe shows success, return to tenant billing or re-authorize this UAT so webhook → allocation → receipt → balance can be certified.
 
