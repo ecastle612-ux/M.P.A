@@ -180,15 +180,17 @@ describe("docs/194 customer activation certification", () => {
 
   it("ships truthful public copy without ACH, M5, or admin-enrolled AutoPay", () => {
     const landing = readRepo("apps/web/src/components/marketing/public-landing-page.tsx");
+    const rentCopy = readRepo("packages/shared/src/commercial/rent-collection-copy.ts");
     const legal = readRepo("apps/web/src/lib/legal/public-legal-copy.ts");
     const pricing = readRepo("packages/shared/src/commercial/pricing-display.ts");
-    expect(landing).toContain("Take rent online with Stripe");
-    expect(landing).toContain("authorize AutoPay");
+    expect(landing).toContain("ONLINE_RENT_COLLECTION_PREFERRED");
+    expect(rentCopy).toContain("Collect rent online with Stripe");
+    expect(rentCopy).toContain("authorize AutoPay");
     expect(landing).not.toMatch(/admin can enroll/i);
     expect(landing).toContain("It does not include automated late fees, automated collections, instant bank settlement");
     expect(legal).toContain("enables Online Payments");
     expect(legal).toContain("does not automatically assess late fees or run collections");
-    expect(pricing).toContain("Take rent online with Stripe");
+    expect(pricing).toContain("Online rent collection — ACH, cards & tenant AutoPay");
     expect(pricing).toContain("foIncludes: `Up to ${UNIT_BLOCK_SIZE} managed units`");
     expect(readRepo("apps/web/src/components/finance/finance-desk.tsx")).not.toMatch(/Collect rent/);
     expect(readRepo("apps/web/src/components/finance/online-payments-settings.tsx")).toContain(

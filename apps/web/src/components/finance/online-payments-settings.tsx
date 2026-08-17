@@ -140,7 +140,7 @@ export function OnlinePaymentsSettings() {
           Online Payments
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[var(--mpa-color-text-secondary)]">
-          Take rent online with Stripe. Choose bank payments, cards, or both. Tenants can pay once
+          Collect rent online with Stripe. Choose bank payments, cards, or both. Tenants can pay once
           or authorize AutoPay for recurring rent and eligible fees. You control the amounts and
           payment options.
         </p>

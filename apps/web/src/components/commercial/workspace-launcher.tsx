@@ -20,6 +20,7 @@ import {
   workspaceSectionLabel
 } from "../../lib/commercial/complete-launcher-presentation";
 import { OwnerDay1ChecklistCard } from "./owner-day1-checklist";
+import { OnlinePaymentsDiscoveryLink } from "./online-payments-discovery";
 
 const linkFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
@@ -125,6 +126,7 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
         checklist={ownerDay1ChecklistForSku("mpa_complete_platform")}
         showOwnerClarity
       />
+      <OnlinePaymentsDiscoveryLink productSku={productSku} className="max-w-3xl" />
 
       {view.loadErrors.length > 0 ? (
         <section

@@ -1,6 +1,14 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  ONLINE_RENT_COLLECTION_BENEFIT,
+  ONLINE_RENT_COLLECTION_COMPLETE_SCOPE,
+  ONLINE_RENT_COLLECTION_EYEBROW,
+  ONLINE_RENT_COLLECTION_FAQS,
+  ONLINE_RENT_COLLECTION_HEADLINE,
+  ONLINE_RENT_COLLECTION_PREFERRED,
+  ONLINE_RENT_COLLECTION_PRICING_LINE,
+  ONLINE_RENT_COLLECTION_SUMMARY,
   PRODUCT_SKUS,
   PUBLIC_PRICING_MODEL_COPY,
   SKU_SUMMARIES,
@@ -17,6 +25,7 @@ import {
 } from "./marketing-chrome";
 import { LandingHeroProductVisual } from "./landing-hero-product-visual";
 import { FutureIntegrationsNote } from "./future-integrations-note";
+import { OnlineRentCollectionVisual } from "./online-rent-collection-visual";
 
 const cardClass =
   "mpa-lift rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5 shadow-[0_1px_0_rgba(18,21,26,0.04)]";
@@ -126,7 +135,7 @@ const PRODUCT_FIT: Record<
       "Maintenance and work orders",
       "Tenant communications and vendors",
       "Documents, tables, reports, and operational finance",
-      "Take rent online with Stripe. Choose bank payments, cards, or both."
+      ONLINE_RENT_COLLECTION_PRICING_LINE
     ],
     priceLines: (pricing) =>
       `${pricing.pmHeadline} or ${pricing.pmHeadlineAnnual} · ${pricing.pmIncludes}`
@@ -158,7 +167,7 @@ const PRODUCT_FIT: Record<
       "Property Operations + Facility Operations included",
       "Assign each side to a manager, or keep both",
       "Complete launcher between work surfaces",
-      "Take rent online with Stripe — bank payments, cards, or both — when you operate in residential / property scope"
+      `${ONLINE_RENT_COLLECTION_PRICING_LINE} on the Property Operations side`
     ],
     priceLines: (pricing) =>
       `${pricing.completeHeadlineMonthly} or ${pricing.completeHeadlineAnnual} · ${pricing.completeIncludes}`
@@ -265,9 +274,11 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               without five disconnected tools.
             </p>
             <p className="max-w-md text-base leading-relaxed text-white/80 md:text-lg">
-              Take rent online with Stripe. Choose bank payments, cards, or both. Tenants
-              can pay once or authorize AutoPay for recurring rent and eligible fees. You
-              control the amounts and payment options.
+              {ONLINE_RENT_COLLECTION_HEADLINE}{" "}
+              <a href="#online-rent" className="underline decoration-white/40 underline-offset-4">
+                See online rent collection
+              </a>
+              .
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               {isAuthenticated ? (
@@ -298,7 +309,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           {[
             {
               role: "Property managers",
-              fit: "Properties, residents, leases, Tenant Portal, maintenance, operational finance, and taking rent online with Stripe."
+              fit: "Properties, residents, leases, Tenant Portal, maintenance, operational finance, and online rent collection."
             },
             {
               role: "Owners / operators",
@@ -359,7 +370,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             "Facility Mission Control",
             "Documents & tables",
             "Reports",
-            "Operational finance"
+            "Online rent collection"
           ].map((item) => (
             <li
               key={item}
@@ -369,6 +380,35 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             </li>
           ))}
         </ul>
+      </Section>
+
+      <Section
+        id="online-rent"
+        tone="muted"
+        eyebrow={ONLINE_RENT_COLLECTION_EYEBROW}
+        title={ONLINE_RENT_COLLECTION_HEADLINE}
+        description={ONLINE_RENT_COLLECTION_SUMMARY}
+      >
+        <div className={`${cardClass} max-w-3xl border-t-2 border-t-[var(--mpa-color-brand-primary)]`}>
+          <OnlineRentCollectionVisual />
+          <p className="mt-4 text-sm font-medium leading-6 text-[var(--mpa-color-text-primary)]">
+            {ONLINE_RENT_COLLECTION_BENEFIT}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+            {ONLINE_RENT_COLLECTION_PREFERRED}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+            {ONLINE_RENT_COLLECTION_COMPLETE_SCOPE}
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href={getStartedHref} className={marketingPrimaryCtaClass}>
+              Get Started
+            </Link>
+            <a href="#choose-platform" className={marketingSecondaryCtaClass}>
+              See which plan includes it
+            </a>
+          </div>
+        </div>
       </Section>
 
       <Section
@@ -392,7 +432,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             {
               title: "Day-to-day tenant work",
               detail:
-                "Maintenance requests, property-team messages, payment history where supported, and move-out history that stays on the record."
+                "Maintenance requests, property-team messages, Pay Once or AutoPay when the property enables Online Payments, payment history, and move-out history that stays on the record."
             }
           ].map((item) => (
             <li key={item.title} className={cardClass}>
@@ -747,9 +787,10 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               q: "Do tenants download an app?",
               a: "No. Tenant Portal works in the browser and can optionally be added to the phone. iPhone and iPad use Add to Home Screen; Android can install through a supported browser. There is no App Store or Google Play app."
             },
+            ...ONLINE_RENT_COLLECTION_FAQS,
             {
               q: "What does operational finance include?",
-              a: "Charges, balances, payment history, vendor invoices, and owner summaries — with control over who can access financial operations. Take rent online with Stripe after the property connects Stripe and enables Online Payments. Choose bank payments, cards, or both. Tenants can pay once or authorize AutoPay for recurring rent and eligible fees. You control the amounts and payment options. AutoPay is tenant-authorized only. It does not include automated late fees, automated collections, instant bank settlement, or staff-enrolled AutoPay."
+              a: "Charges, balances, payment history, vendor invoices, and owner summaries — with control over who can access financial operations. After the property connects Stripe and enables Online Payments, tenants can pay once or authorize AutoPay. AutoPay is tenant-authorized only. It does not include automated late fees, automated collections, instant bank settlement, or staff-enrolled AutoPay."
             },
             {
               q: "Does every action send email?",

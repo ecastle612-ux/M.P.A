@@ -219,8 +219,10 @@ describe("docs/196 payment-method amendment", () => {
 
   it("amends public copy for subscriber method choice without overclaiming", () => {
     const landing = readRepo("apps/web/src/components/marketing/public-landing-page.tsx");
+    const rentCopy = readRepo("packages/shared/src/commercial/rent-collection-copy.ts");
     const legal = readRepo("apps/web/src/lib/legal/public-legal-copy.ts");
-    expect(landing).toContain("Choose bank payments, cards, or both");
+    expect(landing).toContain("ONLINE_RENT_COLLECTION_PREFERRED");
+    expect(rentCopy).toContain("Choose bank payments, cards, or both");
     expect(landing).not.toMatch(/free processing/i);
     expect(landing).not.toMatch(/instant ACH/i);
     expect(landing).not.toMatch(/admin can enroll/i);
