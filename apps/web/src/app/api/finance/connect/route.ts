@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectAccountReady } from "@mpa/shared";
+import { assertNoStripeAccountId, connectAccountReady, publicConnectView } from "@mpa/shared";
 import { requireFinancePermission } from "../../../../lib/finance/authz";
 import { orgSkuAllowsResidentialFinance } from "../../../../lib/finance/checkout-authz";
 import {
@@ -7,6 +7,7 @@ import {
   startConnectOnboarding,
   syncConnectAccount
 } from "../../../../lib/finance/connect-service";
+import { customerOnlinePaymentsStatus } from "../../../../lib/finance/online-payments-service";
 import { createServiceRoleClient } from "../../../../lib/supabase/service-role";
 
 async function residentialWriter(organizationId: string) {
@@ -34,13 +35,17 @@ export async function GET() {
       return resolved.error;
     }
     const account = await loadConnectAccount(resolved.writer, authz.organizationId);
-    return NextResponse.json({
-      account,
+    const status = await customerOnlinePaymentsStatus(resolved.writer, authz.organizationId);
+    const payload = {
+      connect: publicConnectView(account),
       ready: connectAccountReady(account),
-      message: connectAccountReady(account)
-        ? "Stripe Connect is ready for tenant Pay Once and AutoPay."
-        : "Finish Stripe Connect onboarding before tenants can pay online. Manual FIN-OPS workflows still work."
-    });
+      message: status.summary,
+      ...status
+    };
+    if (!assertNoStripeAccountId(payload)) {
+      return NextResponse.json({ error: "internal_payload_rejected" }, { status: 500 });
+    }
+    return NextResponse.json(payload);
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Connect status failed" },
@@ -62,7 +67,12 @@ export async function POST(request: Request) {
     }
     if (payload?.action === "sync") {
       const account = await syncConnectAccount(resolved.writer, authz.organizationId, authz.user.id);
-      return NextResponse.json({ account, ready: connectAccountReady(account) });
+      const status = await customerOnlinePaymentsStatus(resolved.writer, authz.organizationId);
+      const body = { connect: publicConnectView(account), ready: connectAccountReady(account), ...status };
+      if (!assertNoStripeAccountId(body)) {
+        return NextResponse.json({ error: "internal_payload_rejected" }, { status: 500 });
+      }
+      return NextResponse.json(body);
     }
     const result = await startConnectOnboarding(
       resolved.writer,
@@ -70,11 +80,17 @@ export async function POST(request: Request) {
       authz.user.id,
       resolved.skuCode
     );
-    return NextResponse.json({
-      account: result.account,
+    const status = await customerOnlinePaymentsStatus(resolved.writer, authz.organizationId);
+    const body = {
+      connect: publicConnectView(result.account),
       onboardingUrl: result.onboardingUrl,
-      ready: connectAccountReady(result.account)
-    });
+      ready: connectAccountReady(result.account),
+      ...status
+    };
+    if (!assertNoStripeAccountId(body)) {
+      return NextResponse.json({ error: "internal_payload_rejected" }, { status: 500 });
+    }
+    return NextResponse.json(body);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Connect onboarding failed";
     return NextResponse.json({ error: message }, { status: message === "Forbidden" ? 403 : 400 });

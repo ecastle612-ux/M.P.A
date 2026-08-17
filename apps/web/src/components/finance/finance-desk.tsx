@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { formatMoney, ownerEmptyStateCopy } from "@mpa/shared";
 import { resolveStatusBadgeVariant, Alert, Badge, Button, EmptyState, Input, Select, TableScroll } from "@mpa/ui";
 
@@ -84,7 +85,6 @@ export function FinanceDesk() {
   const [recurringCategory, setRecurringCategory] = useState("parking");
   const [recurringAutopay, setRecurringAutopay] = useState(false);
   const [lateFeeAmount, setLateFeeAmount] = useState("50");
-  const [connectNotice, setConnectNotice] = useState<string | null>(null);
   const [manualAmount, setManualAmount] = useState("");
   const [manualMethod, setManualMethod] = useState("manual_cash");
 
@@ -97,24 +97,12 @@ export function FinanceDesk() {
 
   const refresh = useCallback(async () => {
     setError(null);
-    const [leasesRes, snapshotRes, connectRes] = await Promise.all([
+    const [leasesRes, snapshotRes] = await Promise.all([
       fetchJson<{ leases: Lease[] }>("/api/finance/leases"),
-      fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot"),
-      fetch("/api/finance/connect").then(async (response) => {
-        const body = await response.json().catch(() => ({}));
-        return { ok: response.ok, body };
-      })
+      fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot")
     ]);
     setLeases(leasesRes.leases);
     setSnapshot(snapshotRes.snapshot);
-    if (connectRes.ok) {
-      setConnectNotice(
-        connectRes.body.ready
-          ? "Stripe Connect is ready for tenant Pay Once and AutoPay."
-          : ((connectRes.body.message as string | undefined) ??
-            "Finish Stripe Connect onboarding before tenants can pay online. Manual FIN-OPS workflows still work.")
-      );
-    }
     if (!selectedLeaseId && leasesRes.leases[0]) {
       setSelectedLeaseId(leasesRes.leases[0].id);
     }
@@ -133,21 +121,10 @@ export function FinanceDesk() {
     let cancelled = false;
     void (async () => {
       try {
-        const [leasesRes, snapshotRes, connectRes] = await Promise.all([
+        const [leasesRes, snapshotRes] = await Promise.all([
           fetchJson<{ leases: Lease[] }>("/api/finance/leases"),
-          fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot"),
-          fetch("/api/finance/connect").then(async (response) => {
-            const body = await response.json().catch(() => ({}));
-            return { ok: response.ok, body };
-          })
+          fetchJson<{ snapshot: Snapshot }>("/api/finance/snapshot")
         ]);
-        if (!cancelled && connectRes.ok) {
-          setConnectNotice(
-            connectRes.body.ready
-              ? "Stripe Connect is ready for tenant Pay Once and AutoPay."
-              : (connectRes.body.message as string)
-          );
-        }
         if (cancelled) {
           return;
         }
@@ -178,32 +155,6 @@ export function FinanceDesk() {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [leases, snapshot]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    const connect = new URLSearchParams(window.location.search).get("connect");
-    if (connect !== "return" && connect !== "refresh") {
-      return;
-    }
-    void (async () => {
-      try {
-        const body = await fetchJson<{ ready?: boolean; message?: string }>(
-          "/api/finance/connect",
-          { method: "POST", body: JSON.stringify({ action: "sync" }) }
-        );
-        setConnectNotice(
-          body.ready
-            ? "Stripe Connect is ready for tenant Pay Once and AutoPay."
-            : (body.message ??
-              "Finish Stripe Connect onboarding before tenants can pay online. Manual FIN-OPS workflows still work.")
-        );
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Connect sync failed");
-      }
-    })();
-  }, []);
 
   useEffect(() => {
     if (!selectedLeaseId) {
@@ -432,31 +383,16 @@ export function FinanceDesk() {
         </div>
       </section>
 
-      {connectNotice ? (
-        <Alert variant="info">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p>{connectNotice}</p>
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={busy}
-              onClick={() =>
-                void run(async () => {
-                  const body = await fetchJson<{ onboardingUrl?: string; ready?: boolean; message?: string }>(
-                    "/api/finance/connect",
-                    { method: "POST", body: JSON.stringify({ action: "start" }) }
-                  );
-                  if (body.onboardingUrl) {
-                    window.location.assign(body.onboardingUrl);
-                  }
-                })
-              }
-            >
-              Continue Stripe Connect
+      <Alert variant="info">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p>Set up tenant Pay Once and AutoPay from Online Payments. You stay in control of every amount.</p>
+          <Link href="/pm/financial-operations/online-payments">
+            <Button type="button" variant="secondary">
+              Open Online Payments
             </Button>
-          </div>
-        </Alert>
-      ) : null}
+          </Link>
+        </div>
+      </Alert>
 
       <section id="charges" className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
         <div className="flex flex-wrap items-end gap-3">

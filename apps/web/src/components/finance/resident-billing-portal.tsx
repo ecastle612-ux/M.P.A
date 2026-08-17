@@ -65,6 +65,8 @@ type ResidentAccount = {
   autopay?: {
     on?: boolean;
     status?: string;
+    paused?: boolean;
+    pausedReason?: string | null;
     paymentMethod?: string | null;
     covers?: string;
     nextDue?: string | null;
@@ -250,7 +252,11 @@ export function ResidentBillingPortal() {
             <div className="rounded-md border border-[var(--mpa-color-border-subtle)] px-4 py-3">
               <h3 className="text-sm font-semibold">AutoPay</h3>
               <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                {account.autopay?.on ? "AutoPay is on." : "AutoPay is off."}{" "}
+                {account.autopay?.on
+                  ? "AutoPay is on."
+                  : account.autopay?.paused
+                    ? "AutoPay is paused while the property has online payments turned off."
+                    : "AutoPay is off."}{" "}
                 {account.autopay?.covers ??
                   "AutoPay covers posted recurring rent and recurring fees marked AutoPay-eligible."}
               </p>
@@ -269,10 +275,11 @@ export function ResidentBillingPortal() {
                   Next expected charge date appears after a recurring charge is posted.
                 </p>
               )}
-              {account.canPay !== false &&
-              (account.onlinePaymentsEnabled ?? onlinePaymentsEnabled) ? (
+              {account.autopay?.on || account.autopay?.paused ||
+              (account.canPay !== false &&
+                (account.onlinePaymentsEnabled ?? onlinePaymentsEnabled)) ? (
                 <div className="mt-3 space-y-2">
-                  {account.autopay?.on ? null : (
+                  {account.autopay?.on || account.autopay?.paused ? null : (
                     <label className="flex items-start gap-2 text-sm">
                       <input
                         type="checkbox"
@@ -308,7 +315,7 @@ export function ResidentBillingPortal() {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
-                              action: account.autopay?.on ? "revoke" : "start",
+                              action: account.autopay?.on || account.autopay?.paused ? "revoke" : "start",
                               leaseId: account.resident.lease_id,
                               consentText:
                                 "I authorize M.P.A. to automatically charge the payment method I save for posted recurring rent and AutoPay-eligible recurring fees. I can turn AutoPay off at any time."
@@ -323,7 +330,7 @@ export function ResidentBillingPortal() {
                             return;
                           }
                           setPaymentNotice(
-                            account.autopay?.on
+                            account.autopay?.on || account.autopay?.paused
                               ? "AutoPay is off. Posted balances and charges stay in place."
                               : "AutoPay updated."
                           );
@@ -336,7 +343,7 @@ export function ResidentBillingPortal() {
                       })()
                     }
                   >
-                    {account.autopay?.on ? "Turn AutoPay off" : "Authorize AutoPay"}
+                    {account.autopay?.on || account.autopay?.paused ? "Turn AutoPay off" : "Authorize AutoPay"}
                   </Button>
                 </div>
               ) : null}

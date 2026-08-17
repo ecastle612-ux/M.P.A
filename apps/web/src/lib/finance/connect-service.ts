@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { connectAccountReady, connectStatusFromStripe } from "@mpa/shared";
+import { connectAccountReady, connectStatusFromStripe, publicConnectView } from "@mpa/shared";
 import { orgSkuAllowsResidentialFinance } from "./checkout-authz";
 import { emitFinanceEvent, writeFinanceAudit } from "./events-audit";
 import { connectedRequestOptions, getStripeClient, isStripeConfigured } from "./stripe";
@@ -8,13 +8,25 @@ import { serverEnv } from "../env/server-env";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
 
-export { connectAccountReady };
+export { connectAccountReady, publicConnectView };
 
 export async function loadConnectAccount(supabase: Db, organizationId: string) {
   const { data, error } = await supabase
     .from("financial_connect_accounts")
     .select("*")
     .eq("organization_id", organizationId)
+    .maybeSingle();
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+}
+
+export async function loadConnectAccountByStripeAccountId(supabase: Db, stripeAccountId: string) {
+  const { data, error } = await supabase
+    .from("financial_connect_accounts")
+    .select("*")
+    .eq("stripe_account_id", stripeAccountId)
     .maybeSingle();
   if (error) {
     throw new Error(error.message);
@@ -110,8 +122,8 @@ export async function startConnectOnboarding(
 
   const link = await stripe.accountLinks.create({
     account: account.stripe_account_id as string,
-    refresh_url: `${serverEnv.NEXT_PUBLIC_APP_URL}/pm/financial-operations?connect=refresh`,
-    return_url: `${serverEnv.NEXT_PUBLIC_APP_URL}/pm/financial-operations?connect=return`,
+    refresh_url: `${serverEnv.NEXT_PUBLIC_APP_URL}/pm/financial-operations/online-payments?connect=refresh`,
+    return_url: `${serverEnv.NEXT_PUBLIC_APP_URL}/pm/financial-operations/online-payments?connect=return`,
     type: "account_onboarding"
   });
 
@@ -167,6 +179,15 @@ export async function syncConnectAccount(supabase: Db, organizationId: string, a
     payload: { status, chargesEnabled: data.charges_enabled }
   });
   return data;
+}
+
+export async function createConnectLoginLink(accountId: string) {
+  const stripe = getStripeClient();
+  if (!stripe) {
+    throw new Error("Stripe unavailable");
+  }
+  const link = await stripe.accounts.createLoginLink(accountId);
+  return link.url;
 }
 
 export function connectedCheckoutOptions(accountId: string, idempotencyKey: string) {

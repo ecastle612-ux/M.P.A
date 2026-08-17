@@ -111,12 +111,14 @@ export async function POST(request: Request) {
   if (!orgSkuAllowsResidentialFinance(skuCode)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (!stripePaymentExecutionEnabled(settings)) {
-    return stripePaymentExecutionDisabledResponse();
-  }
-  const connect = await loadConnectAccount(writer, occupying.resident.organization_id);
-  if (!connectAccountReady(connect)) {
-    return NextResponse.json(connectUnavailableResponse(connect), { status: 403 });
+  if (parsed.data.action !== "revoke") {
+    if (!stripePaymentExecutionEnabled(settings)) {
+      return stripePaymentExecutionDisabledResponse();
+    }
+    const connect = await loadConnectAccount(writer, occupying.resident.organization_id);
+    if (!connectAccountReady(connect)) {
+      return NextResponse.json(connectUnavailableResponse(connect), { status: 403 });
+    }
   }
 
   try {

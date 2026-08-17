@@ -213,7 +213,7 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     entitlement: "pm.financial_operations",
     href: "/pm/financial-operations",
     readiness: "aligned",
-    description: "Resident billing, Pay Once, and tenant-authorized AutoPay.",
+    description: "Resident billing, Pay Once, and tenant-authorized AutoPay. You set every amount.",
     plannedLabel: "S1 Resident Billing complete — vendor AP / late fees pending later slices"
   },
   {
@@ -642,7 +642,7 @@ export function workspaceLauncherItemsForSku(
       {
         id: "pm_financial_operations",
         title: "Financial Operations",
-        description: "Resident billing, Pay Once, and tenant-authorized AutoPay.",
+        description: "Resident billing, Pay Once, and tenant-authorized AutoPay. You set every amount.",
         href: "/pm/financial-operations",
         product: "property_manager",
         readiness: "aligned"

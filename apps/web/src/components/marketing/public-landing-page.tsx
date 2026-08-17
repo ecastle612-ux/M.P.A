@@ -125,7 +125,8 @@ const PRODUCT_FIT: Record<
       "Browser-first Tenant Portal",
       "Maintenance and work orders",
       "Tenant communications and vendors",
-      "Documents, tables, reports, and operational finance"
+      "Documents, tables, reports, and operational finance",
+      "Take rent online with Stripe — Pay Once or tenant-authorized AutoPay"
     ],
     priceLines: (pricing) =>
       `${pricing.pmHeadline} or ${pricing.pmHeadlineAnnual} · ${pricing.pmIncludes}`
@@ -156,7 +157,8 @@ const PRODUCT_FIT: Record<
       "One organization and one subscription",
       "Property Operations + Facility Operations included",
       "Assign each side to a manager, or keep both",
-      "Complete launcher between work surfaces"
+      "Complete launcher between work surfaces",
+      "Take rent online with Stripe when you operate in residential / property scope"
     ],
     priceLines: (pricing) =>
       `${pricing.completeHeadlineMonthly} or ${pricing.completeHeadlineAnnual} · ${pricing.completeIncludes}`
@@ -262,6 +264,10 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               buildings going — properties, residents, maintenance, vendors, and facility work —
               without five disconnected tools.
             </p>
+            <p className="max-w-md text-base leading-relaxed text-white/80 md:text-lg">
+              Take rent online with Stripe. Tenants can pay a posted balance once, or turn on
+              AutoPay for recurring rent and eligible fees. You set every amount.
+            </p>
             <div className="flex flex-wrap gap-3 pt-2">
               {isAuthenticated ? (
                 <Link href="/dashboard" className={marketingPrimaryCtaClass}>
@@ -291,7 +297,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           {[
             {
               role: "Property managers",
-              fit: "Properties, residents, leases, Tenant Portal, maintenance, and operational finance."
+              fit: "Properties, residents, leases, Tenant Portal, maintenance, operational finance, and taking rent online with Stripe."
             },
             {
               role: "Owners / operators",
@@ -742,7 +748,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             },
             {
               q: "What does operational finance include?",
-              a: "Charges, balances, payment history, vendor invoices, and owner summaries — with control over who can access financial operations. Tenants can pay posted charges online (Pay Once) or authorize AutoPay for eligible recurring rent and fees after the property completes Stripe Connect and online payments are enabled. You set rent and fee amounts. Late fees can be configured and posted by you. It does not include automated late fees, automated collections, or tenant payments before Stripe Connect and online payments are enabled."
+              a: "Charges, balances, payment history, vendor invoices, and owner summaries — with control over who can access financial operations. Take rent online with Stripe after the property connects Stripe and enables Online Payments. Tenants can pay a posted balance once, or turn on AutoPay for recurring rent and eligible fees. You set every amount. AutoPay is tenant-authorized only. It does not include automated late fees, automated collections, ACH, or staff-enrolled AutoPay."
             },
             {
               q: "Does every action send email?",

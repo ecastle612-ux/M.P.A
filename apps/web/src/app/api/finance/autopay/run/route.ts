@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { autopayRunInputSchema } from "@mpa/shared";
 import { requireFinancePermission } from "../../../../../lib/finance/authz";
 import { runAutopayForLease } from "../../../../../lib/finance/autopay-service";
-import { orgSkuAllowsResidentialFinance } from "../../../../../lib/finance/checkout-authz";
+import {
+  orgSkuAllowsResidentialFinance,
+  stripePaymentExecutionDisabledResponse,
+  stripePaymentExecutionEnabled
+} from "../../../../../lib/finance/checkout-authz";
+import { connectAccountReady, connectUnavailableResponse, loadConnectAccount } from "../../../../../lib/finance/connect-service";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 
 export async function POST(request: Request) {
@@ -25,6 +30,19 @@ export async function POST(request: Request) {
   const skuCode = subscription && subscription.status !== "canceled" ? subscription.sku_code : null;
   if (!orgSkuAllowsResidentialFinance(skuCode)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { data: settings } = await writer
+    .from("financial_module_settings")
+    .select("stripe_payment_execution_enabled")
+    .eq("organization_id", authz.organizationId)
+    .maybeSingle();
+  if (!stripePaymentExecutionEnabled(settings)) {
+    return stripePaymentExecutionDisabledResponse();
+  }
+  const connect = await loadConnectAccount(writer, authz.organizationId);
+  if (!connectAccountReady(connect)) {
+    return NextResponse.json(connectUnavailableResponse(connect), { status: 403 });
   }
 
   const leaseIds = parsed.data.leaseId

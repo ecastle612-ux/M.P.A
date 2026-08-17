@@ -6,7 +6,11 @@ import {
   markPaymentFailed,
   recordPaymentDispute
 } from "../../../../../lib/finance/billing-service";
-import { syncConnectAccount } from "../../../../../lib/finance/connect-service";
+import {
+  loadConnectAccount,
+  loadConnectAccountByStripeAccountId,
+  syncConnectAccount
+} from "../../../../../lib/finance/connect-service";
 import {
   resolveCheckoutFailure,
   resolveCheckoutSessionCompleted,
@@ -292,9 +296,14 @@ export async function POST(request: Request) {
 
     if (event.type === "account.updated") {
       const account = event.data.object as Stripe.Account;
-      const organizationId = account.metadata?.["organization_id"];
+      const metadataOrg = account.metadata?.["organization_id"] ?? null;
+      const owned = account.id ? await loadConnectAccountByStripeAccountId(supabase, account.id) : null;
+      const organizationId = (owned?.organization_id as string | undefined) ?? metadataOrg;
       if (organizationId) {
-        await syncConnectAccount(supabase, organizationId, null);
+        const current = await loadConnectAccount(supabase, organizationId);
+        if (!current || current.stripe_account_id === account.id) {
+          await syncConnectAccount(supabase, organizationId, null);
+        }
       }
       await supabase
         .from("financial_stripe_webhook_events")

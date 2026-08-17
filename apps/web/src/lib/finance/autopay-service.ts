@@ -11,6 +11,7 @@ import {
   type ChargeType
 } from "@mpa/shared";
 import { applySucceededPayment, markPaymentFailed } from "./billing-service";
+import { stripePaymentExecutionEnabled } from "./checkout-authz";
 import { connectAccountReady, loadConnectAccount } from "./connect-service";
 import { emitFinanceEvent, writeFinanceAudit, writeFinanceNotification } from "./events-audit";
 import { connectedRequestOptions, getStripeClient } from "./stripe";
@@ -44,6 +45,7 @@ export async function loadAutopayEnrollment(supabase: Db, organizationId: string
 export function describeAutopay(
   enrollment: {
     status?: string | null;
+    paused_reason?: string | null;
     payment_method_brand?: string | null;
     payment_method_last4?: string | null;
   } | null,
@@ -52,6 +54,8 @@ export function describeAutopay(
   return {
     on: enrollment?.status === "active",
     status: enrollment?.status ?? "off",
+    paused: enrollment?.status === "paused",
+    pausedReason: enrollment?.paused_reason ?? null,
     paymentMethod:
       enrollment?.payment_method_last4
         ? `${enrollment.payment_method_brand ?? "card"} •••• ${enrollment.payment_method_last4}`
@@ -216,6 +220,7 @@ export async function confirmAutopayEnrollment(
     consent_version: AUTOPAY_CONSENT_VERSION,
     consented_at: new Date().toISOString(),
     revoked_at: null,
+    paused_reason: null,
     created_by: args.userId,
     updated_at: new Date().toISOString()
   };
@@ -310,6 +315,14 @@ export async function runAutopayForLease(
     asOfDate?: string;
   }
 ) {
+  const { data: settings } = await supabase
+    .from("financial_module_settings")
+    .select("stripe_payment_execution_enabled")
+    .eq("organization_id", args.organizationId)
+    .maybeSingle();
+  if (!stripePaymentExecutionEnabled(settings)) {
+    throw new Error("stripe_payment_execution_disabled");
+  }
   const enrollment = await loadAutopayEnrollment(supabase, args.organizationId, args.leaseId);
   if (!enrollment || enrollment.status !== "active") {
     throw new Error("autopay_disabled");
