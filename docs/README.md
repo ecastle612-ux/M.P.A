@@ -131,7 +131,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 187 | [Complimentary Access Production Release Certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** · stamp `20260817064006` · SHA `f922da26` |
 | 188 | [Tenant Stripe Rent Collection + Admin-Controlled Fees](./188-tenant-stripe-rent-collection/index.md) | **Approved** · Owner A–E · implemented in-repo · see 189 |
 | 189 | [Tenant Stripe Rent Collection Implementation Certification](./189-tenant-stripe-rent-collection-implementation-certification/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** · no migration apply · execution stays off |
-| 190 | [Tenant Stripe Rent Collection Production UAT Readiness](./190-tenant-stripe-rent-collection-uat-readiness/index.md) | **BLOCKED — TENANT STRIPE PAYMENT UAT** · Production still complimentary SHA · execution OFF |
+| 190 | [Tenant Stripe Rent Collection Production UAT Readiness](./190-tenant-stripe-rent-collection-uat-readiness/index.md) | Pre-foundation block · superseded by 191 |
+| 191 | [Tenant Stripe Rent Collection Production Foundation Release](./191-tenant-stripe-rent-collection-foundation-release/index.md) | **READY FOR STRIPE CONNECT UAT** · stamp `20260817080250` · SHA `b39acb42` · execution OFF |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

@@ -1,6 +1,6 @@
 # 190 — Tenant Stripe Rent Collection Production UAT Readiness
 
-**Status:** **BLOCKED — TENANT STRIPE PAYMENT UAT**  
+**Status:** **SUPERSEDED BY docs/191** — pre-foundation block recorded 2026-08-17; foundation released in [docs/191](../191-tenant-stripe-rent-collection-foundation-release/index.md).  
 **Date:** 2026-08-17  
 **Authority:** Owner UAT request against [docs/189](../189-tenant-stripe-rent-collection-implementation-certification/index.md) / [docs/188](../188-tenant-stripe-rent-collection/index.md) §15  
 **Target:** `mpa-prod` / `vahnmcrpnuggxkivynvo` (us-west-2, `ACTIVE_HEALTHY`) · Vercel `m-p-a-web`  
