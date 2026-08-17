@@ -116,12 +116,45 @@ Controlled UAT (one email, Product Owner only, no invitation record): Resend `5a
 
 ---
 
+## Public landing information update (2026-08-17)
+
+Copy and light visual polish only. No new design/certification chain. Prices and Stripe products unchanged (`$59` / `$59` / `$109` from `PUBLIC_PRICING_MODEL_COPY`).
+
+### Sections updated
+
+- Hero: what M.P.A. is; primary Get Started; secondary “See which plan is for me”
+- Who it is for / problem / what it does
+- Tenant experience (browser-first portal, optional add-to-phone, no store apps)
+- Product fit cards: Property Operations, Facility Operations, Complete (one org / one subscription)
+- How to get started, comparison, pricing cards, trust, FAQ
+
+### Inaccurate / outdated claims removed
+
+- “Rent collection” / “collections” as live Financial Operations marketing
+- Billing framed as if tenant card checkout were live
+- Complete implied as combining two products without stating one organization
+- Owner portal listed as a peer live portal in the Property Manager SKU blurb
+- Glue-work copy that overstated connected billing execution
+
+### Honest claims added
+
+- Tenant Portal, digital invitations, move-out history, payment history where supported
+- Optional phone install (Add to Home Screen / supported Android browsers)
+- Operational finance without automated late fees, collections, or live tenant card checkout
+- Email for invitations, work orders, conversations, and lifecycle notices — not every in-app event; no phone push
+
+### Product-decision flag (not expanded)
+
+Tenant Portal still has an in-app “Pay rent” surface gated by `onlinePaymentsEnabled`. Marketing does not advertise live Stripe tenant payment execution. Changing that in-app label is a Product Owner decision, not this copy patch.
+
+---
+
 ## Remaining visual backlog
 
-- Public marketing pages beyond login/accept
 - Dense FIN-OPS tables (visual only; not in this package)
 - Auth SMTP HTML (separate system)
 - Broader form rewrite of every create-work / asset / stock wizard
+- In-app Tenant Portal “Pay rent” wording while card checkout remains disabled (product decision)
 
 ---
 
