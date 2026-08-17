@@ -9,6 +9,7 @@ const MUTED = "#6B7280";
 const BORDER = "#E5E7EB";
 const PAGE_BG = "#F3F4F6";
 const CARD_BG = "#FFFFFF";
+const LOGO_PLATE_BG = "#FFFFFF";
 const CTA_BG = "#0F6B56";
 const CTA_TEXT = "#FFFFFF";
 const FONT = 'Arial, Helvetica, sans-serif';
@@ -83,27 +84,41 @@ export function renderBrandedEmail(props: BrandedEmailProps): string {
       : "";
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light" />
+  <meta name="color-scheme" content="light only" />
+  <meta name="supported-color-schemes" content="light" />
   <title>${escapeHtml(props.title)}</title>
+  <style type="text/css">
+    :root { color-scheme: light only; supported-color-schemes: light; }
+    [data-ogsc] .mpa-logo-plate,
+    [data-ogsb] .mpa-logo-plate { background-color: ${LOGO_PLATE_BG} !important; }
+    [data-ogsc] .mpa-logo-plate-text,
+    [data-ogsb] .mpa-logo-plate-text { color: ${GREY_TEXT} !important; }
+  </style>
 </head>
-<body style="margin:0;padding:0;background-color:${PAGE_BG};">
+<body bgcolor="${PAGE_BG}" style="margin:0;padding:0;background-color:${PAGE_BG};">
   ${preview}
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${PAGE_BG};">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAGE_BG}" style="background-color:${PAGE_BG};">
     <tr>
-      <td align="center" style="padding:24px 12px;">
+      <td align="center" bgcolor="${PAGE_BG}" style="padding:24px 12px;background-color:${PAGE_BG};">
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;">
           <tr>
-            <td style="padding:0 8px 20px 8px;">
-              <img src="${escapeHtml(logoUrl)}" width="168" alt="M.P.A. — My Property Assistant" style="display:block;border:0;height:auto;max-width:168px;" />
-              <p style="margin:8px 0 0 0;font-family:${FONT};font-size:13px;line-height:18px;color:${MUTED};">${MPA_EMAIL_BRAND_NAME} · ${MPA_EMAIL_BRAND_TAGLINE}</p>
+            <td style="padding:0 0 16px 0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="mpa-logo-plate" bgcolor="${LOGO_PLATE_BG}" style="background-color:${LOGO_PLATE_BG};border:1px solid ${BORDER};border-radius:8px;">
+                <tr>
+                  <td align="center" class="mpa-logo-plate" bgcolor="${LOGO_PLATE_BG}" style="background-color:${LOGO_PLATE_BG};padding:20px 24px;border-radius:8px;">
+                    <img src="${escapeHtml(logoUrl)}" width="180" alt="M.P.A. — My Property Assistant" style="display:block;margin:0 auto;border:0;height:auto;max-width:180px;background-color:${LOGO_PLATE_BG};" />
+                    <p class="mpa-logo-plate-text" style="margin:10px 0 0 0;font-family:${FONT};font-size:14px;line-height:20px;color:${GREY_TEXT};">${MPA_EMAIL_BRAND_NAME} / ${MPA_EMAIL_BRAND_TAGLINE}</p>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
           <tr>
-            <td style="background-color:${CARD_BG};border:1px solid ${BORDER};border-radius:8px;padding:32px 28px;">
+            <td bgcolor="${CARD_BG}" style="background-color:${CARD_BG};border:1px solid ${BORDER};border-radius:8px;padding:32px 28px;">
               <h1 style="margin:0 0 16px 0;font-family:${FONT};font-size:22px;line-height:28px;font-weight:700;color:${INK};">${escapeHtml(props.title)}</h1>
               <div style="font-family:${FONT};font-size:16px;line-height:24px;color:${GREY_TEXT};">${props.bodyHtml}</div>
               ${cta}

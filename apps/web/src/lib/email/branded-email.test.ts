@@ -15,8 +15,10 @@ describe("customer email branding", () => {
       ctaLabel: "Open Message"
     });
     expect(html).toContain("Open Message");
-    expect(html).toContain("M.P.A. · My Property Assistant");
+    expect(html).toContain("M.P.A. / My Property Assistant");
     expect(html).toContain(resolveEmailLogoUrl("https://www.my-property-assistant.com"));
+    expect(html).toContain('class="mpa-logo-plate"');
+    expect(html).toContain('bgcolor="#FFFFFF"');
   });
 
   it("keeps staff invitation copy organization-specific", () => {

@@ -37,15 +37,37 @@ describe("branded email shell", () => {
     });
 
     expect(html).toContain("M.P.A. — My Property Assistant");
-    expect(html).toContain("/branding/logo-dark.png");
+    expect(html).toContain("https://www.my-property-assistant.com/branding/logo-dark.png");
     expect(html).toContain("New work order assigned");
     expect(html).toContain("Open Work Order");
+    expect(html).toContain("#0F6B56");
     expect(html).toContain("If the button does not work");
     expect(html).toContain("https://www.my-property-assistant.com/pm/maintenance");
     expect(html).toContain("© 2026 My Property Assistant");
     expect(html).not.toContain("googleapis");
     expect(html).not.toContain("uuid");
     expect(html).not.toContain("organization_id");
+  });
+
+  it("protects the official dark logo on a light plate for Gmail dark mode", () => {
+    const html = renderBrandedEmail({
+      title: "You've been invited to M.P.A.",
+      bodyHtml: "<p>Accept your invitation.</p>",
+      ctaUrl: "https://www.my-property-assistant.com/accept-invitation/token",
+      ctaLabel: "Accept Invitation"
+    });
+
+    expect(html).toContain('class="mpa-logo-plate"');
+    expect(html).toContain('bgcolor="#FFFFFF"');
+    expect(html).toContain("background-color:#FFFFFF");
+    expect(html).toContain('content="light only"');
+    expect(html).toContain('name="supported-color-schemes"');
+    expect(html).toContain("color-scheme: light only");
+    expect(html).toContain("https://www.my-property-assistant.com/branding/logo-dark.png");
+    expect(html).not.toContain("/branding/logo-light.png");
+    expect(html).toContain("Accept Invitation");
+    expect(html).toContain("https://www.my-property-assistant.com/accept-invitation/token");
+    expect(html).toContain("#0F6B56");
   });
 });
 

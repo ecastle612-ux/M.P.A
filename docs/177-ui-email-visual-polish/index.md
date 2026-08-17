@@ -59,7 +59,9 @@ No FIN-OPS money, Stripe, SKU, subscription, or authorization logic changed.
 Reusable `renderBrandedEmail()` / `renderFoundationEmail()`:
 
 - Official `logo-dark.png` from `https://www.my-property-assistant.com` (never localhost / `vercel.app`)
-- Alt text + “M.P.A. · My Property Assistant” text fallback
+- Logo sits on a dedicated white `mpa-logo-plate` (`bgcolor="#FFFFFF"`) so Gmail dark mode does not drop a navy mark onto a dark page
+- `color-scheme: light only` + `supported-color-schemes: light` + Outlook `[data-ogsc]` plate lock
+- Alt text + “M.P.A. / My Property Assistant” text fallback
 - White content card, ink headline, Canopy green CTA
 - Plain-text fallback link
 - Footer with product name, support/product line, copyright year
@@ -97,6 +99,14 @@ These were **renderer visual UAT** via Resend from the verified Production sende
 Checked in provider payload: logo URL is Production `logo-dark.png`, Canopy green CTA `#0F6B56`, fallback link present, no UUIDs/capability keys. `delivered` is Resend/SES delivery status, not an app-path invitation trigger.
 
 App-path UAT (click Team / Add Tenant in Production after merge) remains a Product Owner step.
+
+---
+
+## Dark-mode logo fix (2026-08-17)
+
+Gmail mobile dark mode painted the official navy `logo-dark.png` onto an inverted page background.
+
+**Shell change only** (`packages/email/src/shell.ts`): wrap the existing Production logo in a white `mpa-logo-plate` table (`bgcolor="#FFFFFF"`, padding, centered, 8px radius). Force `color-scheme: light only` / `supported-color-schemes: light`. Keep Canopy green CTA, fallback links, and `logo-dark.png`. All Resend templates inherit this.
 
 ---
 
