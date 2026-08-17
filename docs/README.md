@@ -126,6 +126,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 179 | [Pre-Marketing P1 Product Cleanup](./179-pre-marketing-p1-cleanup/index.md) | **Implemented** · P1-01–P1-07 closed · no Production deploy |
 | 180 | [Final Pre-Marketing Readiness (P1-08 / P1-09 / P1-10)](./180-final-pre-marketing-readiness/index.md) | **Approved** · implemented in-repo · see 181 |
 | 181 | [Final Pre-Marketing Readiness Implementation Certification](./181-final-pre-marketing-readiness-implementation-certification/index.md) | **Implemented / certified** · no Production deploy or apply |
+| 184 | [Controlled Live-Mode Subscription UAT Certification](./184-controlled-live-subscription-uat-certification/index.md) | **BLOCKED — SUBSCRIPTION UAT** · $0 due today verified; Owner payment method not available to agent |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -209,6 +210,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [176 Notification delivery audit + fix](./176-notification-delivery-audit-fix/index.md) | **Implemented** — Resend from-address repair; no schema change |
 | [177 UI / email visual polish](./177-ui-email-visual-polish/index.md) | **Implemented** — Canopy polish + branded Resend shell |
 | [179 Pre-marketing P1 cleanup](./179-pre-marketing-p1-cleanup/index.md) | **Implemented** — P1-01–P1-07 closed; no Production deploy |
+| [184 Controlled live subscription UAT](./184-controlled-live-subscription-uat-certification/index.md) | **BLOCKED — SUBSCRIPTION UAT** — live Checkout $0 today; no Owner payment method in agent browser |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
