@@ -2,6 +2,7 @@
 
 **Status:** Implemented (bug fix; no new product/architecture pattern)  
 **Date:** 2026-08-17  
+**Production:** SHA `e509136d` promoted to `m-p-a-web` Production  
 **Gate:** Implementation Gate § bug fixes that do not change product/architecture may proceed  
 **Provider:** Resend HTTP API (`api.resend.com`) + Supabase Auth SMTP for password/confirm/invite-user
 
@@ -71,3 +72,5 @@ Optional but recommended: also set Vercel Production `RESEND_FROM_EMAIL` to the 
 Do not use `onboarding@resend.dev` in Production.
 
 UAT mailboxes on `@my-property-assistant.com` and `@example.com` bounce or are rejected. Use a real controlled inbox (for example a `+uat` Gmail) for delivery checks.
+
+Controlled provider UAT (2026-08-17): Resend `7fe84de9-051a-420b-bef8-6b5c38e13377` from `noreply@my-property-assistant.com` to `ecastle612@gmail.com` — **delivered**. That is provider acceptance + Resend-reported delivery, not an app invitation trigger.
