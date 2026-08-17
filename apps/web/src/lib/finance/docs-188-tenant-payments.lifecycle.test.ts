@@ -149,8 +149,10 @@ describe("docs/188 payment lifecycle rules", () => {
     const saas = readRepo("apps/web/src/app/api/commerce/webhooks/stripe/route.ts");
     const checkout = readRepo("apps/web/src/app/api/finance/checkout/route.ts");
     expect(finance).toContain("STRIPE_WEBHOOK_SECRET");
+    expect(finance).toContain("STRIPE_CONNECT_WEBHOOK_SECRET");
     expect(finance).not.toContain("handleSaasStripeEvent");
     expect(saas).toContain("handleSaasStripeEvent");
+    expect(saas).not.toContain("STRIPE_CONNECT_WEBHOOK_SECRET");
     expect(saas).not.toContain("applySucceededPayment");
     expect(checkout).toContain("connectedRequestOptions");
     expect(checkout).toContain("connectUnavailableResponse");

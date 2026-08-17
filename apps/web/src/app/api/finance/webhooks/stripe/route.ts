@@ -13,6 +13,7 @@ import {
   resolvePaymentIntentSucceeded
 } from "../../../../../lib/finance/finops-stripe-webhook";
 import { getStripeClient } from "../../../../../lib/finance/stripe";
+import { verifyFinanceStripeWebhook } from "../../../../../lib/finance/verify-finance-stripe-webhook";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 import { serverEnv } from "../../../../../lib/env/server-env";
 
@@ -37,19 +38,17 @@ export async function POST(request: Request) {
 
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
-  if (!signature) {
-    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+  const verified = verifyFinanceStripeWebhook({
+    constructEvent: (payload, header, secret) => stripe.webhooks.constructEvent(payload, header, secret),
+    body,
+    signature,
+    platformSecret: serverEnv.STRIPE_WEBHOOK_SECRET,
+    connectSecret: serverEnv.STRIPE_CONNECT_WEBHOOK_SECRET
+  });
+  if (!verified.ok) {
+    return NextResponse.json({ error: verified.error }, { status: verified.status });
   }
-
-  let event: Stripe.Event;
-  try {
-    event = stripe.webhooks.constructEvent(body, signature, serverEnv.STRIPE_WEBHOOK_SECRET);
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Invalid signature" },
-      { status: 400 }
-    );
-  }
+  const { event, verifiedWith } = verified;
 
   let supabase;
   try {
@@ -68,14 +67,17 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   if (existing?.processed_at) {
-    return NextResponse.json({ ok: true, duplicate: true });
+    return NextResponse.json({ ok: true, duplicate: true, verifiedWith });
   }
 
   if (!existing) {
     await supabase.from("financial_stripe_webhook_events").insert({
       stripe_event_id: event.id,
       event_type: event.type,
-      payload: event as unknown as Record<string, unknown>
+      payload: {
+        ...(event as unknown as Record<string, unknown>),
+        mpa_verified_with: verifiedWith
+      }
     });
   }
 
@@ -90,7 +92,7 @@ export async function POST(request: Request) {
             organization_id: session.metadata?.["organization_id"] ?? null
           })
           .eq("stripe_event_id", event.id);
-        return NextResponse.json({ ok: true, setup: true });
+        return NextResponse.json({ ok: true, setup: true, verifiedWith });
       }
       const paymentId = session.metadata?.["payment_id"] ?? session.client_reference_id;
       const organizationId = session.metadata?.["organization_id"];
@@ -127,7 +129,7 @@ export async function POST(request: Request) {
             payment_id: resolution.paymentId
           })
           .eq("stripe_event_id", event.id);
-        return NextResponse.json({ ok: true, alreadySucceeded: true });
+        return NextResponse.json({ ok: true, alreadySucceeded: true, verifiedWith });
       }
 
       const intentId =
@@ -307,7 +309,7 @@ export async function POST(request: Request) {
         .eq("stripe_event_id", event.id);
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, verifiedWith });
   } catch (error) {
     await supabase
       .from("financial_stripe_webhook_events")
