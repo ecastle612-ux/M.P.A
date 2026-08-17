@@ -42,11 +42,9 @@ Unresolved items that would have required `DESIGN COMPLETE — APPROVAL REQUIRED
 
 ## 2. Implementation SHA
 
-Filled after the amendment commit lands on `cursor/tenant-payment-activation-design-021b`.
-
 | Item | Value |
 |---|---|
-| Amendment commit | *(see git; this record is updated after commit)* |
+| Amendment commit | `a0610e3f884a52c5bdb5b8afc4e32d0eccc12998` |
 | Preserved docs/195 SHA | `eba12ae8b631b5dd42b087e8140aff724c654d3e` |
 | Branch | `cursor/tenant-payment-activation-design-021b` |
 
@@ -99,7 +97,16 @@ Product UI says bank payments generally cost less than cards. Exact fee numbers 
 
 ## 5. Test results
 
-Recorded after the amendment suites run.
+| Suite | Result |
+|---|---|
+| `@mpa/shared` vitest (372 tests) | Pass |
+| `@mpa/web` finance / legal / commercial / resident billing (153 tests) | Pass |
+| `@mpa/shared` typecheck | Pass |
+| `@mpa/web` typecheck | Pass |
+
+docs/195 suites remain green. Added docs/196 coverage for ACH only, cards only, both, last-method rejection, server-side disabled-method denial, ACH processing / success / failure, ACH AutoPay consent, no silent substitution, card regression, Connect/execution denials, webhook idempotency, FIN-OPS reversal path, SaaS isolation, M5 off, and public-copy honesty.
+
+No live Stripe charge was created. No organization was enabled. The unapplied migration was not applied.
 
 ---
 
