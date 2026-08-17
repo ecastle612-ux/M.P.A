@@ -3,3 +3,4 @@ export * from "./events";
 export * from "./audit";
 export * from "./permissions";
 export * from "./journey";
+export * from "./unit-management";

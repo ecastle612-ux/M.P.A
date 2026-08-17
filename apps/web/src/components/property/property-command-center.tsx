@@ -7,6 +7,7 @@ import { buttonClassName, Alert, Badge, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ErrorRetry } from "../shell/error-retry";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
+import { PropertyUnitsPanel } from "./property-units-panel";
 
 type CommandCenter = {
   property: {
@@ -176,8 +177,8 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
           data-testid="property-units-guidance"
         >
           {data.property.unitCount > 0
-            ? "Your units were created with this property. Adjust them here, then continue to residents and leasing."
-            : "Add units to begin resident and leasing workflows."}
+            ? "Manage units below — add, edit, or archive — then continue to residents and leasing."
+            : "Add units below to begin resident and leasing workflows."}
         </p>
         <PmQuickActions
           actions={[
@@ -225,29 +226,18 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         </Link>
       </section>
 
-      <section className="grid max-w-5xl gap-4 lg:grid-cols-3">
-        <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
-          <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">Units</h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {data.units.map((unit) => (
-              <li
-                key={unit.id}
-                className="flex items-center justify-between gap-3 border-b border-[var(--mpa-color-border-default)] py-2 last:border-0"
-              >
-                <span>
-                  Unit {unit.unit_label}
-                  {unit.assignedResident ? (
-                    <span className="mt-0.5 block text-xs text-[var(--mpa-color-text-secondary)]">
-                      {unit.assignedResident}
-                    </span>
-                  ) : null}
-                </span>
-                <Badge variant="neutral">{unit.status}</Badge>
-              </li>
-            ))}
-          </ul>
-        </div>
+      <section
+        className="max-w-3xl rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
+        aria-label="Property units"
+      >
+        <PropertyUnitsPanel
+          propertyId={propertyId}
+          units={data.units}
+          onChanged={() => setReloadToken((value) => value + 1)}
+        />
+      </section>
 
+      <section className="grid max-w-5xl gap-4 lg:grid-cols-2">
         <div className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
           <h2 className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
             Residents & leases

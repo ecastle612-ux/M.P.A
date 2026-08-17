@@ -64,6 +64,6 @@ describe("activation identity (Wave D)", () => {
       (item) => item.id === "pm_units"
     );
     expect(units?.href).toBe("/pm/properties");
-    expect(units?.detail).toMatch(/created with your property/i);
+    expect(units?.detail).toMatch(/add, edit, or archive/i);
   });
 });
