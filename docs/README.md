@@ -142,6 +142,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 198 | [Property Demo ACH + Payment-Method Activation UAT](./198-property-demo-ach-payment-method-activation-uat/index.md) | **READY FOR FIRST REAL CUSTOMER ACTIVATION** · Property Demo ACH active · execution returned FALSE · successor 199 |
 | 199 | [Final Public Launch Audit After Tenant Payments](./199-final-public-launch-audit-after-tenant-payments/index.md) | **READY FOR PUBLIC MARKETING / FIRST REAL CUSTOMER** · read-only · no org activated |
 | 200 | [Public Rent Collection Marketing](./200-public-rent-collection-marketing/index.md) | **IMPLEMENTED IN-REPO** · copy only · STOP before Production deploy |
+| 201 | [Final End-to-End Flow / Mismatch / Dead-End Audit](./201-final-end-to-end-flow-audit/index.md) | **CONDITIONAL** · one P1 Complete scoped-staff handoffs · no P0 · no money mutation |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

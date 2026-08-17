@@ -5,7 +5,7 @@
 **Authority:** Owner final public-launch audit after [docs/198](../198-property-demo-ach-payment-method-activation-uat/index.md) accepted PASS  
 **Mode:** Read-only / non-money. No organization activated. No tenant payment. No SaaS Checkout. No complimentary grant. No Stripe Price or Checkout change. No M5. No July reopen. No global execution flip.
 
-Successor: [docs/200 — Public Rent Collection Marketing](../200-public-rent-collection-marketing/index.md) (in-repo copy; not Production-deployed from that record).
+Successor: [docs/200 — Public Rent Collection Marketing](../200-public-rent-collection-marketing/index.md) (in-repo copy; not Production-deployed from that record). Flow / mismatch / dead-end audit: [docs/201](../201-final-end-to-end-flow-audit/index.md).
 
 ---
 

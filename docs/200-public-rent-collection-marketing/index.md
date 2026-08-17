@@ -5,6 +5,8 @@
 **Authority:** Owner public-marketing update after [docs/199](../199-final-public-launch-audit-after-tenant-payments/index.md)  
 **Mode:** Copy / presentation only. No payment, Stripe, execution, FIN-OPS, pricing-amount, SKU, M5, July, permission, tenant-authorization, or SaaS Checkout change.
 
+Successor: [docs/201 — Final End-to-End Flow / Mismatch / Dead-End Audit](../201-final-end-to-end-flow-audit/index.md).
+
 ---
 
 ## Verdict
