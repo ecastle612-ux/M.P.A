@@ -1,4 +1,39 @@
+import type { ProductSku } from "@mpa/shared";
 import type { FacilityMissionControlSnapshot } from "../maintenance/maintenance-service";
+
+export type FacilityMissionControlQuickAction = {
+  href: string;
+  label: string;
+  primary?: boolean;
+};
+
+/**
+ * P1-01 — FO Mission Control handoffs follow the member's entitlements,
+ * not the organization's Complete SKU alone.
+ */
+export function facilityMissionControlQuickActions(input: {
+  productSku: ProductSku | null;
+  canAccess: (entitlement: string) => boolean;
+}): FacilityMissionControlQuickAction[] {
+  const isComplete = input.productSku === "mpa_complete_platform";
+  const actions: FacilityMissionControlQuickAction[] = [
+    { href: "/facility/operations", label: "Open operations", primary: true },
+    { href: "/facility/vendors", label: "Vendors" },
+    { href: "/facility/assets", label: "Buildings" },
+    { href: "/shared/documents", label: "Documents" },
+    { href: "/shared/communications", label: "Communications" }
+  ];
+  if (input.canAccess("pm.maintenance")) {
+    actions.push({
+      href: "/pm/maintenance",
+      label: isComplete ? "Property maintenance" : "PM Maintenance"
+    });
+  }
+  if (input.canAccess("pm.mission_control")) {
+    actions.push({ href: "/pm/mission-control", label: "Property Operations" });
+  }
+  return actions;
+}
 
 export type FoGlanceMetric = {
   id: string;

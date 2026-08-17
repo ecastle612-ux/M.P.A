@@ -17,7 +17,8 @@ import { Skeleton } from "@mpa/ui";
 import {
   facilityMissionControlErrorMessage,
   facilityMissionControlGlanceMetrics,
-  facilityMissionControlLoadView
+  facilityMissionControlLoadView,
+  facilityMissionControlQuickActions
 } from "../../lib/facility/mission-control-presentation";
 import type { FacilityMissionControlSnapshot } from "../../lib/maintenance/maintenance-service";
 import { ErrorRetry } from "../shell/error-retry";
@@ -74,7 +75,8 @@ const CAPABILITIES = [
 export function FacilityMissionControlPage() {
   const { productSku, canAccess } = useCommercialContext();
   const isComplete = productSku === "mpa_complete_platform";
-  const hasPmMaintenance = canAccess("pm.maintenance") || isComplete;
+  const hasPmMaintenance = canAccess("pm.maintenance");
+  const quickActions = facilityMissionControlQuickActions({ productSku, canAccess });
   const [snapshot, setSnapshot] = useState<FacilityMissionControlSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -145,26 +147,7 @@ export function FacilityMissionControlPage() {
           : "Today’s facility work, emergencies, overdue items, and waiting assignments — then act from Operations."
       }
     >
-      <FoQuickActions
-        actions={[
-          { href: "/facility/operations", label: "Open operations", primary: true },
-          { href: "/facility/vendors", label: "Vendors" },
-          { href: "/facility/assets", label: "Buildings" },
-          { href: "/shared/documents", label: "Documents" },
-          { href: "/shared/communications", label: "Communications" },
-          ...(hasPmMaintenance
-            ? [
-                {
-                  href: "/pm/maintenance",
-                  label: isComplete ? "Property maintenance" : "PM Maintenance"
-                }
-              ]
-            : []),
-          ...(isComplete
-            ? [{ href: "/pm/mission-control", label: "Property Operations" }]
-            : [])
-        ]}
-      />
+      <FoQuickActions actions={quickActions} />
 
       {view === "loading" ? (
         <section
@@ -211,7 +194,9 @@ export function FacilityMissionControlPage() {
       {isFirstRun ? (
         <OwnerDay1ChecklistCard
           checklist={ownerDay1ChecklistForSku(
-            isComplete ? "mpa_complete_platform" : "mpa_facility_operations"
+            isComplete && canAccess("pm.mission_control")
+              ? "mpa_complete_platform"
+              : "mpa_facility_operations"
           )}
           showOwnerClarity={!isComplete}
         />
@@ -266,7 +251,7 @@ export function FacilityMissionControlPage() {
             </Link>{" "}
             — invite Maintenance Technicians to execute work.
           </li>
-          {isComplete ? (
+          {hasPmMaintenance ? (
             <li>
               Complete Platform: residential maintenance stays in{" "}
               <Link href="/pm/maintenance" className="text-[var(--mpa-color-brand-primary)] underline">
