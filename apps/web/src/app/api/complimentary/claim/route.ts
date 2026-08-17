@@ -45,9 +45,9 @@ export async function POST(request: Request) {
     const result = await claimComplimentaryAccess(
       {
         token,
-        password: body?.password,
-        requestedSku: body?.productSku,
-        actorEmail: user?.email ?? null
+        actorEmail: user?.email ?? null,
+        ...(body?.password ? { password: body.password } : {}),
+        ...(body?.productSku !== undefined ? { requestedSku: body.productSku } : {})
       },
       deps
     );

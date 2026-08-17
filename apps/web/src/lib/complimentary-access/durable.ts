@@ -91,17 +91,9 @@ function toRow(grant: ComplimentaryGrant): Record<string, unknown> {
 }
 
 type DbClient = {
-  from: (table: string) => {
-    select: (columns: string) => {
-      order?: (column: string, opts?: { ascending: boolean }) => Promise<{ data: unknown; error: unknown }>;
-      eq: (column: string, value: string) => {
-        maybeSingle: () => Promise<{ data: unknown; error: unknown }>;
-        order?: (column: string, opts?: { ascending: boolean }) => Promise<{ data: unknown; error: unknown }>;
-      };
-    };
-    upsert: (row: Record<string, unknown>, opts?: { onConflict: string }) => Promise<{ data: unknown; error: { message: string } | null }>;
-    insert: (row: Record<string, unknown>) => Promise<{ error: { message: string } | null }>;
-  };
+  // Supabase query builders are thenables, not Promise instances; keep this
+  // adapter loose so Production next build can persist grants.
+  from: (table: string) => any;
 };
 
 export async function loadComplimentaryStoreFromDb(client: DbClient): Promise<ComplimentaryGrantStore> {

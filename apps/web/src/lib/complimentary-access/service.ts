@@ -306,8 +306,8 @@ export async function claimComplimentaryAccess(
     (async ({ email, existing }) => existing ?? { id: `user_${email}`, email });
   const user = await upsertUser({
     email: grant.recipientEmail,
-    password: input.password,
-    existing: existingUser
+    existing: existingUser,
+    ...(input.password ? { password: input.password } : {})
   });
 
   let organizationId = grant.organizationId;
@@ -543,10 +543,12 @@ export async function assertComplimentaryUnitLimit(input: {
   const grant = findComplimentaryGrantForOrganization(input.organizationId, { ...deps, store });
   return evaluateComplimentaryUnitLimit({
     grant,
-    stripeSubscriptionId: input.stripeSubscriptionId,
-    paidStatus: input.paidStatus,
     actualUnits: input.actualUnits,
-    additionalUnits: input.additionalUnits
+    additionalUnits: input.additionalUnits,
+    ...(input.stripeSubscriptionId !== undefined
+      ? { stripeSubscriptionId: input.stripeSubscriptionId }
+      : {}),
+    ...(input.paidStatus !== undefined ? { paidStatus: input.paidStatus } : {})
   });
 }
 

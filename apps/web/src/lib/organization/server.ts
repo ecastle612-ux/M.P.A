@@ -83,12 +83,19 @@ export async function getOrganizationsForUser(userId: string): Promise<Organizat
         .select("organization_id, sku_code, status")
         .in("organization_id", organizationIds),
       supabase.from("organization_setup_state").select("organization_id, completed_at").in("organization_id", organizationIds),
-      supabase
-        .from("complimentary_access_grants")
-        .select("organization_id, status, expires_at, converted_at")
-        .in("organization_id", organizationIds)
-        .then((result) => result)
-        .catch(() => ({ data: [] as Array<{ organization_id: string; status: string; expires_at: string | null; converted_at: string | null }> }))
+      Promise.resolve(
+        supabase
+          .from("complimentary_access_grants")
+          .select("organization_id, status, expires_at, converted_at")
+          .in("organization_id", organizationIds)
+      ).catch(() => ({
+        data: [] as Array<{
+          organization_id: string;
+          status: string;
+          expires_at: string | null;
+          converted_at: string | null;
+        }>
+      }))
     ]);
 
     for (const subscription of (subscriptions ?? []) as SubscriptionRow[]) {

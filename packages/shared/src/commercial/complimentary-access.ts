@@ -114,23 +114,23 @@ export function parseComplimentarySendAccessInput(
     return { error: "invalid_payload" };
   }
   const value = payload as Record<string, unknown>;
-  const email = typeof value.email === "string" ? normalizeComplimentaryEmail(value.email) : "";
+  const email = typeof value["email"] === "string" ? normalizeComplimentaryEmail(value["email"]) : "";
   if (!isComplimentaryEmail(email)) {
     return { error: "invalid_email" };
   }
-  if (!isComplimentaryGrantType(value.grantType)) {
+  if (!isComplimentaryGrantType(value["grantType"])) {
     return { error: "invalid_grant_type" };
   }
-  if (!isProductSku(value.productSku)) {
+  if (!isProductSku(value["productSku"])) {
     return { error: "invalid_product_sku" };
   }
-  if (!isComplimentaryDurationId(value.durationId)) {
+  if (!isComplimentaryDurationId(value["durationId"])) {
     return { error: "invalid_duration" };
   }
-  if (!isComplimentaryLimitMode(value.limitMode)) {
+  if (!isComplimentaryLimitMode(value["limitMode"])) {
     return { error: "invalid_limit_mode" };
   }
-  const customRaw = value.customUnitLimit;
+  const customRaw = value["customUnitLimit"];
   const customUnitLimit =
     customRaw == null || customRaw === ""
       ? null
@@ -139,18 +139,18 @@ export function parseComplimentarySendAccessInput(
         : typeof customRaw === "string"
           ? Number(customRaw)
           : NaN;
-  if (value.limitMode === "custom") {
+  if (value["limitMode"] === "custom") {
     if (!Number.isFinite(customUnitLimit) || (customUnitLimit ?? 0) < 1) {
       return { error: "invalid_custom_limit" };
     }
   }
   return {
     email,
-    grantType: value.grantType,
-    productSku: value.productSku,
-    durationId: value.durationId,
-    limitMode: value.limitMode,
-    customUnitLimit: value.limitMode === "custom" ? Math.floor(customUnitLimit ?? 0) : null
+    grantType: value["grantType"],
+    productSku: value["productSku"],
+    durationId: value["durationId"],
+    limitMode: value["limitMode"],
+    customUnitLimit: value["limitMode"] === "custom" ? Math.floor(customUnitLimit ?? 0) : null
   };
 }
 
