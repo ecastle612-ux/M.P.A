@@ -118,6 +118,8 @@ PM / FO / Complete isolation: UAT Property Demo is PM; complimentary org remains
 
 Owner-authorized **Stripe Connect UAT** on M.P.A. UAT Property Demo `a11ce002-0001-4000-8000-0000000000c2` until `ready` + `charges_enabled`. Do not enable `stripe_payment_execution_enabled` and do not process Pay Once or AutoPay until that Connect UAT is certified.
 
+2026-08-17 Connect UAT: **BLOCKED**. See [docs/192](../192-tenant-stripe-connect-uat-property-demo/index.md). Platform Stripe account has not signed up for Connect. No connected account created. Execution remains OFF.
+
 ---
 
 ## Classification

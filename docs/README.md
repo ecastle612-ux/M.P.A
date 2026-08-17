@@ -133,6 +133,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 189 | [Tenant Stripe Rent Collection Implementation Certification](./189-tenant-stripe-rent-collection-implementation-certification/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** · no migration apply · execution stays off |
 | 190 | [Tenant Stripe Rent Collection Production UAT Readiness](./190-tenant-stripe-rent-collection-uat-readiness/index.md) | Pre-foundation block · superseded by 191 |
 | 191 | [Tenant Stripe Rent Collection Production Foundation Release](./191-tenant-stripe-rent-collection-foundation-release/index.md) | **READY FOR STRIPE CONNECT UAT** · stamp `20260817080250` · SHA `b39acb42` · execution OFF |
+| 192 | [Stripe Connect UAT — Property Demo](./192-tenant-stripe-connect-uat-property-demo/index.md) | **BLOCKED — STRIPE CONNECT UAT** · platform Connect not enabled · execution OFF |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
