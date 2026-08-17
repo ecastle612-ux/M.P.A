@@ -40,3 +40,5 @@ Do **not**:
 ## Next (not this package)
 
 Owner-authorized UAT: apply migration to a non-production or explicitly authorized UAT org → Connect `ready` → per-org execution flag → one Pay Once and one AutoPay test → then customer enablement.
+
+2026-08-17 UAT readiness read: **BLOCKED**. See [docs/190](../190-tenant-stripe-rent-collection-uat-readiness/index.md). Production app is not `b39acb42`. Migration not applied. Connect not ready. Execution remains OFF.
