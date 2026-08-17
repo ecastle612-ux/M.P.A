@@ -23,6 +23,8 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     path.startsWith("/forgot-password") ||
     path.startsWith("/reset-password") ||
     path.startsWith("/accept-invitation") ||
+    path.startsWith("/complimentary/claim") ||
+    path.startsWith("/complimentary/expired") ||
     path.startsWith("/unauthorized") ||
     path.startsWith("/api/") ||
     path.startsWith("/_next")

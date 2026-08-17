@@ -86,6 +86,7 @@ export type SendResendHttpEmailInput = {
   subject: string;
   html: string;
   text: string;
+  replyTo?: string;
   tags?: Array<{ name: string; value: string }>;
   idempotencyKey?: string;
 };
@@ -112,6 +113,7 @@ export async function sendResendHttpEmail(
         subject: input.subject,
         html: input.html,
         text: input.text,
+        ...(input.replyTo ? { reply_to: input.replyTo } : {}),
         ...(input.tags && input.tags.length > 0 ? { tags: input.tags } : {})
       })
     });

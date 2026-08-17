@@ -264,6 +264,7 @@ describe("master admin catalog", () => {
       "/admin/commercial/provisioning",
       "/admin/commercial/lifecycle",
       "/admin/commercial/subscriptions",
+      "/admin/commercial/complimentary-access",
       "/admin/commercial/checkout"
     ]);
 
