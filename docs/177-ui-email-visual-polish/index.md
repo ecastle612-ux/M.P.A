@@ -102,4 +102,21 @@ Check: sender, logo, brand color, CTA, mobile, fallback link, no internal IDs, h
 
 ## Tests / release
 
-See the pull request for lint, typecheck, targeted suites, Production build, and deployed SHA after release.
+Local verification (2026-08-17), implementation SHA `d639ebc0`:
+
+| Suite | Result |
+|-------|--------|
+| `@mpa/email` branded shell + invitation copy | 7 passed |
+| Email / invitation / conversation / lifecycle / PWA / tenant lifecycle / PLAT-002 / PLAT-005 / PLAT-006 | 71 passed |
+| PM / FO / Complete authz + ADR-033 operating scope + entitlements | 77 + 65 passed |
+| Finance (web + shared) | 42 + 19 passed |
+| Mission Control / Complete launcher presentation | 10 passed |
+| Lint (`web`, `email`, `ui`) | passed |
+| Typecheck (`web`, `email`, `ui`) | passed |
+| Production `next build` (CI env placeholders) | passed, 174 routes |
+
+PR: https://github.com/ecastle612-ux/M.P.A/pull/279
+
+**Not released from this agent:** merge, Production deploy, and controlled inbox UAT. Those require Product Owner merge/promotion. No customer emails were sent.
+
+**Deployed SHA:** not released.

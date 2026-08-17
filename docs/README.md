@@ -122,6 +122,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 174 | [Tenant Lifecycle Production Migration Re-Certification](./174-tenant-lifecycle-production-migration-recertification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** · read-only · SHA `dcad8ed6…` only |
 | 175 | [Tenant Lifecycle Production Migration Application Certification](./175-tenant-lifecycle-production-migration-application-certification/index.md) | **READY FOR TENANT LIFECYCLE APPLICATION DEPLOYMENT** · schema live under `20260816094933` · no app deploy |
 | 176 | [Notification Delivery Audit + Fix](./176-notification-delivery-audit-fix/index.md) | **Implemented** · Resend from-address bug fix · no schema change |
+| 177 | [UI / Email Visual Polish](./177-ui-email-visual-polish/index.md) | **Implemented** · Canopy + branded Resend shell · no money/authz/schema change |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -203,6 +204,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [174 Tenant Lifecycle Production migration re-certification](./174-tenant-lifecycle-production-migration-recertification/index.md) | **READY FOR TENANT LIFECYCLE PRODUCTION MIGRATION APPLICATION** — read-only; SHA `dcad8ed6…` only |
 | [175 Tenant Lifecycle Production apply certification](./175-tenant-lifecycle-production-migration-application-certification/index.md) | **READY FOR TENANT LIFECYCLE APPLICATION DEPLOYMENT** — stamp `20260816094933` live; do not replay `20260816120000`; no app deploy |
 | [176 Notification delivery audit + fix](./176-notification-delivery-audit-fix/index.md) | **Implemented** — Resend from-address repair; no schema change |
+| [177 UI / email visual polish](./177-ui-email-visual-polish/index.md) | **Implemented** — Canopy polish + branded Resend shell |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
