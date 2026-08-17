@@ -1,9 +1,9 @@
 # 185 — Master Admin Complimentary Tester / Gift Access
 
-**Status:** **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Status:** **APPROVED** — Owner approved 2026-08-17. Implemented in-repo; see [docs/186](../186-complimentary-tester-gift-access-implementation-certification/index.md).  
 **Date:** 2026-08-17  
-**Gate:** Design → Document → Approve → Implement. This record is the single design. **Do not implement until Owner Approves.**  
-**Production:** not implemented · not deployed  
+**Gate:** Design → Document → Approve → Implement. Owner approved the design and the one implement + certification package.  
+**Production:** implemented in-repo · **not deployed** · **migration not applied**
 
 ---
 
@@ -43,7 +43,7 @@ What exists today (reuse, do not replace):
 
 **Conclusion:** Existing Assign SKU cannot safely become this product. Implementing now would create **new** grant, claim, expiration, conversion, and entitlement-precedence machinery. That is an irreversible commercial + security + data-governance decision.
 
-**STOP. Do not implement from this record.**
+**Approved.** Implementation is the docs/186 package. Do not deploy Production from this record.
 
 ---
 
@@ -146,7 +146,7 @@ Welcome states: complimentary access, granted product, expiration if any, **no p
 
 Tester welcome asks them to **reply to the email** with errors, bugs, confusion, unexpected results, or suggestions — what they were doing, what happened, what they expected, screenshot when useful.
 
-**Reply-To** must reach the Owner/designated tester-feedback inbox. Proposed default: `enterprise@my-property-assistant.com` unless Owner names another address on Approve. Gift omits tester-feedback language unless Owner enables it.
+**Reply-To** is Owner-approved: `enterprise@my-property-assistant.com`. Gift omits tester-feedback language unless Owner enables it.
 
 Expiry mail: complimentary period ending + Continue With M.P.A. (Checkout). No charge in that email.
 
@@ -169,11 +169,11 @@ Reuse the existing branded Resend lockup. Do not send from `resend.dev`.
 
 ### 9. Production status
 
-**Not implemented. Not deployed.** No Production apply from this record.
+**Implemented in-repo. Not deployed.** No Production apply from this record. See docs/186.
 
 ### 10. Exact next gate
 
-**Product Owner Approves this document** (and the checklist below). Then one implement package may proceed. Production deploy remains a **separate** Owner authorization.
+**Owner approved this document.** The implement package is docs/186. Production deploy remains a **separate** Owner authorization.
 
 ---
 
