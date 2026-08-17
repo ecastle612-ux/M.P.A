@@ -7,6 +7,8 @@
 
 Predecessor: [docs/199](../199-final-public-launch-audit-after-tenant-payments/index.md) (launch-readiness) · [docs/200](../200-public-rent-collection-marketing/index.md) (in-repo marketing copy; not Production-deployed)
 
+Successor: [docs/202 — Complete Scoped-Staff Handoff Remediation](../202-complete-scoped-staff-handoff-remediation/index.md) (P1-01 implemented in-repo; STOP before Production deploy).
+
 This is **not** a feature audit. It traces full flows for dead ends, missing next actions, entitlement mismatches, stale state, broken handoffs, and impossible recovery.
 
 ---

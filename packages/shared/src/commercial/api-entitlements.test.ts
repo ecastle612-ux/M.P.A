@@ -96,6 +96,44 @@ describe("PLAT-002 API entitlement catalog", () => {
     ).toBe(false);
   });
 
+  it("Complete + facility_operations still denies Property Mission Control URL", () => {
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/mission-control",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "facility_operations"
+      }).allowed
+    ).toBe(false);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/facility/mission-control",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "facility_operations"
+      }).allowed
+    ).toBe(true);
+  });
+
+  it("Complete + property_operations still denies Facility Mission Control URL", () => {
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/facility/mission-control",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "property_operations"
+      }).allowed
+    ).toBe(false);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/mission-control",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "property_operations"
+      }).allowed
+    ).toBe(true);
+  });
+
   it("Complete + facility_operations denies PM finance and property APIs", () => {
     expect(
       evaluateApiPathEntitlement({
