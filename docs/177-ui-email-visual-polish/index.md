@@ -160,21 +160,21 @@ Tenant Portal still has an in-app “Pay rent” surface gated by `onlinePayment
 
 ## Tests / release
 
-Local verification (2026-08-17), implementation SHA `d639ebc0`:
+Landing + email visual patch verification (2026-08-17), implementation HEAD `7e57f733`:
 
 | Suite | Result |
 |-------|--------|
-| `@mpa/email` branded shell + invitation copy | 7 passed |
-| Email / invitation / conversation / lifecycle / PWA / tenant lifecycle / PLAT-002 / PLAT-005 / PLAT-006 | 71 passed |
-| PM / FO / Complete authz + ADR-033 operating scope + entitlements | 77 + 65 passed |
-| Finance (web + shared) | 42 + 19 passed |
-| Mission Control / Complete launcher presentation | 10 passed |
-| Lint (`web`, `email`, `ui`) | passed |
-| Typecheck (`web`, `email`, `ui`) | passed |
+| `@mpa/email` branded shell + invitation copy | 8 passed |
+| Landing / FO / Wave B3 marketing-truth | 17 passed |
+| Shared commercial + pricing catalog | 38 passed |
+| Lint (`web`, `email`, `ui`, `shared`) | passed |
+| Typecheck (`web`, `email`, `ui`, `shared`) | passed |
 | Production `next build` (CI env placeholders) | passed, 174 routes |
 
-PR: https://github.com/ecastle612-ux/M.P.A/pull/279 (CI `verify` passed)
+PR: https://github.com/ecastle612-ux/M.P.A/pull/279
 
 **Not released from this agent:** merge and Production promote. This environment cannot merge PRs.
 
-**Deployed SHA:** not released. Implementation HEAD `9be871ab`.
+**Deployed SHA:** not released. Implementation HEAD `7e57f733`.
+
+Controlled email: logo-plate UAT already delivered to the Product Owner (`5a9b478b-999f-4251-b593-924116e68ce8`). No second pre-deploy send. After Production promote, send one renderer email and confirm the white plate in Gmail mobile dark mode.
