@@ -11,7 +11,7 @@ import {
 import { serverEnv } from "../env/server-env";
 import {
   getSaasStripeClient,
-  isUnitVolumeCheckoutReady,
+  unitVolumeCheckoutGateForQuote,
   randomIntegrationSuffix,
   resolveUnitVolumePriceEnv,
   saasAutomaticTaxEnabled
@@ -80,14 +80,15 @@ export async function createUnitVolumeCheckoutSession(
     };
   }
 
-  if (!isUnitVolumeCheckoutReady()) {
+  const gate = unitVolumeCheckoutGateForQuote(input.quote);
+  if (!gate.ready) {
     return {
       ok: false,
       status: 503,
       error: "unit_volume_prices_unconfigured",
       reason: "price_unconfigured",
       route: "pricing",
-      detail: "STRIPE_PRICE_PM_BASE_* / STRIPE_PRICE_UNIT_BLOCK_* not configured"
+      detail: gate.missingEnvKey
     };
   }
 

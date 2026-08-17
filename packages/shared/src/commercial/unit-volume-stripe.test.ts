@@ -9,6 +9,8 @@ import {
   buildCheckoutLineItemPlan,
   buildUnitVolumeCheckoutPlan,
   planNextPeriodCapacityUpdate,
+  missingUnitVolumePriceEnvKeysForQuote,
+  requiredUnitVolumePriceEnvKeysForQuote,
   resolveCheckoutLineItems,
   validateQuoteForCheckout
 } from "./unit-volume-stripe";
@@ -344,6 +346,83 @@ describe("unit-volume Stripe checkout architecture", () => {
         quote: { ...quote, trial_eligible: false }
       }).ok
     ).toBe(false);
+  });
+
+  it("requires only the selected product/cycle Price env; unit-block only with extra blocks", () => {
+    const foMonthly = quoteFor(200, "monthly");
+    foMonthly.module = "mpa_facility_operations";
+    foMonthly.additional_blocks = 0;
+    expect(requiredUnitVolumePriceEnvKeysForQuote(foMonthly)).toEqual([
+      "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY"
+    ]);
+    expect(requiredUnitVolumePriceEnvKeysForQuote(foMonthly)).not.toContain(
+      "STRIPE_PRICE_PM_BASE_MONTHLY"
+    );
+
+    const completeAnnual = quoteFor(200, "annual");
+    completeAnnual.module = "mpa_complete_platform";
+    completeAnnual.additional_blocks = 0;
+    expect(requiredUnitVolumePriceEnvKeysForQuote(completeAnnual)).toEqual([
+      "STRIPE_PRICE_COMPLETE_BASE_ANNUAL"
+    ]);
+    expect(requiredUnitVolumePriceEnvKeysForQuote(completeAnnual)).not.toContain(
+      "STRIPE_PRICE_PM_BASE_ANNUAL"
+    );
+
+    const pmMonthly = quoteFor(200, "monthly");
+    expect(requiredUnitVolumePriceEnvKeysForQuote(pmMonthly)).toEqual([
+      "STRIPE_PRICE_PM_BASE_MONTHLY"
+    ]);
+    expect(requiredUnitVolumePriceEnvKeysForQuote(pmMonthly)).not.toContain(
+      "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY"
+    );
+    expect(requiredUnitVolumePriceEnvKeysForQuote(pmMonthly)).not.toContain(
+      "STRIPE_PRICE_COMPLETE_BASE_MONTHLY"
+    );
+
+    const pmAnnual = quoteFor(200, "annual");
+    expect(requiredUnitVolumePriceEnvKeysForQuote(pmAnnual)).toEqual([
+      "STRIPE_PRICE_PM_BASE_ANNUAL"
+    ]);
+
+    const foWithBlocks = quoteFor(1001, "monthly");
+    foWithBlocks.module = "mpa_facility_operations";
+    expect(foWithBlocks.additional_blocks).toBeGreaterThan(0);
+    expect(requiredUnitVolumePriceEnvKeysForQuote(foWithBlocks)).toEqual([
+      "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY",
+      "STRIPE_PRICE_UNIT_BLOCK_MONTHLY"
+    ]);
+  });
+
+  it("fail-closes with the selected Price env name and ignores unused product keys", () => {
+    const fo = quoteFor(100, "monthly");
+    fo.module = "mpa_facility_operations";
+    fo.additional_blocks = 0;
+    const foOnly = (key: string) =>
+      key === "STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY" ? "price_fo_m" : null;
+    expect(missingUnitVolumePriceEnvKeysForQuote(fo, foOnly)).toEqual([]);
+    expect(
+      missingUnitVolumePriceEnvKeysForQuote(fo, (key) =>
+        key === "STRIPE_PRICE_PM_BASE_MONTHLY" ? "price_pm_m" : null
+      )
+    ).toEqual(["STRIPE_PRICE_FO_PROFESSIONAL_MONTHLY"]);
+
+    const complete = quoteFor(100, "annual");
+    complete.module = "mpa_complete_platform";
+    complete.additional_blocks = 0;
+    expect(
+      missingUnitVolumePriceEnvKeysForQuote(complete, (key) =>
+        key === "STRIPE_PRICE_COMPLETE_BASE_ANNUAL" ? "price_c_a" : null
+      )
+    ).toEqual([]);
+
+    const pm = quoteFor(750, "annual");
+    expect(pm.additional_blocks).toBeGreaterThan(0);
+    expect(
+      missingUnitVolumePriceEnvKeysForQuote(pm, (key) =>
+        key === "STRIPE_PRICE_PM_BASE_ANNUAL" ? "price_pm_a" : null
+      )
+    ).toEqual(["STRIPE_PRICE_UNIT_BLOCK_ANNUAL"]);
   });
 
   it("prepares next-period capacity update plan for Slice 4", () => {

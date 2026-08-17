@@ -401,6 +401,7 @@ export function planNextPeriodCapacityUpdate(input: {
   };
 }
 
+/** Admin/historical list only. Customer Checkout uses requiredUnitVolumePriceEnvKeysForQuote. */
 export function unitVolumeCheckoutReadyEnvKeys(): string[] {
   return [
     UNIT_VOLUME_PRICE_ENV_KEYS.PM_BASE_MONTHLY,
@@ -408,6 +409,36 @@ export function unitVolumeCheckoutReadyEnvKeys(): string[] {
     UNIT_VOLUME_PRICE_ENV_KEYS.UNIT_BLOCK_MONTHLY,
     UNIT_VOLUME_PRICE_ENV_KEYS.UNIT_BLOCK_ANNUAL
   ];
+}
+
+/**
+ * Customer Checkout Price env keys for one server quote.
+ * FO/Complete never require PM keys. Unit-block is required only when additional_blocks > 0.
+ */
+export function requiredUnitVolumePriceEnvKeysForQuote(quote: {
+  module: string;
+  billing_interval: BillingCycle;
+  additional_blocks: number;
+}): string[] {
+  if (!isUnitVolumeModule(quote.module as ProductSku)) {
+    return [];
+  }
+  const keys = [basePriceEnvKeyForModule(quote.module as UnitVolumeModule, quote.billing_interval)];
+  if (quote.additional_blocks > 0) {
+    keys.push(unitBlockPriceEnvKey(quote.billing_interval));
+  }
+  return keys;
+}
+
+export function missingUnitVolumePriceEnvKeysForQuote(
+  quote: {
+    module: string;
+    billing_interval: BillingCycle;
+    additional_blocks: number;
+  },
+  resolvePriceId: ResolvePriceId
+): string[] {
+  return requiredUnitVolumePriceEnvKeysForQuote(quote).filter((key) => !resolvePriceId(key));
 }
 
 export { COMMERCIAL_QUOTE_TTL_MS, FORBIDDEN_CLIENT_QUOTE_FIELDS };
