@@ -54,18 +54,18 @@ export const SKU_SUMMARIES: Record<
     id: "property_manager",
     label: "Property Manager",
     description:
-      "Portfolio operations you can run after setup — properties, residents, leasing, maintenance, vendors, financial operations, documents, and communications, plus resident, owner, and vendor portals."
+      "Property operations for residential portfolios — properties and units, residents and leases, Tenant Portal, maintenance, vendors, documents and tables, reports, communications, and operational finance."
   },
   mpa_facility_operations: {
     id: "facility_operations",
     label: "Facility Operations",
     description:
-      "Facility operations for building teams — Mission Control, work orders, assignments, technician execution, vendors, progress tracking, and operational visibility across facility work categories."
+      "Facility operations for building teams — Mission Control, work orders, assignments, technician execution, vendors, assets, inventory, evidence, reports, and operational visibility across facility work categories."
   },
   mpa_complete_platform: {
     id: "complete_platform",
     label: "Complete Platform",
     description:
-      "Property Manager and Facility Operations together — one organization with both product homes, shared context, and the shared platform foundation."
+      "One organization and one subscription that includes both Property Operations and Facility Operations. Oversee both yourself, assign each side to a manager, keep an owner view of both, and move between work surfaces with the Complete launcher."
   }
 };

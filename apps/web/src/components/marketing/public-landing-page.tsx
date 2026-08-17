@@ -18,6 +18,9 @@ import {
 import { LandingHeroProductVisual } from "./landing-hero-product-visual";
 import { FutureIntegrationsNote } from "./future-integrations-note";
 
+const cardClass =
+  "rounded-lg border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-surface)] p-5";
+
 function Section({
   id,
   eyebrow,
@@ -54,7 +57,7 @@ function Section({
 
   return (
     <section id={id} className={shell}>
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-12 md:px-6 md:py-14">
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-10 md:px-6 md:py-12">
         <div className="max-w-2xl space-y-2">
           {eyebrow ? <p className={eyebrowClass}>{eyebrow}</p> : null}
           <h2 className={titleClass}>{title}</h2>
@@ -87,12 +90,12 @@ const PROBLEMS = [
     detail: "Critical details sit in folders and spreadsheets — not where the next decision happens."
   },
   {
-    title: "Billing and operations stay disconnected",
-    detail: "Money and fieldwork rarely share one operating picture, so teams re-enter the same facts."
+    title: "Charges and fieldwork stay disconnected",
+    detail: "What is due and what is open in the field rarely share one operating picture."
   },
   {
     title: "Facility work has no operational home",
-    detail: "Building systems, preventive work, and day-to-day coverage fight for attention outside the PM stack."
+    detail: "Building systems, preventive work, and day-to-day coverage fight for attention outside the property stack."
   },
   {
     title: "Communication becomes another job",
@@ -102,29 +105,59 @@ const PROBLEMS = [
 
 const PRODUCT_FIT: Record<
   ProductSku,
-  { chooseIf: string; whyItMatters: string; priceLines: (pricing: typeof PUBLIC_PRICING_MODEL_COPY) => string }
+  {
+    operationsLabel: string;
+    chooseIf: string;
+    whyItMatters: string;
+    capabilities: readonly string[];
+    priceLines: (pricing: typeof PUBLIC_PRICING_MODEL_COPY) => string;
+  }
 > = {
   mpa_property_manager: {
+    operationsLabel: "Property Operations",
     chooseIf:
-      "Choose Property Manager if your primary need is managing the property-management side of the operation — properties, residents, leasing, vendors, and financial operations.",
+      "Choose Property Manager if your primary need is residential property operations — properties, residents, leases, Tenant Portal, maintenance, vendors, and operational finance.",
     whyItMatters:
-      "Run portfolio workflows from one Mission Control instead of stitching rent tools, maintenance threads, and spreadsheets together.",
+      "Run portfolio workflows from one Mission Control instead of stitching maintenance threads, spreadsheets, and separate tools together.",
+    capabilities: [
+      "Property and unit organization",
+      "Residents, leases, Add Tenant, and move-out history",
+      "Browser-first Tenant Portal",
+      "Maintenance and work orders",
+      "Tenant communications and vendors",
+      "Documents, tables, reports, and operational finance"
+    ],
     priceLines: (pricing) =>
       `${pricing.pmHeadline} or ${pricing.pmHeadlineAnnual} · ${pricing.pmIncludes}`
   },
   mpa_facility_operations: {
+    operationsLabel: "Facility Operations",
     chooseIf:
-      "Choose Facility Operations if your primary need is facility maintenance work orders, assignments, technician execution, vendors, and operational visibility for buildings and sites.",
+      "Choose Facility Operations if your primary need is facility work orders, assignments, technician execution, vendors, and operational visibility for buildings and sites.",
     whyItMatters:
-      "Give facility and maintenance teams a dedicated Mission Control and operations home to create, assign, progress, and complete facility work — with category queues for the work your buildings need.",
+      "Give facility and maintenance teams a dedicated Mission Control to create, assign, progress, and complete facility work — with category queues for the work your buildings need.",
+    capabilities: [
+      "Facility Mission Control",
+      "Facility work orders and workflows",
+      "Assets and inventory / stock",
+      "Vendors and operational evidence",
+      "Reports across facility work"
+    ],
     priceLines: (pricing) =>
       `${pricing.foHeadlineMonthly} or ${pricing.foHeadlineAnnual} · ${pricing.foIncludes}`
   },
   mpa_complete_platform: {
+    operationsLabel: "Property + Facility in one organization",
     chooseIf:
-      "Choose Complete if you need both property-management and facility/operations workflows in one system — one organization, both product homes, shared context.",
+      "Choose Complete if you need both Property Operations and Facility Operations in one organization and one subscription — not two accounts.",
     whyItMatters:
-      "When portfolio management and facility work share residents, units, vendors, and status, combining them removes the handoff tax between two operational sides.",
+      "You can oversee both sides yourself, assign Property Operations to one manager and Facility Operations to another, keep an owner view of both, and use the Complete launcher to move between work surfaces.",
+    capabilities: [
+      "One organization and one subscription",
+      "Property Operations + Facility Operations included",
+      "Assign each side to a manager, or keep both",
+      "Complete launcher between work surfaces"
+    ],
     priceLines: (pricing) =>
       `${pricing.completeHeadlineMonthly} or ${pricing.completeHeadlineAnnual} · ${pricing.completeIncludes}`
   }
@@ -133,22 +166,22 @@ const PRODUCT_FIT: Record<
 const COMPARISON_ROWS = [
   {
     topic: "Best fit when…",
-    mpa: "You need day-to-day property operations: maintenance, work orders, vendors, facility workflows, and operational visibility across units.",
+    mpa: "You need day-to-day property and/or facility operations: units, residents, maintenance, vendors, facility work, and operational visibility.",
     rentredi: "Best when rent collection / property-management administration is the primary job."
   },
   {
     topic: "Platform shape",
-    mpa: "Property Manager, Facility Operations, and Complete — so PM and facility teams can share one operating system when needed.",
+    mpa: "Property Manager, Facility Operations, and Complete — so property and facility teams can share one organization when needed.",
     rentredi: "Typically positioned around rental management and landlord workflows."
   },
   {
     topic: "Operational workflows",
-    mpa: "Work orders, vendor follow-through, maintenance status, properties/units, and team handoffs live in connected workflows.",
+    mpa: "Work orders, vendor follow-through, Tenant Portal, properties/units, documents, reports, and team handoffs live in connected workflows.",
     rentredi: "Strong when the core job is collecting rent and managing tenancy basics."
   },
   {
-    topic: "Facility + PM together",
-    mpa: "Complete Platform combines both operational sides in one organization when you need both.",
+    topic: "Facility + property together",
+    mpa: "Complete is one organization and one subscription that includes both operational sides — not two products to buy separately.",
     rentredi: "Evaluate whether your need is rent-first tooling or full operations coverage."
   },
   {
@@ -201,7 +234,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
 
       <section
         aria-label="Homepage hero"
-        className="relative isolate flex min-h-[100svh] items-end overflow-hidden"
+        className="relative isolate flex min-h-[88svh] items-end overflow-hidden md:min-h-[100svh]"
       >
         <div
           aria-hidden
@@ -215,16 +248,19 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
 
         <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-10 pt-28 md:px-6 md:pb-16 xl:pb-24">
           <div className="max-w-xl space-y-5 motion-safe:animate-[mpa-rise_700ms_ease-out]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+              My Property Assistant
+            </p>
             <p className="font-display text-4xl font-semibold tracking-tight text-white md:text-6xl">
               M.P.A.
             </p>
             <h1 className="font-display text-2xl font-semibold leading-tight text-white/95 md:text-[2rem] md:leading-snug">
-              Stop running property operations across five tools.
+              One system for property and facility operations.
             </h1>
             <p className="max-w-md text-base leading-relaxed text-white/80 md:text-lg">
-              M.P.A. is a workflow-first Property Operations Platform for property managers, owners,
-              and facility teams — connecting maintenance, vendors, units, billing, and day-to-day
-              work in one system.
+              M.P.A. helps property managers, owners, and facility teams run the work that keeps
+              buildings going — properties, residents, maintenance, vendors, and facility work —
+              without five disconnected tools.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               {isAuthenticated ? (
@@ -236,8 +272,8 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                   Get Started
                 </Link>
               )}
-              <a href="#how-it-works" className={marketingHeroSecondaryCtaClass}>
-                See How It Works
+              <a href="#choose-platform" className={marketingHeroSecondaryCtaClass}>
+                See which plan is for me
               </a>
             </div>
           </div>
@@ -251,14 +287,26 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         title="Built for the people who keep properties running."
         description="Property managers, owners and operators, facility and maintenance teams, and growing operations orgs."
       >
-        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { role: "Property managers", fit: "Portfolio, residents, leasing, vendors, and money workflows." },
-            { role: "Owners / operators", fit: "Visibility across units, work, vendors, and operational status." },
-            { role: "Facility / maintenance", fit: "Work orders, assets, preventive work, and building coverage." },
-            { role: "Growing ops teams", fit: "Start with PM or FO — or run both in Complete." }
+            {
+              role: "Property managers",
+              fit: "Properties, residents, leases, Tenant Portal, maintenance, and operational finance."
+            },
+            {
+              role: "Owners / operators",
+              fit: "Visibility across units, work, vendors, and operational status."
+            },
+            {
+              role: "Facility / maintenance",
+              fit: "Facility Mission Control, work orders, assets, inventory, and evidence."
+            },
+            {
+              role: "Growing ops teams",
+              fit: "Start with Property Manager or Facility Operations — or run both in Complete."
+            }
           ].map((item) => (
-            <li key={item.role} className="border-t-2 border-[var(--mpa-color-brand-primary)] pt-3">
+            <li key={item.role} className={`${cardClass} border-t-2 border-t-[var(--mpa-color-brand-primary)]`}>
               <h3 className="font-display text-base font-semibold">{item.role}</h3>
               <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                 {item.fit}
@@ -273,15 +321,15 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         tone="muted"
         eyebrow="The operational problem"
         title="Property operations get fragmented — and the glue work becomes the job."
-        description="If maintenance, vendors, units, billing, and communication each live in a different place, your team spends the day reconnecting work that should already be connected."
+        description="If maintenance, vendors, units, charges, and communication each live in a different place, your team spends the day reconnecting work that should already be connected."
       >
-        <ul className="grid gap-5 md:grid-cols-2">
+        <ul className="grid gap-4 md:grid-cols-2">
           {PROBLEMS.map((item) => (
-            <li key={item.title} className="space-y-1">
+            <li key={item.title} className={cardClass}>
               <h3 className="font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">
                 {item.title}
               </h3>
-              <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+              <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                 {item.detail}
               </p>
             </li>
@@ -291,24 +339,24 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
 
       <Section
         id="solution"
-        eyebrow="The M.P.A. solution"
+        eyebrow="What M.P.A. does"
         title="Connect the workflows operators actually have to manage."
-        description="M.P.A. brings property operations, maintenance, work orders, vendors, facility workflows, residents, billing, and team communication into one operating model — so status is visible without another status meeting."
+        description="M.P.A. brings property operations, facility work, residents, vendors, documents, reports, and team communication into one operating model — so status is visible without another status meeting."
       >
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             "Properties & units",
+            "Residents, leases & Tenant Portal",
             "Maintenance & work orders",
             "Vendors",
-            "Facility operations",
-            "Residents",
-            "Billing visibility",
-            "Team workflows",
-            "Operational overview"
+            "Facility Mission Control",
+            "Documents & tables",
+            "Reports",
+            "Operational finance"
           ].map((item) => (
             <li
               key={item}
-              className="border-t border-[var(--mpa-color-border-default)] pt-3 text-sm font-medium text-[var(--mpa-color-text-primary)]"
+              className={`${cardClass} py-4 text-sm font-medium text-[var(--mpa-color-text-primary)]`}
             >
               {item}
             </li>
@@ -317,25 +365,58 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
       </Section>
 
       <Section
-        id="why-mpa"
+        id="tenant"
         tone="muted"
+        eyebrow="Tenant experience"
+        title="Residents get a browser-first portal — not a store download."
+        description="Invite tenants digitally. They open Tenant Portal in the browser, request maintenance, message the property team, review payment history where it is supported, and keep move-out records in history."
+      >
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              title: "Digital invitations",
+              detail: "Send a Tenant invitation. They accept and land in Tenant Portal."
+            },
+            {
+              title: "Works in the browser",
+              detail:
+                "M.P.A. works in the browser and can optionally be added to the phone. There is no App Store or Google Play app."
+            },
+            {
+              title: "Day-to-day tenant work",
+              detail:
+                "Maintenance requests, property-team messages, payment history where supported, and move-out history that stays on the record."
+            }
+          ].map((item) => (
+            <li key={item.title} className={cardClass}>
+              <h3 className="font-display text-base font-semibold">{item.title}</h3>
+              <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                {item.detail}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        id="why-mpa"
         eyebrow="Why M.P.A."
         title="One operational system instead of five workarounds."
-        description="Most teams already pay for software. The expensive part is the glue between rent tools, maintenance apps, spreadsheets, texts, email, and manual tracking."
+        description="Most teams already pay for software. The expensive part is the glue between maintenance apps, spreadsheets, texts, email, and manual tracking."
       >
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className={cardClass}>
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
               Instead of
             </p>
             <ul className="mt-3 space-y-2">
               {[
-                "Software for rent",
-                "Software for maintenance",
+                "A separate tool for maintenance",
                 "Spreadsheets for units",
                 "Texts for vendors",
                 "Email for status",
-                "Manual follow-up"
+                "Manual follow-up",
+                "A second system just for facility work"
               ].map((item) => (
                 <li
                   key={item}
@@ -346,7 +427,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               ))}
             </ul>
           </div>
-          <div>
+          <div className={`${cardClass} border-[var(--mpa-color-brand-primary)]`}>
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
               With M.P.A.
             </p>
@@ -362,20 +443,20 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           </div>
         </div>
 
-        <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
             { title: "Save time", detail: "Move work through shared queues instead of rebuilding status by hand." },
             { title: "Reduce admin", detail: "Stop copying the same unit, vendor, and request details into five places." },
-            { title: "Improve visibility", detail: "See open work, vendors, units, and billing context in one operating view." },
+            { title: "Improve visibility", detail: "See open work, vendors, units, and financial context in one operating view." },
             { title: "Speed workflows", detail: "Hand off maintenance and vendor work without losing ownership." },
             { title: "Cut tool sprawl", detail: "Replace glue-work between disconnected apps with connected operations." },
             { title: "Improve communication", detail: "Give teams, owners, residents, and vendors a clearer status thread." }
           ].map((item) => (
-            <li key={item.title} className="space-y-1">
+            <li key={item.title} className={cardClass}>
               <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
                 {item.title}
               </h3>
-              <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{item.detail}</p>
+              <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{item.detail}</p>
             </li>
           ))}
         </ul>
@@ -383,27 +464,36 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
 
       <Section
         id="choose-platform"
-        eyebrow="Product fit"
+        tone="muted"
+        eyebrow="Which plan is for me?"
         title="Choose the platform that matches how you operate."
-        description="You should not have to guess. Use these decision rules — then Get Started."
+        description="Three products. You should not have to guess. Use these decision rules — then Get Started."
       >
-        <ul className="grid gap-8 lg:grid-cols-3">
+        <ul className="grid gap-5 lg:grid-cols-3">
           {PRODUCT_SKUS.map((sku) => {
             const summary = SKU_SUMMARIES[sku];
             const fit = PRODUCT_FIT[sku];
             const motion = publicPurchaseMotionForSku(sku);
             return (
-              <li key={sku} className="flex flex-col border-t-2 border-[var(--mpa-color-brand-primary)] pt-4">
+              <li key={sku} className={`flex flex-col ${cardClass} border-t-2 border-t-[var(--mpa-color-brand-primary)]`}>
                 <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
                   {motion.availabilityLabel}
                 </p>
                 <h3 className="mt-1 font-display text-xl font-semibold">{summary.label}</h3>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+                  {fit.operationsLabel}
+                </p>
                 <p className="mt-3 text-sm font-medium leading-6 text-[var(--mpa-color-text-primary)]">
                   {fit.chooseIf}
                 </p>
-                <p className="mt-2 flex-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+                <p className="mt-2 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                   {fit.whyItMatters}
                 </p>
+                <ul className="mt-3 flex-1 space-y-1.5 text-sm text-[var(--mpa-color-text-secondary)]">
+                  {fit.capabilities.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))}
+                </ul>
                 <p className="mt-4 text-sm font-semibold text-[var(--mpa-color-text-primary)]">
                   {fit.priceLines(pricing)}
                 </p>
@@ -412,7 +502,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                   modules
                 </p>
                 <div className="mt-5">
-                  <Link href={productCheckoutHref(sku)} className={marketingPrimaryCtaClass}>
+                  <Link href={productCheckoutHref(sku)} className={`${marketingPrimaryCtaClass} w-full sm:w-auto`}>
                     Get started — {summary.label}
                   </Link>
                 </div>
@@ -435,19 +525,18 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
 
       <Section
         id="how-it-works"
-        tone="muted"
-        eyebrow="What happens next"
+        eyebrow="How do I get started?"
         title="From interest to Mission Control — without a parallel funnel."
         description={pricing.journeyNote}
       >
-        <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {HOW_IT_WORKS.map((item) => (
-            <li key={item.step} className="space-y-2">
+            <li key={item.step} className={cardClass}>
               <p className="font-display text-3xl font-semibold text-[var(--mpa-color-brand-primary)]">
                 {item.step}
               </p>
-              <h3 className="font-display text-lg font-semibold">{item.title}</h3>
-              <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{item.detail}</p>
+              <h3 className="mt-2 font-display text-lg font-semibold">{item.title}</h3>
+              <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{item.detail}</p>
             </li>
           ))}
         </ol>
@@ -462,6 +551,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
 
       <Section
         id="compare"
+        tone="muted"
         eyebrow="Which platform type fits you?"
         title="M.P.A. vs rent-first tools like RentRedi"
         description="This is a category decision, not a takedown. Choose the type of platform that matches the job you need done."
@@ -470,7 +560,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           <p className="mb-2 text-xs font-medium text-[var(--mpa-color-text-muted)] md:hidden">
             Swipe sideways to compare →
           </p>
-          <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-subtle)] [-webkit-overflow-scrolling:touch]">
+          <div className="overflow-x-auto rounded-lg border border-[var(--mpa-color-border-subtle)] [-webkit-overflow-scrolling:touch]">
             <table className="w-full min-w-[40rem] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)]">
@@ -490,7 +580,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               </thead>
               <tbody>
                 {COMPARISON_ROWS.map((row) => (
-                  <tr key={row.topic} className="border-b border-[var(--mpa-color-border-subtle)]">
+                  <tr key={row.topic} className="border-b border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)]">
                     <th
                       scope="row"
                       className="px-3 py-3 text-left align-top font-medium text-[var(--mpa-color-text-primary)]"
@@ -517,12 +607,11 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
 
       <Section
         id="pricing"
-        tone="muted"
         eyebrow="Exact pricing"
         title="Know the cost. Know the capacity. Know the trial."
         description="Managed-unit pricing from the same commercial model used at Checkout."
       >
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-3">
           {(
             [
               {
@@ -545,7 +634,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               }
             ] as const
           ).map((plan) => (
-            <div key={plan.label} className="border-t border-[var(--mpa-color-border-default)] pt-4">
+            <div key={plan.label} className={cardClass}>
               <h3 className="font-display text-lg font-semibold">{plan.label}</h3>
               <p className="mt-2 font-display text-2xl font-semibold">{plan.monthly}</p>
               <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{plan.annual}</p>
@@ -560,7 +649,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
           ))}
         </div>
 
-        <div className="mt-8 space-y-3 border-t border-[var(--mpa-color-border-subtle)] pt-6 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
+        <div className="mt-6 space-y-3 rounded-lg border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-4 py-5 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
           <p>
             <span className="font-semibold text-[var(--mpa-color-text-primary)]">
               {pricing.trialTitle}.
@@ -591,10 +680,11 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
 
       <Section
         id="trust"
+        tone="muted"
         eyebrow="Trust the path"
         title="Production software. Honest products. Clear commercial path."
       >
-        <ul className="grid gap-5 sm:grid-cols-2">
+        <ul className="grid gap-4 sm:grid-cols-2">
           {[
             {
               title: "Three products only",
@@ -609,7 +699,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             {
               title: "Operational workflows that exist today",
               detail:
-                "Mission Control, maintenance, vendors, properties/units, facility operations, and billing visibility are real product surfaces — explore them in Live Demo."
+                "Mission Control, maintenance, Tenant Portal, vendors, properties/units, facility operations, documents, reports, and operational finance are live product surfaces."
             },
             {
               title: "Transparent unit-volume billing",
@@ -617,9 +707,9 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
                 "Capacity, trial rules, and cancellation behavior are disclosed before you commit."
             }
           ].map((item) => (
-            <li key={item.title} className="space-y-1">
+            <li key={item.title} className={cardClass}>
               <h3 className="font-display text-base font-semibold">{item.title}</h3>
-              <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{item.detail}</p>
+              <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{item.detail}</p>
             </li>
           ))}
         </ul>
@@ -628,19 +718,35 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
             Explore Live Demo
           </Link>
         </div>
-        <FutureIntegrationsNote className="mt-4 border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-4 py-3" />
+        <FutureIntegrationsNote className="mt-4 rounded-lg border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-surface)] px-4 py-3" />
       </Section>
 
-      <Section id="faq" tone="muted" eyebrow="FAQ" title="Straight answers">
-        <dl className="space-y-5">
+      <Section id="faq" eyebrow="FAQ" title="Straight answers">
+        <dl className="space-y-4">
           {[
             {
               q: "What is M.P.A.?",
-              a: "A workflow-first Property Operations Platform — built to connect the day-to-day operational work of property and facility teams, not merely list modules."
+              a: "My Property Assistant is an operations platform for property and facility teams. It connects the day-to-day work of running buildings — not a rent-only admin tool."
             },
             {
               q: "Which product should I choose?",
-              a: "PM for property-management operations. FO for facility/maintenance operations. Complete when you need both sides in one organization."
+              a: "Property Manager for residential property operations. Facility Operations for facility and building-team work. Complete when you need both sides in one organization and one subscription."
+            },
+            {
+              q: "Is Complete two subscriptions?",
+              a: "No. Complete is one organization and one subscription that includes Property Operations and Facility Operations. You can oversee both, assign each side to a manager, keep an owner view of both, and use the Complete launcher to move between work surfaces."
+            },
+            {
+              q: "Do tenants download an app?",
+              a: "No. Tenant Portal works in the browser and can optionally be added to the phone. iPhone and iPad use Add to Home Screen; Android can install through a supported browser. There is no App Store or Google Play app."
+            },
+            {
+              q: "What does operational finance include?",
+              a: "Charges, balances, payment history, vendor invoices, and owner summaries — with control over who can access financial operations. It does not include automated late fees, automated collections, or live tenant card checkout in this workspace."
+            },
+            {
+              q: "Does every action send email?",
+              a: "No. M.P.A. emails invitations, work-order notices, tenant conversations, and billing/provisioning lifecycle messages when those are sent. In-app notifications cover more of the daily workspace. Phone push notifications are not available."
             },
             {
               q: "What does it cost?",
@@ -655,7 +761,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
               a: pricing.enterpriseNotProduct
             }
           ].map((item) => (
-            <div key={item.q} className="border-t border-[var(--mpa-color-border-subtle)] pt-4">
+            <div key={item.q} className={`${cardClass} pt-4`}>
               <dt className="font-semibold">{item.q}</dt>
               <dd className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">{item.a}</dd>
             </div>
@@ -668,7 +774,7 @@ export function PublicLandingPage({ isAuthenticated = false }: { isAuthenticated
         tone="inverse"
         eyebrow="Start now"
         title="See which platform fits. Calculate your plan. Start your trial."
-        description="Every week of tool sprawl is another week of reconnecting work by hand. Get your operation organized in one workflow-first system."
+        description="Every week of tool sprawl is another week of reconnecting work by hand. Get your operation organized in one system."
       >
         <div className="flex flex-wrap gap-3">
           {isAuthenticated ? (

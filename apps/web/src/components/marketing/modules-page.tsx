@@ -25,8 +25,10 @@ export function ModulesPage({ isAuthenticated = false }: { isAuthenticated?: boo
             Compare Property Manager, Facility Operations, and Complete
           </h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            This page explains what each product includes. When you are ready to buy, use Get Started
-            for the guided path: questionnaire → plan → confirmation → checkout.
+            Property Manager is Property Operations. Facility Operations is the facility-team
+            workspace. Complete is one organization and one subscription that includes both — not two
+            accounts. When you are ready to buy, use Get Started for the guided path: questionnaire →
+            plan → confirmation → checkout.
           </p>
         </header>
 

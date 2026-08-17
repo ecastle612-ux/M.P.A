@@ -4,16 +4,20 @@
  */
 export const MARKETING_MODULE_COPY: Record<string, string> = {
   organizations: "Company profile, team membership, and organization settings.",
-  documents: "Shared document library to upload, organize, and retrieve property records.",
-  communications: "Messages and notifications across residents, owners, and vendors.",
+  documents: "Shared documents to upload, organize, and retrieve operational records.",
+  tables: "Shared operational tables for structured records your team already keeps in spreadsheets.",
+  reports: "Reports and operational summaries for property and facility work.",
+  communications:
+    "Messages with residents, owners, and vendors. Email is used for invitations, work orders, conversations, and lifecycle notices when those are sent.",
   pm_mission_control: "Your Property Manager home for ranked attention and next actions.",
   properties: "Portfolio properties and units in one operating record.",
-  residents: "Resident records connected to leases, billing, and maintenance.",
+  residents:
+    "Resident records, Add Tenant, digital Tenant Portal invitations, and move-out history.",
   leasing: "Lease records and occupancy handoffs for your portfolio.",
   maintenance: "Unit and residential maintenance work — distinct from Facility Operations.",
   vendors: "Vendor relationships and work assigned from maintenance.",
   financial_operations:
-    "Resident billing, rent collection, collections, vendor invoice approval, and owner summaries.",
+    "Operational finance — charges, balances, payment history, vendor invoices, and owner summaries. Control who can access financial operations.",
   facility_mission_control:
     "Your Facility Operations home for daily attention, open work, and next actions.",
   facility_operations:

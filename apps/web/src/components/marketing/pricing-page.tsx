@@ -63,7 +63,8 @@ export function PricingPage({
           <h1 className="font-display text-3xl font-semibold">Platform pricing</h1>
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
             Property Manager, Facility Operations, and Complete Platform are available online with
-            managed-unit pricing.
+            managed-unit pricing. Complete is one organization and one subscription that includes
+            both Property Operations and Facility Operations.
           </p>
         </header>
 
