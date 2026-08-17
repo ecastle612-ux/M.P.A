@@ -308,6 +308,7 @@ export function complimentaryCompleteKeepsBothProducts(sku: ProductSku): boolean
 
 export type ComplimentaryWelcomeCopy = {
   subject: string;
+  headline: string;
   preview: string;
   ctaLabel: "Set Up Your Account";
   productLabel: string;
@@ -323,23 +324,23 @@ export function complimentaryWelcomeCopy(input: {
   expiresAt: string | null;
 }): ComplimentaryWelcomeCopy {
   const productLabel = toSkuLabel(input.productSku);
+  const headline = `Your Complimentary ${productLabel} Access`;
   const expirationLine = input.expiresAt
-    ? `Your complimentary access expires on ${formatComplimentaryDate(input.expiresAt)}.`
-    : "Your complimentary access has no expiration date.";
+    ? `Expires on ${formatComplimentaryDate(input.expiresAt)}.`
+    : "No expiration.";
   const testerFeedback =
     input.grantType === "tester"
       ? "Please reply to this email with bugs, errors, confusing behavior, or suggestions. Tell us what you were doing, what happened, and what you expected. Attach a screenshot when it helps."
       : null;
   return {
-    subject:
-      input.grantType === "tester"
-        ? `Your complimentary ${productLabel} tester access`
-        : `Your complimentary ${productLabel} gift access`,
+    subject: headline,
+    headline,
     preview: `Complimentary ${productLabel} access — no payment required.`,
     ctaLabel: "Set Up Your Account",
     productLabel,
     expirationLine,
-    paymentLine: "No payment is required during this complimentary period. You will not be charged automatically.",
+    paymentLine:
+      "No payment is required during this complimentary period. You will not be charged automatically.",
     testerFeedback,
     replyTo: TESTER_FEEDBACK_REPLY_TO
   };

@@ -156,7 +156,10 @@ describe("docs/185 complimentary access domain", () => {
       productSku: "mpa_facility_operations",
       expiresAt: "2026-09-01T00:00:00.000Z"
     });
+    expect(welcome.headline).toBe("Your Complimentary Facility Operations Access");
+    expect(welcome.subject).toBe(welcome.headline);
     expect(welcome.ctaLabel).toBe("Set Up Your Account");
+    expect(welcome.expirationLine).toMatch(/^Expires on /);
     expect(welcome.paymentLine).toMatch(/No payment is required/i);
     expect(welcome.testerFeedback).toMatch(/bugs, errors, confusing behavior, or suggestions/i);
     expect(welcome.testerFeedback).toMatch(/screenshot/i);
@@ -167,9 +170,10 @@ describe("docs/185 complimentary access domain", () => {
       productSku: "mpa_property_manager",
       expiresAt: null
     });
+    expect(gift.headline).toBe("Your Complimentary Property Manager Access");
     expect(gift.testerFeedback).toBeNull();
     expect(gift.replyTo).toBe("feedback@my-property-assistant.com");
-    expect(gift.expirationLine).toMatch(/no expiration/i);
+    expect(gift.expirationLine).toBe("No expiration.");
     expect(
       complimentaryGrantNeedsExpiryNotice({
         status: "active",

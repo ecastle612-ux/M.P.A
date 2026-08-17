@@ -20,8 +20,17 @@ Complimentary TESTER and GIFT welcome mail now uses:
 
 - **From:** `My Property Assistant <noreply@my-property-assistant.com>` (existing Resend sender; unchanged)
 - **Reply-To:** `feedback@my-property-assistant.com`
+- **Shared branded Resend shell** (`renderFoundationEmail` / `renderBrandedEmail`) with Production lockup `/branding/logo-email-lockup.png`, white/mist card, Canopy green CTA `#0F6B56`, and plain claim-link fallback
+- **Headline:** `Your Complimentary {Property Manager | Facility Operations | Complete Platform} Access`
+- **Expiration:** `Expires on …` or `No expiration.` for eligible gifts
+- **Payment line retained:** no payment required during complimentary period; will not be charged automatically
+- **CTA:** Set Up Your Account
 
 Tester welcome still asks recipients to reply with bugs/errors, confusing behavior, suggestions, and screenshots when useful. Gift omits that tester-feedback paragraph and still uses the same Reply-To.
+
+### Presentation-only email fix (2026-08-17)
+
+Complimentary welcome mail was presentation-weak relative to other transactional templates. No schema, entitlement, Stripe, pricing, finance, M5, July, or authorization change. Focused re-run: `@mpa/email` shell **8 passed**; `@mpa/shared` complimentary-access **10 passed**; `@mpa/web` complimentary + branded email **6 passed**.
 
 Public legal / Enterprise contact remains `enterprise@my-property-assistant.com`. That is not the tester reply path.
 

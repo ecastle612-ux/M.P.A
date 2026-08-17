@@ -81,24 +81,33 @@ export function renderComplimentaryWelcomeEmail(input: {
   const copy = complimentaryWelcomeCopy(input.grant);
   const url = claimUrl(input.claimToken);
   const feedback = copy.testerFeedback
-    ? `<p>${escapeHtml(copy.testerFeedback)}</p>`
+    ? `<p style="margin:0 0 16px 0;">${escapeHtml(copy.testerFeedback)}</p>`
     : "";
+  const body = [
+    `<p style="margin:0 0 16px 0;">You have complimentary access to <strong>${escapeHtml(copy.productLabel)}</strong>.</p>`,
+    `<p style="margin:0 0 16px 0;"><strong>${escapeHtml(copy.expirationLine)}</strong></p>`,
+    `<p style="margin:0 0 16px 0;">${escapeHtml(copy.paymentLine)}</p>`,
+    feedback
+  ].join("");
   const html = renderFoundationEmail({
-    title: copy.subject,
+    title: copy.headline,
     previewText: copy.preview,
-    body: `<p>You have complimentary access to <strong>${escapeHtml(copy.productLabel)}</strong>.</p><p>${escapeHtml(copy.expirationLine)}</p><p>${escapeHtml(copy.paymentLine)}</p>${feedback}`,
+    body,
     ctaUrl: url,
     ctaLabel: copy.ctaLabel
   });
   const text = [
-    copy.subject,
+    copy.headline,
     "",
     `You have complimentary access to ${copy.productLabel}.`,
     copy.expirationLine,
     copy.paymentLine,
     copy.testerFeedback ?? "",
     "",
-    `${copy.ctaLabel}: ${url}`
+    `${copy.ctaLabel}: ${url}`,
+    "",
+    "If the button does not work, copy this link:",
+    url
   ]
     .filter((line) => line !== "")
     .join("\n");
