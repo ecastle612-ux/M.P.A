@@ -42,8 +42,8 @@ export async function POST(request: Request) {
     constructEvent: (payload, header, secret) => stripe.webhooks.constructEvent(payload, header, secret),
     body,
     signature,
-    platformSecret: serverEnv.STRIPE_WEBHOOK_SECRET,
-    connectSecret: serverEnv.STRIPE_CONNECT_WEBHOOK_SECRET
+    platformSecret: serverEnv.STRIPE_WEBHOOK_SECRET ?? null,
+    connectSecret: serverEnv.STRIPE_CONNECT_WEBHOOK_SECRET ?? null
   });
   if (!verified.ok) {
     return NextResponse.json({ error: verified.error }, { status: verified.status });

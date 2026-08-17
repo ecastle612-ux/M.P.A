@@ -16,8 +16,8 @@ export function verifyFinanceStripeWebhook(input: {
   constructEvent: (payload: string, header: string, secret: string) => Stripe.Event;
   body: string;
   signature: string | null;
-  platformSecret?: string | null;
-  connectSecret?: string | null;
+  platformSecret?: string | null | undefined;
+  connectSecret?: string | null | undefined;
 }): VerifyFinanceStripeWebhookResult {
   if (!input.platformSecret) {
     return { ok: false, status: 503, error: "Stripe webhook not configured" };
