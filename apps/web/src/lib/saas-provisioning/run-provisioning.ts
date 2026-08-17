@@ -114,11 +114,39 @@ async function linkSaasCustomer(input: {
   );
 }
 
+async function findComplimentaryOrganizationId(email: string): Promise<string | null> {
+  const supabase = await tryServiceRole();
+  if (!supabase) {
+    const { findComplimentaryOrganizationForEmail } = await import("../complimentary-access/service");
+    return findComplimentaryOrganizationForEmail(email)?.organizationId ?? null;
+  }
+  try {
+    const { data } = await supabase
+      .from("complimentary_access_grants")
+      .select("organization_id")
+      .eq("recipient_email", email.toLowerCase())
+      .not("organization_id", "is", null)
+      .neq("status", "revoked")
+      .limit(1)
+      .maybeSingle();
+    return typeof data?.organization_id === "string" ? data.organization_id : null;
+  } catch {
+    return null;
+  }
+}
+
 async function ensureOrganization(input: {
   name: string;
   ownerUserId: string;
   checkoutSessionId: string;
+  ownerEmail?: string;
 }): Promise<{ organizationId: string } | { error: string }> {
+  const complimentaryOrgId = input.ownerEmail
+    ? await findComplimentaryOrganizationId(input.ownerEmail)
+    : null;
+  if (complimentaryOrgId) {
+    return { organizationId: complimentaryOrgId };
+  }
   const supabase = await tryServiceRole();
   const slug = `${createOrganizationSlugFromName(input.name)}-${input.checkoutSessionId.slice(-8)}`;
   if (!supabase) {
@@ -415,7 +443,8 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
         const org = await ensureOrganization({
           name: named,
           ownerUserId: job.ownerUserId,
-          checkoutSessionId: job.checkoutSessionId
+          checkoutSessionId: job.checkoutSessionId,
+          ownerEmail: job.ownerEmail
         });
         if ("error" in org) {
           // Compensation: keep identity, do not create a second org — retry safely.
@@ -466,6 +495,20 @@ async function advanceOneCheckpoint(job: ProvisioningJob): Promise<ProvisioningJ
         if (activated.error) {
           // Compensation: keep org; retry entitle — never second org/subscription invent.
           return await saveJob(markProvisioningRetry(job, activated.error));
+        }
+        if (job.organizationId && job.stripeSubscriptionId && isProductSku(job.productSku)) {
+          const { markComplimentaryConverted } = await import("../complimentary-access/service");
+          const converted = await markComplimentaryConverted({
+            email: job.ownerEmail,
+            organizationId: job.organizationId,
+            paidSku: job.productSku,
+            stripeSubscriptionId: job.stripeSubscriptionId
+          });
+          const persistClient = await tryServiceRole();
+          if (converted && persistClient) {
+            const { persistComplimentaryGrant } = await import("../complimentary-access/durable");
+            await persistComplimentaryGrant(persistClient, converted);
+          }
         }
         return await saveJob(transitionProvisioning(job, "entitled", "product_activated"));
       }

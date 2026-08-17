@@ -45,6 +45,8 @@ export function AuthenticatedContextProviders({
               productLabel: string | null;
               setupComplete: boolean;
               operatingScope?: MemberOperatingScope | null;
+              complimentaryAccess?: boolean;
+              complimentaryExpiresAt?: string | null;
             }>;
           };
           const refreshedOrganizations = (payload.memberships ?? []).map((membership) => ({
@@ -55,7 +57,9 @@ export function AuthenticatedContextProviders({
             productSku: membership.productSku,
             productLabel: membership.productLabel,
             setupComplete: membership.setupComplete,
-            operatingScope: membership.operatingScope ?? null
+            operatingScope: membership.operatingScope ?? null,
+            complimentaryAccess: membership.complimentaryAccess ?? false,
+            complimentaryExpiresAt: membership.complimentaryExpiresAt ?? null
           }));
           setOrganizationState(refreshedOrganizations);
         }}

@@ -10,6 +10,7 @@ import {
   isMemberOperatingScope,
   isProductSku,
   isSubscriptionPlatformStatus,
+  paidSubscriptionTakesPrecedence,
   requiredEntitlementForApiPath,
   type MemberOperatingScope,
   type ProductSku,
@@ -62,7 +63,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/facility") ||
     pathname.startsWith("/shared") ||
     pathname.startsWith("/settings") ||
-    pathname.startsWith("/admin");
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/complimentary/expired");
 
   const apiEntitlementRequired = requiredEntitlementForApiPath(pathname);
   if (apiEntitlementRequired !== null && !user) {
@@ -192,9 +194,40 @@ export async function middleware(request: NextRequest) {
     if (organizationId) {
       const { data: subscription } = await supabase
         .from("organization_subscriptions")
-        .select("sku_code, status, grace_started_at, cancel_at_period_end")
+        .select("sku_code, status, grace_started_at, cancel_at_period_end, stripe_subscription_id")
         .eq("organization_id", organizationId)
         .maybeSingle();
+
+      try {
+        const { data: grant } = await supabase
+          .from("complimentary_access_grants")
+          .select("status, expires_at, converted_at")
+          .eq("organization_id", organizationId)
+          .maybeSingle();
+        const paidWins = paidSubscriptionTakesPrecedence({
+          stripeSubscriptionId: subscription?.stripe_subscription_id as string | null,
+          paidStatus: subscription?.status as string | null
+        });
+        const complimentaryBlocked =
+          !paidWins &&
+          grant &&
+          (grant.status === "expired" ||
+            grant.status === "revoked" ||
+            (grant.status === "active" &&
+              typeof grant.expires_at === "string" &&
+              Date.parse(grant.expires_at) <= Date.now() &&
+              !grant.converted_at));
+        const recoveryPath =
+          pathname.startsWith("/complimentary/expired") || pathname.startsWith("/billing");
+        if (complimentaryBlocked && !recoveryPath) {
+          const url = request.nextUrl.clone();
+          url.pathname = "/complimentary/expired";
+          url.search = "";
+          return NextResponse.redirect(url);
+        }
+      } catch {
+        // Table may be absent until the docs/185 migration is applied.
+      }
 
       if (subscription && isProductSku(subscription.sku_code)) {
         const status = subscription.status;
@@ -312,6 +345,7 @@ export const config = {
     "/shared/:path*",
     "/settings/:path*",
     "/admin/:path*",
+    "/complimentary/:path*",
     "/api/:path*",
     "/login",
     "/forgot-password",

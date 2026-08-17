@@ -74,14 +74,21 @@ export async function getOrganizationsForUser(userId: string): Promise<Organizat
 
   const subscriptionByOrg = new Map<string, ProductSku>();
   const setupCompleteByOrg = new Map<string, boolean>();
+  const complimentaryByOrg = new Map<string, { expiresAt: string | null }>();
 
   if (organizationIds.length > 0) {
-    const [{ data: subscriptions }, { data: setups }] = await Promise.all([
+    const [{ data: subscriptions }, { data: setups }, grantsResult] = await Promise.all([
       supabase
         .from("organization_subscriptions")
         .select("organization_id, sku_code, status")
         .in("organization_id", organizationIds),
-      supabase.from("organization_setup_state").select("organization_id, completed_at").in("organization_id", organizationIds)
+      supabase.from("organization_setup_state").select("organization_id, completed_at").in("organization_id", organizationIds),
+      supabase
+        .from("complimentary_access_grants")
+        .select("organization_id, status, expires_at, converted_at")
+        .in("organization_id", organizationIds)
+        .then((result) => result)
+        .catch(() => ({ data: [] as Array<{ organization_id: string; status: string; expires_at: string | null; converted_at: string | null }> }))
     ]);
 
     for (const subscription of (subscriptions ?? []) as SubscriptionRow[]) {
@@ -92,6 +99,17 @@ export async function getOrganizationsForUser(userId: string): Promise<Organizat
 
     for (const setup of (setups ?? []) as SetupRow[]) {
       setupCompleteByOrg.set(setup.organization_id, Boolean(setup.completed_at));
+    }
+
+    for (const grant of (grantsResult.data ?? []) as Array<{
+      organization_id: string;
+      status: string;
+      expires_at: string | null;
+      converted_at: string | null;
+    }>) {
+      if (grant.status === "active" && !grant.converted_at) {
+        complimentaryByOrg.set(grant.organization_id, { expiresAt: grant.expires_at });
+      }
     }
   }
 
@@ -109,7 +127,9 @@ export async function getOrganizationsForUser(userId: string): Promise<Organizat
         setupComplete: setupCompleteByOrg.get(row.organization_id) ?? false,
         operatingScope: isMemberOperatingScope(row.operating_scope)
           ? (row.operating_scope as MemberOperatingScope)
-          : null
+          : null,
+        complimentaryAccess: complimentaryByOrg.has(row.organization_id),
+        complimentaryExpiresAt: complimentaryByOrg.get(row.organization_id)?.expiresAt ?? null
       };
     });
 }
