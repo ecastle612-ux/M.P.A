@@ -44,8 +44,11 @@ Preserved Canopy: forest teal `#0F6B56`, ink `#12151A`, mist grey surfaces. No n
 - Tenant Portal welcome / occupancy copy
 - Tenant PWA install card
 - Add Tenant
+- Add Property wizard
+- Move Out
 - Team invite
 - Accept invitation
+- Tenant maintenance / messages copy
 
 No FIN-OPS money, Stripe, SKU, subscription, or authorization logic changed.
 
@@ -81,13 +84,19 @@ Delivery safety unchanged: `resolveResendSender()`, `EMAIL_FROM` fallback, `prov
 
 ## Controlled email UAT
 
-Send only to the Product Owner inbox after Production deploy. Do not send to customers.
+Sent only to the Product Owner inbox (`ecastle612@gmail.com`) on 2026-08-17. No customer emails.
 
-1. Team invitation  
-2. Tenant invitation  
-3. Work-order assignment if safely triggerable  
+These were **renderer visual UAT** via Resend from the verified Production sender. They did **not** create Production invitations or work orders. Accept links are sample URLs.
 
-Check: sender, logo, brand color, CTA, mobile, fallback link, no internal IDs, honest delivery status.
+| Template | Resend ID | From | Status |
+|----------|-----------|------|--------|
+| Tenant invitation | `35769e6b-e980-4af6-be1e-478d1dcb7f5f` | `My Property Assistant <noreply@my-property-assistant.com>` | **delivered** |
+| Staff invitation | `cc992c49-8fa4-42d8-bc30-934273b3b37d` | same | **delivered** |
+| Work-order assignment | `505ce588-1b2b-4df5-9f74-63f3cd6bd697` | same | **delivered** |
+
+Checked in provider payload: logo URL is Production `logo-dark.png`, Canopy green CTA `#0F6B56`, fallback link present, no UUIDs/capability keys. `delivered` is Resend/SES delivery status, not an app-path invitation trigger.
+
+App-path UAT (click Team / Add Tenant in Production after merge) remains a Product Owner step.
 
 ---
 
@@ -115,8 +124,8 @@ Local verification (2026-08-17), implementation SHA `d639ebc0`:
 | Typecheck (`web`, `email`, `ui`) | passed |
 | Production `next build` (CI env placeholders) | passed, 174 routes |
 
-PR: https://github.com/ecastle612-ux/M.P.A/pull/279
+PR: https://github.com/ecastle612-ux/M.P.A/pull/279 (CI `verify` passed)
 
-**Not released from this agent:** merge, Production deploy, and controlled inbox UAT. Those require Product Owner merge/promotion. No customer emails were sent.
+**Not released from this agent:** merge and Production promote. This environment cannot merge PRs.
 
-**Deployed SHA:** not released.
+**Deployed SHA:** not released. Implementation HEAD `9be871ab`.
