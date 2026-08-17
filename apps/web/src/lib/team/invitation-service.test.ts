@@ -155,9 +155,12 @@ function createMemoryDb() {
 }
 
 const sendEmail = vi.fn(
-  async (_input?: Record<string, unknown>): Promise<
+  async (input?: Record<string, unknown>): Promise<
     { ok: true; providerId: string } | { ok: false; error: string }
-  > => ({ ok: true, providerId: "re_test" })
+  > => {
+    void input;
+    return { ok: true, providerId: "re_test" };
+  }
 );
 
 describe("docs/135 invitation transport and acceptance", () => {
