@@ -145,7 +145,7 @@ Copy and light visual polish only. No new design/certification chain. Prices and
 
 ### Product-decision flag (not expanded)
 
-Tenant Portal still has an in-app “Pay rent” surface gated by `onlinePaymentsEnabled`. Marketing does not advertise live Stripe tenant payment execution. Changing that in-app label is a Product Owner decision, not this copy patch.
+Owner decision (2026-08-17): while Stripe payment execution is disabled, Tenant Portal must not present “Pay rent” as an available action. In-app labels now say Billing. Balance, payment, and receipt history remain. Stripe was not enabled.
 
 ---
 
@@ -184,7 +184,6 @@ Tenant PWA card unchanged: Apple Share → Add to Home Screen; Android `beforein
 
 - Auth SMTP HTML (separate system)
 - Broader form rewrite of every create-work / asset / stock wizard
-- In-app Tenant Portal “Pay rent” wording while card checkout remains disabled (product decision)
 - Gmail mobile confirmation after the lockup is on Production
 
 ---

@@ -155,7 +155,7 @@ export default async function TenantPortalPage() {
           occupancy.mode === "active"
             ? [
                 { href: "/portal/tenant/maintenance", label: "Report an issue", primary: true },
-                { href: "/portal/tenant/billing", label: balance > 0 ? "Pay rent" : "View payments" },
+                { href: "/portal/tenant/billing", label: "Billing" },
                 { href: "/portal/tenant/messages", label: "Messages" },
                 { href: "/portal/tenant/documents", label: "Lease & documents" }
               ]
