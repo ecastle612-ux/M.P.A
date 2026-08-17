@@ -67,9 +67,11 @@ Pay Once is waiting on Owner-controlled payment credentials at the Stripe-hosted
 
 ## Owner action required (exact)
 
-Pay **$1.17** on this Stripe-hosted Checkout page. Do not send card numbers in chat.
+Checkout links did not complete. Pay **$1.17** on this Stripe **hosted invoice** instead (connected account `acct_1U5MdJ8DmtuNiZTl`). Stripe also emailed this invoice to the specified payer address. Do not send card numbers in chat.
 
-https://checkout.stripe.com/c/pay/cs_live_a1s7y8QjJubv6CmSrh3Is3fGZxuvRUVlJFE4PtWvJax4K1g0WqHT9CMusa
+https://invoice.stripe.com/i/acct_1U5MdJ8DmtuNiZTl/live_YWNjdF8xVTVNZEo4RG10dU5pWlRsLF9WNVlranNmNjlEWmFDSjBMVlJEUEpMRXdGWlFoM1hPLDE3NzUwMjcyNA0200EUrxz6ud?s=ap
+
+Invoice `in_1U5Ncr8DmtuNiZTlWac1oaWI` · PaymentIntent `pi_3U5Ncs8DmtuNiZTl1kdjCBat` (metadata stamped for FIN-OPS webhook).
 
 After Stripe shows success, return to tenant billing or re-authorize this UAT so webhook → allocation → receipt → balance can be certified.
 
