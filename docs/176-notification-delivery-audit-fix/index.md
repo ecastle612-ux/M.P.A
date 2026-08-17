@@ -14,7 +14,8 @@ Production had `RESEND_API_KEY` and a **verified** sending domain (`my-property-
 1. Invitation path fell back to `M.P.A. <onboarding@resend.dev>` when `RESEND_FROM_EMAIL` was unset.
 2. Resend treated that as test-mode: **403** for every recipient except the account owner (`ecastle612@gmail.com`).
 3. Operational / maintenance / provisioning / lifecycle mail required **both** env vars via `serverEnv`. Missing `RESEND_FROM_EMAIL` skipped the provider call (`Email provider is not configured`) without a Resend request.
-4. `RESEND_FROM_EMAIL` was validated as `z.string().email()`, so a correct `Name <email>` value (the format Auth SMTP already uses) would fail env parse.
+4. Vercel Production has `RESEND_API_KEY` and `EMAIL_FROM`, but **not** `RESEND_FROM_EMAIL`. The app only read `RESEND_FROM_EMAIL`.
+5. `RESEND_FROM_EMAIL` was validated as `z.string().email()`, so a correct `Name <email>` value (the format Auth SMTP already uses) would fail env parse.
 
 Production evidence (2026-08-17, `mpa-prod`):
 
@@ -34,7 +35,7 @@ Production evidence (2026-08-17, `mpa-prod`):
 
 ## What was fixed
 
-- Shared `resolveResendSender()` — Production never sends from `resend.dev`. If `RESEND_FROM_EMAIL` is unset, derive `My Property Assistant <noreply@{app-host}>` from `NEXT_PUBLIC_APP_URL`.
+- Shared `resolveResendSender()` — Production never sends from `resend.dev`. From resolution order: `RESEND_FROM_EMAIL` → `EMAIL_FROM` → derive `My Property Assistant <noreply@{app-host}>` from `NEXT_PUBLIC_APP_URL`.
 - Env schema accepts bare email or `Name <email>`.
 - All Resend HTTP senders (invitation, operational notice, provisioning, SaaS lifecycle) use the resolver + shared HTTP helper.
 - Honest status: invitation `sent` / `failed` / `skipped`; comms `email_sent` / `email_failed` (no longer `delivered` when email was requested and failed); maintenance keeps `queued` → `sent` / `failed` / `skipped_*`.
@@ -65,13 +66,7 @@ No Stripe, pricing, FIN-OPS money, July finance, M5, or native-app changes.
 
 ## Operator action still required
 
-Set Vercel Production `RESEND_FROM_EMAIL` to a verified-domain address, preferably:
-
-```
-My Property Assistant <noreply@my-property-assistant.com>
-```
-
-The deploy works without that variable because Production derives the same from from `NEXT_PUBLIC_APP_URL`. Setting the env makes Ops health and future hosts explicit. Domain DNS is already verified — no Resend domain work unless you change the from host.
+Optional but recommended: also set Vercel Production `RESEND_FROM_EMAIL` to the same verified-domain address already stored as `EMAIL_FROM` (likely `My Property Assistant <noreply@my-property-assistant.com>`). The fix now reads `EMAIL_FROM` if `RESEND_FROM_EMAIL` is missing, and otherwise derives `noreply@{app-host}`. Domain DNS is already verified — no Resend domain work unless you change the from host.
 
 Do not use `onboarding@resend.dev` in Production.
 

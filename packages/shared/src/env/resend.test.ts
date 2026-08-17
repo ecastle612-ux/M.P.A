@@ -56,6 +56,19 @@ describe("Resend sender resolution", () => {
     }
   });
 
+  it("uses Production EMAIL_FROM when RESEND_FROM_EMAIL is unset", () => {
+    const result = resolveResendSender({
+      RESEND_API_KEY: "re_test",
+      EMAIL_FROM: "My Property Assistant <noreply@my-property-assistant.com>",
+      VERCEL_ENV: "production"
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.from).toBe("My Property Assistant <noreply@my-property-assistant.com>");
+      expect(result.fromSource).toBe("email_from");
+    }
+  });
+
   it("uses the verified-domain from in production when RESEND_FROM_EMAIL is unset", () => {
     const result = resolveResendSender({
       RESEND_API_KEY: "re_test",

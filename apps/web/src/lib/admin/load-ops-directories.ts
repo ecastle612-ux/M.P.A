@@ -125,9 +125,13 @@ async function tryServiceRole() {
 function emailOpsDetail(): string {
   const sender = resolveResendSender();
   if (sender.ok && sender.fromSource !== "test_fallback") {
-    return sender.fromSource === "derived_app_url"
-      ? "Resend configured · from derived from APP_URL"
-      : "Resend configured · customer mail delivers";
+    if (sender.fromSource === "derived_app_url") {
+      return "Resend configured · from derived from APP_URL";
+    }
+    if (sender.fromSource === "email_from") {
+      return "Resend configured · from EMAIL_FROM";
+    }
+    return "Resend configured · customer mail delivers";
   }
   if (!sender.ok && sender.code === "missing_api_key") {
     return "Email unavailable · RESEND_API_KEY missing";

@@ -1,4 +1,4 @@
-export type ResendFromSource = "env" | "derived_app_url" | "test_fallback";
+export type ResendFromSource = "env" | "email_from" | "derived_app_url" | "test_fallback";
 
 export type ResendSenderConfig =
   | {
@@ -16,6 +16,8 @@ export type ResendSenderConfig =
 export type ResendEnv = {
   RESEND_API_KEY?: string | undefined;
   RESEND_FROM_EMAIL?: string | undefined;
+  /** Production already stores the verified from here; honor it if RESEND_FROM_EMAIL is unset. */
+  EMAIL_FROM?: string | undefined;
   NEXT_PUBLIC_APP_URL?: string | undefined;
   VERCEL_ENV?: string | undefined;
   NODE_ENV?: string | undefined;
@@ -82,8 +84,14 @@ export function resolveResendSender(
   const production = isProductionEmailRuntime(env);
   const derived = deriveVerifiedResendFrom(env.NEXT_PUBLIC_APP_URL);
   const explicit = (env.RESEND_FROM_EMAIL ?? "").trim();
+  const emailFrom = (env.EMAIL_FROM ?? "").trim();
   let from = explicit && isResendFromAddress(explicit) ? explicit : "";
   let fromSource: ResendFromSource = "env";
+
+  if (!from && emailFrom && isResendFromAddress(emailFrom)) {
+    from = emailFrom;
+    fromSource = "email_from";
+  }
 
   if (!from && derived) {
     from = derived;
