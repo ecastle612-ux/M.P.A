@@ -175,6 +175,46 @@ export function resolveCancelNote(
   return trimmed || fallback;
 }
 
+/** Clear FO assignment confirmation after a successful assign API response. */
+export function formatFacilityAssignmentNotice(input: {
+  assigneeType: "technician" | "vendor";
+  assigneeName?: string | null;
+  status?: WorkOrderStatus | string | null;
+}): string {
+  const statusLabel =
+    input.status && input.status in WORK_ORDER_STATUS_LABELS
+      ? WORK_ORDER_STATUS_LABELS[input.status as WorkOrderStatus]
+      : "Assigned";
+  if (input.assigneeType === "vendor") {
+    const name = input.assigneeName?.trim() || "selected vendor";
+    return `Vendor assigned: ${name}. Status is now ${statusLabel}.`;
+  }
+  const name = input.assigneeName?.trim() || "selected technician";
+  return `Technician assigned: ${name}. Status is now ${statusLabel}.`;
+}
+
+/** Clear FO lifecycle confirmation after start / progress / complete. */
+export function formatFacilityLifecycleNotice(
+  action: "start" | "progress" | "complete",
+  status?: WorkOrderStatus | string | null
+): string {
+  if (action === "complete") {
+    return "Work completed and closed.";
+  }
+  if (action === "start") {
+    const statusLabel =
+      status && status in WORK_ORDER_STATUS_LABELS
+        ? WORK_ORDER_STATUS_LABELS[status as WorkOrderStatus]
+        : "In progress";
+    return `Work started. Status is now ${statusLabel}.`;
+  }
+  const statusLabel =
+    status && status in WORK_ORDER_STATUS_LABELS
+      ? WORK_ORDER_STATUS_LABELS[status as WorkOrderStatus]
+      : null;
+  return statusLabel ? `Progress saved. Status remains ${statusLabel}.` : "Progress saved.";
+}
+
 export function vendorPortalScopeCopy(): string {
   return "Start, update, and complete work orders assigned to your vendor account. Documents and invoices are not included in this work view.";
 }

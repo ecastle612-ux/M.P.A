@@ -83,4 +83,20 @@ describe("FO vendor workflow completion", () => {
     expect(service).toMatch(/phone: input\.phone/);
     expect(service).not.toMatch(/operational_notes|notes:/);
   });
+
+  it("remediates FO UAT UX feedback for assign, complete, and status refresh", () => {
+    const workspace = read("components/facility/facility-operations-workspace.tsx");
+    expect(workspace).toMatch(/formatFacilityAssignmentNotice/);
+    expect(workspace).toMatch(/formatFacilityLifecycleNotice/);
+    expect(workspace).toMatch(/actionLockRef/);
+    expect(workspace).toMatch(/applyWorkOrder/);
+    expect(workspace).toMatch(/Assigning…/);
+    expect(workspace).toMatch(/formatFacilityLifecycleNotice\(\s*"complete"/);
+    expect(workspace).not.toMatch(/setNotice\("Assignment sent\."\)/);
+    expect(workspace).not.toMatch(/setNotice\("Work completed and closed\."\)/);
+    const media = read("components/media/media-attachment-field.tsx");
+    expect(media).toMatch(/media-upload-status/);
+    expect(media).toMatch(/Uploading \$\{kind\}/);
+    expect(media).not.toMatch(/>Working…</);
+  });
 });

@@ -74,6 +74,16 @@ function FilePickerButton(props: {
   );
 }
 
+function uploadStatusLabel(item: MediaAttachmentItem): string {
+  if (item.status === "ready") return "Ready";
+  if (item.status === "pending") {
+    if ((item.progress ?? 0) >= 100) return "Finishing…";
+    if ((item.progress ?? 0) >= 50) return "Uploading…";
+    return "Preparing…";
+  }
+  return item.status;
+}
+
 export function MediaAttachmentField({
   relatedEntityType,
   relatedEntityId = null,
@@ -87,6 +97,7 @@ export function MediaAttachmentField({
   const [items, setItems] = useState<MediaAttachmentItem[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const mediaIds = useMemo(() => value ?? items.map((item) => item.id), [value, items]);
 
@@ -96,6 +107,7 @@ export function MediaAttachmentField({
     void (async () => {
       setBusy(true);
       setError(null);
+      setStatusMessage("Loading attachments…");
       const response = await fetch(
         `/api/shared/media?relatedEntityType=${encodeURIComponent(relatedEntityType)}&relatedEntityId=${encodeURIComponent(relatedEntityId)}`
       );
@@ -106,6 +118,7 @@ export function MediaAttachmentField({
       if (cancelled) return;
       if (!response.ok) {
         setBusy(false);
+        setStatusMessage(null);
         setError(payload.error ?? "Failed to load media");
         return;
       }
@@ -122,6 +135,7 @@ export function MediaAttachmentField({
       if (!cancelled) {
         setItems(withUrls);
         setBusy(false);
+        setStatusMessage(null);
       }
     })();
     return () => {
@@ -134,9 +148,18 @@ export function MediaAttachmentField({
     setBusy(true);
     setError(null);
     const nextIds = [...mediaIds];
-    for (const file of Array.from(fileList)) {
+    const files = Array.from(fileList);
+    let index = 0;
+    for (const file of files) {
+      index += 1;
       const localPreviewUrl = URL.createObjectURL(file);
+      const kind = file.type.startsWith("video/") ? "video" : "photo";
       try {
+        setStatusMessage(
+          files.length > 1
+            ? `Preparing ${kind} ${index} of ${files.length}: ${file.name}`
+            : `Preparing ${kind}: ${file.name}`
+        );
         const intentResponse = await fetch("/api/shared/media/upload-intent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -171,11 +194,32 @@ export function MediaAttachmentField({
             status: "pending",
             localPreviewUrl,
             fileName: file.name,
-            progress: 50
+            progress: 25
           }
         ]);
 
+        setStatusMessage(
+          files.length > 1
+            ? `Uploading ${kind} ${index} of ${files.length}: ${file.name}`
+            : `Uploading ${kind}: ${file.name}`
+        );
+        setItems((current) =>
+          current.map((item) =>
+            item.id === intent.mediaId ? { ...item, progress: 60 } : item
+          )
+        );
         await uploadViaSignedUrl(intent.uploadUrl, file);
+
+        setStatusMessage(
+          files.length > 1
+            ? `Finishing ${kind} ${index} of ${files.length}: ${file.name}`
+            : `Finishing ${kind}: ${file.name}`
+        );
+        setItems((current) =>
+          current.map((item) =>
+            item.id === intent.mediaId ? { ...item, progress: 90 } : item
+          )
+        );
 
         const confirmResponse = await fetch(`/api/shared/media/${intent.mediaId}/confirm`, {
           method: "POST"
@@ -197,6 +241,13 @@ export function MediaAttachmentField({
       }
     }
     onChange?.(nextIds);
+    setStatusMessage(
+      nextIds.length > mediaIds.length
+        ? nextIds.length - mediaIds.length === 1
+          ? "Upload complete."
+          : `${nextIds.length - mediaIds.length} uploads complete.`
+        : null
+    );
     setBusy(false);
   }
 
@@ -204,9 +255,11 @@ export function MediaAttachmentField({
     if (readOnly) return;
     setBusy(true);
     setError(null);
+    setStatusMessage("Removing attachment…");
     const response = await fetch(`/api/shared/media/${mediaId}`, { method: "DELETE" });
     const payload = (await response.json()) as { error?: string };
     setBusy(false);
+    setStatusMessage(null);
     if (!response.ok) {
       setError(payload.error ?? "Failed to remove attachment");
       return;
@@ -251,13 +304,19 @@ export function MediaAttachmentField({
       </div>
 
       {error ? <p className="text-sm text-[#C0392B]">{error}</p> : null}
-      {busy ? <p className="text-[var(--mpa-color-text-secondary)]">Working…</p> : null}
+      {statusMessage ? (
+        <p className="text-[var(--mpa-color-text-secondary)]" data-testid="media-upload-status">
+          {statusMessage}
+        </p>
+      ) : null}
 
-      {items.length === 0 ? (
+      {items.length === 0 && !busy ? (
         <p className="text-[var(--mpa-color-text-secondary)]">
           {readOnly ? "No media attached." : "Attach photos or a short video of the issue."}
         </p>
-      ) : (
+      ) : null}
+
+      {items.length > 0 ? (
         <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
           {items.map((item) => {
             const src = item.localPreviewUrl ?? item.remoteUrl;
@@ -296,6 +355,9 @@ export function MediaAttachmentField({
                   <p className="truncate text-[11px] text-[var(--mpa-color-text-secondary)]">
                     {item.fileName ?? item.fileType}
                   </p>
+                  <p className="text-[10px] font-medium text-[var(--mpa-color-text-primary)]">
+                    {uploadStatusLabel(item)}
+                  </p>
                   {item.createdAt ? (
                     <p className="text-[10px] text-[var(--mpa-color-text-secondary)]">
                       {new Date(item.createdAt).toLocaleString()}
@@ -317,7 +379,7 @@ export function MediaAttachmentField({
             );
           })}
         </ul>
-      )}
+      ) : null}
     </div>
   );
 }

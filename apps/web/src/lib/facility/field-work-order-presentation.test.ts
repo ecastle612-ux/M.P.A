@@ -5,6 +5,8 @@ import {
   fieldLocationLabel,
   fieldPrimaryAction,
   fieldWorkOrderScanLines,
+  formatFacilityAssignmentNotice,
+  formatFacilityLifecycleNotice,
   resolveCancelNote,
   resolveProgressNote,
   vendorPortalScopeCopy
@@ -60,6 +62,30 @@ describe("FO field work-order presentation (PPS1-008)", () => {
     expect(resolveProgressNote("On site", "progress")).toBe("On site");
     expect(resolveCancelNote("")).toBe("Cancelled from Facility Operations");
     expect(resolveCancelNote("Duplicate ticket")).toBe("Duplicate ticket");
+  });
+
+  it("formats clear assignment and lifecycle success notices", () => {
+    expect(
+      formatFacilityAssignmentNotice({
+        assigneeType: "vendor",
+        assigneeName: "UAT Fix-It Vendor",
+        status: "assigned"
+      })
+    ).toBe("Vendor assigned: UAT Fix-It Vendor. Status is now Assigned.");
+    expect(
+      formatFacilityAssignmentNotice({
+        assigneeType: "technician",
+        assigneeName: "Jordan Tech",
+        status: "assigned"
+      })
+    ).toBe("Technician assigned: Jordan Tech. Status is now Assigned.");
+    expect(formatFacilityLifecycleNotice("start", "in_progress")).toBe(
+      "Work started. Status is now In progress."
+    );
+    expect(formatFacilityLifecycleNotice("complete")).toBe("Work completed and closed.");
+    expect(formatFacilityLifecycleNotice("progress", "in_progress")).toBe(
+      "Progress saved. Status remains In progress."
+    );
   });
 });
 
