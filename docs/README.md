@@ -129,6 +129,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 185 | [Complimentary Tester / Gift Access](./185-complimentary-tester-gift-access/index.md) | **Approved** · implemented · Production applied in 187 |
 | 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** · executed in 187 |
 | 187 | [Complimentary Access Production Release Certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** · stamp `20260817064006` · SHA `f922da26` |
+| 188 | [Tenant Stripe Rent Collection + Admin-Controlled Fees](./188-tenant-stripe-rent-collection/index.md) | **DESIGN COMPLETE — APPROVAL REQUIRED** · audit + design only · do not implement · do not enable tenant Stripe execution |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
