@@ -59,10 +59,13 @@ describe("docs/180 public legal copy", () => {
     expect(copy).not.toMatch(/\b\d{3}[-.)]\s*\d{3}[-.]\d{4}\b/);
   });
 
-  it("distinguishes SaaS billing from FIN-OPS and says tenant card pay is off", () => {
+  it("distinguishes SaaS billing from tenant Online Payments", () => {
     expect(copy).toMatch(/SaaS subscription billing/);
     expect(copy).toMatch(/operational FIN-OPS/);
-    expect(copy).toMatch(/Tenant online card payment is not currently enabled/);
+    expect(copy).toMatch(/enables Online Payments/);
+    expect(copy).toMatch(/AutoPay requires the tenant/);
+    expect(copy).toMatch(/do not settle into the M\.P\.A\. SaaS subscription account/);
+    expect(copy).toMatch(/does not automatically assess late fees or run collections/);
     expect(copy).toMatch(/does not currently offer self-service in-app plan swaps or card updates/);
     expect(copy).toMatch(/do not promise refunds/);
     expect(copy).toMatch(/does not claim SOC 2/);

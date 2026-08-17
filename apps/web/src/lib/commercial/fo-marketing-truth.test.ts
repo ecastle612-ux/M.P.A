@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  PUBLIC_PRICING_MODEL_COPY,
   SKU_SUMMARIES,
   marketingModulesForSku,
   navigationGroupsForSku,
@@ -26,6 +27,8 @@ describe("FO advertising depth truth", () => {
       expect(description).not.toMatch(pattern);
     }
     expect(description).not.toContain("inventory, preventive maintenance, safety, compliance");
+    expect(description).not.toMatch(/rent collection|autopay|\bach\b/i);
+    expect(PUBLIC_PRICING_MODEL_COPY.foIncludes).not.toMatch(/rent collection|AutoPay|\bACH\b/i);
   });
 
   it("markets FO category modules as work queues, not subsystems", () => {
