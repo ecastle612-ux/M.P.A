@@ -239,3 +239,5 @@ Do **not** globally flip execution. Do **not** enable other orgs from this recor
 **READY FOR FIRST REAL CUSTOMER ACTIVATION**
 
 Property Demo ACH is active. Method selection and fail-closed initiation are certified. Execution is OFF. No real customer was activated.
+
+Successor: [docs/199 — Final Public Launch Audit After Tenant Payments](../199-final-public-launch-audit-after-tenant-payments/index.md).
