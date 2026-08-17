@@ -41,7 +41,7 @@ export const PRIVACY_POLICY_SECTIONS: LegalSection[] = [
     heading: "SaaS subscription billing is not tenant payment collection",
     paragraphs: [
       "M.P.A. SaaS subscription billing is the charge for the software itself (Property Manager, Facility Operations, or Complete Platform). That billing is processed by Stripe Checkout and related SaaS subscription records.",
-      "Property and resident financial records, and operational FIN-OPS tools, are organization records used to run the property. They are not the same as M.P.A. SaaS billing. Tenant online card payment is not currently enabled."
+      "Property and resident financial records, and operational FIN-OPS tools, are organization records used to run the property. They are not the same as M.P.A. SaaS billing. Tenant Pay Once and tenant-authorized AutoPay use a Stripe connected account for that organization after Connect onboarding and online payments are enabled. Tenant online card payment is not currently enabled until that organization completes those steps. Tenant funds do not settle into the M.P.A. SaaS subscription account."
     ]
   },
   {
@@ -55,7 +55,7 @@ export const PRIVACY_POLICY_SECTIONS: LegalSection[] = [
     heading: "Service providers",
     paragraphs: [
       "These providers receive only what is needed to perform their role:",
-      "Stripe processes M.P.A. SaaS Checkout and SaaS subscriptions. It is not used here for tenant rent card collection.",
+      "Stripe processes M.P.A. SaaS Checkout and SaaS subscriptions on the platform account. When a property organization completes Stripe Connect and enables online payments, Stripe also processes tenant Pay Once and tenant-authorized AutoPay on that organization’s connected account.",
       "Supabase provides authentication and application data hosting.",
       "Resend sends transactional application email.",
       "Vercel hosts the web application.",
@@ -96,7 +96,7 @@ export const TERMS_SECTIONS: LegalSection[] = [
     heading: "The service",
     paragraphs: [
       "M.P.A. is a hosted web application for property and facility operations. The commercial products are Property Manager, Facility Operations, and Complete Platform. Enterprise is an optional sales path, not a product or pricing tier.",
-      "The service does not currently enable tenant online card payment. Operational FIN-OPS records inside an organization are not M.P.A. SaaS subscription charges."
+      "Tenant Pay Once and tenant-authorized AutoPay are available only after an organization completes Stripe Connect and enables online payments. Tenant online card payment is not currently enabled until those steps are complete. Operational FIN-OPS records inside an organization are not M.P.A. SaaS subscription charges."
     ]
   },
   {
