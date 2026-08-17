@@ -149,32 +149,59 @@ Tenant Portal still has an in-app “Pay rent” surface gated by `onlinePayment
 
 ---
 
+## Command-center polish (2026-08-17, consolidated Owner pass)
+
+Presentation only. Canopy tokens kept. No schema, authorization, FIN-OPS money, Stripe execution, SKU, PWA contract, or notification-delivery change.
+
+### Email logo (Gmail dark mode)
+
+Gmail inverts table `bgcolor` but not image pixels. A CSS-only white plate was not enough.
+
+**Fix:** official `logo-dark.png` composited onto mist `#F7F8FA` as `/branding/logo-email-lockup.png`. The light plate is inside the image. HTML plate + `color-scheme: light only` remain. CTA `#0F6B56` unchanged.
+
+Do not send a Production renderer email until this lockup is on the Production host — the shell loads the mark from `https://www.my-property-assistant.com`.
+
+### Screens polished
+
+- PM Mission Control (hierarchy, distinct metric tones, handled empty copy)
+- Facility Mission Control glance cards (tone fills)
+- Complete launcher (Property vs Facility card edges)
+- Tenant Portal home (Maintenance, Messages, Billing, Documents)
+- FIN-OPS charge/payment tables (TableScroll, tabular amounts, status pills)
+- Shared empty states, toasts, buttons, modal/drawer motion (180–200ms, reduced-motion respected)
+
+### Landing
+
+Live-product copy from the earlier pass. Card lift only. Catalog prices unchanged (`$59` / `$59` / `$109`).
+
+### Mobile / PWA
+
+Tenant PWA card unchanged: Apple Share → Add to Home Screen; Android `beforeinstallprompt` or browser menu; installation never gates the portal.
+
+---
+
 ## Remaining visual backlog
 
-- Dense FIN-OPS tables (visual only; not in this package)
 - Auth SMTP HTML (separate system)
 - Broader form rewrite of every create-work / asset / stock wizard
 - In-app Tenant Portal “Pay rent” wording while card checkout remains disabled (product decision)
+- Gmail mobile confirmation after the lockup is on Production
 
 ---
 
 ## Tests / release
 
-Landing + email visual patch verification (2026-08-17), implementation HEAD `7e57f733`:
+Consolidated pass verification (2026-08-17), implementation HEAD after this note:
 
 | Suite | Result |
 |-------|--------|
 | `@mpa/email` branded shell + invitation copy | 8 passed |
-| Landing / FO / Wave B3 marketing-truth | 17 passed |
-| Shared commercial + pricing catalog | 38 passed |
-| Lint (`web`, `email`, `ui`, `shared`) | passed |
-| Typecheck (`web`, `email`, `ui`, `shared`) | passed |
-| Production `next build` (CI env placeholders) | passed, 174 routes |
+| Landing / FO / Wave B3 / Complete launcher / owner Day-1 | passed |
+| Operating scope + invitation + PLAT-002 / PLAT-006 | passed |
+| Finance + M5 hard-stop + tenant lifecycle + PWA | passed |
+| Lint / typecheck (`web`, `email`, `ui`, `shared`) | passed |
+| Production `next build` | passed, 174 routes |
 
-PR: https://github.com/ecastle612-ux/M.P.A/pull/279
+**Production deployment:** not authorized. Not released from this agent.
 
-**Not released from this agent:** merge and Production promote. This environment cannot merge PRs.
-
-**Deployed SHA:** not released. Implementation HEAD `7e57f733`.
-
-Controlled email: logo-plate UAT already delivered to the Product Owner (`5a9b478b-999f-4251-b593-924116e68ce8`). No second pre-deploy send. After Production promote, send one renderer email and confirm the white plate in Gmail mobile dark mode.
+**Deployed SHA:** not released.

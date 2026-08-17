@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { formatMoney } from "@mpa/shared";
-import { resolveStatusBadgeVariant, Alert, Badge, Button, EmptyState, Input, Select, TableScroll } from "@mpa/ui";
+import { Alert, Badge, Button, EmptyState, Input, Select, TableScroll } from "@mpa/ui";
 
 type Aging = {
   current: number;
