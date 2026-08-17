@@ -4,13 +4,13 @@
 **Date:** 2026-08-17  
 **Authority:** Owner approval of [docs/185](../185-complimentary-tester-gift-access/index.md); Owner-verified `feedback@` inbound  
 **Branch SHA (implement):** `c6da35b27843ae71f8f9b15b4f93105668f297ae`  
-**Production:** ready — stop before apply/deploy until Owner authorizes the combined gate below
+**Production:** executed — see [docs/187](../187-complimentary-access-production-release-certification/index.md)
 
 ---
 
 ## Verdict
 
-**READY FOR COMPLIMENTARY ACCESS PRODUCTION RELEASE.**
+**READY FOR COMPLIMENTARY ACCESS PRODUCTION RELEASE.** Execution is recorded in [docs/187](../187-complimentary-access-production-release-certification/index.md) as **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL**.
 
 The complimentary package is implemented in-repo. Owner verified inbound routing:
 
@@ -95,8 +95,8 @@ After Send Access, M.P.A. creates the grant, emails the branded claim link, prov
 - M5
 - July reopen
 - Public free signup
-- Production deploy
-- Production migration apply
+- Production deploy (see docs/187)
+- Production migration apply (see docs/187)
 
 ---
 
@@ -202,15 +202,13 @@ Owner later completed that inbound test. Complimentary TESTER and GIFT Reply-To 
 
 ## Exact Production release gate
 
-**READY FOR COMPLIMENTARY ACCESS PRODUCTION RELEASE.**
-
-Prepared only. This certification does **not** apply the migration or deploy Production. Execute the combined gate only after Owner authorization.
+**READY FOR COMPLIMENTARY ACCESS PRODUCTION RELEASE.** Execution is in [docs/187](../187-complimentary-access-production-release-certification/index.md).
 
 | Step | Status | Notes |
 |---|---|---|
-| 1. Apply certified complimentary-access migration to Production | **Prepared — not executed** | `supabase/migrations/20260817180000_docs_185_complimentary_access.sql`. |
-| 2. Deploy matching application revision | **Prepared — not executed** | Implement SHA `c6da35b27843ae71f8f9b15b4f93105668f297ae` plus this Reply-To / docs/186 revision. |
-| 3. Controlled UAT with one Owner-controlled tester email | **Prepared — not executed** | One Owner-controlled tester inbox only. |
-| 4. Verify welcome email → claim → Guided Setup → granted SKU → tester reply path | **Prepared — not executed** | Reply-To `feedback@my-property-assistant.com` → Owner Gmail. Tester copy still asks for bugs/errors, confusing behavior, suggestions, and screenshots when useful. |
+| 1. Apply certified complimentary-access migration to Production | **Executed** | Production stamp `20260817064006`. Do not replay `20260817180000`. |
+| 2. Deploy matching application revision | **Executed** | SHA `f922da26` / `dpl_EriwaFn2fq5hyrnDAdSUmcYZwX6F`. |
+| 3. Controlled UAT with one Owner-controlled tester email | **Executed** | `ecastle612+complimentary-uat@gmail.com` · TESTER · Facility Operations. |
+| 4. Verify welcome email → claim → Guided Setup → granted SKU → tester reply path | **Executed** | From `noreply@` · Reply-To `feedback@` · claim idempotent · FO org · no Stripe. |
 
 Do not change Stripe, pricing, public signup, tenant Stripe execution, M5, or July. Do not create Stripe Prices, $0 Checkouts, or complimentary Stripe subscriptions. Do not create another design phase unless a genuine security or commercial blocker is discovered during Production execution.

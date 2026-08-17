@@ -126,8 +126,9 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 179 | [Pre-Marketing P1 Product Cleanup](./179-pre-marketing-p1-cleanup/index.md) | **Implemented** · P1-01–P1-07 closed · no Production deploy |
 | 180 | [Final Pre-Marketing Readiness (P1-08 / P1-09 / P1-10)](./180-final-pre-marketing-readiness/index.md) | **Approved** · implemented in-repo · see 181 |
 | 181 | [Final Pre-Marketing Readiness Implementation Certification](./181-final-pre-marketing-readiness-implementation-certification/index.md) | **Implemented / certified** · no Production deploy or apply |
-| 185 | [Complimentary Tester / Gift Access](./185-complimentary-tester-gift-access/index.md) | **Approved** · implemented in-repo · see 186 · no Production deploy |
-| 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY FOR COMPLIMENTARY ACCESS PRODUCTION RELEASE** · Owner-verified `feedback@` Reply-To · no Production apply/deploy |
+| 185 | [Complimentary Tester / Gift Access](./185-complimentary-tester-gift-access/index.md) | **Approved** · implemented · Production applied in 187 |
+| 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** · executed in 187 |
+| 187 | [Complimentary Access Production Release Certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** · stamp `20260817064006` · SHA `f922da26` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -211,8 +212,9 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [176 Notification delivery audit + fix](./176-notification-delivery-audit-fix/index.md) | **Implemented** — Resend from-address repair; no schema change |
 | [177 UI / email visual polish](./177-ui-email-visual-polish/index.md) | **Implemented** — Canopy polish + branded Resend shell |
 | [179 Pre-marketing P1 cleanup](./179-pre-marketing-p1-cleanup/index.md) | **Implemented** — P1-01–P1-07 closed; no Production deploy |
-| [185 Complimentary tester / gift access](./185-complimentary-tester-gift-access/index.md) | **Approved** — implemented in-repo; Production not applied |
-| [186 Complimentary access implementation certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY FOR COMPLIMENTARY ACCESS PRODUCTION RELEASE** — Owner-verified `feedback@` Reply-To; stop before apply/deploy |
+| [185 Complimentary tester / gift access](./185-complimentary-tester-gift-access/index.md) | **Approved** — implemented; Production applied in 187 |
+| [186 Complimentary access implementation certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** — executed in 187 |
+| [187 Complimentary access Production release certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** — stamp `20260817064006`; SHA `f922da26` |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
