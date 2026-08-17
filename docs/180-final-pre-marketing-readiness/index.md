@@ -1,6 +1,6 @@
 # Final Pre-Marketing Readiness — P1-08 / P1-09 / P1-10
 
-**Status:** Approved by Product Owner 2026-08-17. Implemented in-repo — see [docs/181](../181-final-pre-marketing-readiness-implementation-certification/index.md).  
+**Status:** Approved by Product Owner 2026-08-17. Implemented in-repo — see [docs/181](../181-final-pre-marketing-readiness-implementation-certification/index.md). Production released — see [docs/182](../182-final-pre-marketing-production-release-certification/index.md).  
 **Date:** 2026-08-17  
 **Gate:** Design → Document → Approve → Implement. This record is the approved design.  
 **Authority:** [docs/178](../178-customer-launch-readiness-audit/index.md) · [docs/179](../179-pre-marketing-p1-cleanup/index.md)  

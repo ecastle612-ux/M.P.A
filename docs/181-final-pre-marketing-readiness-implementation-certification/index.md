@@ -1,6 +1,6 @@
 # Final Pre-Marketing Readiness — Implementation Certification
 
-**Status:** Implemented / certified in-repo. **Not deployed. Migration not applied to Production.**  
+**Status:** Implemented / certified in-repo. **Production released 2026-08-17 — see [docs/182](../182-final-pre-marketing-production-release-certification/index.md).**  
 **Date:** 2026-08-17  
 **Authority:** Owner approval of [docs/180](../180-final-pre-marketing-readiness/index.md)  
 **Scope:** P1-08 Privacy/Terms · P1-09 per-quote SaaS Price env gate · P1-10 additive `maintenance_notifications`  

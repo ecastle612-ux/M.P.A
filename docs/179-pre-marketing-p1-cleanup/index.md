@@ -1,9 +1,9 @@
 # Pre-Marketing P1 Product Cleanup
 
-**Status:** Implemented (in-repo) · **P1-01 through P1-07 CLOSED**  
+**Status:** Implemented · **P1-01 through P1-07 CLOSED** · Production released — see [docs/182](../182-final-pre-marketing-production-release-certification/index.md).  
 **Date:** 2026-08-17  
 **Authority:** `docs/178-customer-launch-readiness-audit/index.md` · Owner-approved P1-01–P1-07 only  
-**Gate:** Smallest safe UX / authorization-presentation fixes. No Production deploy.
+**Gate:** Smallest safe UX / authorization-presentation fixes. Production deploy is recorded in docs/182.
 
 ---
 
