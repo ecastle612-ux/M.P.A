@@ -108,6 +108,12 @@ Gmail mobile dark mode painted the official navy `logo-dark.png` onto an inverte
 
 **Shell change only** (`packages/email/src/shell.ts`): wrap the existing Production logo in a white `mpa-logo-plate` table (`bgcolor="#FFFFFF"`, padding, centered, 8px radius). Force `color-scheme: light only` / `supported-color-schemes: light`. Keep Canopy green CTA, fallback links, and `logo-dark.png`. All Resend templates inherit this.
 
+Renderer tests: 8 passed in `@mpa/email` (logo plate + Production `logo-dark.png` + unchanged CTA). Implementation SHA `ca04d86d`.
+
+Controlled UAT (one email, Product Owner only, no invitation record): Resend `5a9b478b-999f-4251-b593-924116e68ce8` from `My Property Assistant <noreply@my-property-assistant.com>` to `ecastle612@gmail.com` — **delivered**. Subject `[UAT] Email logo plate — Gmail dark mode`. Confirm the white logo card in Gmail mobile dark mode.
+
+**Production SHA:** not released from this agent.
+
 ---
 
 ## Remaining visual backlog
