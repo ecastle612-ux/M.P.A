@@ -1,7 +1,7 @@
 # 221 — FO-EFF Slice 6 Implementation Certification
 ## Deterministic Assignment / Routing Rules
 
-**Status:** **FO-EFF SLICE 6 — DETERMINISTIC ROUTING — IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION**  
+**Status:** **FO-EFF SLICE 6 — DETERMINISTIC ROUTING — IMPLEMENTED IN-REPO** · Production released in [docs/223](../223-final-pre-onboarding-production-release/index.md)  
 **Date:** 2026-08-18  
 **Authority:** Owner authorization — FO-EFF Slice 6 Deterministic Assignment / Routing Rules. docs/207 table listed routing after PM; **this package follows the Owner: Slice 6 = deterministic routing.**  
 **Design / ADRs:** [docs/207](../207-fo-operational-efficiency/index.md) (**Approved**) · [ADR-036](../18-decision-log/adr-036-fo-operational-efficiency-system.md) (**Accepted**) · [ADR-019](../18-decision-log/adr-019-product-constitution.md) · [ADR-033](../18-decision-log/adr-033-complete-operating-scope.md) / [docs/202](../202-complete-scoped-staff-handoff-remediation/index.md)  

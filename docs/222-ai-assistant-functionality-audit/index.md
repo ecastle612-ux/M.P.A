@@ -6,8 +6,9 @@
 **Design / ADRs:** [ADR-006](../18-decision-log/adr-006-embedded-ai-not-chatbot.md) (**Accepted** — embedded AI, not chatbot) · [docs/13](../13-ai-strategy/index.md) (designed, not implemented) · [docs/31](../31-bug-003-004-landing-acquisition/landing-page-verification.md) (generative assistant **not advertised**) · [ADR-019](../18-decision-log/adr-019-product-constitution.md) · [ADR-033](../18-decision-log/adr-033-complete-operating-scope.md)  
 **Preserves:** docs/204–206 public intake · Slice 1–5 Production · docs/214 sidebar · Slice 4 Search/Create/Recent · [docs/220](../220-fo-eff-slice5-production-release/index.md) Production · [docs/221](../221-fo-eff-slice6-deterministic-routing/index.md) in-repo routing  
 **Production baseline:** docs/220 · SHA `eb81b07f7f073b411668ae7eb504868097474df6` · deploy `dpl_HQpPuRD3TknzY177TEqqKRMk2NBE`  
-**In-repo line:** docs/221 · implement SHA `cf94c1b4984f87cb84781deab70bfe06a0e25426` · **not deployed**  
-**Mode:** AUDIT + necessary in-repo P1 authz/honesty fix only. **Do not deploy. Do not create a chatbot. Do not process payments. Do not change Stripe, prices, M5, or July.**
+**In-repo line:** docs/221 · implement SHA `cf94c1b4984f87cb84781deab70bfe06a0e25426`  
+**Production release of this P1 gate:** [docs/223](../223-final-pre-onboarding-production-release/index.md) · SHA `a1f617de` · deploy `dpl_4vsYcecpATEcFeQUNJaSJT4izHGS`  
+**Mode:** AUDIT + necessary in-repo P1 authz/honesty fix only. **Do not create a chatbot. Do not process payments. Do not change Stripe, prices, M5, or July.**
 
 ---
 
