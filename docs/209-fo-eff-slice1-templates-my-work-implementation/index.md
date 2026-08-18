@@ -13,7 +13,7 @@
 
 ## Verdict
 
-**SLICE 1 IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION**
+**SLICE 1 IMPLEMENTED** — Production release certified in [docs/210](../210-fo-eff-slice1-production-release/index.md).
 
 Authorized scope only:
 
