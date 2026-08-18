@@ -129,6 +129,34 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 185 | [Complimentary Tester / Gift Access](./185-complimentary-tester-gift-access/index.md) | **Approved** · implemented · Production applied in 187 |
 | 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** · executed in 187 |
 | 187 | [Complimentary Access Production Release Certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** · stamp `20260817064006` · SHA `f922da26` |
+| 188 | [Tenant Stripe Rent Collection + Admin-Controlled Fees](./188-tenant-stripe-rent-collection/index.md) | **Approved** · Owner A–E · implemented in-repo · see 189 |
+| 189 | [Tenant Stripe Rent Collection Implementation Certification](./189-tenant-stripe-rent-collection-implementation-certification/index.md) | **IMPLEMENTED IN-REPO** · execution stays off |
+| 190 | [Tenant Stripe Rent Collection Production UAT Readiness](./190-tenant-stripe-rent-collection-uat-readiness/index.md) | Pre-foundation block · superseded by 191 |
+| 191 | [Tenant Stripe Rent Collection Production Foundation Release](./191-tenant-stripe-rent-collection-foundation-release/index.md) | Foundation released · execution OFF |
+| 192 | [Stripe Connect UAT — Property Demo](./192-tenant-stripe-connect-uat-property-demo/index.md) | Connect READY · execution OFF |
+| 193 | [Controlled Tenant Payment UAT](./193-tenant-stripe-payment-uat-property-demo/index.md) | **PASS** · Owner accepted · execution OFF |
+| 194 | [Customer Tenant-Payment Activation](./194-customer-tenant-payment-activation/index.md) | **Approved** · Owner authorized S0–S6 · implement in-repo only · no Production deploy · no execution-flag change |
+| 195 | [Customer Tenant-Payment Activation Implementation Certification](./195-customer-tenant-payment-activation-implementation-certification/index.md) | **IMPLEMENTED IN-REPO** · SHA `eba12ae8` · preserved · see 196 / 197 |
+| 196 | [Customer Tenant Payment-Method Amendment Certification](./196-customer-tenant-payment-method-amendment-certification/index.md) | **PAYMENT METHOD AMENDMENT IMPLEMENTED** · SHA `a0610e3f` · Production released in 197 |
+| 197 | [Customer Tenant Payments Production Foundation Release](./197-customer-tenant-payments-production-foundation-release/index.md) | **PASS** · SHA `0653b428` · stamp `20260817193519` · execution OFF · UAT in 198 |
+| 198 | [Property Demo ACH + Payment-Method Activation UAT](./198-property-demo-ach-payment-method-activation-uat/index.md) | **READY FOR FIRST REAL CUSTOMER ACTIVATION** · Property Demo ACH active · execution returned FALSE · successor 199 |
+| 199 | [Final Public Launch Audit After Tenant Payments](./199-final-public-launch-audit-after-tenant-payments/index.md) | **READY FOR PUBLIC MARKETING / FIRST REAL CUSTOMER** · read-only · no org activated |
+| 200 | [Public Rent Collection Marketing](./200-public-rent-collection-marketing/index.md) | **IMPLEMENTED IN-REPO** · copy only · STOP before Production deploy |
+| 201 | [Final End-to-End Flow / Mismatch / Dead-End Audit](./201-final-end-to-end-flow-audit/index.md) | **CONDITIONAL** · one P1 Complete scoped-staff handoffs · no P0 · no money mutation · remediated in 202 |
+| 202 | [Complete Scoped-Staff Handoff Remediation](./202-complete-scoped-staff-handoff-remediation/index.md) | **P1-01 REMEDIATED** · in-repo · STOP before Production deploy |
+| 204 | [Facility Custom Work Request Forms + QR / Link Intake](./204-facility-custom-work-request-forms/index.md) | **APPROVED** · ADR-034 Accepted · implemented in 205 · Production released in 206 |
+| 205 | [Facility Public Work Request Intake Implementation Certification](./205-facility-public-work-request-intake-implementation/index.md) | **IMPLEMENTED IN-REPO** · implement `c3fc21bc` · Production released in 206 |
+| 206 | [Facility Public Work Request Production Release](./206-facility-public-work-request-production-release/index.md) | **FACILITY PUBLIC WORK REQUEST PRODUCTION RELEASE SUCCESSFUL** · stamp `20260818011913` · SHA `06164778` |
+| 207 | [FO Operational Efficiency](./207-fo-operational-efficiency/index.md) | **Approved** · ADR-036 Accepted · Slice 1 authorized (templates + My Work) · see 209 |
+| 208 | [App-Wide Simplicity + Navigation Audit](./208-mpa-app-wide-simplicity-navigation-audit/index.md) | **Approved** · ADR-037 Accepted · Slice 1 My Work / deep links only |
+| 209 | [FO-EFF Slice 1 Templates + My Work Implementation](./209-fo-eff-slice1-templates-my-work-implementation/index.md) | **SLICE 1 IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** |
+| 210 | [FO-EFF Slice 1 Production Release](./210-fo-eff-slice1-production-release/index.md) | **SLICE 1 PRODUCTION RELEASE SUCCESSFUL** · SHA `cb16e382` |
+| 211 | [FO-EFF Slice 2 Mission Control Attention Implementation](./211-fo-eff-slice2-mission-control-attention-implementation/index.md) | **SLICE 2 IMPLEMENTED** · Production released in 212 |
+| 212 | [FO-EFF Slice 2 Production Release](./212-fo-eff-slice2-production-release/index.md) | **SLICE 2 PRODUCTION RELEASE SUCCESSFUL** · SHA `27657c6b` · deploy `dpl_GpcqvPZ9eQCWesuTCqrHGUibFjT5` |
+| 213 | [App-Wide Sidebar Visual + UX Refinement](./213-app-wide-sidebar-visual-refinement/index.md) | **RECONCILED** · implement `0823bae2` · Production released in 214 |
+| 214 | [App-Wide Sidebar Production Release](./214-app-wide-sidebar-production-release/index.md) | **APP-WIDE SIDEBAR PRODUCTION RELEASE SUCCESSFUL** · SHA `8ae89150` · deploy `dpl_HxxuVRu6dqRbuMxKPVMEbcAQ7BUQ` |
+| 215 | [FO-EFF Slice 3 Asset Registry + Asset QR](./215-fo-eff-slice3-asset-registry-qr/index.md) | **IMPLEMENTED IN-REPO** · SHA `72fe96ed` · Production released in 216 |
+| 216 | [FO-EFF Slice 3 Production Release](./216-fo-eff-slice3-production-release/index.md) | **FO-EFF SLICE 3 PRODUCTION RELEASE + UAT SUCCESSFUL** · stamp `20260818040239` · SHA `7f0fa45d` · deploy `dpl_3yqMaZFnj3S4dqKotmnzGCm1P18i` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -215,6 +243,13 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [185 Complimentary tester / gift access](./185-complimentary-tester-gift-access/index.md) | **Approved** — implemented; Production applied in 187 |
 | [186 Complimentary access implementation certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** — executed in 187 |
 | [187 Complimentary access Production release certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** — stamp `20260817064006`; SHA `f922da26` |
+| [210 FO-EFF Slice 1 Production release](./210-fo-eff-slice1-production-release/index.md) | **SLICE 1 PRODUCTION RELEASE SUCCESSFUL** |
+| [211 FO-EFF Slice 2 implementation](./211-fo-eff-slice2-mission-control-attention-implementation/index.md) | **SLICE 2 IMPLEMENTED** — Production released in 212 |
+| [212 FO-EFF Slice 2 Production release](./212-fo-eff-slice2-production-release/index.md) | **SLICE 2 PRODUCTION RELEASE SUCCESSFUL** — SHA `27657c6b` · deploy `dpl_GpcqvPZ9eQCWesuTCqrHGUibFjT5` |
+| [213 App-wide sidebar visual refinement](./213-app-wide-sidebar-visual-refinement/index.md) | **RECONCILED** — implement `0823bae2` · Production released in 214 |
+| [214 App-wide sidebar Production release](./214-app-wide-sidebar-production-release/index.md) | **APP-WIDE SIDEBAR PRODUCTION RELEASE SUCCESSFUL** — SHA `8ae89150` · deploy `dpl_HxxuVRu6dqRbuMxKPVMEbcAQ7BUQ` |
+| [215 FO-EFF Slice 3 Asset Registry + Asset QR](./215-fo-eff-slice3-asset-registry-qr/index.md) | **IMPLEMENTED IN-REPO** — SHA `72fe96ed` · Production released in 216 |
+| [216 FO-EFF Slice 3 Production release](./216-fo-eff-slice3-production-release/index.md) | **FO-EFF SLICE 3 PRODUCTION RELEASE + UAT SUCCESSFUL** — stamp `20260818040239` · SHA `7f0fa45d` · deploy `dpl_3yqMaZFnj3S4dqKotmnzGCm1P18i` |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 

@@ -1,6 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   createFacilityAssetInputSchema,
+  filterFacilityAssets,
+  isRetiredFacilityAssetStatus,
+  nextGeneratedAssetCode,
   updateFacilityAssetInputSchema,
   type CreateFacilityAssetInput,
   type FacilityAssetStatus,
@@ -8,6 +11,7 @@ import {
   type UpdateFacilityAssetInput
 } from "@mpa/shared";
 import { writeMaintenanceAudit } from "../maintenance/events-audit";
+import { revokeRequestIntake } from "./request-form-service";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -25,6 +29,7 @@ export type FacilityAssetRow = {
   location_scope: string;
   building_label: string | null;
   floor_label: string | null;
+  department_label: string | null;
   room_label: string | null;
   location_note: string | null;
   manufacturer: string | null;
@@ -36,6 +41,7 @@ export type FacilityAssetRow = {
   warranty_notes: string | null;
   vendor_id: string | null;
   scan_code: string | null;
+  active_request_intake_id: string | null;
   notes: string | null;
   replaced_asset_id: string | null;
   created_at: string;
@@ -46,9 +52,9 @@ export type FacilityAssetRow = {
 
 const SELECT_ASSET = `
   id, organization_id, property_id, property_property_id, name, asset_code, asset_type,
-  custom_type_label, status, location_scope, building_label, floor_label, room_label,
+  custom_type_label, status, location_scope, building_label, floor_label, department_label, room_label,
   location_note, manufacturer, model, serial_number, purchase_date, warranty_starts_on,
-  warranty_ends_on, warranty_notes, vendor_id, scan_code, notes, replaced_asset_id,
+  warranty_ends_on, warranty_notes, vendor_id, scan_code, active_request_intake_id, notes, replaced_asset_id,
   created_at, updated_at,
   property_properties ( id, name ),
   vendor_vendors ( id, name )
@@ -61,7 +67,7 @@ function asSingle<T>(value: T | T[] | null | undefined): T | null {
 
 export class FacilityConflictError extends Error {
   readonly status = 409 as const;
-  constructor(message = "Asset code already exists for this organization") {
+  constructor(message = "Asset tag or serial already exists for this organization") {
     super(message);
     this.name = "FacilityConflictError";
   }
@@ -74,8 +80,20 @@ export function isUniqueViolation(error: { code?: string; message?: string } | n
   return (
     message.includes("duplicate key") ||
     message.includes("unique constraint") ||
-    (message.includes("asset_code") && (message.includes("unique") || message.includes("duplicate")))
+    (message.includes("asset_code") && (message.includes("unique") || message.includes("duplicate"))) ||
+    (message.includes("serial") && (message.includes("unique") || message.includes("duplicate")))
   );
+}
+
+async function allocateAssetCode(supabase: Db, organizationId: string, requested?: string) {
+  const trimmed = requested?.trim();
+  if (trimmed) return trimmed;
+  const { data, error } = await supabase
+    .from("facility_assets")
+    .select("asset_code")
+    .eq("organization_id", organizationId);
+  if (error) throw new Error(error.message);
+  return nextGeneratedAssetCode((data ?? []).map((row) => String(row.asset_code ?? "")));
 }
 
 function normalizeAsset(row: Record<string, unknown>): FacilityAssetRow {
@@ -112,7 +130,12 @@ async function assertVendor(supabase: Db, organizationId: string, vendorId?: str
 export async function listFacilityAssets(
   supabase: Db,
   organizationId: string,
-  options?: { technicianUserId?: string | null }
+  options?: {
+    technicianUserId?: string | null;
+    query?: string;
+    status?: string;
+    assetType?: string;
+  }
 ) {
   let query = supabase
     .from("facility_assets")
@@ -143,7 +166,12 @@ export async function listFacilityAssets(
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return ((data ?? []) as Record<string, unknown>[]).map(normalizeAsset);
+  const rows = ((data ?? []) as Record<string, unknown>[]).map(normalizeAsset);
+  return filterFacilityAssets(rows, {
+    ...(options?.query ? { query: options.query } : {}),
+    ...(options?.status ? { status: options.status } : {}),
+    ...(options?.assetType ? { assetType: options.assetType } : {})
+  });
 }
 
 export async function getFacilityAsset(supabase: Db, organizationId: string, assetId: string) {
@@ -167,6 +195,7 @@ export async function createFacilityAsset(
   const input = createFacilityAssetInputSchema.parse(raw);
   await assertSite(supabase, organizationId, input.propertyPropertyId);
   await assertVendor(supabase, organizationId, input.vendorId);
+  const assetCode = await allocateAssetCode(supabase, organizationId, input.assetCode);
 
   const { data, error } = await supabase
     .from("facility_assets")
@@ -174,12 +203,13 @@ export async function createFacilityAsset(
       organization_id: organizationId,
       property_property_id: input.propertyPropertyId,
       name: input.name,
-      asset_code: input.assetCode,
+      asset_code: assetCode,
       asset_type: input.assetType,
       custom_type_label: input.customTypeLabel ?? null,
       location_scope: input.locationScope,
       building_label: input.buildingLabel ?? null,
       floor_label: input.floorLabel ?? null,
+      department_label: input.departmentLabel ?? null,
       room_label: input.roomLabel ?? null,
       location_note: input.locationNote ?? null,
       manufacturer: input.manufacturer ?? null,
@@ -213,7 +243,7 @@ export async function createFacilityAsset(
     action: "facility_asset.created",
     entityType: "facility_assets",
     entityId: data.id,
-    payload: { assetCode: input.assetCode, name: input.name }
+    payload: { assetCode, name: input.name }
   });
   return normalizeAsset(data as Record<string, unknown>);
 }
@@ -244,6 +274,7 @@ export async function updateFacilityAsset(
     location_scope?: string;
     building_label?: string | null;
     floor_label?: string | null;
+    department_label?: string | null;
     room_label?: string | null;
     location_note?: string | null;
     manufacturer?: string | null;
@@ -258,6 +289,7 @@ export async function updateFacilityAsset(
     notes?: string | null;
     replaced_asset_id?: string | null;
     status?: FacilityAssetStatus;
+    active_request_intake_id?: string | null;
   } = {
     updated_by: actorUserId,
     updated_at: new Date().toISOString()
@@ -272,6 +304,7 @@ export async function updateFacilityAsset(
   if (input.locationScope) patch.location_scope = input.locationScope;
   if (input.buildingLabel !== undefined) patch.building_label = input.buildingLabel ?? null;
   if (input.floorLabel !== undefined) patch.floor_label = input.floorLabel ?? null;
+  if (input.departmentLabel !== undefined) patch.department_label = input.departmentLabel ?? null;
   if (input.roomLabel !== undefined) patch.room_label = input.roomLabel ?? null;
   if (input.locationNote !== undefined) patch.location_note = input.locationNote ?? null;
   if (input.manufacturer !== undefined) patch.manufacturer = input.manufacturer ?? null;
@@ -286,6 +319,10 @@ export async function updateFacilityAsset(
   if (input.notes !== undefined) patch.notes = input.notes ?? null;
   if (input.replacedAssetId !== undefined) patch.replaced_asset_id = input.replacedAssetId ?? null;
   if (input.status) patch.status = input.status;
+  if (input.status && isRetiredFacilityAssetStatus(input.status) && existing.active_request_intake_id) {
+    await revokeRequestIntake(supabase, organizationId, existing.active_request_intake_id);
+    patch.active_request_intake_id = null;
+  }
 
   const { data, error } = await supabase
     .from("facility_assets")
@@ -295,7 +332,12 @@ export async function updateFacilityAsset(
     .is("deleted_at", null)
     .select(SELECT_ASSET)
     .single();
-  if (error || !data) throw new Error(error?.message ?? "Failed to update asset");
+  if (error || !data) {
+    if (isUniqueViolation(error)) {
+      throw new FacilityConflictError();
+    }
+    throw new Error(error?.message ?? "Failed to update asset");
+  }
 
   await writeMaintenanceAudit({
     supabase,
@@ -319,12 +361,11 @@ export async function listAssetWorkHistory(
   const { data, error } = await supabase
     .from("maintenance_work_orders")
     .select(
-      "id, title, status, priority, category, facility_asset_label, created_at, completed_at, cancelled_at"
+      "id, title, status, priority, category, request_number, intake_channel, facility_asset_label, created_at, completed_at, cancelled_at"
     )
     .eq("organization_id", organizationId)
     .eq("facility_asset_id", assetId)
     .eq("work_surface", "facility")
-    .in("status", ["completed", "closed", "cancelled"])
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data ?? [];

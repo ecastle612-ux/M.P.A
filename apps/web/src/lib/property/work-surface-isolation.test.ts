@@ -22,7 +22,7 @@ describe("work surface isolation for Complete Plan", () => {
   });
 
   it("Facility Mission Control snapshot filters facility work_surface", () => {
-    const source = read("lib/maintenance/maintenance-service.ts");
+    const source = read("lib/facility/mission-control-service.ts");
     expect(source).toMatch(/getFacilityMissionControlSnapshot/);
     expect(source).toMatch(/\.eq\("work_surface", "facility"\)/);
   });

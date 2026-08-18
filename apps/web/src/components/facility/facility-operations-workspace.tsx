@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   WORK_ORDER_CATEGORIES,
   WORK_ORDER_CATEGORY_LABELS,
@@ -44,11 +45,17 @@ type WorkOrder = {
   category: string;
   facility_asset_label: string | null;
   facility_asset_id: string | null;
+  facility_assets?: { id: string; name: string; asset_code: string } | null;
   due_at: string | null;
   assignee_type: string;
   technician_user_id: string | null;
   vendor_id: string | null;
   submitted_at: string;
+  intake_channel?: "internal" | "qr" | "public_link" | "authenticated" | null;
+  request_number?: string | null;
+  floor_label?: string | null;
+  department_label?: string | null;
+  room_label?: string | null;
   property_properties?: { id?: string; name: string } | null;
   property_units?: { id?: string; unit_label: string } | null;
   vendor_vendors?: { name: string } | null;
@@ -139,11 +146,14 @@ function isOpen(status: WorkOrderStatus) {
 
 export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorkspaceDomain }) {
   const meta = DOMAIN_META[domain];
+  const searchParams = useSearchParams();
+  const deepLinkWorkOrderId = searchParams.get("workOrderId");
+  const returnFrom = searchParams.get("from");
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState(deepLinkWorkOrderId ?? "");
   const [updates, setUpdates] = useState<
     Array<{ id: string; body: string; created_at: string; actor_role: string }>
   >([]);
@@ -171,6 +181,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [assets, setAssets] = useState<AssetOption[]>([]);
   const [createDueAt, setCreateDueAt] = useState("");
   const [pendingMediaIds, setPendingMediaIds] = useState<string[]>([]);
+  const [templates, setTemplates] = useState<Array<{ id: string; name: string }>>([]);
+  const [createTemplateId, setCreateTemplateId] = useState("");
 
   const selected = useMemo(
     () => workOrders.find((row) => row.id === selectedId) ?? null,
@@ -212,9 +224,10 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     async (preferredId?: string) => {
       const categoryParam =
         meta.category === "all" ? "" : `?category=${encodeURIComponent(meta.category)}`;
-      const [response, assetsResponse] = await Promise.all([
+      const [response, assetsResponse, templatesResponse] = await Promise.all([
         fetch(`/api/facility/operations${categoryParam}`),
-        fetch("/api/facility/assets")
+        fetch("/api/facility/assets"),
+        fetch("/api/facility/work-templates")
       ]);
       const body = await response.json();
       if (!response.ok) {
@@ -228,6 +241,16 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       if (assetsResponse.ok) {
         const assetsBody = (await assetsResponse.json()) as { assets?: AssetOption[] };
         setAssets(assetsBody.assets ?? []);
+      }
+      if (templatesResponse.ok) {
+        const templatesBody = (await templatesResponse.json()) as {
+          templates?: Array<{ id: string; name: string; status: string }>;
+        };
+        setTemplates(
+          (templatesBody.templates ?? [])
+            .filter((row) => row.status === "active")
+            .map((row) => ({ id: row.id, name: row.name }))
+        );
       }
       if (!createPropertyId && body.properties?.[0]?.id) {
         setCreatePropertyId(body.properties[0].id as string);
@@ -247,7 +270,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     let cancelled = false;
     void (async () => {
       try {
-        await refresh();
+        await refresh(deepLinkWorkOrderId || undefined);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Failed to load");
@@ -261,7 +284,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     return () => {
       cancelled = true;
     };
-    // Initial load only
+    // Initial load only — deep link preferred once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -339,6 +362,14 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       description={meta.description}
       actions={
         <div className="flex flex-wrap gap-2">
+          {returnFrom === "mission-control" ? (
+            <Link
+              href="/facility/mission-control"
+              className="inline-flex min-h-10 items-center rounded-md border border-[var(--mpa-color-border-subtle)] px-3 text-sm font-medium text-[var(--mpa-color-text-primary)]"
+            >
+              Back to Mission Control
+            </Link>
+          ) : null}
           <Badge variant="info">{openCount} open</Badge>
           <Badge variant={emergencyCount > 0 ? "danger" : "neutral"}>
             {emergencyCount} emergency
@@ -408,7 +439,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                 unitId: createUnitId || undefined,
                 facilityAssetLabel: createAssetLabel || undefined,
                 facilityAssetId: createAssetId || undefined,
-                dueAt: createDueAt ? new Date(createDueAt).toISOString() : undefined
+                dueAt: createDueAt ? new Date(createDueAt).toISOString() : undefined,
+                templateId: createTemplateId || undefined
               })
             });
             const body = await response.json();
@@ -436,6 +468,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             setCreateAssetLabel("");
             setCreateAssetId("");
             setCreateDueAt("");
+            setCreateTemplateId("");
             setPendingMediaIds([]);
             setSelectedId(workOrderId);
             setNotice("Facility work created.");
@@ -448,9 +481,20 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             Create facility work
           </h2>
           <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-            Building required. Pick a registered asset or keep a free-text label. Due date is optional.
+            Building required. Optional template attaches a checklist snapshot. Due date is optional.
           </p>
         </div>
+        <label className="space-y-1 text-xs md:col-span-2">
+          <span className="font-medium">Work template (optional)</span>
+          <Select value={createTemplateId} onChange={(e) => setCreateTemplateId(e.target.value)}>
+            <option value="">No template</option>
+            {templates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
+              </option>
+            ))}
+          </Select>
+        </label>
         <label className="space-y-1 text-xs md:col-span-2">
           <span className="font-medium">Title</span>
           <Input
@@ -700,6 +744,25 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                   <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                     {selected.description}
                   </p>
+                  {selected.request_number ? (
+                    <p className="mt-2 text-sm font-semibold">{selected.request_number}</p>
+                  ) : null}
+                  {selected.intake_channel && selected.intake_channel !== "internal" ? (
+                    <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                      {selected.intake_channel === "qr"
+                        ? "Submitted via QR"
+                        : selected.intake_channel === "authenticated"
+                          ? "Submitted by signed-in requester"
+                          : "Submitted via public link"}
+                    </p>
+                  ) : null}
+                  {selected.floor_label || selected.department_label || selected.room_label ? (
+                    <p className="mt-1 text-sm">
+                      {[selected.floor_label ? `Floor ${selected.floor_label}` : null, selected.department_label, selected.room_label]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  ) : null}
                   {selected.facility_asset_id ? (
                     <p className="mt-2 text-sm">
                       <Link
@@ -708,6 +771,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                       >
                         Open linked asset
                         {selected.facility_asset_label ? ` · ${selected.facility_asset_label}` : ""}
+                        {selected.facility_assets?.asset_code ? ` · ${selected.facility_assets.asset_code}` : ""}
                       </Link>
                     </p>
                   ) : null}

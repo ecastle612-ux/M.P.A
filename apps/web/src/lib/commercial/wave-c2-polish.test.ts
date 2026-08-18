@@ -18,8 +18,9 @@ describe("Wave C2 accessibility + trust polish", () => {
     expect(hook).toMatch(/focus/);
     expect(read("components/shell/notification-center.tsx")).toMatch(/useDismissiblePopover/);
     expect(read("components/shell/notification-center.tsx")).toMatch(/aria-controls/);
-    expect(read("components/shell/profile-menu.tsx")).toMatch(/useDismissiblePopover/);
-    expect(read("components/shell/profile-menu.tsx")).toMatch(/Owner Operations/);
+    expect(read("components/shell/account-menu.tsx")).toMatch(/useDismissiblePopover/);
+    expect(read("components/shell/account-menu.tsx")).toMatch(/Owner Operations/);
+    expect(read("components/shell/profile-menu.tsx")).toMatch(/AccountMenu/);
     expect(reduceDismissibleMenu({ open: true, pathname: "/a" }, { type: "close" }).open).toBe(
       false
     );
@@ -68,7 +69,7 @@ describe("Wave C2 accessibility + trust polish", () => {
   });
 
   it("operator-facing chrome uses Owner Operations (PPS1-028)", () => {
-    expect(read("components/shell/profile-menu.tsx")).toMatch(/Owner Operations/);
+    expect(read("components/shell/account-menu.tsx")).toMatch(/Owner Operations/);
     expect(read("app/unauthorized/page.tsx")).toMatch(/Owner Operations is available/);
     expect(read("components/reports/reports-workspace.tsx")).toMatch(
       /Owner Operations Command Center/

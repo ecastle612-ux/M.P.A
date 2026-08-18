@@ -1,12 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   buildMaintenanceReadyAssistantCopy,
+  facilityMyWorkOrderHref,
+  facilityOperationsWorkOrderHref,
   type AssignWorkOrderInput,
   type CancelWorkOrderInput,
   type ConfirmWorkOrderInput,
   type CreateFacilityWorkOrderInput,
   type CreateVendorDirectoryInput,
   type CreateWorkOrderInput,
+  type FacilityRequestIntakeChannel,
   type ProgressWorkOrderInput,
   type TriageWorkOrderInput,
   type WorkOrderPriority,
@@ -16,6 +19,13 @@ import {
 import { provisionVendorPortalAccess } from "../portal/portal-access-service";
 import { emitMaintenanceEvent, writeMaintenanceAudit } from "./events-audit";
 import { notifyLifecycle } from "./lifecycle-notify";
+
+export {
+  buildFacilityMissionControlSnapshot,
+  getFacilityMissionControlSnapshot,
+  type FacilityMissionControlSnapshot,
+  type FacilitySnapshotRow
+} from "../facility/mission-control-service";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -48,6 +58,16 @@ export type WorkOrderRow = {
   resident_confirmed_at: string | null;
   closed_at: string | null;
   created_at: string;
+  template_version_id?: string | null;
+  checklist_snapshot?: unknown;
+  require_completion_photo?: boolean;
+  intake_channel?: FacilityRequestIntakeChannel | null;
+  request_number?: string | null;
+  floor_label?: string | null;
+  department_label?: string | null;
+  room_label?: string | null;
+  facility_asset_code?: string | null;
+  facility_assets?: { id: string; name: string; asset_code: string } | null;
   property_properties?: { id: string; name: string } | null;
   property_units?: { id: string; unit_label: string } | null;
   pm_residents?: { id: string; display_name: string; email: string; user_id: string | null } | null;
@@ -155,7 +175,8 @@ const SELECT_WO = `
   property_properties ( id, name ),
   property_units ( id, unit_label ),
   pm_residents ( id, display_name, email, user_id ),
-  vendor_vendors ( id, name, email, user_id )
+  vendor_vendors ( id, name, email, user_id ),
+  facility_assets ( id, name, asset_code )
 `;
 
 export async function getMaintenanceReadiness(supabase: Db, organizationId: string) {
@@ -531,7 +552,9 @@ export async function assignWorkOrder(
   });
 
   const assigneeHref =
-    existing.work_surface === "facility" ? "/facility/operations" : "/pm/maintenance";
+    existing.work_surface === "facility"
+      ? facilityMyWorkOrderHref(input.workOrderId)
+      : "/pm/maintenance";
 
   if (technicianUserId) {
     await notify(supabase, {
@@ -634,6 +657,18 @@ export async function progressWorkOrder(
     }
   }
 
+  if (input.action === "complete" && existing.work_surface === "facility") {
+    const { assertFacilityChecklistComplete } = await import("../facility/work-template-service");
+    const checklistGate = await assertFacilityChecklistComplete(
+      supabase,
+      organizationId,
+      input.workOrderId
+    );
+    if (!checklistGate.ok) {
+      throw new Error(checklistGate.message);
+    }
+  }
+
   let nextStatus: WorkOrderStatus = existing.status;
   let eventType = "work_order.progressed";
   const patch: {
@@ -672,6 +707,10 @@ export async function progressWorkOrder(
     eventType = "work_order.started";
   }
 
+  if (input.executionSignal && input.action !== "complete") {
+    eventType = `work_order.${input.executionSignal}`;
+  }
+
   const { data, error } = await supabase
     .from("maintenance_work_orders")
     .update(patch)
@@ -700,7 +739,12 @@ export async function progressWorkOrder(
     eventType,
     alsoPropertyId: existing.property_id,
     alsoResidentId: existing.resident_id,
-    payload: { note: input.note, status: nextStatus, action: input.action }
+    payload: {
+      note: input.note,
+      status: nextStatus,
+      action: input.action,
+      executionSignal: input.executionSignal ?? null
+    }
   });
 
   const isTerminalProgress =
@@ -729,7 +773,8 @@ export async function progressWorkOrder(
     });
   } else if (criticalProgress) {
     // Facility: notify assignee + requester (no resident portal).
-    const facilityHref = "/facility/operations";
+    const facilityHref = facilityMyWorkOrderHref(input.workOrderId);
+    const managerHref = facilityOperationsWorkOrderHref(input.workOrderId);
     await notify(supabase, {
       organizationId,
       userId: existing.technician_user_id,
@@ -758,7 +803,7 @@ export async function progressWorkOrder(
               ? "Facility work started"
               : "Facility work update",
         body: input.note,
-        href: facilityHref,
+        href: managerHref,
         emailCritical: true
       });
     }
@@ -929,8 +974,17 @@ export async function getPropertyMaintenanceSummary(
 export async function createFacilityWorkOrder(
   supabase: Db,
   organizationId: string,
-  actorUserId: string,
-  input: CreateFacilityWorkOrderInput
+  actorUserId: string | null,
+  input: CreateFacilityWorkOrderInput,
+  options?: {
+    requestedByUserId?: string | null;
+    createdByUserId?: string | null;
+    intakeChannel?: FacilityRequestIntakeChannel;
+    requestNumber?: string | null;
+    floorLabel?: string | null;
+    departmentLabel?: string | null;
+    roomLabel?: string | null;
+  }
 ) {
   const { data: property, error: propertyError } = await supabase
     .from("property_properties")
@@ -947,10 +1001,13 @@ export async function createFacilityWorkOrder(
 
   let facilityAssetLabel = input.facilityAssetLabel?.trim() || null;
   const facilityAssetId: string | null = input.facilityAssetId ?? null;
+  let floorLabel = options?.floorLabel ?? null;
+  let departmentLabel = options?.departmentLabel ?? null;
+  let roomLabel = options?.roomLabel ?? null;
   if (facilityAssetId) {
     const { data: asset, error: assetError } = await supabase
       .from("facility_assets")
-      .select("id, name, organization_id")
+      .select("id, name, organization_id, asset_code, floor_label, department_label, room_label")
       .eq("id", facilityAssetId)
       .eq("organization_id", organizationId)
       .is("deleted_at", null)
@@ -964,6 +1021,10 @@ export async function createFacilityWorkOrder(
     if (!facilityAssetLabel) {
       facilityAssetLabel = asset.name;
     }
+    floorLabel = floorLabel ?? (typeof asset.floor_label === "string" ? asset.floor_label : null);
+    departmentLabel =
+      departmentLabel ?? (typeof asset.department_label === "string" ? asset.department_label : null);
+    roomLabel = roomLabel ?? (typeof asset.room_label === "string" ? asset.room_label : null);
   }
 
   if (input.unitId) {
@@ -981,6 +1042,7 @@ export async function createFacilityWorkOrder(
     }
   }
 
+  const createdBy = actorUserId ?? options?.createdByUserId ?? null;
   const { data: workOrder, error } = await supabase
     .from("maintenance_work_orders")
     .insert({
@@ -988,7 +1050,8 @@ export async function createFacilityWorkOrder(
       property_id: input.propertyId,
       unit_id: input.unitId ?? null,
       resident_id: null,
-      requested_by_user_id: actorUserId,
+      requested_by_user_id: options?.requestedByUserId ?? actorUserId,
+      ...(createdBy ? { created_by: createdBy } : {}),
       title: input.title,
       description: input.description,
       category: input.category,
@@ -998,7 +1061,12 @@ export async function createFacilityWorkOrder(
       work_surface: "facility",
       facility_asset_label: facilityAssetLabel,
       facility_asset_id: facilityAssetId,
-      due_at: input.dueAt ?? null
+      due_at: input.dueAt ?? null,
+      intake_channel: options?.intakeChannel ?? "internal",
+      request_number: options?.requestNumber ?? null,
+      floor_label: floorLabel,
+      department_label: departmentLabel,
+      room_label: roomLabel
     })
     .select(SELECT_WO)
     .single();
@@ -1010,8 +1078,10 @@ export async function createFacilityWorkOrder(
     organizationId,
     workOrderId: workOrder.id,
     actorUserId,
-    actorRole: "manager",
-    body: `Facility work created: ${input.title}`,
+    actorRole: actorUserId ? "manager" : "system",
+    body: options?.requestNumber
+      ? `Facility request ${options.requestNumber}: ${input.title}`
+      : `Facility work created: ${input.title}`,
     statusFrom: null,
     statusTo: "submitted"
   });
@@ -1028,11 +1098,16 @@ export async function createFacilityWorkOrder(
       category: input.category,
       workSurface: "facility",
       facilityAssetLabel: input.facilityAssetLabel ?? null,
-      dueAt: input.dueAt ?? null
+      templateId: input.templateId ?? null
     }
   });
 
-  return workOrder as WorkOrderRow;
+  if (input.templateId) {
+    const { applyTemplateToWorkOrder } = await import("../facility/work-template-service");
+    await applyTemplateToWorkOrder(supabase, organizationId, workOrder.id, input.templateId);
+  }
+
+  return (await getWorkOrder(supabase, organizationId, workOrder.id)) as WorkOrderRow;
 }
 
 export async function cancelWorkOrder(
@@ -1087,7 +1162,9 @@ export async function cancelWorkOrder(
   });
 
   const cancelHref =
-    existing.work_surface === "facility" ? "/facility/operations" : "/pm/maintenance";
+    existing.work_surface === "facility"
+      ? facilityOperationsWorkOrderHref(input.workOrderId)
+      : "/pm/maintenance";
   const residentUserId =
     (Array.isArray(existing.pm_residents)
       ? existing.pm_residents[0]?.user_id
@@ -1145,88 +1222,6 @@ export async function cancelWorkOrder(
   }
 
   return data as WorkOrderRow;
-}
-
-export type FacilityMissionControlSnapshot = {
-  todayOpen: number;
-  emergency: number;
-  open: number;
-  overdue: number;
-  waitingOnVendor: number;
-  waitingOnTechnician: number;
-  completedRecently: number;
-};
-
-export type FacilitySnapshotRow = {
-  status: string;
-  priority?: string | null;
-  assignee_type?: string | null;
-  due_at?: string | null;
-  submitted_at?: string | null;
-  completed_at?: string | null;
-  closed_at?: string | null;
-};
-
-function isOpenFacilityStatus(status: string) {
-  return !["closed", "cancelled", "completed"].includes(status);
-}
-
-/** Pure attention buckets for Facility Mission Control (unit-testable). */
-export function buildFacilityMissionControlSnapshot(
-  rows: FacilitySnapshotRow[],
-  nowInput: Date = new Date()
-): FacilityMissionControlSnapshot {
-  const now = nowInput;
-  const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-  const openRows = rows.filter((row) => isOpenFacilityStatus(String(row.status)));
-  const todayOpen = openRows.filter((row) => {
-    const submitted = row.submitted_at ? new Date(String(row.submitted_at)) : null;
-    const due = row.due_at ? new Date(String(row.due_at)) : null;
-    const submittedToday = submitted !== null && submitted >= startOfToday;
-    const dueToday =
-      due !== null && due >= startOfToday && due < new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000);
-    return submittedToday || dueToday;
-  }).length;
-
-  return {
-    todayOpen,
-    emergency: openRows.filter((row) => row.priority === "emergency").length,
-    open: openRows.length,
-    overdue: openRows.filter((row) => row.due_at && new Date(String(row.due_at)) < now).length,
-    waitingOnVendor: openRows.filter(
-      (row) => row.status === "assigned" && row.assignee_type === "vendor"
-    ).length,
-    waitingOnTechnician: openRows.filter(
-      (row) => row.status === "assigned" && row.assignee_type === "technician"
-    ).length,
-    completedRecently: rows.filter((row) => {
-      if (!["completed", "closed"].includes(String(row.status))) {
-        return false;
-      }
-      const stamp = row.completed_at ?? row.closed_at;
-      return stamp ? new Date(String(stamp)) >= sevenDaysAgo : false;
-    }).length
-  };
-}
-
-export async function getFacilityMissionControlSnapshot(
-  supabase: Db,
-  organizationId: string
-): Promise<FacilityMissionControlSnapshot> {
-  const { data, error } = await supabase
-    .from("maintenance_work_orders")
-    .select(
-      "id, status, priority, assignee_type, due_at, submitted_at, completed_at, closed_at, cancelled_at"
-    )
-    .eq("organization_id", organizationId)
-    .eq("work_surface", "facility");
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return buildFacilityMissionControlSnapshot((data ?? []) as FacilitySnapshotRow[]);
 }
 
 export function maintenanceReadyCopy() {

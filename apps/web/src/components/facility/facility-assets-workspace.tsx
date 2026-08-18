@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FACILITY_ASSET_STATUS_LABELS,
@@ -25,6 +26,8 @@ type AssetRow = {
   floor_label: string | null;
   room_label: string | null;
   building_label: string | null;
+  department_label?: string | null;
+  serial_number?: string | null;
   property_properties?: { id: string; name: string } | null;
   vendor_vendors?: { id: string; name: string } | null;
 };
@@ -39,6 +42,8 @@ function statusVariant(status: FacilityAssetStatus) {
 }
 
 export function FacilityAssetsWorkspace() {
+  const searchParams = useSearchParams();
+  const siteFromUrl = searchParams.get("site") ?? "";
   const [assets, setAssets] = useState<AssetRow[]>([]);
   const [properties, setProperties] = useState<PropertyRow[]>([]);
   const [vendors, setVendors] = useState<VendorRow[]>([]);
@@ -48,9 +53,10 @@ export function FacilityAssetsWorkspace() {
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
-  const [siteFilter, setSiteFilter] = useState("");
+  const [siteFilter, setSiteFilter] = useState(siteFromUrl);
   const [typeFilter, setTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [query, setQuery] = useState("");
   const [name, setName] = useState("");
   const [assetCode, setAssetCode] = useState("");
   const [assetType, setAssetType] = useState<FacilityAssetType>("hvac");
@@ -58,6 +64,7 @@ export function FacilityAssetsWorkspace() {
   const [propertyPropertyId, setPropertyPropertyId] = useState("");
   const [buildingLabel, setBuildingLabel] = useState("");
   const [floorLabel, setFloorLabel] = useState("");
+  const [departmentLabel, setDepartmentLabel] = useState("");
   const [roomLabel, setRoomLabel] = useState("");
   const [scanCode, setScanCode] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
@@ -111,9 +118,25 @@ export function FacilityAssetsWorkspace() {
       if (siteFilter && asset.property_properties?.id !== siteFilter) return false;
       if (typeFilter && asset.asset_type !== typeFilter) return false;
       if (statusFilter && asset.status !== statusFilter) return false;
+      if (query.trim()) {
+        const haystack = [
+          asset.name,
+          asset.asset_code,
+          asset.serial_number,
+          asset.department_label,
+          asset.building_label,
+          asset.floor_label,
+          asset.room_label,
+          asset.property_properties?.name
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(query.trim().toLowerCase())) return false;
+      }
       return true;
     });
-  }, [assets, siteFilter, typeFilter, statusFilter]);
+  }, [assets, siteFilter, typeFilter, statusFilter, query]);
 
   if (loading) {
     return (
@@ -132,12 +155,12 @@ export function FacilityAssetsWorkspace() {
       ]}
       eyebrow="Facility Operations"
       title="Facility assets"
-      description="Register equipment, place it on a site, and open its work history. Scan codes are stored for later — there is no scanner in this release."
+      description="Register equipment, open work from the asset, and print an on-demand QR that uses the existing public request intake."
     >
       <FoQuickActions
         actions={[
           { href: "/facility/operations", label: "Create facility work", primary: true },
-          { href: "/facility/inventory", label: "Inventory" },
+          { href: "/facility/settings/request-forms", label: "Request Forms" },
           { href: "/facility/reports", label: "Reports" },
           { href: documentsHref(undefined, "manual warranty"), label: "Documents" }
         ]}
@@ -172,12 +195,13 @@ export function FacilityAssetsWorkspace() {
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
                     name: name.trim(),
-                    assetCode: assetCode.trim(),
+                    assetCode: assetCode.trim() || undefined,
                     assetType,
                     customTypeLabel: assetType === "other" ? customTypeLabel.trim() : undefined,
                     propertyPropertyId,
                     buildingLabel: buildingLabel.trim() || undefined,
                     floorLabel: floorLabel.trim() || undefined,
+                    departmentLabel: departmentLabel.trim() || undefined,
                     roomLabel: roomLabel.trim() || undefined,
                     scanCode: scanCode.trim() || undefined,
                     purchaseDate: purchaseDate || undefined,
@@ -196,6 +220,7 @@ export function FacilityAssetsWorkspace() {
                 setCustomTypeLabel("");
                 setBuildingLabel("");
                 setFloorLabel("");
+                setDepartmentLabel("");
                 setRoomLabel("");
                 setScanCode("");
                 setPurchaseDate("");
@@ -230,8 +255,7 @@ export function FacilityAssetsWorkspace() {
             <Input
               value={assetCode}
               onChange={(event) => setAssetCode(event.target.value)}
-              required
-              placeholder="AHU-2"
+              placeholder="Leave blank for AST-000123"
               data-testid="fo-asset-code"
             />
           </label>
@@ -291,6 +315,14 @@ export function FacilityAssetsWorkspace() {
             />
           </label>
           <label className="space-y-1 text-xs">
+            <span className="font-medium">Department / area</span>
+            <Input
+              value={departmentLabel}
+              onChange={(event) => setDepartmentLabel(event.target.value)}
+              placeholder="Cardiology"
+            />
+          </label>
+          <label className="space-y-1 text-xs">
             <span className="font-medium">Room / location</span>
             <Input
               value={roomLabel}
@@ -326,11 +358,11 @@ export function FacilityAssetsWorkspace() {
             <Input value={serialNumber} onChange={(event) => setSerialNumber(event.target.value)} />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="font-medium">Scan code (stored only)</span>
+            <span className="font-medium">Optional staff scan aid</span>
             <Input
               value={scanCode}
               onChange={(event) => setScanCode(event.target.value)}
-              placeholder="Optional future QR / barcode value"
+              placeholder="Not a public QR. Public QR is created on the asset."
             />
           </label>
           <div className="md:col-span-2">
@@ -348,6 +380,15 @@ export function FacilityAssetsWorkspace() {
       <section className="space-y-3">
         <div className="flex flex-wrap items-end gap-3">
           <h2 className="text-sm font-semibold">Asset registry</h2>
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Search</span>
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Name, AST tag, serial, location"
+              aria-label="Search assets"
+            />
+          </label>
           <label className="space-y-1 text-xs">
             <span className="font-medium">Site</span>
             <Select value={siteFilter} onChange={(event) => setSiteFilter(event.target.value)}>
@@ -405,6 +446,7 @@ export function FacilityAssetsWorkspace() {
                       {asset.property_properties?.name ?? "Unmapped site"}
                       {asset.building_label ? ` · ${asset.building_label}` : ""}
                       {asset.floor_label ? ` · Floor ${asset.floor_label}` : ""}
+                      {asset.department_label ? ` · ${asset.department_label}` : ""}
                       {asset.room_label ? ` · ${asset.room_label}` : ""}
                     </p>
                   </div>
