@@ -14,6 +14,7 @@ import {
   isSignWellCompletedStatus,
   isSignWellConfigured
 } from "../signwell/client";
+import { alreadyHasActiveSignWellRequest } from "../signwell/correlation";
 import { buildLeaseDocumentText, leaseDocumentToBase64 } from "./document";
 import { provisionResidentPortalAccess } from "../portal/portal-access-service";
 import { emitLeaseEvent, writeLeaseAudit } from "./events-audit";
@@ -310,6 +311,24 @@ export async function sendLeaseForSignature(
   const resident = lease.pm_residents;
   if (!resident) {
     throw new Error("Lease resident is missing.");
+  }
+  if (!resident.email?.trim()) {
+    throw new Error("Resident email is required to send for signature.");
+  }
+  if (
+    alreadyHasActiveSignWellRequest({
+      status: lease.status,
+      signwellDocumentId: lease.signwell_document_id
+    })
+  ) {
+    return {
+      lease,
+      sent: false,
+      alreadySent: true,
+      channel: "signwell" as const,
+      notice:
+        "This lease already has a SignWell request. Use Sync SignWell status, or Record signed offline."
+    };
   }
 
   if (!isSignWellConfigured()) {

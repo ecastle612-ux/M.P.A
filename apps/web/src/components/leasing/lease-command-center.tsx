@@ -166,7 +166,9 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
   }
 
   const active = data.lease.status === "active";
-  const canSend = data.lease.status === "draft" || data.lease.status === "pending_signature";
+  const canSend =
+    data.lease.status === "draft" ||
+    (data.lease.status === "pending_signature" && !data.lease.signwellDocumentId);
   const canOffline = ["draft", "pending_signature", "signed"].includes(data.lease.status) && !active;
   const canSync = Boolean(data.lease.signwellDocumentId) && !active;
 
