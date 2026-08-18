@@ -44,7 +44,7 @@ export function resolveCheckoutSessionCompleted(input: {
   if (payment.status === "succeeded") {
     return { action: "already_succeeded", paymentId: payment.id };
   }
-  if (payment.status !== "pending") {
+  if (payment.status !== "pending" && payment.status !== "processing") {
     return { action: "refuse", error: "pending_payment_mismatch" };
   }
 
@@ -56,6 +56,18 @@ export function resolveCheckoutSessionCompleted(input: {
   }
 
   return { action: "apply", paymentId: payment.id, amount: sessionAmount };
+}
+
+export function resolvePaymentIntentSucceeded(input: {
+  payment: FinOpsPendingPayment | null;
+  organizationId: string;
+  leaseId: string;
+  amountTotalCents: number | null;
+}): CheckoutSessionCompletedResolution {
+  return resolveCheckoutSessionCompleted({
+    ...input,
+    checkoutSessionId: input.payment?.stripe_checkout_session_id ?? "pi"
+  });
 }
 
 export function resolveCheckoutFailure(input: {
@@ -72,10 +84,40 @@ export function resolveCheckoutFailure(input: {
   if (input.payment.id !== input.paymentId || input.payment.organization_id !== input.organizationId) {
     return { action: "refuse", error: "pending_payment_mismatch" };
   }
-  if (input.payment.status !== "pending") {
+  if (input.payment.status === "failed") {
+    return { action: "ignore" };
+  }
+  if (input.payment.status === "succeeded" || input.payment.status === "refunded") {
+    return { action: "ignore" };
+  }
+  if (input.payment.status !== "pending" && input.payment.status !== "processing") {
     return { action: "refuse", error: "pending_payment_mismatch" };
   }
   return { action: "mark_failed", paymentId: input.payment.id };
+}
+
+export function resolveCheckoutSessionLifecycle(input: {
+  payment: FinOpsPendingPayment | null;
+  organizationId: string;
+  leaseId: string;
+  checkoutSessionId: string;
+  amountTotalCents: number | null;
+  paymentStatus?: string | null;
+}): CheckoutSessionCompletedResolution | { action: "mark_processing"; paymentId: string } {
+  if (input.paymentStatus && input.paymentStatus !== "paid") {
+    const payment = input.payment;
+    if (!payment) {
+      return { action: "refuse", error: "pending_payment_missing" };
+    }
+    if (payment.status === "succeeded") {
+      return { action: "already_succeeded", paymentId: payment.id };
+    }
+    if (payment.status !== "pending" && payment.status !== "processing") {
+      return { action: "refuse", error: "pending_payment_mismatch" };
+    }
+    return { action: "mark_processing", paymentId: payment.id };
+  }
+  return resolveCheckoutSessionCompleted(input);
 }
 
 export function classifyFinanceMutationError(message: string): "frozen" | "authorization" | "other" {

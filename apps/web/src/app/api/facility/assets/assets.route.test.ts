@@ -99,7 +99,7 @@ describe("POST /api/facility/assets", () => {
     );
     expect(response.status).toBe(409);
     await expect(response.json()).resolves.toEqual({
-      error: "Asset code already exists for this organization"
+      error: "Asset tag or serial already exists for this organization"
     });
   });
 
