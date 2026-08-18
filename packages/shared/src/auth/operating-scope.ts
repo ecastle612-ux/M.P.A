@@ -173,7 +173,14 @@ export function entitlementsForMember(input: {
     if (family === "platform") {
       return true;
     }
-    return surfaces.has(family);
+    if (!surfaces.has(family)) {
+      return false;
+    }
+    if (entitlement === "facility.request_forms") {
+      const roles = input.roles ?? [];
+      return roles.some((role) => role === "organization_admin" || role === "property_manager");
+    }
+    return true;
   });
 }
 

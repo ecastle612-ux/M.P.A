@@ -1,8 +1,10 @@
 import type {
   CompleteLauncherPriority,
   FoLauncherBrief,
+  MemberOperatingScope,
   PmLauncherBrief,
-  ProductSku
+  ProductSku,
+  UserRole
 } from "@mpa/shared";
 import {
   buildCompleteLauncherPriorities,
@@ -71,16 +73,25 @@ export function buildCompleteLauncherViewModel(input: {
   foBody: FoMissionControlApiBody | null;
   pmError: string | null;
   foError: string | null;
+  roles?: readonly UserRole[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
 }) {
   const labels = completeWorkspaceLabels();
-  const pm = pmBriefFromMissionControlApi(input.pmBody);
-  const fo = foBriefFromMissionControlApi(input.foBody);
-  const priorities = buildCompleteLauncherPriorities({ pm, fo });
-  const handoffs = buildCompleteWorkspaceHandoffs(input.sku);
+  const member = { roles: input.roles, storedScope: input.storedScope };
+  const handoffs = buildCompleteWorkspaceHandoffs(input.sku, member);
+  const allowed = new Set(handoffs.map((item) => item.id));
+  const pm = allowed.has("property_operations") ? pmBriefFromMissionControlApi(input.pmBody) : null;
+  const fo = allowed.has("facility_operations") ? foBriefFromMissionControlApi(input.foBody) : null;
+  const priorities = buildCompleteLauncherPriorities({ pm, fo }).filter((item) =>
+    allowed.has(item.workspace)
+  );
   const propertyCount = pm?.propertyCount ?? 0;
   const emptyGuidance = completeLauncherEmptyGuidance({
     propertyCount,
-    foOpen: fo ? fo.open : null
+    foOpen: fo ? fo.open : null,
+    sku: input.sku,
+    roles: input.roles,
+    storedScope: input.storedScope
   });
 
   return {
@@ -95,6 +106,9 @@ export function buildCompleteLauncherViewModel(input: {
           : null,
     propertyPriorities: priorities.filter((item) => item.workspace === "property_operations"),
     facilityPriorities: priorities.filter((item) => item.workspace === "facility_operations"),
-    loadErrors: [input.pmError, input.foError].filter(Boolean) as string[]
+    loadErrors: [
+      allowed.has("property_operations") ? input.pmError : null,
+      allowed.has("facility_operations") ? input.foError : null
+    ].filter(Boolean) as string[]
   };
 }

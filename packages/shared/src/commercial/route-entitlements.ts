@@ -104,7 +104,9 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     ["/facility/safety", "facility.safety"],
     ["/facility/compliance", "facility.compliance"],
     ["/facility/building-systems", "facility.building_systems"],
-    ["/facility/capital-projects", "facility.capital_projects"]
+    ["/facility/capital-projects", "facility.capital_projects"],
+    ["/facility/settings/request-forms", "facility.request_forms"],
+    ["/facility/request-forms", "facility.request_forms"]
   ];
   for (const [prefix, entitlement] of facilityRoutes) {
     if (path === prefix || path.startsWith(`${prefix}/`)) {
@@ -137,7 +139,8 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
     path.startsWith("/api/demo") ||
     path.startsWith("/api/invitations") ||
     path.startsWith("/api/profile") ||
-    path.startsWith("/api/shared/media")
+    path.startsWith("/api/shared/media") ||
+    path.startsWith("/api/public/request")
   ) {
     return null;
   }
