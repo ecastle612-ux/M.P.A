@@ -12,6 +12,7 @@ import {
 } from "@mpa/shared";
 import { Alert, Badge, Button, Input, Textarea } from "@mpa/ui";
 import Link from "next/link";
+import { RememberRecent } from "../shell/remember-recent";
 import { FoPageChrome } from "../shell/fo-workspace";
 import { MediaAttachmentField } from "../media/media-attachment-field";
 
@@ -302,6 +303,8 @@ export function FacilityMyWorkPage() {
     : "";
 
   return (
+    <>
+    <RememberRecent type="facility_work_order" id={selectedId} />
     <FoPageChrome
       crumbs={[
         { href: "/facility/mission-control", label: "Mission Control" },
@@ -548,5 +551,6 @@ export function FacilityMyWorkPage() {
         </div>
       )}
     </FoPageChrome>
+    </>
   );
 }

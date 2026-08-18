@@ -10,6 +10,7 @@ import {
 } from "@mpa/shared";
 import { Alert, Badge, Button, EmptyState, Input, Select, Skeleton } from "@mpa/ui";
 import { ErrorRetry } from "../shell/error-retry";
+import { RememberRecent } from "../shell/remember-recent";
 import { FoPageChrome, FoQuickActions } from "../shell/fo-workspace";
 import { MediaAttachmentField } from "../media/media-attachment-field";
 
@@ -162,6 +163,8 @@ export function FacilityAssetDetailWorkspace({ assetId }: { assetId: string }) {
   }
 
   return (
+    <>
+    <RememberRecent type="asset" id={asset.id} />
     <FoPageChrome
       crumbs={[
         { href: "/facility/mission-control", label: "Facility Mission Control" },
@@ -510,5 +513,6 @@ export function FacilityAssetDetailWorkspace({ assetId }: { assetId: string }) {
         )}
       </section>
     </FoPageChrome>
+    </>
   );
 }

@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 type ProfileContextValue = {
+  userId: string | null;
   displayName: string;
   avatarUrl: string | null;
   avatarFallback: string;
@@ -20,7 +21,13 @@ function initialsFromName(displayName: string): string {
   return initials || "MP";
 }
 
-export function ProfileProvider({ children }: { children: ReactNode }) {
+export function ProfileProvider({
+  children,
+  userId = null
+}: {
+  children: ReactNode;
+  userId?: string | null;
+}) {
   const [displayName, setDisplayName] = useState("M.P.A.");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
@@ -47,11 +54,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<ProfileContextValue>(
     () => ({
+      userId,
       displayName,
       avatarUrl,
       avatarFallback: initialsFromName(displayName)
     }),
-    [avatarUrl, displayName]
+    [avatarUrl, displayName, userId]
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;

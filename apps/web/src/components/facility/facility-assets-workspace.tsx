@@ -44,6 +44,7 @@ function statusVariant(status: FacilityAssetStatus) {
 export function FacilityAssetsWorkspace() {
   const searchParams = useSearchParams();
   const siteFromUrl = searchParams.get("site") ?? "";
+  const startCreate = searchParams.get("new") === "1";
   const [assets, setAssets] = useState<AssetRow[]>([]);
   const [properties, setProperties] = useState<PropertyRow[]>([]);
   const [vendors, setVendors] = useState<VendorRow[]>([]);
@@ -61,7 +62,7 @@ export function FacilityAssetsWorkspace() {
   const [assetCode, setAssetCode] = useState("");
   const [assetType, setAssetType] = useState<FacilityAssetType>("hvac");
   const [customTypeLabel, setCustomTypeLabel] = useState("");
-  const [propertyPropertyId, setPropertyPropertyId] = useState("");
+  const [propertyPropertyId, setPropertyPropertyId] = useState(siteFromUrl);
   const [buildingLabel, setBuildingLabel] = useState("");
   const [floorLabel, setFloorLabel] = useState("");
   const [departmentLabel, setDepartmentLabel] = useState("");
@@ -112,6 +113,12 @@ export function FacilityAssetsWorkspace() {
     })();
     return () => controller.abort();
   }, [refresh, reloadToken]);
+
+  useEffect(() => {
+    if (!startCreate || loading) return;
+    document.getElementById("create-asset")?.scrollIntoView({ block: "start" });
+    document.querySelector<HTMLInputElement>("[data-testid='fo-asset-name']")?.focus();
+  }, [loading, startCreate]);
 
   const filtered = useMemo(() => {
     return assets.filter((asset) => {
@@ -181,6 +188,7 @@ export function FacilityAssetsWorkspace() {
 
       {canManage ? (
         <form
+          id="create-asset"
           className="grid max-w-3xl gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:grid-cols-2"
           data-testid="fo-add-asset-form"
           onSubmit={(event) => {

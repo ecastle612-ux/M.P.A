@@ -92,6 +92,19 @@ export const createFacilityWorkOrderInputSchema = z.object({
 });
 export type CreateFacilityWorkOrderInput = z.infer<typeof createFacilityWorkOrderInputSchema>;
 
+export const createStaffResidentialWorkOrderInputSchema = z.object({
+  title: z.string().trim().min(3).max(160),
+  description: z.string().trim().min(3).max(4000),
+  category: z.enum(WORK_ORDER_CATEGORIES).default("general"),
+  priority: z.enum(WORK_ORDER_PRIORITIES).default("normal"),
+  propertyId: z.string().uuid(),
+  unitId: z.string().uuid().optional(),
+  residentId: z.string().uuid().optional()
+});
+export type CreateStaffResidentialWorkOrderInput = z.infer<
+  typeof createStaffResidentialWorkOrderInputSchema
+>;
+
 export const triageWorkOrderInputSchema = z.object({
   workOrderId: z.string().uuid(),
   priority: z.enum(WORK_ORDER_PRIORITIES)

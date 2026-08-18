@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { buttonClassName, Alert, Badge, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ErrorRetry } from "../shell/error-retry";
+import { RememberRecent } from "../shell/remember-recent";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 
 type CommandCenter = {
@@ -146,6 +147,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
 
   return (
     <main className="flex-1 space-y-6 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
+      <RememberRecent type="property" id={propertyId} />
       <Breadcrumbs
         items={[
           { href: "/pm/mission-control", label: "Property Manager Mission Control" },
@@ -183,6 +185,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
           actions={[
             { href: data.nextJourney.href, label: data.nextJourney.title, primary: true },
             { href: `/pm/properties/${propertyId}/money`, label: "Money" },
+            { href: `/pm/maintenance?new=1&propertyId=${propertyId}`, label: "Create maintenance" },
             { href: "/pm/maintenance", label: "Maintenance" },
             { href: documentsHref("property", data.property.name), label: "Documents" }
           ]}

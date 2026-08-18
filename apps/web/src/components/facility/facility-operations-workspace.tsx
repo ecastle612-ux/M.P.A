@@ -16,6 +16,7 @@ import {
 import { resolveStatusBadgeVariant, Alert, Badge, Button, EmptyState, Input, Select, Skeleton, Textarea } from "@mpa/ui";
 import { ConfirmActionModal } from "../shell/confirm-action-modal";
 import { ErrorRetry } from "../shell/error-retry";
+import { RememberRecent } from "../shell/remember-recent";
 import {
   FoDocumentsStrip,
   FoPageChrome,
@@ -149,6 +150,9 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const searchParams = useSearchParams();
   const deepLinkWorkOrderId = searchParams.get("workOrderId");
   const returnFrom = searchParams.get("from");
+  const startCreate = searchParams.get("new") === "1";
+  const prefillAssetId = searchParams.get("facilityAssetId") ?? "";
+  const prefillPropertyId = searchParams.get("propertyId") ?? "";
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -174,10 +178,10 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [createDescription, setCreateDescription] = useState("");
   const [createCategory, setCreateCategory] = useState<WorkOrderCategory>(meta.createDefaultCategory);
   const [createPriority, setCreatePriority] = useState<WorkOrderPriority>("normal");
-  const [createPropertyId, setCreatePropertyId] = useState("");
+  const [createPropertyId, setCreatePropertyId] = useState(prefillPropertyId);
   const [createUnitId, setCreateUnitId] = useState("");
   const [createAssetLabel, setCreateAssetLabel] = useState("");
-  const [createAssetId, setCreateAssetId] = useState("");
+  const [createAssetId, setCreateAssetId] = useState(prefillAssetId);
   const [assets, setAssets] = useState<AssetOption[]>([]);
   const [createDueAt, setCreateDueAt] = useState("");
   const [pendingMediaIds, setPendingMediaIds] = useState<string[]>([]);
@@ -240,7 +244,18 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       setProperties(body.properties ?? []);
       if (assetsResponse.ok) {
         const assetsBody = (await assetsResponse.json()) as { assets?: AssetOption[] };
-        setAssets(assetsBody.assets ?? []);
+        const nextAssets = assetsBody.assets ?? [];
+        setAssets(nextAssets);
+        if (prefillAssetId) {
+          const matched = nextAssets.find((asset) => asset.id === prefillAssetId);
+          if (matched) {
+            setCreateAssetId(matched.id);
+            setCreateAssetLabel(matched.name);
+            if (!prefillPropertyId && matched.property_property_id) {
+              setCreatePropertyId(matched.property_property_id);
+            }
+          }
+        }
       }
       if (templatesResponse.ok) {
         const templatesBody = (await templatesResponse.json()) as {
@@ -252,8 +267,11 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             .map((row) => ({ id: row.id, name: row.name }))
         );
       }
-      if (!createPropertyId && body.properties?.[0]?.id) {
-        setCreatePropertyId(body.properties[0].id as string);
+      if (!createPropertyId && (prefillPropertyId || body.properties?.[0]?.id)) {
+        setCreatePropertyId(prefillPropertyId || (body.properties[0].id as string));
+      }
+      if (prefillAssetId) {
+        setCreateAssetId(prefillAssetId);
       }
       const nextId = preferredId || selectedId || rows[0]?.id || "";
       setSelectedId(nextId);
@@ -263,7 +281,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
         setUpdates([]);
       }
     },
-    [createPropertyId, loadDetail, meta.category, selectedId]
+    [createPropertyId, loadDetail, meta.category, prefillAssetId, prefillPropertyId, selectedId]
   );
 
   useEffect(() => {
@@ -312,6 +330,11 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     }
   }
 
+  useEffect(() => {
+    if (!startCreate || loading) return;
+    document.getElementById("create-work")?.scrollIntoView({ block: "start" });
+  }, [loading, startCreate]);
+
   if (loading) {
     return (
       <main className="flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
@@ -352,6 +375,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const mobileDetailOpen = Boolean(selected);
 
   return (
+    <>
+    <RememberRecent type="facility_work_order" id={selectedId || null} />
     <FoPageChrome
       crumbs={[
         { href: "/facility/mission-control", label: "Facility Mission Control" },
@@ -407,6 +432,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       {notice ? <Alert variant="success">{notice}</Alert> : null}
 
       <form
+        id="create-work"
         className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:grid-cols-2"
         noValidate
         onSubmit={(event) => {
@@ -1193,5 +1219,6 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
         </>
       ) : null}
     </FoPageChrome>
+    </>
   );
 }

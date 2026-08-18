@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   defaultStandardFieldCatalog,
   intakeChannelLabel,
@@ -40,6 +41,9 @@ const CUSTOM_TYPES: FacilityRequestCustomType[] = [
 ];
 
 export function FacilityRequestFormsPage() {
+  const searchParams = useSearchParams();
+  const startCreate = searchParams.get("new") === "1";
+  const deepLinkFormId = searchParams.get("formId") ?? "";
   const [forms, setForms] = useState<FormRow[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [name, setName] = useState("Furniture / Maintenance Request");
@@ -78,6 +82,9 @@ export function FacilityRequestFormsPage() {
         if (cancelled) return;
         if (!response.ok) throw new Error(body.error ?? "Could not load request forms.");
         setForms(body.forms ?? []);
+        if (deepLinkFormId) {
+          void loadForm(deepLinkFormId);
+        }
       })
       .catch((err: unknown) => {
         if (!cancelled) setError(err instanceof Error ? err.message : "Could not load.");
@@ -92,6 +99,8 @@ export function FacilityRequestFormsPage() {
     return () => {
       cancelled = true;
     };
+    // Initial load + optional form deep link once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadForm(formId: string) {
@@ -290,10 +299,14 @@ export function FacilityRequestFormsPage() {
         </aside>
 
         <div className="space-y-4">
-          <div className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <div id="create-request-form" className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
             <label className="grid gap-1 text-sm">
               Name
-              <Input value={name} onChange={(event) => setName(event.target.value)} />
+              <Input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                autoFocus={startCreate && !deepLinkFormId}
+              />
             </label>
             <label className="grid gap-1 text-sm">
               Instructions

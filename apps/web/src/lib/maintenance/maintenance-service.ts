@@ -7,6 +7,7 @@ import {
   type CancelWorkOrderInput,
   type ConfirmWorkOrderInput,
   type CreateFacilityWorkOrderInput,
+  type CreateStaffResidentialWorkOrderInput,
   type CreateVendorDirectoryInput,
   type CreateWorkOrderInput,
   type FacilityRequestIntakeChannel,
@@ -322,6 +323,106 @@ export async function createVendorDirectory(
     throw new Error(error.message);
   }
   return data;
+}
+
+export async function createStaffResidentialWorkOrder(
+  supabase: Db,
+  organizationId: string,
+  actorUserId: string,
+  input: CreateStaffResidentialWorkOrderInput
+) {
+  const { data: property, error: propertyError } = await supabase
+    .from("property_properties")
+    .select("id")
+    .eq("organization_id", organizationId)
+    .eq("id", input.propertyId)
+    .maybeSingle();
+  if (propertyError) {
+    throw new Error(propertyError.message);
+  }
+  if (!property) {
+    throw new Error("Property not found for organization");
+  }
+
+  if (input.unitId) {
+    const { data: unit, error: unitError } = await supabase
+      .from("property_units")
+      .select("id")
+      .eq("id", input.unitId)
+      .eq("property_id", input.propertyId)
+      .maybeSingle();
+    if (unitError) {
+      throw new Error(unitError.message);
+    }
+    if (!unit) {
+      throw new Error("Unit not found for property");
+    }
+  }
+
+  if (input.residentId) {
+    const { data: resident, error: residentError } = await supabase
+      .from("pm_residents")
+      .select("id")
+      .eq("organization_id", organizationId)
+      .eq("id", input.residentId)
+      .maybeSingle();
+    if (residentError) {
+      throw new Error(residentError.message);
+    }
+    if (!resident) {
+      throw new Error("Resident not found for organization");
+    }
+  }
+
+  const { data: workOrder, error } = await supabase
+    .from("maintenance_work_orders")
+    .insert({
+      organization_id: organizationId,
+      property_id: input.propertyId,
+      unit_id: input.unitId ?? null,
+      resident_id: input.residentId ?? null,
+      requested_by_user_id: actorUserId,
+      created_by: actorUserId,
+      title: input.title,
+      description: input.description,
+      category: input.category,
+      priority: input.priority,
+      status: "submitted",
+      assignee_type: "unassigned",
+      work_surface: "residential"
+    })
+    .select(SELECT_WO)
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  await addUpdate(supabase, {
+    organizationId,
+    workOrderId: workOrder.id,
+    actorUserId,
+    actorRole: "manager",
+    body: `Maintenance work created: ${input.title}`,
+    statusFrom: null,
+    statusTo: "submitted"
+  });
+  await record({
+    supabase,
+    organizationId,
+    actorId: actorUserId,
+    workOrderId: workOrder.id,
+    eventType: "work_order.created",
+    alsoPropertyId: input.propertyId,
+    alsoResidentId: input.residentId ?? null,
+    payload: {
+      title: input.title,
+      priority: input.priority,
+      category: input.category,
+      workSurface: "residential"
+    }
+  });
+
+  return (await getWorkOrder(supabase, organizationId, workOrder.id)) as WorkOrderRow;
 }
 
 export async function createResidentWorkOrder(

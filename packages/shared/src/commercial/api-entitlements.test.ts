@@ -48,6 +48,19 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForPath("/shared/tables")).toBe("platform.documents");
     expect(requiredEntitlementForApiPath("/api/shared/communications")).toBe("platform.communications");
     expect(requiredEntitlementForApiPath("/api/shared/communications/conversations")).toBe("tenant_comms_staff");
+    expect(requiredEntitlementForApiPath("/api/shared/search")).toBe("platform.search");
+    expect(requiredEntitlementForApiPath("/api/shared/search/resolve")).toBe("platform.search");
+    expect(
+      evaluateApiPathEntitlement({ pathname: "/api/shared/search", sku: "mpa_facility_operations" }).allowed
+    ).toBe(true);
+    expect(
+      evaluateApiPathEntitlement({
+        pathname: "/api/shared/search",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "facility_operations"
+      }).allowed
+    ).toBe(true);
     expect(requiredEntitlementForApiPath("/api/portal/tenant/conversations")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/commerce/checkout")).toBeNull();
   });

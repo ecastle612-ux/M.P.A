@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   WORK_ORDER_CATEGORIES,
   WORK_ORDER_CATEGORY_LABELS,
@@ -27,6 +28,7 @@ type DraftItem = {
 };
 
 export function FacilityWorkTemplatesPage() {
+  const startCreate = useSearchParams().get("new") === "1";
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
   const [name, setName] = useState("Quarterly HVAC Inspection");
   const [defaultTitle, setDefaultTitle] = useState("Quarterly HVAC Inspection");
@@ -114,12 +116,12 @@ export function FacilityWorkTemplatesPage() {
       {error ? <Alert variant="danger">{error}</Alert> : null}
       {notice ? <Alert variant="success">{notice}</Alert> : null}
 
-      <section className="space-y-3 rounded-xl border border-[var(--mpa-color-border-default)] bg-white p-4">
+      <section id="create-template" className="space-y-3 rounded-xl border border-[var(--mpa-color-border-default)] bg-white p-4">
         <h2 className="font-semibold">Create template</h2>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-sm">
             <span>Template name</span>
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
+            <Input value={name} onChange={(e) => setName(e.target.value)} autoFocus={startCreate} />
           </label>
           <label className="space-y-1 text-sm">
             <span>Default work-order title</span>

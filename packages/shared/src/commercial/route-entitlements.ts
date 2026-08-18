@@ -193,6 +193,9 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
   if (path.startsWith("/api/shared/communications")) {
     return "platform.communications";
   }
+  if (path.startsWith("/api/shared/search")) {
+    return "platform.search";
+  }
   if (path.startsWith("/api/shared/")) {
     return "deny";
   }

@@ -45,7 +45,8 @@ export function ApplicationShell({
   defaultRole,
   organizations,
   defaultOrganizationId,
-  isPlatformOperator = false
+  isPlatformOperator = false,
+  userId = null
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -53,6 +54,7 @@ export function ApplicationShell({
   organizations: OrganizationSummary[];
   defaultOrganizationId: string | null;
   isPlatformOperator?: boolean;
+  userId?: string | null;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -61,6 +63,7 @@ export function ApplicationShell({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
       isPlatformOperator={isPlatformOperator}
+      userId={userId}
     >
       <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)]">
         <SkipToContent />

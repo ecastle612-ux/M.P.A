@@ -15,7 +15,8 @@ export function AuthenticatedContextProviders({
   defaultRole,
   organizations,
   defaultOrganizationId,
-  isPlatformOperator = false
+  isPlatformOperator = false,
+  userId = null
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -23,12 +24,13 @@ export function AuthenticatedContextProviders({
   organizations: OrganizationSummary[];
   defaultOrganizationId: string | null;
   isPlatformOperator?: boolean;
+  userId?: string | null;
 }) {
   const [organizationState, setOrganizationState] = useState<OrganizationSummary[]>(organizations);
 
   return (
     <OperatorProvider isPlatformOperator={isPlatformOperator}>
-      <ProfileProvider>
+      <ProfileProvider userId={userId}>
         <OrganizationProvider
         organizations={organizationState}
         defaultOrganizationId={defaultOrganizationId}
