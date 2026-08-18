@@ -16,6 +16,11 @@ describe("SignWell server-only isolation", () => {
     expect(read("lib/signwell/client.ts")).toMatch(/from "\.\.\/env\/server-env"/);
   });
 
+  it("send path uploads a SignWell-supported HTML file, not raw .txt", () => {
+    expect(read("lib/leasing/lease-service.ts")).toMatch(/leaseDocumentToSignWellUpload/);
+    expect(read("lib/leasing/document.ts")).toMatch(/\.html/);
+  });
+
   it("send path refuses a second SignWell document for the same pending lease", () => {
     const source = read("lib/leasing/lease-service.ts");
     expect(source).toMatch(/alreadyHasActiveSignWellRequest/);

@@ -15,7 +15,7 @@ import {
   isSignWellConfigured
 } from "../signwell/client";
 import { alreadyHasActiveSignWellRequest } from "../signwell/correlation";
-import { buildLeaseDocumentText, leaseDocumentToBase64 } from "./document";
+import { buildLeaseDocumentText, leaseDocumentToSignWellUpload } from "./document";
 import { provisionResidentPortalAccess } from "../portal/portal-access-service";
 import { emitLeaseEvent, writeLeaseAudit } from "./events-audit";
 
@@ -381,8 +381,7 @@ export async function sendLeaseForSignature(
       name: lease.document_name,
       subject: `Lease agreement — ${resident.display_name}`,
       message: "Please review and sign your lease agreement.",
-      fileName: lease.document_name,
-      fileBase64: leaseDocumentToBase64(lease.document_body),
+      ...leaseDocumentToSignWellUpload(lease.document_name, lease.document_body),
       recipients,
       applySigningOrder: true,
       metadata: {
