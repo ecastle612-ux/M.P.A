@@ -12,6 +12,21 @@ import { generateDuePreventiveWork, generateDueWorkForPlan } from "./pm-generati
 import type { FacilityPmPlanRow } from "./pm-plan-service";
 
 type Row = Record<string, unknown>;
+type Tables = {
+  facility_pm_plans: Row[];
+  facility_pm_occurrences: Row[];
+  facility_assets: Row[];
+  property_properties: Row[];
+  maintenance_work_orders: Row[];
+};
+
+const db: Tables = {
+  facility_pm_plans: [],
+  facility_pm_occurrences: [],
+  facility_assets: [],
+  property_properties: [],
+  maintenance_work_orders: []
+};
 
 const ORG = "11111111-1111-4111-8111-111111111111";
 const OTHER_ORG = "22222222-2222-4222-8222-222222222222";
@@ -20,14 +35,6 @@ const PROPERTY = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 const TEMPLATE = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const PLAN = "ffffffff-ffff-4fff-8fff-ffffffffffff";
 const BAD_PLAN = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
-
-const db: Record<string, Row[]> = {
-  facility_pm_plans: [],
-  facility_pm_occurrences: [],
-  facility_assets: [],
-  property_properties: [],
-  maintenance_work_orders: []
-};
 
 let occurrenceInserts = 0;
 
@@ -39,6 +46,7 @@ function matches(row: Row, filters: Array<{ col: string; value: unknown; mode: "
 }
 
 function makeClient() {
+  const store = db as unknown as Record<string, Row[]>;
   return {
     from(table: string) {
       const filters: Array<{ col: string; value: unknown; mode: "eq" | "is" }> = [];
@@ -65,36 +73,36 @@ function makeClient() {
         },
         order: () => api,
         maybeSingle: async () => {
-          const row = (db[table] ?? []).find((item) => matches(item, filters)) ?? null;
+          const row = (store[table] ?? []).find((item) => matches(item, filters)) ?? null;
           return { data: row, error: null };
         },
         single: async () => {
           if (insertPayload) {
             if (table === "facility_pm_occurrences") {
               occurrenceInserts += 1;
-              const duplicate = (db[table] ?? []).find(
+              const duplicate = (store[table] ?? []).find(
                 (row) =>
-                  row.plan_id === insertPayload?.plan_id &&
-                  row.occurrence_due_on === insertPayload?.occurrence_due_on
+                  row["plan_id"] === insertPayload?.["plan_id"] &&
+                  row["occurrence_due_on"] === insertPayload?.["occurrence_due_on"]
               );
               if (duplicate) {
                 insertPayload = null;
                 return { data: null, error: { code: "23505", message: "duplicate key" } };
               }
             }
-            (db[table] ?? []).push(insertPayload);
+            (store[table] ?? []).push(insertPayload);
             const created = insertPayload;
             insertPayload = null;
             return { data: created, error: null };
           }
-          const row = (db[table] ?? []).find((item) => matches(item, filters));
+          const row = (store[table] ?? []).find((item) => matches(item, filters));
           if (patch && row) {
             Object.assign(row, patch);
             patch = null;
             return { data: row, error: null };
           }
           if (patch) {
-            const first = (db[table] ?? []).find((item) => matches(item, filters));
+            const first = (store[table] ?? []).find((item) => matches(item, filters));
             if (first) Object.assign(first, patch);
             patch = null;
             return { data: first ?? null, error: null };
@@ -103,13 +111,13 @@ function makeClient() {
         },
         then(resolve: (value: unknown) => void, reject?: (reason?: unknown) => void) {
           if (patch) {
-            for (const row of db[table] ?? []) {
+            for (const row of store[table] ?? []) {
               if (matches(row, filters)) Object.assign(row, patch);
             }
             patch = null;
           }
           return Promise.resolve({
-            data: (db[table] ?? []).filter((item) => matches(item, filters)),
+            data: (store[table] ?? []).filter((item) => matches(item, filters)),
             error: null
           }).then(resolve, reject);
         }
@@ -192,7 +200,7 @@ describe("FO-EFF Slice 5 — PM generation idempotency", () => {
       intakeChannel: "internal"
     });
     expect(db.facility_pm_occurrences).toHaveLength(1);
-    expect(db.facility_pm_plans[0]?.next_due_on).toBe("2027-02-16");
+    expect(db.facility_pm_plans[0]?.["next_due_on"]).toBe("2027-02-16");
   });
 
   it("does not create a second work order on retry", async () => {
@@ -284,8 +292,8 @@ describe("FO-EFF Slice 5 — PM generation idempotency", () => {
     await generateDueWorkForPlan(makeClient() as never, ORG, overdue, "2026-04-10");
     expect(createFacilityWorkOrder).toHaveBeenCalledTimes(1);
     expect(db.facility_pm_occurrences).toHaveLength(1);
-    expect(db.facility_pm_occurrences[0]?.occurrence_due_on).toBe("2026-01-16");
-    expect(db.facility_pm_plans[0]?.next_due_on).toBe("2026-04-16");
-    expect(Number(db.facility_pm_plans[0]?.missed_occurrence_count)).toBe(2);
+    expect(db.facility_pm_occurrences[0]?.["occurrence_due_on"]).toBe("2026-01-16");
+    expect(db.facility_pm_plans[0]?.["next_due_on"]).toBe("2026-04-16");
+    expect(Number(db.facility_pm_plans[0]?.["missed_occurrence_count"])).toBe(2);
   });
 });

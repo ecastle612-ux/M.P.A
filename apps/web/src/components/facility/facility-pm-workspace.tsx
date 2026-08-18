@@ -14,7 +14,6 @@ import {
   type WorkOrderPriority
 } from "@mpa/shared";
 import { Alert, Badge, Button, EmptyState, Input, Select, Skeleton } from "@mpa/ui";
-import { ErrorRetry } from "../shell/error-retry";
 import { RememberRecent } from "../shell/remember-recent";
 import { FoPageChrome, FoQuickActions } from "../shell/fo-workspace";
 
@@ -60,6 +59,90 @@ function statusBadge(status: PlanRow["status"]) {
   return <Badge variant="neutral">Inactive</Badge>;
 }
 
+function PlanScheduleEditor({
+  plan,
+  templates,
+  busy,
+  onSave
+}: {
+  plan: PlanRow;
+  templates: Array<{ id: string; name: string }>;
+  busy: boolean;
+  onSave: (payload: Record<string, unknown>) => void;
+}) {
+  const [nextDueOn, setNextDueOn] = useState(plan.next_due_on);
+  const [recurrenceKind, setRecurrenceKind] = useState<PmRecurrenceKind>(plan.recurrence_kind);
+  const [intervalN, setIntervalN] = useState(String(plan.interval_n));
+  const [generateDaysBefore, setGenerateDaysBefore] = useState(String(plan.generate_days_before));
+  const [description, setDescription] = useState(plan.description);
+  const [templateId, setTemplateId] = useState(plan.template_id ?? "");
+
+  return (
+    <form
+      className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] p-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSave({
+          nextDueOn,
+          recurrenceKind,
+          ...(recurrenceKind === "every_n_weeks" || recurrenceKind === "every_n_months"
+            ? { intervalN: Number(intervalN) }
+            : {}),
+          generateDaysBefore: Number(generateDaysBefore),
+          description,
+          templateId: templateId || null
+        });
+      }}
+    >
+      <h3 className="text-sm font-semibold">Edit future schedule</h3>
+      <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+        Changes apply to the next due date only. Generated work, checklists, and history stay as they are.
+      </p>
+      <label className="text-sm">
+        Next due
+        <Input type="date" value={nextDueOn} onChange={(event) => setNextDueOn(event.target.value)} required />
+      </label>
+      <Select value={recurrenceKind} onChange={(event) => setRecurrenceKind(event.target.value as PmRecurrenceKind)}>
+        {PM_RECURRENCE_KINDS.map((kind) => (
+          <option key={kind} value={kind}>
+            {recurrenceLabel(kind, kind === "every_n_months" || kind === "every_n_weeks" ? Number(intervalN) || 1 : 1)}
+          </option>
+        ))}
+      </Select>
+      {recurrenceKind === "every_n_weeks" || recurrenceKind === "every_n_months" ? (
+        <Input type="number" min={1} max={52} value={intervalN} onChange={(event) => setIntervalN(event.target.value)} />
+      ) : null}
+      <label className="text-sm">
+        Generate work days before
+        <Input
+          type="number"
+          min={0}
+          max={90}
+          value={generateDaysBefore}
+          onChange={(event) => setGenerateDaysBefore(event.target.value)}
+        />
+      </label>
+      <textarea
+        className="min-h-20 rounded-md border border-[var(--mpa-color-border-default)] p-3 text-sm"
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        placeholder="Instructions for the technician"
+      />
+      <Select value={templateId} onChange={(event) => setTemplateId(event.target.value)}>
+        <option value="">No work template</option>
+        {templates.map((template) => (
+          <option key={template.id} value={template.id}>
+            {template.name}
+          </option>
+        ))}
+      </Select>
+      <Button type="submit" disabled={busy}>
+        Save future schedule
+      </Button>
+    </form>
+  );
+}
+
 export function FacilityPmWorkspace() {
   const searchParams = useSearchParams();
   const startCreate = searchParams.get("new") === "1";
@@ -73,13 +156,7 @@ export function FacilityPmWorkspace() {
   const [templates, setTemplates] = useState<Array<{ id: string; name: string }>>([]);
   const [summary, setSummary] = useState({ activePlans: 0, dueSoon: 0, overdue: 0, paused: 0 });
   const [filter, setFilter] = useState<"all" | "upcoming" | "overdue" | "paused">("all");
-  const [editNextDueOn, setEditNextDueOn] = useState("");
-  const [editRecurrence, setEditRecurrence] = useState<PmRecurrenceKind>("quarterly");
-  const [editIntervalN, setEditIntervalN] = useState("1");
-  const [editGenerateDays, setEditGenerateDays] = useState("7");
-  const [editDescription, setEditDescription] = useState("");
-  const [editTemplateId, setEditTemplateId] = useState("");
-  const [occurrences, setOccurrences] = useState<OccurrenceRow[]>([]);
+  const [occurrencesByPlan, setOccurrencesByPlan] = useState<Record<string, OccurrenceRow[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -121,7 +198,7 @@ export function FacilityPmWorkspace() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount fetch
     void refresh()
       .catch((err: unknown) => {
         if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load");
@@ -149,25 +226,19 @@ export function FacilityPmWorkspace() {
   }, [filter, plans, today]);
 
   useEffect(() => {
-    if (!selected) return;
-    setEditNextDueOn(selected.next_due_on);
-    setEditRecurrence(selected.recurrence_kind);
-    setEditIntervalN(String(selected.interval_n));
-    setEditGenerateDays(String(selected.generate_days_before));
-    setEditDescription(selected.description);
-    setEditTemplateId(selected.template_id ?? "");
-  }, [selected]);
-
-  useEffect(() => {
-    if (!selectedPlanId) {
-      setOccurrences([]);
-      return;
-    }
+    if (!selectedPlanId) return;
+    const planId = selectedPlanId;
+    let cancelled = false;
     void (async () => {
-      const response = await fetch(`/api/facility/preventive-maintenance/${selectedPlanId}`);
+      const response = await fetch(`/api/facility/preventive-maintenance/${planId}`);
       const body = (await response.json()) as { occurrences?: OccurrenceRow[] };
-      if (response.ok) setOccurrences(body.occurrences ?? []);
+      if (!cancelled && response.ok) {
+        setOccurrencesByPlan((current) => ({ ...current, [planId]: body.occurrences ?? [] }));
+      }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [selectedPlanId, reloadToken]);
 
   async function patchPlan(planId: string, payload: Record<string, unknown>, okMessage: string) {
@@ -421,85 +492,22 @@ export function FacilityPmWorkspace() {
             ) : null}
           </div>
           {selected.status !== "inactive" ? (
-            <form
-              className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] p-3"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void patchPlan(
-                  selected.id,
-                  {
-                    nextDueOn: editNextDueOn,
-                    recurrenceKind: editRecurrence,
-                    ...(editRecurrence === "every_n_weeks" || editRecurrence === "every_n_months"
-                      ? { intervalN: Number(editIntervalN) }
-                      : {}),
-                    generateDaysBefore: Number(editGenerateDays),
-                    description: editDescription,
-                    templateId: editTemplateId || null
-                  },
-                  "Future schedule updated. Existing work is unchanged."
-                );
-              }}
-            >
-              <h3 className="text-sm font-semibold">Edit future schedule</h3>
-              <p className="text-xs text-[var(--mpa-color-text-secondary)]">
-                Changes apply to the next due date only. Generated work, checklists, and history stay as they are.
-              </p>
-              <label className="text-sm">
-                Next due
-                <Input type="date" value={editNextDueOn} onChange={(event) => setEditNextDueOn(event.target.value)} required />
-              </label>
-              <Select value={editRecurrence} onChange={(event) => setEditRecurrence(event.target.value as PmRecurrenceKind)}>
-                {PM_RECURRENCE_KINDS.map((kind) => (
-                  <option key={kind} value={kind}>
-                    {recurrenceLabel(kind, kind === "every_n_months" || kind === "every_n_weeks" ? Number(editIntervalN) || 1 : 1)}
-                  </option>
-                ))}
-              </Select>
-              {editRecurrence === "every_n_weeks" || editRecurrence === "every_n_months" ? (
-                <Input
-                  type="number"
-                  min={1}
-                  max={52}
-                  value={editIntervalN}
-                  onChange={(event) => setEditIntervalN(event.target.value)}
-                />
-              ) : null}
-              <label className="text-sm">
-                Generate work days before
-                <Input
-                  type="number"
-                  min={0}
-                  max={90}
-                  value={editGenerateDays}
-                  onChange={(event) => setEditGenerateDays(event.target.value)}
-                />
-              </label>
-              <textarea
-                className="min-h-20 rounded-md border border-[var(--mpa-color-border-default)] p-3 text-sm"
-                value={editDescription}
-                onChange={(event) => setEditDescription(event.target.value)}
-                placeholder="Instructions for the technician"
-              />
-              <Select value={editTemplateId} onChange={(event) => setEditTemplateId(event.target.value)}>
-                <option value="">No work template</option>
-                {templates.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name}
-                  </option>
-                ))}
-              </Select>
-              <Button type="submit" disabled={busy}>
-                Save future schedule
-              </Button>
-            </form>
+            <PlanScheduleEditor
+              key={`${selected.id}-${reloadToken}`}
+              plan={selected}
+              templates={templates}
+              busy={busy}
+              onSave={(payload) =>
+                void patchPlan(selected.id, payload, "Future schedule updated. Existing work is unchanged.")
+              }
+            />
           ) : null}
           <h3 className="text-sm font-semibold">History</h3>
-          {occurrences.length === 0 ? (
+          {(occurrencesByPlan[selected.id] ?? []).length === 0 ? (
             <p className="text-sm text-[var(--mpa-color-text-secondary)]">No generated work yet.</p>
           ) : (
             <ul className="grid gap-2">
-              {occurrences.map((row) => (
+              {(occurrencesByPlan[selected.id] ?? []).map((row) => (
                 <li key={row.id} className="text-sm">
                   Due {row.occurrence_due_on}
                   {row.maintenance_work_orders ? (

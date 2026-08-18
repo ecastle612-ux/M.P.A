@@ -560,7 +560,10 @@ export function FacilityAssetDetailWorkspace({ assetId }: { assetId: string }) {
                 </div>
                 <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
                   {[
-                    workOrderOriginLabel({ originSource: row.origin_source, intakeChannel: row.intake_channel }),
+                    workOrderOriginLabel({
+                      ...(row.origin_source ? { originSource: row.origin_source } : {}),
+                      ...(row.intake_channel ? { intakeChannel: row.intake_channel } : {})
+                    }),
                     row.request_number,
                     row.priority,
                     row.category,

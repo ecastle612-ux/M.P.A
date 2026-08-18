@@ -118,7 +118,6 @@ describe("navigation and launcher awareness", () => {
       "/facility/vendors",
       "/facility/settings/work-templates",
       "/facility/assets",
-      "/facility/preventive-maintenance",
       "/facility/inspections",
       "/facility/safety",
       "/facility/compliance",
@@ -133,12 +132,14 @@ describe("navigation and launcher awareness", () => {
       (group) => group.id === "facility_operations"
     );
     expect(managerFo?.items.some((item) => item.href === "/facility/settings/request-forms")).toBe(true);
+    expect(managerFo?.items.some((item) => item.href === "/facility/preventive-maintenance")).toBe(true);
     const technicianFo = navigationGroupsForSku(
       "mpa_complete_platform",
       ["maintenance_technician"],
       "facility_operations"
     ).find((group) => group.id === "facility_operations");
     expect(technicianFo?.items.some((item) => item.href === "/facility/settings/request-forms")).toBe(false);
+    expect(technicianFo?.items.some((item) => item.href === "/facility/preventive-maintenance")).toBe(false);
     expect(fo?.items.every((item) => item.readiness === "aligned")).toBe(true);
     expect(fo?.items[0]?.label).toBe("Mission Control");
     expect(

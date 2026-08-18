@@ -2,6 +2,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPmPlan, FacilityPmConflictError, summarizePmPlans, updatePmPlan } from "./pm-plan-service";
 
 type Row = Record<string, unknown>;
+type Tables = {
+  facility_pm_plans: Row[];
+  facility_assets: Row[];
+  property_properties: Row[];
+  facility_work_templates: Row[];
+};
+
+const db: Tables = {
+  facility_pm_plans: [],
+  facility_assets: [],
+  property_properties: [],
+  facility_work_templates: []
+};
 
 const ORG = "11111111-1111-4111-8111-111111111111";
 const OTHER_ORG = "22222222-2222-4222-8222-222222222222";
@@ -12,13 +25,6 @@ const TEMPLATE = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const FORGED_ASSET = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 const PLAN = "ffffffff-ffff-4fff-8fff-ffffffffffff";
 
-const db: Record<string, Row[]> = {
-  facility_pm_plans: [],
-  facility_assets: [],
-  property_properties: [],
-  facility_work_templates: []
-};
-
 function matches(row: Row, filters: Array<{ col: string; value: unknown; mode: "eq" | "is" }>) {
   return filters.every((filter) => {
     if (filter.mode === "is") return row[filter.col] === filter.value;
@@ -27,6 +33,7 @@ function matches(row: Row, filters: Array<{ col: string; value: unknown; mode: "
 }
 
 function makeClient() {
+  const store = db as unknown as Record<string, Row[]>;
   return {
     from(table: string) {
       const filters: Array<{ col: string; value: unknown; mode: "eq" | "is" }> = [];
@@ -60,17 +67,17 @@ function makeClient() {
         },
         order: () => api,
         maybeSingle: async () => {
-          const row = (db[table] ?? []).find((item) => matches(item, filters)) ?? null;
+          const row = (store[table] ?? []).find((item) => matches(item, filters)) ?? null;
           return { data: row, error: null };
         },
         single: async () => {
           if (insertPayload) {
-            (db[table] ?? []).push(insertPayload);
+            (store[table] ?? []).push(insertPayload);
             const created = insertPayload;
             insertPayload = null;
             return { data: created, error: null };
           }
-          const row = (db[table] ?? []).find((item) => matches(item, filters));
+          const row = (store[table] ?? []).find((item) => matches(item, filters));
           if (patch && row) {
             Object.assign(row, patch);
             patch = null;
@@ -80,7 +87,7 @@ function makeClient() {
         },
         then(resolve: (value: unknown) => void, reject?: (reason?: unknown) => void) {
           return Promise.resolve({
-            data: (db[table] ?? []).filter((item) => matches(item, filters)),
+            data: (store[table] ?? []).filter((item) => matches(item, filters)),
             error: null
           }).then(resolve, reject);
         }
@@ -204,7 +211,7 @@ describe("FO-EFF Slice 5 — PM plan service", () => {
     const client = makeClient();
     const paused = await updatePmPlan(client as never, ORG, ACTOR, PLAN, { action: "pause" });
     expect(paused.status).toBe("paused");
-    expect(db.facility_pm_plans[0]?.id).toBe(PLAN);
+    expect(db.facility_pm_plans[0]?.["id"]).toBe(PLAN);
 
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-04-10T12:00:00.000Z"));

@@ -8,7 +8,6 @@ import {
   recurrenceLabel,
   updatePmPlanInputSchema,
   utcToday,
-  type CreatePmPlanInput,
   type PmPlanStatus,
   type PmRecurrenceKind,
   type PmTargetKind,
@@ -186,7 +185,7 @@ export async function listPmOccurrences(
     .order("occurrence_due_on", { ascending: false })
     .limit(24);
   if (error) throw new Error(error.message);
-  return ((data ?? []) as FacilityPmOccurrenceRow[]).map((row) => ({
+  return ((data ?? []) as unknown as FacilityPmOccurrenceRow[]).map((row) => ({
     ...row,
     maintenance_work_orders: asSingle(row.maintenance_work_orders)
   }));
@@ -196,13 +195,13 @@ export async function createPmPlan(
   supabase: Db,
   organizationId: string,
   actorUserId: string,
-  raw: CreatePmPlanInput
+  raw: unknown
 ) {
   const input = createPmPlanInputSchema.parse(raw);
   let propertyId = input.propertyId ?? null;
-  let floorLabel = input.floorLabel ?? null;
-  let departmentLabel = input.departmentLabel ?? null;
-  let roomLabel = input.roomLabel ?? null;
+  const floorLabel = input.floorLabel ?? null;
+  const departmentLabel = input.departmentLabel ?? null;
+  const roomLabel = input.roomLabel ?? null;
 
   if (input.targetKind === "asset" && input.facilityAssetId) {
     const asset = await requireOrgAsset(supabase, organizationId, input.facilityAssetId);
@@ -260,7 +259,26 @@ export async function updatePmPlan(
   const existing = await getPmPlan(supabase, organizationId, planId);
   if (!existing) throw new FacilityPmConflictError("Plan not found");
 
-  const patch: Record<string, unknown> = {
+  const patch: {
+    updated_by_user_id: string;
+    updated_at: string;
+    name?: string;
+    description?: string;
+    priority?: string;
+    category?: string;
+    generate_days_before?: number;
+    due_time?: string | null;
+    floor_label?: string | null;
+    department_label?: string | null;
+    room_label?: string | null;
+    template_id?: string | null;
+    recurrence_kind?: string;
+    interval_n?: number;
+    next_due_on?: string;
+    anchor_day_of_month?: number;
+    status?: string;
+    missed_occurrence_count?: number;
+  } = {
     updated_by_user_id: actorUserId,
     updated_at: new Date().toISOString()
   };

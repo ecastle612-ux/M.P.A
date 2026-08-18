@@ -62,15 +62,14 @@ export function parseDateOnly(value: string): Date {
     throw new Error("Invalid date");
   }
   const [year, month, day] = value.split("-").map(Number);
+  if (year === undefined || month === undefined || day === undefined) {
+    throw new Error("Invalid date");
+  }
   return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
 }
 
 export function formatDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10);
-}
-
-export function utcToday(now = new Date()): string {
-  return now.toISOString().slice(0, 10);
 }
 
 export function lastDayOfUtcMonth(year: number, monthIndex: number): number {
@@ -154,8 +153,8 @@ export function advanceUntilOnOrAfter(input: {
     cursor = nextOccurrenceDueOn({
       fromDueOn: cursor,
       kind: input.kind,
-      intervalN: input.intervalN,
-      anchorDayOfMonth: input.anchorDayOfMonth
+      ...(input.intervalN !== undefined ? { intervalN: input.intervalN } : {}),
+      ...(input.anchorDayOfMonth !== undefined ? { anchorDayOfMonth: input.anchorDayOfMonth } : {})
     });
     skipped += 1;
     guard += 1;
@@ -184,7 +183,9 @@ export function isPlanDueSoon(nextDueOn: string, today: string, withinDays = 7):
 
 export function dueAtTimestamp(dueOn: string, dueTime?: string | null): string {
   const time = dueTime && PM_TIME_HHMM.test(dueTime) ? dueTime : "12:00";
-  const [hours, minutes] = time.split(":").map(Number);
+  const [hoursRaw, minutesRaw] = time.split(":").map(Number);
+  const hours = hoursRaw ?? 12;
+  const minutes = minutesRaw ?? 0;
   const date = parseDateOnly(dueOn);
   date.setUTCHours(hours, minutes, 0, 0);
   return date.toISOString();

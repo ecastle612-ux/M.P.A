@@ -3,6 +3,7 @@ import {
   PUBLIC_PRICING_MODEL_COPY,
   SKU_SUMMARIES,
   marketingModulesForSku,
+  modulesForSku,
   navigationGroupsForSku,
   skuComparisonRows
 } from "@mpa/shared";
@@ -33,7 +34,8 @@ describe("FO advertising depth truth", () => {
 
   it("markets FO category modules as work queues, not subsystems", () => {
     const foModules = marketingModulesForSku("mpa_facility_operations");
-    const byId = new Map(foModules.map((entry) => [entry.id, entry]));
+    const managerModules = modulesForSku("mpa_facility_operations", { roles: ["organization_admin"] });
+    const byId = new Map(managerModules.map((entry) => [entry.id, entry]));
 
     expect(byId.get("assets")?.label).toBe("Assets");
     expect(byId.get("inventory")?.label).toBe("Inventory");
@@ -44,7 +46,7 @@ describe("FO advertising depth truth", () => {
     expect(byId.get("compliance")?.label).toBe("Compliance Work");
     expect(byId.get("building_systems")?.label).toBe("Building Systems Work");
 
-    for (const entry of foModules) {
+    for (const entry of [...foModules, ...managerModules]) {
       for (const pattern of OVERCLAIM_PATTERNS) {
         expect(`${entry.label} ${entry.description ?? ""}`).not.toMatch(pattern);
       }
@@ -52,7 +54,7 @@ describe("FO advertising depth truth", () => {
   });
 
   it("keeps nav labels aligned with marketed FO work-queue naming", () => {
-    const foNav = navigationGroupsForSku("mpa_facility_operations")
+    const foNav = navigationGroupsForSku("mpa_facility_operations", ["organization_admin"])
       .flatMap((group) => group.items)
       .map((item) => item.label);
     expect(foNav).toContain("Assets");

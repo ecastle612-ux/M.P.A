@@ -5,7 +5,7 @@ import { generateDuePreventiveWork } from "../../../../../lib/facility/pm-genera
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 
 function cronAuthorized(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
+  const secret = process.env["CRON_SECRET"];
   if (!secret) return false;
   const header = request.headers.get("authorization");
   return header === `Bearer ${secret}`;
@@ -30,8 +30,8 @@ async function generate(request: Request) {
     try {
       const supabase = createServiceRoleClient();
       const result = await generateDuePreventiveWork(supabase, {
-        organizationId: parsed.data.organizationId,
-        planId: parsed.data.planId,
+        ...(parsed.data.organizationId ? { organizationId: parsed.data.organizationId } : {}),
+        ...(parsed.data.planId ? { planId: parsed.data.planId } : {}),
         ...(parsed.data.now ? { now: new Date(parsed.data.now) } : {})
       });
       return NextResponse.json({ result, actor: "scheduler" });
@@ -48,7 +48,7 @@ async function generate(request: Request) {
   try {
     const result = await generateDuePreventiveWork(authz.supabase, {
       organizationId: authz.organizationId,
-      planId: parsed.data.planId,
+      ...(parsed.data.planId ? { planId: parsed.data.planId } : {}),
       ...(parsed.data.now ? { now: new Date(parsed.data.now) } : {})
     });
     return NextResponse.json({ result, actor: "manager" });

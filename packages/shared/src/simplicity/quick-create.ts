@@ -181,13 +181,13 @@ export function suggestedCreatesForFailedSearch(
   actions: readonly QuickCreateAction[]
 ): QuickCreateAction[] {
   const allowed = new Map(actions.map((action) => [action.id, action]));
-  if (staffSearchLooksLikeGeneratedAssetCode(query) || /\b(chair|asset|serial|tag)\b/i.test(query)) {
-    const asset = allowed.get("fo_asset");
-    return asset ? [asset] : [];
-  }
   if (/\b(preventive|inspection|quarterly|pm plan)\b/i.test(query)) {
     const plan = allowed.get("fo_pm_plan");
     return plan ? [plan] : [];
+  }
+  if (staffSearchLooksLikeGeneratedAssetCode(query) || /\b(chair|asset|serial|tag)\b/i.test(query)) {
+    const asset = allowed.get("fo_asset");
+    return asset ? [asset] : [];
   }
   if (staffSearchLooksLikeRequestNumber(query) || /\b(work order|repair|broken)\b/i.test(query)) {
     const fo = allowed.get("fo_work_order");
