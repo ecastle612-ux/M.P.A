@@ -226,7 +226,7 @@ async function searchLeases(
   let request = supabase
     .from("lease_agreements")
     .select(
-      "id, status, property_id, unit_id, resident_id, property_properties(name), property_units(unit_label), pm_residents(display_name)"
+      "id, status, property_id, unit_id, resident_id, property_properties(name), property_units(unit_label), pm_residents!resident_id(display_name)"
     )
     .eq("organization_id", organizationId)
     .limit(STAFF_SEARCH_PER_DOMAIN_CAP);

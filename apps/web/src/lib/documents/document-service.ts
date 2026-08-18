@@ -203,7 +203,7 @@ async function resolveEntityLabel(
     case "lease": {
       const { data } = await supabase
         .from("lease_agreements")
-        .select("id, document_name, property_id, pm_residents(display_name)")
+        .select("id, document_name, property_id, pm_residents!resident_id(display_name)")
         .eq("organization_id", organizationId)
         .eq("id", entityId)
         .maybeSingle();
@@ -484,7 +484,7 @@ export async function listDocuments(
   const { data: leases } = await supabase
     .from("lease_agreements")
     .select(
-      "id, document_name, document_body, signing_channel, signwell_document_id, signwell_status, property_id, status, created_at, activated_at, pm_residents(display_name)"
+      "id, document_name, document_body, signing_channel, signwell_document_id, signwell_status, property_id, status, created_at, activated_at, pm_residents!resident_id(display_name)"
     )
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false })

@@ -115,7 +115,7 @@ export async function listLeases(supabase: Db, organizationId: string) {
   const { data, error } = await supabase
     .from("lease_agreements")
     .select(
-      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
     )
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false });
@@ -129,7 +129,7 @@ export async function getLease(supabase: Db, organizationId: string, leaseId: st
   const { data, error } = await supabase
     .from("lease_agreements")
     .select(
-      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
     )
     .eq("organization_id", organizationId)
     .eq("id", leaseId)
@@ -225,7 +225,7 @@ export async function createLeaseFromResident(
       created_by: actorId
     })
     .select(
-      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
     )
     .single();
   if (error) {
@@ -405,7 +405,7 @@ export async function sendLeaseForSignature(
       .eq("id", leaseId)
       .eq("organization_id", organizationId)
       .select(
-        "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+        "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
       )
       .single();
     if (error) {
@@ -645,7 +645,7 @@ export async function activateSignedLease(
     .eq("id", leaseId)
     .eq("organization_id", organizationId)
     .select(
-      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
     )
     .single();
   if (activateError) {

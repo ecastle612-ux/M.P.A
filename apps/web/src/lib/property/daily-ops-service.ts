@@ -62,7 +62,7 @@ export async function buildDailyOperationsBriefing(
     access.includeResidentLease
       ? supabase
           .from("lease_agreements")
-          .select("id, status, start_date, pm_residents(display_name), property_properties(name)")
+          .select("id, status, start_date, pm_residents!resident_id(display_name), property_properties(name)")
           .eq("organization_id", organizationId)
           .in("status", ["draft", "pending_signature", "signed"])
           .order("created_at", { ascending: false })
@@ -102,7 +102,7 @@ export async function buildDailyOperationsBriefing(
     access.includeResidentLease
       ? supabase
           .from("lease_agreements")
-          .select("id, end_date, status, pm_residents(display_name)")
+          .select("id, end_date, status, pm_residents!resident_id(display_name)")
           .eq("organization_id", organizationId)
           .eq("status", "active")
           .not("end_date", "is", null)

@@ -25,6 +25,13 @@ describe("SignWell server-only isolation", () => {
     );
   });
 
+  it("lease embeds disambiguate pm_residents through resident_id", () => {
+    expect(read("lib/leasing/lease-service.ts")).toMatch(/pm_residents!resident_id\(/);
+    expect(read("lib/leasing/lease-service.ts")).not.toMatch(
+      /property_units\(id, unit_label, status\), pm_residents\(/
+    );
+  });
+
   it("webhook correlates only through stored signwell_document_id", () => {
     const source = read("app/api/leasing/webhooks/signwell/route.ts");
     expect(source).toMatch(/resolveSignWellLeaseCorrelation/);
