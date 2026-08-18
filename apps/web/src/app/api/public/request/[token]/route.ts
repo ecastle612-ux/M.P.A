@@ -4,7 +4,8 @@ import { consumeFacilityRequestRateLimit } from "../../../../../lib/facility/req
 import {
   resolvePublicIntake,
   sendRequesterConfirmationEmail,
-  submitPublicRequest
+  submitPublicRequest,
+  toPublicPortalPayload
 } from "../../../../../lib/facility/public-request-service";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 import { clientEnv } from "../../../../../lib/env/client-env";
@@ -35,14 +36,7 @@ export async function GET(request: Request, context: Params) {
       return NextResponse.json({ error: resolved.error }, { status: resolved.status });
     }
     return NextResponse.json({
-      formName: resolved.portal.formName,
-      organizationName: resolved.portal.organizationName,
-      instructions: resolved.portal.instructions,
-      accessPolicy: resolved.portal.accessPolicy,
-      fields: resolved.portal.fields,
-      lockedContext: resolved.portal.lockedContext,
-      buildings: resolved.portal.buildings,
-      requiresAuth: resolved.portal.requiresAuth,
+      ...toPublicPortalPayload(resolved.portal),
       versionId: resolved.versionId
     });
   } catch (error) {

@@ -17,6 +17,7 @@ function createFilterAwareClient(options: {
     eq: (col: string, value: unknown) => Builder;
     order: () => Builder;
     limit: () => Builder;
+    is: () => Builder;
     maybeSingle: () => Promise<{ data: unknown; error: null }>;
     single: () => Promise<{ data: unknown; error: null }>;
     then: (
@@ -47,6 +48,9 @@ function createFilterAwareClient(options: {
           client.lastEq = filters;
           return builder;
         },
+        is() {
+          return builder;
+        },
         order() {
           return builder;
         },
@@ -56,6 +60,9 @@ function createFilterAwareClient(options: {
         maybeSingle: async () => {
           if (table === "property_properties") {
             return { data: options.property ?? null, error: null };
+          }
+          if (table === "facility_assets") {
+            return { data: null, error: null };
           }
           if (table === "maintenance_work_orders") {
             return { data: options.existingWorkOrder ?? null, error: null };
@@ -95,6 +102,22 @@ describe("STAB-004 maintenance-service facility surface", () => {
         propertyId: "11111111-1111-4111-8111-111111111111"
       })
     ).rejects.toThrow(/Property not found/);
+  });
+
+  it("createFacilityWorkOrder refuses an asset from another organization", async () => {
+    const supabase = createFilterAwareClient({
+      property: { id: "11111111-1111-4111-8111-111111111111", name: "North Clinic" }
+    });
+    await expect(
+      createFacilityWorkOrder(supabase as never, "org_1", "user_1", {
+        title: "Repair chair",
+        description: "Arm is broken",
+        category: "general",
+        priority: "normal",
+        propertyId: "11111111-1111-4111-8111-111111111111",
+        facilityAssetId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+      })
+    ).rejects.toThrow(/Facility asset not found for organization/);
   });
 
   it("cancelWorkOrder refuses completed work", async () => {

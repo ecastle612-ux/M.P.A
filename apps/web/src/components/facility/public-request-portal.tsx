@@ -4,13 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 import { WORK_ORDER_CATEGORIES, type FacilityRequestFieldDef, type FacilityRequestLockedContext } from "@mpa/shared";
 import { Alert, Button, Input, Textarea } from "@mpa/ui";
 
+type PublicLockedContext = Pick<
+  FacilityRequestLockedContext,
+  "propertyLabel" | "facilityAssetLabel" | "floorLabel" | "departmentLabel" | "roomLabel"
+>;
+
 type PortalPayload = {
   formName: string;
   organizationName: string;
   instructions: string | null;
   accessPolicy: "contact_required" | "authenticated_only";
   fields: FacilityRequestFieldDef[];
-  lockedContext: FacilityRequestLockedContext;
+  lockedContext: PublicLockedContext;
   buildings: Array<{ id: string; name: string }>;
   requiresAuth: boolean;
   versionId: string;
@@ -181,6 +186,7 @@ export function PublicRequestPortal({
       </p>
       <h1 className="font-display text-2xl font-semibold">{portal.formName}</h1>
       {portal.instructions ? <p className="text-sm text-[var(--mpa-color-text-secondary)]">{portal.instructions}</p> : null}
+      <LockedContextSummary locked={portal.lockedContext} />
       {error ? <Alert variant="danger">{error}</Alert> : null}
       {portal.fields.map((field) => (
         <FieldControl
@@ -199,6 +205,29 @@ export function PublicRequestPortal({
         {submitting ? "Submitting…" : "Submit"}
       </Button>
     </form>
+  );
+}
+
+function LockedContextSummary({ locked }: { locked: PublicLockedContext }) {
+  const rows = [
+    locked.facilityAssetLabel ? ["Asset", locked.facilityAssetLabel] : null,
+    locked.propertyLabel ? ["Building", locked.propertyLabel] : null,
+    locked.floorLabel ? ["Floor", locked.floorLabel] : null,
+    locked.departmentLabel ? ["Department", locked.departmentLabel] : null,
+    locked.roomLabel ? ["Room", locked.roomLabel] : null
+  ].filter((row): row is [string, string] => Boolean(row));
+  if (rows.length === 0) return null;
+  return (
+    <section
+      aria-label="Locked request context"
+      className="space-y-1 rounded-md border border-[var(--mpa-color-border-default)] bg-[var(--mpa-color-bg-subtle,#F7F7F5)] p-3"
+    >
+      {rows.map(([label, value]) => (
+        <p key={label} className="text-sm">
+          <span className="font-semibold">{label}:</span> {value}
+        </p>
+      ))}
+    </section>
   );
 }
 

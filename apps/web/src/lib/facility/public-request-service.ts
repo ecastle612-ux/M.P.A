@@ -3,6 +3,7 @@ import {
   facilityOperationsWorkOrderHref,
   formatFacilityRequestNumber,
   isFacilityRequestAccessPolicy,
+  publicPortalLockedContext,
   publicTrackingView,
   resolveIntakeChannel,
   validateFacilityRequestSubmission,
@@ -32,6 +33,20 @@ export type PublicRequestPortal = {
   buildings: Array<{ id: string; name: string }>;
   requiresAuth: boolean;
 };
+
+export function toPublicPortalPayload(portal: PublicRequestPortal) {
+  const locked = publicPortalLockedContext(portal.lockedContext);
+  return {
+    formName: portal.formName,
+    organizationName: portal.organizationName,
+    instructions: portal.instructions,
+    accessPolicy: portal.accessPolicy,
+    fields: portal.fields,
+    lockedContext: locked,
+    buildings: portal.lockedContext.propertyId ? [] : portal.buildings,
+    requiresAuth: portal.requiresAuth
+  };
+}
 
 async function nextRequestNumber(supabase: Db, organizationId: string): Promise<string> {
   const year = new Date().getUTCFullYear();

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { wendyFurnitureFormSnapshot } from "@mpa/shared";
+import { lockedContextFromFacilityAsset, wendyFurnitureFormSnapshot } from "@mpa/shared";
 
 const createFacilityWorkOrder = vi.fn();
 const notifyLifecycle = vi.fn();
@@ -19,7 +19,7 @@ vi.mock("../communications/email", () => ({
   sendOperationalNoticeEmail: (...args: unknown[]) => sendOperationalNoticeEmail(...args)
 }));
 
-import { resolvePublicIntake, submitPublicRequest } from "./public-request-service";
+import { resolvePublicIntake, submitPublicRequest, toPublicPortalPayload } from "./public-request-service";
 import { generateFacilityRequestToken, hashFacilityRequestToken } from "./request-token";
 
 type Row = Record<string, unknown>;
@@ -296,5 +296,99 @@ describe("public request service", () => {
     expect(denied.ok).toBe(false);
     if (denied.ok) return;
     expect(denied.status).toBe(401);
+  });
+
+  it("binds Exam Chair 14 from locked asset context and strips UUIDs from the public portal", async () => {
+    const chair = {
+      id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      name: "Exam Chair 14",
+      property_property_id: "11111111-1111-4111-8111-111111111111",
+      property_properties: { name: "North Clinic" },
+      floor_label: "3",
+      department_label: "Cardiology",
+      room_label: "312"
+    };
+    const db = tableStore();
+    db.rows["facility_request_intakes"]!.push({
+      id: "in_asset",
+      organization_id: "org_1",
+      form_id: "form_1",
+      status: "active",
+      context_kind: "asset",
+      public_token_hash: hashFacilityRequestToken(token),
+      context_json: lockedContextFromFacilityAsset(chair)
+    });
+    db.rows["facility_request_forms"]!.push({
+      id: "form_1",
+      name: "Furniture / Maintenance Request",
+      instructions: null,
+      status: "active",
+      access_policy: "contact_required",
+      current_version_id: "ver_1",
+      property_id: null,
+      organization_id: "org_1",
+      created_by_user_id: "mgr_1"
+    });
+    db.rows["facility_request_form_versions"]!.push(version);
+
+    const resolved = await resolvePublicIntake(db as never, token);
+    expect(resolved.ok).toBe(true);
+    if (!resolved.ok) return;
+    expect(resolved.portal.lockedContext.facilityAssetId).toBe(chair.id);
+    const publicPayload = toPublicPortalPayload(resolved.portal);
+    expect(publicPayload.lockedContext).toEqual({
+      propertyLabel: "North Clinic",
+      facilityAssetLabel: "Exam Chair 14",
+      floorLabel: "3",
+      departmentLabel: "Cardiology",
+      roomLabel: "312"
+    });
+    expect(JSON.stringify(publicPayload)).not.toMatch(/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa/);
+    expect(publicPayload.buildings).toEqual([]);
+
+    const result = await submitPublicRequest(db as never, {
+      token,
+      via: "qr",
+      values: {
+        requester_name: "Wendy",
+        issue_title: "chair arm is broken",
+        issue_description: "chair arm is broken",
+        requester_email: "wendy@clinic.test"
+      },
+      attachments: [{ kind: "image", mimeType: "image/jpeg", fileSize: 1200, mediaId: "media_1" }],
+      idempotencyKey: "idem-wendy-asset",
+      clientAssetId: "99999999-9999-4999-8999-999999999999",
+      origin: "https://www.my-property-assistant.com"
+    });
+    expect(result.ok).toBe(false);
+    createFacilityWorkOrder.mockClear();
+
+    const accepted = await submitPublicRequest(db as never, {
+      token,
+      via: "qr",
+      values: {
+        requester_name: "Wendy",
+        issue_title: "chair arm is broken",
+        issue_description: "chair arm is broken",
+        requester_email: "wendy@clinic.test"
+      },
+      attachments: [{ kind: "image", mimeType: "image/jpeg", fileSize: 1200, mediaId: "media_1" }],
+      idempotencyKey: "idem-wendy-asset-ok",
+      origin: "https://www.my-property-assistant.com"
+    });
+    expect(accepted.ok).toBe(true);
+    if (!accepted.ok) return;
+    expect(createFacilityWorkOrder).toHaveBeenCalledTimes(1);
+    expect(createFacilityWorkOrder.mock.calls[0]?.[3]).toMatchObject({
+      title: "chair arm is broken",
+      facilityAssetId: chair.id,
+      facilityAssetLabel: "Exam Chair 14"
+    });
+    expect(createFacilityWorkOrder.mock.calls[0]?.[4]).toMatchObject({
+      intakeChannel: "qr",
+      floorLabel: "3",
+      departmentLabel: "Cardiology",
+      roomLabel: "312"
+    });
   });
 });

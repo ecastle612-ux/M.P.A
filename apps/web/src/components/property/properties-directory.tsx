@@ -218,6 +218,14 @@ export function PropertiesDirectory() {
                       >
                         Money
                       </a>
+                      {canOpenFacilityAssets ? (
+                        <a
+                          href={`/facility/assets?site=${property.id}`}
+                          className="text-[var(--mpa-color-brand-primary)] underline"
+                        >
+                          View Assets
+                        </a>
+                      ) : null}
                     </div>
                   </PmEntityCard>
                 );

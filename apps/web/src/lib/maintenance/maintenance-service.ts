@@ -66,6 +66,8 @@ export type WorkOrderRow = {
   floor_label?: string | null;
   department_label?: string | null;
   room_label?: string | null;
+  facility_asset_code?: string | null;
+  facility_assets?: { id: string; name: string; asset_code: string } | null;
   property_properties?: { id: string; name: string } | null;
   property_units?: { id: string; unit_label: string } | null;
   pm_residents?: { id: string; display_name: string; email: string; user_id: string | null } | null;
@@ -173,7 +175,8 @@ const SELECT_WO = `
   property_properties ( id, name ),
   property_units ( id, unit_label ),
   pm_residents ( id, display_name, email, user_id ),
-  vendor_vendors ( id, name, email, user_id )
+  vendor_vendors ( id, name, email, user_id ),
+  facility_assets ( id, name, asset_code )
 `;
 
 export async function getMaintenanceReadiness(supabase: Db, organizationId: string) {
@@ -998,10 +1001,13 @@ export async function createFacilityWorkOrder(
 
   let facilityAssetLabel = input.facilityAssetLabel?.trim() || null;
   const facilityAssetId: string | null = input.facilityAssetId ?? null;
+  let floorLabel = options?.floorLabel ?? null;
+  let departmentLabel = options?.departmentLabel ?? null;
+  let roomLabel = options?.roomLabel ?? null;
   if (facilityAssetId) {
     const { data: asset, error: assetError } = await supabase
       .from("facility_assets")
-      .select("id, name, organization_id")
+      .select("id, name, organization_id, asset_code, floor_label, department_label, room_label")
       .eq("id", facilityAssetId)
       .eq("organization_id", organizationId)
       .is("deleted_at", null)
@@ -1015,6 +1021,10 @@ export async function createFacilityWorkOrder(
     if (!facilityAssetLabel) {
       facilityAssetLabel = asset.name;
     }
+    floorLabel = floorLabel ?? (typeof asset.floor_label === "string" ? asset.floor_label : null);
+    departmentLabel =
+      departmentLabel ?? (typeof asset.department_label === "string" ? asset.department_label : null);
+    roomLabel = roomLabel ?? (typeof asset.room_label === "string" ? asset.room_label : null);
   }
 
   if (input.unitId) {
@@ -1054,9 +1064,9 @@ export async function createFacilityWorkOrder(
       due_at: input.dueAt ?? null,
       intake_channel: options?.intakeChannel ?? "internal",
       request_number: options?.requestNumber ?? null,
-      floor_label: options?.floorLabel ?? null,
-      department_label: options?.departmentLabel ?? null,
-      room_label: options?.roomLabel ?? null
+      floor_label: floorLabel,
+      department_label: departmentLabel,
+      room_label: roomLabel
     })
     .select(SELECT_WO)
     .single();

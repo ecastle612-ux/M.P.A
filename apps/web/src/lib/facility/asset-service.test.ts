@@ -12,7 +12,8 @@ const db: Record<string, Row[]> = {
   facility_assets: [],
   property_properties: [],
   vendor_vendors: [],
-  maintenance_work_orders: []
+  maintenance_work_orders: [],
+  facility_request_intakes: []
 };
 
 let insertError: { code?: string; message: string } | null = null;
@@ -114,6 +115,7 @@ describe("FAC-003 asset service", () => {
     db["property_properties"] = [{ id: "11111111-1111-4111-8111-111111111111", organization_id: "org_1" }];
     db["vendor_vendors"] = [];
     db["maintenance_work_orders"] = [];
+    db["facility_request_intakes"] = [];
   });
 
   it("creates an asset via insert().select() and writes facility_asset.created", async () => {
@@ -231,7 +233,70 @@ describe("FAC-003 asset service", () => {
       }
     ];
     const history = await listAssetWorkHistory(makeClient() as never, "org_1", "asset_1");
+    expect(history).toHaveLength(2);
+    expect(history.map((row) => row.title)).toEqual(["Filter change", "Open job"]);
+  });
+
+  it("assigns AST-000001 when no asset tag is provided", async () => {
+    const asset = await createFacilityAsset(makeClient() as never, "org_1", "user_1", {
+      name: "Exam Chair 14",
+      assetType: "furniture",
+      propertyPropertyId: "11111111-1111-4111-8111-111111111111",
+      locationScope: "property"
+    });
+    expect(asset.asset_code).toBe("AST-000001");
+  });
+
+  it("increments AST codes from existing generated tags only", async () => {
+    db["facility_assets"] = [
+      { organization_id: "org_1", asset_code: "AHU-2", deleted_at: null },
+      { organization_id: "org_1", asset_code: "AST-000214", deleted_at: null }
+    ];
+    const asset = await createFacilityAsset(makeClient() as never, "org_1", "user_1", {
+      name: "Exam Chair 15",
+      assetType: "furniture",
+      propertyPropertyId: "11111111-1111-4111-8111-111111111111",
+      locationScope: "property"
+    });
+    expect(asset.asset_code).toBe("AST-000215");
+  });
+
+  it("revokes the active docs/204 intake and keeps history when an asset is retired", async () => {
+    db["facility_assets"] = [
+      {
+        id: "asset_1",
+        organization_id: "org_1",
+        name: "Exam Chair 14",
+        asset_code: "AST-000214",
+        asset_type: "furniture",
+        status: "active",
+        location_scope: "property",
+        deleted_at: null,
+        active_request_intake_id: "intake_1"
+      }
+    ];
+    db["facility_request_intakes"] = [
+      { id: "intake_1", organization_id: "org_1", status: "active" }
+    ];
+    db["maintenance_work_orders"] = [
+      {
+        id: "wo_done",
+        organization_id: "org_1",
+        facility_asset_id: "asset_1",
+        work_surface: "facility",
+        status: "completed",
+        title: "Prior repair",
+        created_at: "2026-08-01T00:00:00.000Z"
+      }
+    ];
+    const updated = await updateFacilityAsset(makeClient() as never, "org_1", "user_1", "asset_1", {
+      status: "retired"
+    });
+    expect(updated.status).toBe("retired");
+    expect(updated.active_request_intake_id).toBeNull();
+    expect(db["facility_request_intakes"][0]?.status).toBe("revoked");
+    const history = await listAssetWorkHistory(makeClient() as never, "org_1", "asset_1");
     expect(history).toHaveLength(1);
-    expect(history[0]?.title).toBe("Filter change");
+    expect(history[0]?.title).toBe("Prior repair");
   });
 });

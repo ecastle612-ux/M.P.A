@@ -34,5 +34,7 @@ describe("FAC-003 work order asset relationship", () => {
     expect(service).toContain("facility_asset_label: facilityAssetLabel");
     expect(service).toContain("facilityAssetLabel = asset.name");
     expect(service).toContain('eq("work_surface", "facility")');
+    expect(service).toContain("floor_label, department_label, room_label");
+    expect(service).toContain("Facility asset not found for organization");
   });
 });

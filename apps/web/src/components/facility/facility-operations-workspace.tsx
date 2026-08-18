@@ -45,6 +45,7 @@ type WorkOrder = {
   category: string;
   facility_asset_label: string | null;
   facility_asset_id: string | null;
+  facility_assets?: { id: string; name: string; asset_code: string } | null;
   due_at: string | null;
   assignee_type: string;
   technician_user_id: string | null;
@@ -770,6 +771,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                       >
                         Open linked asset
                         {selected.facility_asset_label ? ` · ${selected.facility_asset_label}` : ""}
+                        {selected.facility_assets?.asset_code ? ` · ${selected.facility_assets.asset_code}` : ""}
                       </Link>
                     </p>
                   ) : null}

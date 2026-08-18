@@ -11,6 +11,7 @@ import {
   type WorkOrderStatus
 } from "@mpa/shared";
 import { Alert, Badge, Button, Input, Textarea } from "@mpa/ui";
+import Link from "next/link";
 import { FoPageChrome } from "../shell/fo-workspace";
 import { MediaAttachmentField } from "../media/media-attachment-field";
 
@@ -24,6 +25,8 @@ type WorkOrder = {
   due_at: string | null;
   facility_asset_label: string | null;
   facility_asset_id: string | null;
+  facility_asset_code?: string | null;
+  facility_assets?: { id: string; name: string; asset_code: string } | null;
   floor_label?: string | null;
   department_label?: string | null;
   room_label?: string | null;
@@ -290,10 +293,9 @@ export function FacilityMyWorkPage() {
   const locationLine = activeDetail
     ? [
         activeDetail.property_properties?.name,
-        activeDetail.floor_label,
+        activeDetail.floor_label ? `Floor ${activeDetail.floor_label}` : null,
         activeDetail.department_label,
-        activeDetail.room_label,
-        activeDetail.facility_asset_label
+        activeDetail.room_label ? `Room ${activeDetail.room_label}` : null
       ]
         .filter(Boolean)
         .join(" · ")
@@ -385,7 +387,27 @@ export function FacilityMyWorkPage() {
                   <Badge>{WORK_ORDER_CATEGORY_LABELS[activeDetail.category]}</Badge>
                   {activeDetail.request_number ? <Badge>{activeDetail.request_number}</Badge> : null}
                 </div>
-                {locationLine ? (
+                {activeDetail.facility_asset_label ? (
+                  <div className="rounded-lg bg-[var(--mpa-surface-muted)] p-3">
+                    <p className="font-semibold text-[var(--mpa-ink)]">{activeDetail.facility_asset_label}</p>
+                    {activeDetail.facility_assets?.asset_code || activeDetail.facility_asset_code ? (
+                      <p className="text-sm text-[var(--mpa-ink)]">
+                        {activeDetail.facility_assets?.asset_code ?? activeDetail.facility_asset_code}
+                      </p>
+                    ) : null}
+                    {locationLine ? (
+                      <p className="mt-1 text-sm text-[var(--mpa-muted)]">{locationLine}</p>
+                    ) : null}
+                    {activeDetail.facility_asset_id ? (
+                      <Link
+                        href={`/facility/assets/${activeDetail.facility_asset_id}`}
+                        className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--mpa-forest)] underline"
+                      >
+                        Asset Details
+                      </Link>
+                    ) : null}
+                  </div>
+                ) : locationLine ? (
                   <p className="text-sm text-[var(--mpa-muted)]">{locationLine}</p>
                 ) : null}
                 <p className="whitespace-pre-wrap text-[var(--mpa-ink)]">{activeDetail.description}</p>

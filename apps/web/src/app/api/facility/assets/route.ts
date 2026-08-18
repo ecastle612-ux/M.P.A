@@ -13,15 +13,19 @@ function isManager(roles: string[]) {
   return roles.some((role) => (FACILITY_MANAGER_ROLES as readonly string[]).includes(role));
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const authz = await requireFacilityAssetPermission("pm.maintenance:read");
   if ("error" in authz) return authz.error;
+  const url = new URL(request.url);
 
   try {
     const manager = isManager(authz.roles);
     const [assets, properties, vendors] = await Promise.all([
       listFacilityAssets(authz.supabase, authz.organizationId, {
-        technicianUserId: manager ? null : authz.user.id
+        technicianUserId: manager ? null : authz.user.id,
+        query: url.searchParams.get("q") ?? undefined,
+        status: url.searchParams.get("status") ?? undefined,
+        assetType: url.searchParams.get("type") ?? undefined
       }),
       manager ? listPortfolioProperties(authz.supabase, authz.organizationId) : Promise.resolve([]),
       manager ? listVendors(authz.supabase, authz.organizationId) : Promise.resolve([])

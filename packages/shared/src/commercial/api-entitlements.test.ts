@@ -36,6 +36,7 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForApiPath("/api/facility/operations")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/reports")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/assets")).toBe("facility.assets");
+    expect(requiredEntitlementForApiPath("/api/facility/assets/asset-1/qr")).toBe("facility.assets");
     expect(requiredEntitlementForApiPath("/api/facility/inventory")).toBe("facility.inventory");
     expect(requiredEntitlementForApiPath("/api/facility/reports/assets")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/reports/inventory")).toBe(
