@@ -4,7 +4,9 @@ import {
   buildDailyOpsGreeting,
   buildDailyOpsReadyAssistantCopy,
   formatMoney,
-  type DailyOpsAttentionItem
+  resolveDailyOpsBriefingAccess,
+  type DailyOpsAttentionItem,
+  type UserRole
 } from "@mpa/shared";
 
 export { getDailyOpsReadiness, markDailyOpsReviewed } from "./journey-readiness";
@@ -12,16 +14,28 @@ export { getDailyOpsReadiness, markDailyOpsReviewed } from "./journey-readiness"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
 
+const emptyRows = { data: [] as never[] };
+
 export async function buildDailyOperationsBriefing(
   supabase: Db,
   organizationId: string,
-  actor: { userId: string; displayName?: string | null },
+  actor: {
+    userId: string;
+    displayName?: string | null;
+    roles?: UserRole[] | string[] | null;
+    permissions?: readonly string[] | null;
+  },
   context: {
     organizationName?: string | null;
     propertyCount: number;
     firstActionTitle: string;
   }
 ) {
+  const access = resolveDailyOpsBriefingAccess({
+    roles: actor.roles ?? [],
+    permissions: actor.permissions ?? []
+  });
+
   const [
     financeReport,
     { data: openWorkOrders },
@@ -32,9 +46,11 @@ export async function buildDailyOperationsBriefing(
     { data: upcomingMoveIns },
     { data: upcomingRenewals }
   ] = await Promise.all([
-    import("../finance/reporting-service").then((mod) =>
-      mod.getCommandCenterReport(supabase, organizationId).catch(() => null)
-    ),
+    access.includeFinance
+      ? import("../finance/reporting-service").then((mod) =>
+          mod.getCommandCenterReport(supabase, organizationId).catch(() => null)
+        )
+      : Promise.resolve(null),
     supabase
       .from("maintenance_work_orders")
       .select("id, title, status, priority, assignee_type, property_id")
@@ -43,51 +59,61 @@ export async function buildDailyOperationsBriefing(
       .in("status", ["submitted", "triaged", "assigned", "in_progress", "completed"])
       .order("submitted_at", { ascending: false })
       .limit(40),
-    supabase
-      .from("lease_agreements")
-      .select("id, status, start_date, pm_residents(display_name), property_properties(name)")
-      .eq("organization_id", organizationId)
-      .in("status", ["draft", "pending_signature", "signed"])
-      .order("created_at", { ascending: false })
-      .limit(20),
-    supabase
-      .from("pm_residents")
-      .select("id, display_name, portal_status, status")
-      .eq("organization_id", organizationId)
-      .eq("portal_status", "pending_activation")
-      .limit(20),
+    access.includeResidentLease
+      ? supabase
+          .from("lease_agreements")
+          .select("id, status, start_date, pm_residents(display_name), property_properties(name)")
+          .eq("organization_id", organizationId)
+          .in("status", ["draft", "pending_signature", "signed"])
+          .order("created_at", { ascending: false })
+          .limit(20)
+      : Promise.resolve(emptyRows),
+    access.includeResidentLease
+      ? supabase
+          .from("pm_residents")
+          .select("id, display_name, portal_status, status")
+          .eq("organization_id", organizationId)
+          .eq("portal_status", "pending_activation")
+          .limit(20)
+      : Promise.resolve(emptyRows),
     supabase
       .from("event_domain_events")
       .select("id, event_type, created_at, payload")
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: false })
       .limit(12),
-    supabase
-      .from("lease_applications")
-      .select("id, status, pm_residents(display_name)")
-      .eq("organization_id", organizationId)
-      .in("status", ["submitted", "incomplete", "screening_pending"])
-      .order("updated_at", { ascending: false })
-      .limit(20),
-    supabase
-      .from("pm_residents")
-      .select("id, display_name, status, lease_id")
-      .eq("organization_id", organizationId)
-      .eq("status", "pending_move_in")
-      .limit(20),
-    supabase
-      .from("lease_agreements")
-      .select("id, end_date, status, pm_residents(display_name)")
-      .eq("organization_id", organizationId)
-      .eq("status", "active")
-      .not("end_date", "is", null)
-      .gte("end_date", new Date().toISOString().slice(0, 10))
-      .lte(
-        "end_date",
-        new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
-      )
-      .order("end_date", { ascending: true })
-      .limit(20)
+    access.includeResidentLease
+      ? supabase
+          .from("lease_applications")
+          .select("id, status, pm_residents(display_name)")
+          .eq("organization_id", organizationId)
+          .in("status", ["submitted", "incomplete", "screening_pending"])
+          .order("updated_at", { ascending: false })
+          .limit(20)
+      : Promise.resolve(emptyRows),
+    access.includeResidentLease
+      ? supabase
+          .from("pm_residents")
+          .select("id, display_name, status, lease_id")
+          .eq("organization_id", organizationId)
+          .eq("status", "pending_move_in")
+          .limit(20)
+      : Promise.resolve(emptyRows),
+    access.includeResidentLease
+      ? supabase
+          .from("lease_agreements")
+          .select("id, end_date, status, pm_residents(display_name)")
+          .eq("organization_id", organizationId)
+          .eq("status", "active")
+          .not("end_date", "is", null)
+          .gte("end_date", new Date().toISOString().slice(0, 10))
+          .lte(
+            "end_date",
+            new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+          )
+          .order("end_date", { ascending: true })
+          .limit(20)
+      : Promise.resolve(emptyRows)
   ]);
 
   const workOrders = openWorkOrders ?? [];
@@ -316,15 +342,23 @@ export async function buildDailyOperationsBriefing(
   ].filter(Boolean) as DailyOpsAttentionItem[];
 
   const quickActions = [
-    { id: "mc-fo", label: "Financial Operations", href: "/pm/financial-operations" },
+    ...(access.includeFinance
+      ? [{ id: "mc-fo", label: "Financial Operations", href: "/pm/financial-operations" }]
+      : []),
     { id: "mc-maintenance", label: "Maintenance", href: "/pm/maintenance" },
-    { id: "mc-leasing", label: "Leasing", href: "/pm/leasing" },
-    { id: "mc-residents", label: "Residents", href: "/pm/residents" },
+    ...(access.includeResidentLease
+      ? [
+          { id: "mc-leasing", label: "Leasing", href: "/pm/leasing" },
+          { id: "mc-residents", label: "Residents", href: "/pm/residents" }
+        ]
+      : []),
     { id: "mc-properties", label: "Properties", href: "/pm/properties" },
     { id: "mc-documents", label: "Documents", href: "/shared/documents" },
     { id: "mc-communications", label: "Communications", href: "/shared/communications" },
-    { id: "mc-owner", label: "Owner portfolio", href: "/portal/owner" },
-    ...(financeReport?.quickActions.slice(0, 3) ?? [])
+    ...(access.includeFinance
+      ? [{ id: "mc-owner", label: "Owner portfolio", href: "/portal/owner" }]
+      : []),
+    ...(access.includeFinance ? (financeReport?.quickActions.slice(0, 3) ?? []) : [])
   ];
 
   // Dedupe quick actions by href
