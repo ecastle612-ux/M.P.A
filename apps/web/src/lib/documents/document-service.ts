@@ -17,7 +17,13 @@ import {
   type DocumentVersion
 } from "@mpa/shared";
 import { emitPropertyEvent, writePropertyAudit } from "../property/events-audit";
-import { getSignWellDocument, isSignWellConfigured } from "../signwell/client";
+import {
+  getSignWellCompletedPdfUrl,
+  getSignWellDocument,
+  isSignWellCompletedStatus,
+  isSignWellConfigured,
+  resolveSignWellExternalFileUrl
+} from "../signwell/client";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -591,7 +597,16 @@ export async function getDocumentDetail(
         const remote = await getSignWellDocument(lease.signwell_document_id as string);
         signwellStatus = remote.status;
         const files = (remote as { files?: Array<{ url?: string; name?: string }> }).files;
-        externalUrl = files?.find((file) => file.url)?.url ?? null;
+        const fromFiles = files?.find((file) => file.url)?.url ?? null;
+        const completedPdfUrl =
+          !fromFiles && isSignWellCompletedStatus(remote.status)
+            ? await getSignWellCompletedPdfUrl(lease.signwell_document_id as string)
+            : null;
+        externalUrl = resolveSignWellExternalFileUrl({
+          files,
+          status: remote.status,
+          completedPdfUrl
+        });
       } catch {
         // Keep local lease body when SignWell is unreachable.
       }

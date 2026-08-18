@@ -43,4 +43,14 @@ describe("SignWell server-only isolation", () => {
     expect(source).toMatch(/\.eq\("signwell_document_id", documentId\)/);
     expect(source).not.toMatch(/\.eq\("id", leaseIdFromMeta\)/);
   });
+
+  it("Documents maps completed SignWell files onto the existing externalUrl control", () => {
+    const client = read("lib/signwell/client.ts");
+    const documents = read("lib/documents/document-service.ts");
+    expect(client).toMatch(/completed_pdf\?url_only=true/);
+    expect(client).toMatch(/getSignWellCompletedPdfUrl/);
+    expect(documents).toMatch(/getSignWellCompletedPdfUrl/);
+    expect(documents).toMatch(/resolveSignWellExternalFileUrl/);
+    expect(read("components/documents/documents-workspace.tsx")).toMatch(/Open external file/);
+  });
 });
