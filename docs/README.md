@@ -129,6 +129,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 185 | [Complimentary Tester / Gift Access](./185-complimentary-tester-gift-access/index.md) | **Approved** · implemented · Production applied in 187 |
 | 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** · executed in 187 |
 | 187 | [Complimentary Access Production Release Certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** · stamp `20260817064006` · SHA `f922da26` |
+| 212 | [App-Wide Sidebar Visual + UX Refinement](./212-app-wide-sidebar-visual-refinement/index.md) | **IMPLEMENTED IN-REPO** · Canopy staff/admin/portal rail · **no Production deploy** |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -215,6 +216,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [185 Complimentary tester / gift access](./185-complimentary-tester-gift-access/index.md) | **Approved** — implemented; Production applied in 187 |
 | [186 Complimentary access implementation certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** — executed in 187 |
 | [187 Complimentary access Production release certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** — stamp `20260817064006`; SHA `f922da26` |
+| [212 App-wide sidebar visual refinement](./212-app-wide-sidebar-visual-refinement/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** — staff/admin/portal Canopy rail; no deploy |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
