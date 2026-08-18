@@ -168,9 +168,9 @@ export async function listFacilityAssets(
   if (error) throw new Error(error.message);
   const rows = ((data ?? []) as Record<string, unknown>[]).map(normalizeAsset);
   return filterFacilityAssets(rows, {
-    query: options?.query,
-    status: options?.status,
-    assetType: options?.assetType
+    ...(options?.query ? { query: options.query } : {}),
+    ...(options?.status ? { status: options.status } : {}),
+    ...(options?.assetType ? { assetType: options.assetType } : {})
   });
 }
 

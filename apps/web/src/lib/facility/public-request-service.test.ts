@@ -350,6 +350,8 @@ describe("public request service", () => {
       token,
       via: "qr",
       values: {
+        floor: "3",
+        department: "Cardiology",
         requester_name: "Wendy",
         issue_title: "chair arm is broken",
         issue_description: "chair arm is broken",
@@ -367,6 +369,8 @@ describe("public request service", () => {
       token,
       via: "qr",
       values: {
+        floor: "3",
+        department: "Cardiology",
         requester_name: "Wendy",
         issue_title: "chair arm is broken",
         issue_description: "chair arm is broken",

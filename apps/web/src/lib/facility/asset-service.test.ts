@@ -294,7 +294,7 @@ describe("FAC-003 asset service", () => {
     });
     expect(updated.status).toBe("retired");
     expect(updated.active_request_intake_id).toBeNull();
-    expect(db["facility_request_intakes"][0]?.status).toBe("revoked");
+    expect(db["facility_request_intakes"][0]?.["status"]).toBe("revoked");
     const history = await listAssetWorkHistory(makeClient() as never, "org_1", "asset_1");
     expect(history).toHaveLength(1);
     expect(history[0]?.title).toBe("Prior repair");

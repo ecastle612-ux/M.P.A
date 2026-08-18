@@ -30,8 +30,11 @@ describe("FO-EFF Slice 3 — Asset QR + registry contracts", () => {
   it("Wendy: locked asset context + furniture form creates one public-bound payload", () => {
     const locked = lockedContextFromFacilityAsset(CHAIR);
     const result = validateFacilityRequestSubmission({
-      published: wendyFurnitureFormSnapshot(),
+      snapshot: wendyFurnitureFormSnapshot(),
+      accessPolicy: "contact_required",
       values: {
+        floor: "3",
+        department: "Cardiology",
         requester_name: "Wendy",
         issue_title: "chair arm is broken",
         issue_description: "chair arm is broken",
@@ -60,13 +63,16 @@ describe("FO-EFF Slice 3 — Asset QR + registry contracts", () => {
       department_label: "Warehouse"
     });
     const result = validateFacilityRequestSubmission({
-      published: warehouseDockFormSnapshot(),
+      snapshot: warehouseDockFormSnapshot(),
+      accessPolicy: "authenticated_only",
       values: {
         building: "Distribution",
         zone: "Aisle 4",
         category: "general",
+        issue_title: "Hydraulic leak near mast",
         issue_description: "Hydraulic leak near mast",
-        safety_concern: "yes"
+        safety_concern: "yes",
+        requester_name: "Alex"
       },
       attachments: [],
       lockedContext: locked
@@ -94,8 +100,8 @@ describe("FO-EFF Slice 3 — Asset QR + registry contracts", () => {
       ],
       new Date("2026-08-18T12:00:00.000Z")
     );
-    expect(sections.map((section) => section.id)).toContain("public_request");
-    expect(sections.some((section) => /asset attention/i.test(section.title))).toBe(false);
+    expect(sections.map((section) => section.category)).toContain("public_request");
+    expect(sections.some((section) => /asset attention/i.test(section.label))).toBe(false);
   });
 
   it("retired/replaced statuses preserve history and block new QR", () => {
@@ -152,11 +158,15 @@ describe("FO-EFF Slice 3 — Asset QR + registry contracts", () => {
   it("rejects a client-forged asset id that disagrees with locked intake context", () => {
     const locked = lockedContextFromFacilityAsset(CHAIR);
     const result = validateFacilityRequestSubmission({
-      published: wendyFurnitureFormSnapshot(),
+      snapshot: wendyFurnitureFormSnapshot(),
+      accessPolicy: "contact_required",
       values: {
+        floor: "3",
+        department: "Cardiology",
         requester_name: "Wendy",
         issue_title: "chair arm is broken",
-        issue_description: "chair arm is broken"
+        issue_description: "chair arm is broken",
+        requester_email: "wendy@clinic.test"
       },
       attachments: [{ kind: "image", mimeType: "image/jpeg", fileSize: 1200 }],
       lockedContext: locked,

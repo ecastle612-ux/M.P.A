@@ -23,9 +23,9 @@ export async function GET(request: Request) {
     const [assets, properties, vendors] = await Promise.all([
       listFacilityAssets(authz.supabase, authz.organizationId, {
         technicianUserId: manager ? null : authz.user.id,
-        query: url.searchParams.get("q") ?? undefined,
-        status: url.searchParams.get("status") ?? undefined,
-        assetType: url.searchParams.get("type") ?? undefined
+        ...(url.searchParams.get("q") ? { query: url.searchParams.get("q") ?? "" } : {}),
+        ...(url.searchParams.get("status") ? { status: url.searchParams.get("status") ?? "" } : {}),
+        ...(url.searchParams.get("type") ? { assetType: url.searchParams.get("type") ?? "" } : {})
       }),
       manager ? listPortfolioProperties(authz.supabase, authz.organizationId) : Promise.resolve([]),
       manager ? listVendors(authz.supabase, authz.organizationId) : Promise.resolve([])
