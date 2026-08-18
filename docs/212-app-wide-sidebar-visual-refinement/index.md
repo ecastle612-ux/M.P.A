@@ -163,7 +163,21 @@ Mission Control attention logic was not touched. No new nav badges compete with 
 
 ## 28. Typecheck / lint / tests / build
 
-Recorded on the implement branch. Shared nav-presentation tests cover grouping, technician filter, Complete scope, active-state, click counts, and Master Admin isolation.
+Recorded on the implement branch:
+
+| Check | Result |
+|-------|--------|
+| `@mpa/shared` typecheck | Pass |
+| `@mpa/ui` typecheck | Pass |
+| `@mpa/web` typecheck | Pass |
+| `@mpa/shared` lint | Pass |
+| `@mpa/ui` lint | Pass |
+| `@mpa/web` lint (this change set) | Pass |
+| `@mpa/shared` tests | 364 passed |
+| `@mpa/web` tests | 547 passed |
+| `@mpa/web` production build | Pass (compiled + TypeScript) |
+
+Shared nav-presentation tests cover grouping, technician filter, Complete scope, active-state, click counts, and Master Admin isolation. Pre-existing complimentary-access lint errors on `main` were not introduced by this package.
 
 ## 29. Production safety proof
 
