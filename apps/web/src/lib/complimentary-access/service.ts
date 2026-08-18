@@ -4,6 +4,7 @@ import {
   complimentaryGrantNeedsExpiryNotice,
   defaultOrganizationName,
   evaluateComplimentaryUnitLimit,
+  meetsMinPasswordLength,
   normalizeComplimentaryEmail,
   parseComplimentarySendAccessInput,
   resolveComplimentaryExpiresAt,
@@ -301,6 +302,12 @@ export async function claimComplimentaryAccess(
 
   const findUser = deps.findAuthUserByEmail ?? (async () => null);
   const existingUser = await findUser(grant.recipientEmail);
+  if (input.password && !meetsMinPasswordLength(input.password)) {
+    return { ok: false, error: "password_too_short" };
+  }
+  if (!existingUser && !input.actorEmail && !meetsMinPasswordLength(input.password)) {
+    return { ok: false, error: "password_too_short" };
+  }
   const upsertUser =
     deps.createOrUpdateAuthUser ??
     (async ({ email, existing }) => existing ?? { id: `user_${email}`, email });

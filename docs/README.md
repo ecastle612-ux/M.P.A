@@ -168,6 +168,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 225 | [SignWell Documents Full Functionality Audit](./225-signwell-documents-full-functionality-audit/index.md) | **IN-REPO CERTIFIED — PRODUCTION UAT REQUIRED** · webhook correlation + send idempotency remediations · no deploy |
 | 226 | [SignWell Production Release + UAT](./226-signwell-production-release-uat/index.md) | **PASS — SIGNWELL PRODUCTION END-TO-END UAT CERTIFIED** · Sync Completed + retrieval Pass · webhook not delivered · SHA `f13cfd56` · deploy `dpl_66aVf8yem6ZmCAst8x3GMKAi6Zdp` |
 | 227 | [SignWell Production Webhook Certification](./227-signwell-production-webhook-certification/index.md) | **PASS — SIGNWELL PRODUCTION WEBHOOK CERTIFIED** · Part A historical BLOCKED preserved · authentic SignWell POST to designed callback · deploy `dpl_BejvXQvJ6gnqCh5ZNyX9sk3aL2yt` |
+| 225-SEC | [Backend Security / Firewall / Hardening Audit](./225-backend-security-firewall-hardening-audit/index.md) | **SECURITY HARDENING CONDITIONAL** · audit only · parallel number with SignWell 225 · no Production mutation |
+| 226-SEC | [SEC-001 Pre-Onboarding Security Remediation](./226-sec-001-pre-onboarding-security-remediation/index.md) | **IMPLEMENTED IN-REPO — Stage 1** · Stage 2 Production apply is a later unique record · parallel number with SignWell 226 |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -272,6 +274,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [225 SignWell Documents Full Functionality Audit](./225-signwell-documents-full-functionality-audit/index.md) | **IN-REPO CERTIFIED — PRODUCTION UAT REQUIRED** — SHA `dcf63210` · no Production deploy |
 | [226 SignWell Production Release + UAT](./226-signwell-production-release-uat/index.md) | **PASS — SIGNWELL PRODUCTION END-TO-END UAT CERTIFIED** — Sync + retrieval Pass · webhook not delivered · SHA `f13cfd56` · deploy `dpl_66aVf8yem6ZmCAst8x3GMKAi6Zdp` |
 | [227 SignWell Production Webhook Certification](./227-signwell-production-webhook-certification/index.md) | **PASS — SIGNWELL PRODUCTION WEBHOOK CERTIFIED** — Part A historical BLOCKED preserved · authentic SignWell POST to designed callback · deploy `dpl_BejvXQvJ6gnqCh5ZNyX9sk3aL2yt` |
+| [225-SEC Backend Security / Firewall / Hardening Audit](./225-backend-security-firewall-hardening-audit/index.md) | **SECURITY HARDENING CONDITIONAL** — audit only · parallel number with SignWell 225 |
+| [226-SEC SEC-001 Pre-Onboarding Security Remediation](./226-sec-001-pre-onboarding-security-remediation/index.md) | **IMPLEMENTED IN-REPO — Stage 1** — Stage 2 Production apply is a later unique record |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
