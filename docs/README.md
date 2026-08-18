@@ -150,6 +150,10 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 207 | [FO Operational Efficiency](./207-fo-operational-efficiency/index.md) | **Approved** · ADR-036 Accepted · Slice 1 authorized (templates + My Work) · see 209 |
 | 208 | [App-Wide Simplicity + Navigation Audit](./208-mpa-app-wide-simplicity-navigation-audit/index.md) | **Approved** · ADR-037 Accepted · Slice 1 My Work / deep links only |
 | 209 | [FO-EFF Slice 1 Templates + My Work Implementation](./209-fo-eff-slice1-templates-my-work-implementation/index.md) | **SLICE 1 IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** |
+| 210 | [FO-EFF Slice 1 Production Release](./210-fo-eff-slice1-production-release/index.md) | **SLICE 1 PRODUCTION RELEASE SUCCESSFUL** · SHA `cb16e382` |
+| 211 | [FO-EFF Slice 2 Mission Control Attention Implementation](./211-fo-eff-slice2-mission-control-attention-implementation/index.md) | **SLICE 2 IMPLEMENTED** · Production released in 212 |
+| 212 | [FO-EFF Slice 2 Production Release](./212-fo-eff-slice2-production-release/index.md) | **SLICE 2 PRODUCTION RELEASE SUCCESSFUL** · SHA `27657c6b` · deploy `dpl_GpcqvPZ9eQCWesuTCqrHGUibFjT5` |
+| 213 | [App-Wide Sidebar Visual + UX Refinement](./213-app-wide-sidebar-visual-refinement/index.md) | **RECONCILED ONTO SLICE 2 LINEAGE** · implement `0823bae2` · Production release in 214 |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -236,6 +240,10 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [185 Complimentary tester / gift access](./185-complimentary-tester-gift-access/index.md) | **Approved** — implemented; Production applied in 187 |
 | [186 Complimentary access implementation certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** — executed in 187 |
 | [187 Complimentary access Production release certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** — stamp `20260817064006`; SHA `f922da26` |
+| [210 FO-EFF Slice 1 Production release](./210-fo-eff-slice1-production-release/index.md) | **SLICE 1 PRODUCTION RELEASE SUCCESSFUL** |
+| [211 FO-EFF Slice 2 implementation](./211-fo-eff-slice2-mission-control-attention-implementation/index.md) | **SLICE 2 IMPLEMENTED** — Production released in 212 |
+| [212 FO-EFF Slice 2 Production release](./212-fo-eff-slice2-production-release/index.md) | **SLICE 2 PRODUCTION RELEASE SUCCESSFUL** — SHA `27657c6b` · deploy `dpl_GpcqvPZ9eQCWesuTCqrHGUibFjT5` |
+| [213 App-wide sidebar visual refinement](./213-app-wide-sidebar-visual-refinement/index.md) | **RECONCILED ONTO SLICE 2 LINEAGE** — implement `0823bae2` · Production in 214 |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
