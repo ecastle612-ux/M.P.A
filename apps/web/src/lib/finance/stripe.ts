@@ -20,3 +20,10 @@ export function randomIntegrationSuffix(length = 8): string {
   }
   return out;
 }
+
+export function connectedRequestOptions(accountId: string, idempotencyKey?: string) {
+  return {
+    stripeAccount: accountId,
+    ...(idempotencyKey ? { idempotencyKey } : {})
+  };
+}

@@ -26,7 +26,7 @@ const NEED_OPTIONS: Array<{ id: OperationalNeed; label: string; help: string }> 
   {
     id: "property_resident_leasing",
     label: "Properties, residents, and leasing",
-    help: "Portfolio operations, residents, leasing, and day-to-day property management."
+    help: "Portfolio operations, residents, leasing, and online rent collection after you optionally connect Stripe."
   },
   {
     id: "facility_maintenance",
@@ -36,7 +36,7 @@ const NEED_OPTIONS: Array<{ id: OperationalNeed; label: string; help: string }> 
   {
     id: "both",
     label: "Both",
-    help: "Property management and facility operations together."
+    help: "Property management and facility operations together. Online rent collection is on the Property Operations side only."
   }
 ];
 

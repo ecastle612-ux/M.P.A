@@ -5,7 +5,7 @@ import { createAuthServerClient } from "../../../lib/auth/server";
 export const metadata: Metadata = {
   title: "Explore Platforms — M.P.A.",
   description:
-    "Compare Property Manager, Facility Operations, and Complete Platform. Use Get Started when you are ready to buy."
+    "Compare Property Manager, Facility Operations, and Complete Platform. Property Manager and Complete include online rent collection and tenant AutoPay on the Property Operations side."
 };
 
 export default async function Page() {
