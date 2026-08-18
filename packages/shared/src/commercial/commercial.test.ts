@@ -127,6 +127,16 @@ describe("navigation and launcher awareness", () => {
     expect(fo?.items.find((item) => item.href === "/facility/vendors")?.entitlement).toBe(
       "facility.operations"
     );
+    const managerFo = navigationGroupsForSku("mpa_complete_platform", ["property_manager"], "facility_operations").find(
+      (group) => group.id === "facility_operations"
+    );
+    expect(managerFo?.items.some((item) => item.href === "/facility/settings/request-forms")).toBe(true);
+    const technicianFo = navigationGroupsForSku(
+      "mpa_complete_platform",
+      ["maintenance_technician"],
+      "facility_operations"
+    ).find((group) => group.id === "facility_operations");
+    expect(technicianFo?.items.some((item) => item.href === "/facility/settings/request-forms")).toBe(false);
     expect(fo?.items.every((item) => item.readiness === "aligned")).toBe(true);
     expect(fo?.items[0]?.label).toBe("Mission Control");
     expect(

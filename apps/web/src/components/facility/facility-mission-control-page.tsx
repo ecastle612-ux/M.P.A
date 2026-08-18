@@ -74,7 +74,8 @@ const CAPABILITIES = [
 export function FacilityMissionControlPage() {
   const { productSku, canAccess } = useCommercialContext();
   const isComplete = productSku === "mpa_complete_platform";
-  const hasPmMaintenance = canAccess("pm.maintenance") || isComplete;
+  const hasPmMaintenance = canAccess("pm.maintenance");
+  const canManageRequestForms = canAccess("facility.request_forms");
   const [snapshot, setSnapshot] = useState<FacilityMissionControlSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -266,7 +267,15 @@ export function FacilityMissionControlPage() {
             </Link>{" "}
             — invite Maintenance Technicians to execute work.
           </li>
-          {isComplete ? (
+          {canManageRequestForms ? (
+            <li>
+              <Link href="/facility/settings/request-forms" className="text-[var(--mpa-color-brand-primary)] underline">
+                Request Forms
+              </Link>{" "}
+              — publish a QR or share link so people can report work.
+            </li>
+          ) : null}
+          {hasPmMaintenance ? (
             <li>
               Complete Platform: residential maintenance stays in{" "}
               <Link href="/pm/maintenance" className="text-[var(--mpa-color-brand-primary)] underline">
@@ -307,6 +316,14 @@ export function FacilityMissionControlPage() {
               documentsHref={documentsHref("maintenance")}
             />
           ))}
+          {canManageRequestForms ? (
+            <FoCapabilityCard
+              title="Request Forms"
+              href="/facility/settings/request-forms"
+              status="aligned"
+              summary="Custom request forms, share links, and QR codes for public intake."
+            />
+          ) : null}
         </ul>
       </section>
 

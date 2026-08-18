@@ -7,6 +7,7 @@ import {
   type CreateFacilityWorkOrderInput,
   type CreateVendorDirectoryInput,
   type CreateWorkOrderInput,
+  type FacilityRequestIntakeChannel,
   type ProgressWorkOrderInput,
   type TriageWorkOrderInput,
   type WorkOrderPriority,
@@ -48,6 +49,11 @@ export type WorkOrderRow = {
   resident_confirmed_at: string | null;
   closed_at: string | null;
   created_at: string;
+  intake_channel?: FacilityRequestIntakeChannel | null;
+  request_number?: string | null;
+  floor_label?: string | null;
+  department_label?: string | null;
+  room_label?: string | null;
   property_properties?: { id: string; name: string } | null;
   property_units?: { id: string; unit_label: string } | null;
   pm_residents?: { id: string; display_name: string; email: string; user_id: string | null } | null;
@@ -929,8 +935,16 @@ export async function getPropertyMaintenanceSummary(
 export async function createFacilityWorkOrder(
   supabase: Db,
   organizationId: string,
-  actorUserId: string,
-  input: CreateFacilityWorkOrderInput
+  actorUserId: string | null,
+  input: CreateFacilityWorkOrderInput,
+  options?: {
+    requestedByUserId?: string | null;
+    intakeChannel?: FacilityRequestIntakeChannel;
+    requestNumber?: string | null;
+    floorLabel?: string | null;
+    departmentLabel?: string | null;
+    roomLabel?: string | null;
+  }
 ) {
   const { data: property, error: propertyError } = await supabase
     .from("property_properties")
@@ -988,7 +1002,7 @@ export async function createFacilityWorkOrder(
       property_id: input.propertyId,
       unit_id: input.unitId ?? null,
       resident_id: null,
-      requested_by_user_id: actorUserId,
+      requested_by_user_id: options?.requestedByUserId ?? actorUserId,
       title: input.title,
       description: input.description,
       category: input.category,
@@ -998,7 +1012,12 @@ export async function createFacilityWorkOrder(
       work_surface: "facility",
       facility_asset_label: facilityAssetLabel,
       facility_asset_id: facilityAssetId,
-      due_at: input.dueAt ?? null
+      due_at: input.dueAt ?? null,
+      intake_channel: options?.intakeChannel ?? "internal",
+      request_number: options?.requestNumber ?? null,
+      floor_label: options?.floorLabel ?? null,
+      department_label: options?.departmentLabel ?? null,
+      room_label: options?.roomLabel ?? null
     })
     .select(SELECT_WO)
     .single();
@@ -1010,8 +1029,10 @@ export async function createFacilityWorkOrder(
     organizationId,
     workOrderId: workOrder.id,
     actorUserId,
-    actorRole: "manager",
-    body: `Facility work created: ${input.title}`,
+    actorRole: actorUserId ? "manager" : "system",
+    body: options?.requestNumber
+      ? `Facility request ${options.requestNumber}: ${input.title}`
+      : `Facility work created: ${input.title}`,
     statusFrom: null,
     statusTo: "submitted"
   });

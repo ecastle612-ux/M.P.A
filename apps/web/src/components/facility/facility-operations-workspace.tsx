@@ -49,6 +49,11 @@ type WorkOrder = {
   technician_user_id: string | null;
   vendor_id: string | null;
   submitted_at: string;
+  intake_channel?: "internal" | "qr" | "public_link" | "authenticated" | null;
+  request_number?: string | null;
+  floor_label?: string | null;
+  department_label?: string | null;
+  room_label?: string | null;
   property_properties?: { id?: string; name: string } | null;
   property_units?: { id?: string; unit_label: string } | null;
   vendor_vendors?: { name: string } | null;
@@ -700,6 +705,25 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                   <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                     {selected.description}
                   </p>
+                  {selected.request_number ? (
+                    <p className="mt-2 text-sm font-semibold">{selected.request_number}</p>
+                  ) : null}
+                  {selected.intake_channel && selected.intake_channel !== "internal" ? (
+                    <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                      {selected.intake_channel === "qr"
+                        ? "Submitted via QR"
+                        : selected.intake_channel === "authenticated"
+                          ? "Submitted by signed-in requester"
+                          : "Submitted via public link"}
+                    </p>
+                  ) : null}
+                  {selected.floor_label || selected.department_label || selected.room_label ? (
+                    <p className="mt-1 text-sm">
+                      {[selected.floor_label ? `Floor ${selected.floor_label}` : null, selected.department_label, selected.room_label]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  ) : null}
                   {selected.facility_asset_id ? (
                     <p className="mt-2 text-sm">
                       <Link
