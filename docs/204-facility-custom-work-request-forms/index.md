@@ -1,12 +1,14 @@
 # 204 — Facility Custom Work Request Forms + QR / Link Intake
 
-**Status:** **DESIGN COMPLETE — APPROVAL REQUIRED**  
+**Status:** **APPROVED FOR IMPLEMENTATION** — implemented in-repo; see [docs/205](../205-facility-public-work-request-intake-implementation/index.md)  
 **Date:** 2026-08-17  
-**Gate:** Design → Document → **Approve** → Implement (ADR-012)  
-**Mode:** Design / document only. **Do not implement. Do not deploy. Do not create Production data.**  
+**Owner approval:** 2026-08-18  
+**Gate:** Design → Document → Approve → **Implement** (ADR-012)  
+**Mode:** Implementation in-repo. **Do not deploy. Do not apply the Production migration.**  
 **SKU:** Facility Operations, and Complete Platform when the member has effective Facility Operations access  
 **Predecessor:** [docs/203](../203-docs-202-production-release/index.md) (certified Production line)  
-**Related ADR:** [ADR-034](../18-decision-log/adr-034-facility-public-work-request-intake.md) (**Proposed**)  
+**Successor:** [docs/205](../205-facility-public-work-request-intake-implementation/index.md)  
+**Related ADR:** [ADR-034](../18-decision-log/adr-034-facility-public-work-request-intake.md) (**Accepted**)  
 **Preserves:** ADR-019 product constitution · ADR-020 shared FO work orders · ADR-023 MEDIA-001 · ADR-026 auth pipeline · ADR-033 member operating scope (docs/202)
 
 This package designs a **customizable Facility Operations work-request intake**. Each organization / facility controls the fields requesters must provide. Requests arrive through a **QR code** or a **shareable web link** that both resolve to the **same** public request portal.
@@ -17,7 +19,7 @@ This is **not** Property Manager residential maintenance. A similar PM concept w
 
 ## Verdict
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
+**APPROVED FOR IMPLEMENTATION** (Owner 2026-08-18). Implementation certification: [docs/205](../205-facility-public-work-request-intake-implementation/index.md).
 
 Recommended operational model:
 
@@ -31,7 +33,7 @@ Do **not** create a second maintenance system.
 Do **not** hard-code one universal request sheet.  
 Do **not** expose internal work-order fields to public requesters.
 
-Exact next action after this record: **Owner Approve** (this document + ADR-034). Until then: **STOP. Do not implement.**
+Owner approved this document and ADR-034 on 2026-08-18. Implementation is in-repo only. **STOP BEFORE PRODUCTION.**
 
 ---
 
@@ -762,7 +764,7 @@ No Production data. Tests use local / mocked orgs.
 
 | Rule | Detail |
 |---|---|
-| Gate | Implement only after Owner Approve of this record **and** ADR-034 Accepted |
+| Gate | Owner approved 2026-08-18. Implemented in-repo ([docs/205](../205-facility-public-work-request-intake-implementation/index.md)). Do not apply or deploy from this package. |
 | Migration | **Additive only.** New tables + nullable WO columns. Do not replay J6, STAB-004, MEDIA-001, FAC-003, docs/180, or docs/194 stamps. |
 | Production apply | Separate Owner authorization after implement certification. This design does not authorize apply or deploy. |
 | Backfill | Existing WOs: `intake_channel = internal`. No backfill of submissions. |
@@ -850,12 +852,8 @@ Approve this document and ADR-034, or return comments. Recommended defaults if t
 
 ## Exact next action
 
-**Owner Approve** this record and ADR-034.
+Owner approved this record and ADR-034 on 2026-08-18.
 
-Until then:
+Implementation is certified in [docs/205](../205-facility-public-work-request-intake-implementation/index.md).
 
-**DESIGN COMPLETE — APPROVAL REQUIRED**
-
-Do not implement.  
-Do not deploy.  
-Do not create Production data.
+**Do not deploy. Do not apply the Production migration. Do not create Production data.**

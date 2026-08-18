@@ -71,14 +71,27 @@ export function FacilityRequestFormsPage() {
   }
 
   useEffect(() => {
-    void refresh().catch((err: unknown) => setError(err instanceof Error ? err.message : "Could not load."));
+    let cancelled = false;
+    void fetch("/api/facility/request-forms")
+      .then(async (response) => {
+        const body = (await response.json()) as { forms?: FormRow[]; error?: string };
+        if (cancelled) return;
+        if (!response.ok) throw new Error(body.error ?? "Could not load request forms.");
+        setForms(body.forms ?? []);
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Could not load.");
+      });
     void fetch("/api/facility/operations")
       .then(async (response) => {
-        if (!response.ok) return;
+        if (!response.ok || cancelled) return;
         const body = (await response.json()) as { properties?: Building[] };
         setBuildings((body.properties ?? []).map((row) => ({ id: row.id, name: row.name })));
       })
       .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function loadForm(formId: string) {
