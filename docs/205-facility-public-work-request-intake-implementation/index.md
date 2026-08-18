@@ -4,7 +4,7 @@
 **Date:** 2026-08-18  
 **Authority:** Owner approval of [docs/204](../204-facility-custom-work-request-forms/index.md) + [ADR-034](../18-decision-log/adr-034-facility-public-work-request-intake.md)  
 **Implement SHA:** `c3fc21bca11b6e8badc3da882fa208c8483cbec3`  
-**Certification SHA:** recorded on the docs/205 commit of this branch  
+**Certification SHA:** `c3188f61dbc34c775ac7c7cf6b3c57f3cdec62af`  
 **Production:** **not applied · not deployed · no Production forms, QR codes, submissions, work orders, or users**
 
 ---
