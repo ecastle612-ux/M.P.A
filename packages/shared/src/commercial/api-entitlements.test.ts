@@ -33,6 +33,7 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForApiPath("/api/pm/tenants")).toBe("pm.residents");
     expect(requiredEntitlementForApiPath("/api/pm/tenants/occupancies/x/move-out")).toBe("pm.residents");
     expect(requiredEntitlementForApiPath("/api/pm/leasing")).toBe("pm.leasing");
+    expect(requiredEntitlementForApiPath("/api/facility/preventive-maintenance/generate")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/facility/operations")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/reports")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/assets")).toBe("facility.assets");

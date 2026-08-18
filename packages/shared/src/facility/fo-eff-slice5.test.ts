@@ -74,9 +74,7 @@ describe("FO-EFF Slice 5 — entitlement, nav, search, attention", () => {
 
   it("maps the PM API to facility.preventive without overloading public intake", () => {
     expect(requiredEntitlementForApiPath("/api/facility/preventive-maintenance")).toBe("facility.preventive");
-    expect(requiredEntitlementForApiPath("/api/facility/preventive-maintenance/generate")).toBe(
-      "facility.preventive"
-    );
+    expect(requiredEntitlementForApiPath("/api/facility/preventive-maintenance/generate")).toBeNull();
     expect(FACILITY_REQUEST_INTAKE_CHANNELS).not.toContain("preventive");
   });
 

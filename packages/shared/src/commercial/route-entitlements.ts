@@ -177,6 +177,12 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
     return "deny";
   }
 
+  // Scheduler authenticates in-route via CRON_SECRET or manager session.
+  // Middleware must not require a user cookie (same pattern as Stripe webhooks).
+  if (path === "/api/facility/preventive-maintenance/generate") {
+    return null;
+  }
+
   if (path.startsWith("/api/facility/")) {
     return requiredEntitlementForPath(path.slice("/api".length));
   }
