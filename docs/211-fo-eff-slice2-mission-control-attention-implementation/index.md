@@ -28,7 +28,7 @@ Not implemented (later slices): Asset registry/QR, PM generation, Global Search,
 
 ## 1. Implementation SHA
 
-**Implement SHA:** *(set at commit)* — see git tip of `cursor/fo-eff-slice2-mission-control-attention-01f2`.
+**Implement SHA:** `1d1a508c981334bbd2381196462a7a2df16d73cb`
 
 ---
 
