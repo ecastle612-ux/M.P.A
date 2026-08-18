@@ -159,7 +159,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 216 | [FO-EFF Slice 3 Production Release](./216-fo-eff-slice3-production-release/index.md) | **FO-EFF SLICE 3 PRODUCTION RELEASE + UAT SUCCESSFUL** · stamp `20260818040239` · SHA `7f0fa45d` · deploy `dpl_3yqMaZFnj3S4dqKotmnzGCm1P18i` |
 | 217 | [Simplicity Slice 4 Global Search + Quick Create + Recent](./217-simplicity-slice4-search-create-recent/index.md) | **IMPLEMENTED IN-REPO** · SHA `13f586c6` · Production released in 218 |
 | 218 | [Simplicity Slice 4 Production Release](./218-simplicity-slice4-production-release/index.md) | **SIMPLICITY SLICE 4 PRODUCTION RELEASE + CONTROLLED UAT SUCCESSFUL** · SHA `ec5df767` · deploy `dpl_FDYA1eob33Xs34vNhQ7e1uhW5562` |
-| 219 | [FO-EFF Slice 5 Preventive Maintenance](./219-fo-eff-slice5-preventive-maintenance/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** · SHA `5119fde8` |
+| 219 | [FO-EFF Slice 5 Preventive Maintenance](./219-fo-eff-slice5-preventive-maintenance/index.md) | **IMPLEMENTED IN-REPO** · SHA `5119fde8` · Production released in 220 |
+| 220 | [FO-EFF Slice 5 Production Release](./220-fo-eff-slice5-production-release/index.md) | **FO-EFF SLICE 5 PRODUCTION RELEASE + UAT SUCCESSFUL** · stamp `20260818081710` · SHA `eb81b07f` · deploy `dpl_HQpPuRD3TknzY177TEqqKRMk2NBE` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -255,7 +256,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [216 FO-EFF Slice 3 Production release](./216-fo-eff-slice3-production-release/index.md) | **FO-EFF SLICE 3 PRODUCTION RELEASE + UAT SUCCESSFUL** — stamp `20260818040239` · SHA `7f0fa45d` · deploy `dpl_3yqMaZFnj3S4dqKotmnzGCm1P18i` |
 | [217 Simplicity Slice 4 Search + Create + Recent](./217-simplicity-slice4-search-create-recent/index.md) | **IMPLEMENTED IN-REPO** — SHA `13f586c6` · Production released in 218 |
 | [218 Simplicity Slice 4 Production release](./218-simplicity-slice4-production-release/index.md) | **SIMPLICITY SLICE 4 PRODUCTION RELEASE + CONTROLLED UAT SUCCESSFUL** — SHA `ec5df767` · deploy `dpl_FDYA1eob33Xs34vNhQ7e1uhW5562` |
-| [219 FO-EFF Slice 5 Preventive Maintenance](./219-fo-eff-slice5-preventive-maintenance/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** — SHA `5119fde8` |
+| [219 FO-EFF Slice 5 Preventive Maintenance](./219-fo-eff-slice5-preventive-maintenance/index.md) | **IMPLEMENTED IN-REPO** — SHA `5119fde8` · Production released in 220 |
+| [220 FO-EFF Slice 5 Production release](./220-fo-eff-slice5-production-release/index.md) | **FO-EFF SLICE 5 PRODUCTION RELEASE + UAT SUCCESSFUL** — stamp `20260818081710` · SHA `eb81b07f` · deploy `dpl_HQpPuRD3TknzY177TEqqKRMk2NBE` |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
