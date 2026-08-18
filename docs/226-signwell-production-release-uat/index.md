@@ -285,6 +285,20 @@ Single next Owner action: authorize completed-document URL mapping for the **exi
 
 ---
 
+## Resume mutations (existing lease only)
+
+| Mutation | Result |
+|----------|--------|
+| New lease / new SignWell document | **None** |
+| Record signed offline | **Not used** |
+| Production deploy | **None** — live remains `dpl_6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB` |
+| SEC-001 / WAF / Auth / MFA | **None** |
+| First Sync | Applied genuine SignWell Completed → `activateSignedLease` |
+| Second Sync | `alreadyActive` · no duplicate occupancy/charge/document |
+| Stripe / July / M5 / pricing | **None** |
+
+---
+
 ## Remediation implemented during this UAT (no new product)
 
 1. `pm_residents!resident_id` on `lease_agreements` embeds — Production leasing list/create was failing with multiple relationships (bidirectional FKs). **No migration.**
