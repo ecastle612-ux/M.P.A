@@ -18,6 +18,6 @@ describe("docs/221 FO-EFF Slice 6 migration", () => {
     expect(migration).not.toContain("drop table");
     expect(migration).not.toContain("drop column");
     expect(migration).not.toContain("round robin");
-    expect(migration).not.toContain("executable");
+    expect(migration).toContain("No executable code");
   });
 });

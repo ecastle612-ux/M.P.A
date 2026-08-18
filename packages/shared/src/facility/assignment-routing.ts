@@ -120,6 +120,11 @@ export type AssignmentWorkFacts = z.infer<typeof assignmentWorkFactsSchema>;
 export const previewAssignmentRulesInputSchema = assignmentWorkFactsSchema;
 export type PreviewAssignmentRulesInput = AssignmentWorkFacts;
 
+export const rerunAssignmentRulesInputSchema = z.object({
+  workOrderId: z.string().uuid()
+});
+export type RerunAssignmentRulesInput = z.infer<typeof rerunAssignmentRulesInputSchema>;
+
 export type EvaluableAssignmentRule = {
   id: string;
   name: string;

@@ -260,7 +260,15 @@ export async function updateAssignmentRule(
   if (parsed.assigneeUserId) {
     await assertEligibleAssignee(supabase, organizationId, parsed.assigneeUserId);
   }
-  const patch: Record<string, unknown> = {
+  const patch: {
+    updated_by_user_id: string;
+    updated_at: string;
+    name?: string;
+    description?: string;
+    assignee_user_id?: string;
+    conditions?: AssignmentRuleConditions;
+    status?: AssignmentRuleStatus;
+  } = {
     updated_by_user_id: actorUserId,
     updated_at: new Date().toISOString()
   };

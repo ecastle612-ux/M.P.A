@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { rerunAssignmentRulesInputSchema } from "@mpa/shared";
 import { requireFacilityRoutingPermission } from "../../../../../lib/facility/authz";
 import { routeFacilityWorkOrder } from "../../../../../lib/facility/assignment-routing-service";
-
-const rerunSchema = z.object({
-  workOrderId: z.string().uuid()
-});
 
 export async function POST(request: Request) {
   const authz = await requireFacilityRoutingPermission();
   if ("error" in authz) return authz.error;
   const payload = await request.json().catch(() => null);
-  const parsed = rerunSchema.safeParse(payload);
+  const parsed = rerunAssignmentRulesInputSchema.safeParse(payload);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
   }

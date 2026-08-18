@@ -34,7 +34,6 @@ type Tables = {
 };
 
 const ORG = "11111111-1111-4111-8111-111111111111";
-const OTHER = "22222222-2222-4222-8222-222222222222";
 const MIKE = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const JOHN = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const ACTOR = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
@@ -108,8 +107,8 @@ function makeClient() {
         },
         maybeSingle: async () => {
           if (insertPayload) {
-            const incoming = Array.isArray(insertPayload) ? insertPayload[0] : insertPayload;
-            const created = {
+            const incoming = (Array.isArray(insertPayload) ? insertPayload[0] : insertPayload) ?? {};
+            const created: Row = {
               id: `${table}_${(store[table] ?? []).length + 1}`,
               created_at: "2026-08-18T12:00:00.000Z",
               updated_at: "2026-08-18T12:00:00.000Z",
@@ -117,9 +116,9 @@ function makeClient() {
             };
             if (
               table === "facility_assignment_rule_evaluations" &&
-              created.trigger === "initial_create" &&
+              created["trigger"] === "initial_create" &&
               (store[table] ?? []).some(
-                (row) => row.work_order_id === created.work_order_id && row.trigger === "initial_create"
+                (row) => row["work_order_id"] === created["work_order_id"] && row["trigger"] === "initial_create"
               )
             ) {
               return { data: null, error: { message: "duplicate key value violates unique constraint" } };
@@ -136,16 +135,16 @@ function makeClient() {
                 if (l === r) return 0;
                 if (l == null) return 1;
                 if (r == null) return -1;
-                return ascending ? (l > r ? 1 : -1) : l > r ? -1 : 1;
+                return ascending ? (String(l) > String(r) ? 1 : -1) : String(l) > String(r) ? -1 : 1;
               })
             : rows;
           return { data: (limitCount ? sorted.slice(0, limitCount) : sorted)[0] ?? null, error: null };
         },
         single: async () => {
           if (insertPayload) {
-            const incoming = Array.isArray(insertPayload) ? insertPayload[0] : insertPayload;
-            const created = {
-              id: incoming.id ?? `${table}_${(store[table] ?? []).length + 1}`,
+            const incoming = (Array.isArray(insertPayload) ? insertPayload[0] : insertPayload) ?? {};
+            const created: Row = {
+              id: incoming["id"] ?? `${table}_${(store[table] ?? []).length + 1}`,
               created_at: "2026-08-18T12:00:00.000Z",
               updated_at: "2026-08-18T12:00:00.000Z",
               ...incoming
@@ -154,7 +153,7 @@ function makeClient() {
             insertPayload = null;
             return { data: created, error: null };
           }
-          if (patch && !patch.__delete) {
+          if (patch && !patch["__delete"]) {
             const row = (store[table] ?? []).find((item) => matches(item, filters));
             if (!row) return { data: null, error: { message: "not found" } };
             Object.assign(row, patch);
@@ -167,7 +166,7 @@ function makeClient() {
           resolve: (value: { data: Row[]; error: null; count: number | null }) => unknown,
           reject?: (reason: unknown) => unknown
         ) => {
-          if (patch?.__delete) {
+          if (patch?.["__delete"]) {
             store[table] = (store[table] ?? []).filter((item) => !matches(item, filters));
             patch = null;
           } else if (patch) {
@@ -182,7 +181,7 @@ function makeClient() {
               const l = left[orderCol as string];
               const r = right[orderCol as string];
               if (l === r) return 0;
-              return ascending ? (l > r ? 1 : -1) : l > r ? -1 : 1;
+              return ascending ? (String(l) > String(r) ? 1 : -1) : String(l) > String(r) ? -1 : 1;
             });
           }
           if (limitCount) rows = rows.slice(0, limitCount);
@@ -291,12 +290,12 @@ describe("assignment rule CRUD and priority", () => {
 
   it("reorders by explicit ids and keeps unique 1-based priority", async () => {
     const first = await createAssignmentRule(makeClient() as never, ORG, ACTOR, {
-      name: "A",
+      name: "Rule A",
       assigneeUserId: MIKE,
       conditions: { category: "plumbing" }
     });
     const second = await createAssignmentRule(makeClient() as never, ORG, ACTOR, {
-      name: "B",
+      name: "Rule B",
       assigneeUserId: JOHN,
       conditions: { category: "electrical" }
     });
@@ -304,7 +303,7 @@ describe("assignment rule CRUD and priority", () => {
       second.id as string,
       first.id as string
     ]);
-    expect(reordered.map((row) => row.name)).toEqual(["B", "A"]);
+    expect(reordered.map((row) => row.name)).toEqual(["Rule B", "Rule A"]);
     expect(reordered.map((row) => row.sort_order)).toEqual([1, 2]);
   });
 
@@ -356,7 +355,7 @@ describe("routing evaluation", () => {
       assigned_user_id: MIKE,
       rule_id: "rule_Plumbing"
     });
-    expect((db.facility_assignment_rule_evaluations[0]?.rule_snapshot as Row).name).toBe("Plumbing");
+    expect((db.facility_assignment_rule_evaluations[0]?.["rule_snapshot"] as Row)["name"]).toBe("Plumbing");
   });
 
   it("leaves work unassigned when nothing matches", async () => {
@@ -367,11 +366,11 @@ describe("routing evaluation", () => {
     });
     expect(routed.result).toBe("no_match");
     expect(assignWorkOrder).not.toHaveBeenCalled();
-    expect(db.facility_assignment_rule_evaluations[0]?.result).toBe("no_match");
+    expect(db.facility_assignment_rule_evaluations[0]?.["result"]).toBe("no_match");
   });
 
   it("does not fall through when the winning destination is invalid", async () => {
-    db.organization_memberships = db.organization_memberships.filter((row) => row.user_id !== MIKE);
+    db.organization_memberships = db.organization_memberships.filter((row) => row["user_id"] !== MIKE);
     await seedActive("Plumbing", MIKE, { category: "plumbing" }, 1);
     await seedActive("Anything", JOHN, { originSource: "public_request" }, 2);
     const routed = await routeFacilityWorkOrder(makeClient() as never, ORG, WO, {
@@ -435,8 +434,8 @@ describe("routing evaluation", () => {
       name: "Plumbing to John",
       assigneeUserId: JOHN
     });
-    expect((db.facility_assignment_rule_evaluations[0]?.rule_snapshot as Row).name).toBe("Plumbing to Mike");
-    expect((db.facility_assignment_rule_evaluations[0]?.rule_snapshot as Row).assigneeUserId).toBe(MIKE);
+    expect((db.facility_assignment_rule_evaluations[0]?.["rule_snapshot"] as Row)["name"]).toBe("Plumbing to Mike");
+    expect((db.facility_assignment_rule_evaluations[0]?.["rule_snapshot"] as Row)["assigneeUserId"]).toBe(MIKE);
   });
 
   it("previews without assigning", () => {
