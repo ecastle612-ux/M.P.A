@@ -1,7 +1,7 @@
--- docs/204 / ADR-034 Phase 1: Facility public work-request forms + QR/link intake.
--- Additive only. Do not replay J6 / STAB-004 / MEDIA-001 / FAC-003 / docs/180 / docs/194.
--- Production registered this SQL as 20260818011913 / docs_204_facility_request_forms.
--- Do not replay this unused source stamp.
+-- Production stamp twin of 20260818013000_docs_204_facility_request_forms.sql
+-- Registered on Production as 20260818011913 / docs_204_facility_request_forms
+-- SQL-equivalent to the certified docs/205 source. Do not replay 20260818013000.
+-- Do not re-apply this twin.
 
 -- ---------------------------------------------------------------------------
 -- Work-order intake columns
