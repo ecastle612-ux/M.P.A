@@ -54,6 +54,12 @@ export const FINANCIAL_DOMAIN_REGISTRATION: FinancialDomainRegistration = {
 
 export const FINANCIAL_WORKSPACE_SECTIONS = [
   { id: "overview", label: "Overview", href: "/pm/financial-operations", slice: "S0" },
+  {
+    id: "online_payments",
+    label: "Online Payments",
+    href: "/pm/financial-operations/online-payments",
+    slice: "S1"
+  },
   { id: "charges", label: "Charges & ledger", href: "/pm/financial-operations#charges", slice: "S1" },
   { id: "payments", label: "Payments", href: "/pm/financial-operations#payments", slice: "S1" },
   { id: "delinquency", label: "Delinquency", href: "/pm/financial-operations#delinquency", slice: "S2" },

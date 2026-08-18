@@ -17,6 +17,7 @@ describe("PLAT-002 API entitlement catalog", () => {
 
   it("maps finance staff APIs and excludes webhooks, resident, checkout", () => {
     expect(requiredEntitlementForApiPath("/api/finance/snapshot")).toBe("pm.financial_operations");
+    expect(requiredEntitlementForApiPath("/api/finance/online-payments")).toBe("pm.financial_operations");
     expect(requiredEntitlementForApiPath("/api/finance/webhooks/stripe")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/finance/resident/billing")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/finance/checkout")).toBeNull();
@@ -35,6 +36,7 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForApiPath("/api/facility/operations")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/reports")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/assets")).toBe("facility.assets");
+    expect(requiredEntitlementForApiPath("/api/facility/assets/asset-1/qr")).toBe("facility.assets");
     expect(requiredEntitlementForApiPath("/api/facility/inventory")).toBe("facility.inventory");
     expect(requiredEntitlementForApiPath("/api/facility/reports/assets")).toBe("facility.operations");
     expect(requiredEntitlementForApiPath("/api/facility/reports/inventory")).toBe(
@@ -46,6 +48,19 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForPath("/shared/tables")).toBe("platform.documents");
     expect(requiredEntitlementForApiPath("/api/shared/communications")).toBe("platform.communications");
     expect(requiredEntitlementForApiPath("/api/shared/communications/conversations")).toBe("tenant_comms_staff");
+    expect(requiredEntitlementForApiPath("/api/shared/search")).toBe("platform.search");
+    expect(requiredEntitlementForApiPath("/api/shared/search/resolve")).toBe("platform.search");
+    expect(
+      evaluateApiPathEntitlement({ pathname: "/api/shared/search", sku: "mpa_facility_operations" }).allowed
+    ).toBe(true);
+    expect(
+      evaluateApiPathEntitlement({
+        pathname: "/api/shared/search",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "facility_operations"
+      }).allowed
+    ).toBe(true);
     expect(requiredEntitlementForApiPath("/api/portal/tenant/conversations")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/commerce/checkout")).toBeNull();
   });
@@ -93,6 +108,44 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(
       evaluateApiPathEntitlement({ pathname: "/api/facility/inventory", sku: "mpa_property_manager" }).allowed
     ).toBe(false);
+  });
+
+  it("Complete + facility_operations still denies Property Mission Control URL", () => {
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/mission-control",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "facility_operations"
+      }).allowed
+    ).toBe(false);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/facility/mission-control",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "facility_operations"
+      }).allowed
+    ).toBe(true);
+  });
+
+  it("Complete + property_operations still denies Facility Mission Control URL", () => {
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/facility/mission-control",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "property_operations"
+      }).allowed
+    ).toBe(false);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/mission-control",
+        sku: "mpa_complete_platform",
+        roles: ["property_manager"],
+        storedScope: "property_operations"
+      }).allowed
+    ).toBe(true);
   });
 
   it("Complete + facility_operations denies PM finance and property APIs", () => {

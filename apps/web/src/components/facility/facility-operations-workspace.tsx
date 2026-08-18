@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   WORK_ORDER_CATEGORIES,
   WORK_ORDER_CATEGORY_LABELS,
@@ -15,6 +16,7 @@ import {
 import { resolveStatusBadgeVariant, Alert, Badge, Button, EmptyState, Input, Select, Skeleton, Textarea } from "@mpa/ui";
 import { ConfirmActionModal } from "../shell/confirm-action-modal";
 import { ErrorRetry } from "../shell/error-retry";
+import { RememberRecent } from "../shell/remember-recent";
 import {
   FoDocumentsStrip,
   FoPageChrome,
@@ -44,11 +46,18 @@ type WorkOrder = {
   category: string;
   facility_asset_label: string | null;
   facility_asset_id: string | null;
+  facility_assets?: { id: string; name: string; asset_code: string } | null;
   due_at: string | null;
   assignee_type: string;
   technician_user_id: string | null;
   vendor_id: string | null;
   submitted_at: string;
+  intake_channel?: "internal" | "qr" | "public_link" | "authenticated" | null;
+  origin_source?: "manual" | "preventive" | "public_request" | null;
+  request_number?: string | null;
+  floor_label?: string | null;
+  department_label?: string | null;
+  room_label?: string | null;
   property_properties?: { id?: string; name: string } | null;
   property_units?: { id?: string; unit_label: string } | null;
   vendor_vendors?: { name: string } | null;
@@ -90,8 +99,8 @@ const DOMAIN_META: Record<
     createDefaultCategory: "general"
   },
   preventive: {
-    title: "Preventive Work",
-    description: "Facility work orders categorized for preventive maintenance tasks.",
+    title: "Preventive Maintenance",
+    description: "Generated Preventive Maintenance work orders live in Operations and My Work.",
     category: "preventive",
     createDefaultCategory: "preventive"
   },
@@ -139,11 +148,17 @@ function isOpen(status: WorkOrderStatus) {
 
 export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorkspaceDomain }) {
   const meta = DOMAIN_META[domain];
+  const searchParams = useSearchParams();
+  const deepLinkWorkOrderId = searchParams.get("workOrderId");
+  const returnFrom = searchParams.get("from");
+  const startCreate = searchParams.get("new") === "1";
+  const prefillAssetId = searchParams.get("facilityAssetId") ?? "";
+  const prefillPropertyId = searchParams.get("propertyId") ?? "";
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState(deepLinkWorkOrderId ?? "");
   const [updates, setUpdates] = useState<
     Array<{ id: string; body: string; created_at: string; actor_role: string }>
   >([]);
@@ -164,13 +179,15 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [createDescription, setCreateDescription] = useState("");
   const [createCategory, setCreateCategory] = useState<WorkOrderCategory>(meta.createDefaultCategory);
   const [createPriority, setCreatePriority] = useState<WorkOrderPriority>("normal");
-  const [createPropertyId, setCreatePropertyId] = useState("");
+  const [createPropertyId, setCreatePropertyId] = useState(prefillPropertyId);
   const [createUnitId, setCreateUnitId] = useState("");
   const [createAssetLabel, setCreateAssetLabel] = useState("");
-  const [createAssetId, setCreateAssetId] = useState("");
+  const [createAssetId, setCreateAssetId] = useState(prefillAssetId);
   const [assets, setAssets] = useState<AssetOption[]>([]);
   const [createDueAt, setCreateDueAt] = useState("");
   const [pendingMediaIds, setPendingMediaIds] = useState<string[]>([]);
+  const [templates, setTemplates] = useState<Array<{ id: string; name: string }>>([]);
+  const [createTemplateId, setCreateTemplateId] = useState("");
 
   const selected = useMemo(
     () => workOrders.find((row) => row.id === selectedId) ?? null,
@@ -212,9 +229,10 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     async (preferredId?: string) => {
       const categoryParam =
         meta.category === "all" ? "" : `?category=${encodeURIComponent(meta.category)}`;
-      const [response, assetsResponse] = await Promise.all([
+      const [response, assetsResponse, templatesResponse] = await Promise.all([
         fetch(`/api/facility/operations${categoryParam}`),
-        fetch("/api/facility/assets")
+        fetch("/api/facility/assets"),
+        fetch("/api/facility/work-templates")
       ]);
       const body = await response.json();
       if (!response.ok) {
@@ -227,10 +245,34 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       setProperties(body.properties ?? []);
       if (assetsResponse.ok) {
         const assetsBody = (await assetsResponse.json()) as { assets?: AssetOption[] };
-        setAssets(assetsBody.assets ?? []);
+        const nextAssets = assetsBody.assets ?? [];
+        setAssets(nextAssets);
+        if (prefillAssetId) {
+          const matched = nextAssets.find((asset) => asset.id === prefillAssetId);
+          if (matched) {
+            setCreateAssetId(matched.id);
+            setCreateAssetLabel(matched.name);
+            if (!prefillPropertyId && matched.property_property_id) {
+              setCreatePropertyId(matched.property_property_id);
+            }
+          }
+        }
       }
-      if (!createPropertyId && body.properties?.[0]?.id) {
-        setCreatePropertyId(body.properties[0].id as string);
+      if (templatesResponse.ok) {
+        const templatesBody = (await templatesResponse.json()) as {
+          templates?: Array<{ id: string; name: string; status: string }>;
+        };
+        setTemplates(
+          (templatesBody.templates ?? [])
+            .filter((row) => row.status === "active")
+            .map((row) => ({ id: row.id, name: row.name }))
+        );
+      }
+      if (!createPropertyId && (prefillPropertyId || body.properties?.[0]?.id)) {
+        setCreatePropertyId(prefillPropertyId || (body.properties[0].id as string));
+      }
+      if (prefillAssetId) {
+        setCreateAssetId(prefillAssetId);
       }
       const nextId = preferredId || selectedId || rows[0]?.id || "";
       setSelectedId(nextId);
@@ -240,14 +282,14 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
         setUpdates([]);
       }
     },
-    [createPropertyId, loadDetail, meta.category, selectedId]
+    [createPropertyId, loadDetail, meta.category, prefillAssetId, prefillPropertyId, selectedId]
   );
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        await refresh();
+        await refresh(deepLinkWorkOrderId || undefined);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Failed to load");
@@ -261,7 +303,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     return () => {
       cancelled = true;
     };
-    // Initial load only
+    // Initial load only — deep link preferred once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -288,6 +330,11 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       setBusy(false);
     }
   }
+
+  useEffect(() => {
+    if (!startCreate || loading) return;
+    document.getElementById("create-work")?.scrollIntoView({ block: "start" });
+  }, [loading, startCreate]);
 
   if (loading) {
     return (
@@ -329,6 +376,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const mobileDetailOpen = Boolean(selected);
 
   return (
+    <>
+    <RememberRecent type="facility_work_order" id={selectedId || null} />
     <FoPageChrome
       crumbs={[
         { href: "/facility/mission-control", label: "Facility Mission Control" },
@@ -339,6 +388,14 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       description={meta.description}
       actions={
         <div className="flex flex-wrap gap-2">
+          {returnFrom === "mission-control" ? (
+            <Link
+              href="/facility/mission-control"
+              className="inline-flex min-h-10 items-center rounded-md border border-[var(--mpa-color-border-subtle)] px-3 text-sm font-medium text-[var(--mpa-color-text-primary)]"
+            >
+              Back to Mission Control
+            </Link>
+          ) : null}
           <Badge variant="info">{openCount} open</Badge>
           <Badge variant={emergencyCount > 0 ? "danger" : "neutral"}>
             {emergencyCount} emergency
@@ -376,6 +433,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       {notice ? <Alert variant="success">{notice}</Alert> : null}
 
       <form
+        id="create-work"
         className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:grid-cols-2"
         noValidate
         onSubmit={(event) => {
@@ -408,7 +466,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                 unitId: createUnitId || undefined,
                 facilityAssetLabel: createAssetLabel || undefined,
                 facilityAssetId: createAssetId || undefined,
-                dueAt: createDueAt ? new Date(createDueAt).toISOString() : undefined
+                dueAt: createDueAt ? new Date(createDueAt).toISOString() : undefined,
+                templateId: createTemplateId || undefined
               })
             });
             const body = await response.json();
@@ -436,6 +495,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             setCreateAssetLabel("");
             setCreateAssetId("");
             setCreateDueAt("");
+            setCreateTemplateId("");
             setPendingMediaIds([]);
             setSelectedId(workOrderId);
             setNotice("Facility work created.");
@@ -448,9 +508,20 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             Create facility work
           </h2>
           <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-            Building required. Pick a registered asset or keep a free-text label. Due date is optional.
+            Building required. Optional template attaches a checklist snapshot. Due date is optional.
           </p>
         </div>
+        <label className="space-y-1 text-xs md:col-span-2">
+          <span className="font-medium">Work template (optional)</span>
+          <Select value={createTemplateId} onChange={(e) => setCreateTemplateId(e.target.value)}>
+            <option value="">No template</option>
+            {templates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
+              </option>
+            ))}
+          </Select>
+        </label>
         <label className="space-y-1 text-xs md:col-span-2">
           <span className="font-medium">Title</span>
           <Input
@@ -700,6 +771,30 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                   <p className="mt-1 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
                     {selected.description}
                   </p>
+                  {selected.request_number ? (
+                    <p className="mt-2 text-sm font-semibold">{selected.request_number}</p>
+                  ) : null}
+                  {selected.origin_source === "preventive" ||
+                  (selected.intake_channel && selected.intake_channel !== "internal") ? (
+                    <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                      {selected.origin_source === "preventive"
+                        ? "Preventive Maintenance"
+                        : selected.intake_channel === "qr"
+                          ? "QR / Share Link"
+                          : selected.intake_channel === "authenticated"
+                            ? "QR / Share Link"
+                            : "QR / Share Link"}
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">Manual</p>
+                  )}
+                  {selected.floor_label || selected.department_label || selected.room_label ? (
+                    <p className="mt-1 text-sm">
+                      {[selected.floor_label ? `Floor ${selected.floor_label}` : null, selected.department_label, selected.room_label]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  ) : null}
                   {selected.facility_asset_id ? (
                     <p className="mt-2 text-sm">
                       <Link
@@ -708,6 +803,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                       >
                         Open linked asset
                         {selected.facility_asset_label ? ` · ${selected.facility_asset_label}` : ""}
+                        {selected.facility_assets?.asset_code ? ` · ${selected.facility_assets.asset_code}` : ""}
                       </Link>
                     </p>
                   ) : null}
@@ -1129,5 +1225,6 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
         </>
       ) : null}
     </FoPageChrome>
+    </>
   );
 }
