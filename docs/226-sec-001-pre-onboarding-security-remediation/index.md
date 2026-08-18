@@ -23,7 +23,7 @@ No P0 remains in-repo after this package. Production still has the live SignWell
 
 ## 1. Implementation SHA
 
-Branch `cursor/sec-001-pre-onboarding-security-5acb`. Implementation commit `20775b3e`; Stage 1 verification fixup follows on this same branch. Use `git log -1 --format=%H` on the branch tip after merge review.
+`450611fd3cc92a617e3f2d0c1d3550f1e2118d6b` (`450611fd`) on `cursor/sec-001-pre-onboarding-security-5acb`.
 
 ---
 
