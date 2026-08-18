@@ -1,10 +1,13 @@
 # ADR-034: Facility Public Work Request Intake (Custom Forms + QR / Link)
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-17
+
+## Accepted
+2026-08-18 — Owner approved docs/204 + ADR-034 for implementation. In-repo certification: `docs/205`. Do not apply or deploy from this ADR.
 
 ## Context
 
