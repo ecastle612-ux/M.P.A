@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { formatMoney, ownerDay1ChecklistForSku } from "@mpa/shared";
+import { formatMoney, MPA_ASSISTANT_KIND, MPA_ASSISTANT_LABEL, ownerDay1ChecklistForSku } from "@mpa/shared";
 import { resolveWorkOrderPriorityVariant, buttonClassName, Button, Alert, Badge, EmptyState, MetricCard, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { useOrganizationContext } from "../shell/organization-context";
@@ -414,8 +414,9 @@ export function MissionControlPage() {
           className="max-w-4xl space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:p-5"
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            M.P.A. Assistant
+            {MPA_ASSISTANT_LABEL}
           </p>
+          <p className="text-xs text-[var(--mpa-color-text-muted)]">{MPA_ASSISTANT_KIND}</p>
           <p className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
             {state?.assistantRecommendation ??
               nextAction?.assistantRecommendation ??

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { buttonClassName, Alert, Badge, Button, Skeleton, TimelineView } from "@mpa/ui";
-import { formatMoney } from "@mpa/shared";
+import { formatMoney, MPA_ASSISTANT_KIND, MPA_ASSISTANT_LABEL } from "@mpa/shared";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ErrorRetry } from "../shell/error-retry";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
@@ -236,8 +236,9 @@ export function LeaseCommandCenter({ leaseId }: { leaseId: string }) {
         className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          M.P.A. Assistant
+          {MPA_ASSISTANT_LABEL}
         </p>
+        <p className="text-xs text-[var(--mpa-color-text-muted)]">{MPA_ASSISTANT_KIND}</p>
         <p className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">
           {data.assistantRecommendation}
         </p>
