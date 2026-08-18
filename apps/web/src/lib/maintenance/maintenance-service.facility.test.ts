@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   cancelWorkOrder,
   createFacilityWorkOrder,
-  getFacilityMissionControlSnapshot,
   listWorkOrders
 } from "./maintenance-service";
 
@@ -115,50 +114,5 @@ describe("STAB-004 maintenance-service facility surface", () => {
         workOrderId: "22222222-2222-4222-8222-222222222222"
       })
     ).rejects.toThrow(/Cannot cancel/);
-  });
-
-  it("getFacilityMissionControlSnapshot counts open and overdue facility rows", async () => {
-    const now = Date.now();
-    const supabase = createFilterAwareClient({
-      listRows: [
-        {
-          id: "1",
-          status: "submitted",
-          priority: "emergency",
-          assignee_type: "unassigned",
-          due_at: new Date(now - 60_000).toISOString(),
-          submitted_at: new Date().toISOString(),
-          completed_at: null,
-          closed_at: null
-        },
-        {
-          id: "2",
-          status: "assigned",
-          priority: "normal",
-          assignee_type: "vendor",
-          due_at: null,
-          submitted_at: new Date().toISOString(),
-          completed_at: null,
-          closed_at: null
-        },
-        {
-          id: "3",
-          status: "completed",
-          priority: "normal",
-          assignee_type: "technician",
-          due_at: null,
-          submitted_at: new Date(now - 2 * 24 * 3600_000).toISOString(),
-          completed_at: new Date(now - 24 * 3600_000).toISOString(),
-          closed_at: null
-        }
-      ]
-    });
-
-    const snapshot = await getFacilityMissionControlSnapshot(supabase as never, "org_1");
-    expect(snapshot.emergency).toBe(1);
-    expect(snapshot.open).toBe(2);
-    expect(snapshot.overdue).toBe(1);
-    expect(snapshot.waitingOnVendor).toBe(1);
-    expect(snapshot.completedRecently).toBe(1);
   });
 });

@@ -8,6 +8,7 @@ import { useCommercialContext } from "../shell/commercial-context";
 import { useOrganizationContext } from "../shell/organization-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { OwnerDay1ChecklistCard } from "./owner-day1-checklist";
+import { OnlinePaymentsDiscoveryLink } from "./online-payments-discovery";
 
 type NextAction = {
   id: string;
@@ -193,7 +194,7 @@ function healthFromDaily(daily: NonNullable<MissionControlState["dailyOperations
 
 export function MissionControlPage() {
   const { activeOrganization } = useOrganizationContext();
-  const { productLabel, setupComplete } = useCommercialContext();
+  const { productLabel, productSku, setupComplete } = useCommercialContext();
   const [state, setState] = useState<MissionControlState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -315,6 +316,7 @@ export function MissionControlPage() {
             organization. Begin with one clear task: add your first property. After that, Mission
             Control will guide inviting your team, residents, leasing, and daily operations.
           </p>
+          <OnlinePaymentsDiscoveryLink productSku={productSku ?? "mpa_property_manager"} className="mt-3" />
         </section>
       ) : null}
 

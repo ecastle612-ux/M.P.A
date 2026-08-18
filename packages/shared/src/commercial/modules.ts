@@ -31,6 +31,7 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/pm/properties",
     "/pm/maintenance",
     "/facility/mission-control",
+    "/facility/my-work",
     "/facility/operations",
     "/facility/assets",
     "/facility/preventive-maintenance",
@@ -213,7 +214,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     entitlement: "pm.financial_operations",
     href: "/pm/financial-operations",
     readiness: "aligned",
-    description: "Resident billing & rent collection Command Center (S1).",
+    description:
+      "Online rent collection — ACH, cards, Pay Once, and tenant-authorized AutoPay. You set every amount.",
     plannedLabel: "S1 Resident Billing complete — vendor AP / late fees pending later slices"
   },
   {
@@ -252,6 +254,15 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     readiness: "aligned",
     description:
       "Facility vendor directory for HVAC, plumbing, electrical, and contractors — assign from Operations."
+  },
+  {
+    id: "facility_request_forms",
+    label: "Request Forms",
+    owner: "facility_operations",
+    entitlement: "facility.request_forms",
+    href: "/facility/settings/request-forms",
+    readiness: "aligned",
+    description: "Custom Facility work-request forms, share links, and QR intake."
   },
   {
     id: "assets",
@@ -448,6 +459,12 @@ export function navigationGroupsForSku(
           entitlement: "facility.mission_control"
         },
         {
+          href: "/facility/my-work",
+          label: "My Work",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
+        {
           href: "/facility/operations",
           label: "Operations",
           readiness: "aligned",
@@ -464,6 +481,18 @@ export function navigationGroupsForSku(
           label: "Vendors",
           readiness: "aligned",
           entitlement: "facility.operations"
+        },
+        {
+          href: "/facility/settings/work-templates",
+          label: "Work templates",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
+        {
+          href: "/facility/settings/request-forms",
+          label: "Request Forms",
+          readiness: "aligned",
+          entitlement: "facility.request_forms"
         },
         {
           href: "/facility/assets",
@@ -642,7 +671,8 @@ export function workspaceLauncherItemsForSku(
       {
         id: "pm_financial_operations",
         title: "Financial Operations",
-        description: "Resident billing & rent collection Command Center (S1).",
+        description:
+          "Online rent collection — ACH, cards, Pay Once, and tenant-authorized AutoPay. You set every amount.",
         href: "/pm/financial-operations",
         product: "property_manager",
         readiness: "aligned"

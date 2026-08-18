@@ -25,8 +25,9 @@ type PortfolioProperty = {
 
 export function PropertiesDirectory() {
   const searchParams = useSearchParams();
-  const { productSku } = useCommercialContext();
+  const { productSku, canAccess } = useCommercialContext();
   const isComplete = productSku === "mpa_complete_platform";
+  const canOpenFacilityAssets = canAccess("facility.assets");
   const completeLabels = completeWorkspaceLabels();
   const startWithWizard = searchParams.get("new") === "1";
   const [properties, setProperties] = useState<PortfolioProperty[]>([]);
@@ -115,7 +116,7 @@ export function PropertiesDirectory() {
           { href: "/pm/mission-control", label: "Property Manager Mission Control" },
           { href: "/pm/maintenance", label: "Maintenance" },
           { href: documentsHref("property"), label: "Property documents" },
-          ...(isComplete
+          ...(canOpenFacilityAssets
             ? [{ href: "/facility/assets", label: "Facility buildings" }]
             : [])
         ]}
