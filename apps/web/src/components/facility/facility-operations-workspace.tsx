@@ -176,6 +176,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [assets, setAssets] = useState<AssetOption[]>([]);
   const [createDueAt, setCreateDueAt] = useState("");
   const [pendingMediaIds, setPendingMediaIds] = useState<string[]>([]);
+  const [templates, setTemplates] = useState<Array<{ id: string; name: string }>>([]);
+  const [createTemplateId, setCreateTemplateId] = useState("");
 
   const selected = useMemo(
     () => workOrders.find((row) => row.id === selectedId) ?? null,
@@ -217,9 +219,10 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     async (preferredId?: string) => {
       const categoryParam =
         meta.category === "all" ? "" : `?category=${encodeURIComponent(meta.category)}`;
-      const [response, assetsResponse] = await Promise.all([
+      const [response, assetsResponse, templatesResponse] = await Promise.all([
         fetch(`/api/facility/operations${categoryParam}`),
-        fetch("/api/facility/assets")
+        fetch("/api/facility/assets"),
+        fetch("/api/facility/work-templates")
       ]);
       const body = await response.json();
       if (!response.ok) {
@@ -233,6 +236,16 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       if (assetsResponse.ok) {
         const assetsBody = (await assetsResponse.json()) as { assets?: AssetOption[] };
         setAssets(assetsBody.assets ?? []);
+      }
+      if (templatesResponse.ok) {
+        const templatesBody = (await templatesResponse.json()) as {
+          templates?: Array<{ id: string; name: string; status: string }>;
+        };
+        setTemplates(
+          (templatesBody.templates ?? [])
+            .filter((row) => row.status === "active")
+            .map((row) => ({ id: row.id, name: row.name }))
+        );
       }
       if (!createPropertyId && body.properties?.[0]?.id) {
         setCreatePropertyId(body.properties[0].id as string);
@@ -413,7 +426,8 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                 unitId: createUnitId || undefined,
                 facilityAssetLabel: createAssetLabel || undefined,
                 facilityAssetId: createAssetId || undefined,
-                dueAt: createDueAt ? new Date(createDueAt).toISOString() : undefined
+                dueAt: createDueAt ? new Date(createDueAt).toISOString() : undefined,
+                templateId: createTemplateId || undefined
               })
             });
             const body = await response.json();
@@ -441,6 +455,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             setCreateAssetLabel("");
             setCreateAssetId("");
             setCreateDueAt("");
+            setCreateTemplateId("");
             setPendingMediaIds([]);
             setSelectedId(workOrderId);
             setNotice("Facility work created.");
@@ -453,9 +468,20 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
             Create facility work
           </h2>
           <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-            Building required. Pick a registered asset or keep a free-text label. Due date is optional.
+            Building required. Optional template attaches a checklist snapshot. Due date is optional.
           </p>
         </div>
+        <label className="space-y-1 text-xs md:col-span-2">
+          <span className="font-medium">Work template (optional)</span>
+          <Select value={createTemplateId} onChange={(e) => setCreateTemplateId(e.target.value)}>
+            <option value="">No template</option>
+            {templates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
+              </option>
+            ))}
+          </Select>
+        </label>
         <label className="space-y-1 text-xs md:col-span-2">
           <span className="font-medium">Title</span>
           <Input

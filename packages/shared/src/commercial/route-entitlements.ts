@@ -93,6 +93,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
 
   const facilityRoutes: Array<[string, EntitlementKey]> = [
     ["/facility/mission-control", "facility.mission_control"],
+    ["/facility/my-work", "facility.operations"],
     ["/facility/operations", "facility.operations"],
     ["/facility/reports", "facility.operations"],
     ["/facility/vendors", "facility.operations"],
@@ -105,6 +106,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     ["/facility/compliance", "facility.compliance"],
     ["/facility/building-systems", "facility.building_systems"],
     ["/facility/capital-projects", "facility.capital_projects"],
+    ["/facility/settings/work-templates", "facility.operations"],
     ["/facility/settings/request-forms", "facility.request_forms"],
     ["/facility/request-forms", "facility.request_forms"]
   ];

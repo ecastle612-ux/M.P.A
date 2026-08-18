@@ -112,9 +112,11 @@ describe("navigation and launcher awareness", () => {
     const fo = groups.find((group) => group.id === "facility_operations");
     expect(fo?.items.map((item) => item.href)).toEqual([
       "/facility/mission-control",
+      "/facility/my-work",
       "/facility/operations",
       "/facility/reports",
       "/facility/vendors",
+      "/facility/settings/work-templates",
       "/facility/assets",
       "/facility/preventive-maintenance",
       "/facility/inspections",
