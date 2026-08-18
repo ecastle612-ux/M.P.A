@@ -1,13 +1,13 @@
 # 209 — FO-EFF Slice 1 Implementation Certification  
 ## Work-order templates / checklists + Technician My Work
 
-**Status:** **SLICE 1 IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION**  
+**Status:** **SLICE 1 IMPLEMENTED — Production released in [docs/210](../210-fo-eff-slice1-production-release/index.md)**  
 **Date:** 2026-08-18  
 **Program:** FO-EFF-001 Slice 1 (+ SIM-001 My Work / assignment deep links)  
 **Design:** [docs/207](../207-fo-operational-efficiency/index.md) (**Approved**) · [docs/208](../208-mpa-app-wide-simplicity-navigation-audit/index.md) (**Approved**)  
 **ADRs:** [ADR-036](../18-decision-log/adr-036-fo-operational-efficiency-system.md) (**Accepted**) · [ADR-037](../18-decision-log/adr-037-app-wide-simplicity-navigation.md) (**Accepted**)  
 **Preserves:** docs/204 **APPROVED** · ADR-034 **Accepted** · docs/205 certified · docs/206 Production release · docs/188–206 lineage  
-**Mode:** Implement in-repo only — **no** Production deploy, **no** Production migration apply  
+**Mode:** In-repo implement certified; Production apply/deploy recorded in docs/210  
 
 ---
 
