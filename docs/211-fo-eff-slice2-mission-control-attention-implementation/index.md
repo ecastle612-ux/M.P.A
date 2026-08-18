@@ -1,19 +1,19 @@
 # 211 — FO-EFF Slice 2 Implementation Certification  
 ## Facility Mission Control Needs Attention + notification deep links
 
-**Status:** **SLICE 2 IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION**  
+**Status:** **SLICE 2 IMPLEMENTED — Production released in [docs/212](../212-fo-eff-slice2-production-release/index.md)**  
 **Date:** 2026-08-18  
 **Program:** FO-EFF-001 Slice 2 (+ SIM-001 / SIM-P0-2 / SIM-P0-3)  
 **Design:** [docs/207](../207-fo-operational-efficiency/index.md) (**Approved**) · [docs/208](../208-mpa-app-wide-simplicity-navigation-audit/index.md) (**Approved**)  
 **ADRs:** [ADR-036](../18-decision-log/adr-036-fo-operational-efficiency-system.md) (**Accepted**) · [ADR-037](../18-decision-log/adr-037-app-wide-simplicity-navigation.md) (**Accepted**) · [ADR-033](../18-decision-log/adr-033-complete-operating-scope.md) / [docs/202](../202-complete-scoped-staff-handoff-remediation/index.md) preserved  
 **Preserves:** docs/204 **APPROVED** · ADR-034 **Accepted** · docs/205–206 public request · docs/209–210 Slice 1 · docs/188–210 lineage  
-**Mode:** Implement in-repo only — **no** Production deploy, **no** Production migration apply, **no** Production data/notification mutation  
+**Mode:** In-repo implement certified; Production apply/deploy recorded in docs/212  
 
 ---
 
 ## Verdict
 
-**SLICE 2 IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION**
+**SLICE 2 IMPLEMENTED** — Production release certified in [docs/212](../212-fo-eff-slice2-production-release/index.md).
 
 Authorized scope only:
 
