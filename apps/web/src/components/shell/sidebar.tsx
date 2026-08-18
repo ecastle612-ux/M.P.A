@@ -2,54 +2,104 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
+import {
+  completeSurfaceOptions,
+  operationalSurfaceFromPath,
+  presentNavigationGroups,
+  surfaceLabelForPath
+} from "@mpa/shared";
+import { cn } from "@mpa/ui";
+import { AccountMenu } from "./account-menu";
+import { AppNavRail, SidebarBrandLockup } from "./app-nav-rail";
 import { useCommercialContext } from "./commercial-context";
+import { useOrganizationContext } from "./organization-context";
+import { useRoleContext } from "./role-context";
+import { useSidebarCollapse } from "./use-sidebar-collapse";
+
+export function SurfaceSwitcher({
+  options,
+  pathname
+}: {
+  options: ReturnType<typeof completeSurfaceOptions>;
+  pathname: string;
+}) {
+  if (options.length < 2) {
+    return null;
+  }
+  const surface = operationalSurfaceFromPath(pathname);
+  return (
+    <div
+      role="group"
+      aria-label="Operational surface"
+      className="grid grid-cols-2 gap-1 rounded-md bg-[var(--mpa-color-bg-sidebar-elevated)] p-1"
+    >
+      {options.map((option) => {
+        const current = surface === option.id;
+        return (
+          <Link
+            key={option.id}
+            href={option.href}
+            aria-current={current ? "page" : undefined}
+            className={cn(
+              "min-h-10 rounded px-2 text-center text-[11px] font-medium leading-tight motion-safe:transition-colors motion-safe:duration-[var(--mpa-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus)]",
+              current
+                ? "bg-[var(--mpa-color-bg-sidebar-active)] text-[var(--mpa-color-text-sidebar-active)]"
+                : "text-[var(--mpa-color-text-sidebar)] hover:text-[var(--mpa-color-text-sidebar-active)]"
+            )}
+          >
+            <span className="flex h-full items-center justify-center">{option.label}</span>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 
 export function Sidebar() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const { productLabel, productSku, navigationGroups } = useCommercialContext();
+  const { activeOrganization } = useOrganizationContext();
+  const { activeRoleLabel } = useRoleContext();
+  const { collapsed, toggleCollapsed } = useSidebarCollapse();
+
+  const presented = useMemo(
+    () =>
+      presentNavigationGroups(navigationGroups, {
+        roles: activeOrganization?.roles ?? [],
+        pathname
+      }),
+    [activeOrganization?.roles, navigationGroups, pathname]
+  );
+  const surfaceOptions = useMemo(() => completeSurfaceOptions(navigationGroups), [navigationGroups]);
+  const showProductTitles = surfaceOptions.length > 1;
+  const surfaceLabel = surfaceLabelForPath(pathname, productLabel, surfaceOptions);
+  const brandHref =
+    operationalSurfaceFromPath(pathname) === "facility"
+      ? "/facility/mission-control"
+      : operationalSurfaceFromPath(pathname) === "property"
+        ? "/pm/mission-control"
+        : "/launcher";
 
   return (
-    <aside className="hidden w-72 shrink-0 border-r border-[var(--mpa-color-border-sidebar)] bg-[var(--mpa-color-bg-sidebar)] text-[var(--mpa-color-text-sidebar)] lg:block">
-      <div className="border-b border-[var(--mpa-color-border-sidebar)] px-4 py-4">
-        <p className="font-display text-lg font-semibold text-[var(--mpa-color-text-sidebar-active)]">M.P.A.</p>
-        <p className="mt-1 text-xs text-[var(--mpa-color-text-sidebar)]">
-          {productLabel ?? "No product selected"}
-        </p>
-        {!productSku ? (
-          <p className="mt-2 text-xs text-[var(--mpa-color-text-sidebar)]/90">Complete Guided Setup to activate modules.</p>
-        ) : null}
-      </div>
-      <nav className="space-y-6 px-3 py-4">
-        {navigationGroups.map((group) => (
-          <div key={group.id}>
-            <p className="mb-2 px-2 text-xs uppercase tracking-wide text-[var(--mpa-color-text-sidebar)]/80">
-              {group.title}
-            </p>
-            <ul className="space-y-1">
-              {group.items.map((item) => {
-                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-                return (
-                  <li key={`${group.id}-${item.href}`}>
-                    <Link
-                      href={item.href}
-                      className={`flex items-center justify-between rounded-md px-2 py-2 text-sm hover:bg-[var(--mpa-color-bg-sidebar-elevated)] hover:text-[var(--mpa-color-text-sidebar-active)] ${
-                        active
-                          ? "bg-[var(--mpa-color-bg-sidebar-elevated)] text-[var(--mpa-color-text-sidebar-active)]"
-                          : ""
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                      {item.readiness === "planned" ? (
-                        <span className="text-[10px] uppercase tracking-wide opacity-70">Planned</span>
-                      ) : null}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
-      </nav>
-    </aside>
+    <div className="hidden h-screen shrink-0 lg:sticky lg:top-0 lg:block lg:self-start">
+      <AppNavRail
+        collapsed={collapsed}
+        onToggleCollapsed={toggleCollapsed}
+        pathname={pathname}
+        groups={presented}
+        showProductTitles={showProductTitles}
+        brand={
+          <SidebarBrandLockup
+            href={productSku ? brandHref : "/setup"}
+            collapsed={collapsed}
+            organizationName={activeOrganization?.name ?? null}
+            surfaceLabel={surfaceLabel}
+          />
+        }
+        context={<SurfaceSwitcher options={surfaceOptions} pathname={pathname} />}
+        footer={<AccountMenu placement="sidebar" roleLabel={activeRoleLabel} collapsed={collapsed} />}
+      />
+    </div>
   );
 }

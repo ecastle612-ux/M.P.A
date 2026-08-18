@@ -7,6 +7,7 @@ import { OrganizationProvider } from "./organization-context";
 import { RoleProvider } from "./role-context";
 import { CommercialProvider } from "./commercial-context";
 import { OperatorProvider } from "./operator-context";
+import { ProfileProvider } from "./profile-provider";
 
 export function AuthenticatedContextProviders({
   children,
@@ -27,7 +28,8 @@ export function AuthenticatedContextProviders({
 
   return (
     <OperatorProvider isPlatformOperator={isPlatformOperator}>
-      <OrganizationProvider
+      <ProfileProvider>
+        <OrganizationProvider
         organizations={organizationState}
         defaultOrganizationId={defaultOrganizationId}
         onRefreshOrganizations={async () => {
@@ -69,7 +71,8 @@ export function AuthenticatedContextProviders({
             {children}
           </RoleProvider>
         </CommercialProvider>
-      </OrganizationProvider>
+        </OrganizationProvider>
+      </ProfileProvider>
     </OperatorProvider>
   );
 }
