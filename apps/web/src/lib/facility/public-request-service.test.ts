@@ -206,8 +206,10 @@ describe("public request service", () => {
     expect(woArgs?.[4]).toMatchObject({
       intakeChannel: "qr",
       createdByUserId: "mgr_1",
+      originSource: "public_request",
       floorLabel: "3",
-      departmentLabel: "Cardiology"
+      departmentLabel: "Cardiology",
+      routingContext: { requestFormId: "form_1" }
     });
     expect(notifyLifecycle).toHaveBeenCalledWith(
       expect.anything(),
@@ -390,9 +392,11 @@ describe("public request service", () => {
     });
     expect(createFacilityWorkOrder.mock.calls[0]?.[4]).toMatchObject({
       intakeChannel: "qr",
+      originSource: "public_request",
       floorLabel: "3",
       departmentLabel: "Cardiology",
-      roomLabel: "312"
+      roomLabel: "312",
+      routingContext: { requestFormId: "form_1" }
     });
   });
 });

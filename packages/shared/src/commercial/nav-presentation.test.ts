@@ -65,6 +65,7 @@ describe("nav presentation — grouping and icons", () => {
     expect(navIconForHref("/facility/my-work")).toBe("myWork");
     expect(navIconForHref("/facility/settings/request-forms")).toBe("requestForms");
     expect(navIconForHref("/facility/settings/work-templates")).toBe("workTemplates");
+    expect(navIconForHref("/facility/settings/assignment-rules")).toBe("settings");
   });
 
   it("keeps technician sidebar dramatically simpler than manager sidebar", () => {
@@ -74,6 +75,7 @@ describe("nav presentation — grouping and icons", () => {
     expect(isTechnicianOnlyStaff(["maintenance_technician"])).toBe(true);
     expect(hrefs).toContain("/facility/operations");
     expect(hrefs).not.toContain("/facility/preventive-maintenance");
+    expect(hrefs).not.toContain("/facility/settings/assignment-rules");
     expect(hrefs).not.toContain("/facility/inspections");
     expect(hrefs).not.toContain("/facility/reports");
     expect(hrefs).not.toContain("/facility/vendors");

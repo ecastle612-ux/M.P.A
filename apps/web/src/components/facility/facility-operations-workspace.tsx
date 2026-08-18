@@ -1070,6 +1070,37 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                           Assign
                         </Button>
                       </form>
+                      {selected.assignee_type === "unassigned" ? (
+                        <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
+                          <h3 className="text-sm font-semibold">Apply assignment rules</h3>
+                          <p className="text-xs text-[var(--mpa-color-text-secondary)]">
+                            Re-run only when you ask. Rules never overwrite a person you already assigned.
+                          </p>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="min-h-11"
+                            disabled={busy}
+                            onClick={() =>
+                              void run(async () => {
+                                const response = await fetch("/api/facility/assignment-rules/rerun", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ workOrderId: selected.id })
+                                });
+                                const body = (await response.json()) as {
+                                  error?: string;
+                                  routing?: { result?: string; reason?: string };
+                                };
+                                if (!response.ok) throw new Error(body.error ?? "Could not apply assignment rules.");
+                                setNotice(body.routing?.reason ?? "Assignment rules evaluated.");
+                              })
+                            }
+                          >
+                            Apply assignment rules
+                          </Button>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
 

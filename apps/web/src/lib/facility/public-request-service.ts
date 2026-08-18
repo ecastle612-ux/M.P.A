@@ -327,9 +327,11 @@ export async function submitPublicRequest(
       createdByUserId,
       intakeChannel: source,
       requestNumber,
+      originSource: "public_request",
       floorLabel: validated.floorLabel,
       departmentLabel: validated.departmentLabel,
-      roomLabel: validated.roomLabel
+      roomLabel: validated.roomLabel,
+      routingContext: { requestFormId: resolved.formId }
     }
   );
 

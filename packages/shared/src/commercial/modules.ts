@@ -255,15 +255,24 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     description:
       "Facility vendor directory for HVAC, plumbing, electrical, and contractors — assign from Operations."
   },
-  {
-    id: "facility_request_forms",
-    label: "Request Forms",
-    owner: "facility_operations",
-    entitlement: "facility.request_forms",
-    href: "/facility/settings/request-forms",
-    readiness: "aligned",
-    description: "Custom Facility work-request forms, share links, and QR intake."
-  },
+    {
+      id: "facility_request_forms",
+      label: "Request Forms",
+      owner: "facility_operations",
+      entitlement: "facility.request_forms",
+      href: "/facility/settings/request-forms",
+      readiness: "aligned",
+      description: "Custom Facility work-request forms, share links, and QR intake."
+    },
+    {
+      id: "facility_assignment_rules",
+      label: "Assignment Rules",
+      owner: "facility_operations",
+      entitlement: "facility.routing",
+      href: "/facility/settings/assignment-rules",
+      readiness: "aligned",
+      description: "Deterministic rules that assign new facility work to authorized staff."
+    },
   {
     id: "assets",
     label: "Assets",
@@ -493,6 +502,12 @@ export function navigationGroupsForSku(
           label: "Request Forms",
           readiness: "aligned",
           entitlement: "facility.request_forms"
+        },
+        {
+          href: "/facility/settings/assignment-rules",
+          label: "Assignment Rules",
+          readiness: "aligned",
+          entitlement: "facility.routing"
         },
         {
           href: "/facility/assets",

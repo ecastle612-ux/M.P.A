@@ -108,6 +108,8 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     ["/facility/capital-projects", "facility.capital_projects"],
     ["/facility/settings/work-templates", "facility.operations"],
     ["/facility/settings/request-forms", "facility.request_forms"],
+    ["/facility/settings/assignment-rules", "facility.routing"],
+    ["/facility/assignment-rules", "facility.routing"],
     ["/facility/request-forms", "facility.request_forms"]
   ];
   for (const [prefix, entitlement] of facilityRoutes) {
@@ -430,6 +432,14 @@ export function searchCatalogForSku(
         "Preventive Maintenance",
         "Facility Operations",
         "facility.preventive"
+      )
+    );
+    push(
+      decisionPath(
+        "/facility/settings/assignment-rules",
+        "Assignment Rules",
+        "Facility Operations",
+        "facility.routing"
       )
     );
     push(decisionPath("/facility/inspections", "Inspections", "Facility Operations", "facility.inspections"));

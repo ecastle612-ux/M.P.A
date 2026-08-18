@@ -51,6 +51,14 @@ export async function requireFacilityRequestFormsPermission() {
   });
 }
 
+export async function requireFacilityRoutingPermission() {
+  return requireAuthorizedAction({
+    capability: "pm.maintenance:write",
+    entitlement: "facility.routing",
+    allowedRoles: [...FACILITY_MANAGER_ROLES]
+  });
+}
+
 export async function requireFacilityInventoryPermission(
   capability: PermissionCapability,
   options?: { managerOnly?: boolean; allowedRoles?: readonly UserRole[] }

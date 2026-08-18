@@ -1092,6 +1092,10 @@ export async function createFacilityWorkOrder(
     originSource?: PmOriginSource;
     pmPlanId?: string | null;
     pmOccurrenceDueOn?: string | null;
+    routingContext?: {
+      requestFormId?: string | null;
+      workTemplateId?: string | null;
+    };
   }
 ) {
   const { data: property, error: propertyError } = await supabase
@@ -1218,7 +1222,24 @@ export async function createFacilityWorkOrder(
     await applyTemplateToWorkOrder(supabase, organizationId, workOrder.id, input.templateId);
   }
 
-  return (await getWorkOrder(supabase, organizationId, workOrder.id)) as WorkOrderRow;
+  const created = (await getWorkOrder(supabase, organizationId, workOrder.id)) as WorkOrderRow;
+  try {
+    const { routeFacilityWorkOrder } = await import("../facility/assignment-routing-service");
+    const routed = await routeFacilityWorkOrder(supabase, organizationId, created.id, {
+      trigger: "initial_create",
+      actorUserId: createdBy,
+      context: {
+        requestFormId: options?.routingContext?.requestFormId ?? null,
+        workTemplateId: options?.routingContext?.workTemplateId ?? input.templateId ?? null
+      }
+    });
+    if (routed.workOrder) {
+      return routed.workOrder;
+    }
+  } catch {
+    // Fail-safe: routing must not lose the canonical work order.
+  }
+  return created;
 }
 
 export async function cancelWorkOrder(

@@ -128,6 +128,7 @@ const HREF_META: Record<string, { icon: NavIconName; section: NavSectionId }> = 
   "/facility/vendors": { icon: "vendors", section: "partners" },
   "/facility/settings/work-templates": { icon: "workTemplates", section: "facilities" },
   "/facility/settings/request-forms": { icon: "requestForms", section: "facilities" },
+  "/facility/settings/assignment-rules": { icon: "settings", section: "facilities" },
   "/facility/assets": { icon: "assets", section: "facilities" },
   "/facility/preventive-maintenance": { icon: "preventive", section: "facilities" },
   "/facility/inspections": { icon: "inspections", section: "facilities" },
@@ -196,6 +197,9 @@ export function navIconForHref(href: string): NavIconName {
   }
   if (href.startsWith("/facility/settings/work-templates")) {
     return "workTemplates";
+  }
+  if (href.startsWith("/facility/settings/assignment-rules")) {
+    return "settings";
   }
   if (href.startsWith("/facility/operations")) {
     return "operations";
