@@ -49,6 +49,7 @@ describe("SignWell server-only isolation", () => {
     const documents = read("lib/documents/document-service.ts");
     expect(client).toMatch(/completed_pdf\?url_only=true/);
     expect(client).toMatch(/getSignWellCompletedPdfUrl/);
+    expect(documents).toMatch(/hydrateSignWellExternalFile/);
     expect(documents).toMatch(/getSignWellCompletedPdfUrl/);
     expect(documents).toMatch(/resolveSignWellExternalFileUrl/);
     expect(read("components/documents/documents-workspace.tsx")).toMatch(/Open external file/);

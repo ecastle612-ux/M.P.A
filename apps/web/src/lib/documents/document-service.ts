@@ -568,6 +568,27 @@ export async function listDocuments(
   return combined.filter((doc) => matchesQuery(doc, needle));
 }
 
+async function hydrateSignWellExternalFile(signwellDocumentId: string): Promise<{
+  status: string | null;
+  externalUrl: string | null;
+}> {
+  const remote = await getSignWellDocument(signwellDocumentId);
+  const files = (remote as { files?: Array<{ url?: string; name?: string }> }).files;
+  const fromFiles = files?.find((file) => file.url)?.url ?? null;
+  const completedPdfUrl =
+    !fromFiles && isSignWellCompletedStatus(remote.status)
+      ? await getSignWellCompletedPdfUrl(signwellDocumentId)
+      : null;
+  return {
+    status: remote.status,
+    externalUrl: resolveSignWellExternalFileUrl({
+      files: files ?? null,
+      status: remote.status,
+      completedPdfUrl
+    })
+  };
+}
+
 export async function getDocumentDetail(
   supabase: Db,
   organizationId: string,
@@ -594,19 +615,9 @@ export async function getDocumentDetail(
     let externalUrl: string | null = null;
     if (lease.signwell_document_id && isSignWellConfigured()) {
       try {
-        const remote = await getSignWellDocument(lease.signwell_document_id as string);
-        signwellStatus = remote.status;
-        const files = (remote as { files?: Array<{ url?: string; name?: string }> }).files;
-        const fromFiles = files?.find((file) => file.url)?.url ?? null;
-        const completedPdfUrl =
-          !fromFiles && isSignWellCompletedStatus(remote.status)
-            ? await getSignWellCompletedPdfUrl(lease.signwell_document_id as string)
-            : null;
-        externalUrl = resolveSignWellExternalFileUrl({
-          files: files ?? null,
-          status: remote.status,
-          completedPdfUrl
-        });
+        const live = await hydrateSignWellExternalFile(lease.signwell_document_id as string);
+        signwellStatus = live.status ?? signwellStatus;
+        externalUrl = live.externalUrl;
       } catch {
         // Keep local lease body when SignWell is unreachable.
       }
@@ -669,9 +680,19 @@ export async function getDocumentDetail(
     return null;
   }
 
-  const document = mapRow(data as Record<string, unknown>);
+  let document = mapRow(data as Record<string, unknown>);
   if (document.deletedAt) {
     return null;
+  }
+  let signwellStatus: string | null = null;
+  if (document.signwellDocumentId && isSignWellConfigured()) {
+    try {
+      const live = await hydrateSignWellExternalFile(document.signwellDocumentId);
+      signwellStatus = live.status;
+      document = { ...document, externalUrl: live.externalUrl ?? document.externalUrl };
+    } catch {
+      // Keep the stored row when SignWell is unreachable.
+    }
   }
   const [links, versions] = await Promise.all([
     listDocumentLinks(supabase, organizationId, documentId),
@@ -683,7 +704,7 @@ export async function getDocumentDetail(
     contentText: (data.content_text as string | null) ?? null,
     contentBase64: (data.content_base64 as string | null) ?? null,
     bodyJson: parseAuthoredBody(data.body_json) ?? null,
-    signwellStatus: null,
+    signwellStatus,
     links,
     versions,
     activity: buildActivity({
