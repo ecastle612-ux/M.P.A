@@ -166,6 +166,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 223 | [AI Assistant Functionality Audit](./223-ai-assistant-functionality-audit/index.md) | **AUDIT PASS** · briefing permission gate · originally recorded as 222 on a parallel branch · meaning unchanged |
 | 224 | [Final Human Onboarding Simulation](./224-final-human-onboarding-simulation/index.md) | **FINAL HUMAN ONBOARDING SIMULATION PASS — BEGIN REAL USER ONBOARDING** · P0=0 · P1=0 |
 | 225 | [SignWell Documents Full Functionality Audit](./225-signwell-documents-full-functionality-audit/index.md) | **IN-REPO CERTIFIED — PRODUCTION UAT REQUIRED** · webhook correlation + send idempotency remediations · no deploy |
+| 226 | [SignWell Production Release + UAT](./226-signwell-production-release-uat/index.md) | **BLOCKED — SIGNWELL PRODUCTION END-TO-END UAT** · Send Pass · signer/webhook/retrieval not completed · SHA `da41ece4` · deploy `dpl_6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -268,6 +269,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [223 AI Assistant Functionality Audit](./223-ai-assistant-functionality-audit/index.md) | **AUDIT PASS** — briefing permission gate · renumbered from colliding 222 |
 | [224 Final Human Onboarding Simulation](./224-final-human-onboarding-simulation/index.md) | **FINAL HUMAN ONBOARDING SIMULATION PASS — BEGIN REAL USER ONBOARDING** — P0=0 · P1=0 · live SHA `a1f617de` |
 | [225 SignWell Documents Full Functionality Audit](./225-signwell-documents-full-functionality-audit/index.md) | **IN-REPO CERTIFIED — PRODUCTION UAT REQUIRED** — SHA `dcf63210` · no Production deploy |
+| [226 SignWell Production Release + UAT](./226-signwell-production-release-uat/index.md) | **BLOCKED — SIGNWELL PRODUCTION END-TO-END UAT** — Send Pass · SHA `da41ece4` · deploy `dpl_6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB` |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
