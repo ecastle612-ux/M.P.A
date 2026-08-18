@@ -138,7 +138,7 @@ export async function getSignWellCompletedPdfUrl(documentId: string): Promise<st
 }
 
 export function resolveSignWellExternalFileUrl(input: {
-  files?: Array<{ url?: string | null }> | null;
+  files?: Array<{ url?: string | null; name?: string }> | null;
   status?: string | null;
   completedPdfUrl?: string | null;
 }): string | null {

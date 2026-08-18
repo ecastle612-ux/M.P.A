@@ -603,7 +603,7 @@ export async function getDocumentDetail(
             ? await getSignWellCompletedPdfUrl(lease.signwell_document_id as string)
             : null;
         externalUrl = resolveSignWellExternalFileUrl({
-          files,
+          files: files ?? null,
           status: remote.status,
           completedPdfUrl
         });
