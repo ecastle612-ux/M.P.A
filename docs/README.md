@@ -129,6 +129,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 185 | [Complimentary Tester / Gift Access](./185-complimentary-tester-gift-access/index.md) | **Approved** · implemented · Production applied in 187 |
 | 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** · executed in 187 |
 | 187 | [Complimentary Access Production Release Certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** · stamp `20260817064006` · SHA `f922da26` |
+<<<<<<< HEAD
 | 188 | [Tenant Stripe Rent Collection + Admin-Controlled Fees](./188-tenant-stripe-rent-collection/index.md) | **Approved** · Owner A–E · implemented in-repo · see 189 |
 | 189 | [Tenant Stripe Rent Collection Implementation Certification](./189-tenant-stripe-rent-collection-implementation-certification/index.md) | **IMPLEMENTED IN-REPO** · execution stays off |
 | 190 | [Tenant Stripe Rent Collection Production UAT Readiness](./190-tenant-stripe-rent-collection-uat-readiness/index.md) | Pre-foundation block · superseded by 191 |
@@ -144,6 +145,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 200 | [Public Rent Collection Marketing](./200-public-rent-collection-marketing/index.md) | **IMPLEMENTED IN-REPO** · copy only · STOP before Production deploy |
 | 201 | [Final End-to-End Flow / Mismatch / Dead-End Audit](./201-final-end-to-end-flow-audit/index.md) | **CONDITIONAL** · one P1 Complete scoped-staff handoffs · no P0 · no money mutation · remediated in 202 |
 | 202 | [Complete Scoped-Staff Handoff Remediation](./202-complete-scoped-staff-handoff-remediation/index.md) | **P1-01 REMEDIATED** · in-repo · STOP before Production deploy |
+| 204 | [Facility Custom Work Request Forms + QR / Link Intake](./204-facility-custom-work-request-forms/index.md) | **APPROVED** · ADR-034 Accepted · implemented in-repo · Production release in 206 |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
