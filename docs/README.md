@@ -164,6 +164,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 221 | [FO-EFF Slice 6 Deterministic Routing](./221-fo-eff-slice6-deterministic-routing/index.md) | **IMPLEMENTED IN-REPO** · SHA `cf94c1b4` · Production released in 222 |
 | 222 | [FO-EFF Slice 6 Production Release](./222-fo-eff-slice6-production-release/index.md) | **FO-EFF SLICE 6 PRODUCTION RELEASE + UAT SUCCESSFUL** · stamp `20260818091246` · SHA `c84742d9` · deploy `dpl_BYMrKYufEpvSY1CbU4ybaY1f76RB` |
 | 223 | [AI Assistant Functionality Audit](./223-ai-assistant-functionality-audit/index.md) | **AUDIT PASS** · briefing permission gate · originally recorded as 222 on a parallel branch · meaning unchanged |
+| 224 | [Final Human Onboarding Simulation](./224-final-human-onboarding-simulation/index.md) | **FINAL HUMAN ONBOARDING SIMULATION PASS — BEGIN REAL USER ONBOARDING** · P0=0 · P1=0 |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -264,6 +265,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [221 FO-EFF Slice 6 Deterministic routing](./221-fo-eff-slice6-deterministic-routing/index.md) | **IMPLEMENTED IN-REPO** — SHA `cf94c1b4` · Production released in 222 |
 | [222 FO-EFF Slice 6 Production release](./222-fo-eff-slice6-production-release/index.md) | **FO-EFF SLICE 6 PRODUCTION RELEASE + UAT SUCCESSFUL** — stamp `20260818091246` · SHA `c84742d9` · deploy `dpl_BYMrKYufEpvSY1CbU4ybaY1f76RB` |
 | [223 AI Assistant Functionality Audit](./223-ai-assistant-functionality-audit/index.md) | **AUDIT PASS** — briefing permission gate · renumbered from colliding 222 |
+| [224 Final Human Onboarding Simulation](./224-final-human-onboarding-simulation/index.md) | **FINAL HUMAN ONBOARDING SIMULATION PASS — BEGIN REAL USER ONBOARDING** — P0=0 · P1=0 · live SHA `a1f617de` |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
