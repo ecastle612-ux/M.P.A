@@ -1,11 +1,11 @@
+-- Production stamp twin of 20260818180000_docs_219_fo_eff_slice5_pm.sql
+-- Registered on Production as 20260818081710 / docs_219_fo_eff_slice5_pm
+-- SQL-equivalent to the certified docs/219 source. Do not replay 20260818180000.
+-- Do not re-apply this twin.
+-- Prerequisite Production stamp: 20260818081654 / docs_219_fac002_legacy_pm_rename
+
 -- FO-EFF Slice 5: Preventive Maintenance plans + idempotent generation.
 -- Additive only. Does not rewrite historical work orders, public intake, Slice 1–4, finance, July, or M5.
--- Production registered as 20260818081710 / docs_219_fo_eff_slice5_pm.
--- Do not replay this unused source stamp 20260818180000 on Production.
-
--- ---------------------------------------------------------------------------
--- Plans
--- ---------------------------------------------------------------------------
 
 create table if not exists public.facility_pm_plans (
   id uuid primary key default gen_random_uuid(),
@@ -62,10 +62,6 @@ create index if not exists facility_pm_plans_org_asset_idx
 create index if not exists facility_pm_plans_org_search_idx
   on public.facility_pm_plans (organization_id, name);
 
--- ---------------------------------------------------------------------------
--- Occurrences (idempotency)
--- ---------------------------------------------------------------------------
-
 create table if not exists public.facility_pm_occurrences (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations (id) on delete cascade,
@@ -78,10 +74,6 @@ create table if not exists public.facility_pm_occurrences (
 
 create index if not exists facility_pm_occurrences_org_plan_idx
   on public.facility_pm_occurrences (organization_id, plan_id, occurrence_due_on desc);
-
--- ---------------------------------------------------------------------------
--- Canonical WO source + PM references (additive)
--- ---------------------------------------------------------------------------
 
 alter table public.maintenance_work_orders
   add column if not exists origin_source text
@@ -109,10 +101,6 @@ comment on column public.maintenance_work_orders.pm_plan_id is
   'FO-EFF Slice 5 plan that generated this facility work order.';
 comment on table public.facility_pm_occurrences is
   'One generated occurrence per plan due date. Unique (plan_id, occurrence_due_on) is the scheduler idempotency contract.';
-
--- ---------------------------------------------------------------------------
--- RLS
--- ---------------------------------------------------------------------------
 
 alter table public.facility_pm_plans enable row level security;
 alter table public.facility_pm_occurrences enable row level security;

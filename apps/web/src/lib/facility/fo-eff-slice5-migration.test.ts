@@ -17,7 +17,7 @@ describe("docs/219 FO-EFF Slice 5 migration", () => {
     expect(migration).toContain("add column if not exists pm_plan_id");
     expect(migration).toContain("add column if not exists pm_occurrence_due_on");
     expect(migration).toContain("enable row level security");
-    expect(migration).toContain("Do not apply on Production");
+    expect(migration).toContain("Do not replay this unused source stamp 20260818180000");
     expect(migration).not.toContain("drop table");
     expect(migration).not.toContain("drop column");
     expect(migration).not.toContain("delete from public.maintenance_work_orders");
