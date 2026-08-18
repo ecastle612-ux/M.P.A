@@ -31,4 +31,18 @@ describe("work surface isolation for Complete Plan", () => {
     const source = read("app/api/pm/maintenance/route.ts");
     expect(source).toMatch(/listWorkOrders\([\s\S]*surface:\s*"residential"/);
   });
+
+  it("Property Operations daily ops gates finance and resident/lease queries", () => {
+    const source = read("lib/property/daily-ops-service.ts");
+    expect(source).toMatch(/resolveDailyOpsBriefingAccess/);
+    expect(source).toMatch(/access\.includeFinance/);
+    expect(source).toMatch(/access\.includeResidentLease/);
+    expect(source).toMatch(/getCommandCenterReport/);
+  });
+
+  it("Mission Control API passes server permissions into the briefing", () => {
+    const source = read("app/api/pm/mission-control/route.ts");
+    expect(source).toMatch(/permissions:\s*authz\.permissions/);
+    expect(source).toMatch(/requirePropertyPermission\("pm\.properties:read"\)/);
+  });
 });
