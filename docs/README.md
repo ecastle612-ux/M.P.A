@@ -147,6 +147,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 204 | [Facility Custom Work Request Forms + QR / Link Intake](./204-facility-custom-work-request-forms/index.md) | **APPROVED** · ADR-034 Accepted · implemented in 205 · Production released in 206 |
 | 205 | [Facility Public Work Request Intake Implementation Certification](./205-facility-public-work-request-intake-implementation/index.md) | **IMPLEMENTED IN-REPO** · implement `c3fc21bc` · Production released in 206 |
 | 206 | [Facility Public Work Request Production Release](./206-facility-public-work-request-production-release/index.md) | **FACILITY PUBLIC WORK REQUEST PRODUCTION RELEASE SUCCESSFUL** · stamp `20260818011913` · SHA `06164778` |
+| 207 | [FO Operational Efficiency](./207-fo-operational-efficiency/index.md) | **DESIGN COMPLETE — APPROVAL REQUIRED (RECONCILED)** · PM / Assets+QR / Checklists / My Work / Routing · ADR-036 Proposed · integrates docs/204–206 |
+| 208 | [App-Wide Simplicity + Navigation Audit](./208-mpa-app-wide-simplicity-navigation-audit/index.md) | **DESIGN COMPLETE — APPROVAL REQUIRED (RECONCILED)** · includes certified Request Forms / public intake · ADR-037 Proposed |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
