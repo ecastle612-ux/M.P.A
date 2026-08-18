@@ -155,7 +155,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 212 | [FO-EFF Slice 2 Production Release](./212-fo-eff-slice2-production-release/index.md) | **SLICE 2 PRODUCTION RELEASE SUCCESSFUL** · SHA `27657c6b` · deploy `dpl_GpcqvPZ9eQCWesuTCqrHGUibFjT5` |
 | 213 | [App-Wide Sidebar Visual + UX Refinement](./213-app-wide-sidebar-visual-refinement/index.md) | **RECONCILED** · implement `0823bae2` · Production released in 214 |
 | 214 | [App-Wide Sidebar Production Release](./214-app-wide-sidebar-production-release/index.md) | **APP-WIDE SIDEBAR PRODUCTION RELEASE SUCCESSFUL** · SHA `8ae89150` · deploy `dpl_HxxuVRu6dqRbuMxKPVMEbcAQ7BUQ` |
-| 215 | [FO-EFF Slice 3 Asset Registry + Asset QR](./215-fo-eff-slice3-asset-registry-qr/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** · SHA `72fe96ed` |
+| 215 | [FO-EFF Slice 3 Asset Registry + Asset QR](./215-fo-eff-slice3-asset-registry-qr/index.md) | **IMPLEMENTED IN-REPO** · SHA `72fe96ed` · Production released in 216 |
+| 216 | [FO-EFF Slice 3 Production Release](./216-fo-eff-slice3-production-release/index.md) | **FO-EFF SLICE 3 PRODUCTION RELEASE + UAT SUCCESSFUL** · stamp `20260818040239` · SHA `7f0fa45d` · deploy `dpl_3yqMaZFnj3S4dqKotmnzGCm1P18i` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -247,7 +248,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [212 FO-EFF Slice 2 Production release](./212-fo-eff-slice2-production-release/index.md) | **SLICE 2 PRODUCTION RELEASE SUCCESSFUL** — SHA `27657c6b` · deploy `dpl_GpcqvPZ9eQCWesuTCqrHGUibFjT5` |
 | [213 App-wide sidebar visual refinement](./213-app-wide-sidebar-visual-refinement/index.md) | **RECONCILED** — implement `0823bae2` · Production released in 214 |
 | [214 App-wide sidebar Production release](./214-app-wide-sidebar-production-release/index.md) | **APP-WIDE SIDEBAR PRODUCTION RELEASE SUCCESSFUL** — SHA `8ae89150` · deploy `dpl_HxxuVRu6dqRbuMxKPVMEbcAQ7BUQ` |
-| [215 FO-EFF Slice 3 Asset Registry + Asset QR](./215-fo-eff-slice3-asset-registry-qr/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** — SHA `72fe96ed` |
+| [215 FO-EFF Slice 3 Asset Registry + Asset QR](./215-fo-eff-slice3-asset-registry-qr/index.md) | **IMPLEMENTED IN-REPO** — SHA `72fe96ed` · Production released in 216 |
+| [216 FO-EFF Slice 3 Production release](./216-fo-eff-slice3-production-release/index.md) | **FO-EFF SLICE 3 PRODUCTION RELEASE + UAT SUCCESSFUL** — stamp `20260818040239` · SHA `7f0fa45d` · deploy `dpl_3yqMaZFnj3S4dqKotmnzGCm1P18i` |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
