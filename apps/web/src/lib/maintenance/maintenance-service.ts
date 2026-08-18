@@ -49,6 +49,9 @@ export type WorkOrderRow = {
   resident_confirmed_at: string | null;
   closed_at: string | null;
   created_at: string;
+  template_version_id?: string | null;
+  checklist_snapshot?: unknown;
+  require_completion_photo?: boolean;
   intake_channel?: FacilityRequestIntakeChannel | null;
   request_number?: string | null;
   floor_label?: string | null;
@@ -537,7 +540,9 @@ export async function assignWorkOrder(
   });
 
   const assigneeHref =
-    existing.work_surface === "facility" ? "/facility/operations" : "/pm/maintenance";
+    existing.work_surface === "facility"
+      ? `/facility/my-work?workOrderId=${input.workOrderId}`
+      : "/pm/maintenance";
 
   if (technicianUserId) {
     await notify(supabase, {
@@ -640,6 +645,18 @@ export async function progressWorkOrder(
     }
   }
 
+  if (input.action === "complete" && existing.work_surface === "facility") {
+    const { assertFacilityChecklistComplete } = await import("../facility/work-template-service");
+    const checklistGate = await assertFacilityChecklistComplete(
+      supabase,
+      organizationId,
+      input.workOrderId
+    );
+    if (!checklistGate.ok) {
+      throw new Error(checklistGate.message);
+    }
+  }
+
   let nextStatus: WorkOrderStatus = existing.status;
   let eventType = "work_order.progressed";
   const patch: {
@@ -678,6 +695,10 @@ export async function progressWorkOrder(
     eventType = "work_order.started";
   }
 
+  if (input.executionSignal && input.action !== "complete") {
+    eventType = `work_order.${input.executionSignal}`;
+  }
+
   const { data, error } = await supabase
     .from("maintenance_work_orders")
     .update(patch)
@@ -706,7 +727,12 @@ export async function progressWorkOrder(
     eventType,
     alsoPropertyId: existing.property_id,
     alsoResidentId: existing.resident_id,
-    payload: { note: input.note, status: nextStatus, action: input.action }
+    payload: {
+      note: input.note,
+      status: nextStatus,
+      action: input.action,
+      executionSignal: input.executionSignal ?? null
+    }
   });
 
   const isTerminalProgress =
@@ -735,7 +761,8 @@ export async function progressWorkOrder(
     });
   } else if (criticalProgress) {
     // Facility: notify assignee + requester (no resident portal).
-    const facilityHref = "/facility/operations";
+    const facilityHref = `/facility/my-work?workOrderId=${input.workOrderId}`;
+    const managerHref = `/facility/operations`;
     await notify(supabase, {
       organizationId,
       userId: existing.technician_user_id,
@@ -764,7 +791,7 @@ export async function progressWorkOrder(
               ? "Facility work started"
               : "Facility work update",
         body: input.note,
-        href: facilityHref,
+        href: managerHref,
         emailCritical: true
       });
     }
@@ -1052,11 +1079,16 @@ export async function createFacilityWorkOrder(
       category: input.category,
       workSurface: "facility",
       facilityAssetLabel: input.facilityAssetLabel ?? null,
-      dueAt: input.dueAt ?? null
+      templateId: input.templateId ?? null
     }
   });
 
-  return workOrder as WorkOrderRow;
+  if (input.templateId) {
+    const { applyTemplateToWorkOrder } = await import("../facility/work-template-service");
+    await applyTemplateToWorkOrder(supabase, organizationId, workOrder.id, input.templateId);
+  }
+
+  return (await getWorkOrder(supabase, organizationId, workOrder.id)) as WorkOrderRow;
 }
 
 export async function cancelWorkOrder(

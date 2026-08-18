@@ -1,10 +1,13 @@
 # ADR-036: FO Operational Efficiency System (PM, Assets QR, Checklists, Technician My Work, Routing)
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-18
+
+## Accepted
+2026-08-18 — Product Owner approved docs/207 + ADR-036. Slice 1 authorized: work-order templates/checklists + Technician My Work (in-repo only; STOP before Production). Later FO-EFF slices remain blocked until separately Authorized.
 
 ## Context
 

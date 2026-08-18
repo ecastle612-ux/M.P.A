@@ -1,13 +1,14 @@
 # M.P.A. APP-WIDE SIMPLICITY + NAVIGATION AUDIT
 
 **Title:** M.P.A. APP-WIDE SIMPLICITY + NAVIGATION AUDIT  
-**Status:** DESIGN COMPLETE — APPROVAL REQUIRED (RECONCILED)  
+**Status:** **Approved** — Owner 2026-08-18 · Slice 1 implements My Work + notification deep-link portion only  
 **Date:** 2026-08-18  
+**Approved:** 2026-08-18 — Product Owner  
 **Program:** SIM-001  
-**Related ADR:** [ADR-037](../18-decision-log/adr-037-app-wide-simplicity-navigation.md) (**Proposed**)  
+**Related ADR:** [ADR-037](../18-decision-log/adr-037-app-wide-simplicity-navigation.md) (**Accepted**)  
 **Companion:** [docs/207 — FO Operational Efficiency](../207-fo-operational-efficiency/index.md)  
 **Predecessor lineage:** Certified docs/188–206 on `cursor/facility-work-request-production-021b` (see docs/207 §0) · includes [docs/204](../204-facility-custom-work-request-forms/index.md) / [ADR-034](../18-decision-log/adr-034-facility-public-work-request-intake.md) / [docs/205](../205-facility-public-work-request-intake-implementation/index.md) / [docs/206](../206-facility-public-work-request-production-release/index.md)  
-**Gate:** Design → Document → **Approve** → Implement (ADR-012)  
+**Gate:** Design → Document → Approve → **Implement** (Slice 1 My Work / deep links only; later SIM slices not authorized)  
 **Production:** No production change from this package  
 **Visual identity:** Preserve Canopy — **not** a cosmetic redesign  
 

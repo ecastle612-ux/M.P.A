@@ -1,10 +1,13 @@
 # ADR-037: App-Wide Simplicity and Navigation Efficiency
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-08-18
+
+## Accepted
+2026-08-18 — Product Owner approved docs/208 + ADR-037. Slice 1 may implement Technician My Work home + assignment notification deep links only. Global Search, Quick Create, Recent, Favorites, Saved Views, and broader Mission Control attention queues remain unauthorized.
 
 ## Context
 

@@ -31,6 +31,7 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/pm/properties",
     "/pm/maintenance",
     "/facility/mission-control",
+    "/facility/my-work",
     "/facility/operations",
     "/facility/assets",
     "/facility/preventive-maintenance",
@@ -458,6 +459,12 @@ export function navigationGroupsForSku(
           entitlement: "facility.mission_control"
         },
         {
+          href: "/facility/my-work",
+          label: "My Work",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
+        {
           href: "/facility/operations",
           label: "Operations",
           readiness: "aligned",
@@ -472,6 +479,12 @@ export function navigationGroupsForSku(
         {
           href: "/facility/vendors",
           label: "Vendors",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
+        {
+          href: "/facility/settings/work-templates",
+          label: "Work templates",
           readiness: "aligned",
           entitlement: "facility.operations"
         },
