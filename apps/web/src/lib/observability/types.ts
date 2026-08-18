@@ -32,5 +32,6 @@ export type CaptureExceptionOptions = {
   actorRole?: string;
   route?: string;
   source?: "server" | "client" | "edge" | "job";
+  persistDurable?: boolean;
   metadata?: Record<string, string | number | boolean | null | undefined>;
 };

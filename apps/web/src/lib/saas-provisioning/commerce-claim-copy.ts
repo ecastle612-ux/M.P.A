@@ -1,3 +1,5 @@
+import { PASSWORD_TOO_SHORT_MESSAGE } from "@mpa/shared";
+
 /** Presentation-only — does not change claim-password API contracts. */
 export const COMMERCE_CLAIM_CHECK_EMAIL_COPY =
   "Check your email to finish setting up your M.P.A. account.";
@@ -13,8 +15,11 @@ export function friendlyCommerceClaimError(raw: string): string {
   if (lower.includes("bind_token_required") || lower.includes("bind_token")) {
     return COMMERCE_CLAIM_CHECK_EMAIL_COPY;
   }
-  if (lower.includes("password") && (lower.includes("weak") || lower.includes("short") || lower.includes("least"))) {
-    return "Choose a stronger password (at least 8 characters), then try again.";
+  if (
+    lower.includes("password_too_short") ||
+    (lower.includes("password") && (lower.includes("weak") || lower.includes("short") || lower.includes("least")))
+  ) {
+    return PASSWORD_TOO_SHORT_MESSAGE;
   }
   if (lower.includes("already") && (lower.includes("claim") || lower.includes("bound"))) {
     return "This workspace may already be claimed. Sign in with your purchase email and password.";
