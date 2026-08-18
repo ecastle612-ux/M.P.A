@@ -14,11 +14,13 @@ import {
   productDisplayLabel,
   productWorkspaceHomeLabel,
   resolveProductWorkspaceHome,
+  skuIncludesOnlineRentCollection,
   type ProductSku
 } from "@mpa/shared";
 import { useOrganizationContext } from "../shell/organization-context";
 import { useCommercialContext } from "../shell/commercial-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
+import { OnlinePaymentsDiscoveryLink } from "./online-payments-discovery";
 
 function readAcquisitionSkuCookie(): ProductSku | null {
   if (typeof document === "undefined") {
@@ -648,6 +650,9 @@ export function GuidedSetupPage() {
                 <Button type="button" variant="secondary" onClick={() => router.push(homeHref)}>
                   Open {homeLabel}
                 </Button>
+              ) : null}
+              {skuIncludesOnlineRentCollection(effectiveSku) ? (
+                <OnlinePaymentsDiscoveryLink productSku={effectiveSku} />
               ) : null}
             </div>
           </div>

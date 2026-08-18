@@ -104,6 +104,8 @@ Cool mist neutrals keep the workspace calm. Warmth comes from typography and con
 | `color.bg.app` | `#F3F4F6` | App canvas behind shells |
 | `color.bg.sidebar` | `#12151A` | Ink navigation shell |
 | `color.bg.sidebar-elevated` | `#1A1E25` | Sidebar hover / nested |
+| `color.bg.sidebar-active` | `#16382F` | Canopy-tinted active nav surface |
+| `color.bg.sidebar-hover` | `#1E242D` | Sidebar row hover |
 | `color.bg.surface` | `#FFFFFF` | Primary workspace plane |
 | `color.bg.surface-elevated` | `#FFFFFF` | Drawers, popovers (elevation via shadow/border) |
 | `color.bg.surface-muted` | `#EEF0F3` | Recessed wells, table chrome, zebra option |
@@ -119,6 +121,7 @@ Cool mist neutrals keep the workspace calm. Warmth comes from typography and con
 | `color.border.strong` | `#9CA3AF` | High-emphasis outlines |
 | `color.border.focus` | `#0F6B56` | Focus ring color |
 | `color.border.sidebar` | `#2A2F38` | Sidebar separators |
+| `color.border.sidebar-accent` | `#0F6B56` | Active nav left indicator |
 
 ### Text
 

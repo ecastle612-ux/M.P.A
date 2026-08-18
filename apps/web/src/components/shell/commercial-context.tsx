@@ -6,8 +6,10 @@ import {
   hasEntitlement,
   navigationGroupsForSku,
   type EntitlementKey,
+  type MemberOperatingScope,
   type NavGroup,
-  type ProductSku
+  type ProductSku,
+  type UserRole
 } from "@mpa/shared";
 import { useOrganizationContext } from "./organization-context";
 
@@ -17,6 +19,8 @@ type CommercialContextValue = {
   setupComplete: boolean;
   entitlements: EntitlementKey[];
   navigationGroups: NavGroup[];
+  roles: UserRole[];
+  operatingScope: MemberOperatingScope | null;
   canAccess: (entitlement: EntitlementKey | string) => boolean;
 };
 
@@ -41,6 +45,8 @@ export function CommercialProvider({ children }: { children: ReactNode }) {
       setupComplete: activeOrganization?.setupComplete ?? false,
       entitlements,
       navigationGroups: navigationGroupsForSku(productSku, roles, storedScope),
+      roles,
+      operatingScope: storedScope,
       canAccess: (entitlement) => hasEntitlement(entitlements, entitlement)
     };
   }, [activeOrganization]);
