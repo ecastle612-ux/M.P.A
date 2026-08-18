@@ -5,7 +5,7 @@ import { createAuthServerClient } from "../../lib/auth/server";
 export const metadata: Metadata = {
   title: "M.P.A. — Property Operations Platform",
   description:
-    "Workflow-first Property Operations Platform for property managers, owners, and facility teams. Transparent unit-volume pricing. Get Started online."
+    "Property management software for property and facility operations. Collect rent online with Stripe — ACH rent payments, cards, and tenant AutoPay — plus maintenance, residents, and Mission Control."
 };
 
 /**

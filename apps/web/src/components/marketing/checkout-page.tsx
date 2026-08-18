@@ -7,7 +7,10 @@ import {
   ACQUISITION_QUOTE_COOKIE,
   ACQUISITION_SKU_COOKIE,
   ACQUISITION_SNAPSHOT_COOKIE,
+  ONLINE_RENT_COLLECTION_OPTIONAL_SETUP,
+  ONLINE_RENT_COLLECTION_PRICING_LINE,
   PUBLIC_PRICING_MODEL_COPY,
+  skuIncludesOnlineRentCollection,
   SKU_SUMMARIES,
   acquisitionHref,
   confirmPlanCapacityLines,
@@ -271,6 +274,11 @@ export function CheckoutPage({
                   <li key={module.id}>• {module.label}</li>
                 ))}
               </ul>
+              {skuIncludesOnlineRentCollection(sku) ? (
+                <p className="mt-3 text-sm text-[var(--mpa-color-text-secondary)]">
+                  {ONLINE_RENT_COLLECTION_PRICING_LINE}. {ONLINE_RENT_COLLECTION_OPTIONAL_SETUP}
+                </p>
+              ) : null}
             </div>
 
             <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   WORK_ORDER_PRIORITY_LABELS,
@@ -13,6 +14,7 @@ import { resolveStatusBadgeVariant, Alert, Badge, Button, EmptyState, Input, Sel
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ConfirmActionModal } from "../shell/confirm-action-modal";
 import { ErrorRetry } from "../shell/error-retry";
+import { RememberRecent } from "../shell/remember-recent";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 import { workOrderCancelConfirmation } from "../../lib/ui/destructive-confirm-copy";
 import {
@@ -43,7 +45,14 @@ type WorkOrder = {
 type Technician = { userId: string; displayName: string; email: string | null };
 type Vendor = { id: string; name: string; email: string | null; user_id?: string | null };
 
+type PropertyOption = { id: string; name: string; property_units?: Array<{ id: string; unit_label: string }> };
+
 export function MaintenanceCommandCenter() {
+  const searchParams = useSearchParams();
+  const deepLinkWorkOrderId = searchParams.get("workOrderId");
+  const startCreate = searchParams.get("new") === "1";
+  const prefillPropertyId = searchParams.get("propertyId") ?? "";
+  const prefillResidentId = searchParams.get("residentId") ?? "";
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -67,6 +76,11 @@ export function MaintenanceCommandCenter() {
   const [vendorName, setVendorName] = useState("");
   const [vendorEmail, setVendorEmail] = useState("");
   const [queueQuery, setQueueQuery] = useState("");
+  const [properties, setProperties] = useState<PropertyOption[]>([]);
+  const [createTitle, setCreateTitle] = useState("");
+  const [createDescription, setCreateDescription] = useState("");
+  const [createPropertyId, setCreatePropertyId] = useState(prefillPropertyId);
+  const [createUnitId, setCreateUnitId] = useState("");
 
   const selected = useMemo(
     () => workOrders.find((row) => row.id === selectedId) ?? null,
@@ -160,8 +174,15 @@ export function MaintenanceCommandCenter() {
         setVendors(body.vendors ?? []);
         setAssistantRecommendation(body.assistantRecommendation ?? "");
         setMaintenanceReady(Boolean(body.readiness?.maintenanceReady));
-        const firstId = rows[0]?.id ?? "";
+        const firstId = deepLinkWorkOrderId || rows[0]?.id || "";
         setSelectedId(firstId);
+        const propertiesResponse = await fetch("/api/pm/properties");
+        if (propertiesResponse.ok) {
+          const propertiesBody = (await propertiesResponse.json()) as {
+            properties?: PropertyOption[];
+          };
+          setProperties(propertiesBody.properties ?? []);
+        }
         if (firstId) {
           const detailResponse = await fetch(`/api/pm/maintenance/${firstId}`);
           const detailBody = await detailResponse.json();
@@ -185,6 +206,8 @@ export function MaintenanceCommandCenter() {
     return () => {
       cancelled = true;
     };
+    // Initial load + optional work-order deep link once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function selectWorkOrder(workOrderId: string) {
@@ -225,8 +248,11 @@ export function MaintenanceCommandCenter() {
     (row) => row.priority === "emergency" && !["closed", "cancelled"].includes(row.status)
   ).length;
 
+  const createUnits = properties.find((row) => row.id === createPropertyId)?.property_units ?? [];
+
   return (
     <main className="flex-1 space-y-4 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
+      <RememberRecent type="pm_work_order" id={selectedId || null} />
       <Breadcrumbs
         items={[
           { href: "/pm/mission-control", label: "Mission Control" },
@@ -261,6 +287,91 @@ export function MaintenanceCommandCenter() {
           ]}
         />
       </header>
+
+      <form
+        id="create-maintenance"
+        className="grid max-w-3xl gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:grid-cols-2"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void run(async () => {
+            const response = await fetch("/api/pm/maintenance", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                title: createTitle.trim(),
+                description: createDescription.trim(),
+                propertyId: createPropertyId,
+                unitId: createUnitId || undefined,
+                residentId: prefillResidentId || undefined
+              })
+            });
+            const body = await response.json();
+            if (!response.ok) {
+              throw new Error(body.error ?? "Failed to create maintenance");
+            }
+            setCreateTitle("");
+            setCreateDescription("");
+            await refresh(body.workOrder?.id as string | undefined);
+          });
+        }}
+      >
+        <h2 className="text-sm font-semibold md:col-span-2">Create maintenance</h2>
+        <label className="space-y-1 text-xs">
+          <span className="font-medium">Title</span>
+          <Input
+            value={createTitle}
+            onChange={(event) => setCreateTitle(event.target.value)}
+            minLength={3}
+            required
+            autoFocus={startCreate}
+          />
+        </label>
+        <label className="space-y-1 text-xs">
+          <span className="font-medium">Property</span>
+          <Select
+            value={createPropertyId}
+            onChange={(event) => {
+              setCreatePropertyId(event.target.value);
+              setCreateUnitId("");
+            }}
+            required
+          >
+            <option value="">Select property</option>
+            {properties.map((property) => (
+              <option key={property.id} value={property.id}>
+                {property.name}
+              </option>
+            ))}
+          </Select>
+        </label>
+        <label className="space-y-1 text-xs md:col-span-2">
+          <span className="font-medium">Description</span>
+          <Textarea
+            value={createDescription}
+            onChange={(event) => setCreateDescription(event.target.value)}
+            minLength={3}
+            required
+          />
+        </label>
+        {createUnits.length > 0 ? (
+          <label className="space-y-1 text-xs">
+            <span className="font-medium">Unit</span>
+            <Select value={createUnitId} onChange={(event) => setCreateUnitId(event.target.value)}>
+              <option value="">Optional</option>
+              {createUnits.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.unit_label}
+                </option>
+              ))}
+            </Select>
+          </label>
+        ) : null}
+        <div className="md:col-span-2">
+          <Button type="submit" disabled={busy}>
+            Create work
+          </Button>
+        </div>
+      </form>
 
       <PmDocumentsStrip
         entityType="maintenance"

@@ -44,7 +44,8 @@ export async function GET() {
         userId: authz.user.id,
         displayName: profileRow?.display_name ?? profileRow?.contact_email ?? authz.user.email ?? null,
         organizationName,
-        roles
+        roles,
+        permissions: authz.permissions
       }
     );
     return NextResponse.json({
