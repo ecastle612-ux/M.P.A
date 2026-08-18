@@ -1,7 +1,7 @@
 # 213 — App-Wide Sidebar Visual + UX Refinement
 
 **Title:** Authenticated M.P.A. sidebar visual + navigation refinement  
-**Status:** **RECONCILED ONTO SLICE 2 PRODUCTION LINEAGE — Production release in [docs/214](../214-app-wide-sidebar-production-release/index.md)**  
+**Status:** **RECONCILED ONTO SLICE 2 PRODUCTION LINEAGE — Production released in [docs/214](../214-app-wide-sidebar-production-release/index.md)**  
 **Date:** 2026-08-18  
 **Authority:** Owner authorized design + in-repo implement; later authorized Production of this sidebar only  
 **Companion:** [docs/208](../208-mpa-app-wide-simplicity-navigation-audit/index.md) simplicity principles · [docs/202](../202-complete-scoped-staff-handoff-remediation/index.md) effective surfaces · Canopy ([docs/06](../06-design-language/index.md)) · Slice 2 Production [docs/212](../212-fo-eff-slice2-production-release/index.md)  
