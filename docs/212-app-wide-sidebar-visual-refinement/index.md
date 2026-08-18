@@ -20,7 +20,7 @@ Authenticated staff, Master Admin, and portal navigation now share one Canopy in
 
 ## 1. Implementation SHA
 
-Pinned after commit on `cursor/app-wide-sidebar-refinement-6821`. See the latest commit on this branch.
+`0823bae2` on `cursor/app-wide-sidebar-refinement-6821`.
 
 ## 2. Sidebar components changed
 
