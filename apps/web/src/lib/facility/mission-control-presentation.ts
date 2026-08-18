@@ -1,5 +1,9 @@
 import type { ProductSku } from "@mpa/shared";
-import type { FacilityMissionControlSnapshot } from "../maintenance/maintenance-service";
+import {
+  facilityAttentionActionLabel,
+  type FacilityAttentionSection
+} from "@mpa/shared";
+import type { FacilityMissionControlSnapshot } from "./mission-control-service";
 
 export type FacilityMissionControlQuickAction = {
   href: string;
@@ -121,3 +125,15 @@ export function facilityMissionControlErrorMessage(_raw: unknown): string {
   void _raw;
   return "We couldn’t load Facility Mission Control. Check your connection and try again.";
 }
+
+export function facilityMissionControlAttentionEmpty(snapshot: FacilityMissionControlSnapshot) {
+  return snapshot.viewerMode === "manager" && snapshot.attentionTotal === 0;
+}
+
+export function facilityMissionControlAttentionSections(
+  snapshot: FacilityMissionControlSnapshot
+): FacilityAttentionSection[] {
+  return snapshot.attention ?? [];
+}
+
+export { facilityAttentionActionLabel };

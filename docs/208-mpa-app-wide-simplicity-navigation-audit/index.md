@@ -1,7 +1,7 @@
 # M.P.A. APP-WIDE SIMPLICITY + NAVIGATION AUDIT
 
 **Title:** M.P.A. APP-WIDE SIMPLICITY + NAVIGATION AUDIT  
-**Status:** **Approved** — Owner 2026-08-18 · Slice 1 implements My Work + notification deep-link portion only  
+**Status:** **Approved** — Owner 2026-08-18 · Slice 1 My Work + assign deep links Production-certified · Slice 2 MC attention + notification deep links in-repo ([docs/211](../211-fo-eff-slice2-mission-control-attention-implementation/index.md))  
 **Date:** 2026-08-18  
 **Approved:** 2026-08-18 — Product Owner  
 **Program:** SIM-001  

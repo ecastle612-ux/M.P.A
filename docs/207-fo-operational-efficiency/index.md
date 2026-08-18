@@ -1,15 +1,15 @@
 # FO OPERATIONAL EFFICIENCY — PM / ASSETS / CHECKLISTS / MOBILE / ROUTING
 
 **Title:** FO OPERATIONAL EFFICIENCY — Preventive Maintenance, Assets + QR, Checklists, Technician My Work, Smart Assignment  
-**Status:** **Approved** — Owner 2026-08-18 · Slice 1 authorized (Templates/Checklists + Technician My Work) · see [docs/209](../209-fo-eff-slice1-templates-my-work-implementation/index.md)  
+**Status:** **Approved** — Owner 2026-08-18 · Slice 1 Production-certified ([docs/210](../210-fo-eff-slice1-production-release/index.md)) · Slice 2 authorized in-repo ([docs/211](../211-fo-eff-slice2-mission-control-attention-implementation/index.md))  
 **Date:** 2026-08-18  
 **Approved:** 2026-08-18 — Product Owner  
 **Program:** FO-EFF-001  
 **Related ADR:** [ADR-036](../18-decision-log/adr-036-fo-operational-efficiency-system.md) (**Accepted**)  
 **Companion:** [docs/208 — M.P.A. App-Wide Simplicity + Navigation Audit](../208-mpa-app-wide-simplicity-navigation-audit/index.md)  
-**Predecessor lineage:** docs/188–206 certified product line (see §0) · especially [docs/204](../204-facility-custom-work-request-forms/index.md) (**APPROVED**) · [ADR-034](../18-decision-log/adr-034-facility-public-work-request-intake.md) (**Accepted**) · [docs/205](../205-facility-public-work-request-intake-implementation/index.md) (**IMPLEMENTED IN-REPO**) · [docs/206](../206-facility-public-work-request-production-release/index.md) (**PRODUCTION RELEASE SUCCESSFUL**)  
-**Gate:** Design → Document → Approve → **Implement** (Slice 1 only; ADR-012)  
-**Production:** No Production deploy/apply from Slice 1  
+**Predecessor lineage:** docs/188–210 certified product line (see §0) · especially [docs/204](../204-facility-custom-work-request-forms/index.md) (**APPROVED**) · [ADR-034](../18-decision-log/adr-034-facility-public-work-request-intake.md) (**Accepted**) · [docs/205](../205-facility-public-work-request-intake-implementation/index.md) · [docs/206](../206-facility-public-work-request-production-release/index.md) · [docs/209](../209-fo-eff-slice1-templates-my-work-implementation/index.md) · [docs/210](../210-fo-eff-slice1-production-release/index.md)  
+**Gate:** Design → Document → Approve → **Implement** (Slice 2 Mission Control attention + notification deep links; ADR-012)  
+**Production:** No Production deploy/apply from Slice 2  
 **Billing / Stripe / SKUs / roles:** No changes  
 
 ---

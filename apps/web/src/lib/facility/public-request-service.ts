@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  facilityOperationsWorkOrderHref,
   formatFacilityRequestNumber,
   isFacilityRequestAccessPolicy,
   publicTrackingView,
@@ -396,7 +397,7 @@ export async function submitPublicRequest(
       key: "work_order.public_submitted",
       title: "New facility request",
       body: `${requestNumber}: ${validated.title}`,
-      href: "/facility/operations",
+      href: facilityOperationsWorkOrderHref(workOrder.id),
       emailCritical: true
     });
   }

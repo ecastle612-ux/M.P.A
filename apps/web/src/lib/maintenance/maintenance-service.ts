@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   buildMaintenanceReadyAssistantCopy,
+  facilityMyWorkOrderHref,
+  facilityOperationsWorkOrderHref,
   type AssignWorkOrderInput,
   type CancelWorkOrderInput,
   type ConfirmWorkOrderInput,
@@ -17,6 +19,13 @@ import {
 import { provisionVendorPortalAccess } from "../portal/portal-access-service";
 import { emitMaintenanceEvent, writeMaintenanceAudit } from "./events-audit";
 import { notifyLifecycle } from "./lifecycle-notify";
+
+export {
+  buildFacilityMissionControlSnapshot,
+  getFacilityMissionControlSnapshot,
+  type FacilityMissionControlSnapshot,
+  type FacilitySnapshotRow
+} from "../facility/mission-control-service";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -541,7 +550,7 @@ export async function assignWorkOrder(
 
   const assigneeHref =
     existing.work_surface === "facility"
-      ? `/facility/my-work?workOrderId=${input.workOrderId}`
+      ? facilityMyWorkOrderHref(input.workOrderId)
       : "/pm/maintenance";
 
   if (technicianUserId) {
@@ -761,8 +770,8 @@ export async function progressWorkOrder(
     });
   } else if (criticalProgress) {
     // Facility: notify assignee + requester (no resident portal).
-    const facilityHref = `/facility/my-work?workOrderId=${input.workOrderId}`;
-    const managerHref = `/facility/operations`;
+    const facilityHref = facilityMyWorkOrderHref(input.workOrderId);
+    const managerHref = facilityOperationsWorkOrderHref(input.workOrderId);
     await notify(supabase, {
       organizationId,
       userId: existing.technician_user_id,
@@ -1143,7 +1152,9 @@ export async function cancelWorkOrder(
   });
 
   const cancelHref =
-    existing.work_surface === "facility" ? "/facility/operations" : "/pm/maintenance";
+    existing.work_surface === "facility"
+      ? facilityOperationsWorkOrderHref(input.workOrderId)
+      : "/pm/maintenance";
   const residentUserId =
     (Array.isArray(existing.pm_residents)
       ? existing.pm_residents[0]?.user_id
@@ -1201,88 +1212,6 @@ export async function cancelWorkOrder(
   }
 
   return data as WorkOrderRow;
-}
-
-export type FacilityMissionControlSnapshot = {
-  todayOpen: number;
-  emergency: number;
-  open: number;
-  overdue: number;
-  waitingOnVendor: number;
-  waitingOnTechnician: number;
-  completedRecently: number;
-};
-
-export type FacilitySnapshotRow = {
-  status: string;
-  priority?: string | null;
-  assignee_type?: string | null;
-  due_at?: string | null;
-  submitted_at?: string | null;
-  completed_at?: string | null;
-  closed_at?: string | null;
-};
-
-function isOpenFacilityStatus(status: string) {
-  return !["closed", "cancelled", "completed"].includes(status);
-}
-
-/** Pure attention buckets for Facility Mission Control (unit-testable). */
-export function buildFacilityMissionControlSnapshot(
-  rows: FacilitySnapshotRow[],
-  nowInput: Date = new Date()
-): FacilityMissionControlSnapshot {
-  const now = nowInput;
-  const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-  const openRows = rows.filter((row) => isOpenFacilityStatus(String(row.status)));
-  const todayOpen = openRows.filter((row) => {
-    const submitted = row.submitted_at ? new Date(String(row.submitted_at)) : null;
-    const due = row.due_at ? new Date(String(row.due_at)) : null;
-    const submittedToday = submitted !== null && submitted >= startOfToday;
-    const dueToday =
-      due !== null && due >= startOfToday && due < new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000);
-    return submittedToday || dueToday;
-  }).length;
-
-  return {
-    todayOpen,
-    emergency: openRows.filter((row) => row.priority === "emergency").length,
-    open: openRows.length,
-    overdue: openRows.filter((row) => row.due_at && new Date(String(row.due_at)) < now).length,
-    waitingOnVendor: openRows.filter(
-      (row) => row.status === "assigned" && row.assignee_type === "vendor"
-    ).length,
-    waitingOnTechnician: openRows.filter(
-      (row) => row.status === "assigned" && row.assignee_type === "technician"
-    ).length,
-    completedRecently: rows.filter((row) => {
-      if (!["completed", "closed"].includes(String(row.status))) {
-        return false;
-      }
-      const stamp = row.completed_at ?? row.closed_at;
-      return stamp ? new Date(String(stamp)) >= sevenDaysAgo : false;
-    }).length
-  };
-}
-
-export async function getFacilityMissionControlSnapshot(
-  supabase: Db,
-  organizationId: string
-): Promise<FacilityMissionControlSnapshot> {
-  const { data, error } = await supabase
-    .from("maintenance_work_orders")
-    .select(
-      "id, status, priority, assignee_type, due_at, submitted_at, completed_at, closed_at, cancelled_at"
-    )
-    .eq("organization_id", organizationId)
-    .eq("work_surface", "facility");
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return buildFacilityMissionControlSnapshot((data ?? []) as FacilitySnapshotRow[]);
 }
 
 export function maintenanceReadyCopy() {

@@ -9,7 +9,7 @@ import {
   WORK_ORDER_CATEGORIES,
   WORK_SURFACES
 } from "@mpa/shared";
-import { buildFacilityMissionControlSnapshot } from "../maintenance/maintenance-service";
+import { buildFacilityMissionControlSnapshot } from "./mission-control-service";
 
 describe("STAB-004 facility work surface schemas", () => {
   it("accepts facility create payloads with building and optional due date", () => {
@@ -42,6 +42,8 @@ describe("STAB-004 facility mission control snapshot", () => {
     const snapshot = buildFacilityMissionControlSnapshot(
       [
         {
+          id: "1",
+          title: "Emergency leak",
           status: "submitted",
           priority: "emergency",
           assignee_type: "unassigned",
@@ -49,6 +51,8 @@ describe("STAB-004 facility mission control snapshot", () => {
           submitted_at: "2026-08-11T10:00:00.000Z"
         },
         {
+          id: "2",
+          title: "Vendor job",
           status: "assigned",
           priority: "high",
           assignee_type: "vendor",
@@ -56,6 +60,8 @@ describe("STAB-004 facility mission control snapshot", () => {
           submitted_at: "2026-08-09T10:00:00.000Z"
         },
         {
+          id: "3",
+          title: "Tech job",
           status: "assigned",
           priority: "normal",
           assignee_type: "technician",
@@ -63,6 +69,8 @@ describe("STAB-004 facility mission control snapshot", () => {
           submitted_at: "2026-08-08T10:00:00.000Z"
         },
         {
+          id: "4",
+          title: "Closed",
           status: "closed",
           priority: "normal",
           assignee_type: "technician",
@@ -70,6 +78,8 @@ describe("STAB-004 facility mission control snapshot", () => {
           closed_at: "2026-08-10T12:00:00.000Z"
         },
         {
+          id: "5",
+          title: "Cancelled",
           status: "cancelled",
           priority: "low",
           assignee_type: "unassigned"
@@ -85,6 +95,30 @@ describe("STAB-004 facility mission control snapshot", () => {
     expect(snapshot.waitingOnVendor).toBe(1);
     expect(snapshot.waitingOnTechnician).toBe(1);
     expect(snapshot.completedRecently).toBe(1);
+    expect(snapshot.viewerMode).toBe("manager");
+    expect(snapshot.attentionTotal).toBeGreaterThan(0);
+    expect(snapshot.attention.some((s) => s.category === "overdue")).toBe(true);
+    expect(snapshot.attention.some((s) => s.category === "urgent")).toBe(true);
+    // Emergency+overdue wins classification over unassigned for the submitted row.
+
+    const techSnapshot = buildFacilityMissionControlSnapshot(
+      [
+        {
+          id: "1",
+          title: "Emergency leak",
+          status: "submitted",
+          priority: "emergency",
+          assignee_type: "unassigned",
+          due_at: "2026-08-10T12:00:00.000Z",
+          submitted_at: "2026-08-11T10:00:00.000Z"
+        }
+      ],
+      now,
+      { viewerMode: "technician" }
+    );
+    expect(techSnapshot.viewerMode).toBe("technician");
+    expect(techSnapshot.attention).toEqual([]);
+    expect(techSnapshot.attentionTotal).toBe(0);
   });
 });
 
