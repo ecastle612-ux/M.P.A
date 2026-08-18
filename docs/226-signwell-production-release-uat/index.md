@@ -2,7 +2,7 @@
 
 **Title:** SIGNWELL LEASE E-SIGNATURE — PRODUCTION RELEASE + CONTROLLED END-TO-END UAT  
 **Status:** **BLOCKED — SIGNWELL PRODUCTION END-TO-END UAT**  
-**Date:** 2026-08-18  
+**Date:** 2026-08-18 (resume: existing lease only)  
 **Authority:** Owner authorization — deploy the certified docs/225 remediation; perform one controlled synthetic Production lease-signing lifecycle; certify or block. **STOP after this record.**  
 **Product boundary:** Lease e-signature only. Vendor / Facility Operations SignWell remains **NOT IMPLEMENTED / NOT ADVERTISED**.  
 **Baseline:** [docs/224](../224-final-human-onboarding-simulation/index.md) · [docs/225](../225-signwell-documents-full-functionality-audit/index.md)
@@ -15,25 +15,19 @@ This package does **not** start another feature, change Stripe/M5/July/pricing, 
 
 **BLOCKED — SIGNWELL PRODUCTION END-TO-END UAT**
 
-A real Production Send succeeded on one synthetic Property Demo lease. M.P.A. stored a SignWell document id, moved the lease to **Pending Signature / Created**, hid Send, and left recovery as **Sync** or **Record signed offline**. The lease is **not** signed or activated.
+Resume on the **same** synthetic lease proved genuine SignWell **Completed** and M.P.A. activation through the certified **Sync** path. Record signed offline was **not** used. No second lease or second SignWell document was created. No Production deploy and no SEC-001 mutation were performed.
 
-The remaining required cycle did **not** happen in this run:
+**Still not a PASS:** the manager Documents path does **not** expose the completed signed artifact (`externalUrl` is absent after `getDocumentDetail` / `?syncSignWell=1`). Generated lease text plus a Completed badge is **not** completed-document retrieval.
 
-- Owner-controlled signer inbox was not available in this environment (`gmail_not_signed_in`)
-- This environment cannot decrypt Production `SIGNWELL_API_KEY`, so the signing URL cannot be fetched safely
-- Webhook rows remain **0**
-- Completed-document retrieval was not exercised
-- Webhook replay / Sync-after-completion were not exercised
+Webhook delivery was **not** observed (`signwell_webhook_events` = 0). That is **not** a webhook PASS. Destination still **cannot verify safely**. Do not describe Sync as webhook success.
 
-Do **not** claim `SIGNWELL DOCUMENTS PRODUCTION END-TO-END FUNCTIONAL — READY FOR REAL USERS`.
+Do **not** claim `SIGNWELL DOCUMENTS PRODUCTION END-TO-END FUNCTIONAL — READY FOR REAL USERS` or `PASS — SIGNWELL PRODUCTION END-TO-END UAT CERTIFIED`.
 
-**Exact Owner / manual action required (do not create another lease):**
+**Single next Owner action (do not create another lease):**
 
-1. Complete the **existing** SignWell request for synthetic lease `51fb0ba8-eb79-4902-a56d-e93c53fcd15f` (SignWell UAT Resident · unit SIGNWELL-UAT · $1) from the Owner-controlled plus-address inbox, **or** place Production `SIGNWELL_API_KEY` in this Cloud Agent environment so the agent can retrieve the signing URL and finish desktop/mobile/completion.
-2. Confirm the SignWell dashboard webhook destination is `https://www.my-property-assistant.com/api/leasing/webhooks/signwell`.
-3. Reply on this package to continue UAT (webhook, replay, retrieval, Sync). Do **not** use Record signed offline to fake the PASS.
+Authorize the smallest no-migration remediaiton so Documents can fetch the existing SignWell completed file URL (SignWell `completed_pdf` / files URL-on-demand) into the already-designed `externalUrl` control, then deploy that revision. Optionally place Production `SIGNWELL_API_KEY` in this Cloud Agent environment first so the agent can confirm the completed file exists at SignWell before coding the mapping. Confirm the webhook destination is `https://www.my-property-assistant.com/api/leasing/webhooks/signwell`.
 
-**STOP.**
+**STOP.** No SEC-001. No other feature.
 
 ---
 
@@ -119,191 +113,175 @@ Send was not performed until the resident mapping was confirmed on the wizard (S
 
 ## 11. Signer email delivery
 
-**Cannot complete.** Gmail was not signed in on this VM. `SIGNWELL_TEST_MODE` is missing, so the live app sends with **test mode**, which SignWell documents as not sending a real email. Delivery is **unverified**.
+**Unverified in this environment.** Gmail was not signed in. Effective mode is **test** (`SIGNWELL_TEST_MODE` missing). The signer nonetheless completed the **existing** SignWell document (authoritative status `Completed` via Production Sync). Inbox contents were not inspected.
 
 ## 12. Desktop signing result
 
-**Not run.** Blocked on signing URL / inbox.
+**Not observed in this agent.** Completion happened on the existing SignWell document before/during resume (SignWell status became `Completed`; M.P.A. still `pending_signature` until Sync). No second document.
 
 ## 13. Mobile signing result
 
-**Not run.** Same request only; no second lease created.
+**Not separately observed.** Same existing request only.
 
 ## 14. Completion result
 
-**Not run.** M.P.A. correctly remains **not signed** (`signed_at` null, status `pending_signature`).
+**Pass — SignWell authoritative Completed, applied by Sync.**
+
+| Item | Value |
+|------|--------|
+| SignWell status after Sync | `Completed` |
+| M.P.A. before Sync | `pending_signature` / `Created` / not signed |
+| M.P.A. after Sync | `active` / `Completed` / signed + activated `2026-08-18 23:10:03Z` |
+| Events | `lease.signed` `23:10:03Z` · `lease.activated` `23:10:10Z` |
+| Offline used | **No** |
 
 ## 15. Webhook delivery
 
-**Not observed.** `signwell_webhook_events` = **0** after Send (expected until completion). Destination **cannot verify safely** without the API key.
+**Not a webhook PASS.** `signwell_webhook_events` remains **0** after completion and after Sync. Completion reached M.P.A. by **Sync**, not by an authenticated webhook. Destination still **cannot verify safely**.
 
 ## 16. Webhook authentication
 
-**Not live-exercised.** In-repo HMAC tests remain green (fail-closed on `SIGNWELL_WEBHOOK_ID`).
+**Not live-exercised.** In-repo HMAC tests remain green. Authentication was **not** weakened.
 
 ## 17. Correlation security
 
-**In-repo certified; live completion not exercised.** Webhook lookup remains `.eq("signwell_document_id", documentId)` only.
+**In-repo certified.** Live webhook correlation was not exercised because no webhook arrived. Sync used the stored `signwell_document_id` on this lease only. Still exactly **one** lease with a SignWell id.
 
 ## 18. Replay / idempotency
 
-**Not run.** No completion event to replay.
+**Webhook replay: not possible** (no persisted webhook event; do not fabricate one).
+
+**Sync replay: Pass.** Second authenticated `POST /api/pm/leasing/{leaseId}/sync` returned **200** / `alreadyActive: true`. Occupancy rows stayed **1**. Charge rows stayed **1**. SignWell document count stayed **1**. `signed_at` / `activated_at` stayed `2026-08-18 23:10:03Z`. Payments stayed **0**.
 
 ## 19. M.P.A. status transition
 
 | Stage | M.P.A. |
 |-------|--------|
 | After Send | `pending_signature` / SignWell `Created` / not signed |
-| Viewed / in progress | **not observed** |
-| Completed | **not observed** |
+| Viewed / in progress | not separately observed |
+| Completed via Sync | `active` / SignWell `Completed` / signed |
 
-Completed must not move backward — not exercised.
+Completed did not move backward after the second Sync.
 
 ## 20. Lease / occupancy result
 
-Activation **did not run** (correct). Unit SIGNWELL-UAT remains isolated. No duplicate occupancy. No tenant payment rows on this lease (`financial_payments` = 0).
+| Check | Result |
+|-------|--------|
+| Lease | `51fb0ba8-…` **active** · channel `signwell` |
+| Resident | SignWell UAT Resident **active** · portal **active** |
+| Unit | SIGNWELL-UAT **occupied** |
+| Property / org | Demo Apartments / UAT Property Demo |
+| Unit 101 / UAT Tenant | **unchanged** (occupied / own lease, no SignWell id) |
+| `lease_residents` | **1** |
+| Duplicate occupancy / lease / SignWell doc | **none** |
+| Unrelated lease `a11ce002-…0401` | still active, no SignWell id |
 
 ## 21. Completed document retrieval
 
-**Not run.** Required PASS for READY. Treat as **P1 until proven**.
+**Fail — required gate.** Manager Documents opens `lease:{id}` with `source=signwell`, title contains SIGNWELL-UAT, `signwellStatus=completed`. **`externalUrl` is false** after GET and after `?syncSignWell=1`. **Open external file is absent.** On-page body is the generated text snapshot, not a proven completed PDF / SignWell file URL. No signed-document contents were committed.
 
 ## 22. Completed document authorization
 
-**Not run.** Isolation tests remain in-repo.
+Org-scoped `getDocumentDetail` remains in force. Cross-org live retrieve of a SignWell file URL was **not** exercisable because no file URL exists. Clinic Demo still cannot `getLease` this id (service evidence).
 
 ## 23. Historical immutability
 
-**Not run** (no signed snapshot yet). Synthetic-only; no real legal data mutated.
+Stored generated `document_name` / body were not rewritten by Sync. SignWell id unchanged. No real legal records mutated. Signed PDF snapshot is **not** stored in a new M.P.A. bucket (by design) and is also **not** retrievable on demand yet.
 
 ## 24. Cross-org isolation
 
-**Service evidence Pass; live Org B retrieve not run.** Clinic Demo org cannot `getLease` this id. No real customer used.
+**Service evidence Pass.** No second org retrieve of a completed file URL. No real customer used.
 
 ## 25. RBAC
 
-| Role / scope | Lease SignWell Send |
-|--------------|---------------------|
-| organization_admin | allowed (grant) |
-| property_manager | **allowed** — UAT actor |
-| leasing_agent | allowed (grant) |
-| facility_technician | **denied** (no grant) |
-| FO-only SKU | **denied** (no `pm.leasing`) |
-| Complete FO-only scope | **denied** (PM entitlements filtered) |
-| Complete PM/both | allowed |
-| tenant | signer via SignWell, not staff admin |
-| Master Admin | no implicit customer SignWell powers in this design |
+Unchanged from the first Send proof. Resume actor remained Property Demo `property_manager`. FO technician still has no `pm.leasing:*`.
 
 ## 26. Sync recovery
 
-**Not run after completion.** Sync control is visible and was **not** clicked (would not create a new document).
+**Pass.** First Sync after genuine SignWell Completed activated the lease. Second Sync was idempotent and created no new SignWell document. Sync is **not** a webhook PASS.
 
 ## 27. Offline fallback separation
 
-**Pass as UI separation.** Record signed offline remains a distinct control. **Not used.** It must not be used to fake this UAT PASS. After activation it is hidden (`canOffline` false when `active`).
+**Pass.** Record signed offline was visible before Sync and **not** clicked. Hidden after `active`.
 
 ## 28. Failure / recovery behavior
 
-| Case | Evidence |
-|------|----------|
-| SignWell 422 unsupported `.txt` | **Observed live**, then fixed (`da41ece4`) |
-| Duplicate Send | UI hides Send |
-| Invalid / spoofed webhook | In-repo 401 tests |
-| Customer-facing errors | 422 shown as `SignWell create failed (422)` — no stack, no key value |
-| Credentials not broken | No Production key rotation |
+Unchanged plus: delayed webhook / missing webhook recovered by Sync; completed file URL missing is the remaining P1.
 
 ## 29. Manager onboarding flow
 
-Intuitive path worked after the embed + HTML fixes:
-
-Leasing → Create lease (SignWell UAT Resident) → rent $1, no manager countersign → draft Command Center → **Send through SignWell** → Pending Signature.
-
-No hidden URL. No Owner explanation required on the lease page.
+Extended path: … → Send → Pending Signature → **Sync SignWell status** → Active / Completed → Documents shows Completed without a signed-file open control.
 
 ## 30. Signer onboarding flow
 
-**Not run.**
+**Not observed in-agent.** SignWell document reached Completed without a second Send.
 
 ## 31. Navigation / click count
 
-From signed-in Mission Control: Leasing → Create lease → Continue → Continue (rent / uncheck manager) → Create lease draft → Send = **6** primary actions (**7** screens including Command Center). Login is one additional screen when the session is cold.
+Prior create/send = 6 actions. Resume: open existing lease → Sync = **1** action. Documents open + Documents Sync SignWell = **2** more. No hidden URL for Send/Sync.
 
 ## 32. Production UAT data created
 
-| Object | Marked synthetic |
-|--------|------------------|
-| Unit SIGNWELL-UAT | yes |
-| Resident SignWell UAT Resident | yes |
-| Lease `51fb0ba8-…` | yes · $1 |
-| SignWell document | one · test-mode Created |
-| Domain events | created / generated / two failed 422 / sent |
-| Payments / occupancy activation | none |
-
-Do **not** hard-delete the signed/sent history to restore counts.
+Same synthetic unit / resident / lease / one SignWell document. Added by intended activation (not a new feature): `lease.signed`, `lease.activated`, one `lease_residents` row, one $1 rent schedule, one $1 ledger charge (`generateCurrentPeriod`). **No** `financial_payments`. Do not hard-delete.
 
 ## 33. Final synthetic UAT state
 
-Leave the lease **pending_signature** with the stored SignWell id. Unit stays **SIGNWELL-UAT** (not customer Unit 101). No billing execution. Preserve the transaction for the continuation UAT.
+Lease **active** / SignWell **Completed** on SIGNWELL-UAT. Preserve the signed transaction. Isolated from Unit 101. Execution remains OFF.
 
 ## 34. Product regression
 
-Read-only / in-repo: PM leasing now loads (embed hint). FO/Complete/tenant/QR/My Work/Assets/Search/PM/sidebar/complimentary were not redesigned. Pre-existing `tenant-portal-billing-copy.test.ts` snake_case expectation **not changed**.
+No UI/sidebar/pricing redesign. No SEC-001. No new deploy. Pre-existing `tenant-portal-billing-copy.test.ts` snake_case expectation **not changed**.
 
 ## 35. Finance / payment safety
 
-| Check | After Send |
+| Check | After Sync |
 |-------|------------|
 | `stripe_payment_execution_enabled = true` | **0 of 6** |
-| UAT lease payments | **0** |
+| UAT `financial_payments` | **0** |
+| UAT rent schedule / ledger charge | **1 / 1** · $1 · designed activation, not Stripe |
 | Stripe / Connect / AutoPay / FIN-OPS / Checkout / prices | **not changed** |
 
 No tenant money movement.
 
 ## 36. July / M5
 
-| Check | Result |
-|-------|--------|
-| `finance_july_freeze_enabled()` | **true** (ON) |
-| `isFinanceM5Authorized()` | **false** (hard-coded) |
-| Automated late fees / collections | **unauthorized** |
+July freeze **ON**. M5 **unauthorized**. Unchanged.
 
 ## 37. Tests / build
 
 | Check | Result |
 |-------|--------|
 | Focused SignWell + document upload | **25 passed** |
+| Shared typecheck | Pass |
 | Web typecheck | Pass |
 | Changed-source lint | Pass |
-| Production Vercel build | Pass · `dpl_6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB` · 204 pages |
-| Pre-existing | `tenant-portal-billing-copy.test.ts` expects literal `stripe_payment_execution_enabled` — **not hidden** |
+| Local `pnpm --filter @mpa/web build` | Pass · 204 pages · **not deployed** |
+| Live Production | still `dpl_6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB` / SHA `da41ece4` |
+| Pre-existing | `tenant-portal-billing-copy.test.ts` snake_case — **not hidden** |
 
 ## 38. P0 remaining
 
-**0.** Live Send works on the HTML upload path.
+**0.**
 
 ## 39. P1 remaining
 
 | ID | Finding |
 |----|---------|
-| P1-UAT-01 | Controlled signer has not completed the existing Production request |
-| P1-UAT-02 | Authenticated webhook (or authoritative Sync after real completion) not observed |
-| P1-UAT-03 | Completed document retrieval not proven |
-| P1-UAT-04 | SignWell webhook destination cannot be verified from this environment |
+| P1-UAT-03 | Completed signed artifact not retrievable (`externalUrl` missing) |
+| P1-UAT-04 | SignWell webhook destination cannot be verified |
+| P1-UAT-05 | Authenticated webhook never arrived (`signwell_webhook_events` = 0) |
 
-These keep the package **BLOCKED**. They are not a license to invent a second document system.
+P1-UAT-01 (unsigned) and P1-UAT-02 (no Sync) are **closed**. P1-UAT-03 keeps the package **BLOCKED**.
 
 ## 40. P2 deferred
 
-- Client bundle still contains SignWell **env names** (`SIGNWELL_API_KEY`, `SIGNWELL_WEBHOOK_ID`); no key-like assignments found
-- `SIGNWELL_TEST_MODE` missing → test mode (email may not send)
-- Unused `SIGNWELL_MODE` / `SIGNWELL_ALLOW_SIMULATE`
-- Offline / unconfigured copy may mention the env name
-- No M.P.A. reminder/cancel/resend
+Unchanged: env **names** in the client bundle; test-mode default; unused `SIGNWELL_MODE`; no reminder/cancel/resend.
 
 ## 41. Final verdict
 
 **BLOCKED — SIGNWELL PRODUCTION END-TO-END UAT**
 
-Owner action: complete the existing synthetic SignWell request (or provide `SIGNWELL_API_KEY` to this agent) and confirm the webhook URL, then continue this package. Do not start another feature.
+Single next Owner action: authorize completed-document URL mapping for the **existing** SignWell document (no second lease) and confirm the webhook destination. Do not start another feature. Do not deploy SEC-001.
 
 ---
 
