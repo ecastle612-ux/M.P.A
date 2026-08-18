@@ -1,7 +1,7 @@
 # FO OPERATIONAL EFFICIENCY — PM / ASSETS / CHECKLISTS / MOBILE / ROUTING
 
 **Title:** FO OPERATIONAL EFFICIENCY — Preventive Maintenance, Assets + QR, Checklists, Technician My Work, Smart Assignment  
-**Status:** **Approved** — Owner 2026-08-18 · Slice 1 Production-certified ([docs/210](../210-fo-eff-slice1-production-release/index.md)) · Slice 2 authorized in-repo ([docs/211](../211-fo-eff-slice2-mission-control-attention-implementation/index.md))  
+**Status:** **Approved** — Owner 2026-08-18 · Slice 1 Production-certified ([docs/210](../210-fo-eff-slice1-production-release/index.md)) · Slice 2 Production-certified ([docs/212](../212-fo-eff-slice2-production-release/index.md)) · Slice 3 implemented in-repo ([docs/215](../215-fo-eff-slice3-asset-registry-qr/index.md)) — **STOP before Production**  
 **Date:** 2026-08-18  
 **Approved:** 2026-08-18 — Product Owner  
 **Program:** FO-EFF-001  
