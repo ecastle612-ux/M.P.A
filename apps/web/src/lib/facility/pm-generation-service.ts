@@ -110,6 +110,26 @@ async function resolveLocation(supabase: Db, organizationId: string, plan: Facil
   };
 }
 
+async function resolveFacilityManagerUserId(supabase: Db, organizationId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from("organization_memberships")
+    .select("user_id, roles")
+    .eq("organization_id", organizationId)
+    .eq("status", "active");
+  if (error) throw new Error(error.message);
+  const managerId = (data ?? [])
+    .filter((row) => {
+      const roles = (row.roles as string[]) ?? [];
+      return roles.includes("organization_admin") || roles.includes("property_manager");
+    })
+    .map((row) => row.user_id)
+    .find((id): id is string => typeof id === "string");
+  if (!managerId) {
+    throw new Error("No facility manager available to attribute generated work");
+  }
+  return managerId;
+}
+
 export async function generateDueWorkForPlan(
   supabase: Db,
   organizationId: string,
@@ -135,6 +155,7 @@ export async function generateDueWorkForPlan(
   }
 
   const location = await resolveLocation(supabase, organizationId, plan);
+  const createdByUserId = await resolveFacilityManagerUserId(supabase, organizationId);
   const description = plan.description.trim() || `Preventive Maintenance: ${plan.name}`;
   const category = (plan.category as WorkOrderCategory) || "preventive";
   try {
@@ -155,7 +176,7 @@ export async function generateDueWorkForPlan(
         ...(plan.template_id ? { templateId: plan.template_id } : {})
       },
       {
-        createdByUserId: null,
+        createdByUserId,
         intakeChannel: "internal",
         originSource: "preventive",
         pmPlanId: plan.id,

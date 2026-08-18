@@ -18,6 +18,7 @@ type Tables = {
   facility_assets: Row[];
   property_properties: Row[];
   maintenance_work_orders: Row[];
+  organization_memberships: Row[];
 };
 
 const db: Tables = {
@@ -25,8 +26,11 @@ const db: Tables = {
   facility_pm_occurrences: [],
   facility_assets: [],
   property_properties: [],
-  maintenance_work_orders: []
+  maintenance_work_orders: [],
+  organization_memberships: []
 };
+
+const MANAGER = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 
 const ORG = "11111111-1111-4111-8111-111111111111";
 const OTHER_ORG = "22222222-2222-4222-8222-222222222222";
@@ -72,6 +76,7 @@ function makeClient() {
           return api;
         },
         order: () => api,
+        limit: () => api,
         maybeSingle: async () => {
           const row = (store[table] ?? []).find((item) => matches(item, filters)) ?? null;
           return { data: row, error: null };
@@ -179,6 +184,14 @@ describe("FO-EFF Slice 5 — PM generation idempotency", () => {
       }
     ];
     db.property_properties = [{ id: PROPERTY, organization_id: ORG, name: "North Clinic" }];
+    db.organization_memberships = [
+      {
+        user_id: MANAGER,
+        organization_id: ORG,
+        status: "active",
+        roles: ["organization_admin", "property_manager"]
+      }
+    ];
   });
 
   it("creates exactly one canonical facility work order in the lead window", async () => {
@@ -194,6 +207,7 @@ describe("FO-EFF Slice 5 — PM generation idempotency", () => {
       dueAt: "2026-11-16T09:30:00.000Z"
     });
     expect(options).toMatchObject({
+      createdByUserId: MANAGER,
       originSource: "preventive",
       pmPlanId: PLAN,
       pmOccurrenceDueOn: "2026-11-16",
