@@ -6,7 +6,10 @@ import {
   FACILITY_ASSET_STATUS_LABELS,
   FACILITY_ASSET_STATUSES,
   FACILITY_ASSET_TYPE_LABELS,
-  type FacilityAssetStatus
+  recurrenceLabel,
+  workOrderOriginLabel,
+  type FacilityAssetStatus,
+  type PmRecurrenceKind
 } from "@mpa/shared";
 import { Alert, Badge, Button, EmptyState, Input, Select, Skeleton } from "@mpa/ui";
 import { ErrorRetry } from "../shell/error-retry";
@@ -36,6 +39,15 @@ type AssetDetail = {
   vendor_vendors?: { id: string; name: string } | null;
 };
 
+type PmPlanCard = {
+  id: string;
+  name: string;
+  status: "active" | "paused" | "inactive";
+  recurrence_kind: string;
+  interval_n: number;
+  next_due_on: string;
+};
+
 type HistoryRow = {
   id: string;
   title: string;
@@ -43,6 +55,8 @@ type HistoryRow = {
   priority: string;
   category?: string | null;
   request_number?: string | null;
+  origin_source?: "manual" | "preventive" | "public_request" | null;
+  intake_channel?: string | null;
   facility_asset_label: string | null;
   created_at: string;
   completed_at: string | null;
@@ -53,6 +67,7 @@ type RequestFormRow = { id: string; name: string; status: string };
 export function FacilityAssetDetailWorkspace({ assetId }: { assetId: string }) {
   const [asset, setAsset] = useState<AssetDetail | null>(null);
   const [history, setHistory] = useState<HistoryRow[]>([]);
+  const [pmPlans, setPmPlans] = useState<PmPlanCard[]>([]);
   const [canManage, setCanManage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,10 +111,15 @@ export function FacilityAssetDetailWorkspace({ assetId }: { assetId: string }) {
     setBuildingLabel(body.asset.building_label ?? "");
     setScanCode(body.asset.scan_code ?? "");
     if (body.canManage) {
-      const [formsResponse, qrResponse] = await Promise.all([
+      const [formsResponse, qrResponse, pmResponse] = await Promise.all([
         fetch("/api/facility/request-forms"),
-        fetch(`/api/facility/assets/${assetId}/qr`)
+        fetch(`/api/facility/assets/${assetId}/qr`),
+        fetch(`/api/facility/preventive-maintenance?assetId=${assetId}`)
       ]);
+      if (pmResponse.ok) {
+        const pmBody = (await pmResponse.json()) as { plans?: PmPlanCard[] };
+        setPmPlans(pmBody.plans ?? []);
+      }
       const formsBody = (await formsResponse.json()) as { forms?: RequestFormRow[] };
       const published = (formsBody.forms ?? []).filter((form) => form.status === "active");
       setForms(published);
@@ -179,6 +199,7 @@ export function FacilityAssetDetailWorkspace({ assetId }: { assetId: string }) {
       <FoQuickActions
         actions={[
           { href: "#create-work", label: "Create Work", primary: true },
+          { href: `/facility/preventive-maintenance?new=1&facilityAssetId=${asset.id}`, label: "Add PM Plan" },
           { href: "#asset-qr", label: "QR / Share" },
           { href: "#edit-asset", label: "Edit Asset" },
           { href: "/facility/operations", label: "Operations" }
@@ -213,6 +234,41 @@ export function FacilityAssetDetailWorkspace({ assetId }: { assetId: string }) {
           Scan code: {asset.scan_code || "—"}
         </p>
       </section>
+
+      {canManage ? (
+        <section className="grid gap-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold">Preventive Maintenance</h2>
+            <Link
+              className="min-h-11 inline-flex items-center text-sm font-semibold text-[var(--mpa-color-brand-primary)] underline"
+              href={`/facility/preventive-maintenance?new=1&facilityAssetId=${asset.id}`}
+            >
+              Add PM Plan
+            </Link>
+          </div>
+          {pmPlans.length === 0 ? (
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">No plans on this asset yet.</p>
+          ) : (
+            <ul className="grid gap-2">
+              {pmPlans.map((plan) => (
+                <li key={plan.id} className="text-sm">
+                  <Link
+                    className="min-h-11 inline-flex flex-col justify-center text-[var(--mpa-color-brand-primary)] underline"
+                    href={`/facility/preventive-maintenance?planId=${plan.id}`}
+                  >
+                    <span>
+                      {plan.name} · {recurrenceLabel(plan.recurrence_kind as PmRecurrenceKind, plan.interval_n)}
+                    </span>
+                    <span className="text-[var(--mpa-color-text-secondary)] no-underline">
+                      Next due: {plan.next_due_on} · {plan.status === "active" ? "Active" : plan.status === "paused" ? "Paused" : "Inactive"}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : null}
 
       <MediaAttachmentField
         relatedEntityType="facility_asset"
@@ -503,7 +559,13 @@ export function FacilityAssetDetailWorkspace({ assetId }: { assetId: string }) {
                   <Badge variant="neutral">{row.status}</Badge>
                 </div>
                 <p className="mt-1 text-xs text-[var(--mpa-color-text-secondary)]">
-                  {[row.request_number, row.priority, row.category, row.completed_at ?? row.created_at]
+                  {[
+                    workOrderOriginLabel({ originSource: row.origin_source, intakeChannel: row.intake_channel }),
+                    row.request_number,
+                    row.priority,
+                    row.category,
+                    row.completed_at ?? row.created_at
+                  ]
                     .filter(Boolean)
                     .join(" · ")}
                 </p>

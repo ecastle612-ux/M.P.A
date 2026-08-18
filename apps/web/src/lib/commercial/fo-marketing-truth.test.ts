@@ -38,7 +38,7 @@ describe("FO advertising depth truth", () => {
     expect(byId.get("assets")?.label).toBe("Assets");
     expect(byId.get("inventory")?.label).toBe("Inventory");
     expect(byId.get("parts")?.label).toBe("Parts Work");
-    expect(byId.get("preventive_maintenance")?.label).toBe("Preventive Work");
+    expect(byId.get("preventive_maintenance")?.label).toBe("Preventive Maintenance");
     expect(byId.get("inspections")?.label).toBe("Inspection Work");
     expect(byId.get("safety")?.label).toBe("Safety Work");
     expect(byId.get("compliance")?.label).toBe("Compliance Work");
@@ -58,11 +58,11 @@ describe("FO advertising depth truth", () => {
     expect(foNav).toContain("Assets");
     expect(foNav).toContain("Inventory");
     expect(foNav).toContain("Parts Work");
-    expect(foNav).toContain("Preventive Work");
+    expect(foNav).toContain("Preventive Maintenance");
     expect(foNav).not.toContain("Buildings & Sites");
     expect(foNav).not.toContain("Inventory Work");
     expect(foNav).not.toContain("Parts");
-    expect(foNav).not.toContain("Preventive Maintenance");
+    expect(foNav).not.toContain("Preventive Work");
   });
 
   it("uses honest FO marketing blurbs when module copy is shown", () => {

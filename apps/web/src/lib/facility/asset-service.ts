@@ -361,7 +361,7 @@ export async function listAssetWorkHistory(
   const { data, error } = await supabase
     .from("maintenance_work_orders")
     .select(
-      "id, title, status, priority, category, request_number, intake_channel, facility_asset_label, created_at, completed_at, cancelled_at"
+      "id, title, status, priority, category, request_number, intake_channel, origin_source, facility_asset_label, created_at, completed_at, cancelled_at"
     )
     .eq("organization_id", organizationId)
     .eq("facility_asset_id", assetId)

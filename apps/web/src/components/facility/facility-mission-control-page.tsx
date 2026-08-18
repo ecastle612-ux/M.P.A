@@ -39,9 +39,9 @@ const CAPABILITIES = [
     summary: "Equipment registry — location, lifecycle, photos, and work history."
   },
   {
-    title: "Preventive Work",
+    title: "Preventive Maintenance",
     href: "/facility/preventive-maintenance",
-    summary: "Work-order queue for preventive facility tasks."
+    summary: "Create plans. Due work becomes one facility work order."
   },
   {
     title: "Inspection Work",

@@ -31,6 +31,8 @@ describe("SIMPLICITY SLICE 4 — federated search service contracts", () => {
     expect(source).toMatch(/staffWorkOrderHref/);
     expect(source).toMatch(/staffAssetHref/);
     expect(source).toMatch(/facility_assets/);
+    expect(source).toMatch(/facility_pm_plans/);
+    expect(source).toMatch(/staffPmPlanHref/);
     expect(source).toMatch(/maintenance_work_orders/);
   });
 
@@ -49,6 +51,7 @@ describe("SIMPLICITY SLICE 4 — federated search service contracts", () => {
     });
     expect(domains).not.toContain("resident");
     expect(domains).toContain("asset");
+    expect(domains).toContain("pm_plan");
   });
 });
 

@@ -293,12 +293,12 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
   },
   {
     id: "preventive_maintenance",
-    label: "Preventive Work",
+    label: "Preventive Maintenance",
     owner: "facility_operations",
     entitlement: "facility.preventive",
     href: "/facility/preventive-maintenance",
     readiness: "aligned",
-    description: "Facility work orders categorized for preventive maintenance tasks.",
+    description: "Create Preventive Maintenance plans. Due work becomes one facility work order.",
   },
   {
     id: "inspections",
@@ -502,7 +502,7 @@ export function navigationGroupsForSku(
         },
         {
           href: "/facility/preventive-maintenance",
-          label: "Preventive Work",
+          label: "Preventive Maintenance",
           readiness: "aligned",
           entitlement: "facility.preventive"
         },

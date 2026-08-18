@@ -176,7 +176,7 @@ export function entitlementsForMember(input: {
     if (!surfaces.has(family)) {
       return false;
     }
-    if (entitlement === "facility.request_forms") {
+    if (entitlement === "facility.request_forms" || entitlement === "facility.preventive") {
       const roles = input.roles ?? [];
       return roles.some((role) => role === "organization_admin" || role === "property_manager");
     }

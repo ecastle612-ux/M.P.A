@@ -11,6 +11,7 @@ import {
   type CreateVendorDirectoryInput,
   type CreateWorkOrderInput,
   type FacilityRequestIntakeChannel,
+  type PmOriginSource,
   type ProgressWorkOrderInput,
   type TriageWorkOrderInput,
   type WorkOrderPriority,
@@ -68,6 +69,9 @@ export type WorkOrderRow = {
   department_label?: string | null;
   room_label?: string | null;
   facility_asset_code?: string | null;
+  origin_source?: PmOriginSource | null;
+  pm_plan_id?: string | null;
+  pm_occurrence_due_on?: string | null;
   facility_assets?: { id: string; name: string; asset_code: string } | null;
   property_properties?: { id: string; name: string } | null;
   property_units?: { id: string; unit_label: string } | null;
@@ -1085,6 +1089,9 @@ export async function createFacilityWorkOrder(
     floorLabel?: string | null;
     departmentLabel?: string | null;
     roomLabel?: string | null;
+    originSource?: PmOriginSource;
+    pmPlanId?: string | null;
+    pmOccurrenceDueOn?: string | null;
   }
 ) {
   const { data: property, error: propertyError } = await supabase
@@ -1167,7 +1174,10 @@ export async function createFacilityWorkOrder(
       request_number: options?.requestNumber ?? null,
       floor_label: floorLabel,
       department_label: departmentLabel,
-      room_label: roomLabel
+      room_label: roomLabel,
+      origin_source: options?.originSource ?? (options?.requestNumber ? "public_request" : "manual"),
+      ...(options?.pmPlanId ? { pm_plan_id: options.pmPlanId } : {}),
+      ...(options?.pmOccurrenceDueOn ? { pm_occurrence_due_on: options.pmOccurrenceDueOn } : {})
     })
     .select(SELECT_WO)
     .single();

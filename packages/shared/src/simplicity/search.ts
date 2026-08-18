@@ -21,6 +21,7 @@ export const STAFF_SEARCH_DOMAINS = [
   "asset",
   "vendor",
   "request_form",
+  "pm_plan",
   "destination"
 ] as const;
 
@@ -91,6 +92,9 @@ export function authorizedSearchDomains(actor: StaffSearchActor): StaffSearchDom
   if (entitled("pm.vendors") || entitled("facility.operations")) domains.push("vendor");
   if (entitled("facility.request_forms") && isManagerClassRole(actor.roles)) {
     domains.push("request_form");
+  }
+  if (entitled("facility.preventive") && isManagerClassRole(actor.roles)) {
+    domains.push("pm_plan");
   }
   return domains;
 }
@@ -166,6 +170,7 @@ export const STAFF_SEARCH_DOMAIN_LABELS: Record<StaffSearchDomain, string> = {
   asset: "Asset",
   vendor: "Vendor",
   request_form: "Request Form",
+  pm_plan: "Preventive Maintenance",
   destination: "Go to"
 };
 
@@ -184,6 +189,7 @@ export const EMPTY_SEARCH_DESTINATION_HREFS = [
   "/facility/mission-control",
   "/facility/operations",
   "/facility/assets",
+  "/facility/preventive-maintenance",
   "/facility/settings/request-forms",
   "/pm/mission-control",
   "/pm/properties",

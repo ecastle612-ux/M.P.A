@@ -35,6 +35,14 @@ export async function requireFacilityAssetPermission(
   });
 }
 
+export async function requireFacilityPreventivePermission() {
+  return requireAuthorizedAction({
+    capability: "pm.maintenance:write",
+    entitlement: "facility.preventive",
+    allowedRoles: [...FACILITY_MANAGER_ROLES]
+  });
+}
+
 export async function requireFacilityRequestFormsPermission() {
   return requireAuthorizedAction({
     capability: "pm.maintenance:write",

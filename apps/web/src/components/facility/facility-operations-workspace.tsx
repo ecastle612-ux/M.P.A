@@ -53,6 +53,7 @@ type WorkOrder = {
   vendor_id: string | null;
   submitted_at: string;
   intake_channel?: "internal" | "qr" | "public_link" | "authenticated" | null;
+  origin_source?: "manual" | "preventive" | "public_request" | null;
   request_number?: string | null;
   floor_label?: string | null;
   department_label?: string | null;
@@ -98,8 +99,8 @@ const DOMAIN_META: Record<
     createDefaultCategory: "general"
   },
   preventive: {
-    title: "Preventive Work",
-    description: "Facility work orders categorized for preventive maintenance tasks.",
+    title: "Preventive Maintenance",
+    description: "Generated Preventive Maintenance work orders live in Operations and My Work.",
     category: "preventive",
     createDefaultCategory: "preventive"
   },
@@ -773,15 +774,20 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                   {selected.request_number ? (
                     <p className="mt-2 text-sm font-semibold">{selected.request_number}</p>
                   ) : null}
-                  {selected.intake_channel && selected.intake_channel !== "internal" ? (
+                  {selected.origin_source === "preventive" ||
+                  (selected.intake_channel && selected.intake_channel !== "internal") ? (
                     <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
-                      {selected.intake_channel === "qr"
-                        ? "Submitted via QR"
-                        : selected.intake_channel === "authenticated"
-                          ? "Submitted by signed-in requester"
-                          : "Submitted via public link"}
+                      {selected.origin_source === "preventive"
+                        ? "Preventive Maintenance"
+                        : selected.intake_channel === "qr"
+                          ? "QR / Share Link"
+                          : selected.intake_channel === "authenticated"
+                            ? "QR / Share Link"
+                            : "QR / Share Link"}
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">Manual</p>
+                  )}
                   {selected.floor_label || selected.department_label || selected.room_label ? (
                     <p className="mt-1 text-sm">
                       {[selected.floor_label ? `Floor ${selected.floor_label}` : null, selected.department_label, selected.room_label]

@@ -59,6 +59,7 @@ describe("SIMPLICITY SLICE 4 — search authorization", () => {
     expect(domains).toContain("asset");
     expect(domains).toContain("facility_work_order");
     expect(domains).toContain("property");
+    expect(domains).toContain("pm_plan");
     expect(domains).not.toContain("resident");
     expect(domains).not.toContain("lease");
     expect(domains).not.toContain("pm_work_order");
@@ -73,6 +74,7 @@ describe("SIMPLICITY SLICE 4 — search authorization", () => {
     expect(domains).not.toContain("asset");
     expect(domains).not.toContain("facility_work_order");
     expect(domains).not.toContain("request_form");
+    expect(domains).not.toContain("pm_plan");
   });
 
   it("Complete SKU alone is not authorization — FO-scoped member has no PM results", () => {
@@ -107,6 +109,7 @@ describe("SIMPLICITY SLICE 4 — search authorization", () => {
     expect(domains).toContain("facility_work_order");
     expect(domains).toContain("asset");
     expect(domains).not.toContain("request_form");
+    expect(domains).not.toContain("pm_plan");
     expect(domains).not.toContain("lease");
     expect(
       authorizedQuickCreateActions({
@@ -121,7 +124,13 @@ describe("SIMPLICITY SLICE 4 — search authorization", () => {
       sku: "mpa_facility_operations",
       roles: ["property_manager"]
     }).map((action) => action.id);
-    expect(actions).toEqual(["fo_work_order", "fo_asset", "fo_request_form", "fo_work_template"]);
+    expect(actions).toEqual([
+      "fo_work_order",
+      "fo_asset",
+      "fo_request_form",
+      "fo_work_template",
+      "fo_pm_plan"
+    ]);
   });
 
   it("PM manager Quick Create excludes FO actions and includes charge only as finance navigation", () => {
@@ -227,6 +236,9 @@ describe("SIMPLICITY SLICE 4 — identifiers, deep links, recent", () => {
       roles: ["property_manager"]
     });
     expect(suggestedCreatesForFailedSearch("AST-000099", fo).map((row) => row.id)).toEqual(["fo_asset"]);
+    expect(suggestedCreatesForFailedSearch("quarterly chair inspection", fo).map((row) => row.id)).toEqual([
+      "fo_pm_plan"
+    ]);
     expect(suggestedCreatesForFailedSearch("xyzzy", fo)).toEqual([]);
   });
 });

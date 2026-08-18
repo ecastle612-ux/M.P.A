@@ -11,12 +11,14 @@ import {
   staffSearchLooksLikeGeneratedAssetCode,
   staffSearchLooksLikeRequestNumber
 } from "./search";
+import { contextualPmPlanHref } from "../facility/preventive-maintenance";
 
 export const QUICK_CREATE_ACTION_IDS = [
   "fo_work_order",
   "fo_asset",
   "fo_request_form",
   "fo_work_template",
+  "fo_pm_plan",
   "pm_property",
   "pm_resident",
   "pm_lease",
@@ -67,6 +69,14 @@ const FO_QUICK_CREATE: readonly QuickCreateAction[] = [
     href: "/facility/settings/work-templates?new=1",
     surface: "facility",
     entitlement: "facility.operations"
+  },
+  {
+    id: "fo_pm_plan",
+    label: "Preventive Maintenance Plan",
+    description: "Schedule repeating facility work",
+    href: "/facility/preventive-maintenance?new=1",
+    surface: "facility",
+    entitlement: "facility.preventive"
   }
 ];
 
@@ -148,6 +158,13 @@ export function contextualWorkOrderHref(input: {
   return `/facility/operations?${params.toString()}`;
 }
 
+export function contextualPreventivePlanHref(input: {
+  facilityAssetId?: string;
+  propertyId?: string;
+}): string {
+  return contextualPmPlanHref(input);
+}
+
 export function contextualPmMaintenanceHref(input: {
   propertyId?: string;
   residentId?: string;
@@ -167,6 +184,10 @@ export function suggestedCreatesForFailedSearch(
   if (staffSearchLooksLikeGeneratedAssetCode(query) || /\b(chair|asset|serial|tag)\b/i.test(query)) {
     const asset = allowed.get("fo_asset");
     return asset ? [asset] : [];
+  }
+  if (/\b(preventive|inspection|quarterly|pm plan)\b/i.test(query)) {
+    const plan = allowed.get("fo_pm_plan");
+    return plan ? [plan] : [];
   }
   if (staffSearchLooksLikeRequestNumber(query) || /\b(work order|repair|broken)\b/i.test(query)) {
     const fo = allowed.get("fo_work_order");

@@ -11,6 +11,7 @@ import {
   staffAssetHref,
   staffLeaseHref,
   staffPropertyHref,
+  staffPmPlanHref,
   staffRequestFormHref,
   staffResidentHref,
   staffSearchDomainLabel,
@@ -18,6 +19,7 @@ import {
   staffUnitHref,
   staffVendorHref,
   staffWorkOrderHref,
+  recurrenceLabel,
   STAFF_SEARCH_PER_DOMAIN_CAP,
   STAFF_SEARCH_TOTAL_CAP,
   suggestedCreatesForFailedSearch,
@@ -402,6 +404,41 @@ async function searchVendors(
   }));
 }
 
+async function searchPmPlans(
+  supabase: Db,
+  organizationId: string,
+  query: string
+): Promise<StaffSearchHit[]> {
+  const { data, error } = await supabase
+    .from("facility_pm_plans")
+    .select("id, name, status, recurrence_kind, interval_n, next_due_on, facility_assets(name)")
+    .eq("organization_id", organizationId)
+    .neq("status", "inactive")
+    .or(likeOr(["name", "description"], query))
+    .order("name")
+    .limit(STAFF_SEARCH_PER_DOMAIN_CAP);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => {
+    const asset = asSingle(row.facility_assets as { name?: string } | { name?: string }[] | null);
+    return {
+      domain: "pm_plan" as const,
+      recordId: String(row.id),
+      kind: staffSearchDomainLabel("pm_plan"),
+      title: sanitizeSearchPresentation(String(row.name ?? "Preventive Maintenance")),
+      subtitle: presentation(
+        recurrenceLabel(row.recurrence_kind as "monthly", Number(row.interval_n ?? 1)),
+        row.next_due_on ? `Next due ${row.next_due_on}` : null,
+        asset?.name
+      ),
+      matchReason: matchReasonFor({
+        query,
+        haystacks: [{ label: "name", value: row.name as string }]
+      }),
+      href: staffPmPlanHref(String(row.id))
+    };
+  });
+}
+
 async function searchRequestForms(
   supabase: Db,
   organizationId: string,
@@ -478,6 +515,7 @@ export async function runStaffSearch(
   run("asset", () => searchAssets(authz.supabase, authz.organizationId, query, actor));
   run("vendor", () => searchVendors(authz.supabase, authz.organizationId, query, actor));
   run("request_form", () => searchRequestForms(authz.supabase, authz.organizationId, query));
+  run("pm_plan", () => searchPmPlans(authz.supabase, authz.organizationId, query));
 
   const groups = await Promise.all(tasks);
   const results = groups.flat().slice(0, STAFF_SEARCH_TOTAL_CAP);
@@ -592,6 +630,28 @@ async function resolveOne(
         technicianOnly,
         assignedToViewer: data.technician_user_id === actor.userId
       })
+    };
+  }
+
+  if (item.type === "pm_plan") {
+    const { data } = await supabase
+      .from("facility_pm_plans")
+      .select("id, name, status, recurrence_kind, interval_n, next_due_on")
+      .eq("organization_id", organizationId)
+      .eq("id", item.id)
+      .maybeSingle();
+    if (!data || data.status === "inactive") return null;
+    return {
+      domain: "pm_plan",
+      recordId: String(data.id),
+      kind: staffSearchDomainLabel("pm_plan"),
+      title: sanitizeSearchPresentation(String(data.name ?? "Preventive Maintenance")),
+      subtitle: presentation(
+        recurrenceLabel(data.recurrence_kind as "monthly", Number(data.interval_n ?? 1)),
+        data.next_due_on ? `Next due ${data.next_due_on}` : null
+      ),
+      matchReason: "Recent",
+      href: staffPmPlanHref(String(data.id))
     };
   }
 

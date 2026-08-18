@@ -10,6 +10,7 @@ export const RECENT_RECORD_TYPES = [
   "facility_work_order",
   "pm_work_order",
   "vendor",
+  "pm_plan"
 ] as const;
 
 export type RecentRecordType = (typeof RECENT_RECORD_TYPES)[number];
