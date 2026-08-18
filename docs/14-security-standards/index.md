@@ -176,3 +176,4 @@ audit_log
 - **10** API Standards
 - **13** AI Strategy
 - **16** Testing Standards
+- **225** [Backend Security / Firewall / Hardening Audit](../225-backend-security-firewall-hardening-audit/index.md) — 2026-08-18 Production audit (conditional)
