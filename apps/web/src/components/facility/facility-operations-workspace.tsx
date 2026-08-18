@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   WORK_ORDER_CATEGORIES,
   WORK_ORDER_CATEGORY_LABELS,
@@ -144,11 +145,14 @@ function isOpen(status: WorkOrderStatus) {
 
 export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorkspaceDomain }) {
   const meta = DOMAIN_META[domain];
+  const searchParams = useSearchParams();
+  const deepLinkWorkOrderId = searchParams.get("workOrderId");
+  const returnFrom = searchParams.get("from");
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState(deepLinkWorkOrderId ?? "");
   const [updates, setUpdates] = useState<
     Array<{ id: string; body: string; created_at: string; actor_role: string }>
   >([]);
@@ -265,7 +269,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     let cancelled = false;
     void (async () => {
       try {
-        await refresh();
+        await refresh(deepLinkWorkOrderId || undefined);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Failed to load");
@@ -279,7 +283,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
     return () => {
       cancelled = true;
     };
-    // Initial load only
+    // Initial load only — deep link preferred once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -357,6 +361,14 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
       description={meta.description}
       actions={
         <div className="flex flex-wrap gap-2">
+          {returnFrom === "mission-control" ? (
+            <Link
+              href="/facility/mission-control"
+              className="inline-flex min-h-10 items-center rounded-md border border-[var(--mpa-color-border-subtle)] px-3 text-sm font-medium text-[var(--mpa-color-text-primary)]"
+            >
+              Back to Mission Control
+            </Link>
+          ) : null}
           <Badge variant="info">{openCount} open</Badge>
           <Badge variant={emergencyCount > 0 ? "danger" : "neutral"}>
             {emergencyCount} emergency

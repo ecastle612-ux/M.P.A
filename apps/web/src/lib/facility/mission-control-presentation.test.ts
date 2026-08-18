@@ -54,7 +54,10 @@ describe("facilityMissionControlGlanceMetrics (PPS1-003)", () => {
       overdue: 1,
       waitingOnTechnician: 3,
       waitingOnVendor: 4,
-      completedRecently: 7
+      completedRecently: 7,
+      attention: [],
+      attentionTotal: 0,
+      viewerMode: "manager"
     });
 
     const byId = Object.fromEntries(metrics.map((metric) => [metric.id, metric]));

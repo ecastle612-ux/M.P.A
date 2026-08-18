@@ -13,14 +13,17 @@ import {
   documentsHref
 } from "../shell/fo-workspace";
 import { useCommercialContext } from "../shell/commercial-context";
-import { Skeleton } from "@mpa/ui";
+import { Badge, Skeleton } from "@mpa/ui";
 import {
+  facilityAttentionActionLabel,
+  facilityMissionControlAttentionEmpty,
+  facilityMissionControlAttentionSections,
   facilityMissionControlErrorMessage,
   facilityMissionControlGlanceMetrics,
   facilityMissionControlLoadView,
   facilityMissionControlQuickActions
 } from "../../lib/facility/mission-control-presentation";
-import type { FacilityMissionControlSnapshot } from "../../lib/maintenance/maintenance-service";
+import type { FacilityMissionControlSnapshot } from "../../lib/facility/mission-control-service";
 import { ErrorRetry } from "../shell/error-retry";
 import { OwnerDay1ChecklistCard } from "../commercial/owner-day1-checklist";
 
@@ -123,6 +126,9 @@ export function FacilityMissionControlPage() {
     hasSnapshot: Boolean(snapshot)
   });
   const glanceMetrics = snapshot ? facilityMissionControlGlanceMetrics(snapshot) : [];
+  const attentionSections = snapshot ? facilityMissionControlAttentionSections(snapshot) : [];
+  const attentionCaughtUp = snapshot ? facilityMissionControlAttentionEmpty(snapshot) : false;
+  const isTechnicianViewer = snapshot?.viewerMode === "technician";
   const isFirstRun =
     view === "ready" &&
     Boolean(snapshot) &&
@@ -145,7 +151,9 @@ export function FacilityMissionControlPage() {
       description={
         isFirstRun
           ? "Your attention home after Guided Setup — activate your facility operation with one clear Day-1 path."
-          : "Today’s facility work, emergencies, overdue items, and waiting assignments — then act from Operations."
+          : isTechnicianViewer
+            ? "Operational overview. Your assigned jobs live in My Work."
+            : "What needs your attention right now — then act on the exact work order."
       }
     >
       <FoQuickActions actions={quickActions} />
@@ -203,6 +211,105 @@ export function FacilityMissionControlPage() {
         />
       ) : null}
 
+      {view === "ready" && snapshot && isTechnicianViewer ? (
+        <section
+          aria-label="Technician My Work"
+          className="rounded-md border border-[var(--mpa-color-brand-primary)]/30 bg-white p-4"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-brand-primary)]">
+            Your work
+          </p>
+          <p className="mt-1 text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+            Assigned facility jobs are in My Work — not this attention queue.
+          </p>
+          <p className="mt-2 text-sm text-[var(--mpa-color-text-secondary)]">
+            Open My Work for today, overdue, and upcoming assignments with checklists and evidence.
+          </p>
+          <Link
+            href="/facility/my-work"
+            className="mt-3 inline-flex min-h-11 items-center rounded-md bg-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-white"
+          >
+            Open My Work
+          </Link>
+        </section>
+      ) : null}
+
+      {view === "ready" && snapshot && !isTechnicianViewer ? (
+        <section aria-label="Needs Attention" className="space-y-3">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">
+                Needs Attention
+              </h2>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                What needs action now — open the exact work order.
+              </p>
+            </div>
+            {snapshot.attentionTotal > 0 ? (
+              <Badge variant="warning">{snapshot.attentionTotal} needing action</Badge>
+            ) : null}
+          </div>
+
+          {attentionCaughtUp ? (
+            <div className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-[var(--mpa-color-surface-subtle,#F7F8F7)] p-4">
+              <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+                You&apos;re caught up.
+              </p>
+              <p className="mt-1 text-sm text-[var(--mpa-color-text-secondary)]">
+                No urgent or overdue facility work needs attention.
+              </p>
+            </div>
+          ) : null}
+
+          {attentionSections.map((section) => (
+            <div
+              key={section.category}
+              className="rounded-md border border-[var(--mpa-color-border-subtle)] bg-white"
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-[var(--mpa-color-border-subtle)] px-4 py-3">
+                <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+                  {section.label}
+                </p>
+                <span className="text-xs text-[var(--mpa-color-text-secondary)]">
+                  {section.total}
+                  {section.items.length < section.total
+                    ? ` · showing ${section.items.length}`
+                    : ""}
+                </span>
+              </div>
+              <ul className="divide-y divide-[var(--mpa-color-border-subtle)]">
+                {section.items.map((item) => (
+                  <li key={`${section.category}-${item.id}`} className="px-4 py-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+                          {item.referenceLabel}
+                        </p>
+                        <p className="text-sm font-semibold text-[var(--mpa-color-text-primary)]">
+                          {item.title}
+                        </p>
+                        {item.locationLine ? (
+                          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                            {item.locationLine}
+                          </p>
+                        ) : null}
+                        <p className="text-xs text-[var(--mpa-color-text-secondary)]">{item.metaLine}</p>
+                      </div>
+                      <Link
+                        href={item.href}
+                        className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md border border-[var(--mpa-color-brand-primary)] px-4 text-sm font-semibold text-[var(--mpa-color-brand-primary)]"
+                      >
+                        {facilityAttentionActionLabel(section.category)}
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+      ) : null}
+
       {view === "ready" && snapshot ? (
         <section aria-label="At a glance" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {glanceMetrics.map((metric) => (
@@ -225,26 +332,39 @@ export function FacilityMissionControlPage() {
           What to do next
         </p>
         <p className="mt-1 text-sm font-semibold text-[var(--mpa-color-text-primary)]">
-          {snapshot?.emergency
-            ? "Triage emergency facility work in Operations."
-            : snapshot?.overdue
-              ? "Clear overdue facility work first."
-              : snapshot?.open
-                ? "Work the open facility queue — assign, start, and complete."
-                : "Add a building in Assets, then create your first work order in Operations."}
+          {isTechnicianViewer
+            ? "Open My Work for your assigned facility jobs."
+            : snapshot?.attentionTotal
+              ? "Clear Needs Attention first — each row opens the exact work order."
+              : snapshot?.emergency
+                ? "Triage emergency facility work in Operations."
+                : snapshot?.overdue
+                  ? "Clear overdue facility work first."
+                  : snapshot?.open
+                    ? "Work the open facility queue — assign, start, and complete."
+                    : "Add a building in Assets, then create your first work order in Operations."}
         </p>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
+          {isTechnicianViewer ? (
+            <li>
+              <Link href="/facility/my-work" className="text-[var(--mpa-color-brand-primary)] underline">
+                My Work
+              </Link>{" "}
+              — today, overdue, and upcoming assignments.
+            </li>
+          ) : (
+            <li>
+              <Link href="/facility/operations" className="text-[var(--mpa-color-brand-primary)] underline">
+                Facility Operations
+              </Link>{" "}
+              — create → assign → start → progress → complete / cancel.
+            </li>
+          )}
           <li>
             <Link href="/facility/assets" className="text-[var(--mpa-color-brand-primary)] underline">
               Buildings &amp; Sites
             </Link>{" "}
             — add the place facility work will reference.
-          </li>
-          <li>
-            <Link href="/facility/operations" className="text-[var(--mpa-color-brand-primary)] underline">
-              Facility Operations
-            </Link>{" "}
-            — create → assign → start → progress → complete / cancel.
           </li>
           <li>
             <Link href="/settings/team" className="text-[var(--mpa-color-brand-primary)] underline">
@@ -254,7 +374,10 @@ export function FacilityMissionControlPage() {
           </li>
           {canManageRequestForms ? (
             <li>
-              <Link href="/facility/settings/request-forms" className="text-[var(--mpa-color-brand-primary)] underline">
+              <Link
+                href="/facility/settings/request-forms"
+                className="text-[var(--mpa-color-brand-primary)] underline"
+              >
                 Request Forms
               </Link>{" "}
               — publish a QR or share link so people can report work.
@@ -288,7 +411,7 @@ export function FacilityMissionControlPage() {
             title="Mission Control"
             href="/facility/mission-control"
             status="aligned"
-            summary="This attention home — today’s work, emergencies, and waiting assignments."
+            summary="This attention home — Needs Attention, then operational overview."
             documentsHref={documentsHref()}
           />
           {CAPABILITIES.map((item) => (
