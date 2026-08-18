@@ -83,7 +83,8 @@ describe("Wave C2 accessibility + trust polish", () => {
     const palette = read("components/shell/command-palette.tsx");
     expect(palette).toMatch(/setTimeout/);
     expect(palette).toMatch(/200/);
-    expect(palette).toMatch(/if \(!trimmed\)/);
+    expect(palette).toMatch(/\/api\/shared\/search\?q=/);
+    expect(palette).toMatch(/query\.trim\(\)/);
     const notes = readFileSync(
       join(repoRoot, "docs/06-design-language/performance-notes-wave-c2.md"),
       "utf8"

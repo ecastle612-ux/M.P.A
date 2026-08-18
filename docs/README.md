@@ -157,6 +157,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 214 | [App-Wide Sidebar Production Release](./214-app-wide-sidebar-production-release/index.md) | **APP-WIDE SIDEBAR PRODUCTION RELEASE SUCCESSFUL** · SHA `8ae89150` · deploy `dpl_HxxuVRu6dqRbuMxKPVMEbcAQ7BUQ` |
 | 215 | [FO-EFF Slice 3 Asset Registry + Asset QR](./215-fo-eff-slice3-asset-registry-qr/index.md) | **IMPLEMENTED IN-REPO** · SHA `72fe96ed` · Production released in 216 |
 | 216 | [FO-EFF Slice 3 Production Release](./216-fo-eff-slice3-production-release/index.md) | **FO-EFF SLICE 3 PRODUCTION RELEASE + UAT SUCCESSFUL** · stamp `20260818040239` · SHA `7f0fa45d` · deploy `dpl_3yqMaZFnj3S4dqKotmnzGCm1P18i` |
+| 217 | [Simplicity Slice 4 Global Search + Quick Create + Recent](./217-simplicity-slice4-search-create-recent/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** · SHA `13f586c6` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -250,6 +251,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [214 App-wide sidebar Production release](./214-app-wide-sidebar-production-release/index.md) | **APP-WIDE SIDEBAR PRODUCTION RELEASE SUCCESSFUL** — SHA `8ae89150` · deploy `dpl_HxxuVRu6dqRbuMxKPVMEbcAQ7BUQ` |
 | [215 FO-EFF Slice 3 Asset Registry + Asset QR](./215-fo-eff-slice3-asset-registry-qr/index.md) | **IMPLEMENTED IN-REPO** — SHA `72fe96ed` · Production released in 216 |
 | [216 FO-EFF Slice 3 Production release](./216-fo-eff-slice3-production-release/index.md) | **FO-EFF SLICE 3 PRODUCTION RELEASE + UAT SUCCESSFUL** — stamp `20260818040239` · SHA `7f0fa45d` · deploy `dpl_3yqMaZFnj3S4dqKotmnzGCm1P18i` |
+| [217 Simplicity Slice 4 Search + Create + Recent](./217-simplicity-slice4-search-create-recent/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** — SHA `13f586c6` |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
