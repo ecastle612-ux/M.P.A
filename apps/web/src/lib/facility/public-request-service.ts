@@ -63,7 +63,15 @@ export async function resolvePublicIntake(
   supabase: Db,
   token: string
 ): Promise<
-  | { ok: true; organizationId: string; intakeId: string; formId: string; versionId: string; portal: PublicRequestPortal }
+  | {
+      ok: true;
+      organizationId: string;
+      intakeId: string;
+      formId: string;
+      versionId: string;
+      createdByUserId: string | null;
+      portal: PublicRequestPortal;
+    }
   | { ok: false; error: string; status: number }
 > {
   if (!looksLikeHighEntropyToken(token)) {
@@ -82,7 +90,7 @@ export async function resolvePublicIntake(
 
   const { data: form } = await supabase
     .from("facility_request_forms")
-    .select("id, name, instructions, status, access_policy, current_version_id, property_id")
+    .select("id, name, instructions, status, access_policy, current_version_id, property_id, created_by_user_id")
     .eq("id", intake.form_id)
     .eq("organization_id", intake.organization_id)
     .maybeSingle();
@@ -127,6 +135,7 @@ export async function resolvePublicIntake(
     intakeId: intake.id,
     formId: form.id,
     versionId: version.id,
+    createdByUserId: typeof form.created_by_user_id === "string" ? form.created_by_user_id : null,
     portal: {
       formName: form.name,
       organizationName: organization?.name ?? "Facility",
@@ -278,6 +287,11 @@ export async function submitPublicRequest(
     accessPolicy: resolved.portal.accessPolicy
   });
   const statusToken = generateFacilityRequestToken();
+  const managers = await listFacilityManagers(supabase, resolved.organizationId);
+  const createdByUserId = input.actorUserId ?? resolved.createdByUserId ?? managers[0] ?? null;
+  if (!createdByUserId) {
+    return { ok: false, error: "Request intake is unavailable.", status: 503 };
+  }
 
   const workOrder = await createFacilityWorkOrder(
     supabase,
@@ -294,6 +308,7 @@ export async function submitPublicRequest(
     },
     {
       requestedByUserId: input.actorUserId ?? null,
+      createdByUserId,
       intakeChannel: source,
       requestNumber,
       floorLabel: validated.floorLabel,
@@ -373,7 +388,6 @@ export async function submitPublicRequest(
     payload: { requestNumber, source, formId: resolved.formId }
   });
 
-  const managers = await listFacilityManagers(supabase, resolved.organizationId);
   for (const userId of managers) {
     await notifyLifecycle(supabase as never, {
       organizationId: resolved.organizationId,

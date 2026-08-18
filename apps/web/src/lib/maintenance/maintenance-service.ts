@@ -939,6 +939,7 @@ export async function createFacilityWorkOrder(
   input: CreateFacilityWorkOrderInput,
   options?: {
     requestedByUserId?: string | null;
+    createdByUserId?: string | null;
     intakeChannel?: FacilityRequestIntakeChannel;
     requestNumber?: string | null;
     floorLabel?: string | null;
@@ -995,6 +996,7 @@ export async function createFacilityWorkOrder(
     }
   }
 
+  const createdBy = actorUserId ?? options?.createdByUserId ?? null;
   const { data: workOrder, error } = await supabase
     .from("maintenance_work_orders")
     .insert({
@@ -1003,6 +1005,7 @@ export async function createFacilityWorkOrder(
       unit_id: input.unitId ?? null,
       resident_id: null,
       requested_by_user_id: options?.requestedByUserId ?? actorUserId,
+      ...(createdBy ? { created_by: createdBy } : {}),
       title: input.title,
       description: input.description,
       category: input.category,

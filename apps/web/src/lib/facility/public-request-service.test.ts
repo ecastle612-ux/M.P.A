@@ -174,7 +174,8 @@ describe("public request service", () => {
       access_policy: "contact_required",
       current_version_id: "ver_1",
       property_id: null,
-      organization_id: "org_1"
+      organization_id: "org_1",
+      created_by_user_id: "mgr_1"
     });
     db.rows["facility_request_form_versions"]!.push(version);
 
@@ -204,6 +205,7 @@ describe("public request service", () => {
     expect(woArgs?.[3]).toMatchObject({ title: "Chair arm is broken" });
     expect(woArgs?.[4]).toMatchObject({
       intakeChannel: "qr",
+      createdByUserId: "mgr_1",
       floorLabel: "3",
       departmentLabel: "Cardiology"
     });
