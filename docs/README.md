@@ -129,6 +129,8 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 185 | [Complimentary Tester / Gift Access](./185-complimentary-tester-gift-access/index.md) | **Approved** · implemented · Production applied in 187 |
 | 186 | [Complimentary Access Implementation Certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** · executed in 187 |
 | 187 | [Complimentary Access Production Release Certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** · stamp `20260817064006` · SHA `f922da26` |
+| 225 | [Backend Security / Firewall / Hardening Audit](./225-backend-security-firewall-hardening-audit/index.md) | **SECURITY HARDENING CONDITIONAL** · audit only · no Production mutation |
+| 226 | [SEC-001 Pre-Onboarding Security Remediation](./226-sec-001-pre-onboarding-security-remediation/index.md) | **IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION** |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |

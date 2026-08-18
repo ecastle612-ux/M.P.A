@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 import { isSignWellCompletedStatus, verifySignWellWebhook } from "../../../../../lib/signwell/client";
 import { activateSignedLease } from "../../../../../lib/leasing/lease-service";
+import { resolveSignWellLeaseCorrelation } from "../../../../../lib/leasing/signwell-lease-correlation";
 
 type SignWellWebhookBody = {
   event?: {
@@ -60,30 +61,36 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, ignored: true, eventType });
   }
 
-  let leaseQuery = supabase
+  const { data: leases, error } = await supabase
     .from("lease_agreements")
     .select("id, organization_id, status")
     .eq("signwell_document_id", documentId)
     .limit(1);
-  if (leaseIdFromMeta) {
-    leaseQuery = supabase
-      .from("lease_agreements")
-      .select("id, organization_id, status")
-      .eq("id", leaseIdFromMeta)
-      .limit(1);
-  }
-
-  const { data: leases, error } = await leaseQuery;
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
-  const lease = leases?.[0];
-  if (!lease) {
+
+  const correlation = resolveSignWellLeaseCorrelation({
+    documentId,
+    leasesByDocumentId: (leases ?? []) as Array<{
+      id: string;
+      organization_id: string;
+      status?: string;
+    }>,
+    metadataLeaseId: leaseIdFromMeta,
+    metadataOrganizationId: organizationId
+  });
+
+  if (correlation.kind === "unmatched") {
     return NextResponse.json({ ok: true, unmatched: true });
   }
+  if (correlation.kind === "ignored") {
+    return NextResponse.json({ ok: true, ignored: true, reason: correlation.reason });
+  }
 
+  const lease = correlation.lease;
   try {
-    await activateSignedLease(supabase, lease.organization_id as string, null, lease.id as string, {
+    await activateSignedLease(supabase, lease.organization_id, null, lease.id, {
       channel: "signwell",
       signwellStatus: documentStatus
     });

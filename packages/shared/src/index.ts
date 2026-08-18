@@ -2,6 +2,7 @@ export * from "./types/roles";
 export * from "./types/organization";
 export * from "./auth/authorization";
 export * from "./auth/permissions";
+export * from "./auth/password-policy";
 export * from "./auth/post-auth-home";
 export * from "./auth/operating-scope";
 export * from "./commercial";

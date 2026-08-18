@@ -22,4 +22,9 @@ describe("P1-04 SaaS claim copy", () => {
   it("keeps email-mismatch guidance", () => {
     expect(friendlyCommerceClaimError("email_mismatch")).toMatch(/same email/i);
   });
+
+  it("describes the 12-character password contract", () => {
+    expect(friendlyCommerceClaimError("password_too_short")).toMatch(/12/);
+    expect(friendlyCommerceClaimError("password_too_short")).not.toMatch(/8 characters/);
+  });
 });
