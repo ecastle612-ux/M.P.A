@@ -20,7 +20,13 @@ export async function GET(_request: Request, context: Params) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     const updates = await listWorkOrderUpdates(authz.supabase, authz.organizationId, workOrderId);
-    return NextResponse.json({ workOrder, updates });
+    const { data: submission } = await authz.supabase
+      .from("facility_request_submissions")
+      .select("source, requester_name, requester_email, requester_phone, values_snapshot, submitted_at")
+      .eq("organization_id", authz.organizationId)
+      .eq("work_order_id", workOrderId)
+      .maybeSingle();
+    return NextResponse.json({ workOrder, updates, submission: submission ?? null });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to load facility work order" },

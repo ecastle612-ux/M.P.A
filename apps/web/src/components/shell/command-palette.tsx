@@ -1,81 +1,111 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { searchCatalogForSku } from "@mpa/shared";
-import { CommandPaletteShell } from "@mpa/ui";
+import { authorizedQuickCreateActions } from "@mpa/shared";
+import { CommandPaletteEmptyState, CommandPaletteShell } from "@mpa/ui";
+import { readRecentItems } from "../../lib/simplicity/recent-items-client";
 import { useCommercialContext } from "./commercial-context";
+import { useOrganizationContext } from "./organization-context";
+import { useProfileContext } from "./profile-provider";
 
-export function CommandPalette() {
+type SearchHit = {
+  domain: string;
+  recordId: string;
+  kind: string;
+  title: string;
+  subtitle: string;
+  matchReason: string;
+  href: string;
+};
+
+type CreateAction = {
+  id: string;
+  label: string;
+  description: string;
+  href: string;
+};
+
+type SearchPayload = {
+  results?: SearchHit[];
+  destinations?: Array<{ href: string; label: string; group?: string }>;
+  creates?: CreateAction[];
+  suggestedCreates?: CreateAction[];
+};
+
+function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target.isContentEditable;
+}
+
+export function CommandPalette({
+  open: openProp,
+  onOpenChange,
+  trigger = "search"
+}: {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: "search" | "create" | "none";
+}) {
   const router = useRouter();
-  const { productSku, productLabel } = useCommercialContext();
-  const [open, setOpen] = useState(false);
+  const { productSku } = useCommercialContext();
+  const { activeOrganizationId } = useOrganizationContext();
+  const { userId } = useProfileContext();
+  const [internalOpen, setInternalOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [propertyItems, setPropertyItems] = useState<Array<{ id: string; label: string }>>([]);
-  const [residentItems, setResidentItems] = useState<Array<{ id: string; label: string }>>([]);
+  const [payload, setPayload] = useState<SearchPayload>({});
+  const [recent, setRecent] = useState<SearchHit[]>([]);
+  const open = openProp ?? internalOpen;
+
+  const setOpen = useCallback(
+    (next: boolean) => {
+      onOpenChange?.(next);
+      if (openProp === undefined) {
+        setInternalOpen(next);
+      }
+      if (!next) {
+        setQuery("");
+      }
+    },
+    [onOpenChange, openProp]
+  );
 
   useEffect(() => {
+    if (trigger !== "search") return;
     function handler(event: KeyboardEvent) {
-      const isShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
-      if (isShortcut) {
+      const isCommandK = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+      if (isCommandK) {
         event.preventDefault();
-        setOpen((value) => !value);
+        setOpen(!open);
         return;
       }
-
-      if (event.key === "Escape") {
-        setOpen(false);
+      if (event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey && !isTypingTarget(event.target)) {
+        event.preventDefault();
+        setOpen(true);
       }
     }
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [open, setOpen, trigger]);
 
   useEffect(() => {
-    if (!open || !productSku) {
-      return;
-    }
-    const trimmed = query.trim();
-    // PPS1-029 — skip empty-q entity search; debounce typing to avoid duplicate requests.
-    // Clear derived entity hits only after debounce (async), not with sync setState-in-effect.
-    if (!trimmed) {
-      return;
-    }
+    if (!open) return;
     let cancelled = false;
     const timer = window.setTimeout(() => {
       void (async () => {
         try {
-          const [propertyResponse, residentResponse] = await Promise.all([
-            fetch(`/api/pm/properties/search?q=${encodeURIComponent(trimmed)}`),
-            fetch(`/api/pm/residents/search?q=${encodeURIComponent(trimmed)}`)
-          ]);
-          if (!cancelled && propertyResponse.ok) {
-            const payload = (await propertyResponse.json()) as {
-              results?: Array<{ id: string; label: string; href: string }>;
-            };
-            setPropertyItems(
-              (payload.results ?? []).map((item) => ({
-                id: item.href,
-                label: item.label
-              }))
-            );
+          const response = await fetch(`/api/shared/search?q=${encodeURIComponent(query.trim())}`);
+          if (!response.ok || cancelled) {
+            if (!cancelled && response.status === 403) {
+              setPayload({});
+            }
+            return;
           }
-          if (!cancelled && residentResponse.ok) {
-            const payload = (await residentResponse.json()) as {
-              results?: Array<{ id: string; label: string; href: string }>;
-            };
-            setResidentItems(
-              (payload.results ?? []).map((item) => ({
-                id: item.href,
-                label: item.label
-              }))
-            );
-          }
+          const body = (await response.json()) as SearchPayload;
+          if (!cancelled) setPayload(body);
         } catch {
-          if (!cancelled) {
-            setPropertyItems([]);
-            setResidentItems([]);
-          }
+          if (!cancelled) setPayload({});
         }
       })();
     }, 200);
@@ -83,76 +113,149 @@ export function CommandPalette() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [open, productSku, query]);
+  }, [open, query, productSku, activeOrganizationId]);
+
+  useEffect(() => {
+    if (!open || query.trim() || !activeOrganizationId || !userId) {
+      return;
+    }
+    const refs = readRecentItems(activeOrganizationId, userId);
+    let cancelled = false;
+    void (async () => {
+      if (refs.length === 0) {
+        if (!cancelled) setRecent([]);
+        return;
+      }
+      const response = await fetch("/api/shared/search/resolve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: refs.map((item) => ({ type: item.type, id: item.id })) })
+      });
+      if (!response.ok || cancelled) {
+        if (!cancelled) setRecent([]);
+        return;
+      }
+      const body = (await response.json()) as { results?: SearchHit[] };
+      if (!cancelled) setRecent(body.results ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeOrganizationId, open, query, userId]);
 
   const sections = useMemo(() => {
-    const results = searchCatalogForSku(productSku, query);
-    const byGroup = new Map<string, Array<{ id: string; label: string; shortcut?: string }>>();
-    for (const item of results) {
-      const group = byGroup.get(item.group) ?? [];
-      group.push({ id: item.href, label: item.label });
-      byGroup.set(item.group, group);
+    const next: Array<{
+      title: string;
+      items: Array<{ id: string; label: string; description?: string; kind?: string }>;
+    }> = [];
+    const item = (value: { id: string; label: string; description?: string; kind?: string }) => value;
+    const trimmed = query.trim();
+    const visibleRecent = trimmed ? [] : recent;
+    if (!trimmed && visibleRecent.length > 0) {
+      next.push({
+        title: "Recent",
+        items: visibleRecent.map((hit) =>
+          item({
+            id: hit.href,
+            label: hit.title,
+            description: [hit.subtitle, hit.matchReason].filter(Boolean).join(" · "),
+            kind: hit.kind
+          })
+        )
+      });
     }
-    if (query.trim() && propertyItems.length > 0) {
-      byGroup.set(
-        "Properties",
-        propertyItems.map((item) => ({ id: item.id, label: item.label }))
-      );
+    if ((payload.creates ?? []).length > 0 && (!trimmed || (payload.suggestedCreates ?? []).length > 0)) {
+      const creates = trimmed ? (payload.suggestedCreates ?? []) : (payload.creates ?? []);
+      if (creates.length > 0) {
+        next.push({
+          title: trimmed ? "Create" : "Quick Create",
+          items: creates.map((create) =>
+            item({
+              id: create.href,
+              label: create.label,
+              description: create.description,
+              kind: "Create"
+            })
+          )
+        });
+      }
     }
-    if (query.trim() && residentItems.length > 0) {
-      byGroup.set(
-        "Residents",
-        residentItems.map((item) => ({ id: item.id, label: item.label }))
-      );
+    if ((payload.results ?? []).length > 0) {
+      next.push({
+        title: "Records",
+        items: (payload.results ?? []).map((hit) =>
+          item({
+            id: hit.href,
+            label: hit.title,
+            description: [hit.subtitle, hit.matchReason].filter(Boolean).join(" · "),
+            kind: hit.kind
+          })
+        )
+      });
     }
+    if ((payload.destinations ?? []).length > 0) {
+      next.push({
+        title: "Go to",
+        items: (payload.destinations ?? []).map((destination) =>
+          item({
+            id: destination.href,
+            label: destination.label,
+            ...(destination.group ? { description: destination.group } : {}),
+            kind: "Page"
+          })
+        )
+      });
+    }
+    return next;
+  }, [payload, query, recent]);
 
-    const navSections = [...byGroup.entries()].map(([title, items]) => ({ title, items }));
-    const entitled = searchCatalogForSku(productSku, "");
-    const actions = {
-      title: `Quick Actions · ${productLabel ?? "No product"}`,
-      items: [
-        { id: "/pm/properties?new=1", label: "Add property", shortcut: "A P" },
-        { id: "/pm/residents?new=1", label: "Add resident", shortcut: "A R" },
-        { id: "/pm/leasing?new=1", label: "Create lease", shortcut: "A L" },
-        { id: "/pm/properties", label: "Open Properties", shortcut: "G P" },
-        { id: "/pm/residents", label: "Open Residents", shortcut: "G R" },
-        { id: "/pm/leasing", label: "Open Leasing", shortcut: "G L" },
-        { id: "/pm/mission-control", label: "Open Mission Control", shortcut: "G M" },
-        { id: "/setup", label: "Open Guided Setup", shortcut: "G S" },
-        { id: "/billing", label: "Open Billing & Plan", shortcut: "G B" },
-        { id: "/settings/team", label: "Invite your team", shortcut: "I T" }
-      ].filter(
-        (item) =>
-          item.id.startsWith("/pm/properties") ||
-          item.id.startsWith("/pm/residents") ||
-          item.id.startsWith("/pm/leasing") ||
-          item.id.startsWith("/settings") ||
-          entitled.some((result) => result.href === item.id.split("?")[0]) ||
-          !productSku
-      )
-    };
-
-    return [...navSections, actions].filter((section) => section.items.length > 0);
-  }, [productLabel, productSku, propertyItems, query, residentItems]);
+  let emptyState: ReactNode = (
+    <CommandPaletteEmptyState message="Search records you can open, or pick a create action." />
+  );
+  if (query.trim()) {
+    emptyState = (
+      <CommandPaletteEmptyState
+        message={`No results for '${query.trim()}'.${
+          (payload.suggestedCreates ?? []).length === 0 ? " Try a name, tag, or request number." : ""
+        }`}
+      />
+    );
+  }
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-label="Search workspace"
-        className="flex w-full min-w-[12rem] items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-left text-sm text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-subtle,#F7F8FA)]"
-      >
-        <span>Search workspace…</span>
-        <kbd className="hidden text-xs sm:inline">⌘K</kbd>
-      </button>
+      {trigger === "search" ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-label="Search workspace"
+          className="flex min-h-11 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white px-3 py-2 text-left text-sm text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-subtle,#F7F8FA)]"
+        >
+          <span className="truncate">Search workspace…</span>
+          <kbd className="hidden shrink-0 text-xs sm:inline">⌘K</kbd>
+        </button>
+      ) : null}
+      {trigger === "create" ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-label="Create"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md bg-[var(--mpa-color-brand-primary)] px-3 text-sm font-medium text-white hover:opacity-95"
+        >
+          + Create
+        </button>
+      ) : null}
       <CommandPaletteShell
         open={open}
         query={query}
         onQueryChange={setQuery}
         sections={sections}
+        emptyState={emptyState}
+        labelledBy={trigger === "create" ? "Quick Create" : "Global Search"}
         onClose={() => setOpen(false)}
         onSelect={(id) => {
           setOpen(false);
@@ -161,4 +264,17 @@ export function CommandPalette() {
       />
     </>
   );
+}
+
+export function QuickCreateButton() {
+  const { productSku, roles, operatingScope } = useCommercialContext();
+  const actions = authorizedQuickCreateActions({
+    sku: productSku,
+    roles,
+    storedScope: operatingScope
+  });
+  if (actions.length === 0) {
+    return null;
+  }
+  return <CommandPalette trigger="create" />;
 }

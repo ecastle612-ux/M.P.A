@@ -23,3 +23,6 @@ coverage/
 
 # mobile placeholder artifacts
 apps/mobile/.expo/
+
+# Vercel CLI local link (never commit)
+.vercel/

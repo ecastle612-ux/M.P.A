@@ -112,9 +112,11 @@ describe("navigation and launcher awareness", () => {
     const fo = groups.find((group) => group.id === "facility_operations");
     expect(fo?.items.map((item) => item.href)).toEqual([
       "/facility/mission-control",
+      "/facility/my-work",
       "/facility/operations",
       "/facility/reports",
       "/facility/vendors",
+      "/facility/settings/work-templates",
       "/facility/assets",
       "/facility/preventive-maintenance",
       "/facility/inspections",
@@ -127,6 +129,16 @@ describe("navigation and launcher awareness", () => {
     expect(fo?.items.find((item) => item.href === "/facility/vendors")?.entitlement).toBe(
       "facility.operations"
     );
+    const managerFo = navigationGroupsForSku("mpa_complete_platform", ["property_manager"], "facility_operations").find(
+      (group) => group.id === "facility_operations"
+    );
+    expect(managerFo?.items.some((item) => item.href === "/facility/settings/request-forms")).toBe(true);
+    const technicianFo = navigationGroupsForSku(
+      "mpa_complete_platform",
+      ["maintenance_technician"],
+      "facility_operations"
+    ).find((group) => group.id === "facility_operations");
+    expect(technicianFo?.items.some((item) => item.href === "/facility/settings/request-forms")).toBe(false);
     expect(fo?.items.every((item) => item.readiness === "aligned")).toBe(true);
     expect(fo?.items[0]?.label).toBe("Mission Control");
     expect(
@@ -295,6 +307,18 @@ describe("master admin catalog", () => {
     ).toBe(true);
     expect(
       evaluatePathEntitlement({ pathname: "/pm/financial-operations", sku: "mpa_facility_operations" }).allowed
+    ).toBe(false);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/financial-operations/online-payments",
+        sku: "mpa_property_manager"
+      }).allowed
+    ).toBe(true);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/financial-operations/online-payments",
+        sku: "mpa_facility_operations"
+      }).allowed
     ).toBe(false);
   });
 });
