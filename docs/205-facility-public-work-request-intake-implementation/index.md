@@ -1,11 +1,12 @@
 # 205 — Facility Public Work Request Intake Implementation Certification
 
-**Status:** **FACILITY PUBLIC WORK REQUEST INTAKE IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION**  
+**Status:** **IMPLEMENTED IN-REPO** — Production released in [docs/206](../206-facility-public-work-request-production-release/index.md)  
 **Date:** 2026-08-18  
 **Authority:** Owner approval of [docs/204](../204-facility-custom-work-request-forms/index.md) + [ADR-034](../18-decision-log/adr-034-facility-public-work-request-intake.md)  
 **Implement SHA:** `c3fc21bca11b6e8badc3da882fa208c8483cbec3`  
 **Certification SHA:** recorded on the docs/205 commit of this branch  
-**Production:** **not applied · not deployed · no Production forms, QR codes, submissions, work orders, or users**
+**Successor:** [docs/206](../206-facility-public-work-request-production-release/index.md)  
+**Production:** released — stamp `20260818011913` · app SHA `06164778` · see docs/206
 
 ---
 
@@ -15,7 +16,7 @@ Phase 1 Facility custom work request forms and QR/link intake is implemented in-
 
 A valid public submission creates **exactly one** canonical facility work order (`maintenance_work_orders`, `work_surface = facility`, `status = submitted`) plus an immutable intake snapshot. Staff do not accept, convert, or retype.
 
-**STOP.** Do not deploy. Do not apply `20260818013000`. Do not start another feature.
+In-repo implementation remains design-faithful. Production apply + deploy + controlled UAT are certified in [docs/206](../206-facility-public-work-request-production-release/index.md). Do not replay unused `20260818013000`.
 
 ---
 
@@ -44,7 +45,7 @@ This certification commit is successor documentation only.
 
 | Stamp | File | Applied to Production? |
 |---|---|---|
-| `20260818013000` | `supabase/migrations/20260818013000_docs_204_facility_request_forms.sql` | **No** |
+| `20260818013000` | `supabase/migrations/20260818013000_docs_204_facility_request_forms.sql` | **No** — Production used stamp twin `20260818011913` (docs/206). Do not replay |
 
 Additive only. New tables + nullable/defaulted work-order columns. Does not replay J6 / STAB-004 / MEDIA-001 / FAC-003 / docs/180 / docs/194 / unused stamp twin `20260817220000`.
 
@@ -250,12 +251,11 @@ Includes commercial nav, operating-scope, and existing FO work-order tests.
 | Implement commit finance/Stripe/complimentary/M5/July files | **None** (`git show c3fc21bc`) |
 | `isFinanceM5Authorized()` | `false` |
 | Tenant payment execution flag | Untouched |
-| Production migration apply | **Not performed** |
-| Production deploy | **Not performed** |
-| Production forms / QR / submissions / WOs / users | **Not created** |
-| Complimentary / Checkout / Connect / SaaS Prices | Untouched |
+| Production migration apply | Later performed in [docs/206](../206-facility-public-work-request-production-release/index.md) as stamp `20260818011913` |
+| Production deploy | Later performed in docs/206 |
+| Complimentary / Checkout / Connect / SaaS Prices | Untouched by this implement commit |
 
-This package is implementation-in-repo only.
+This package remains the in-repo implementation record. Production evidence lives in docs/206.
 
 ---
 
@@ -272,19 +272,6 @@ This package is implementation-in-repo only.
 
 ## 30. Exact Production release gate
 
-This package does **not** authorize Production.
+Owner separately authorized Production in [docs/206](../206-facility-public-work-request-production-release/index.md).
 
-Owner must separately authorize, in a later record:
-
-1. Apply **only** `20260818013000_docs_204_facility_request_forms.sql` to Production.  
-2. Deploy the certified app revision.  
-3. Create the first Production form / QR only after apply + deploy.  
-4. Keep tenant payment execution, Stripe, complimentary, M5, and July unchanged.
-
-Until then:
-
-**FACILITY PUBLIC WORK REQUEST INTAKE IMPLEMENTED IN-REPO — STOP BEFORE PRODUCTION**
-
-Do not deploy.  
-Do not apply.  
-Do not start another feature.
+Do not replay unused `20260818013000`. Do not start another feature from this package.

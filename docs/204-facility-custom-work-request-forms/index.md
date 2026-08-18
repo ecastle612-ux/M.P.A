@@ -1,13 +1,13 @@
 # 204 — Facility Custom Work Request Forms + QR / Link Intake
 
-**Status:** **APPROVED FOR IMPLEMENTATION** — implemented in-repo; see [docs/205](../205-facility-public-work-request-intake-implementation/index.md)  
+**Status:** **APPROVED** — implemented in [docs/205](../205-facility-public-work-request-intake-implementation/index.md) · Production released in [docs/206](../206-facility-public-work-request-production-release/index.md)  
 **Date:** 2026-08-17  
 **Owner approval:** 2026-08-18  
-**Gate:** Design → Document → Approve → **Implement** (ADR-012)  
-**Mode:** Implementation in-repo. **Do not deploy. Do not apply the Production migration.**  
+**Gate:** Design → Document → Approve → Implement (ADR-012)  
+**Mode:** Production released (docs/206). Do not replay unused stamp `20260818013000`.  
 **SKU:** Facility Operations, and Complete Platform when the member has effective Facility Operations access  
 **Predecessor:** [docs/203](../203-docs-202-production-release/index.md) (certified Production line)  
-**Successor:** [docs/205](../205-facility-public-work-request-intake-implementation/index.md)  
+**Successor:** [docs/205](../205-facility-public-work-request-intake-implementation/index.md) · [docs/206](../206-facility-public-work-request-production-release/index.md)  
 **Related ADR:** [ADR-034](../18-decision-log/adr-034-facility-public-work-request-intake.md) (**Accepted**)  
 **Preserves:** ADR-019 product constitution · ADR-020 shared FO work orders · ADR-023 MEDIA-001 · ADR-026 auth pipeline · ADR-033 member operating scope (docs/202)
 
@@ -19,7 +19,7 @@ This is **not** Property Manager residential maintenance. A similar PM concept w
 
 ## Verdict
 
-**APPROVED FOR IMPLEMENTATION** (Owner 2026-08-18). Implementation certification: [docs/205](../205-facility-public-work-request-intake-implementation/index.md).
+**APPROVED FOR IMPLEMENTATION** (Owner 2026-08-18). Implementation certification: [docs/205](../205-facility-public-work-request-intake-implementation/index.md). Production release: [docs/206](../206-facility-public-work-request-production-release/index.md).
 
 Recommended operational model:
 
@@ -33,7 +33,7 @@ Do **not** create a second maintenance system.
 Do **not** hard-code one universal request sheet.  
 Do **not** expose internal work-order fields to public requesters.
 
-Owner approved this document and ADR-034 on 2026-08-18. Implementation is in-repo only. **STOP BEFORE PRODUCTION.**
+Owner approved this document and ADR-034 on 2026-08-18. Production release is certified in [docs/206](../206-facility-public-work-request-production-release/index.md).
 
 ---
 
@@ -764,9 +764,9 @@ No Production data. Tests use local / mocked orgs.
 
 | Rule | Detail |
 |---|---|
-| Gate | Owner approved 2026-08-18. Implemented in-repo ([docs/205](../205-facility-public-work-request-intake-implementation/index.md)). Do not apply or deploy from this package. |
+| Gate | Owner approved 2026-08-18. Implemented in-repo ([docs/205](../205-facility-public-work-request-intake-implementation/index.md)). Production released in [docs/206](../206-facility-public-work-request-production-release/index.md). |
 | Migration | **Additive only.** New tables + nullable WO columns. Do not replay J6, STAB-004, MEDIA-001, FAC-003, docs/180, or docs/194 stamps. |
-| Production apply | Separate Owner authorization after implement certification. This design does not authorize apply or deploy. |
+| Production apply | Authorized and certified in [docs/206](../206-facility-public-work-request-production-release/index.md). Do not replay unused `20260818013000`. |
 | Backfill | Existing WOs: `intake_channel = internal`. No backfill of submissions. |
 | Rollback | New tables unused if routes not shipped; fail closed if flags off. |
 | Feature flag | Optional `facility_public_request_intake` until UAT. Default off in Production until Owner deploy authorize. |
@@ -854,6 +854,6 @@ Approve this document and ADR-034, or return comments. Recommended defaults if t
 
 Owner approved this record and ADR-034 on 2026-08-18.
 
-Implementation is certified in [docs/205](../205-facility-public-work-request-intake-implementation/index.md).
+Implementation is certified in [docs/205](../205-facility-public-work-request-intake-implementation/index.md). Production release is certified in [docs/206](../206-facility-public-work-request-production-release/index.md).
 
-**Do not deploy. Do not apply the Production migration. Do not create Production data.**
+Do not replay unused stamp `20260818013000`.

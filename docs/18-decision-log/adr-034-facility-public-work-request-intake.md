@@ -7,7 +7,7 @@ Accepted
 2026-08-17
 
 ## Accepted
-2026-08-18 — Owner approved docs/204 + ADR-034 for implementation. In-repo certification: `docs/205`. Do not apply or deploy from this ADR.
+2026-08-18 — Owner approved docs/204 + ADR-034 for implementation. In-repo certification: `docs/205`. Production release: `docs/206`. Do not replay unused stamp `20260818013000`.
 
 ## Context
 
