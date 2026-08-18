@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   WORK_ORDER_CATEGORIES,
   cancelWorkOrderInputSchema,
-  createFacilityWorkOrderInputSchema
+  createFacilityWorkOrderInputSchema,
+  createStaffResidentialWorkOrderInputSchema
 } from "./schemas";
 
 describe("STAB-004 facility work-order schemas", () => {
@@ -42,6 +43,16 @@ describe("STAB-004 facility work-order schemas", () => {
       priority: "normal"
     });
     expect(parsed.success).toBe(false);
+  });
+
+  it("accepts staff residential create with org-owned property", () => {
+    const parsed = createStaffResidentialWorkOrderInputSchema.safeParse({
+      title: "Unit 204 leak",
+      description: "Kitchen sink is dripping.",
+      propertyId: "11111111-1111-4111-8111-111111111111",
+      residentId: "44444444-4444-4444-8444-444444444444"
+    });
+    expect(parsed.success).toBe(true);
   });
 
   it("accepts cancelWorkOrderInputSchema with optional note", () => {

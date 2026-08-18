@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import {
   FacilityOperationsWorkspace,
   type FacilityWorkspaceDomain
@@ -7,7 +8,11 @@ import {
 
 /** STAB-004 command center — corrective facility work home. */
 export function FacilityOperationsCommandCenter() {
-  return <FacilityOperationsWorkspace domain="operations" />;
+  return (
+    <Suspense fallback={<main className="p-6 text-sm">Loading operations…</main>}>
+      <FacilityOperationsWorkspace domain="operations" />
+    </Suspense>
+  );
 }
 
 export type FacilityDomainWorkspaceProps = {
@@ -18,5 +23,9 @@ export type FacilityDomainWorkspaceProps = {
 
 /** Category-scoped live facility queue (no honesty shells). */
 export function FacilityDomainWorkspace({ domain }: FacilityDomainWorkspaceProps) {
-  return <FacilityOperationsWorkspace domain={domain} />;
+  return (
+    <Suspense fallback={<main className="p-6 text-sm">Loading facility work…</main>}>
+      <FacilityOperationsWorkspace domain={domain} />
+    </Suspense>
+  );
 }
