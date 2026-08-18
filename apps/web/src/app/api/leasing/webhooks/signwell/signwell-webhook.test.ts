@@ -200,4 +200,138 @@ describe("STAB-003 SignWell webhook route gates service-role mutations", () => {
     expect(res.status).toBe(400);
     expect(activateMock).not.toHaveBeenCalled();
   });
+
+  it("activates only the lease stored against the SignWell document id", async () => {
+    const eq = vi.fn().mockReturnThis();
+    const limit = vi.fn(async () => ({
+      data: [
+        {
+          id: "lease-a",
+          organization_id: "org-a",
+          status: "pending_signature",
+          signwell_document_id: "doc_1"
+        }
+      ],
+      error: null
+    }));
+    vi.doMock("../../../../../lib/signwell/client", () => ({
+      verifySignWellWebhook: () => true,
+      isSignWellCompletedStatus: () => true
+    }));
+    vi.doMock("../../../../../lib/supabase/service-role", () => ({
+      createServiceRoleClient: () => ({
+        from: (table: string) => {
+          if (table === "signwell_webhook_events") {
+            return { upsert: upsertMock };
+          }
+          return {
+            select: () => ({
+              eq: (column: string, value: string) => {
+                eq(column, value);
+                return { limit };
+              }
+            })
+          };
+        }
+      })
+    }));
+    vi.doMock("../../../../../lib/leasing/lease-service", () => ({
+      activateSignedLease: activateMock
+    }));
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/leasing/webhooks/signwell", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          event: {
+            type: "document_completed",
+            time: "2026-08-11T12:00:00Z",
+            hash: "ok"
+          },
+          data: {
+            object: {
+              id: "doc_1",
+              status: "completed",
+              metadata: { lease_id: "lease-a", organization_id: "org-a" }
+            }
+          }
+        })
+      })
+    );
+    expect(res.status).toBe(200);
+    expect(eq).toHaveBeenCalledWith("signwell_document_id", "doc_1");
+    expect(eq).not.toHaveBeenCalledWith("id", "lease-a");
+    expect(activateMock).toHaveBeenCalledWith(
+      expect.anything(),
+      "org-a",
+      null,
+      "lease-a",
+      { channel: "signwell", signwellStatus: "completed" }
+    );
+  });
+
+  it("does not activate a different lease from metadata.lease_id", async () => {
+    vi.doMock("../../../../../lib/signwell/client", () => ({
+      verifySignWellWebhook: () => true,
+      isSignWellCompletedStatus: () => true
+    }));
+    vi.doMock("../../../../../lib/supabase/service-role", () => ({
+      createServiceRoleClient: () => ({
+        from: (table: string) => {
+          if (table === "signwell_webhook_events") {
+            return { upsert: upsertMock };
+          }
+          return {
+            select: () => ({
+              eq: () => ({
+                limit: async () => ({
+                  data: [
+                    {
+                      id: "lease-a",
+                      organization_id: "org-a",
+                      status: "pending_signature",
+                      signwell_document_id: "doc_1"
+                    }
+                  ],
+                  error: null
+                })
+              })
+            })
+          };
+        }
+      })
+    }));
+    vi.doMock("../../../../../lib/leasing/lease-service", () => ({
+      activateSignedLease: activateMock
+    }));
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/leasing/webhooks/signwell", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          event: {
+            type: "document_completed",
+            time: "2026-08-11T12:00:00Z",
+            hash: "ok"
+          },
+          data: {
+            object: {
+              id: "doc_1",
+              status: "completed",
+              metadata: { lease_id: "lease-other", organization_id: "org-a" }
+            }
+          }
+        })
+      })
+    );
+    const body = (await res.json()) as { unmatched?: boolean; reason?: string };
+    expect(res.status).toBe(200);
+    expect(body.unmatched).toBe(true);
+    expect(body.reason).toBe("lease_mismatch");
+    expect(activateMock).not.toHaveBeenCalled();
+  });
 });

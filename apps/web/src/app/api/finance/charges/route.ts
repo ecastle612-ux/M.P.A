@@ -2,12 +2,16 @@ import { NextResponse } from "next/server";
 import {
   adjustChargeInputSchema,
   createOneTimeChargeInputSchema,
-  createRecurringScheduleInputSchema
+  createRecurringScheduleInputSchema,
+  updateChargeScheduleInputSchema
 } from "@mpa/shared";
 import { requireFinancePermission } from "../../../../lib/finance/authz";
 import {
+  adjustChargeAmount,
   createOneTimeCharge,
   createRecurringScheduleAndCharge,
+  postDueSchedules,
+  updateChargeSchedule,
   voidCharge
 } from "../../../../lib/finance/billing-service";
 
@@ -37,16 +41,15 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const authz = await requireFinancePermission("pm.finance:charge.write");
-  if ("error" in authz) {
-    return authz.error;
-  }
-
   const payload = await request.json().catch(() => null);
   const kind = payload?.kind as string | undefined;
 
   try {
     if (kind === "recurring") {
+      const authz = await requireFinancePermission("pm.finance:charge.write");
+      if ("error" in authz) {
+        return authz.error;
+      }
       const parsed = createRecurringScheduleInputSchema.safeParse(payload);
       if (!parsed.success) {
         return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
@@ -65,6 +68,12 @@ export async function POST(request: Request) {
       if (!parsed.success) {
         return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
       }
+      const capability =
+        parsed.data.chargeType === "late_fee" ? "pm.finance:late_fee.manage" : "pm.finance:charge.write";
+      const authz = await requireFinancePermission(capability);
+      if ("error" in authz) {
+        return authz.error;
+      }
       const charge = await createOneTimeCharge(
         authz.supabase,
         authz.organizationId,
@@ -74,7 +83,41 @@ export async function POST(request: Request) {
       return NextResponse.json({ charge }, { status: 201 });
     }
 
+    if (kind === "schedule") {
+      const authz = await requireFinancePermission("pm.finance:charge.write");
+      if ("error" in authz) {
+        return authz.error;
+      }
+      const parsed = updateChargeScheduleInputSchema.safeParse(payload);
+      if (!parsed.success) {
+        return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
+      }
+      const schedule = await updateChargeSchedule(
+        authz.supabase,
+        authz.organizationId,
+        authz.user.id,
+        parsed.data
+      );
+      return NextResponse.json({ schedule });
+    }
+
+    if (kind === "run_schedules") {
+      const authz = await requireFinancePermission("pm.finance:charge.write");
+      if ("error" in authz) {
+        return authz.error;
+      }
+      const result = await postDueSchedules(authz.supabase, authz.organizationId, authz.user.id, {
+        asOfDate: payload?.asOfDate,
+        leaseId: payload?.leaseId
+      });
+      return NextResponse.json(result);
+    }
+
     if (kind === "adjust") {
+      const authz = await requireFinancePermission("pm.finance:charge.write");
+      if ("error" in authz) {
+        return authz.error;
+      }
       const parsed = adjustChargeInputSchema.safeParse(payload);
       if (!parsed.success) {
         return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
@@ -90,24 +133,22 @@ export async function POST(request: Request) {
         return NextResponse.json({ charge });
       }
       if (parsed.data.action === "adjust_amount" && parsed.data.amount) {
-        const { data: charge, error } = await authz.supabase
-          .from("financial_charges")
-          .update({
-            amount: parsed.data.amount,
-            memo: parsed.data.reason,
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", parsed.data.chargeId)
-          .eq("organization_id", authz.organizationId)
-          .select("*")
-          .single();
-        if (error) {
-          return NextResponse.json({ error: error.message }, { status: 400 });
-        }
+        const charge = await adjustChargeAmount(
+          authz.supabase,
+          authz.organizationId,
+          authz.user.id,
+          parsed.data.chargeId,
+          parsed.data.amount,
+          parsed.data.reason
+        );
         return NextResponse.json({ charge });
       }
     }
 
+    const authz = await requireFinancePermission("pm.finance:charge.write");
+    if ("error" in authz) {
+      return authz.error;
+    }
     return NextResponse.json({ error: "Unknown charge kind" }, { status: 400 });
   } catch (error) {
     return NextResponse.json(

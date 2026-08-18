@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { formatMoney, ownerEmptyStateCopy } from "@mpa/shared";
 import { resolveStatusBadgeVariant, Alert, Badge, Button, EmptyState, Input, Select, TableScroll } from "@mpa/ui";
 
@@ -78,6 +79,12 @@ export function FinanceDesk() {
   const [notice, setNotice] = useState<string | null>(null);
   const [oneTimeLabel, setOneTimeLabel] = useState("Pet fee");
   const [oneTimeAmount, setOneTimeAmount] = useState("50");
+  const [oneTimeCategory, setOneTimeCategory] = useState("other");
+  const [recurringLabel, setRecurringLabel] = useState("Parking");
+  const [recurringAmount, setRecurringAmount] = useState("");
+  const [recurringCategory, setRecurringCategory] = useState("parking");
+  const [recurringAutopay, setRecurringAutopay] = useState(false);
+  const [lateFeeAmount, setLateFeeAmount] = useState("50");
   const [manualAmount, setManualAmount] = useState("");
   const [manualMethod, setManualMethod] = useState("manual_cash");
 
@@ -351,7 +358,7 @@ export function FinanceDesk() {
           <h3 className="text-sm font-semibold">Residents & leases</h3>
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
             Create residents on Residents (J3) and leases on Leasing (J4) — one path each. Financial
-            Operations consumes activated leases for rent collection.
+            Operations consumes activated leases for posted charges and tenant payments.
           </p>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -375,6 +382,17 @@ export function FinanceDesk() {
           </div>
         </div>
       </section>
+
+      <Alert variant="info">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p>Set up tenant Pay Once and AutoPay from Online Payments. You stay in control of every amount.</p>
+          <Link href="/pm/financial-operations/online-payments">
+            <Button type="button" variant="secondary">
+              Open Online Payments
+            </Button>
+          </Link>
+        </div>
+      </Alert>
 
       <section id="charges" className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
         <div className="flex flex-wrap items-end gap-3">
@@ -463,7 +481,13 @@ export function FinanceDesk() {
                       label: oneTimeLabel,
                       amount: Number(oneTimeAmount),
                       dueAt: new Date().toISOString().slice(0, 10),
-                      chargeType: oneTimeLabel.toLowerCase().includes("credit") ? "credit" : "one_time"
+                      chargeType:
+                        oneTimeCategory === "late_fee"
+                          ? "late_fee"
+                          : oneTimeLabel.toLowerCase().includes("credit")
+                            ? "credit"
+                            : "one_time",
+                      feeCategory: oneTimeCategory
                     })
                   });
                 });
@@ -479,8 +503,112 @@ export function FinanceDesk() {
                 step="0.01"
                 required
               />
+              <Select value={oneTimeCategory} onChange={(event) => setOneTimeCategory(event.target.value)}>
+                <option value="other">Other</option>
+                <option value="parking">Parking</option>
+                <option value="pet">Pet</option>
+                <option value="utilities">Utilities</option>
+                <option value="deposit">Deposit</option>
+                <option value="damage">Damage / repair</option>
+                <option value="late_fee">Late fee (manual)</option>
+              </Select>
               <Button type="submit" disabled={busy}>
                 Post charge
+              </Button>
+            </form>
+
+            <form
+              className="space-y-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void run(async () => {
+                  await fetchJson("/api/finance/charges", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      kind: "recurring",
+                      leaseId: selectedLeaseId,
+                      chargeType: "recurring_fee",
+                      label: recurringLabel,
+                      amount: Number(recurringAmount),
+                      feeCategory: recurringCategory,
+                      autopayEligible: recurringAutopay,
+                      generateCurrentPeriod: true
+                    })
+                  });
+                });
+              }}
+            >
+              <h4 className="text-sm font-semibold">Recurring fee</h4>
+              <Input value={recurringLabel} onChange={(event) => setRecurringLabel(event.target.value)} required />
+              <Input
+                value={recurringAmount}
+                onChange={(event) => setRecurringAmount(event.target.value)}
+                type="number"
+                min="0.01"
+                step="0.01"
+                required
+              />
+              <Select value={recurringCategory} onChange={(event) => setRecurringCategory(event.target.value)}>
+                <option value="parking">Parking</option>
+                <option value="pet">Pet</option>
+                <option value="utilities">Utilities</option>
+                <option value="other">Other</option>
+              </Select>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={recurringAutopay}
+                  onChange={(event) => setRecurringAutopay(event.target.checked)}
+                />
+                Mark AutoPay-eligible
+              </label>
+              <Button type="submit" disabled={busy}>
+                Post recurring fee
+              </Button>
+            </form>
+
+            <form
+              className="space-y-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void run(async () => {
+                  await fetchJson("/api/finance/late-fee-policy", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      feeType: "flat",
+                      feeAmount: Number(lateFeeAmount),
+                      graceDays: 5,
+                      name: "Default late fee"
+                    })
+                  });
+                });
+              }}
+            >
+              <h4 className="text-sm font-semibold">Late-fee rule (configuration only)</h4>
+              <Input
+                value={lateFeeAmount}
+                onChange={(event) => setLateFeeAmount(event.target.value)}
+                type="number"
+                min="0"
+                step="0.01"
+              />
+              <Button type="submit" disabled={busy}>
+                Save late-fee rule
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={busy}
+                onClick={() =>
+                  void run(async () => {
+                    await fetchJson("/api/finance/charges", {
+                      method: "POST",
+                      body: JSON.stringify({ kind: "run_schedules", leaseId: selectedLeaseId })
+                    });
+                  })
+                }
+              >
+                Post due recurring charges
               </Button>
             </form>
           </div>

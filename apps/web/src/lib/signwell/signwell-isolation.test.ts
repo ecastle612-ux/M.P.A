@@ -1,0 +1,34 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+
+const webRoot = join(process.cwd(), "src");
+
+function read(rel: string): string {
+  return readFileSync(join(webRoot, rel), "utf8");
+}
+
+describe("SignWell server-only isolation", () => {
+  it("does not expose SignWell secrets on NEXT_PUBLIC_ vars", () => {
+    const envExample = readFileSync(join(process.cwd(), ".env.example"), "utf8");
+    expect(envExample).not.toMatch(/NEXT_PUBLIC_SIGNWELL/);
+    expect(read("lib/env/server-env.ts")).toMatch(/SIGNWELL_API_KEY: process\.env\["SIGNWELL_API_KEY"\]/);
+    expect(read("lib/signwell/client.ts")).toMatch(/from "\.\.\/env\/server-env"/);
+  });
+
+  it("send path refuses a second SignWell document for the same pending lease", () => {
+    const source = read("lib/leasing/lease-service.ts");
+    expect(source).toMatch(/alreadyHasActiveSignWellRequest/);
+    expect(source).toMatch(/alreadySent: true/);
+    expect(read("components/leasing/lease-command-center.tsx")).toMatch(
+      /pending_signature" && !data\.lease\.signwellDocumentId/
+    );
+  });
+
+  it("webhook correlates only through stored signwell_document_id", () => {
+    const source = read("app/api/leasing/webhooks/signwell/route.ts");
+    expect(source).toMatch(/resolveSignWellLeaseCorrelation/);
+    expect(source).toMatch(/\.eq\("signwell_document_id", documentId\)/);
+    expect(source).not.toMatch(/\.eq\("id", leaseIdFromMeta\)/);
+  });
+});
