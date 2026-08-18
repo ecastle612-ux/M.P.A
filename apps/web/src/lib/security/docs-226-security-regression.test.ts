@@ -70,7 +70,7 @@ describe("SEC-001 security regression contracts", () => {
   });
 
   it("patches Next.js to the approved 16.2.11 line", () => {
-    const pkg = readRepo("../package.json");
+    const pkg = readRepo("package.json");
     expect(pkg).toContain('"next": "16.2.11"');
     expect(pkg).toContain('"eslint-config-next": "16.2.11"');
     expect(pkg).not.toContain('"next": "16.2.10"');

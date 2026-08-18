@@ -23,7 +23,7 @@ No P0 remains in-repo after this package. Production still has the live SignWell
 
 ## 1. Implementation SHA
 
-Recorded after commit on `cursor/sec-001-pre-onboarding-security-5acb`. See git log for this docs record.
+Branch `cursor/sec-001-pre-onboarding-security-5acb`. Implementation commit `20775b3e`; Stage 1 verification fixup follows on this same branch. Use `git log -1 --format=%H` on the branch tip after merge review.
 
 ---
 
@@ -355,20 +355,42 @@ No destructive Production pentest or DDoS was run. Authenticated two-persona liv
 
 ## 32. Dependency audit
 
-`pnpm audit --prod` on the patched tree is recorded in the Stage 1 test log. Intentional scope: Next 16.2.11 only. Remaining high/moderate findings (sharp/postcss/brace-expansion/nanoid) are **P2 deferred** unless they are the Next CVE.
+`pnpm audit --prod` after the Next 16.2.11 pin:
+
+- **0 critical**
+- **6 high / 3 moderate remaining** (next-bundled postcss, exceljs/uuid, and other transitive advisories)
+- Next `16.2.10` GHSA line is closed by the 16.2.11 pin
+
+Unrelated upgrades were not performed.
 
 ---
 
-## 33–36. Verification commands
+## 33. Typecheck
 
-Run from repo root / `apps/web` as applicable:
+**PASS** — `pnpm --filter @mpa/shared typecheck` and `pnpm --filter @mpa/web typecheck`.
 
-- Typecheck: `pnpm --filter @mpa/web typecheck` and `pnpm --filter @mpa/shared typecheck`
-- Lint: `pnpm --filter @mpa/web lint`
-- Focused tests: SignWell, claim-password, complimentary service, durable rate limit, client-report, docs-226 RLS/regression, password-policy
-- Production build: `pnpm --filter @mpa/web build` (Turbopack/Next 16.2.11)
+## 34. Lint
 
-Results are filled in the test evidence section after the run.
+**PASS for SEC-001 files.** `pnpm --filter @mpa/shared lint` is clean. Full `pnpm --filter @mpa/web lint` still reports **pre-existing** complimentary-access hook/`any`/`prefer-const` issues that this package did not introduce.
+
+## 35. Tests
+
+**PASS**
+
+- `@mpa/shared`: 55 files / 355 tests
+- `@mpa/web`: 119 files / 578 tests
+- Focused: SignWell spoof/correlation/replay, claim-password min-12 + rate limit, complimentary password_too_short, client-report size/org-ignore/rate-limit, durable limiter, docs-226 RLS contract, security regression contracts
+
+## 36. Production build
+
+**PASS** — `pnpm --filter @mpa/web build`
+
+```
+▲ Next.js 16.2.11 (Turbopack)
+✓ Compiled successfully
+```
+
+Turbopack is the production compiler on this line. `next.config.ts` has no `i18n` block.
 
 ---
 
