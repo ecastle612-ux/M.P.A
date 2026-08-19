@@ -5,7 +5,9 @@
 **Date:** 2026-08-18  
 **Authority:** Owner authorization to close docs/225 P0/P1 findings required for safe real-user onboarding.  
 **Scope:** Security remediation only. No product features. No money / PM / routing / public-request / SignWell legal semantic change.  
-**Stage:** **Stage 1 only.** Stage 2 (Production migration, Vercel WAF apply, Supabase Auth settings, operator MFA, Production deploy) requires a separate Owner authorization.
+**Stage:** **Stage 1 only — implemented in-repo.** This file’s original in-repo verdict is preserved.
+
+Stage 2 Production execution is a later unique record: [docs/228](../228-sec-001-stage2-production-certification/index.md) (2026-08-19). Do not read this Stage 1 file as a Production Auth/MFA PASS.
 
 Authoritative audit: [docs/225](../225-backend-security-firewall-hardening-audit/index.md) (audit branch / PR).
 
