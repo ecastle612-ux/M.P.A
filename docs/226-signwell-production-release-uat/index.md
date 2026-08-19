@@ -1,9 +1,9 @@
 # 226 — SignWell Lease E-Signature Production Release + Controlled UAT
 
 **Title:** SIGNWELL LEASE E-SIGNATURE — PRODUCTION RELEASE + CONTROLLED END-TO-END UAT  
-**Status:** **BLOCKED — SIGNWELL PRODUCTION END-TO-END UAT**  
-**Date:** 2026-08-18 (resume: existing lease only)  
-**Authority:** Owner authorization — deploy the certified docs/225 remediation; perform one controlled synthetic Production lease-signing lifecycle; certify or block. **STOP after this record.**  
+**Status:** **PASS — SIGNWELL PRODUCTION END-TO-END UAT CERTIFIED**  
+**Date:** 2026-08-18 (retrieval remediaiton on the existing lease)  
+**Authority:** Owner authorization — deploy the certified docs/225 remediation; perform one controlled synthetic Production lease-signing lifecycle; then authorize the smallest no-migration completed-file mapping and one Production deploy of that remediaiton. **STOP after this record.**  
 **Product boundary:** Lease e-signature only. Vendor / Facility Operations SignWell remains **NOT IMPLEMENTED / NOT ADVERTISED**.  
 **Baseline:** [docs/224](../224-final-human-onboarding-simulation/index.md) · [docs/225](../225-signwell-documents-full-functionality-audit/index.md)
 
@@ -13,21 +13,15 @@ This package does **not** start another feature, change Stripe/M5/July/pricing, 
 
 ## Verdict
 
-**BLOCKED — SIGNWELL PRODUCTION END-TO-END UAT**
+**PASS — SIGNWELL PRODUCTION END-TO-END UAT CERTIFIED**
 
-Resume on the **same** synthetic lease proved genuine SignWell **Completed** and M.P.A. activation through the certified **Sync** path. Record signed offline was **not** used. No second lease or second SignWell document was created. No Production deploy and no SEC-001 mutation were performed.
+The **same** synthetic lease proved genuine SignWell **Completed**, M.P.A. activation through the certified **Sync** path, and completed-document retrieval through the existing Documents `externalUrl` / **Open external file** control. Record signed offline was **not** used. No second lease or second SignWell document was created. No SEC-001 mutation.
 
-**Still not a PASS:** the manager Documents path does **not** expose the completed signed artifact (`externalUrl` is absent after `getDocumentDetail` / `?syncSignWell=1`). Generated lease text plus a Completed badge is **not** completed-document retrieval.
+Webhook delivery was **not** observed (`signwell_webhook_events` = 0). That is **not** a webhook PASS. Sync is the certified completion path. Do not describe Sync as webhook success.
 
-Webhook delivery was **not** observed (`signwell_webhook_events` = 0). That is **not** a webhook PASS. Destination still **cannot verify safely**. Do not describe Sync as webhook success.
+Do **not** claim `SIGNWELL DOCUMENTS PRODUCTION END-TO-END FUNCTIONAL — READY FOR REAL USERS`. Remaining P1: webhook never arrived, and the live SignWell hook host matches Production `www` but the callback path is **not** the exact designed route.
 
-Do **not** claim `SIGNWELL DOCUMENTS PRODUCTION END-TO-END FUNCTIONAL — READY FOR REAL USERS` or `PASS — SIGNWELL PRODUCTION END-TO-END UAT CERTIFIED`.
-
-**Single next Owner action (do not create another lease):**
-
-Authorize the smallest no-migration remediaiton so Documents can fetch the existing SignWell completed file URL (SignWell `completed_pdf` / files URL-on-demand) into the already-designed `externalUrl` control, then deploy that revision. Optionally place Production `SIGNWELL_API_KEY` in this Cloud Agent environment first so the agent can confirm the completed file exists at SignWell before coding the mapping. Confirm the webhook destination is `https://www.my-property-assistant.com/api/leasing/webhooks/signwell`.
-
-**STOP.** No SEC-001. No other feature.
+**STOP.** No SEC-001. No other feature. Do not send a real customer document.
 
 ---
 
@@ -37,23 +31,27 @@ This file. Docs line 221 → 225 unchanged in meaning. **226** is the next uniqu
 
 ## 2. Deployed SHA
 
-`da41ece43e7e1467fdf57e9f9aebfa4d750d5b7c`  
-Contains docs/225 remediations (`dcf63210`) plus two Production blockers found during UAT:
+`f13cfd56d06677a07396c0d8206eb39426100112`  
+Contains docs/225 remediations plus UAT remediations:
 
 - `2750adc8` — PostgREST `pm_residents!resident_id` embed hint (no migration)
 - `da41ece4` — SignWell upload wraps generated text as **HTML** (SignWell create-document rejects `.txt` with 422)
+- `42616148` — completed SignWell PDF URL maps to Documents `externalUrl` (`completed_pdf?url_only=true`)
+- `f13cfd56` — same mapping on the indexed Documents row the manager list actually opens
 
 ## 3. Deployment ID
 
-Live `www.my-property-assistant.com`: **`dpl_6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB`**  
-Inspector: `https://vercel.com/ecastle612-uxs-projects/m-p-a-web/6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB`  
+Live `www.my-property-assistant.com`: **`dpl_66aVf8yem6ZmCAst8x3GMKAi6Zdp`** (`data-dpl-id` confirmed)  
+Inspector: `https://vercel.com/ecastle612-uxs-projects/m-p-a-web/66aVf8yem6ZmCAst8x3GMKAi6Zdp`  
 Also aliased: `m-p-a-web.vercel.app`  
-Prior deploy on this package (pre-HTML fix): `dpl_4ZJAoyQWdcpF73u8CH9RHVGGduq5`  
-Docs/225-only deploy (pre-embed hint): `dpl_HZL1bktWfaHE6E94Pe4n62J6Vy2q`
+Prior remediaiton deploy (lease-id detail only): `dpl_DXWA8jhhYc5HcDk4FZSy9y3ga75b`  
+Prior HTML-upload deploy: `dpl_6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB`  
+Prior embed-hint deploy: `dpl_4ZJAoyQWdcpF73u8CH9RHVGGduq5`  
+Docs/225-only deploy: `dpl_HZL1bktWfaHE6E94Pe4n62J6Vy2q`
 
 ## 4. Migration result
 
-**NONE.** No new SignWell or leasing migration. Embed hint and HTML wrap are application-only.
+**NONE.** No new SignWell or leasing migration. Embed hint, HTML wrap, and completed-PDF mapping are application-only.
 
 ## 5. Production SignWell config status
 
@@ -61,12 +59,12 @@ Report only configured / missing / invalid / cannot verify safely. No secret val
 
 | Name / item | Status | Notes |
 |-------------|--------|-------|
-| `SIGNWELL_API_KEY` | **configured** (Vercel Production, Hidden) | Value not readable in this agent (placeholder / API decrypt empty) |
-| `SIGNWELL_WEBHOOK_ID` | **configured** (Vercel Production, Hidden) | Same |
+| `SIGNWELL_API_KEY` | **configured** (Vercel Production, Hidden) | Present and usable in this agent after Owner secret entry |
+| `SIGNWELL_WEBHOOK_ID` | **configured** (Vercel Production, Hidden) | Still placeholder in this agent; HMAC live replay was not forged |
 | `SIGNWELL_TEST_MODE` | **missing** | App defaults to **test mode** (`!== "false"`) |
 | `SIGNWELL_MODE` / `SIGNWELL_ALLOW_SIMULATE` | configured | **Unused** by current code |
-| Webhook destination in SignWell | **cannot verify safely** | Hooks list requires API key |
-| Designed M.P.A. route | `https://www.my-property-assistant.com/api/leasing/webhooks/signwell` | |
+| Webhook destination in SignWell | **configured / invalid** | 1 hook; host is Production `www.my-property-assistant.com`; **exact designed path match = 0** |
+| Designed M.P.A. route | `https://www.my-property-assistant.com/api/leasing/webhooks/signwell` | Live callback URL is not published here |
 | API credentials server-only | **configured** as intended | Client bundle has **names only** (known P2) |
 
 ## 6. Synthetic org / property / unit / resident / lease
@@ -137,7 +135,7 @@ Send was not performed until the resident mapping was confirmed on the wizard (S
 
 ## 15. Webhook delivery
 
-**Not a webhook PASS.** `signwell_webhook_events` remains **0** after completion and after Sync. Completion reached M.P.A. by **Sync**, not by an authenticated webhook. Destination still **cannot verify safely**.
+**Not a webhook PASS.** `signwell_webhook_events` remains **0** after completion, Sync, and the remediaiton deploys. Completion reached M.P.A. by **Sync**, not by an authenticated webhook. Live hook host matches Production `www`; the callback path is **not** the exact designed route. Do not print the live callback URL.
 
 ## 16. Webhook authentication
 
@@ -178,19 +176,19 @@ Completed did not move backward after the second Sync.
 
 ## 21. Completed document retrieval
 
-**Fail — required gate.** Manager Documents opens `lease:{id}` with `source=signwell`, title contains SIGNWELL-UAT, `signwellStatus=completed`. **`externalUrl` is false** after GET and after `?syncSignWell=1`. **Open external file is absent.** On-page body is the generated text snapshot, not a proven completed PDF / SignWell file URL. No signed-document contents were committed.
+**Pass — required gate.** After the remediaiton deploys, manager Documents for this lease (`source=signwell`, title contains SIGNWELL-UAT, `signwellStatus=Completed`) exposes `externalUrl`. The list opens the earlier **indexed** Documents row (not `lease:{id}`); both paths now resolve SignWell `completed_pdf?url_only=true` when `files[].url` is absent. Authenticated GET returned `hasExternal=true`. The resolved file is `application/pdf` (magic `%PDF-`, 89,327 bytes). **Open external file is visible** on Production Documents. Generated text remains the on-page snapshot and is **not** the signed artifact. No signed-file URL was published in this record.
 
 ## 22. Completed document authorization
 
-Org-scoped `getDocumentDetail` remains in force. Cross-org live retrieve of a SignWell file URL was **not** exercisable because no file URL exists. Clinic Demo still cannot `getLease` this id (service evidence).
+Org-scoped `getDocumentDetail` remains in force. Clinic Demo org cookie against this document id returns **403** / `Forbidden` and no `externalUrl`. No second org retrieved the signed file.
 
 ## 23. Historical immutability
 
-Stored generated `document_name` / body were not rewritten by Sync. SignWell id unchanged. No real legal records mutated. Signed PDF snapshot is **not** stored in a new M.P.A. bucket (by design) and is also **not** retrievable on demand yet.
+Stored generated `document_name` / body were not rewritten by Sync or by the remediaiton. SignWell id unchanged. No real legal records mutated. Signed PDF snapshot is **not** stored in a new M.P.A. bucket (by design). Retrieval is on-demand through SignWell into the existing `externalUrl` control.
 
 ## 24. Cross-org isolation
 
-**Service evidence Pass.** No second org retrieve of a completed file URL. No real customer used.
+**Pass.** Clinic Demo cannot read this document (403). No real customer used.
 
 ## 25. RBAC
 
@@ -206,11 +204,11 @@ Unchanged from the first Send proof. Resume actor remained Property Demo `proper
 
 ## 28. Failure / recovery behavior
 
-Unchanged plus: delayed webhook / missing webhook recovered by Sync; completed file URL missing is the remaining P1.
+Unchanged plus: delayed webhook / missing webhook recovered by Sync; completed file URL recovered by `completed_pdf?url_only=true` onto `externalUrl`.
 
 ## 29. Manager onboarding flow
 
-Extended path: … → Send → Pending Signature → **Sync SignWell status** → Active / Completed → Documents shows Completed without a signed-file open control.
+Extended path: … → Send → Pending Signature → **Sync SignWell status** → Active / Completed → Documents → **Open external file** for the completed signed PDF.
 
 ## 30. Signer onboarding flow
 
@@ -230,7 +228,7 @@ Lease **active** / SignWell **Completed** on SIGNWELL-UAT. Preserve the signed t
 
 ## 34. Product regression
 
-No UI/sidebar/pricing redesign. No SEC-001. No new deploy. Pre-existing `tenant-portal-billing-copy.test.ts` snake_case expectation **not changed**.
+No UI/sidebar/pricing redesign. No SEC-001. Remediaiton-only deploys. Pre-existing `tenant-portal-billing-copy.test.ts` snake_case expectation **not changed**.
 
 ## 35. Finance / payment safety
 
@@ -251,12 +249,12 @@ July freeze **ON**. M5 **unauthorized**. Unchanged.
 
 | Check | Result |
 |-------|--------|
-| Focused SignWell + document upload | **25 passed** |
+| Focused SignWell + document upload | **31 passed** |
 | Shared typecheck | Pass |
 | Web typecheck | Pass |
 | Changed-source lint | Pass |
-| Local `pnpm --filter @mpa/web build` | Pass · 204 pages · **not deployed** |
-| Live Production | still `dpl_6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB` / SHA `da41ece4` |
+| Local `pnpm --filter @mpa/web build` | Pass · 204 pages (pre-hydration SHA `42616148`) |
+| Live Production | `dpl_66aVf8yem6ZmCAst8x3GMKAi6Zdp` / SHA `f13cfd56` |
 | Pre-existing | `tenant-portal-billing-copy.test.ts` snake_case — **not hidden** |
 
 ## 38. P0 remaining
@@ -267,11 +265,10 @@ July freeze **ON**. M5 **unauthorized**. Unchanged.
 
 | ID | Finding |
 |----|---------|
-| P1-UAT-03 | Completed signed artifact not retrievable (`externalUrl` missing) |
-| P1-UAT-04 | SignWell webhook destination cannot be verified |
+| P1-UAT-04 | SignWell webhook callback path is not the exact designed route (host matches Production `www`) |
 | P1-UAT-05 | Authenticated webhook never arrived (`signwell_webhook_events` = 0) |
 
-P1-UAT-01 (unsigned) and P1-UAT-02 (no Sync) are **closed**. P1-UAT-03 keeps the package **BLOCKED**.
+P1-UAT-01 (unsigned), P1-UAT-02 (no Sync), and P1-UAT-03 (retrieval) are **closed**. Remaining P1s do **not** retract the Sync + retrieval PASS. They block any “ready for real users” claim.
 
 ## 40. P2 deferred
 
@@ -279,9 +276,9 @@ Unchanged: env **names** in the client bundle; test-mode default; unused `SIGNWE
 
 ## 41. Final verdict
 
-**BLOCKED — SIGNWELL PRODUCTION END-TO-END UAT**
+**PASS — SIGNWELL PRODUCTION END-TO-END UAT CERTIFIED**
 
-Single next Owner action: authorize completed-document URL mapping for the **existing** SignWell document (no second lease) and confirm the webhook destination. Do not start another feature. Do not deploy SEC-001.
+Do not start another feature. Do not deploy SEC-001. Do not send a real customer legal document. Do not claim ready-for-real-users while webhook delivery and the exact designed callback path remain unproven.
 
 ---
 
@@ -291,10 +288,11 @@ Single next Owner action: authorize completed-document URL mapping for the **exi
 |----------|--------|
 | New lease / new SignWell document | **None** |
 | Record signed offline | **Not used** |
-| Production deploy | **None** — live remains `dpl_6wSaCYZ7bH6jbBu8Lh6kLyFPUsNB` |
+| Production deploys | `dpl_DXWA8jhhYc5HcDk4FZSy9y3ga75b` then `dpl_66aVf8yem6ZmCAst8x3GMKAi6Zdp` — remediaiton only |
 | SEC-001 / WAF / Auth / MFA | **None** |
 | First Sync | Applied genuine SignWell Completed → `activateSignedLease` |
 | Second Sync | `alreadyActive` · no duplicate occupancy/charge/document |
+| Completed-file retrieval | `externalUrl` + Open external file on the existing indexed Documents row |
 | Stripe / July / M5 / pricing | **None** |
 
 ---
@@ -303,6 +301,7 @@ Single next Owner action: authorize completed-document URL mapping for the **exi
 
 1. `pm_residents!resident_id` on `lease_agreements` embeds — Production leasing list/create was failing with multiple relationships (bidirectional FKs). **No migration.**
 2. SignWell upload uses HTML wrap of the generated lease text — create-document does not accept `.txt`. Stored M.P.A. body remains text. **No second media system.**
+3. Documents `getDocumentDetail` maps SignWell `completed_pdf?url_only=true` onto the existing `externalUrl` / Open external file control when `files[].url` is absent. Applies to `lease:{id}` and to the indexed Documents row. **No migration. No second bucket.**
 
 ---
 
