@@ -137,6 +137,8 @@ Send was not performed until the resident mapping was confirmed on the wizard (S
 
 **Not a webhook PASS.** `signwell_webhook_events` remains **0** after completion, Sync, and the remediaiton deploys. Completion reached M.P.A. by **Sync**, not by an authenticated webhook. Live hook host matches Production `www`; the callback path is **not** the exact designed route. Do not print the live callback URL.
 
+Follow-on webhook destination remediaiton and delivery certification are recorded in [docs/227](../227-signwell-production-webhook-certification/index.md). This file remains the Sync + retrieval PASS. It is **not** a webhook PASS.
+
 ## 16. Webhook authentication
 
 **Not live-exercised.** In-repo HMAC tests remain green. Authentication was **not** weakened.
