@@ -7,7 +7,7 @@
 **Scope:** Security remediation only. No product features. No money / PM / routing / public-request / SignWell legal semantic change.  
 **Stage:** **Stage 1 only — implemented in-repo.** This file’s original in-repo verdict is preserved.
 
-Stage 2 Production execution is a later unique record: [docs/228](../228-sec-001-stage2-production-certification/index.md) (2026-08-19). Do not read this Stage 1 file as a Production Auth/MFA PASS.
+Stage 2 Production execution is [docs/228](../228-sec-001-stage2-production-certification/index.md). Stage 3 Auth recertification is [docs/229](../229-sec-001-final-auth-controls-production-recertification/index.md). Do not read this Stage 1 file as a Production Auth/MFA PASS.
 
 Authoritative audit: [docs/225](../225-backend-security-firewall-hardening-audit/index.md) (audit branch / PR).
 

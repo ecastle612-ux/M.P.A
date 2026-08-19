@@ -12,6 +12,8 @@ Stage 1 remains historically true: SEC-001 was first implemented **in-repo only*
 
 This record is the unique Stage 2 Production certification. **228** is the next unique number after SignWell **227**.
 
+Stage 3 Auth-control recertification is [docs/229](../229-sec-001-final-auth-controls-production-recertification/index.md). **This Stage 2 verdict remains BLOCKED** and is not rewritten as PASS.
+
 ---
 
 ## Verdict
