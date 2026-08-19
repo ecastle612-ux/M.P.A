@@ -14,7 +14,7 @@ import { createServiceRoleClient } from "../supabase/service-role";
 export type MediaAttachmentRow = {
   id: string;
   organization_id: string;
-  uploaded_by_user_id: string;
+  uploaded_by_user_id: string | null;
   related_entity_type: MediaEntityType;
   related_entity_id: string | null;
   file_type: MediaFileType;
@@ -43,7 +43,7 @@ function storageClient(): SupabaseClient | null {
 export async function createUploadIntent(input: {
   supabase: SupabaseClient;
   organizationId: string;
-  userId: string;
+  userId: string | null;
   mimeType: unknown;
   fileSize: unknown;
   relatedEntityType: unknown;

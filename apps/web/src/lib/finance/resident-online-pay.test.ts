@@ -20,13 +20,21 @@ describe("P1-01 resident online pay availability", () => {
     ).toBe(false);
   });
 
-  it("requires both the org execution flag and current occupancy", () => {
+  it("requires execution, occupancy, and Connect ready", () => {
     expect(
       residentOnlinePayAvailable({
         stripePaymentExecutionEnabled: true,
-        occupancyAccess: "active"
+        occupancyAccess: "active",
+        connectReady: true
       })
     ).toBe(true);
+    expect(
+      residentOnlinePayAvailable({
+        stripePaymentExecutionEnabled: true,
+        occupancyAccess: "active",
+        connectReady: false
+      })
+    ).toBe(false);
     expect(
       residentOnlinePayAvailable({
         stripePaymentExecutionEnabled: true,

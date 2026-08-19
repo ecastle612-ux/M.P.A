@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAuthServerClient } from "../../../../lib/auth/server";
 import { isPlatformOperatorUser } from "../../../../lib/commercial/server";
 import { runGlobalOwnerSearch } from "../../../../lib/admin/global-search";
+import { consumeRateLimit } from "../../../../lib/security/durable-rate-limit";
 
 export async function GET(request: Request) {
   const supabase = await createAuthServerClient();
@@ -13,6 +14,9 @@ export async function GET(request: Request) {
   }
   if (!(await isPlatformOperatorUser(user))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (!(await consumeRateLimit({ class: "ADMIN", key: `admin-search:${user.id}` }))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
   const q = new URL(request.url).searchParams.get("q") ?? "";

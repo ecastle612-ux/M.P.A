@@ -11,6 +11,17 @@ import {
 const SITE = "11111111-1111-4111-8111-111111111111";
 
 describe("FAC-003 asset and inventory schemas", () => {
+  it("allows omitting assetCode so the service can assign AST-######", () => {
+    const parsed = createFacilityAssetInputSchema.safeParse({
+      name: "Exam Chair 14",
+      assetType: "furniture",
+      propertyPropertyId: SITE,
+      departmentLabel: "Cardiology"
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data.assetCode).toBeUndefined();
+  });
+
   it("creates an asset with lifecycle and location fields", () => {
     const parsed = createFacilityAssetInputSchema.safeParse({
       name: "Rooftop AHU-2",

@@ -28,7 +28,7 @@ export type FacilityAssetStatus = (typeof FACILITY_ASSET_STATUSES)[number];
 
 export const FACILITY_ASSET_STATUS_LABELS: Record<FacilityAssetStatus, string> = {
   active: "Active",
-  maintenance: "Maintenance",
+  maintenance: "Out of Service",
   retired: "Retired",
   replaced: "Replaced"
 };
@@ -72,11 +72,12 @@ export const createFacilityAssetInputSchema = z
     name: z.string().trim().min(2).max(160),
     assetType: z.enum(FACILITY_ASSET_TYPES),
     customTypeLabel: z.string().trim().max(80).optional(),
-    assetCode: z.string().trim().min(1).max(64),
+    assetCode: z.string().trim().min(1).max(64).optional(),
     propertyPropertyId: z.string().uuid(),
     locationScope: z.enum(FACILITY_LOCATION_SCOPES).default("property"),
     buildingLabel: z.string().trim().max(80).optional(),
     floorLabel: z.string().trim().max(40).optional(),
+    departmentLabel: z.string().trim().max(80).optional(),
     roomLabel: z.string().trim().max(80).optional(),
     locationNote: z.string().trim().max(240).optional(),
     manufacturer: z.string().trim().max(120).optional(),
@@ -112,6 +113,7 @@ export const updateFacilityAssetInputSchema = z
     locationScope: z.enum(FACILITY_LOCATION_SCOPES).optional(),
     buildingLabel: z.string().trim().max(80).optional(),
     floorLabel: z.string().trim().max(40).optional(),
+    departmentLabel: z.string().trim().max(80).optional(),
     roomLabel: z.string().trim().max(80).optional(),
     locationNote: z.string().trim().max(240).optional(),
     manufacturer: z.string().trim().max(120).optional(),
@@ -137,6 +139,11 @@ export const updateFacilityAssetInputSchema = z
     }
   });
 export type UpdateFacilityAssetInput = z.infer<typeof updateFacilityAssetInputSchema>;
+
+export const createFacilityAssetQrInputSchema = z.object({
+  formId: z.string().uuid()
+});
+export type CreateFacilityAssetQrInput = z.infer<typeof createFacilityAssetQrInputSchema>;
 
 export const createFacilityStockItemInputSchema = z.object({
   name: z.string().trim().min(2).max(160),

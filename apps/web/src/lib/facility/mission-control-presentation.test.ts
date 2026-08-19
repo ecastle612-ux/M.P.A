@@ -1,9 +1,23 @@
 import { describe, expect, it } from "vitest";
+import { entitlementsForMember, hasEntitlement } from "@mpa/shared";
 import {
   facilityMissionControlErrorMessage,
   facilityMissionControlGlanceMetrics,
-  facilityMissionControlLoadView
+  facilityMissionControlLoadView,
+  facilityMissionControlQuickActions
 } from "./mission-control-presentation";
+
+function canAccessFor(
+  sku: "mpa_complete_platform" | "mpa_facility_operations" | "mpa_property_manager",
+  storedScope?: "property_operations" | "facility_operations" | "both"
+) {
+  const entitlements = entitlementsForMember({
+    sku,
+    roles: ["property_manager"],
+    storedScope
+  });
+  return (entitlement: string) => hasEntitlement(entitlements, entitlement);
+}
 
 describe("facilityMissionControlLoadView (PPS1-003)", () => {
   it("shows loading skeletons only while loading", () => {
@@ -40,7 +54,10 @@ describe("facilityMissionControlGlanceMetrics (PPS1-003)", () => {
       overdue: 1,
       waitingOnTechnician: 3,
       waitingOnVendor: 4,
-      completedRecently: 7
+      completedRecently: 7,
+      attention: [],
+      attentionTotal: 0,
+      viewerMode: "manager"
     });
 
     const byId = Object.fromEntries(metrics.map((metric) => [metric.id, metric]));
@@ -53,6 +70,34 @@ describe("facilityMissionControlGlanceMetrics (PPS1-003)", () => {
     );
     const values = waitingLabels.map((metric) => metric.value);
     expect(new Set(values).size).toBe(values.length);
+  });
+});
+
+describe("facilityMissionControlQuickActions (docs/201 P1-01)", () => {
+  it("shows Property Operations for Complete both-surface members", () => {
+    const actions = facilityMissionControlQuickActions({
+      productSku: "mpa_complete_platform",
+      canAccess: canAccessFor("mpa_complete_platform", "both")
+    });
+    expect(actions.some((action) => action.href === "/pm/mission-control")).toBe(true);
+    expect(actions.some((action) => action.href === "/pm/maintenance")).toBe(true);
+  });
+
+  it("hides Property handoffs for Complete FO-only scoped members", () => {
+    const actions = facilityMissionControlQuickActions({
+      productSku: "mpa_complete_platform",
+      canAccess: canAccessFor("mpa_complete_platform", "facility_operations")
+    });
+    expect(actions.some((action) => action.href.startsWith("/pm/"))).toBe(false);
+    expect(actions.some((action) => action.label === "Property Operations")).toBe(false);
+  });
+
+  it("does not invent a Property handoff on a Facility Operations SKU", () => {
+    const actions = facilityMissionControlQuickActions({
+      productSku: "mpa_facility_operations",
+      canAccess: canAccessFor("mpa_facility_operations")
+    });
+    expect(actions.some((action) => action.href.startsWith("/pm/"))).toBe(false);
   });
 });
 
