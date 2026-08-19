@@ -20,7 +20,7 @@ This package applied **no** new migration and **no** application deploy.
 |-------|--------|---------|
 | 1 | docs/226-SEC | SEC-001 implemented **in-repo only** |
 | 2 | docs/228 | Production migration + SHA `589acd59` + WAF Rules 1–4 applied; certification **BLOCKED** on three Auth controls |
-| 3 | **this file** | Attempted those three Auth controls; still **BLOCKED** — Management API / Dashboard / operator TOTP were not available to this agent |
+| 3 | **this file** | Attempted those three Auth controls; still **BLOCKED**. A later Owner secret entry was a project publishable key, not a Management API PAT. Operator TOTP still has 0 factors. |
 
 ---
 
@@ -34,12 +34,12 @@ Stage 2 Production security surfaces remain intact. The three remaining Auth con
 |---------|----------|
 | Leaked-password protection | **Still OFF** — advisor `auth_leaked_password_protection` WARN |
 | Supabase Auth minimum password length 12 | **Dashboard value still unread / unchanged** |
-| Operator TOTP MFA | **Still 0 factors** |
+| Operator TOTP MFA | **Still 0 factors** after the Owner-marked external action |
 
-**Exact stop point:** this environment cannot mutate Production Auth config and cannot complete TOTP without the Owner.
+**Exact stop point:** the stored `SUPABASE_ACCESS_TOKEN` is a project **publishable** key (`sb_publishable_...`), not a Personal Access Token (`sbp_...`). `GET /v1/projects/{ref}/config/auth` returned `JWT could not be decoded`. `auth.mfa_factors` is still empty.
 
-1. Add a Supabase Management API personal access token as `SUPABASE_ACCESS_TOKEN` (do not paste it into chat). This agent can then `PATCH /v1/projects/vahnmcrpnuggxkivynvo/config/auth` with `password_hibp_enabled: true` and `password_min_length: 12` only.  
-2. Enroll Authenticator TOTP for the **single** active platform operator. Do **not** enable project-wide MFA. Do not send seeds, QR secrets, or recovery codes.
+1. Replace `SUPABASE_ACCESS_TOKEN` with a Personal Access Token from `https://supabase.com/dashboard/account/tokens` (format `sbp_...`). Do not use anon, service-role, or publishable project keys. Do not paste the token into chat.  
+2. Enroll Authenticator TOTP for the **single** active platform operator until `auth.mfa_factors` shows a **verified** totp row. Do **not** enable project-wide MFA. Do not send seeds, QR secrets, or recovery codes.
 
 No application source change is required. **Do not deploy** for this package.
 
@@ -74,7 +74,9 @@ Management API `GET /v1/projects/.../config/auth` without a PAT returns **401**.
 
 **None performed.**
 
-No leaked-password enable. No min-length PATCH. No MFA factor created. No TOTP seed stored.
+Owner later supplied a secret named `SUPABASE_ACCESS_TOKEN`. It was classified as a project publishable key and rejected by the Management API. No `PATCH` was sent. No leaked-password enable. No min-length change. No MFA factor created by this agent. No TOTP seed stored.
+
+Post-Owner-action MFA inspection: `auth.mfa_factors` **0**; `auth.webauthn_credentials` / challenges were not used as a substitute PASS.
 
 ---
 
