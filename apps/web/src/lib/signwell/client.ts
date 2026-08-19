@@ -113,6 +113,46 @@ export async function getSignWellDocument(documentId: string): Promise<SignWellD
 }
 
 /**
+ * Completed documents often omit files[].url on GET /documents/{id}.
+ * SignWell exposes the signed PDF as a short-lived URL via completed_pdf?url_only=true.
+ * Do not log the returned URL.
+ */
+export async function getSignWellCompletedPdfUrl(documentId: string): Promise<string | null> {
+  if (!serverEnv.SIGNWELL_API_KEY) {
+    throw new Error("SIGNWELL_API_KEY is not configured.");
+  }
+
+  const response = await fetch(
+    `${SIGNWELL_BASE}/documents/${encodeURIComponent(documentId)}/completed_pdf?url_only=true`,
+    {
+      headers: {
+        "X-Api-Key": serverEnv.SIGNWELL_API_KEY
+      }
+    }
+  );
+  if (!response.ok) {
+    return null;
+  }
+  const payload = (await response.json().catch(() => ({}))) as { file_url?: unknown };
+  return typeof payload.file_url === "string" && payload.file_url.length > 0 ? payload.file_url : null;
+}
+
+export function resolveSignWellExternalFileUrl(input: {
+  files?: Array<{ url?: string | null; name?: string }> | null;
+  status?: string | null;
+  completedPdfUrl?: string | null;
+}): string | null {
+  const fromFiles = input.files?.find((file) => Boolean(file.url))?.url ?? null;
+  if (fromFiles) {
+    return fromFiles;
+  }
+  if (isSignWellCompletedStatus(input.status) && input.completedPdfUrl) {
+    return input.completedPdfUrl;
+  }
+  return null;
+}
+
+/**
  * STAB-003 — SignWell webhook verification (fail closed).
  * Missing verification configuration must never be treated as valid.
  */

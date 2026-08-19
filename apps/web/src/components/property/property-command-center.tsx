@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { MPA_ASSISTANT_KIND, MPA_ASSISTANT_LABEL } from "@mpa/shared";
 import { buttonClassName, Alert, Badge, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ErrorRetry } from "../shell/error-retry";
+import { RememberRecent } from "../shell/remember-recent";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 
 type CommandCenter = {
@@ -146,6 +148,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
 
   return (
     <main className="flex-1 space-y-6 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
+      <RememberRecent type="property" id={propertyId} />
       <Breadcrumbs
         items={[
           { href: "/pm/mission-control", label: "Property Manager Mission Control" },
@@ -183,6 +186,7 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
           actions={[
             { href: data.nextJourney.href, label: data.nextJourney.title, primary: true },
             { href: `/pm/properties/${propertyId}/money`, label: "Money" },
+            { href: `/pm/maintenance?new=1&propertyId=${propertyId}`, label: "Create maintenance" },
             { href: "/pm/maintenance", label: "Maintenance" },
             { href: documentsHref("property", data.property.name), label: "Documents" }
           ]}
@@ -211,8 +215,9 @@ export function PropertyCommandCenter({ propertyId }: { propertyId: string }) {
         className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          M.P.A. Assistant
+          {MPA_ASSISTANT_LABEL}
         </p>
+        <p className="text-xs text-[var(--mpa-color-text-muted)]">{MPA_ASSISTANT_KIND}</p>
         <p className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">
           {data.assistantRecommendation}
         </p>
