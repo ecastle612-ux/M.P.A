@@ -36,8 +36,9 @@ describe("FO vendor workflow completion", () => {
     expect(read("components/facility/facility-operations-workspace.tsx")).toMatch(
       /fo-assign-empty-vendors/
     );
+    expect(read("lib/facility/mission-control-presentation.ts")).toMatch(/\/facility\/vendors/);
     expect(read("components/facility/facility-mission-control-page.tsx")).toMatch(
-      /\/facility\/vendors/
+      /facilityMissionControlQuickActions/
     );
   });
 

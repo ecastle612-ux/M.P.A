@@ -3,7 +3,10 @@ import {
   buildDailyOpsAssistantBriefing,
   buildDailyOpsGreeting,
   buildDailyOpsReadyAssistantCopy,
-  buildMissionControlNextAction
+  buildMissionControlNextAction,
+  MPA_ASSISTANT_KIND,
+  MPA_ASSISTANT_LABEL,
+  resolveDailyOpsBriefingAccess
 } from "./journey";
 
 describe("LAUNCH-001 J7 daily operations journey", () => {
@@ -61,5 +64,41 @@ describe("LAUNCH-001 J7 daily operations journey", () => {
     expect(buildDailyOpsReadyAssistantCopy()).toContain(
       "I can run my property management business from this dashboard"
     );
+  });
+
+  it("does not grant finance or resident/lease briefing to technicians", () => {
+    const access = resolveDailyOpsBriefingAccess({
+      roles: ["maintenance_technician"],
+      permissions: ["pm.properties:read", "pm.maintenance:read", "pm.maintenance:write"]
+    });
+    expect(access.includeFinance).toBe(false);
+    expect(access.includeResidentLease).toBe(false);
+  });
+
+  it("grants finance briefing only when pm.finance:read is present", () => {
+    expect(
+      resolveDailyOpsBriefingAccess({
+        roles: ["property_manager"],
+        permissions: ["pm.properties:read"]
+      }).includeFinance
+    ).toBe(false);
+    expect(
+      resolveDailyOpsBriefingAccess({
+        roles: ["property_manager"],
+        permissions: ["pm.finance:read"]
+      }).includeFinance
+    ).toBe(true);
+    expect(
+      resolveDailyOpsBriefingAccess({
+        roles: ["leasing_agent"],
+        permissions: ["pm.finance:read"]
+      })
+    ).toEqual({ includeFinance: true, includeResidentLease: true });
+  });
+
+  it("labels the assistant as a rule-based briefing, not a chat", () => {
+    expect(MPA_ASSISTANT_LABEL).toBe("M.P.A. Assistant");
+    expect(MPA_ASSISTANT_KIND).toMatch(/rule-based/i);
+    expect(MPA_ASSISTANT_KIND).not.toMatch(/chat|generative|openai/i);
   });
 });

@@ -69,7 +69,10 @@ describe("POST /api/finance/checkout M4 authorization boundary", () => {
       new Request("http://localhost/api/finance/checkout", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ leaseId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" })
+        body: JSON.stringify({
+          leaseId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          paymentMethodType: "card"
+        })
       })
     );
 

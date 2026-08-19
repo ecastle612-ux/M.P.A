@@ -95,13 +95,16 @@ function homeForStaffRole(
 
   if (role === "maintenance_technician") {
     if (facilityOnly) {
-      return "/facility/mission-control";
+      return "/facility/my-work";
     }
     if (propertyOnly) {
       return "/pm/maintenance";
     }
     if (productSku === "mpa_complete_platform") {
-      return "/launcher";
+      return surfaces.has("facility") ? "/facility/my-work" : "/launcher";
+    }
+    if (productSku === "mpa_facility_operations") {
+      return "/facility/my-work";
     }
   }
 
