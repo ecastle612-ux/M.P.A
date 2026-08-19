@@ -7,6 +7,7 @@ import { OrganizationProvider } from "./organization-context";
 import { RoleProvider } from "./role-context";
 import { CommercialProvider } from "./commercial-context";
 import { OperatorProvider } from "./operator-context";
+import { ProfileProvider } from "./profile-provider";
 
 export function AuthenticatedContextProviders({
   children,
@@ -14,7 +15,8 @@ export function AuthenticatedContextProviders({
   defaultRole,
   organizations,
   defaultOrganizationId,
-  isPlatformOperator = false
+  isPlatformOperator = false,
+  userId = null
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -22,12 +24,14 @@ export function AuthenticatedContextProviders({
   organizations: OrganizationSummary[];
   defaultOrganizationId: string | null;
   isPlatformOperator?: boolean;
+  userId?: string | null;
 }) {
   const [organizationState, setOrganizationState] = useState<OrganizationSummary[]>(organizations);
 
   return (
     <OperatorProvider isPlatformOperator={isPlatformOperator}>
-      <OrganizationProvider
+      <ProfileProvider userId={userId}>
+        <OrganizationProvider
         organizations={organizationState}
         defaultOrganizationId={defaultOrganizationId}
         onRefreshOrganizations={async () => {
@@ -69,7 +73,8 @@ export function AuthenticatedContextProviders({
             {children}
           </RoleProvider>
         </CommercialProvider>
-      </OrganizationProvider>
+        </OrganizationProvider>
+      </ProfileProvider>
     </OperatorProvider>
   );
 }

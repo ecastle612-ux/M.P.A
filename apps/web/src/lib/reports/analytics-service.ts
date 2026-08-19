@@ -116,7 +116,7 @@ export async function buildOrganizationReportingSnapshot(
     ? safeSelect(
         supabase
           .from("lease_agreements")
-          .select("id, status, start_date, end_date, pm_residents(display_name), property_properties(name)")
+          .select("id, status, start_date, end_date, pm_residents!resident_id(display_name), property_properties(name)")
           .eq("organization_id", organizationId)
           .order("end_date", { ascending: true })
           .limit(100)

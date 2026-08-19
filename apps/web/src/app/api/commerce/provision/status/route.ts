@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
 
-  if (!consumeCommerceSessionLookupRateLimit(clientLookupKey(request, sessionId))) {
+  if (!(await consumeCommerceSessionLookupRateLimit(clientLookupKey(request, sessionId)))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 

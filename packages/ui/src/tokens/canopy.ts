@@ -11,6 +11,8 @@ export const canopyTokens = {
       app: "#F3F4F6",
       sidebar: "#12151A",
       sidebarElevated: "#1A1E25",
+      sidebarActive: "#16382F",
+      sidebarHover: "#1E242D",
       surface: "#FFFFFF",
       surfaceMuted: "#EEF0F3",
       sunken: "#E5E7EB",
@@ -21,7 +23,8 @@ export const canopyTokens = {
       default: "#D1D5DB",
       strong: "#9CA3AF",
       focus: "#0F6B56",
-      sidebar: "#2A2F38"
+      sidebar: "#2A2F38",
+      sidebarAccent: "#0F6B56"
     },
     text: {
       primary: "#12151A",

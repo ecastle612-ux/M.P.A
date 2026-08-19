@@ -13,8 +13,10 @@ export const serverEnvSchema = clientEnvSchema.extend({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
   /** Optional until Stripe keys are provisioned; online pay degrades to manual-only. */
   STRIPE_SECRET_KEY: z.string().min(1).optional(),
-  /** FIN-OPS resident payments webhook secret. */
+  /** FIN-OPS resident payments webhook secret (platform-account destination). */
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  /** FIN-OPS connected-account destination secret. Do not overwrite STRIPE_WEBHOOK_SECRET. */
+  STRIPE_CONNECT_WEBHOOK_SECRET: z.string().min(1).optional(),
   /** COM-002 SaaS Checkout dedicated webhook secret (separate endpoint). */
   STRIPE_SAAS_WEBHOOK_SECRET: z.string().min(1).optional(),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).optional(),
