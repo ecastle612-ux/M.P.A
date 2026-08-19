@@ -137,7 +137,7 @@ Send was not performed until the resident mapping was confirmed on the wizard (S
 
 **Not a webhook PASS.** `signwell_webhook_events` remains **0** after completion, Sync, and the remediaiton deploys. Completion reached M.P.A. by **Sync**, not by an authenticated webhook. Live hook host matches Production `www`; the callback path is **not** the exact designed route. Do not print the live callback URL.
 
-Follow-on webhook destination remediaiton and delivery certification are recorded in [docs/227](../227-signwell-production-webhook-certification/index.md). This file remains the Sync + retrieval PASS. It is **not** a webhook PASS.
+Follow-on webhook destination remediaiton and authentic-delivery certification are recorded in [docs/227](../227-signwell-production-webhook-certification/index.md). This file remains the Sync + retrieval PASS for lease `51fb0ba8-…`. It is **not** a webhook PASS. Docs/227 Part B certified a **separate** webhook-only synthetic lease; do not describe this docs/226 completion as webhook-driven.
 
 ## 16. Webhook authentication
 
@@ -267,10 +267,10 @@ July freeze **ON**. M5 **unauthorized**. Unchanged.
 
 | ID | Finding |
 |----|---------|
-| P1-UAT-04 | SignWell webhook callback path is not the exact designed route (host matches Production `www`) |
-| P1-UAT-05 | Authenticated webhook never arrived (`signwell_webhook_events` = 0) |
+| P1-UAT-04 | SignWell webhook callback path is not the exact designed route (host matches Production `www`) — **closed in [docs/227](../227-signwell-production-webhook-certification/index.md) Part A** (exact designed callback) |
+| P1-UAT-05 | Authenticated webhook never arrived (`signwell_webhook_events` = 0) — **closed in [docs/227](../227-signwell-production-webhook-certification/index.md) Part B** on a **separate** webhook-only synthetic lease. This docs/226 completion remains Sync-driven. |
 
-P1-UAT-01 (unsigned), P1-UAT-02 (no Sync), and P1-UAT-03 (retrieval) are **closed**. Remaining P1s do **not** retract the Sync + retrieval PASS. They block any “ready for real users” claim.
+P1-UAT-01 (unsigned), P1-UAT-02 (no Sync), and P1-UAT-03 (retrieval) are **closed**. P1-UAT-04 / P1-UAT-05 no longer block webhook certification; they do **not** rewrite this file’s Sync + retrieval PASS as a webhook PASS.
 
 ## 40. P2 deferred
 

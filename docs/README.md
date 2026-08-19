@@ -167,7 +167,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 224 | [Final Human Onboarding Simulation](./224-final-human-onboarding-simulation/index.md) | **FINAL HUMAN ONBOARDING SIMULATION PASS — BEGIN REAL USER ONBOARDING** · P0=0 · P1=0 |
 | 225 | [SignWell Documents Full Functionality Audit](./225-signwell-documents-full-functionality-audit/index.md) | **IN-REPO CERTIFIED — PRODUCTION UAT REQUIRED** · webhook correlation + send idempotency remediations · no deploy |
 | 226 | [SignWell Production Release + UAT](./226-signwell-production-release-uat/index.md) | **PASS — SIGNWELL PRODUCTION END-TO-END UAT CERTIFIED** · Sync Completed + retrieval Pass · webhook not delivered · SHA `f13cfd56` · deploy `dpl_66aVf8yem6ZmCAst8x3GMKAi6Zdp` |
-| 227 | [SignWell Production Webhook Certification](./227-signwell-production-webhook-certification/index.md) | **BLOCKED — SIGNWELL PRODUCTION WEBHOOK** · exact callback remediaiton · authentic delivery not obtained · deploy `dpl_BejvXQvJ6gnqCh5ZNyX9sk3aL2yt` |
+| 227 | [SignWell Production Webhook Certification](./227-signwell-production-webhook-certification/index.md) | **PASS — SIGNWELL PRODUCTION WEBHOOK CERTIFIED** · Part A historical BLOCKED preserved · authentic SignWell POST to designed callback · deploy `dpl_BejvXQvJ6gnqCh5ZNyX9sk3aL2yt` |
 | 08 | [Software Architecture](./08-software-architecture/index.md) | System design, layers, infrastructure |
 | 09 | [Database Architecture](./09-database-architecture/index.md) | Schema, tenancy, RLS, data lifecycle |
 | 10 | [API Standards](./10-api-standards/index.md) | Contracts, Edge Functions, integration boundaries |
@@ -271,7 +271,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [224 Final Human Onboarding Simulation](./224-final-human-onboarding-simulation/index.md) | **FINAL HUMAN ONBOARDING SIMULATION PASS — BEGIN REAL USER ONBOARDING** — P0=0 · P1=0 · live SHA `a1f617de` |
 | [225 SignWell Documents Full Functionality Audit](./225-signwell-documents-full-functionality-audit/index.md) | **IN-REPO CERTIFIED — PRODUCTION UAT REQUIRED** — SHA `dcf63210` · no Production deploy |
 | [226 SignWell Production Release + UAT](./226-signwell-production-release-uat/index.md) | **PASS — SIGNWELL PRODUCTION END-TO-END UAT CERTIFIED** — Sync + retrieval Pass · webhook not delivered · SHA `f13cfd56` · deploy `dpl_66aVf8yem6ZmCAst8x3GMKAi6Zdp` |
-| [227 SignWell Production Webhook Certification](./227-signwell-production-webhook-certification/index.md) | **BLOCKED — SIGNWELL PRODUCTION WEBHOOK** — exact callback remediaiton · authentic delivery not obtained · deploy `dpl_BejvXQvJ6gnqCh5ZNyX9sk3aL2yt` |
+| [227 SignWell Production Webhook Certification](./227-signwell-production-webhook-certification/index.md) | **PASS — SIGNWELL PRODUCTION WEBHOOK CERTIFIED** — Part A historical BLOCKED preserved · authentic SignWell POST to designed callback · deploy `dpl_BejvXQvJ6gnqCh5ZNyX9sk3aL2yt` |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 
