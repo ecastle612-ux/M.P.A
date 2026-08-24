@@ -1,7 +1,7 @@
 "use client";
 
 import { Alert, Button, Input } from "@mpa/ui";
-import { SKU_SUMMARIES, type ProductSku } from "@mpa/shared";
+import { MIN_PASSWORD_LENGTH, SKU_SUMMARIES, type ProductSku } from "@mpa/shared";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -63,7 +63,7 @@ export function ComplimentaryClaimPage({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
-        ...(password.length >= 8 ? { password } : {})
+        ...(password.length >= MIN_PASSWORD_LENGTH ? { password } : {})
       })
     });
     const payload = (await response.json()) as { error?: string; nextPath?: string };
@@ -112,7 +112,7 @@ export function ComplimentaryClaimPage({
                 Create a password
                 <Input
                   type="password"
-                  minLength={8}
+                  minLength={MIN_PASSWORD_LENGTH}
                   required={!isAuthenticated}
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}

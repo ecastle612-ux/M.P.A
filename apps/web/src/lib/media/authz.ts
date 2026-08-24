@@ -5,6 +5,7 @@ import { createAuthServerClient } from "../auth/server";
 import { evaluatePermission, resolveAuthorizationContext } from "../auth/authorization";
 import { getActiveOrganizationIdFromCookie } from "../organization/server";
 import { getWorkOrder } from "../maintenance/maintenance-service";
+import { requireFinancePermission } from "../finance/authz";
 import {
   entitlementsForMember,
   hasEntitlement,
@@ -118,6 +119,18 @@ export async function assertMediaEntityAccess(input: {
     }
     return { ok: true };
   }
+  if (input.relatedEntityType === "vendor_invoice") {
+    const { data: invoice } = await input.supabase
+      .from("financial_vendor_invoices")
+      .select("id")
+      .eq("organization_id", input.organizationId)
+      .eq("id", input.relatedEntityId)
+      .maybeSingle();
+    if (!invoice) {
+      return { error: NextResponse.json({ error: "Expense not found" }, { status: 404 }) };
+    }
+    return { ok: true };
+  }
   if (input.relatedEntityType === "maintenance") {
     const workOrder = await getWorkOrder(
       input.supabase,
@@ -126,6 +139,30 @@ export async function assertMediaEntityAccess(input: {
     );
     if (!workOrder) {
       return { error: NextResponse.json({ error: "Work order not found" }, { status: 404 }) };
+    }
+    return { ok: true };
+  }
+  if (input.relatedEntityType === "partner_service_request") {
+    const { data: request } = await input.supabase
+      .from("platform_partner_service_requests")
+      .select("id")
+      .eq("organization_id", input.organizationId)
+      .eq("id", input.relatedEntityId)
+      .maybeSingle();
+    if (!request) {
+      return { error: NextResponse.json({ error: "Request not found" }, { status: 404 }) };
+    }
+    return { ok: true };
+  }
+  if (input.relatedEntityType === "partner_branding") {
+    const { data: partner } = await input.supabase
+      .from("platform_partners")
+      .select("id")
+      .eq("organization_id", input.organizationId)
+      .eq("id", input.relatedEntityId)
+      .maybeSingle();
+    if (!partner) {
+      return { error: NextResponse.json({ error: "Partner not found" }, { status: 404 }) };
     }
     return { ok: true };
   }
@@ -156,15 +193,147 @@ export function isOrgManagerRoles(roles: readonly string[]): boolean {
   return roles.includes("organization_admin") || roles.includes("property_manager");
 }
 
+export async function requireReceiptFinanceActor(mode: "read" | "write"): Promise<
+  MediaAuthzContext | { error: NextResponse }
+> {
+  const finance = await requireFinancePermission(
+    mode === "write" ? "pm.finance:vendor_invoice.review" : "pm.finance:read"
+  );
+  if ("error" in finance) {
+    return finance;
+  }
+  return {
+    supabase: finance.supabase,
+    user: finance.user,
+    organizationId: finance.organizationId,
+    roles: finance.roles
+  };
+}
+
+export function mediaActorPlane(
+  relatedEntityType: MediaEntityType
+): "finance" | "conversation" | "operations" {
+  if (relatedEntityType === "vendor_invoice") return "finance";
+  if (relatedEntityType === "conversation_message") return "conversation";
+  return "operations";
+}
+
 export async function resolveMediaActorForEntity(
   mode: "read" | "write",
   relatedEntityType: MediaEntityType
 ) {
-  if (relatedEntityType === "conversation_message") {
+  const plane = mediaActorPlane(relatedEntityType);
+  if (plane === "conversation") {
     const { requireConversationMediaActor } = await import("../communications/conversation-authz");
     return requireConversationMediaActor(mode);
   }
+  if (plane === "finance") {
+    return requireReceiptFinanceActor(mode);
+  }
   return requireMediaActor(mode);
+}
+
+function asMediaRow(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object") return null;
+  return value as Record<string, unknown>;
+}
+
+function withRoles(
+  actor: Omit<MediaAuthzContext, "roles"> & { roles?: string[] }
+): MediaAuthzContext {
+  return {
+    supabase: actor.supabase,
+    user: actor.user,
+    organizationId: actor.organizationId,
+    roles: actor.roles ?? []
+  };
+}
+
+export async function resolveMediaActorForMediaId(
+  mode: "read" | "write",
+  mediaId: string
+): Promise<(MediaAuthzContext & { media: Record<string, unknown> }) | { error: NextResponse }> {
+  const supabase = await createAuthServerClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: NextResponse.json({ error: "Unauthenticated" }, { status: 401 }) };
+  }
+
+  const organizationId = await getActiveOrganizationIdFromCookie();
+  if (!organizationId) {
+    return { error: NextResponse.json({ error: "Organization required" }, { status: 400 }) };
+  }
+
+  const { data: visibleRaw } = await supabase
+    .from("media_attachments")
+    .select("*")
+    .eq("id", mediaId)
+    .maybeSingle();
+  const visible = asMediaRow(visibleRaw);
+
+  if (visible && visible["organization_id"] === organizationId && !visible["deleted_at"]) {
+    if (!isMediaEntityType(visible["related_entity_type"])) {
+      return { error: NextResponse.json({ error: "Not found" }, { status: 404 }) };
+    }
+    const actor = await resolveMediaActorForEntity(mode, visible["related_entity_type"]);
+    if ("error" in actor) {
+      return actor;
+    }
+    if (actor.organizationId !== visible["organization_id"]) {
+      return { error: NextResponse.json({ error: "Not found" }, { status: 404 }) };
+    }
+    const entityAccess = await assertMediaEntityAccess({
+      supabase: actor.supabase,
+      organizationId: actor.organizationId,
+      relatedEntityType: visible["related_entity_type"],
+      relatedEntityId: (visible["related_entity_id"] as string | null) ?? null,
+      ...("plane" in actor
+        ? {
+            conversationActor: {
+              plane: (actor as { plane: "staff" | "tenant" }).plane,
+              tenantAccountId: (actor as { tenantAccountId: string | null }).tenantAccountId
+            }
+          }
+        : {})
+    });
+    if ("error" in entityAccess) return entityAccess;
+    return { ...withRoles(actor), media: visible };
+  }
+
+  const { requireConversationMediaActor } = await import("../communications/conversation-authz");
+  const conversation = await requireConversationMediaActor(mode);
+  if ("error" in conversation) {
+    return visible
+      ? { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) }
+      : { error: NextResponse.json({ error: "Not found" }, { status: 404 }) };
+  }
+  const { data: conversationMediaRaw } = await conversation.supabase
+    .from("media_attachments")
+    .select("*")
+    .eq("id", mediaId)
+    .maybeSingle();
+  const conversationMedia = asMediaRow(conversationMediaRaw);
+  if (
+    !conversationMedia ||
+    conversationMedia["deleted_at"] ||
+    conversationMedia["related_entity_type"] !== "conversation_message"
+  ) {
+    return { error: NextResponse.json({ error: "Not found" }, { status: 404 }) };
+  }
+  const entityAccess = await assertMediaEntityAccess({
+    supabase: conversation.supabase,
+    organizationId: conversation.organizationId,
+    relatedEntityType: "conversation_message",
+    relatedEntityId: (conversationMedia["related_entity_id"] as string | null) ?? null,
+    conversationActor: {
+      plane: conversation.plane,
+      tenantAccountId: conversation.tenantAccountId
+    }
+  });
+  if ("error" in entityAccess) return entityAccess;
+  return { ...withRoles(conversation), media: conversationMedia };
 }
 
 export async function resolveMediaActorWithFallback(mode: "read" | "write") {

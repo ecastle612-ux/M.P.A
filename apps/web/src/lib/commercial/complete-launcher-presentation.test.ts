@@ -106,6 +106,61 @@ describe("Complete launcher presentation (PPS1-006)", () => {
     expect(launcher.find((item) => item.id === "fac_mc")?.title).toBe("Facility Operations");
   });
 
+  it("hides Facility handoff and empty-guidance CTA for Complete PM-only scope", () => {
+    const view = buildCompleteLauncherViewModel({
+      sku: "mpa_complete_platform",
+      storedScope: "property_operations",
+      roles: ["property_manager"],
+      pmBody: { propertyCount: 1 },
+      foBody: {
+        snapshot: {
+          todayOpen: 2,
+          emergency: 1,
+          open: 2,
+          overdue: 0,
+          waitingOnTechnician: 0,
+          waitingOnVendor: 0
+        }
+      },
+      pmError: null,
+      foError: "Forbidden"
+    });
+
+    expect(view.handoffs.map((item) => item.id)).toEqual(["property_operations"]);
+    expect(view.handoffs.some((item) => item.href.startsWith("/facility/"))).toBe(false);
+    expect(view.facilityPriorities).toHaveLength(0);
+    expect(view.loadErrors).toHaveLength(0);
+    expect(view.emptyGuidance?.href ?? "").not.toMatch(/^\/facility\//);
+  });
+
+  it("hides Property handoff and first-property CTA for Complete FO-only scope", () => {
+    const view = buildCompleteLauncherViewModel({
+      sku: "mpa_complete_platform",
+      storedScope: "facility_operations",
+      roles: ["property_manager"],
+      pmBody: { propertyCount: 0 },
+      foBody: {
+        snapshot: {
+          todayOpen: 0,
+          emergency: 0,
+          open: 0,
+          overdue: 0,
+          waitingOnTechnician: 0,
+          waitingOnVendor: 0
+        }
+      },
+      pmError: "Forbidden",
+      foError: null
+    });
+
+    expect(view.handoffs.map((item) => item.id)).toEqual(["facility_operations"]);
+    expect(view.handoffs.some((item) => item.href.startsWith("/pm/"))).toBe(false);
+    expect(view.propertyPriorities).toHaveLength(0);
+    expect(view.loadErrors).toHaveLength(0);
+    expect(view.emptyGuidance?.href).toBe("/facility/mission-control");
+    expect(view.emptyGuidance?.detail ?? "").not.toMatch(/either workspace/i);
+  });
+
   it("maps priority tone and workspace section labels", () => {
     expect(priorityBadgeVariant("critical")).toBe("danger");
     expect(priorityBadgeVariant("watch")).toBe("warning");

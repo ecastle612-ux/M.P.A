@@ -226,12 +226,28 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
           await seedLifecycleFromPurchase(purchase.stripeCheckoutSessionId);
         }
       }
-      await applyInvoicePaid({
+      const paid = await applyInvoicePaid({
         stripeSubscriptionId: subId,
         stripeCustomerId: typeof invoice.customer === "string" ? invoice.customer : null,
         customerEmail,
         ...(typeof invoice.amount_paid === "number" ? { amountCents: invoice.amount_paid } : {}),
         eventId: event.id
+      });
+      const purchase = subId
+        ? listSaasPurchases().find((row) => row.stripeSubscriptionId === subId)
+        : undefined;
+      const { safeRecordPartnerCommission } = await import("../partners/hooks");
+      const invoiceTax = (invoice as { tax?: number }).tax;
+      await safeRecordPartnerCommission({
+        organizationId: paid?.organizationId ?? purchase?.organizationId ?? null,
+        metadata: purchase?.metadata ?? null,
+        customerEmail,
+        amountPaidCents: typeof invoice.amount_paid === "number" ? invoice.amount_paid : 0,
+        taxCents: typeof invoiceTax === "number" ? invoiceTax : null,
+        stripeEventId: event.id,
+        stripeInvoiceId: invoice.id,
+        stripeSubscriptionId: subId,
+        complimentaryOnly: false
       });
       return;
     }
@@ -261,13 +277,21 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
     }
     case "charge.refunded": {
       const charge = event.data.object as Stripe.Charge;
-      await applyChargeRefunded({
+      const refunded = await applyChargeRefunded({
         stripeSubscriptionId: null,
         stripeCustomerId: typeof charge.customer === "string" ? charge.customer : null,
         ...(typeof charge.amount_refunded === "number"
           ? { amountCents: charge.amount_refunded }
           : {}),
         eventId: event.id
+      });
+      const { safeVoidPartnerCommissions } = await import("../partners/hooks");
+      const invoiceRef = (charge as { invoice?: string | { id?: string } | null }).invoice;
+      await safeVoidPartnerCommissions({
+        organizationId: refunded?.organizationId ?? null,
+        stripeInvoiceId: typeof invoiceRef === "string" ? invoiceRef : invoiceRef?.id ?? null,
+        stripeSubscriptionId: refunded?.stripeSubscriptionId ?? null,
+        stripeEventId: event.id
       });
       return;
     }

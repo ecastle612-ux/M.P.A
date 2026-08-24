@@ -67,7 +67,7 @@ vi.mock("../../../../lib/organization/server", () => ({
   getActiveOrganizationIdFromCookie: async () => authState.orgId
 }));
 
-vi.mock("../../../../lib/maintenance/maintenance-service", () => ({
+vi.mock("../../../../lib/facility/mission-control-service", () => ({
   getFacilityMissionControlSnapshot: vi.fn(async () => ({
     todayOpen: 1,
     emergency: 0,
@@ -75,8 +75,14 @@ vi.mock("../../../../lib/maintenance/maintenance-service", () => ({
     overdue: 0,
     waitingOnVendor: 0,
     waitingOnTechnician: 1,
-    completedRecently: 3
-  })),
+    completedRecently: 3,
+    attention: [],
+    attentionTotal: 0,
+    viewerMode: "manager"
+  }))
+}));
+
+vi.mock("../../../../lib/maintenance/maintenance-service", () => ({
   listWorkOrders: vi.fn(async () => []),
   listTechnicians: vi.fn(async () => []),
   listVendors: vi.fn(async () => []),

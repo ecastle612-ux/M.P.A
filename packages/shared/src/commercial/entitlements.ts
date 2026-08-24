@@ -15,7 +15,8 @@ export const PLATFORM_ENTITLEMENTS = [
   "platform.guided_setup",
   "platform.billing_self",
   "platform.marketplace_vendor_consume",
-  "platform.ai"
+  "platform.ai",
+  "platform.partner_services"
 ] as const;
 
 export const PROPERTY_MANAGER_ENTITLEMENTS = [
@@ -41,7 +42,9 @@ export const FACILITY_ENTITLEMENTS = [
   "facility.inspections",
   "facility.safety",
   "facility.compliance",
-  "facility.building_systems"
+  "facility.building_systems",
+  "facility.request_forms",
+  "facility.routing"
   // facility.capital_projects intentionally off by default (future)
 ] as const;
 

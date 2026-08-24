@@ -7,6 +7,7 @@ import {
   missionControlNavLabelForSku,
   navigationGroupTitleForSku
 } from "./complete-launcher";
+import { navigationGroupsForSku } from "./modules";
 import { resolveProductWorkspaceHome } from "../auth/post-auth-home";
 
 describe("Complete Platform launcher (PPS1-006)", () => {
@@ -47,6 +48,61 @@ describe("Complete Platform launcher (PPS1-006)", () => {
     expect(handoffs[0]?.title).toBe("Property Operations");
     expect(handoffs[1]?.title).toBe("Facility Operations");
     expect(handoffs.map((item) => item.title).join(" ")).not.toMatch(/PM Module|FO Module/i);
+  });
+
+  it("keeps both Complete handoffs for org-admin / both-surface members", () => {
+    const handoffs = buildCompleteWorkspaceHandoffs("mpa_complete_platform", {
+      roles: ["organization_admin"],
+      storedScope: "both"
+    });
+    expect(handoffs.map((item) => item.id)).toEqual(["property_operations", "facility_operations"]);
+  });
+
+  it("hides Facility handoff for Complete PM-only scoped members", () => {
+    const handoffs = buildCompleteWorkspaceHandoffs("mpa_complete_platform", {
+      roles: ["property_manager"],
+      storedScope: "property_operations"
+    });
+    expect(handoffs.map((item) => item.id)).toEqual(["property_operations"]);
+    expect(handoffs.some((item) => item.href === "/facility/mission-control")).toBe(false);
+  });
+
+  it("hides Property handoff for Complete FO-only scoped members", () => {
+    const handoffs = buildCompleteWorkspaceHandoffs("mpa_complete_platform", {
+      roles: ["property_manager"],
+      storedScope: "facility_operations"
+    });
+    expect(handoffs.map((item) => item.id)).toEqual(["facility_operations"]);
+    expect(handoffs.some((item) => item.href === "/pm/mission-control")).toBe(false);
+  });
+
+  it("does not invent a Facility handoff on a Property Manager SKU", () => {
+    expect(buildCompleteWorkspaceHandoffs("mpa_property_manager").map((item) => item.id)).toEqual([
+      "property_operations"
+    ]);
+  });
+
+  it("agrees with sidebar surfaces for Complete scoped members", () => {
+    const roles = ["property_manager"] as const;
+    for (const storedScope of ["property_operations", "facility_operations", "both"] as const) {
+      const handoffs = buildCompleteWorkspaceHandoffs("mpa_complete_platform", {
+        roles,
+        storedScope
+      });
+      const groups = navigationGroupsForSku("mpa_complete_platform", roles, storedScope);
+      expect(handoffs.some((item) => item.id === "property_operations")).toBe(
+        groups.some((group) => group.id === "property_manager")
+      );
+      expect(handoffs.some((item) => item.id === "facility_operations")).toBe(
+        groups.some((group) => group.id === "facility_operations")
+      );
+    }
+  });
+
+  it("does not invent a Property handoff on a Facility Operations SKU", () => {
+    expect(buildCompleteWorkspaceHandoffs("mpa_facility_operations").map((item) => item.id)).toEqual([
+      "facility_operations"
+    ]);
   });
 
   it("surfaces authoritative PM + FO priorities without fabricating counts", () => {

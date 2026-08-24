@@ -47,3 +47,16 @@ export function stripePaymentExecutionEnabled(
 export function stripePaymentExecutionDisabledResponse() {
   return NextResponse.json({ error: "stripe_payment_execution_disabled" }, { status: 403 });
 }
+
+export function acceptedPaymentMethodDeniedResponse(requested: string) {
+  return NextResponse.json(
+    {
+      error: "accepted_payment_method_disabled",
+      message:
+        requested === "us_bank_account"
+          ? "This property does not accept bank payments."
+          : "This property does not accept card payments."
+    },
+    { status: 403 }
+  );
+}
