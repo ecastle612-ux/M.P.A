@@ -90,8 +90,8 @@ export async function PATCH(request: Request, context: Params) {
       organizationId: authz.organizationId,
       actorUserId: authz.user.id,
       action: body.action,
-      declinedReason: body.declinedReason,
-      propertyId: body.propertyId,
+      ...(body.declinedReason ? { declinedReason: body.declinedReason } : {}),
+      ...(body.propertyId ? { propertyId: body.propertyId } : {}),
       entitlements: authz.entitlements
     },
     deps

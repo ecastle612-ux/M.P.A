@@ -9,7 +9,7 @@ function readRepo(relativePath: string): string {
 describe("PARTNER-002 hard boundaries", () => {
   it("keeps intake separate from work orders and money movement", () => {
     const service = readRepo("src/lib/partners/request-service.ts");
-    expect(service).toContain('action: "convert"');
+    expect(service).toContain('input.action === "convert"');
     expect(service).not.toContain("recordPartnerCommissionFromPaidInvoice");
     expect(service).not.toContain("stripe.transfers");
 

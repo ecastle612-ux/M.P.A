@@ -155,8 +155,9 @@ export function mapCategoryToWorkOrderCategory(category: PartnerServiceCategory)
     case "snow":
     case "handyman":
     case "other":
+      return "general";
     default:
-      return category === "inspection" ? "inspection" : "general";
+      return "general";
   }
 }
 

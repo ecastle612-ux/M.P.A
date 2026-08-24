@@ -74,26 +74,6 @@ export function PartnerServicesPage() {
     setRows(payload.requests ?? []);
   }
 
-  async function loadPortal() {
-    const response = await fetch("/api/partners/portal");
-    const payload = (await response.json()) as {
-      live?: boolean;
-      displayUrl?: string | null;
-      portalUrl?: string | null;
-      qrSvg?: string | null;
-      companyName?: string | null;
-      error?: string;
-    };
-    if (!response.ok) return;
-    setPortal({
-      live: Boolean(payload.live),
-      displayUrl: payload.displayUrl ?? null,
-      portalUrl: payload.portalUrl ?? null,
-      qrSvg: payload.qrSvg ?? null,
-      companyName: payload.companyName ?? null
-    });
-  }
-
   async function openDetail(id: string) {
     setSelectedId(id);
     setError(null);
@@ -142,12 +122,44 @@ export function PartnerServicesPage() {
   }
 
   useEffect(() => {
-    void loadPortal();
+    const controller = new AbortController();
+    void (async () => {
+      const response = await fetch("/api/partners/portal", { signal: controller.signal });
+      const payload = (await response.json()) as {
+        live?: boolean;
+        displayUrl?: string | null;
+        portalUrl?: string | null;
+        qrSvg?: string | null;
+        companyName?: string | null;
+      };
+      if (controller.signal.aborted || !response.ok) return;
+      setPortal({
+        live: Boolean(payload.live),
+        displayUrl: payload.displayUrl ?? null,
+        portalUrl: payload.portalUrl ?? null,
+        qrSvg: payload.qrSvg ?? null,
+        companyName: payload.companyName ?? null
+      });
+    })().catch(() => undefined);
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
-    void loadQueue();
-  }, [tab]);
+    const controller = new AbortController();
+    void (async () => {
+      const response = await fetch(`/api/partners/requests?tab=${tab}&q=${encodeURIComponent(query)}`, {
+        signal: controller.signal
+      });
+      const payload = (await response.json()) as { requests?: RequestRow[]; error?: string };
+      if (controller.signal.aborted) return;
+      if (!response.ok) {
+        setError(payload.error ?? "Could not load requests.");
+        return;
+      }
+      setRows(payload.requests ?? []);
+    })().catch(() => undefined);
+    return () => controller.abort();
+  }, [tab, query]);
 
   const tabs = useMemo(
     () =>

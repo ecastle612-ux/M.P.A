@@ -25,20 +25,22 @@ export default async function Page({
     signedIn = false;
   }
 
+  let partnerPortal: Awaited<ReturnType<typeof resolveLivePartnerPortal>> = null;
   try {
     const deps = await loadPartnerRequestDeps();
-    const live = await resolveLivePartnerPortal(token, deps);
-    if (live) {
-      return (
-        <AuthChrome>
-          <div className="rounded-lg bg-white p-5 shadow-sm">
-            <PublicPartnerRequestPortal slug={live.public.slug} branding={live.public} />
-          </div>
-        </AuthChrome>
-      );
-    }
+    partnerPortal = await resolveLivePartnerPortal(token, deps);
   } catch {
-    /* fall through to facility intake */
+    partnerPortal = null;
+  }
+
+  if (partnerPortal) {
+    return (
+      <AuthChrome>
+        <div className="rounded-lg bg-white p-5 shadow-sm">
+          <PublicPartnerRequestPortal slug={partnerPortal.public.slug} branding={partnerPortal.public} />
+        </div>
+      </AuthChrome>
+    );
   }
 
   return (

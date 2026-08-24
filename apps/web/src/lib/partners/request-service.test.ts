@@ -119,7 +119,7 @@ describe("PARTNER-002 request portals", () => {
 
   it("submits, reviews, accepts, declines, and converts without duplicate work orders", async () => {
     const { store, requests, slug } = await enablePortal();
-    const created = [];
+    const created: string[] = [];
     const deps = {
       store,
       requests,
