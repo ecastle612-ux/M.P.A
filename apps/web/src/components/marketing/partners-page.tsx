@@ -183,16 +183,16 @@ export function PartnersPage({ isAuthenticated = false }: { isAuthenticated?: bo
             Your Company. Your Customers. Powered by M.P.A.
           </h2>
           <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-muted)]">
-            Planned — not Production-live
+            Production-live
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Give your customers a dedicated service-request link and QR code powered by M.P.A.
-            Certified Service and Strategic Partners are planned to receive branded customer request
-            portals such as{" "}
+            Approved Certified Service Partners can receive a dedicated customer service-request
+            link and QR code powered by M.P.A. Strategic Partners may receive the same branded
+            portal when eligible. The public address looks like{" "}
             <code className="text-xs">my-property-assistant.com/request/your-company</code>.
-            Customers will eventually be able to submit maintenance and service requests,
-            descriptions, photos and videos, and property or unit information through that
-            partner-specific URL. This is not Production-live.
+            Customers can submit a service request, description, photos and videos, and property
+            or unit information without creating an M.P.A. account. This does not guarantee
+            leads, jobs, volume, or revenue.
           </p>
         </section>
 

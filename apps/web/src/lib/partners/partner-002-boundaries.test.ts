@@ -27,8 +27,11 @@ describe("PARTNER-002 hard boundaries", () => {
     expect(webhook).not.toContain("submitPartnerServiceRequest");
 
     const marketing = readRepo("src/components/marketing/partners-page.tsx");
-    expect(marketing).toContain("Planned — not Production-live");
-    expect(marketing).toContain("Give your customers a dedicated service-request link and QR code powered by M.P.A.");
+    expect(marketing).toContain("Production-live");
+    expect(marketing).toContain(
+      "Approved Certified Service Partners can receive a dedicated customer service-request"
+    );
+    expect(marketing).not.toContain("Planned — not Production-live");
 
     const migration = readFileSync(
       resolve(process.cwd(), "../../supabase/migrations/20260824220000_docs_234_partner_002_service_portals.sql"),
