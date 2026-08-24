@@ -29,6 +29,7 @@ type EligibleProperty = { id: string; name: string; label: string };
 
 export function PartnerPropertiesPage() {
   const [query, setQuery] = useState("");
+  const [appliedQuery, setAppliedQuery] = useState("");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<PortalRow[]>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -59,13 +60,6 @@ export function PartnerPropertiesPage() {
     setRows(payload.items ?? []);
     setTotalPages(payload.totalPages ?? 1);
     setTotal(payload.total ?? 0);
-  }
-
-  async function loadEligible() {
-    const response = await fetch("/api/partners/properties");
-    const payload = (await response.json()) as { properties?: EligibleProperty[]; error?: string };
-    if (!response.ok) return;
-    setEligible(payload.properties ?? []);
   }
 
   async function createPortal() {
@@ -109,13 +103,40 @@ export function PartnerPropertiesPage() {
   }
 
   useEffect(() => {
-    void loadEligible();
+    const controller = new AbortController();
+    void (async () => {
+      const response = await fetch("/api/partners/properties", { signal: controller.signal });
+      const payload = (await response.json()) as { properties?: EligibleProperty[]; error?: string };
+      if (controller.signal.aborted || !response.ok) return;
+      setEligible(payload.properties ?? []);
+    })().catch(() => undefined);
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
-    void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+    const controller = new AbortController();
+    void (async () => {
+      const response = await fetch(
+        `/api/partners/property-portals?q=${encodeURIComponent(appliedQuery)}&page=${page}&pageSize=25`,
+        { signal: controller.signal }
+      );
+      const payload = (await response.json()) as {
+        items?: PortalRow[];
+        totalPages?: number;
+        total?: number;
+        error?: string;
+      };
+      if (controller.signal.aborted) return;
+      if (!response.ok) {
+        setError(payload.error ?? "Could not load property portals.");
+        return;
+      }
+      setRows(payload.items ?? []);
+      setTotalPages(payload.totalPages ?? 1);
+      setTotal(payload.total ?? 0);
+    })().catch(() => undefined);
+    return () => controller.abort();
+  }, [page, appliedQuery]);
 
   return (
     <PartnerCommandCenterShell
@@ -165,7 +186,7 @@ export function PartnerPropertiesPage() {
           onSubmit={(event) => {
             event.preventDefault();
             setPage(1);
-            void load();
+            setAppliedQuery(query);
           }}
         >
           <Input

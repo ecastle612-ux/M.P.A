@@ -39,7 +39,7 @@ import {
 import { createAuthorizedPropertyPortal } from "../../../../../../lib/partners/property-portal-service";
 import { getMemoryPartnerStore } from "../../../../../../lib/partners/store";
 import { getMemoryPartnerRequestStore } from "../../../../../../lib/partners/request-store";
-import { getMemoryPartnerPropertyPortalStore, getMemoryPropertyCatalog } from "../../../../../../lib/partners/property-portal-store";
+import { getMemoryPartnerPropertyPortalStore } from "../../../../../../lib/partners/property-portal-store";
 
 const mapleId = "11111111-1111-4111-8111-111111111111";
 

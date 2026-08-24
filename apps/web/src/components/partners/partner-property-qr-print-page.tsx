@@ -28,7 +28,7 @@ export function PartnerPropertyQrPrintPage({ linkId }: { linkId: string }) {
       }
       setPortal({
         ...payload.portal,
-        companyName: dashboard.partner?.companyName
+        ...(dashboard.partner?.companyName ? { companyName: dashboard.partner.companyName } : {})
       });
     })();
   }, [linkId]);

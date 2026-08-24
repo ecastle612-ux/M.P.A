@@ -165,7 +165,10 @@ export async function listAuthorizedPropertyPortals(
       metrics
     });
   }
-  const page = paginatePartnerPropertyPortals(items, { page: input.page, pageSize: input.pageSize });
+  const page = paginatePartnerPropertyPortals(items, {
+    ...(input.page !== undefined ? { page: input.page } : {}),
+    ...(input.pageSize !== undefined ? { pageSize: input.pageSize } : {})
+  });
   return { ok: true, partnerId: partner.id, ...page };
 }
 

@@ -139,11 +139,11 @@ export function parsePartnerPropertyPortalCreateInput(payload: unknown):
   ) {
     return { ok: false, error: "Invalid request." };
   }
-  const propertyId = typeof body.propertyId === "string" ? body.propertyId.trim() : "";
+  const propertyId = typeof body["propertyId"] === "string" ? body["propertyId"].trim() : "";
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(propertyId)) {
     return { ok: false, error: "Select a property from your authorized list." };
   }
-  const slugRaw = typeof body.publicSlug === "string" ? body.publicSlug : "";
+  const slugRaw = typeof body["publicSlug"] === "string" ? body["publicSlug"] : "";
   let publicSlug: string | null = null;
   if (slugRaw.trim()) {
     const checked = validatePartnerPropertySlug(slugRaw);
@@ -151,12 +151,12 @@ export function parsePartnerPropertyPortalCreateInput(payload: unknown):
     publicSlug = checked.slug;
   }
   const publicDisplayName =
-    typeof body.publicDisplayName === "string" && body.publicDisplayName.trim()
-      ? body.publicDisplayName.trim().slice(0, 120)
+    typeof body["publicDisplayName"] === "string" && body["publicDisplayName"].trim()
+      ? body["publicDisplayName"].trim().slice(0, 120)
       : null;
   const publicInstructions =
-    typeof body.publicInstructions === "string" && body.publicInstructions.trim()
-      ? body.publicInstructions.trim().slice(0, 500)
+    typeof body["publicInstructions"] === "string" && body["publicInstructions"].trim()
+      ? body["publicInstructions"].trim().slice(0, 500)
       : null;
   return { ok: true, data: { propertyId, publicSlug, publicDisplayName, publicInstructions } };
 }
@@ -195,31 +195,31 @@ export function parsePartnerPropertyPortalUpdateInput(payload: unknown):
     publicInstructions?: string | null;
   } = {};
   if ("enabled" in body) {
-    if (typeof body.enabled !== "boolean") {
+    if (typeof body["enabled"] !== "boolean") {
       return { ok: false, error: "Portal status is invalid." };
     }
-    data.enabled = body.enabled;
+    data.enabled = body["enabled"];
   }
   if ("publicSlug" in body) {
-    if (typeof body.publicSlug !== "string") {
+    if (typeof body["publicSlug"] !== "string") {
       return { ok: false, error: "Property slug is invalid." };
     }
-    const checked = validatePartnerPropertySlug(body.publicSlug);
+    const checked = validatePartnerPropertySlug(body["publicSlug"]);
     if (!checked.ok) return checked;
     data.publicSlug = checked.slug;
   }
   if ("publicDisplayName" in body) {
-    if (body.publicDisplayName !== null && typeof body.publicDisplayName !== "string") {
+    if (body["publicDisplayName"] !== null && typeof body["publicDisplayName"] !== "string") {
       return { ok: false, error: "Display name must be text." };
     }
-    const value = typeof body.publicDisplayName === "string" ? body.publicDisplayName.trim() : "";
+    const value = typeof body["publicDisplayName"] === "string" ? body["publicDisplayName"].trim() : "";
     data.publicDisplayName = value ? value.slice(0, 120) : null;
   }
   if ("publicInstructions" in body) {
-    if (body.publicInstructions !== null && typeof body.publicInstructions !== "string") {
+    if (body["publicInstructions"] !== null && typeof body["publicInstructions"] !== "string") {
       return { ok: false, error: "Instructions must be text." };
     }
-    const value = typeof body.publicInstructions === "string" ? body.publicInstructions.trim() : "";
+    const value = typeof body["publicInstructions"] === "string" ? body["publicInstructions"].trim() : "";
     data.publicInstructions = value ? value.slice(0, 500) : null;
   }
   if (Object.keys(data).length === 0) {

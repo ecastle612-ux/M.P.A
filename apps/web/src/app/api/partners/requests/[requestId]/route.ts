@@ -63,7 +63,7 @@ export async function GET(_request: Request, context: Params) {
       statusLabel: PARTNER_REQUEST_STATUS_LABELS[row.status],
       intakeSource: row.intakeSource,
       sourceLabel: partnerPropertyIntakeSourceLabel(row.intakeSource),
-      propertyId: row.propertyId}
+      propertyId: row.propertyId
     },
     events: events.map((event) => ({
       id: event.id,

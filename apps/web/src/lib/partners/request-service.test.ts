@@ -209,7 +209,9 @@ describe("PARTNER-002 request portals", () => {
       deps
     );
     expect(second.ok).toBe(true);
-    const [, later] = await requests.listRequests((await store.listPartners())[0]!.id);
+    const later = (await requests.listRequests((await store.listPartners())[0]!.id)).find(
+      (item) => item.requesterName === "Other"
+    );
     await mutatePartnerRequest(
       {
         requestId: later!.id,
