@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   cancelWorkOrder,
   createFacilityWorkOrder,
-  getFacilityMissionControlSnapshot,
   listWorkOrders
 } from "./maintenance-service";
 
@@ -18,6 +17,7 @@ function createFilterAwareClient(options: {
     eq: (col: string, value: unknown) => Builder;
     order: () => Builder;
     limit: () => Builder;
+    is: () => Builder;
     maybeSingle: () => Promise<{ data: unknown; error: null }>;
     single: () => Promise<{ data: unknown; error: null }>;
     then: (
@@ -48,6 +48,9 @@ function createFilterAwareClient(options: {
           client.lastEq = filters;
           return builder;
         },
+        is() {
+          return builder;
+        },
         order() {
           return builder;
         },
@@ -57,6 +60,9 @@ function createFilterAwareClient(options: {
         maybeSingle: async () => {
           if (table === "property_properties") {
             return { data: options.property ?? null, error: null };
+          }
+          if (table === "facility_assets") {
+            return { data: null, error: null };
           }
           if (table === "maintenance_work_orders") {
             return { data: options.existingWorkOrder ?? null, error: null };
@@ -98,6 +104,22 @@ describe("STAB-004 maintenance-service facility surface", () => {
     ).rejects.toThrow(/Property not found/);
   });
 
+  it("createFacilityWorkOrder refuses an asset from another organization", async () => {
+    const supabase = createFilterAwareClient({
+      property: { id: "11111111-1111-4111-8111-111111111111", name: "North Clinic" }
+    });
+    await expect(
+      createFacilityWorkOrder(supabase as never, "org_1", "user_1", {
+        title: "Repair chair",
+        description: "Arm is broken",
+        category: "general",
+        priority: "normal",
+        propertyId: "11111111-1111-4111-8111-111111111111",
+        facilityAssetId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+      })
+    ).rejects.toThrow(/Facility asset not found for organization/);
+  });
+
   it("cancelWorkOrder refuses completed work", async () => {
     const supabase = createFilterAwareClient({
       existingWorkOrder: {
@@ -115,50 +137,5 @@ describe("STAB-004 maintenance-service facility surface", () => {
         workOrderId: "22222222-2222-4222-8222-222222222222"
       })
     ).rejects.toThrow(/Cannot cancel/);
-  });
-
-  it("getFacilityMissionControlSnapshot counts open and overdue facility rows", async () => {
-    const now = Date.now();
-    const supabase = createFilterAwareClient({
-      listRows: [
-        {
-          id: "1",
-          status: "submitted",
-          priority: "emergency",
-          assignee_type: "unassigned",
-          due_at: new Date(now - 60_000).toISOString(),
-          submitted_at: new Date().toISOString(),
-          completed_at: null,
-          closed_at: null
-        },
-        {
-          id: "2",
-          status: "assigned",
-          priority: "normal",
-          assignee_type: "vendor",
-          due_at: null,
-          submitted_at: new Date().toISOString(),
-          completed_at: null,
-          closed_at: null
-        },
-        {
-          id: "3",
-          status: "completed",
-          priority: "normal",
-          assignee_type: "technician",
-          due_at: null,
-          submitted_at: new Date(now - 2 * 24 * 3600_000).toISOString(),
-          completed_at: new Date(now - 24 * 3600_000).toISOString(),
-          closed_at: null
-        }
-      ]
-    });
-
-    const snapshot = await getFacilityMissionControlSnapshot(supabase as never, "org_1");
-    expect(snapshot.emergency).toBe(1);
-    expect(snapshot.open).toBe(2);
-    expect(snapshot.overdue).toBe(1);
-    expect(snapshot.waitingOnVendor).toBe(1);
-    expect(snapshot.completedRecently).toBe(1);
   });
 });

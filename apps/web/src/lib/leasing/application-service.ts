@@ -268,7 +268,7 @@ export async function listRenewalCandidates(supabase: Db, organizationId: string
   const { data, error } = await supabase
     .from("lease_agreements")
     .select(
-      "id, status, start_date, end_date, pm_residents(id, display_name, email), property_properties(id, name), property_units(id, unit_label)"
+      "id, status, start_date, end_date, pm_residents!resident_id(id, display_name, email), property_properties(id, name), property_units(id, unit_label)"
     )
     .eq("organization_id", organizationId)
     .eq("status", "active")
@@ -678,7 +678,7 @@ export async function getLeasingPipeline(supabase: Db, organizationId: string) {
       supabase
         .from("lease_agreements")
         .select(
-          "id, status, start_date, end_date, rent_amount, currency, pm_residents(id, display_name, email), property_properties(id, name), property_units(id, unit_label)"
+          "id, status, start_date, end_date, rent_amount, currency, pm_residents!resident_id(id, display_name, email), property_properties(id, name), property_units(id, unit_label)"
         )
         .eq("organization_id", organizationId)
         .in("status", ["draft", "pending_signature", "signed"])

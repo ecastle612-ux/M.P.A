@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { MIN_PASSWORD_LENGTH, PASSWORD_TOO_SHORT_MESSAGE, meetsMinPasswordLength } from "@mpa/shared";
 import { Button, Card, Input } from "@mpa/ui";
 import { createAuthClient } from "../../lib/auth/client";
 
@@ -22,6 +23,10 @@ export function ResetPasswordForm() {
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+    if (!meetsMinPasswordLength(password)) {
+      setError(PASSWORD_TOO_SHORT_MESSAGE);
       return;
     }
 
@@ -57,6 +62,7 @@ export function ResetPasswordForm() {
             id="password"
             type="password"
             required
+            minLength={MIN_PASSWORD_LENGTH}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />

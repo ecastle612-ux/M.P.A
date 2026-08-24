@@ -35,14 +35,14 @@ describe("PLAT-006 invitation and magic-link home matrix", () => {
         productSku: "mpa_facility_operations",
         setupComplete
       })
-    ).toBe("/facility/mission-control");
+    ).toBe("/facility/my-work");
     expect(
       resolvePostAuthHome({
         roles: ["maintenance_technician"],
         productSku: "mpa_complete_platform",
         setupComplete
       })
-    ).toBe("/launcher");
+    ).toBe("/facility/my-work");
     expect(
       resolvePostAuthHome({
         roles: ["tenant"],

@@ -14,7 +14,8 @@ import {
   isSignWellCompletedStatus,
   isSignWellConfigured
 } from "../signwell/client";
-import { buildLeaseDocumentText, leaseDocumentToBase64 } from "./document";
+import { alreadyHasActiveSignWellRequest } from "../signwell/correlation";
+import { buildLeaseDocumentText, leaseDocumentToSignWellUpload } from "./document";
 import { provisionResidentPortalAccess } from "../portal/portal-access-service";
 import { emitLeaseEvent, writeLeaseAudit } from "./events-audit";
 
@@ -114,7 +115,7 @@ export async function listLeases(supabase: Db, organizationId: string) {
   const { data, error } = await supabase
     .from("lease_agreements")
     .select(
-      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
     )
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false });
@@ -128,7 +129,7 @@ export async function getLease(supabase: Db, organizationId: string, leaseId: st
   const { data, error } = await supabase
     .from("lease_agreements")
     .select(
-      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
     )
     .eq("organization_id", organizationId)
     .eq("id", leaseId)
@@ -224,7 +225,7 @@ export async function createLeaseFromResident(
       created_by: actorId
     })
     .select(
-      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
     )
     .single();
   if (error) {
@@ -311,6 +312,24 @@ export async function sendLeaseForSignature(
   if (!resident) {
     throw new Error("Lease resident is missing.");
   }
+  if (!resident.email?.trim()) {
+    throw new Error("Resident email is required to send for signature.");
+  }
+  if (
+    alreadyHasActiveSignWellRequest({
+      status: lease.status,
+      signwellDocumentId: lease.signwell_document_id
+    })
+  ) {
+    return {
+      lease,
+      sent: false,
+      alreadySent: true,
+      channel: "signwell" as const,
+      notice:
+        "This lease already has a SignWell request. Use Sync SignWell status, or Record signed offline."
+    };
+  }
 
   if (!isSignWellConfigured()) {
     await supabase
@@ -362,8 +381,7 @@ export async function sendLeaseForSignature(
       name: lease.document_name,
       subject: `Lease agreement — ${resident.display_name}`,
       message: "Please review and sign your lease agreement.",
-      fileName: lease.document_name,
-      fileBase64: leaseDocumentToBase64(lease.document_body),
+      ...leaseDocumentToSignWellUpload(lease.document_name, lease.document_body),
       recipients,
       applySigningOrder: true,
       metadata: {
@@ -386,7 +404,7 @@ export async function sendLeaseForSignature(
       .eq("id", leaseId)
       .eq("organization_id", organizationId)
       .select(
-        "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+        "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
       )
       .single();
     if (error) {
@@ -626,7 +644,7 @@ export async function activateSignedLease(
     .eq("id", leaseId)
     .eq("organization_id", organizationId)
     .select(
-      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents(id, display_name, email, status, portal_status)"
+      "*, property_properties(id, name), property_units(id, unit_label, status), pm_residents!resident_id(id, display_name, email, status, portal_status)"
     )
     .single();
   if (activateError) {

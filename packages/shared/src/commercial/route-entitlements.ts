@@ -71,6 +71,9 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
   if (path.startsWith("/shared/")) {
     return "deny";
   }
+  if (path === "/partner/services" || path.startsWith("/partner/services/")) {
+    return "platform.partner_services";
+  }
 
   const pmRoutes: Array<[string, EntitlementKey]> = [
     ["/pm/mission-control", "pm.mission_control"],
@@ -93,6 +96,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
 
   const facilityRoutes: Array<[string, EntitlementKey]> = [
     ["/facility/mission-control", "facility.mission_control"],
+    ["/facility/my-work", "facility.operations"],
     ["/facility/operations", "facility.operations"],
     ["/facility/reports", "facility.operations"],
     ["/facility/vendors", "facility.operations"],
@@ -104,7 +108,12 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     ["/facility/safety", "facility.safety"],
     ["/facility/compliance", "facility.compliance"],
     ["/facility/building-systems", "facility.building_systems"],
-    ["/facility/capital-projects", "facility.capital_projects"]
+    ["/facility/capital-projects", "facility.capital_projects"],
+    ["/facility/settings/work-templates", "facility.operations"],
+    ["/facility/settings/request-forms", "facility.request_forms"],
+    ["/facility/settings/assignment-rules", "facility.routing"],
+    ["/facility/assignment-rules", "facility.routing"],
+    ["/facility/request-forms", "facility.request_forms"]
   ];
   for (const [prefix, entitlement] of facilityRoutes) {
     if (path === prefix || path.startsWith(`${prefix}/`)) {
@@ -137,9 +146,16 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
     path.startsWith("/api/demo") ||
     path.startsWith("/api/invitations") ||
     path.startsWith("/api/profile") ||
-    path.startsWith("/api/shared/media")
+    path.startsWith("/api/shared/media") ||
+    path.startsWith("/api/public/request") ||
+    path.startsWith("/api/public/partners") ||
+    path.startsWith("/api/partners/apply") ||
+    path.startsWith("/api/partners/ref")
   ) {
     return null;
+  }
+  if (path.startsWith("/api/partners/")) {
+    return "platform.partner_services";
   }
 
   if (
@@ -172,6 +188,12 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
     return "deny";
   }
 
+  // Scheduler authenticates in-route via CRON_SECRET or manager session.
+  // Middleware must not require a user cookie (same pattern as Stripe webhooks).
+  if (path === "/api/facility/preventive-maintenance/generate") {
+    return null;
+  }
+
   if (path.startsWith("/api/facility/")) {
     return requiredEntitlementForPath(path.slice("/api".length));
   }
@@ -187,6 +209,9 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
   }
   if (path.startsWith("/api/shared/communications")) {
     return "platform.communications";
+  }
+  if (path.startsWith("/api/shared/search")) {
+    return "platform.search";
   }
   if (path.startsWith("/api/shared/")) {
     return "deny";
@@ -416,6 +441,14 @@ export function searchCatalogForSku(
         "Preventive Maintenance",
         "Facility Operations",
         "facility.preventive"
+      )
+    );
+    push(
+      decisionPath(
+        "/facility/settings/assignment-rules",
+        "Assignment Rules",
+        "Facility Operations",
+        "facility.routing"
       )
     );
     push(decisionPath("/facility/inspections", "Inspections", "Facility Operations", "facility.inspections"));

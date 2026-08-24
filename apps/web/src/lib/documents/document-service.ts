@@ -17,7 +17,13 @@ import {
   type DocumentVersion
 } from "@mpa/shared";
 import { emitPropertyEvent, writePropertyAudit } from "../property/events-audit";
-import { getSignWellDocument, isSignWellConfigured } from "../signwell/client";
+import {
+  getSignWellCompletedPdfUrl,
+  getSignWellDocument,
+  isSignWellCompletedStatus,
+  isSignWellConfigured,
+  resolveSignWellExternalFileUrl
+} from "../signwell/client";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>;
@@ -203,7 +209,7 @@ async function resolveEntityLabel(
     case "lease": {
       const { data } = await supabase
         .from("lease_agreements")
-        .select("id, document_name, property_id, pm_residents(display_name)")
+        .select("id, document_name, property_id, pm_residents!resident_id(display_name)")
         .eq("organization_id", organizationId)
         .eq("id", entityId)
         .maybeSingle();
@@ -484,7 +490,7 @@ export async function listDocuments(
   const { data: leases } = await supabase
     .from("lease_agreements")
     .select(
-      "id, document_name, document_body, signing_channel, signwell_document_id, signwell_status, property_id, status, created_at, activated_at, pm_residents(display_name)"
+      "id, document_name, document_body, signing_channel, signwell_document_id, signwell_status, property_id, status, created_at, activated_at, pm_residents!resident_id(display_name)"
     )
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false })
@@ -562,6 +568,27 @@ export async function listDocuments(
   return combined.filter((doc) => matchesQuery(doc, needle));
 }
 
+async function hydrateSignWellExternalFile(signwellDocumentId: string): Promise<{
+  status: string | null;
+  externalUrl: string | null;
+}> {
+  const remote = await getSignWellDocument(signwellDocumentId);
+  const files = (remote as { files?: Array<{ url?: string; name?: string }> }).files;
+  const fromFiles = files?.find((file) => file.url)?.url ?? null;
+  const completedPdfUrl =
+    !fromFiles && isSignWellCompletedStatus(remote.status)
+      ? await getSignWellCompletedPdfUrl(signwellDocumentId)
+      : null;
+  return {
+    status: remote.status,
+    externalUrl: resolveSignWellExternalFileUrl({
+      files: files ?? null,
+      status: remote.status,
+      completedPdfUrl
+    })
+  };
+}
+
 export async function getDocumentDetail(
   supabase: Db,
   organizationId: string,
@@ -588,10 +615,9 @@ export async function getDocumentDetail(
     let externalUrl: string | null = null;
     if (lease.signwell_document_id && isSignWellConfigured()) {
       try {
-        const remote = await getSignWellDocument(lease.signwell_document_id as string);
-        signwellStatus = remote.status;
-        const files = (remote as { files?: Array<{ url?: string; name?: string }> }).files;
-        externalUrl = files?.find((file) => file.url)?.url ?? null;
+        const live = await hydrateSignWellExternalFile(lease.signwell_document_id as string);
+        signwellStatus = live.status ?? signwellStatus;
+        externalUrl = live.externalUrl;
       } catch {
         // Keep local lease body when SignWell is unreachable.
       }
@@ -654,9 +680,19 @@ export async function getDocumentDetail(
     return null;
   }
 
-  const document = mapRow(data as Record<string, unknown>);
+  let document = mapRow(data as Record<string, unknown>);
   if (document.deletedAt) {
     return null;
+  }
+  let signwellStatus: string | null = null;
+  if (document.signwellDocumentId && isSignWellConfigured()) {
+    try {
+      const live = await hydrateSignWellExternalFile(document.signwellDocumentId);
+      signwellStatus = live.status;
+      document = { ...document, externalUrl: live.externalUrl ?? document.externalUrl };
+    } catch {
+      // Keep the stored row when SignWell is unreachable.
+    }
   }
   const [links, versions] = await Promise.all([
     listDocumentLinks(supabase, organizationId, documentId),
@@ -668,7 +704,7 @@ export async function getDocumentDetail(
     contentText: (data.content_text as string | null) ?? null,
     contentBase64: (data.content_base64 as string | null) ?? null,
     bodyJson: parseAuthoredBody(data.body_json) ?? null,
-    signwellStatus: null,
+    signwellStatus,
     links,
     versions,
     activity: buildActivity({
