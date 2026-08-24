@@ -4,9 +4,10 @@
 **Status:** **PASS — PARTNER-001 PARTNER PROGRAM FOUNDATION IMPLEMENTED**  
 **Date:** 2026-08-24  
 **Authority:** Owner implementation authorization for PARTNER-001. Design: [docs/231](../231-partner-001-partner-program-foundation/index.md). ADR: [ADR-038](../18-decision-log/adr-038-partner-program-foundation.md).  
-**Production deploy:** **NO**  
-**Production migration:** **NO**  
-**STOP:** Do not deploy, do not apply the migration, do not start PARTNER-002.
+**Production deploy:** **NO** (historical in-repo PASS only)  
+**Production migration:** **NO** (historical in-repo PASS only)  
+**Production-live record:** [docs/233](../233-partner-001-production-certification/index.md)  
+**STOP:** This file remains the in-repo implementation PASS. Do not start PARTNER-002.
 
 ---
 
