@@ -7,7 +7,7 @@ import {
   loadConversation,
   loadMessageableResident
 } from "../../../../../lib/communications/conversation-service";
-import { assertMediaEntityAccess, requireMediaActor } from "../../../../../lib/media/authz";
+import { assertMediaEntityAccess, resolveMediaActorForEntity } from "../../../../../lib/media/authz";
 import { createUploadIntent } from "../../../../../lib/media/media-service";
 
 export async function POST(request: Request) {
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     relatedEntityType?: unknown;
     relatedEntityId?: unknown;
     originalFileName?: unknown;
+    attachmentCategory?: unknown;
     conversationId?: unknown;
     tenantAccountId?: unknown;
   } | null;
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
   }
 
   const conversationMedia = payload.relatedEntityType === "conversation_message";
-  const mediaAuthz = conversationMedia ? null : await requireMediaActor("write");
+  const mediaAuthz = conversationMedia ? null : await resolveMediaActorForEntity("write", payload.relatedEntityType);
   const conversationAuthz = conversationMedia ? await requireConversationMediaActor("write") : null;
   const authz = conversationAuthz ?? mediaAuthz;
   if (!authz || "error" in authz) return authz?.error ?? NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -85,7 +86,8 @@ export async function POST(request: Request) {
     fileSize: payload.fileSize,
     relatedEntityType: payload.relatedEntityType,
     relatedEntityId: conversationMedia ? null : relatedEntityId,
-    originalFileName: payload.originalFileName
+    originalFileName: payload.originalFileName,
+    attachmentCategory: payload.attachmentCategory
   });
 
   if ("error" in result) {

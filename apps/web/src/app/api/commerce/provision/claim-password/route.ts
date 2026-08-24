@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { COM_002_FLAGS } from "@mpa/shared";
+import { COM_002_FLAGS, meetsMinPasswordLength } from "@mpa/shared";
 import { ensurePurchaseFromStripeSession } from "../../../../../lib/saas-stripe/ensure-purchase-from-stripe";
 import {
   consumeProvisioningBindToken,
@@ -43,14 +43,14 @@ export async function POST(request: Request) {
   const password = body.password ?? "";
   const bindToken = typeof body.bindToken === "string" ? body.bindToken.trim() : "";
 
-  if (!sessionId || !email || password.length < 8) {
+  if (!sessionId || !email || !meetsMinPasswordLength(password)) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
   if (!bindToken) {
     return NextResponse.json({ error: "bind_token_required" }, { status: 401 });
   }
 
-  if (!consumeClaimPasswordRateLimit(clientKey(request, email, sessionId))) {
+  if (!(await consumeClaimPasswordRateLimit(clientKey(request, email, sessionId)))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 

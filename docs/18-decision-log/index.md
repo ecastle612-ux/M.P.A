@@ -64,6 +64,9 @@ What other options were evaluated and why were they rejected?
 | [ADR-030](./adr-030-operational-workspace-documents-tables.md) | Operational Workspace — Documents and Tables (OPS-001) | **Accepted** | 2026-08-14 |
 | [ADR-032](./adr-032-report-shape-and-post-auth-home.md) | Shared Report Shape Isolation and Canonical Post-Auth Home | **Accepted** | 2026-08-15 |
 | [ADR-033](./adr-033-member-operating-scope.md) | Member Operating Scope (Complete Delegated Operations) | **Accepted** | 2026-08-15 |
+| [ADR-034](./adr-034-facility-public-work-request-intake.md) | Facility Public Work Request Intake (Custom Forms + QR / Link) | **Accepted** | 2026-08-17 (accepted 2026-08-18) |
+| [ADR-036](./adr-036-fo-operational-efficiency-system.md) | FO Operational Efficiency System (PM / Assets QR / Checklists / Tech Mobile / Routing) | **Accepted** (Slice 1 authorized) | 2026-08-18 |
+| [ADR-037](./adr-037-app-wide-simplicity-navigation.md) | App-Wide Simplicity and Navigation Efficiency | **Accepted** (Slice 1 My Work / deep links only) | 2026-08-18 |
 
 ---
 

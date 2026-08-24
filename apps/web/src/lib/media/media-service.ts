@@ -1,9 +1,12 @@
 import {
   MEDIA_BUCKET,
+  MEDIA_MAX_RECEIPTS_PER_ENTITY,
   MEDIA_SIGNED_URL_TTL_SECONDS,
   buildMediaStoragePath,
   extensionForMediaMime,
+  isMediaAttachmentCategory,
   validateMediaUploadIntent,
+  type MediaAttachmentCategory,
   type MediaEntityType,
   type MediaFileType,
   type MediaStatus
@@ -14,9 +17,10 @@ import { createServiceRoleClient } from "../supabase/service-role";
 export type MediaAttachmentRow = {
   id: string;
   organization_id: string;
-  uploaded_by_user_id: string;
+  uploaded_by_user_id: string | null;
   related_entity_type: MediaEntityType;
   related_entity_id: string | null;
+  attachment_category: MediaAttachmentCategory;
   file_type: MediaFileType;
   mime_type: string;
   storage_reference: string;
@@ -31,6 +35,34 @@ export type MediaAttachmentRow = {
   deleted_at: string | null;
 };
 
+async function countActiveReceipts(input: {
+  supabase: SupabaseClient;
+  organizationId: string;
+  relatedEntityType: MediaEntityType;
+  relatedEntityId: string | null;
+  userId: string | null;
+}): Promise<number> {
+  let query = input.supabase
+    .from("media_attachments")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", input.organizationId)
+    .eq("related_entity_type", input.relatedEntityType)
+    .eq("attachment_category", "receipt")
+    .in("status", ["pending", "ready"])
+    .is("deleted_at", null);
+  if (input.relatedEntityId) {
+    query = query.eq("related_entity_id", input.relatedEntityId);
+  } else {
+    query = query.is("related_entity_id", null);
+    if (input.userId) {
+      query = query.eq("uploaded_by_user_id", input.userId);
+    }
+  }
+  const { count, error } = await query;
+  if (error) return 0;
+  return count ?? 0;
+}
+
 function storageClient(): SupabaseClient | null {
   try {
     if (process.env["VITEST"]) return null;
@@ -43,12 +75,13 @@ function storageClient(): SupabaseClient | null {
 export async function createUploadIntent(input: {
   supabase: SupabaseClient;
   organizationId: string;
-  userId: string;
+  userId: string | null;
   mimeType: unknown;
   fileSize: unknown;
   relatedEntityType: unknown;
   relatedEntityId?: string | null;
   originalFileName?: unknown;
+  attachmentCategory?: unknown;
 }): Promise<
   | {
       media: MediaAttachmentRow;
@@ -63,10 +96,30 @@ export async function createUploadIntent(input: {
     mimeType: input.mimeType,
     fileSize: input.fileSize,
     relatedEntityType: input.relatedEntityType,
-    originalFileName: input.originalFileName
+    originalFileName: input.originalFileName,
+    attachmentCategory: input.attachmentCategory
   });
   if (!validated.ok) {
     return { error: validated.error, status: 400 };
+  }
+
+  if (validated.attachmentCategory === "receipt") {
+    const limit = await countActiveReceipts({
+      supabase: input.supabase,
+      organizationId: input.organizationId,
+      relatedEntityType: validated.relatedEntityType,
+      relatedEntityId:
+        typeof input.relatedEntityId === "string" && input.relatedEntityId.length > 0
+          ? input.relatedEntityId
+          : null,
+      userId: input.userId
+    });
+    if (limit >= MEDIA_MAX_RECEIPTS_PER_ENTITY) {
+      return {
+        error: `You can attach up to ${MEDIA_MAX_RECEIPTS_PER_ENTITY} receipts.`,
+        status: 400
+      };
+    }
   }
 
   const mediaId = crypto.randomUUID();
@@ -91,6 +144,7 @@ export async function createUploadIntent(input: {
       uploaded_by_user_id: input.userId,
       related_entity_type: validated.relatedEntityType,
       related_entity_id: relatedEntityId,
+      attachment_category: validated.attachmentCategory,
       file_type: validated.fileType,
       mime_type: validated.mimeType,
       storage_reference: path,
@@ -100,7 +154,9 @@ export async function createUploadIntent(input: {
       sort_order: 0,
       status: "pending",
       metadata: {
-        original_filename: validated.originalFileName
+        original_filename: validated.originalFileName,
+        classification: validated.attachmentCategory,
+        reserved_for: validated.attachmentCategory === "receipt" ? "future_extraction" : undefined
       },
       created_at: nowIso,
       updated_at: nowIso
@@ -259,15 +315,20 @@ export async function listMediaForEntity(input: {
   organizationId: string;
   relatedEntityType: MediaEntityType;
   relatedEntityId: string;
+  attachmentCategory?: MediaAttachmentCategory;
 }): Promise<MediaAttachmentRow[]> {
-  const { data, error } = await input.supabase
+  let query = input.supabase
     .from("media_attachments")
     .select("*")
     .eq("organization_id", input.organizationId)
     .eq("related_entity_type", input.relatedEntityType)
     .eq("related_entity_id", input.relatedEntityId)
     .eq("status", "ready")
-    .is("deleted_at", null)
+    .is("deleted_at", null);
+  if (input.attachmentCategory && isMediaAttachmentCategory(input.attachmentCategory)) {
+    query = query.eq("attachment_category", input.attachmentCategory);
+  }
+  const { data, error } = await query
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
 
@@ -319,21 +380,35 @@ export async function softDeleteMedia(input: {
   }
 
   const nowIso = new Date().toISOString();
-  const { data, error } = await input.supabase
+  // SELECT RLS is `deleted_at IS NULL`, so a member UPDATE that sets deleted_at fails
+  // WITH CHECK. Persist through the existing service-role client after the user-scoped
+  // load + uploader/manager gate above. Tests without service role keep the user client.
+  const writer = storageClient() ?? input.supabase;
+  const { error, count } = await writer
     .from("media_attachments")
-    .update({
-      status: "deleted",
-      deleted_at: nowIso,
-      updated_at: nowIso
-    })
+    .update(
+      {
+        status: "deleted",
+        deleted_at: nowIso,
+        updated_at: nowIso
+      },
+      { count: "exact" }
+    )
     .eq("id", input.mediaId)
-    .eq("organization_id", input.organizationId)
-    .select("*")
-    .single();
+    .eq("organization_id", input.organizationId);
 
-  if (error || !data) {
-    return { error: error?.message ?? "Failed to delete media.", status: 400 };
+  if (error) {
+    return { error: error.message, status: 400 };
   }
+  if (!count) {
+    return { error: "Failed to delete media.", status: 400 };
+  }
+  const data = {
+    ...(existing as MediaAttachmentRow),
+    status: "deleted" as const,
+    deleted_at: nowIso,
+    updated_at: nowIso
+  };
 
   const storage = storageClient();
   if (storage && typeof existing.storage_reference === "string") {

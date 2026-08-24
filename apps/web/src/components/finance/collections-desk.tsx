@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { formatMoney } from "@mpa/shared";
 import { Alert, Badge, Button, EmptyState, Input, Select, TableScroll } from "@mpa/ui";
 import { isFinanceM5Authorized } from "../../lib/finance/m5-hard-stop";
+import { ReceiptAttachmentField } from "../media/receipt-attachment-field";
 
 type Aging = {
   current: number;
@@ -117,6 +118,8 @@ export function CollectionsDesk() {
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [invoiceAmount, setInvoiceAmount] = useState("");
   const [invoiceDescription, setInvoiceDescription] = useState("");
+  const [pendingReceiptIds, setPendingReceiptIds] = useState<string[]>([]);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState("");
   const [arrangementLeaseId, setArrangementLeaseId] = useState("");
   const [arrangementTotal, setArrangementTotal] = useState("");
   const [arrangementInstallment, setArrangementInstallment] = useState("");
@@ -532,7 +535,7 @@ export function CollectionsDesk() {
             onSubmit={(event) => {
               event.preventDefault();
               void run(async () => {
-                await fetchJson("/api/finance/vendor-invoices", {
+                const created = await fetchJson<{ invoice: { id: string } }>("/api/finance/vendor-invoices", {
                   method: "POST",
                   body: JSON.stringify({
                     vendorId: invoiceVendorId,
@@ -543,9 +546,21 @@ export function CollectionsDesk() {
                     dueAt: new Date().toISOString().slice(0, 10)
                   })
                 });
+                if (pendingReceiptIds.length > 0 && created.invoice?.id) {
+                  await fetchJson("/api/shared/media", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      mediaIds: pendingReceiptIds,
+                      relatedEntityType: "vendor_invoice",
+                      relatedEntityId: created.invoice.id
+                    })
+                  });
+                }
                 setInvoiceNumber("");
                 setInvoiceAmount("");
                 setInvoiceDescription("");
+                setPendingReceiptIds([]);
+                setSelectedInvoiceId(created.invoice.id);
               });
             }}
           >
@@ -611,6 +626,11 @@ export function CollectionsDesk() {
                 onChange={(event) => setInvoiceDescription(event.target.value)}
               />
             </label>
+            <ReceiptAttachmentField
+              relatedEntityType="vendor_invoice"
+              value={pendingReceiptIds}
+              onChange={setPendingReceiptIds}
+            />
             <Button type="submit" disabled={busy || !invoiceVendorId}>
               Submit invoice
             </Button>
@@ -642,6 +662,13 @@ export function CollectionsDesk() {
                     </td>
                     <td className="px-3 py-2">
                       <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="text-xs text-[var(--mpa-color-brand-primary)] underline"
+                          onClick={() => setSelectedInvoiceId(invoice.id)}
+                        >
+                          Receipts
+                        </button>
                         {["submitted", "in_review", "changes_requested"].includes(invoice.status) ? (
                           <button
                             type="button"
@@ -716,6 +743,29 @@ export function CollectionsDesk() {
             </table>
           </TableScroll>
         )}
+        {selectedInvoiceId ? (
+          <div className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold">
+                Receipts for{" "}
+                {invoices.find((invoice) => invoice.id === selectedInvoiceId)?.invoice_number ??
+                  "selected invoice"}
+              </h4>
+              <button
+                type="button"
+                className="text-xs text-[var(--mpa-color-brand-primary)] underline"
+                onClick={() => setSelectedInvoiceId("")}
+              >
+                Close
+              </button>
+            </div>
+            <ReceiptAttachmentField
+              key={selectedInvoiceId}
+              relatedEntityType="vendor_invoice"
+              relatedEntityId={selectedInvoiceId}
+            />
+          </div>
+        ) : null}
       </section>
 
       <section id="vendor-payments" className="scroll-mt-24 space-y-3">

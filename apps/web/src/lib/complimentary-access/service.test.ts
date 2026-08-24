@@ -94,7 +94,10 @@ describe("docs/185 complimentary grant service", () => {
     );
     expect(first.ok).toBe(true);
     if (!first.ok) return;
-    const claimed = await claimComplimentaryAccess({ token: first.claimToken }, ctx.deps);
+    const claimed = await claimComplimentaryAccess(
+      { token: first.claimToken, password: "password1234" },
+      ctx.deps
+    );
     expect(claimed.ok).toBe(true);
     const resent = await resendComplimentaryAccess(first.grant.id, actor, ctx.deps);
     expect(resent.ok).toBe(true);
@@ -163,7 +166,10 @@ describe("docs/185 complimentary grant service", () => {
     );
     expect(sent.ok).toBe(true);
     if (!sent.ok) return;
-    const claimed = await claimComplimentaryAccess({ token: sent.claimToken }, ctx.deps);
+    const claimed = await claimComplimentaryAccess(
+      { token: sent.claimToken, password: "password1234" },
+      ctx.deps
+    );
     expect(claimed.ok).toBe(true);
     if (!claimed.ok) return;
     ctx.store.save({
@@ -235,5 +241,27 @@ describe("docs/185 complimentary grant service", () => {
     expect(sent.grant.claimTokenHash).toBe(hashComplimentaryClaimToken(sent.claimToken));
     const rejected = await claimComplimentaryAccess({ token: `${sent.claimToken}x` }, ctx.deps);
     expect(rejected.ok).toBe(false);
+  });
+
+  it("rejects a new complimentary claim with a password shorter than 12", async () => {
+    const ctx = deps();
+    const sent = await sendComplimentaryAccess(
+      {
+        email: "short@example.com",
+        grantType: "tester",
+        productSku: "mpa_property_manager",
+        durationId: "30d",
+        limitMode: "product_normal"
+      },
+      actor,
+      ctx.deps
+    );
+    expect(sent.ok).toBe(true);
+    if (!sent.ok) return;
+    const rejected = await claimComplimentaryAccess(
+      { token: sent.claimToken, password: "password123" },
+      ctx.deps
+    );
+    expect(rejected).toEqual({ ok: false, error: "password_too_short" });
   });
 });

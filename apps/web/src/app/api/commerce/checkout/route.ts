@@ -8,6 +8,7 @@ import { acquisitionStateTokenFromRequest } from "../../../../lib/commerce/acqui
 import { getAcquisitionByQuoteId } from "../../../../lib/commerce/acquisition-session-store";
 import { createUnitVolumeCheckoutSession } from "../../../../lib/saas-stripe/create-checkout-session";
 import { unitVolumeCheckoutGateForQuote } from "../../../../lib/saas-stripe/client";
+import { partnerRefFromRequest } from "../../../../lib/partners/cookie";
 
 export const runtime = "nodejs";
 
@@ -106,11 +107,13 @@ export async function POST(request: Request) {
   const idempotencyKey =
     typeof body["idempotencyKey"] === "string" ? body["idempotencyKey"] : undefined;
 
+  const partnerRef = partnerRefFromRequest(request);
   const result = await createUnitVolumeCheckoutSession({
     quote: record.quote,
     clientBody: body,
     ...(customerEmail ? { customerEmail } : {}),
     ...(demoSessionId ? { demoSessionId } : {}),
+    ...(partnerRef ? { partnerRef } : {}),
     ...(idempotencyKey ? { idempotencyKey } : {})
   });
 

@@ -227,8 +227,12 @@ export {
   buildDailyOpsGreeting,
   buildDailyOpsAssistantBriefing,
   buildDailyOpsReadyAssistantCopy,
+  resolveDailyOpsBriefingAccess,
+  MPA_ASSISTANT_LABEL,
+  MPA_ASSISTANT_KIND,
   type DailyOpsAttentionItem,
-  type DailyOpsBriefingInput
+  type DailyOpsBriefingInput,
+  type DailyOpsBriefingAccess
 } from "./daily-ops";
 
 export {
