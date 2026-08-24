@@ -99,6 +99,11 @@ export const MASTER_ADMIN_NAV: readonly MasterAdminNavGroup[] = [
         href: "/admin/commercial/checkout",
         label: "Checkout",
         description: "SaaS checkout verification for payment troubleshooting."
+      },
+      {
+        href: "/admin/commercial/partners",
+        label: "Partners",
+        description: "Partner applications, slugs, referrals, and commission tracking."
       }
     ]
   }

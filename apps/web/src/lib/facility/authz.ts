@@ -35,6 +35,30 @@ export async function requireFacilityAssetPermission(
   });
 }
 
+export async function requireFacilityPreventivePermission() {
+  return requireAuthorizedAction({
+    capability: "pm.maintenance:write",
+    entitlement: "facility.preventive",
+    allowedRoles: [...FACILITY_MANAGER_ROLES]
+  });
+}
+
+export async function requireFacilityRequestFormsPermission() {
+  return requireAuthorizedAction({
+    capability: "pm.maintenance:write",
+    entitlement: "facility.request_forms",
+    allowedRoles: [...FACILITY_MANAGER_ROLES]
+  });
+}
+
+export async function requireFacilityRoutingPermission() {
+  return requireAuthorizedAction({
+    capability: "pm.maintenance:write",
+    entitlement: "facility.routing",
+    allowedRoles: [...FACILITY_MANAGER_ROLES]
+  });
+}
+
 export async function requireFacilityInventoryPermission(
   capability: PermissionCapability,
   options?: { managerOnly?: boolean; allowedRoles?: readonly UserRole[] }

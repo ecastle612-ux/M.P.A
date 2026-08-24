@@ -1,4 +1,9 @@
-import { defaultOrganizationName, storedScopeForNewMembership, type ProductSku } from "@mpa/shared";
+import {
+  defaultOrganizationName,
+  meetsMinPasswordLength,
+  storedScopeForNewMembership,
+  type ProductSku
+} from "@mpa/shared";
 import { createOrganizationSlugFromName } from "../organization/contracts";
 import { serverEnv } from "../env/server-env";
 import { loadComplimentaryStoreFromDb, persistComplimentaryEvent, persistComplimentaryGrant } from "./durable";
@@ -57,7 +62,7 @@ export async function createRuntimeComplimentaryDeps(
         return existing ?? { id: `pending_user_${email}`, email };
       }
       if (existing) {
-        if (password && password.length >= 8) {
+        if (meetsMinPasswordLength(password)) {
           await supabase.auth.admin.updateUserById(existing.id, {
             password,
             email_confirm: true
@@ -67,7 +72,7 @@ export async function createRuntimeComplimentaryDeps(
       }
       const created = await supabase.auth.admin.createUser({
         email,
-        ...(password && password.length >= 8 ? { password } : {}),
+        ...(meetsMinPasswordLength(password) ? { password } : {}),
         email_confirm: true,
         user_metadata: { mpa_complimentary: true }
       });
