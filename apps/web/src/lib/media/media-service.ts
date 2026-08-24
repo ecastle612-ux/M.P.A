@@ -380,9 +380,11 @@ export async function softDeleteMedia(input: {
   }
 
   const nowIso = new Date().toISOString();
-  // Do not RETURNING/select the updated row: SELECT RLS hides deleted_at IS NOT NULL,
-  // which makes PostgREST report a WITH CHECK violation on an otherwise valid soft-delete.
-  const { error, count } = await input.supabase
+  // SELECT RLS is `deleted_at IS NULL`, so a member UPDATE that sets deleted_at fails
+  // WITH CHECK. Persist through the existing service-role client after the user-scoped
+  // load + uploader/manager gate above. Tests without service role keep the user client.
+  const writer = storageClient() ?? input.supabase;
+  const { error, count } = await writer
     .from("media_attachments")
     .update(
       {
