@@ -73,6 +73,8 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForPath("/partner/services")).toBe("platform.partner_services");
     expect(requiredEntitlementForPath("/partner/earnings")).toBe("platform.partner_services");
     expect(requiredEntitlementForPath("/partner/profile")).toBe("platform.partner_services");
+    expect(requiredEntitlementForPath("/partner/properties")).toBe("platform.partner_services");
+    expect(requiredEntitlementForApiPath("/api/partners/property-portals")).toBe("platform.partner_services");
   });
 
   it("denies FO SKU on finance and property APIs (C1/C2/C3)", () => {

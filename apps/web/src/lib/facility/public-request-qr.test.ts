@@ -11,6 +11,14 @@ describe("public request QR payload", () => {
     expect(svg).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
   });
 
+  it("accepts a property-specific partner portal URL without UUIDs", async () => {
+    const url = "https://www.my-property-assistant.com/request/northstar-property-services/maple-apartments";
+    expect(assertSafePublicRequestUrl(url).ok).toBe(true);
+    const svg = await buildPublicRequestQrSvg(url);
+    expect(svg).toContain("svg");
+    expect(svg).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  });
+
   it("rejects internal identifiers in a QR payload", () => {
     expect(
       assertSafePublicRequestUrl(

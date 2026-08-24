@@ -7,8 +7,10 @@ import {
   getPartnerRequestAuthorized,
   mutatePartnerRequest,
   resolveLivePartnerPortal,
+  submitPartnerPropertyServiceRequest,
   submitPartnerServiceRequest
 } from "./request-service";
+import { resetMemoryPartnerPropertyPortalStore, resetMemoryPropertyCatalog } from "./property-portal-store";
 
 const application = {
   companyName: "NorthStar Property Services",
@@ -65,6 +67,8 @@ describe("PARTNER-002 request portals", () => {
   beforeEach(() => {
     resetMemoryPartnerStore();
     resetMemoryPartnerRequestStore();
+    resetMemoryPartnerPropertyPortalStore();
+    resetMemoryPropertyCatalog();
   });
 
   it("enables Certified Service and Strategic portals and denies Referral", async () => {
@@ -254,5 +258,12 @@ describe("PARTNER-002 request portals", () => {
       { store, requests }
     );
     expect(forged.ok).toBe(false);
+    const propertyForged = await submitPartnerPropertyServiceRequest(
+      slug,
+      "maple-apartments",
+      { ...validRequest, property_id: "11111111-1111-4111-8111-111111111111" },
+      { store, requests }
+    );
+    expect(propertyForged.ok).toBe(false);
   });
 });
