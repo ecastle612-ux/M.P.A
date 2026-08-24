@@ -8,12 +8,13 @@ export const MEDIA_ENTITY_TYPES = [
   "facility_asset",
   "facility_request_intake",
   "vendor_invoice",
-  "partner_service_request"
+  "partner_service_request",
+  "partner_branding"
 ] as const;
 
 export type MediaEntityType = (typeof MEDIA_ENTITY_TYPES)[number];
 
-export const MEDIA_ATTACHMENT_CATEGORIES = ["evidence", "receipt"] as const;
+export const MEDIA_ATTACHMENT_CATEGORIES = ["evidence", "receipt", "partner_branding"] as const;
 export type MediaAttachmentCategory = (typeof MEDIA_ATTACHMENT_CATEGORIES)[number];
 
 export const MEDIA_FILE_TYPES = ["image", "video", "document"] as const;
@@ -61,6 +62,7 @@ export const MEDIA_MAX_DOCUMENT_BYTES = MEDIA_MAX_IMAGE_BYTES;
 export const MEDIA_MAX_VIDEO_DURATION_SECONDS = 60;
 export const MEDIA_SIGNED_URL_TTL_SECONDS = 15 * 60;
 export const MEDIA_MAX_RECEIPTS_PER_ENTITY = 10;
+export const MEDIA_MAX_PARTNER_LOGO_BYTES = 2 * 1024 * 1024;
 export const MEDIA_BUCKET = "media";
 
 export function isMediaEntityType(value: unknown): value is MediaEntityType {
@@ -88,6 +90,9 @@ export function mediaFileTypeForMime(mime: string): MediaFileType | null {
 
 export function maxBytesForMediaMime(mime: string, category: MediaAttachmentCategory = "evidence"): number {
   const kind = mediaFileTypeForMime(mime);
+  if (category === "partner_branding") {
+    return kind === "image" ? MEDIA_MAX_PARTNER_LOGO_BYTES : 0;
+  }
   if (kind === "image") return MEDIA_MAX_IMAGE_BYTES;
   if (kind === "video") return category === "receipt" ? 0 : MEDIA_MAX_VIDEO_BYTES;
   if (kind === "document") return category === "receipt" ? MEDIA_MAX_DOCUMENT_BYTES : 0;
@@ -120,14 +125,18 @@ export function validateMediaUploadIntent(input: {
   const mimeAllowed =
     attachmentCategory === "receipt"
       ? isReceiptAllowedMimeType(input.mimeType)
-      : isMediaAllowedMimeType(input.mimeType);
+      : attachmentCategory === "partner_branding"
+        ? (MEDIA_IMAGE_MIME_TYPES as readonly string[]).includes(String(input.mimeType))
+        : isMediaAllowedMimeType(input.mimeType);
   if (!mimeAllowed) {
     return {
       ok: false,
       error:
         attachmentCategory === "receipt"
           ? "Unsupported receipt file. Allowed: JPG, PNG, HEIC, WebP, PDF."
-          : "Unsupported file type. Allowed: JPG, PNG, HEIC, WebP, MP4, MOV."
+          : attachmentCategory === "partner_branding"
+            ? "Partner logos must be an image. Allowed: JPG, PNG, HEIC, WebP."
+            : "Unsupported file type. Allowed: JPG, PNG, HEIC, WebP, MP4, MOV."
     };
   }
   if (typeof input.fileSize !== "number" || !Number.isFinite(input.fileSize) || input.fileSize <= 0) {

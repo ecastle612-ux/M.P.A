@@ -25,6 +25,12 @@ export class MemoryPartnerStore implements PartnerStore {
     );
   }
 
+  async getPartnerByOrganization(organizationId: string): Promise<PlatformPartner | null> {
+    const rows = [...this.partners.values()].filter((row) => row.organizationId === organizationId);
+    rows.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return rows[0] ?? null;
+  }
+
   async insertPartner(partner: PlatformPartner): Promise<PlatformPartner> {
     this.partners.set(partner.id, partner);
     return partner;

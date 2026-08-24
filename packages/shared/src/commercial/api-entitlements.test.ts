@@ -68,7 +68,11 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForApiPath("/api/partners/ref")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/public/partners/northstar-property-services")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/partners/requests")).toBe("platform.partner_services");
+    expect(requiredEntitlementForApiPath("/api/partners/dashboard")).toBe("platform.partner_services");
+    expect(requiredEntitlementForPath("/partner")).toBe("platform.partner_services");
     expect(requiredEntitlementForPath("/partner/services")).toBe("platform.partner_services");
+    expect(requiredEntitlementForPath("/partner/earnings")).toBe("platform.partner_services");
+    expect(requiredEntitlementForPath("/partner/profile")).toBe("platform.partner_services");
   });
 
   it("denies FO SKU on finance and property APIs (C1/C2/C3)", () => {
@@ -216,6 +220,13 @@ describe("PLAT-002 API entitlement catalog", () => {
         storedScope: "both"
       }).allowed
     ).toBe(false);
+  });
+
+  it("grants Partner Command Center to PM, FO, and Complete SKUs", () => {
+    expect(evaluatePathEntitlement({ pathname: "/partner", sku: "mpa_property_manager" }).allowed).toBe(true);
+    expect(evaluatePathEntitlement({ pathname: "/partner", sku: "mpa_facility_operations" }).allowed).toBe(true);
+    expect(evaluatePathEntitlement({ pathname: "/partner", sku: "mpa_complete_platform" }).allowed).toBe(true);
+    expect(evaluatePathEntitlement({ pathname: "/partner", sku: null }).allowed).toBe(false);
   });
 
   it("Complete is the union", () => {

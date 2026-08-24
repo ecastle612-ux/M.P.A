@@ -71,7 +71,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
   if (path.startsWith("/shared/")) {
     return "deny";
   }
-  if (path === "/partner/services" || path.startsWith("/partner/services/")) {
+  if (path === "/partner" || path.startsWith("/partner/")) {
     return "platform.partner_services";
   }
 
@@ -463,6 +463,7 @@ export function searchCatalogForSku(
       )
     );
 
+    push(decisionPath("/partner", "Partner Command Center", "Shared Platform", "platform.partner_services"));
     push(decisionPath("/shared/documents", "Documents", "Shared Platform", "platform.documents"));
     push(decisionPath("/shared/tables", "Tables", "Shared Platform", "platform.documents"));
     push(decisionPath("/shared/reports", "Reporting & Analytics", "Shared Platform", "platform.reports"));

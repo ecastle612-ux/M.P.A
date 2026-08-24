@@ -1,6 +1,8 @@
 import type { PartnerCommissionStatus, PartnerStatus, PartnerType } from "@mpa/shared";
 import { createServiceRoleClient } from "../supabase/service-role";
+import { notifyPartnerStaff } from "./partner-notifications";
 import { getMemoryPartnerStore } from "./store";
+import type { PartnerServiceDeps } from "./service";
 import type {
   PartnerCommission,
   PartnerEvent,
@@ -60,6 +62,7 @@ function mapPartner(row: Record<string, unknown>): PlatformPartner {
     organizationId: typeof row["organization_id"] === "string" ? row["organization_id"] : null,
     publicPortalEnabled: Boolean(row["public_portal_enabled"]),
     portalDescription: typeof row["portal_description"] === "string" ? row["portal_description"] : null,
+    logoMediaId: typeof row["logo_media_id"] === "string" ? row["logo_media_id"] : null,
     commissionBps: typeof row["commission_bps"] === "number" ? row["commission_bps"] : 2000,
     approvedAt: typeof row["approved_at"] === "string" ? row["approved_at"] : null,
     activatedAt: typeof row["activated_at"] === "string" ? row["activated_at"] : null,
@@ -93,6 +96,7 @@ function partnerColumns(partner: PlatformPartner): Record<string, unknown> {
     organization_id: partner.organizationId,
     public_portal_enabled: partner.publicPortalEnabled,
     portal_description: partner.portalDescription,
+    logo_media_id: partner.logoMediaId,
     commission_bps: partner.commissionBps,
     approved_at: partner.approvedAt,
     activated_at: partner.activatedAt,
@@ -175,6 +179,18 @@ class SupabasePartnerStore implements PartnerStore {
       .from("platform_partners")
       .select("*")
       .eq("public_slug", slug)
+      .maybeSingle();
+    if (error || !data) return null;
+    return mapPartner(data as Record<string, unknown>);
+  }
+
+  async getPartnerByOrganization(organizationId: string): Promise<PlatformPartner | null> {
+    const { data, error } = await this.db
+      .from("platform_partners")
+      .select("*")
+      .eq("organization_id", organizationId)
+      .order("updated_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
     if (error || !data) return null;
     return mapPartner(data as Record<string, unknown>);
@@ -334,14 +350,14 @@ class SupabasePartnerStore implements PartnerStore {
   }
 }
 
-export async function loadPartnerDeps(): Promise<{ store: PartnerStore; durable: boolean }> {
+export async function loadPartnerDeps(): Promise<PartnerServiceDeps & { durable: boolean }> {
   if (process.env["VITEST"]) {
     return { store: getMemoryPartnerStore(), durable: false };
   }
   try {
     const db = createServiceRoleClient();
-    return { store: new SupabasePartnerStore(db), durable: true };
+    return { store: new SupabasePartnerStore(db), durable: true, notifyPartnerEvent: notifyPartnerStaff };
   } catch {
-    return { store: getMemoryPartnerStore(), durable: false };
+    return { store: getMemoryPartnerStore(), durable: false, notifyPartnerEvent: notifyPartnerStaff };
   }
 }

@@ -271,4 +271,54 @@ describe("PARTNER-001 partner service", () => {
     );
     expect(pendingPay.ok).toBe(false);
   });
+
+  it("notifies partner staff for attribution, earned commission, paid, and suspend", async () => {
+    const store = resetMemoryPartnerStore();
+    const kinds: string[] = [];
+    const deps = {
+      store,
+      notifyPartnerEvent: async (input: { kind: string }) => {
+        kinds.push(input.kind);
+      }
+    };
+    await persistApplication(application, deps);
+    const partner = (await store.listPartners())[0]!;
+    await mutatePartner({ partnerId: partner.id, action: "approve", actorUserId: "op-1" }, deps);
+    await mutatePartner({ partnerId: partner.id, action: "activate", actorUserId: "op-1" }, deps);
+    await mutatePartner(
+      { partnerId: partner.id, action: "update", actorUserId: "op-1", organizationId: "org-notify" },
+      deps
+    );
+    await recordPartnerAttribution(
+      { organizationId: "cust-1", slug: "northstar-property-services", source: "checkout_ref" },
+      deps
+    );
+    const earned = await recordPartnerCommissionFromPaidInvoice(
+      {
+        organizationId: "cust-1",
+        amountPaidCents: 10900,
+        stripeEventId: "evt-notify",
+        stripeInvoiceId: "in-notify"
+      },
+      deps
+    );
+    if (earned.ok && earned.commission) {
+      await mutatePartner(
+        {
+          partnerId: partner.id,
+          action: "mark_paid",
+          actorUserId: "op-1",
+          commissionId: earned.commission.id
+        },
+        deps
+      );
+    }
+    await mutatePartner({ partnerId: partner.id, action: "suspend", actorUserId: "op-1" }, deps);
+    expect(kinds).toEqual([
+      "referral_attributed",
+      "commission_earned",
+      "commission_paid",
+      "partner_suspended"
+    ]);
+  });
 });

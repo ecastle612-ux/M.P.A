@@ -41,6 +41,7 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/facility/inventory",
     "/facility/parts",
     "/facility/building-systems",
+    "/partner",
     "/partner/services",
     "/shared/documents",
     "/shared/tables",
@@ -568,8 +569,8 @@ export function navigationGroupsForSku(
     product: "shared",
     items: [
       {
-        href: "/partner/services",
-        label: "Partner Services",
+        href: "/partner",
+        label: "Partner Command Center",
         readiness: "aligned",
         entitlement: "platform.partner_services"
       },

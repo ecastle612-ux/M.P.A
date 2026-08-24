@@ -20,6 +20,8 @@ type Branding = {
   categories: PartnerServiceCategory[];
   title: string;
   poweredBy: string;
+  hasLogo?: boolean;
+  logoUrl?: string | null;
 };
 
 type Confirmation = {
@@ -153,6 +155,10 @@ export function PublicPartnerRequestPortal({
       }}
     >
       <header className="space-y-2">
+        {branding.logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={branding.logoUrl} alt={`${branding.companyName} logo`} className="h-14 w-14 object-contain" />
+        ) : null}
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
           {branding.companyName}
         </p>

@@ -89,7 +89,11 @@ export async function resolveLivePartnerPortal(
       slug: partner.publicSlug!,
       categories: categoriesForPartnerServices(partner.servicesOffered),
       title: `Service Requests — ${partner.companyName}`,
-      poweredBy: "Powered by M.P.A."
+      poweredBy: "Powered by M.P.A.",
+      hasLogo: Boolean(partner.logoMediaId),
+      logoUrl: partner.logoMediaId && partner.publicSlug
+        ? `/api/public/partners/${encodeURIComponent(partner.publicSlug)}/logo`
+        : null
     }
   };
 }

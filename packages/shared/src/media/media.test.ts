@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   MEDIA_MAX_IMAGE_BYTES,
+  MEDIA_MAX_PARTNER_LOGO_BYTES,
   MEDIA_MAX_VIDEO_BYTES,
   buildMediaStoragePath,
   validateMediaUploadIntent
@@ -148,6 +149,46 @@ describe("MEDIA-001 upload validation", () => {
       originalFileName: "note.jpg"
     });
     expect(result.ok).toBe(true);
+  });
+
+  it("accepts partner branding images and rejects video or oversized logos", () => {
+    const ok = validateMediaUploadIntent({
+      mimeType: "image/png",
+      fileSize: 2048,
+      relatedEntityType: "partner_branding",
+      attachmentCategory: "partner_branding",
+      originalFileName: "logo.png"
+    });
+    expect(ok.ok).toBe(true);
+    if (ok.ok) {
+      expect(ok.attachmentCategory).toBe("partner_branding");
+      expect(ok.fileType).toBe("image");
+    }
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "video/mp4",
+        fileSize: 1000,
+        relatedEntityType: "partner_branding",
+        attachmentCategory: "partner_branding"
+      }).ok
+    ).toBe(false);
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "image/png",
+        fileSize: MEDIA_MAX_PARTNER_LOGO_BYTES + 1,
+        relatedEntityType: "partner_branding",
+        attachmentCategory: "partner_branding"
+      }).ok
+    ).toBe(false);
+    expect(
+      buildMediaStoragePath({
+        organizationId: "org_1",
+        relatedEntityType: "partner_branding",
+        relatedEntityId: "partner_1",
+        mediaId: "media_logo",
+        extension: "png"
+      })
+    ).toBe("org_1/partner_branding/partner_1/media_logo/original.png");
   });
 
   it("builds org-isolated storage paths", () => {

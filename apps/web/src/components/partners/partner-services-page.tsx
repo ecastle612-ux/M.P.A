@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button, FormField, Input, Select } from "@mpa/ui";
+import { PartnerCommandCenterShell } from "./partner-command-center-shell";
 
 type QueueTab = "new" | "accepted" | "converted" | "declined";
 
@@ -173,13 +174,10 @@ export function PartnerServicesPage() {
   );
 
   return (
-    <main className="space-y-6 p-4 md:p-6">
-      <div>
-        <h1 className="font-display text-2xl font-semibold">Partner Services</h1>
-        <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Review customer service requests before they become work orders.
-        </p>
-      </div>
+    <PartnerCommandCenterShell
+      title="Service Requests"
+      subtitle="Review customer service requests before they become work orders."
+    >
 
       {portal ? (
         <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
@@ -256,7 +254,26 @@ export function PartnerServicesPage() {
         </form>
         {error ? <p className="text-sm text-[var(--mpa-color-text-danger,#B42318)]">{error}</p> : null}
         {notice ? <p className="text-sm text-[var(--mpa-color-text-secondary)]">{notice}</p> : null}
-        <div className="overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)]">
+        <div className="grid gap-3 md:hidden">
+          {rows.map((row) => (
+            <button
+              key={row.id}
+              type="button"
+              className="rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 text-left"
+              onClick={() => void openDetail(row.id)}
+            >
+              <p className="font-medium">{row.requesterName}</p>
+              <p className="text-sm">{row.propertyAddress}{row.unitLabel ? ` · ${row.unitLabel}` : ""}</p>
+              <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+                {row.categoryLabel} · {row.urgencyLabel} · {row.statusLabel}
+              </p>
+              <p className="text-xs text-[var(--mpa-color-text-muted)]">
+                {row.publicRef} · {new Date(row.createdAt).toLocaleString()}
+              </p>
+            </button>
+          ))}
+        </div>
+        <div className="hidden overflow-x-auto rounded-md border border-[var(--mpa-color-border-default)] md:block">
           <table className="min-w-full text-left text-sm">
             <thead className="bg-[var(--mpa-color-bg-subtle,#F7F8FA)]">
               <tr>
@@ -388,6 +405,6 @@ export function PartnerServicesPage() {
           </div>
         </section>
       ) : null}
-    </main>
+    </PartnerCommandCenterShell>
   );
 }

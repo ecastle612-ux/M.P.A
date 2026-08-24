@@ -26,6 +26,7 @@ export type PlatformPartner = {
   organizationId: string | null;
   publicPortalEnabled: boolean;
   portalDescription: string | null;
+  logoMediaId: string | null;
   commissionBps: number;
   approvedAt: string | null;
   activatedAt: string | null;
@@ -78,6 +79,7 @@ export type PartnerStore = {
   listPartners(): Promise<PlatformPartner[]>;
   getPartner(id: string): Promise<PlatformPartner | null>;
   getPartnerBySlug(slug: string): Promise<PlatformPartner | null>;
+  getPartnerByOrganization(organizationId: string): Promise<PlatformPartner | null>;
   insertPartner(partner: PlatformPartner): Promise<PlatformPartner>;
   updatePartner(partner: PlatformPartner): Promise<PlatformPartner>;
   listReferrals(partnerId?: string): Promise<PartnerReferral[]>;

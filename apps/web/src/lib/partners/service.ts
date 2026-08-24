@@ -6,6 +6,7 @@ import {
   eligibleRevenueCentsFromInvoice,
   isPartnerType,
   parsePartnerApplicationInput,
+  parsePartnerPublicProfileInput,
   parsePartnerRefParam,
   partnerAcceptsReferrals,
   proposePartnerSlug,
@@ -24,9 +25,46 @@ import type {
   PlatformPartner
 } from "./types";
 
+export type PartnerNotificationKind =
+  | "referral_attributed"
+  | "commission_earned"
+  | "commission_paid"
+  | "portal_disabled"
+  | "partner_suspended";
+
 export type PartnerServiceDeps = {
   store: PartnerStore;
+  notifyPartnerEvent?: (input: {
+    organizationId: string;
+    partnerName: string;
+    kind: PartnerNotificationKind;
+    title: string;
+    body: string;
+    href: string;
+  }) => Promise<void>;
 };
+
+async function notifyIfBound(
+  deps: PartnerServiceDeps,
+  partner: PlatformPartner,
+  input: {
+    kind: PartnerNotificationKind;
+    title: string;
+    body: string;
+    href: string;
+  }
+): Promise<void> {
+  if (!partner.organizationId || !deps.notifyPartnerEvent) return;
+  try {
+    await deps.notifyPartnerEvent({
+      organizationId: partner.organizationId,
+      partnerName: partner.companyName,
+      ...input
+    });
+  } catch {
+    // Notifications must never fail partner ledger or profile writes.
+  }
+}
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -106,6 +144,7 @@ export async function persistApplication(
     organizationId: null,
     publicPortalEnabled: false,
     portalDescription: null,
+    logoMediaId: null,
     commissionBps: DEFAULT_COMMISSION_BPS,
     approvedAt: null,
     activatedAt: null,
@@ -238,7 +277,7 @@ export async function mutatePartner(
     next.status = "active";
     next.activatedAt = nowIso();
     next.suspendedAt = null;
-  } else if (input.action === "suspend") {
+  } else   if (input.action === "suspend") {
     if (partner.status !== "active" && partner.status !== "approved") {
       return { ok: false, error: "Only approved or active partners can be suspended." };
     }
@@ -247,7 +286,25 @@ export async function mutatePartner(
     next.publicPortalEnabled = false;
   }
 
+  const portalWasDisabled = partner.publicPortalEnabled && !next.publicPortalEnabled;
+  const becameSuspended = partner.status !== "suspended" && next.status === "suspended";
+
   await deps.store.updatePartner(next);
+  if (becameSuspended) {
+    await notifyIfBound(deps, next, {
+      kind: "partner_suspended",
+      title: "Partner account suspended",
+      body: "Your M.P.A. Partner Program account is suspended. Historical information remains readable. New service requests are disabled.",
+      href: "/partner"
+    });
+  } else if (portalWasDisabled) {
+    await notifyIfBound(deps, next, {
+      kind: "portal_disabled",
+      title: "Service portal disabled",
+      body: "Your public service-request portal is no longer accepting new customer requests.",
+      href: "/partner/portal"
+    });
+  }
   await writeEvent(deps, {
     partnerId: next.id,
     action: input.action,
@@ -292,6 +349,15 @@ async function mutateCommission(
       updatedAt: nowIso()
     };
     await deps.store.updateCommission(next);
+    const partner = await deps.store.getPartner(row.partnerId);
+    if (partner) {
+      await notifyIfBound(deps, partner, {
+        kind: "commission_paid",
+        title: "Commission marked paid",
+        body: "A tracked Partner Program commission was marked paid. Payout processing is handled separately.",
+        href: "/partner/earnings"
+      });
+    }
     await writeEvent(deps, {
       partnerId: row.partnerId,
       action: "commission_paid",
@@ -376,6 +442,12 @@ export async function recordPartnerAttribution(
       flaggedReason,
       source: input.source
     }
+  });
+  await notifyIfBound(deps, partner, {
+    kind: "referral_attributed",
+    title: "Referral attributed",
+    body: "A new M.P.A. customer organization was attributed to your Partner Program referral.",
+    href: "/partner/referrals"
   });
   return { ok: true, referral: inserted, created: true, flaggedReason };
 }
@@ -481,6 +553,14 @@ export async function recordPartnerCommissionFromPaidInvoice(
       qualifyingMonthIndex: row.qualifyingMonthIndex
     }
   });
+  if (row.status === "earned") {
+    await notifyIfBound(deps, partner, {
+      kind: "commission_earned",
+      title: "Commission earned",
+      body: "A qualifying paid subscription month was recorded as tracked Partner Program earnings.",
+      href: "/partner/earnings"
+    });
+  }
   return { ok: true, commission: row };
 }
 
@@ -528,4 +608,54 @@ export async function voidPartnerCommissionsForRefund(
     updated += 1;
   }
   return { ok: true, updated };
+}
+
+export async function updatePartnerPublicProfile(
+  input: { organizationId: string; actorUserId: string; payload: unknown },
+  deps: PartnerServiceDeps = defaultPartnerDeps()
+): Promise<{ ok: true; partner: PlatformPartner } | { ok: false; error: string }> {
+  const partner = await deps.store.getPartnerByOrganization(input.organizationId);
+  if (!partner) {
+    return { ok: false, error: "No Partner Program account is bound to this workspace." };
+  }
+  const parsed = parsePartnerPublicProfileInput(input.payload);
+  if (!parsed.ok) {
+    return parsed;
+  }
+  const next: PlatformPartner = {
+    ...partner,
+    ...parsed.data,
+    updatedAt: nowIso()
+  };
+  await deps.store.updatePartner(next);
+  await writeEvent(deps, {
+    partnerId: next.id,
+    action: "profile_updated",
+    actorUserId: input.actorUserId,
+    payload: { fields: Object.keys(parsed.data) }
+  });
+  return { ok: true, partner: next };
+}
+
+export async function bindPartnerLogo(
+  input: { organizationId: string; actorUserId: string; mediaId: string },
+  deps: PartnerServiceDeps = defaultPartnerDeps()
+): Promise<{ ok: true; partner: PlatformPartner } | { ok: false; error: string }> {
+  const partner = await deps.store.getPartnerByOrganization(input.organizationId);
+  if (!partner) {
+    return { ok: false, error: "No Partner Program account is bound to this workspace." };
+  }
+  const next: PlatformPartner = {
+    ...partner,
+    logoMediaId: input.mediaId,
+    updatedAt: nowIso()
+  };
+  await deps.store.updatePartner(next);
+  await writeEvent(deps, {
+    partnerId: next.id,
+    action: "logo_updated",
+    actorUserId: input.actorUserId,
+    payload: { mediaId: input.mediaId }
+  });
+  return { ok: true, partner: next };
 }

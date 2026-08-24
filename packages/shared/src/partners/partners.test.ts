@@ -7,14 +7,19 @@ import {
   isReservedPartnerSlug,
   normalizePartnerSlug,
   parsePartnerApplicationInput,
+  parsePartnerPublicProfileInput,
   parsePartnerServiceRequestInput,
+  partnerDisplayStatus,
   partnerPortalIsLive,
+  partnerRateDisplay,
   partnerServiceRequestPath,
   eligibleRevenueCentsFromInvoice,
   parsePartnerRefParam,
   partnerReferralPath,
   proposePartnerSlug,
+  requestOperationalMetrics,
   shouldCreateCommission,
+  summarizeCommissionLedger,
   validatePartnerSlug,
   voidOrOffsetStatus
 } from "./index";
@@ -153,5 +158,59 @@ describe("PARTNER-001 shared contracts", () => {
         organizationId: "x"
       }).ok
     ).toBe(false);
+  });
+});
+
+describe("PARTNER-003 command center contracts", () => {
+  it("uses the partner's actual rate and human status labels", () => {
+    expect(partnerRateDisplay(2000).label).toBe("Founding Partner Rate: 20%");
+    expect(partnerRateDisplay(1500).label).toBe("Partner Rate: 15%");
+    expect(partnerRateDisplay(1500).founding).toBe(false);
+    expect(
+      partnerDisplayStatus({
+        status: "suspended",
+        partnerType: "certified_service",
+        publicPortalEnabled: false,
+        organizationId: "org-1",
+        publicSlug: "acme"
+      }).label
+    ).toBe("Suspended");
+    expect(
+      partnerDisplayStatus({
+        status: "active",
+        partnerType: "certified_service",
+        publicPortalEnabled: false,
+        organizationId: "org-1",
+        publicSlug: "acme"
+      }).label
+    ).toBe("Portal Disabled");
+  });
+
+  it("summarizes ledger and request metrics from real records", () => {
+    const ledger = summarizeCommissionLedger([
+      { status: "pending", commissionCents: 100 },
+      { status: "earned", commissionCents: 200 },
+      { status: "paid", commissionCents: 300 },
+      { status: "void", commissionCents: 50 }
+    ]);
+    expect(ledger.trackedCents).toBe(600);
+    expect(ledger.voidCents).toBe(50);
+    const metrics = requestOperationalMetrics([
+      { status: "submitted", createdAt: "2026-08-02T00:00:00.000Z" },
+      { status: "converted", createdAt: "2026-08-03T00:00:00.000Z" },
+      { status: "declined", createdAt: "2026-08-04T00:00:00.000Z" }
+    ], new Date("2026-08-24T00:00:00.000Z"));
+    expect(metrics.newCount).toBe(1);
+    expect(metrics.thisMonthCount).toBe(3);
+    expect(metrics.conversionRate).toBe(50);
+  });
+
+  it("rejects protected profile fields", () => {
+    expect(parsePartnerPublicProfileInput({ commissionBps: 2500 }).ok).toBe(false);
+    expect(parsePartnerPublicProfileInput({ status: "active" }).ok).toBe(false);
+    expect(parsePartnerPublicProfileInput({ partnerType: "strategic" }).ok).toBe(false);
+    expect(parsePartnerPublicProfileInput({ organizationId: "org-x" }).ok).toBe(false);
+    const allowed = parsePartnerPublicProfileInput({ portalDescription: "Local HVAC" });
+    expect(allowed.ok).toBe(true);
   });
 });
