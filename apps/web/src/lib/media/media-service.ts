@@ -40,7 +40,7 @@ async function countActiveReceipts(input: {
   organizationId: string;
   relatedEntityType: MediaEntityType;
   relatedEntityId: string | null;
-  userId: string;
+  userId: string | null;
 }): Promise<number> {
   let query = input.supabase
     .from("media_attachments")
@@ -53,7 +53,10 @@ async function countActiveReceipts(input: {
   if (input.relatedEntityId) {
     query = query.eq("related_entity_id", input.relatedEntityId);
   } else {
-    query = query.is("related_entity_id", null).eq("uploaded_by_user_id", input.userId);
+    query = query.is("related_entity_id", null);
+    if (input.userId) {
+      query = query.eq("uploaded_by_user_id", input.userId);
+    }
   }
   const { count, error } = await query;
   if (error) return 0;
