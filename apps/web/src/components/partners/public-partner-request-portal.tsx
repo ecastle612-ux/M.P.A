@@ -22,6 +22,7 @@ type Branding = {
   poweredBy: string;
   hasLogo?: boolean;
   logoUrl?: string | null;
+  unitHint?: string;
 };
 
 type Confirmation = {
@@ -31,10 +32,16 @@ type Confirmation = {
 
 export function PublicPartnerRequestPortal({
   slug,
-  branding
+  branding,
+  propertySlug,
+  propertyName,
+  propertyInstructions
 }: {
   slug: string;
   branding: Branding;
+  propertySlug?: string;
+  propertyName?: string;
+  propertyInstructions?: string | null;
 }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -91,14 +98,17 @@ export function PublicPartnerRequestPortal({
       for (const file of files) {
         mediaIds.push(await uploadFile(file));
       }
-      const response = await fetch(`/api/public/partners/${encodeURIComponent(slug)}`, {
+      const endpoint = propertySlug
+        ? `/api/public/partners/${encodeURIComponent(slug)}/${encodeURIComponent(propertySlug)}`
+        : `/api/public/partners/${encodeURIComponent(slug)}`;
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           requesterName: name,
           requesterEmail: email,
           requesterPhone: phone,
-          propertyAddress: address,
+          ...(propertySlug ? {} : { propertyAddress: address }),
           unitLabel: unit,
           category,
           description,
@@ -163,6 +173,12 @@ export function PublicPartnerRequestPortal({
           {branding.companyName}
         </p>
         <h1 className="font-display text-2xl font-semibold">{branding.title}</h1>
+        {propertyName ? (
+          <p className="text-lg font-semibold">Property: {propertyName}</p>
+        ) : null}
+        {propertyInstructions ? (
+          <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{propertyInstructions}</p>
+        ) : null}
         {branding.description ? (
           <p className="text-sm leading-6 text-[var(--mpa-color-text-secondary)]">{branding.description}</p>
         ) : null}
@@ -217,18 +233,20 @@ export function PublicPartnerRequestPortal({
         <p className="text-xs text-[var(--mpa-color-text-secondary)]">
           Enter an email or phone number so the partner can reach you.
         </p>
-        <FormField id="partner-request-address" label="Property or address" required>
-          <Input
-            id="partner-request-address"
-            name="address"
-            autoComplete="street-address"
-            className="min-h-12 text-base"
-            value={address}
-            onChange={(event) => setAddress(event.target.value)}
-            required
-          />
-        </FormField>
-        <FormField id="partner-request-unit" label="Unit, suite, or area">
+        {propertySlug ? null : (
+          <FormField id="partner-request-address" label="Property or address" required>
+            <Input
+              id="partner-request-address"
+              name="address"
+              autoComplete="street-address"
+              className="min-h-12 text-base"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              required
+            />
+          </FormField>
+        )}
+        <FormField id="partner-request-unit" label={branding.unitHint ?? "Unit, suite, or area"}>
           <Input
             id="partner-request-unit"
             name="unit"

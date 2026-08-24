@@ -38,6 +38,15 @@ export class MemoryPartnerRequestStore implements PartnerRequestStore {
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 
+  async listRequestSummaries(partnerId: string) {
+    return (await this.listRequests(partnerId)).map((row) => ({
+      partnerId: row.partnerId,
+      propertyPortalId: row.propertyPortalId,
+      status: row.status,
+      createdAt: row.createdAt
+    }));
+  }
+
   async insertEvent(row: PartnerRequestEvent): Promise<void> {
     this.events.push(row);
   }

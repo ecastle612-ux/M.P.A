@@ -59,6 +59,20 @@ type EventRow = {
   createdAt: string;
 };
 
+type PropertyPortalRow = {
+  id: string;
+  publicName: string;
+  publicSlug: string;
+  enabled: boolean;
+  displayUrl: string;
+  portalUrl: string;
+  qrSvg: string | null;
+  requestCount: number;
+  propertyId: string;
+  canonicalPropertyId?: string;
+  address: string;
+};
+
 export function PartnersConsole() {
   const [partners, setPartners] = useState<PartnerRow[] | null>(null);
   const [referrals, setReferrals] = useState<ReferralRow[]>([]);
@@ -72,6 +86,10 @@ export function PartnersConsole() {
   const [portalEnabled, setPortalEnabled] = useState(false);
   const [portalDescription, setPortalDescription] = useState("");
   const [qrSvg, setQrSvg] = useState<string | null>(null);
+  const [propertyPortals, setPropertyPortals] = useState<PropertyPortalRow[]>([]);
+  const [propertySlugEdit, setPropertySlugEdit] = useState("");
+  const [propertyNameEdit, setPropertyNameEdit] = useState("");
+  const [selectedPropertyPortalId, setSelectedPropertyPortalId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -142,6 +160,16 @@ export function PartnersConsole() {
     [partners, selectedId]
   );
 
+  async function loadPropertyPortals(partnerId: string) {
+    const response = await fetch(`/api/admin/partners/property-portals?partnerId=${partnerId}`);
+    const payload = (await response.json()) as { items?: PropertyPortalRow[]; error?: string };
+    if (!response.ok) {
+      setPropertyPortals([]);
+      return;
+    }
+    setPropertyPortals(payload.items ?? []);
+  }
+
   function selectPartner(row: PartnerRow) {
     setSelectedId(row.id);
     setSlug(row.publicSlug ?? "");
@@ -151,6 +179,8 @@ export function PartnersConsole() {
     setPortalEnabled(row.publicPortalEnabled);
     setPortalDescription(row.portalDescription ?? "");
     setQrSvg(null);
+    setSelectedPropertyPortalId(null);
+    void loadPropertyPortals(row.id);
   }
 
   async function act(
@@ -362,6 +392,86 @@ export function PartnersConsole() {
               dangerouslySetInnerHTML={{ __html: qrSvg }}
             />
           ) : null}
+
+          <div>
+            <h3 className="font-semibold">Property portals</h3>
+            <ul className="mt-2 space-y-2 text-sm">
+              {propertyPortals.map((row) => (
+                <li key={row.id} className="rounded-md border border-[var(--mpa-color-border-subtle)] p-3">
+                  <button type="button" className="font-medium underline" onClick={() => {
+                    setSelectedPropertyPortalId(row.id);
+                    setPropertySlugEdit(row.publicSlug);
+                    setPropertyNameEdit(row.publicName);
+                  }}>
+                    {row.publicName}
+                  </button>
+                  <div className="text-xs text-[var(--mpa-color-text-muted)]">
+                    {row.enabled ? "Enabled" : "Disabled"} · {row.requestCount} requests · {row.canonicalPropertyId ?? row.propertyId}
+                  </div>
+                  <div className="break-all text-xs">{row.displayUrl}</div>
+                </li>
+              ))}
+              {propertyPortals.length === 0 ? (
+                <li className="text-[var(--mpa-color-text-muted)]">No property portals yet.</li>
+              ) : null}
+            </ul>
+            {selectedPropertyPortalId ? (
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                <FormField id="admin-property-slug" label="Public property slug">
+                  <Input id="admin-property-slug" value={propertySlugEdit} onChange={(event) => setPropertySlugEdit(event.target.value)} />
+                </FormField>
+                <FormField id="admin-property-name" label="Public display name">
+                  <Input id="admin-property-name" value={propertyNameEdit} onChange={(event) => setPropertyNameEdit(event.target.value)} />
+                </FormField>
+                <Button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => {
+                    void (async () => {
+                      const response = await fetch("/api/admin/partners/property-portals", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          linkId: selectedPropertyPortalId,
+                          publicSlug: propertySlugEdit,
+                          publicDisplayName: propertyNameEdit
+                        })
+                      });
+                      const payload = (await response.json()) as { error?: string };
+                      if (!response.ok) {
+                        setError(payload.error ?? "Could not update the property portal.");
+                        return;
+                      }
+                      if (selected) await loadPropertyPortals(selected.id);
+                    })();
+                  }}
+                >
+                  Save property slug / name
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={loading}
+                  onClick={() => {
+                    const current = propertyPortals.find((row) => row.id === selectedPropertyPortalId);
+                    void (async () => {
+                      const response = await fetch("/api/admin/partners/property-portals", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          linkId: selectedPropertyPortalId,
+                          enabled: !current?.enabled
+                        })
+                      });
+                      if (response.ok && selected) await loadPropertyPortals(selected.id);
+                    })();
+                  }}
+                >
+                  Enable / disable intake
+                </Button>
+              </div>
+            ) : null}
+          </div>
 
           <div>
             <h3 className="font-semibold">Referred organizations</h3>

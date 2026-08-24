@@ -1,4 +1,5 @@
 import type {
+  PartnerPropertyIntakeSource,
   PartnerRequestStatus,
   PartnerRequestUrgency,
   PartnerServiceCategory
@@ -12,6 +13,9 @@ export type PartnerServiceRequest = {
   statusTokenHash: string | null;
   slugSnapshot: string;
   propertySlug: string | null;
+  propertyPortalId: string | null;
+  propertyId: string | null;
+  intakeSource: PartnerPropertyIntakeSource;
   status: PartnerRequestStatus;
   requesterName: string;
   requesterEmail: string | null;
@@ -47,6 +51,14 @@ export type PartnerRequestStore = {
   getRequest(id: string): Promise<PartnerServiceRequest | null>;
   getRequestByStatusHash(hash: string): Promise<PartnerServiceRequest | null>;
   listRequests(partnerId: string): Promise<PartnerServiceRequest[]>;
+  listRequestSummaries?(partnerId: string): Promise<
+    Array<{
+      partnerId: string;
+      propertyPortalId: string | null;
+      status: string;
+      createdAt: string;
+    }>
+  >;
   insertEvent(row: PartnerRequestEvent): Promise<void>;
   listEvents(requestId: string): Promise<PartnerRequestEvent[]>;
   countForPartner(partnerId: string): Promise<number>;

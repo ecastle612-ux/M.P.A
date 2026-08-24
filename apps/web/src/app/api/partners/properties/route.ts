@@ -8,7 +8,7 @@ export async function GET() {
   if ("error" in authz) return authz.error;
   const { data, error } = await authz.supabase
     .from("property_properties")
-    .select("id, name, address_line1, city, state")
+    .select("id, name, address_line1, city, region, postal_code")
     .eq("organization_id", authz.organizationId)
     .order("name");
   if (error) {
@@ -18,7 +18,7 @@ export async function GET() {
     properties: (data ?? []).map((row) => ({
       id: row.id,
       name: row.name,
-      label: [row.name, row.address_line1, row.city, row.state].filter(Boolean).join(" · ")
+      label: [row.name, row.address_line1, row.city, row.region, row.postal_code].filter(Boolean).join(" · ")
     }))
   });
 }

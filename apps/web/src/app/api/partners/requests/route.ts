@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import {
   PARTNER_REQUEST_STATUS_LABELS,
   PARTNER_SERVICE_CATEGORY_LABELS,
-  PARTNER_REQUEST_URGENCY_LABELS
+  PARTNER_REQUEST_URGENCY_LABELS,
+  partnerPropertyIntakeSourceLabel
 } from "@mpa/shared";
 import { requirePartnerServicesRead } from "../../../../lib/partners/authz";
 import { loadPartnerRequestDeps } from "../../../../lib/partners/request-deps";
@@ -56,7 +57,10 @@ export async function GET(request: Request) {
       queue: requestQueueStatus(row.status),
       createdAt: row.createdAt,
       convertedWorkOrderId: row.convertedWorkOrderId,
-      convertedWorkSurface: row.convertedWorkSurface
+      convertedWorkSurface: row.convertedWorkSurface,
+      intakeSource: row.intakeSource,
+      sourceLabel: partnerPropertyIntakeSourceLabel(row.intakeSource),
+      propertyId: row.propertyId
     }))
   });
 }

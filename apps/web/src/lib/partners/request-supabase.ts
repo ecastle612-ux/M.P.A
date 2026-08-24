@@ -12,6 +12,9 @@ function mapRequest(row: Record<string, unknown>): PartnerServiceRequest {
     statusTokenHash: typeof row["status_token_hash"] === "string" ? row["status_token_hash"] : null,
     slugSnapshot: String(row["slug_snapshot"] ?? ""),
     propertySlug: typeof row["property_slug"] === "string" ? row["property_slug"] : null,
+    propertyPortalId: typeof row["property_portal_id"] === "string" ? row["property_portal_id"] : null,
+    propertyId: typeof row["property_id"] === "string" ? row["property_id"] : null,
+    intakeSource: row["intake_source"] === "property_portal" ? "property_portal" : "generic_portal",
     status: row["status"] as PartnerServiceRequest["status"],
     requesterName: String(row["requester_name"] ?? ""),
     requesterEmail: typeof row["requester_email"] === "string" ? row["requester_email"] : null,
@@ -43,6 +46,9 @@ function requestColumns(row: PartnerServiceRequest): Record<string, unknown> {
     status_token_hash: row.statusTokenHash,
     slug_snapshot: row.slugSnapshot,
     property_slug: row.propertySlug,
+    property_portal_id: row.propertyPortalId,
+    property_id: row.propertyId,
+    intake_source: row.intakeSource,
     status: row.status,
     requester_name: row.requesterName,
     requester_email: row.requesterEmail,
@@ -137,6 +143,20 @@ export class SupabasePartnerRequestStore implements PartnerRequestStore {
       .order("created_at", { ascending: false });
     if (error || !data) return [];
     return data.map((row) => mapRequest(row as Record<string, unknown>));
+  }
+
+  async listRequestSummaries(partnerId: string) {
+    const { data, error } = await this.db
+      .from("platform_partner_service_requests")
+      .select("partner_id, property_portal_id, status, created_at")
+      .eq("partner_id", partnerId);
+    if (error || !data) return [];
+    return data.map((row) => ({
+      partnerId: String(row.partner_id),
+      propertyPortalId: typeof row.property_portal_id === "string" ? row.property_portal_id : null,
+      status: String(row.status ?? ""),
+      createdAt: String(row.created_at ?? "")
+    }));
   }
 
   async insertEvent(row: PartnerRequestEvent): Promise<void> {

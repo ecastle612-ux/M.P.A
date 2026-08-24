@@ -5,6 +5,8 @@ import { createFacilityWorkOrder, createStaffResidentialWorkOrder } from "../mai
 import { loadPartnerDeps } from "./runtime";
 import { getMemoryPartnerRequestStore } from "./request-store";
 import { createSupabasePartnerRequestStore } from "./request-supabase";
+import { getMemoryPartnerPropertyPortalStore, getMemoryPropertyCatalog } from "./property-portal-store";
+import { createSupabasePartnerPropertyPortalStore, createSupabasePropertyCatalog } from "./property-portal-supabase";
 import type { PartnerRequestServiceDeps } from "./request-service";
 
 let cached: PartnerRequestServiceDeps | null = null;
@@ -38,7 +40,13 @@ async function listOrgManagers(organizationId: string): Promise<Array<{ userId: 
 export async function loadPartnerRequestDeps(): Promise<PartnerRequestServiceDeps & { durable: boolean }> {
   if (process.env["VITEST"]) {
     const partners = await loadPartnerDeps();
-    return { store: partners.store, requests: getMemoryPartnerRequestStore(), durable: partners.durable };
+    return {
+      store: partners.store,
+      requests: getMemoryPartnerRequestStore(),
+      propertyPortals: getMemoryPartnerPropertyPortalStore(),
+      properties: getMemoryPropertyCatalog(),
+      durable: partners.durable
+    };
   }
   if (cached) {
     return { ...cached, durable: true };
@@ -46,10 +54,16 @@ export async function loadPartnerRequestDeps(): Promise<PartnerRequestServiceDep
   const partners = await loadPartnerDeps();
   let requests;
   let durable = partners.durable;
+  let propertyPortals;
+  let properties;
   try {
     requests = createSupabasePartnerRequestStore();
+    propertyPortals = createSupabasePartnerPropertyPortalStore();
+    properties = createSupabasePropertyCatalog();
   } catch {
     requests = getMemoryPartnerRequestStore();
+    propertyPortals = getMemoryPartnerPropertyPortalStore();
+    properties = getMemoryPropertyCatalog();
     durable = false;
   }
   const supabase = (() => {
@@ -63,6 +77,8 @@ export async function loadPartnerRequestDeps(): Promise<PartnerRequestServiceDep
   cached = {
     store: partners.store,
     requests,
+    propertyPortals,
+    properties,
     async notifyNewRequest(input) {
       if (!supabase) return;
       const managers = await listOrgManagers(input.organizationId);
@@ -71,14 +87,18 @@ export async function loadPartnerRequestDeps(): Promise<PartnerRequestServiceDep
           organization_id: input.organizationId,
           user_id: manager.userId,
           notification_key: "partner.service_request.submitted",
-          title: `New service request ${input.publicRef}`,
+          title: input.propertyName
+            ? `New service request — ${input.propertyName}`
+            : `New service request ${input.publicRef}`,
           body: `${input.partnerName} received a customer service request. Open Partner Services to review it.`,
           href: "/partner/services"
         });
         if (manager.email) {
           await sendOperationalNoticeEmail({
             to: manager.email,
-            subject: `New service request ${input.publicRef}`,
+            subject: input.propertyName
+              ? `New service request — ${input.propertyName}`
+              : `New service request ${input.publicRef}`,
             body: `${input.partnerName} received a customer service request. Review it in Partner Services. Do not treat this as an emergency dispatch.`,
             audienceLabel: "partner staff",
             ctaUrl: "/partner/services",

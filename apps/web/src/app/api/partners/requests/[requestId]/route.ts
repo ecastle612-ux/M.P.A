@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import {
   PARTNER_REQUEST_STATUS_LABELS,
   PARTNER_SERVICE_CATEGORY_LABELS,
-  PARTNER_REQUEST_URGENCY_LABELS
+  PARTNER_REQUEST_URGENCY_LABELS,
+  partnerPropertyIntakeSourceLabel
 } from "@mpa/shared";
 import { requirePartnerServicesRead, requirePartnerServicesWrite } from "../../../../../lib/partners/authz";
 import { loadPartnerRequestDeps } from "../../../../../lib/partners/request-deps";
@@ -59,7 +60,10 @@ export async function GET(_request: Request, context: Params) {
       ...row,
       categoryLabel: PARTNER_SERVICE_CATEGORY_LABELS[row.category],
       urgencyLabel: PARTNER_REQUEST_URGENCY_LABELS[row.urgency],
-      statusLabel: PARTNER_REQUEST_STATUS_LABELS[row.status]
+      statusLabel: PARTNER_REQUEST_STATUS_LABELS[row.status],
+      intakeSource: row.intakeSource,
+      sourceLabel: partnerPropertyIntakeSourceLabel(row.intakeSource),
+      propertyId: row.propertyId}
     },
     events: events.map((event) => ({
       id: event.id,

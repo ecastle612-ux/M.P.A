@@ -11,6 +11,9 @@ import type { PartnerServiceDeps } from "./service";
 import { defaultPartnerDeps } from "./service";
 import { getMemoryPartnerRequestStore } from "./request-store";
 import type { PartnerRequestStore, PartnerServiceRequest } from "./request-types";
+import type { PartnerPropertyPortalStore, PropertyCatalog } from "./property-portal-types";
+import { getMemoryPartnerPropertyPortalStore, getMemoryPropertyCatalog } from "./property-portal-store";
+import { formatCanonicalPropertyAddress, normalizePartnerPropertySlug } from "@mpa/shared";
 
 export type ConvertWorkOrderFn = (input: {
   organizationId: string;
@@ -27,6 +30,8 @@ export type ConvertWorkOrderFn = (input: {
 
 export type PartnerRequestServiceDeps = PartnerServiceDeps & {
   requests: PartnerRequestStore;
+  propertyPortals?: PartnerPropertyPortalStore;
+  properties?: PropertyCatalog;
   convertWorkOrder?: ConvertWorkOrderFn;
   rebindMedia?: (input: {
     organizationId: string;
@@ -38,6 +43,7 @@ export type PartnerRequestServiceDeps = PartnerServiceDeps & {
     organizationId: string;
     partnerName: string;
     publicRef: string;
+    propertyName?: string | null;
   }) => Promise<void>;
   attachMedia?: (input: {
     organizationId: string;
@@ -47,7 +53,12 @@ export type PartnerRequestServiceDeps = PartnerServiceDeps & {
 };
 
 export function defaultPartnerRequestDeps(): PartnerRequestServiceDeps {
-  return { ...defaultPartnerDeps(), requests: getMemoryPartnerRequestStore() };
+  return {
+    ...defaultPartnerDeps(),
+    requests: getMemoryPartnerRequestStore(),
+    propertyPortals: getMemoryPartnerPropertyPortalStore(),
+    properties: getMemoryPropertyCatalog()
+  };
 }
 
 function nowIso(): string {
@@ -124,6 +135,9 @@ export async function submitPartnerServiceRequest(
     statusTokenHash: hashPartnerStatusToken(statusToken),
     slugSnapshot: live.partner.publicSlug!,
     propertySlug: parsed.data.propertySlug,
+    propertyPortalId: null,
+    propertyId: null,
+    intakeSource: "generic_portal",
     status: "submitted",
     requesterName: parsed.data.requesterName,
     requesterEmail: parsed.data.requesterEmail,
@@ -165,6 +179,100 @@ export async function submitPartnerServiceRequest(
       organizationId: row.organizationId,
       partnerName: live.partner.companyName,
       publicRef: row.publicRef
+    });
+  }
+  return { ok: true, publicRef: row.publicRef, statusToken };
+}
+
+export async function submitPartnerPropertyServiceRequest(
+  partnerSlug: string,
+  propertySlug: string,
+  payload: unknown,
+  deps: PartnerRequestServiceDeps = defaultPartnerRequestDeps()
+): Promise<
+  | { ok: true; spam?: boolean; publicRef?: string; statusToken?: string }
+  | { ok: false; error: string; unavailable?: boolean }
+> {
+  const parsed = parsePartnerServiceRequestInput(payload, { requirePropertyAddress: false });
+  if (!parsed.ok) {
+    if (parsed.error === "spam") return { ok: true, spam: true };
+    return parsed;
+  }
+  const live = await resolveLivePartnerPortal(partnerSlug, deps);
+  if (!live || !deps.propertyPortals || !deps.properties) {
+    return { ok: false, error: "This request link is not available.", unavailable: true };
+  }
+  const slug = normalizePartnerPropertySlug(propertySlug);
+  const portal = await deps.propertyPortals.getPortalByPartnerAndSlug(live.partner.id, slug);
+  if (!portal || !portal.enabled || portal.organizationId !== live.partner.organizationId) {
+    return { ok: false, error: "This request link is not available.", unavailable: true };
+  }
+  const property = await deps.properties.getProperty(portal.propertyId);
+  if (!property || property.organizationId !== live.partner.organizationId) {
+    return { ok: false, error: "This request link is not available.", unavailable: true };
+  }
+  const publicName = portal.publicDisplayName?.trim() || property.name;
+  const address = formatCanonicalPropertyAddress(property) || publicName;
+  const statusToken = generatePartnerStatusToken();
+  const row: PartnerServiceRequest = {
+    id: newId(),
+    partnerId: live.partner.id,
+    organizationId: live.partner.organizationId!,
+    publicRef: await deps.requests.nextPublicRef(),
+    statusTokenHash: hashPartnerStatusToken(statusToken),
+    slugSnapshot: live.partner.publicSlug!,
+    propertySlug: portal.publicSlug,
+    propertyPortalId: portal.id,
+    propertyId: property.id,
+    intakeSource: "property_portal",
+    status: "submitted",
+    requesterName: parsed.data.requesterName,
+    requesterEmail: parsed.data.requesterEmail,
+    requesterPhone: parsed.data.requesterPhone,
+    propertyAddress: address,
+    unitLabel: parsed.data.unitLabel,
+    category: parsed.data.category,
+    description: parsed.data.description,
+    urgency: parsed.data.urgency,
+    convertedWorkOrderId: null,
+    convertedWorkSurface: null,
+    convertedBy: null,
+    convertedAt: null,
+    declinedReason: null,
+    createdAt: nowIso(),
+    updatedAt: nowIso()
+  };
+  await deps.requests.insertRequest(row);
+  const mediaIds = extractMediaIds(payload);
+  let mediaCount = 0;
+  if (mediaIds.length && deps.attachMedia) {
+    mediaCount = await deps.attachMedia({
+      organizationId: row.organizationId,
+      requestId: row.id,
+      mediaIds
+    });
+  }
+  await deps.requests.insertEvent({
+    id: newId(),
+    requestId: row.id,
+    partnerId: row.partnerId,
+    action: "submitted",
+    actorUserId: null,
+    payload: {
+      publicRef: row.publicRef,
+      slug: row.slugSnapshot,
+      propertySlug: row.propertySlug,
+      intakeSource: row.intakeSource,
+      mediaCount
+    },
+    createdAt: nowIso()
+  });
+  if (deps.notifyNewRequest) {
+    await deps.notifyNewRequest({
+      organizationId: row.organizationId,
+      partnerName: live.partner.companyName,
+      publicRef: row.publicRef,
+      propertyName: publicName
     });
   }
   return { ok: true, publicRef: row.publicRef, statusToken };
@@ -271,8 +379,19 @@ export async function mutatePartnerRequest(
     if (row.status === "declined" || row.status === "cancelled") {
       return { ok: false, error: "Declined requests cannot be converted.", code: "conflict" };
     }
-    if (!input.propertyId) {
+    const propertyId =
+      row.intakeSource === "property_portal" && row.propertyId ? row.propertyId : input.propertyId;
+    if (!propertyId) {
       return { ok: false, error: "Select a property before converting." };
+    }
+    if (deps.properties) {
+      const property = await deps.properties.getProperty(propertyId);
+      if (property && property.organizationId !== row.organizationId) {
+        return { ok: false, error: "Select a property before converting." };
+      }
+      if (row.intakeSource === "property_portal" && !property) {
+        return { ok: false, error: "Select a property before converting." };
+      }
     }
     const entitlements = input.entitlements ?? [];
     const surface = entitlements.includes("facility.operations")
@@ -294,7 +413,7 @@ export async function mutatePartnerRequest(
       organizationId: row.organizationId,
       actorUserId: input.actorUserId,
       surface,
-      propertyId: input.propertyId,
+      propertyId,
       title: `${row.category.replaceAll("_", " ")} — ${row.propertyAddress}`.slice(0, 160),
       description: [
         row.description,

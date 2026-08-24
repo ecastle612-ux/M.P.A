@@ -19,6 +19,9 @@ type RequestRow = {
   createdAt: string;
   convertedWorkOrderId: string | null;
   convertedWorkSurface: string | null;
+  intakeSource?: string;
+  sourceLabel?: string;
+  propertyId?: string | null;
 };
 
 type RequestDetail = {
@@ -38,6 +41,9 @@ type RequestDetail = {
   convertedWorkOrderId: string | null;
   convertedWorkSurface: string | null;
   declinedReason: string | null;
+  intakeSource?: string;
+  sourceLabel?: string;
+  propertyId?: string | null;
 };
 
 type EventRow = { id: string; action: string; createdAt: string };
@@ -97,6 +103,9 @@ export function PartnerServicesPage() {
     setMedia(payload.media ?? []);
     const props = (await propertyResponse.json()) as { properties?: PropertyRow[] };
     setProperties(props.properties ?? []);
+    if (payload.request.intakeSource === "property_portal" && payload.request.propertyId) {
+      setPropertyId(payload.request.propertyId);
+    }
   }
 
   async function act(action: "accept" | "decline" | "convert") {
@@ -266,6 +275,7 @@ export function PartnerServicesPage() {
               <p className="text-sm">{row.propertyAddress}{row.unitLabel ? ` · ${row.unitLabel}` : ""}</p>
               <p className="text-sm text-[var(--mpa-color-text-secondary)]">
                 {row.categoryLabel} · {row.urgencyLabel} · {row.statusLabel}
+                {row.sourceLabel ? ` · ${row.sourceLabel}` : ""}
               </p>
               <p className="text-xs text-[var(--mpa-color-text-muted)]">
                 {row.publicRef} · {new Date(row.createdAt).toLocaleString()}
@@ -330,17 +340,22 @@ export function PartnerServicesPage() {
               <dd>{[detail.requesterEmail, detail.requesterPhone].filter(Boolean).join(" · ") || "—"}</dd>
             </div>
             <div>
-              <dt className="font-medium">Address</dt>
-              <dd>
-                {detail.propertyAddress}
-                {detail.unitLabel ? ` · ${detail.unitLabel}` : ""}
-              </dd>
+              <dt className="font-medium">Property</dt>
+              <dd>{detail.propertyAddress}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Unit / area</dt>
+              <dd>{detail.unitLabel || "—"}</dd>
             </div>
             <div>
               <dt className="font-medium">Category / urgency</dt>
               <dd>
                 {detail.categoryLabel} · {detail.urgencyLabel}
               </dd>
+            </div>
+            <div>
+              <dt className="font-medium">Source</dt>
+              <dd>{detail.sourceLabel ?? "Partner portal"}</dd>
             </div>
           </dl>
           <p className="whitespace-pre-wrap text-sm">{detail.description}</p>
@@ -364,18 +379,25 @@ export function PartnerServicesPage() {
           ) : (
             <p className="text-sm text-[var(--mpa-color-text-muted)]">No media attached.</p>
           )}
-          <div className="grid gap-3 md:grid-cols-2">
-            <FormField id="convert-property" label="Property for work order">
-              <Select id="convert-property" value={propertyId} onChange={(event) => setPropertyId(event.target.value)}>
-                <option value="">Select a property</option>
-                {properties.map((property) => (
-                  <option key={property.id} value={property.id}>
-                    {property.label}
-                  </option>
-                ))}
-              </Select>
-            </FormField>
-          </div>
+          {detail.intakeSource === "property_portal" && detail.propertyId ? (
+            <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+              This request already belongs to the property from the property portal. Conversion will
+              use that property.
+            </p>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              <FormField id="convert-property" label="Property for work order">
+                <Select id="convert-property" value={propertyId} onChange={(event) => setPropertyId(event.target.value)}>
+                  <option value="">Select a property</option>
+                  {properties.map((property) => (
+                    <option key={property.id} value={property.id}>
+                      {property.label}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
             <Button type="button" disabled={loading} onClick={() => void act("accept")}>
               Accept
