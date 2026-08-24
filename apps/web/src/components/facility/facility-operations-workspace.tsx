@@ -34,6 +34,7 @@ import {
   resolveProgressNote
 } from "../../lib/facility/field-work-order-presentation";
 import { MediaAttachmentField } from "../media/media-attachment-field";
+import { ReceiptAttachmentField } from "../media/receipt-attachment-field";
 
 type WorkOrder = {
   id: string;
@@ -171,6 +172,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
   const [assets, setAssets] = useState<AssetOption[]>([]);
   const [createDueAt, setCreateDueAt] = useState("");
   const [pendingMediaIds, setPendingMediaIds] = useState<string[]>([]);
+  const [pendingReceiptIds, setPendingReceiptIds] = useState<string[]>([]);
 
   const selected = useMemo(
     () => workOrders.find((row) => row.id === selectedId) ?? null,
@@ -431,12 +433,28 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                 throw new Error(attachBody.error ?? "Work created but media attach failed");
               }
             }
+            if (pendingReceiptIds.length > 0) {
+              const attachReceipts = await fetch("/api/shared/media", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  mediaIds: pendingReceiptIds,
+                  relatedEntityType: "maintenance",
+                  relatedEntityId: workOrderId
+                })
+              });
+              const attachReceiptsBody = await attachReceipts.json();
+              if (!attachReceipts.ok) {
+                throw new Error(attachReceiptsBody.error ?? "Work created but receipt attach failed");
+              }
+            }
             setCreateTitle("");
             setCreateDescription("");
             setCreateAssetLabel("");
             setCreateAssetId("");
             setCreateDueAt("");
             setPendingMediaIds([]);
+            setPendingReceiptIds([]);
             setSelectedId(workOrderId);
             setNotice("Facility work created.");
             await refresh(workOrderId);
@@ -477,6 +495,12 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
           value={pendingMediaIds}
           onChange={setPendingMediaIds}
           label="Issue photos & video"
+          attachmentCategory="evidence"
+        />
+        <ReceiptAttachmentField
+          relatedEntityType="maintenance"
+          value={pendingReceiptIds}
+          onChange={setPendingReceiptIds}
         />
         <label className="space-y-1 text-xs">
           <span className="font-medium">Building</span>
@@ -713,11 +737,17 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
                   ) : null}
                 </div>
                 <MediaAttachmentField
-                  key={selected.id}
+                  key={`${selected.id}-evidence`}
                   relatedEntityType="maintenance"
                   relatedEntityId={selected.id}
                   readOnly
-                  label="Issue evidence"
+                  label="Work evidence"
+                  attachmentCategory="evidence"
+                />
+                <ReceiptAttachmentField
+                  key={`${selected.id}-receipts`}
+                  relatedEntityType="maintenance"
+                  relatedEntityId={selected.id}
                 />
                 <dl className="grid gap-2 sm:grid-cols-2">
                   {detailScanLines.map((line) => (
