@@ -5,9 +5,9 @@
 **Date:** 2026-08-24  
 **Authority:** Owner implementation-only authorization for PARTNER-002. Design: [docs/234](../234-partner-002-branded-service-request-portals/index.md). ADR: [ADR-039](../18-decision-log/adr-039-partner-service-request-portals.md).  
 **PARTNER-001 Production baseline:** [docs/233](../233-partner-001-production-certification/index.md) @ `d35289a133651b4d1eeb4f852b29de28e2b2b75d`  
-**Production deploy:** **NO**  
-**Production migration:** **NO**  
-**STOP:** Do not deploy PARTNER-002. Do not start PARTNER-003 or PARTNER-004. Do not automate payouts, collect service payments, or modify Stripe.
+**Production deploy:** **NO** (this record). Later Production apply/certification: [docs/236](../236-partner-002-production-certification/index.md).  
+**Production migration:** **NO** (this record).  
+**STOP:** This in-repo record remains the historical implementation PASS. Do not rewrite it as Production-live.
 
 ---
 
