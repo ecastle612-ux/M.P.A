@@ -25,7 +25,32 @@ export function PartnerProfilePage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  async function load() {
+  useEffect(() => {
+    const controller = new AbortController();
+    void (async () => {
+      const [profileResponse, dashboardResponse, logoResponse] = await Promise.all([
+        fetch("/api/partners/profile", { signal: controller.signal }),
+        fetch("/api/partners/dashboard", { signal: controller.signal }),
+        fetch("/api/partners/profile/logo/preview", { signal: controller.signal })
+      ]);
+      const payload = (await profileResponse.json()) as { profile?: Profile; error?: string };
+      const dashboard = (await dashboardResponse.json()) as {
+        partner?: { displayStatus?: { label: string } };
+      };
+      const logo = (await logoResponse.json()) as { logoUrl?: string | null };
+      if (controller.signal.aborted) return;
+      if (!profileResponse.ok || !payload.profile) {
+        setError(payload.error ?? "Could not load partner profile.");
+        return;
+      }
+      setProfile(payload.profile);
+      setStatusLabel(dashboard.partner?.displayStatus?.label ?? null);
+      setLogoUrl(logo.logoUrl ?? null);
+    })().catch(() => undefined);
+    return () => controller.abort();
+  }, []);
+
+  async function reload() {
     const [profileResponse, dashboardResponse, logoResponse] = await Promise.all([
       fetch("/api/partners/profile"),
       fetch("/api/partners/dashboard"),
@@ -44,10 +69,6 @@ export function PartnerProfilePage() {
     setStatusLabel(dashboard.partner?.displayStatus?.label ?? null);
     setLogoUrl(logo.logoUrl ?? null);
   }
-
-  useEffect(() => {
-    void load();
-  }, []);
 
   async function save() {
     if (!profile) return;
@@ -108,7 +129,7 @@ export function PartnerProfilePage() {
       return;
     }
     setNotice("Logo updated.");
-    await load();
+    await reload();
   }
 
   return (
