@@ -19,7 +19,7 @@ function makeClient() {
           insertPayload = { ...payload, deleted_at: null };
           return api;
         },
-        update: (payload: Row) => {
+        update: (payload: Row, _options?: { count?: string }) => {
           patch = payload;
           return api;
         },
@@ -57,9 +57,23 @@ function makeClient() {
             return { data: result, error: null };
           }
           return { data: rows[0] ?? null, error: rows[0] ? null : { message: "missing" } };
-        },
-        then: undefined as undefined
+        }
       };
+
+      async function settle() {
+        if (patch) {
+          for (const row of rows) Object.assign(row, patch);
+          const result = rows.map((r) => ({ ...r }));
+          const updated = result.length;
+          patch = null;
+          return { data: result, error: null, count: updated };
+        }
+        return { data: rows, error: null, count: rows.length };
+      }
+      Object.assign(api, {
+        then: (resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) =>
+          settle().then(resolve, reject)
+      });
 
       // Make awaitable for `.select()` terminal without single (attach update path)
       return new Proxy(api, {
@@ -72,10 +86,11 @@ function makeClient() {
                   if (patch) {
                     for (const row of rows) Object.assign(row, patch);
                     const result = rows.map((r) => ({ ...r }));
+                    const updated = result.length;
                     patch = null;
-                    return { data: result, error: null };
+                    return { data: result, error: null, count: updated };
                   }
-                  return { data: rows, error: null };
+                  return { data: rows, error: null, count: rows.length };
                 })
                 .then(resolve, reject);
             };

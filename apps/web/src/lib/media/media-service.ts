@@ -380,21 +380,33 @@ export async function softDeleteMedia(input: {
   }
 
   const nowIso = new Date().toISOString();
-  const { data, error } = await input.supabase
+  // Do not RETURNING/select the updated row: SELECT RLS hides deleted_at IS NOT NULL,
+  // which makes PostgREST report a WITH CHECK violation on an otherwise valid soft-delete.
+  const { error, count } = await input.supabase
     .from("media_attachments")
-    .update({
-      status: "deleted",
-      deleted_at: nowIso,
-      updated_at: nowIso
-    })
+    .update(
+      {
+        status: "deleted",
+        deleted_at: nowIso,
+        updated_at: nowIso
+      },
+      { count: "exact" }
+    )
     .eq("id", input.mediaId)
-    .eq("organization_id", input.organizationId)
-    .select("*")
-    .single();
+    .eq("organization_id", input.organizationId);
 
-  if (error || !data) {
-    return { error: error?.message ?? "Failed to delete media.", status: 400 };
+  if (error) {
+    return { error: error.message, status: 400 };
   }
+  if (!count) {
+    return { error: "Failed to delete media.", status: 400 };
+  }
+  const data = {
+    ...(existing as MediaAttachmentRow),
+    status: "deleted" as const,
+    deleted_at: nowIso,
+    updated_at: nowIso
+  };
 
   const storage = storageClient();
   if (storage && typeof existing.storage_reference === "string") {
