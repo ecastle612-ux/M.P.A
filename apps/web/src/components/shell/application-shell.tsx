@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { UserRole } from "@mpa/shared";
 import type { OrganizationSummary } from "../../lib/organization/contracts";
+import { MPA_BRAND_NAME, MPA_BRAND_TAGLINE } from "../../lib/branding";
 import { AuthenticatedContextProviders } from "./authenticated-context-providers";
 import { useOrganizationContext } from "./organization-context";
 import { Sidebar } from "./sidebar";
@@ -23,13 +24,29 @@ function OrgScopedMain({ children }: { children: ReactNode }) {
   );
 }
 
+function MobileBrand() {
+  const { activeOrganization } = useOrganizationContext();
+  return (
+    <div className="min-w-0">
+      <p className="truncate font-display text-base font-semibold text-[var(--mpa-color-text-primary)]">
+        {MPA_BRAND_TAGLINE}
+      </p>
+      <p className="truncate text-xs text-[var(--mpa-color-text-secondary)]">
+        {activeOrganization?.name ?? MPA_BRAND_NAME}
+        {activeOrganization?.productLabel ? ` · ${activeOrganization.productLabel}` : ""}
+      </p>
+    </div>
+  );
+}
+
 export function ApplicationShell({
   children,
   availableRoles,
   defaultRole,
   organizations,
   defaultOrganizationId,
-  isPlatformOperator = false
+  isPlatformOperator = false,
+  userId = null
 }: {
   children: ReactNode;
   availableRoles: UserRole[];
@@ -37,6 +54,7 @@ export function ApplicationShell({
   organizations: OrganizationSummary[];
   defaultOrganizationId: string | null;
   isPlatformOperator?: boolean;
+  userId?: string | null;
 }) {
   return (
     <AuthenticatedContextProviders
@@ -45,13 +63,14 @@ export function ApplicationShell({
       organizations={organizations}
       defaultOrganizationId={defaultOrganizationId}
       isPlatformOperator={isPlatformOperator}
+      userId={userId}
     >
       <div className="flex min-h-screen bg-[var(--mpa-color-bg-app)]">
         <SkipToContent />
         <Sidebar />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-          <div className="flex items-center justify-between px-4 pt-3 lg:hidden">
-            <p className="font-display text-lg font-semibold text-[var(--mpa-color-text-primary)]">M.P.A.</p>
+          <div className="flex items-center justify-between gap-3 px-4 pt-3 lg:hidden">
+            <MobileBrand />
             <ResponsiveNavigation />
           </div>
           <TopNavigation />

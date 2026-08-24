@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { MPA_ASSISTANT_KIND, MPA_ASSISTANT_LABEL } from "@mpa/shared";
 import { buttonClassName, Alert, Badge, Skeleton, TimelineView } from "@mpa/ui";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { ErrorRetry } from "../shell/error-retry";
+import { RememberRecent } from "../shell/remember-recent";
 import { PmDocumentsStrip, PmQuickActions, documentsHref } from "../shell/pm-workspace";
 import { MoveOutPanel } from "./move-out-panel";
 
@@ -124,6 +126,7 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
 
   return (
     <main className="flex-1 space-y-6 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
+      <RememberRecent type="resident" id={data.resident.id} />
       <Breadcrumbs
         items={[
           { href: "/pm/mission-control", label: "Mission Control" },
@@ -153,6 +156,11 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
         <PmQuickActions
           actions={[
             { href: `/pm/properties/${data.resident.propertyId}`, label: "Property" },
+            {
+              href: `/pm/maintenance?new=1&residentId=${data.resident.id}&propertyId=${data.resident.propertyId}`,
+              label: "Create maintenance"
+            },
+            { href: `${data.integrations.financialOperations}#charges`, label: "Add charge" },
             { href: "/pm/leasing", label: "Leasing" },
             { href: `/shared/communications?residentId=${data.resident.id}`, label: "Message tenant" },
             { href: "/shared/communications", label: "Communications" },
@@ -236,8 +244,9 @@ export function ResidentCommandCenter({ residentId }: { residentId: string }) {
         className="max-w-3xl space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-5"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-          M.P.A. Assistant
+          {MPA_ASSISTANT_LABEL}
         </p>
+        <p className="text-xs text-[var(--mpa-color-text-muted)]">{MPA_ASSISTANT_KIND}</p>
         <p className="text-lg font-semibold text-[var(--mpa-color-text-primary)]">
           {data.assistantRecommendation}
         </p>

@@ -171,14 +171,14 @@ describe("resolvePostAuthHome", () => {
     ).toBe("/unauthorized?reason=role");
   });
 
-  it("routes FO technician to Facility Mission Control and unassigned Complete technician to launcher", () => {
+  it("routes FO technician to My Work and Complete FO-scoped technician to My Work", () => {
     expect(
       resolvePostAuthHome({
         roles: ["maintenance_technician"],
         productSku: "mpa_facility_operations",
         setupComplete: true
       })
-    ).toBe("/facility/mission-control");
+    ).toBe("/facility/my-work");
 
     expect(
       resolvePostAuthHome({
@@ -186,7 +186,7 @@ describe("resolvePostAuthHome", () => {
         productSku: "mpa_complete_platform",
         setupComplete: true
       })
-    ).toBe("/launcher");
+    ).toBe("/facility/my-work");
   });
 
   it("routes Complete staff by member operating scope", () => {
@@ -221,7 +221,7 @@ describe("resolvePostAuthHome", () => {
         setupComplete: true,
         storedScope: "facility_operations"
       })
-    ).toBe("/facility/mission-control");
+    ).toBe("/facility/my-work");
   });
 
   it("prefers primary role when multiple roles exist", () => {

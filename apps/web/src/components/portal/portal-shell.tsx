@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Badge } from "@mpa/ui";
+import { isNavItemActive, navIconForHref } from "@mpa/shared";
+import { Badge, NavIcon } from "@mpa/ui";
 import { OrganizationSwitcher } from "../shell/organization-switcher";
 import { RoleSwitcher } from "../shell/role-switcher";
 import { NotificationCenter } from "../shell/notification-center";
@@ -19,11 +20,8 @@ type PortalNavigationItem = {
 const linkFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
 
-function isActivePath(pathname: string, href: string) {
-  if (href === "/portal/tenant" || href === "/portal/vendor") {
-    return pathname === href;
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
+function isActivePath(pathname: string, href: string, candidates: readonly string[]) {
+  return isNavItemActive(pathname, href, candidates);
 }
 
 export function PortalShell({
@@ -48,6 +46,7 @@ export function PortalShell({
   notificationsInboxLabel?: string;
 }) {
   const pathname = usePathname() ?? "";
+  const navHrefs = navigation.map((item) => item.href);
   const isResident = experience === "resident";
   const isTechnician = experience === "technician";
   const isVendor = experience === "vendor";
@@ -117,23 +116,30 @@ export function PortalShell({
             useMobileBottomNav ? "hidden lg:block" : ""
           }`}
         >
-          <p className="text-xs uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--mpa-color-text-secondary)]">
             Navigation
           </p>
           <ul className="mt-3 space-y-1">
             {navigation.map((item) => {
-              const active = isActivePath(pathname, item.href);
+              const active = isActivePath(pathname, item.href, navHrefs);
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`block rounded-md px-3 py-3 text-sm ${linkFocus} ${
+                    className={`relative flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-sm motion-safe:transition-colors ${linkFocus} ${
                       active
-                        ? "bg-[var(--mpa-color-bg-app)] font-semibold text-[var(--mpa-color-brand-primary)]"
+                        ? "bg-[var(--mpa-color-brand-primary-subtle)] font-semibold text-[var(--mpa-color-brand-primary)]"
                         : "text-[var(--mpa-color-text-secondary)] hover:bg-[var(--mpa-color-bg-app)] hover:text-[var(--mpa-color-text-primary)]"
                     }`}
                     aria-current={active ? "page" : undefined}
                   >
+                    <span
+                      aria-hidden
+                      className={`absolute left-0 top-2 bottom-2 w-0.5 rounded-r ${
+                        active ? "bg-[var(--mpa-color-brand-primary)]" : "bg-transparent"
+                      }`}
+                    />
+                    <NavIcon name={navIconForHref(item.href)} />
                     {item.label}
                   </Link>
                 </li>
@@ -166,7 +172,7 @@ export function PortalShell({
             style={{ gridTemplateColumns: `repeat(${bottomCols}, minmax(0, 1fr))` }}
           >
             {navigation.map((item) => {
-              const active = isActivePath(pathname, item.href);
+              const active = isActivePath(pathname, item.href, navHrefs);
               return (
                 <li key={item.href}>
                   <Link
@@ -178,12 +184,7 @@ export function PortalShell({
                     }`}
                     aria-current={active ? "page" : undefined}
                   >
-                    <span
-                      className={`h-1 w-6 rounded-full ${
-                        active ? "bg-[var(--mpa-color-brand-primary)]" : "bg-transparent"
-                      }`}
-                      aria-hidden
-                    />
+                    <NavIcon name={navIconForHref(item.href)} className="h-5 w-5" />
                     {item.shortLabel ?? item.label}
                   </Link>
                 </li>
