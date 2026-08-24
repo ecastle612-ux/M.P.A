@@ -19,7 +19,7 @@ function makeClient() {
           insertPayload = { ...payload, deleted_at: null };
           return api;
         },
-        update: (payload: Row, _options?: { count?: string }) => {
+        update: (payload: Row) => {
           patch = payload;
           return api;
         },

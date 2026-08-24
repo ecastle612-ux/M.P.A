@@ -6,6 +6,7 @@
 **Production deploy:** **NO** — in-repo implementation certification only  
 **Implementation SHA:** `0ea03608b5cae567addb7b5adde5f65e1fe18043`  
 **Related:** MEDIA-001 (`docs/73`, `docs/74`, ADR-023) · Product Constitution ADR-019  
+**Production-live record:** [docs/230](../230-rec-001-production-receipt-uploads-certification/index.md) — this file remains the in-repo implementation certification only.  
 
 ---
 
