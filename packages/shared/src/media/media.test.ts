@@ -112,6 +112,16 @@ describe("MEDIA-001 upload validation", () => {
     ).toBe(false);
   });
 
+  it("keeps facility_request_intake valid after adding vendor_invoice", () => {
+    const result = validateMediaUploadIntent({
+      mimeType: "image/jpeg",
+      fileSize: 1024,
+      relatedEntityType: "facility_request_intake",
+      originalFileName: "intake.jpg"
+    });
+    expect(result.ok).toBe(true);
+  });
+
   it("accepts facility_asset parent type", () => {
     const result = validateMediaUploadIntent({
       mimeType: "image/jpeg",
