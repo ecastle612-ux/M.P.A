@@ -43,6 +43,7 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/facility/building-systems",
     "/partner",
     "/partner/services",
+    "/partner/properties",
     "/shared/documents",
     "/shared/tables",
     "/shared/reports",

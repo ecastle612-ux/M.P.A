@@ -122,6 +122,7 @@ const HREF_META: Record<string, { icon: NavIconName; section: NavSectionId }> = 
   "/pm/vendors": { icon: "vendors", section: "partners" },
   "/partner": { icon: "requestForms", section: "partners" },
   "/partner/services": { icon: "requestForms", section: "partners" },
+  "/partner/properties": { icon: "properties", section: "partners" },
   "/partner/referrals": { icon: "vendors", section: "partners" },
   "/partner/earnings": { icon: "financialOperations", section: "partners" },
   "/partner/portal": { icon: "requestForms", section: "partners" },

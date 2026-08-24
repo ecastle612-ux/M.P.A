@@ -104,6 +104,13 @@ export function partnerServiceRequestAbsoluteUrl(origin: string, slug: string): 
   return `${origin.replace(/\/$/, "")}${partnerServiceRequestPath(slug)}`;
 }
 
+export {
+  partnerPropertyCanonicalOrigin,
+  partnerPropertyCanonicalUrl,
+  partnerPropertyServiceRequestPath,
+  partnerPropertyServiceRequestUrl
+} from "./property-portals";
+
 export function isPartnerServiceCategory(value: unknown): value is PartnerServiceCategory {
   return typeof value === "string" && (PARTNER_SERVICE_CATEGORIES as readonly string[]).includes(value);
 }

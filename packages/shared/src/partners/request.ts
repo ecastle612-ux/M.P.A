@@ -28,7 +28,8 @@ function optionalTrim(value: unknown, max: number): string | null {
 }
 
 export function parsePartnerServiceRequestInput(
-  payload: unknown
+  payload: unknown,
+  options: { requirePropertyAddress?: boolean } = {}
 ): { ok: true; data: PartnerServiceRequestInput } | { ok: false; error: string } {
   if (!payload || typeof payload !== "object") {
     return { ok: false, error: "Invalid request." };
@@ -40,7 +41,9 @@ export function parsePartnerServiceRequestInput(
     "partner_id" in body ||
     "partnerId" in body ||
     "user_id" in body ||
-    "userId" in body
+    "userId" in body ||
+    "property_id" in body ||
+    "propertyId" in body
   ) {
     return { ok: false, error: "Invalid request." };
   }
@@ -66,7 +69,7 @@ export function parsePartnerServiceRequestInput(
   if (requesterEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(requesterEmail)) {
     return { ok: false, error: "Enter a valid email address." };
   }
-  if (!propertyAddress) {
+  if (!propertyAddress && options.requirePropertyAddress !== false) {
     return { ok: false, error: "Enter the property or address." };
   }
   if (!isPartnerServiceCategory(category)) {

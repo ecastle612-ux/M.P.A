@@ -14,6 +14,7 @@ export const PARTNER_COMMAND_CENTER_PATH = "/partner";
 export const PARTNER_COMMAND_CENTER_NAV = [
   { href: "/partner", label: "Overview" },
   { href: "/partner/services", label: "Service Requests" },
+  { href: "/partner/properties", label: "Properties" },
   { href: "/partner/referrals", label: "Referrals" },
   { href: "/partner/earnings", label: "Earnings" },
   { href: "/partner/portal", label: "Service Portal" },
