@@ -24,6 +24,7 @@ import {
   resolveCancelNote,
   resolveProgressNote
 } from "../../lib/facility/field-work-order-presentation";
+import { ReceiptAttachmentField } from "../media/receipt-attachment-field";
 
 type WorkOrder = {
   id: string;
@@ -548,6 +549,11 @@ export function MaintenanceCommandCenter() {
                     </p>
                   ) : null}
                 </div>
+                <ReceiptAttachmentField
+                  key={selected.id}
+                  relatedEntityType="maintenance"
+                  relatedEntityId={selected.id}
+                />
                 <dl className="grid gap-2 sm:grid-cols-2">
                   {detailScanLines.map((line) => (
                     <div
