@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 import { isSignWellCompletedStatus, verifySignWellWebhook } from "../../../../../lib/signwell/client";
+import { resolveSignWellLeaseCorrelation } from "../../../../../lib/signwell/correlation";
 import { activateSignedLease } from "../../../../../lib/leasing/lease-service";
 
 type SignWellWebhookBody = {
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
   }
 
   const eventType = body.event.type;
-  const eventTime = body.event.time ?? "";
+  const eventTime = String(body.event.time ?? "");
   const hash = body.event.hash ?? "";
   if (!verifySignWellWebhook({ eventType, eventTime, hash })) {
     return NextResponse.json({ error: "Invalid webhook signature" }, { status: 401 });
@@ -60,34 +61,41 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, ignored: true, eventType });
   }
 
-  let leaseQuery = supabase
+  const { data: leases, error } = await supabase
     .from("lease_agreements")
-    .select("id, organization_id, status")
+    .select("id, organization_id, status, signwell_document_id")
     .eq("signwell_document_id", documentId)
     .limit(1);
-  if (leaseIdFromMeta) {
-    leaseQuery = supabase
-      .from("lease_agreements")
-      .select("id, organization_id, status")
-      .eq("id", leaseIdFromMeta)
-      .limit(1);
-  }
-
-  const { data: leases, error } = await leaseQuery;
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
-  const lease = leases?.[0];
-  if (!lease) {
-    return NextResponse.json({ ok: true, unmatched: true });
+
+  const match = resolveSignWellLeaseCorrelation({
+    signwellDocumentId: documentId,
+    metadataLeaseId: leaseIdFromMeta,
+    metadataOrganizationId: organizationId,
+    lease: (leases?.[0] as {
+      id: string;
+      organization_id: string;
+      signwell_document_id: string | null;
+    } | null) ?? null
+  });
+  if (!match.ok) {
+    return NextResponse.json({ ok: true, unmatched: true, reason: match.reason });
   }
 
   try {
-    await activateSignedLease(supabase, lease.organization_id as string, null, lease.id as string, {
-      channel: "signwell",
-      signwellStatus: documentStatus
-    });
-    return NextResponse.json({ ok: true, activated: true, leaseId: lease.id });
+    await activateSignedLease(
+      supabase,
+      match.lease.organization_id,
+      null,
+      match.lease.id,
+      {
+        channel: "signwell",
+        signwellStatus: documentStatus
+      }
+    );
+    return NextResponse.json({ ok: true, activated: true, leaseId: match.lease.id });
   } catch (activateError) {
     return NextResponse.json(
       {

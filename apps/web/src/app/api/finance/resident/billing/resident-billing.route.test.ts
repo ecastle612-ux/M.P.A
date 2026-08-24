@@ -103,7 +103,7 @@ describe("GET /api/finance/resident/billing P1-01", () => {
     expect(body.accounts[0].onlinePaymentsEnabled).toBe(false);
   });
 
-  it("enables the presentation flag only when execution and occupancy are both true", async () => {
+  it("keeps Pay once hidden when execution is on but Connect is not ready", async () => {
     state.residents = [
       {
         id: "res_1",
@@ -120,8 +120,8 @@ describe("GET /api/finance/resident/billing P1-01", () => {
 
     const response = await GET();
     const body = await response.json();
-    expect(body.onlinePaymentsEnabled).toBe(true);
-    expect(body.accounts[0].onlinePaymentsEnabled).toBe(true);
+    expect(body.onlinePaymentsEnabled).toBe(false);
+    expect(body.accounts[0].onlinePaymentsEnabled).toBe(false);
     expect(body.accounts[0].canPay).toBe(true);
   });
 });

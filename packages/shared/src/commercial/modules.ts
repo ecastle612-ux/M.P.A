@@ -31,6 +31,7 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/pm/properties",
     "/pm/maintenance",
     "/facility/mission-control",
+    "/facility/my-work",
     "/facility/operations",
     "/facility/assets",
     "/facility/preventive-maintenance",
@@ -40,6 +41,9 @@ const STAFF_NAV_HREFS_BY_ROLE: Record<UserRole, readonly string[] | "all"> = {
     "/facility/inventory",
     "/facility/parts",
     "/facility/building-systems",
+    "/partner",
+    "/partner/services",
+    "/partner/properties",
     "/shared/documents",
     "/shared/tables",
     "/shared/reports",
@@ -213,7 +217,8 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     entitlement: "pm.financial_operations",
     href: "/pm/financial-operations",
     readiness: "aligned",
-    description: "Resident billing & rent collection Command Center (S1).",
+    description:
+      "Online rent collection — ACH, cards, Pay Once, and tenant-authorized AutoPay. You set every amount.",
     plannedLabel: "S1 Resident Billing complete — vendor AP / late fees pending later slices"
   },
   {
@@ -253,6 +258,24 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
     description:
       "Facility vendor directory for HVAC, plumbing, electrical, and contractors — assign from Operations."
   },
+    {
+      id: "facility_request_forms",
+      label: "Request Forms",
+      owner: "facility_operations",
+      entitlement: "facility.request_forms",
+      href: "/facility/settings/request-forms",
+      readiness: "aligned",
+      description: "Custom Facility work-request forms, share links, and QR intake."
+    },
+    {
+      id: "facility_assignment_rules",
+      label: "Assignment Rules",
+      owner: "facility_operations",
+      entitlement: "facility.routing",
+      href: "/facility/settings/assignment-rules",
+      readiness: "aligned",
+      description: "Deterministic rules that assign new facility work to authorized staff."
+    },
   {
     id: "assets",
     label: "Assets",
@@ -282,12 +305,12 @@ export const COMMERCIAL_MODULES: readonly CommercialModule[] = [
   },
   {
     id: "preventive_maintenance",
-    label: "Preventive Work",
+    label: "Preventive Maintenance",
     owner: "facility_operations",
     entitlement: "facility.preventive",
     href: "/facility/preventive-maintenance",
     readiness: "aligned",
-    description: "Facility work orders categorized for preventive maintenance tasks.",
+    description: "Create Preventive Maintenance plans. Due work becomes one facility work order.",
   },
   {
     id: "inspections",
@@ -448,6 +471,12 @@ export function navigationGroupsForSku(
           entitlement: "facility.mission_control"
         },
         {
+          href: "/facility/my-work",
+          label: "My Work",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
+        {
           href: "/facility/operations",
           label: "Operations",
           readiness: "aligned",
@@ -466,6 +495,24 @@ export function navigationGroupsForSku(
           entitlement: "facility.operations"
         },
         {
+          href: "/facility/settings/work-templates",
+          label: "Work templates",
+          readiness: "aligned",
+          entitlement: "facility.operations"
+        },
+        {
+          href: "/facility/settings/request-forms",
+          label: "Request Forms",
+          readiness: "aligned",
+          entitlement: "facility.request_forms"
+        },
+        {
+          href: "/facility/settings/assignment-rules",
+          label: "Assignment Rules",
+          readiness: "aligned",
+          entitlement: "facility.routing"
+        },
+        {
           href: "/facility/assets",
           label: "Assets",
           readiness: "aligned",
@@ -473,7 +520,7 @@ export function navigationGroupsForSku(
         },
         {
           href: "/facility/preventive-maintenance",
-          label: "Preventive Work",
+          label: "Preventive Maintenance",
           readiness: "aligned",
           entitlement: "facility.preventive"
         },
@@ -522,6 +569,12 @@ export function navigationGroupsForSku(
     title: navigationGroupTitleForSku("shared", sku) ?? "Shared Platform",
     product: "shared",
     items: [
+      {
+        href: "/partner",
+        label: "Partner Command Center",
+        readiness: "aligned",
+        entitlement: "platform.partner_services"
+      },
       { href: "/shared/documents", label: "Documents", readiness: "aligned", entitlement: "platform.documents" },
       { href: "/shared/tables", label: "Tables", readiness: "aligned", entitlement: "platform.documents" },
       {
@@ -642,7 +695,8 @@ export function workspaceLauncherItemsForSku(
       {
         id: "pm_financial_operations",
         title: "Financial Operations",
-        description: "Resident billing & rent collection Command Center (S1).",
+        description:
+          "Online rent collection — ACH, cards, Pay Once, and tenant-authorized AutoPay. You set every amount.",
         href: "/pm/financial-operations",
         product: "property_manager",
         readiness: "aligned"

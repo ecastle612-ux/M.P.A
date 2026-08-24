@@ -88,7 +88,7 @@ export function defaultHomeForRole(role: UserRole | null | undefined): string {
     case "leasing_agent":
       return "/pm/leasing";
     case "maintenance_technician":
-      return "/pm/maintenance";
+      return "/facility/my-work";
     case "property_owner":
       return "/portal/owner";
     case "vendor":

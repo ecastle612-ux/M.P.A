@@ -1,5 +1,6 @@
+import { effectiveSurfaces, type MemberOperatingScope } from "../auth/operating-scope";
+import type { UserRole } from "../types/roles";
 import type { ProductSku } from "./skus";
-import { skuIncludesFacilityOperations, skuIncludesPropertyManager } from "./skus";
 
 export type CompleteLauncherPriority = {
   id: string;
@@ -221,10 +222,18 @@ export function buildCompleteLauncherPriorities(input: {
   return priorities;
 }
 
-export function buildCompleteWorkspaceHandoffs(sku: ProductSku): CompleteLauncherWorkspaceHandoff[] {
+export function buildCompleteWorkspaceHandoffs(
+  sku: ProductSku,
+  input: { roles?: readonly UserRole[] | undefined; storedScope?: MemberOperatingScope | null | undefined } = {}
+): CompleteLauncherWorkspaceHandoff[] {
   const labels = completeWorkspaceLabels();
+  const surfaces = effectiveSurfaces({
+    sku,
+    roles: input.roles,
+    storedScope: input.storedScope
+  });
   const handoffs: CompleteLauncherWorkspaceHandoff[] = [];
-  if (skuIncludesPropertyManager(sku)) {
+  if (surfaces.has("property")) {
     handoffs.push({
       id: "property_operations",
       title: labels.propertyHome,
@@ -234,7 +243,7 @@ export function buildCompleteWorkspaceHandoffs(sku: ProductSku): CompleteLaunche
       cta: "Open Property Operations"
     });
   }
-  if (skuIncludesFacilityOperations(sku)) {
+  if (surfaces.has("facility")) {
     handoffs.push({
       id: "facility_operations",
       title: labels.facilityHome,
@@ -250,9 +259,22 @@ export function buildCompleteWorkspaceHandoffs(sku: ProductSku): CompleteLaunche
 export function completeLauncherEmptyGuidance(input: {
   propertyCount: number;
   foOpen: number | null;
+  roles?: readonly UserRole[] | undefined;
+  storedScope?: MemberOperatingScope | null | undefined;
+  sku?: ProductSku;
 }): { title: string; detail: string; href: string; cta: string } | null {
   const labels = completeWorkspaceLabels();
-  if (input.propertyCount === 0) {
+  const surfaces = input.sku
+    ? effectiveSurfaces({
+        sku: input.sku,
+        roles: input.roles,
+        storedScope: input.storedScope
+      })
+    : null;
+  const canProperty = surfaces ? surfaces.has("property") : true;
+  const canFacility = surfaces ? surfaces.has("facility") : true;
+
+  if (canProperty && input.propertyCount === 0) {
     return {
       title: "Start by adding your first property",
       detail: labels.propertyCreateClarifier,
@@ -260,11 +282,13 @@ export function completeLauncherEmptyGuidance(input: {
       cta: "Add first property"
     };
   }
-  if (input.foOpen === 0) {
+  if (canFacility && input.foOpen === 0) {
+    const both = canProperty && canFacility;
     return {
       title: "No urgent facility work right now",
-      detail:
-        "When facility work arrives, it appears here and in Facility Operations. You can still open either workspace anytime.",
+      detail: both
+        ? "When facility work arrives, it appears here and in Facility Operations. You can still open either workspace anytime."
+        : "When facility work arrives, it appears here and in Facility Operations.",
       href: labels.facilityHomeHref,
       cta: "Open Facility Operations"
     };

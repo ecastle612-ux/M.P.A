@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { formatMoney, ownerDay1ChecklistForSku } from "@mpa/shared";
+import { formatMoney, MPA_ASSISTANT_KIND, MPA_ASSISTANT_LABEL, ownerDay1ChecklistForSku } from "@mpa/shared";
 import { resolveWorkOrderPriorityVariant, buttonClassName, Button, Alert, Badge, EmptyState, MetricCard, OperationsConsoleShell, Skeleton, TimelineView } from "@mpa/ui";
 import { useCommercialContext } from "../shell/commercial-context";
 import { useOrganizationContext } from "../shell/organization-context";
 import { Breadcrumbs } from "../shell/breadcrumbs";
 import { OwnerDay1ChecklistCard } from "./owner-day1-checklist";
+import { OnlinePaymentsDiscoveryLink } from "./online-payments-discovery";
 
 type NextAction = {
   id: string;
@@ -193,7 +194,7 @@ function healthFromDaily(daily: NonNullable<MissionControlState["dailyOperations
 
 export function MissionControlPage() {
   const { activeOrganization } = useOrganizationContext();
-  const { productLabel, setupComplete } = useCommercialContext();
+  const { productLabel, productSku, setupComplete } = useCommercialContext();
   const [state, setState] = useState<MissionControlState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -315,6 +316,7 @@ export function MissionControlPage() {
             organization. Begin with one clear task: add your first property. After that, Mission
             Control will guide inviting your team, residents, leasing, and daily operations.
           </p>
+          <OnlinePaymentsDiscoveryLink productSku={productSku ?? "mpa_property_manager"} className="mt-3" />
         </section>
       ) : null}
 
@@ -412,8 +414,9 @@ export function MissionControlPage() {
           className="max-w-4xl space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4 md:p-5"
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mpa-color-text-secondary)]">
-            M.P.A. Assistant
+            {MPA_ASSISTANT_LABEL}
           </p>
+          <p className="text-xs text-[var(--mpa-color-text-muted)]">{MPA_ASSISTANT_KIND}</p>
           <p className="text-base font-semibold text-[var(--mpa-color-text-primary)]">
             {state?.assistantRecommendation ??
               nextAction?.assistantRecommendation ??
