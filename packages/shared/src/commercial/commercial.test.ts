@@ -278,7 +278,8 @@ describe("master admin catalog", () => {
       "/admin/commercial/lifecycle",
       "/admin/commercial/subscriptions",
       "/admin/commercial/complimentary-access",
-      "/admin/commercial/checkout"
+      "/admin/commercial/checkout",
+      "/admin/commercial/partners"
     ]);
 
     // No placeholder / future / theater surfaces in nav.

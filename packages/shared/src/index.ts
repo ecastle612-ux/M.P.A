@@ -24,3 +24,4 @@ export * from "./portal/access";
 export * from "./env/base-env";
 export * from "./env/resend";
 export * from "./simplicity";
+export * from "./partners";

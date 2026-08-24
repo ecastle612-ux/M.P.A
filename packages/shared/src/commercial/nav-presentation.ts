@@ -165,7 +165,8 @@ const HREF_META: Record<string, { icon: NavIconName; section: NavSectionId }> = 
   "/admin/commercial/lifecycle": { icon: "lifecycle", section: "commercial" },
   "/admin/commercial/subscriptions": { icon: "subscriptions", section: "commercial" },
   "/admin/commercial/complimentary-access": { icon: "complimentary", section: "commercial" },
-  "/admin/commercial/checkout": { icon: "checkout", section: "commercial" }
+  "/admin/commercial/checkout": { icon: "checkout", section: "commercial" },
+  "/admin/commercial/partners": { icon: "vendors", section: "commercial" }
 };
 
 /** Technician daily destinations — manager admin stays authorized, just off the rail. */

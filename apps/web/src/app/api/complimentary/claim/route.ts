@@ -80,6 +80,14 @@ export async function POST(request: Request) {
       path: "/",
       maxAge: 60 * 60 * 24 * 30
     });
+    const { readPartnerRefCookie } = await import("../../../../lib/partners/cookie");
+    const { safeAttributePartnerReferral } = await import("../../../../lib/partners/hooks");
+    await safeAttributePartnerReferral({
+      organizationId: result.organizationId,
+      slug: readPartnerRefCookie(request.headers.get("cookie")),
+      source: "complimentary_claim",
+      customerEmail: user?.email ?? result.grant.recipientEmail
+    });
     return response;
   } catch (error) {
     return NextResponse.json(
