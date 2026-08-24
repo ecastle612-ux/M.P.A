@@ -28,7 +28,7 @@ export async function safeAttributePartnerReferral(input: {
         organizationId,
         slug,
         source: input.source,
-        customerEmail: input.customerEmail
+        ...(input.customerEmail !== undefined ? { customerEmail: input.customerEmail } : {})
       },
       deps
     );
@@ -60,14 +60,20 @@ export async function safeRecordPartnerCommission(input: {
     await recordPartnerCommissionFromPaidInvoice(
       {
         organizationId: input.organizationId ?? null,
-        slug: parsePartnerRefParam(input.slug) ?? slugFromMeta(input.metadata),
-        customerEmail: input.customerEmail,
+        ...(parsePartnerRefParam(input.slug) || slugFromMeta(input.metadata)
+          ? { slug: parsePartnerRefParam(input.slug) ?? slugFromMeta(input.metadata) }
+          : {}),
+        ...(input.customerEmail !== undefined ? { customerEmail: input.customerEmail } : {}),
         amountPaidCents: input.amountPaidCents,
-        taxCents: input.taxCents,
+        ...(input.taxCents !== undefined ? { taxCents: input.taxCents } : {}),
         stripeEventId: input.stripeEventId,
-        stripeInvoiceId: input.stripeInvoiceId,
-        stripeSubscriptionId: input.stripeSubscriptionId,
-        complimentaryOnly: input.complimentaryOnly
+        ...(input.stripeInvoiceId !== undefined ? { stripeInvoiceId: input.stripeInvoiceId } : {}),
+        ...(input.stripeSubscriptionId !== undefined
+          ? { stripeSubscriptionId: input.stripeSubscriptionId }
+          : {}),
+        ...(input.complimentaryOnly !== undefined
+          ? { complimentaryOnly: input.complimentaryOnly }
+          : {})
       },
       deps
     );

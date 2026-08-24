@@ -237,12 +237,13 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
         ? listSaasPurchases().find((row) => row.stripeSubscriptionId === subId)
         : undefined;
       const { safeRecordPartnerCommission } = await import("../partners/hooks");
+      const invoiceTax = (invoice as { tax?: number }).tax;
       await safeRecordPartnerCommission({
-        organizationId: paid?.organizationId ?? purchase?.organizationId,
+        organizationId: paid?.organizationId ?? purchase?.organizationId ?? null,
         metadata: purchase?.metadata ?? null,
         customerEmail,
         amountPaidCents: typeof invoice.amount_paid === "number" ? invoice.amount_paid : 0,
-        taxCents: typeof (invoice as { tax?: number }).tax === "number" ? (invoice as { tax?: number }).tax : null,
+        taxCents: typeof invoiceTax === "number" ? invoiceTax : null,
         stripeEventId: event.id,
         stripeInvoiceId: invoice.id,
         stripeSubscriptionId: subId,
@@ -285,9 +286,10 @@ async function handleLifecycleEvent(event: Stripe.Event): Promise<void> {
         eventId: event.id
       });
       const { safeVoidPartnerCommissions } = await import("../partners/hooks");
+      const invoiceRef = (charge as { invoice?: string | { id?: string } | null }).invoice;
       await safeVoidPartnerCommissions({
         organizationId: refunded?.organizationId ?? null,
-        stripeInvoiceId: typeof charge.invoice === "string" ? charge.invoice : null,
+        stripeInvoiceId: typeof invoiceRef === "string" ? invoiceRef : invoiceRef?.id ?? null,
         stripeSubscriptionId: refunded?.stripeSubscriptionId ?? null,
         stripeEventId: event.id
       });

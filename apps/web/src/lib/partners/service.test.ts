@@ -238,12 +238,14 @@ describe("PARTNER-001 partner service", () => {
     );
     expect(failed).toMatchObject({ ok: true, skipped: "not_commissionable" });
 
+    const paidId = first.ok ? first.commission?.id : null;
+    expect(paidId).toBeTruthy();
     const paid = await mutatePartner(
       {
         partnerId: partner.id,
         action: "mark_paid",
         actorUserId: "op-1",
-        commissionId: first.ok ? first.commission?.id : undefined
+        commissionId: paidId as string
       },
       { store }
     );
@@ -263,7 +265,7 @@ describe("PARTNER-001 partner service", () => {
         partnerId: partner.id,
         action: "mark_paid",
         actorUserId: "op-1",
-        commissionId: after?.id
+        ...(after?.id ? { commissionId: after.id } : {})
       },
       { store }
     );

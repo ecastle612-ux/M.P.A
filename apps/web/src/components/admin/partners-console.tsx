@@ -82,14 +82,45 @@ export function PartnersConsole() {
       setError(payload.error ?? "Failed to load partners");
       return;
     }
-    setPartners(payload.partners ?? []);
+    const nextPartners = payload.partners ?? [];
+    setPartners(nextPartners);
     setReferrals(payload.referrals ?? []);
     setCommissions(payload.commissions ?? []);
     setEvents(payload.events ?? []);
+    const current = nextPartners.find((row) => row.id === selectedId);
+    if (current) {
+      setSlug(current.publicSlug ?? "");
+      setPartnerType(current.partnerType);
+      setCommissionPercent(String(current.commissionPercent));
+    }
   }
 
   useEffect(() => {
-    void load();
+    const controller = new AbortController();
+    void (async () => {
+      const response = await fetch("/api/admin/partners", { signal: controller.signal });
+      const payload = (await response.json()) as {
+        partners?: PartnerRow[];
+        referrals?: ReferralRow[];
+        commissions?: CommissionRow[];
+        events?: EventRow[];
+        error?: string;
+      };
+      if (controller.signal.aborted) return;
+      if (!response.ok) {
+        setError(payload.error ?? "Failed to load partners");
+        return;
+      }
+      setPartners(payload.partners ?? []);
+      setReferrals(payload.referrals ?? []);
+      setCommissions(payload.commissions ?? []);
+      setEvents(payload.events ?? []);
+    })().catch(() => {
+      if (!controller.signal.aborted) {
+        setError("Failed to load partners");
+      }
+    });
+    return () => controller.abort();
   }, []);
 
   const selected = useMemo(
@@ -97,12 +128,12 @@ export function PartnersConsole() {
     [partners, selectedId]
   );
 
-  useEffect(() => {
-    if (!selected) return;
-    setSlug(selected.publicSlug ?? "");
-    setPartnerType(selected.partnerType);
-    setCommissionPercent(String(selected.commissionPercent));
-  }, [selected]);
+  function selectPartner(row: PartnerRow) {
+    setSelectedId(row.id);
+    setSlug(row.publicSlug ?? "");
+    setPartnerType(row.partnerType);
+    setCommissionPercent(String(row.commissionPercent));
+  }
 
   async function act(
     action: string,
@@ -167,7 +198,7 @@ export function PartnersConsole() {
                   <button
                     type="button"
                     className="text-left font-medium underline"
-                    onClick={() => setSelectedId(row.id)}
+                    onClick={() => selectPartner(row)}
                   >
                     {row.companyName}
                   </button>

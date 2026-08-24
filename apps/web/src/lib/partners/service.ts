@@ -155,7 +155,15 @@ export async function mutatePartner(
   deps: PartnerServiceDeps = defaultPartnerDeps()
 ): Promise<{ ok: true; partner?: PlatformPartner; commission?: PartnerCommission } | { ok: false; error: string }> {
   if (input.action === "mark_paid" || input.action === "clear_flag") {
-    return mutateCommission(input, deps);
+    return mutateCommission(
+      {
+        action: input.action,
+        actorUserId: input.actorUserId,
+        partnerId: input.partnerId,
+        ...(input.commissionId ? { commissionId: input.commissionId } : {})
+      },
+      deps
+    );
   }
 
   const partner = await deps.store.getPartner(input.partnerId);
@@ -163,7 +171,7 @@ export async function mutatePartner(
     return { ok: false, error: "Partner not found." };
   }
 
-  let next: PlatformPartner = { ...partner, updatedAt: nowIso() };
+  const next: PlatformPartner = { ...partner, updatedAt: nowIso() };
 
   if (input.action === "update" || input.action === "approve" || input.action === "activate") {
     if (input.partnerType !== undefined) {
@@ -377,7 +385,7 @@ export async function recordPartnerCommissionFromPaidInvoice(
     return { ok: true, skipped: "duplicate_invoice" };
   }
 
-  let organizationId = input.organizationId;
+  const organizationId = input.organizationId;
   let referral = organizationId ? await deps.store.getReferralByOrganization(organizationId) : null;
   if (!referral && organizationId && input.slug) {
     const attributed = await recordPartnerAttribution(
@@ -385,7 +393,7 @@ export async function recordPartnerCommissionFromPaidInvoice(
         organizationId,
         slug: input.slug,
         source: "invoice_paid",
-        customerEmail: input.customerEmail
+        ...(input.customerEmail !== undefined ? { customerEmail: input.customerEmail } : {})
       },
       deps
     );
@@ -404,7 +412,7 @@ export async function recordPartnerCommissionFromPaidInvoice(
 
   const eligibleRevenueCents = eligibleRevenueCentsFromInvoice({
     amountPaidCents: input.amountPaidCents,
-    taxCents: input.taxCents
+    ...(input.taxCents !== undefined ? { taxCents: input.taxCents } : {})
   });
   const existing = await deps.store.listCommissions(partner.id);
   const qualifyingCount = existing.filter(
