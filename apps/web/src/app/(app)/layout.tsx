@@ -30,6 +30,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       organizations={shellContext.organizations}
       defaultOrganizationId={shellContext.defaultOrganizationId}
       isPlatformOperator={isPlatformOperator}
+      userId={user.id}
     >
       {children}
     </ApplicationShell>

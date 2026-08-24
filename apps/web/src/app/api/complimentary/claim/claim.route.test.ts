@@ -74,7 +74,7 @@ describe("complimentary claim route", () => {
     const claimed = await POST(
       new Request("http://localhost/api/complimentary/claim", {
         method: "POST",
-        body: JSON.stringify({ token: sent.claimToken, password: "password1" })
+        body: JSON.stringify({ token: sent.claimToken, password: "password1234" })
       })
     );
     expect(claimed.status).toBe(200);

@@ -9,8 +9,8 @@ function read(rel: string): string {
   return readFileSync(join(webRoot, rel), "utf8");
 }
 
-describe("P1-01 tenant Pay now presentation", () => {
-  it("hides Pay now unless occupancy and org execution both allow it", () => {
+describe("P1-01 tenant Pay once presentation", () => {
+  it("hides Pay once unless occupancy, Connect, and org execution all allow it", () => {
     const portal = read("components/finance/resident-billing-portal.tsx");
     expect(portal).toMatch(/account\.canPay !== false/);
     expect(portal).toMatch(/account\.onlinePaymentsEnabled \?\? onlinePaymentsEnabled/);
@@ -19,7 +19,7 @@ describe("P1-01 tenant Pay now presentation", () => {
     expect(portal).not.toMatch(/isStripeConfigured/);
   });
 
-  it("does not derive tenant Pay now from STRIPE_SECRET_KEY", () => {
+  it("does not derive tenant Pay once from STRIPE_SECRET_KEY", () => {
     const route = read("app/api/finance/resident/billing/route.ts");
     expect(route).not.toMatch(/isStripeConfigured/);
     expect(route).toMatch(/stripePaymentExecutionEnabled/);

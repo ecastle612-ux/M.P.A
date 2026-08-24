@@ -1,6 +1,8 @@
 import type Stripe from "stripe";
 import {
+  PARTNER_REF_METADATA_KEY,
   buildUnitVolumeCheckoutMetadata,
+  parsePartnerRefParam,
   resolveCheckoutLineItems,
   unitVolumeCheckoutCancelPath,
   validateQuoteForCheckout,
@@ -37,6 +39,7 @@ export type CreateUnitVolumeCheckoutInput = {
   quote: CommercialQuote;
   customerEmail?: string | null;
   demoSessionId?: string | null;
+  partnerRef?: string | null;
   idempotencyKey?: string | null;
   clientBody?: Record<string, unknown> | null;
 };
@@ -139,6 +142,10 @@ export async function createUnitVolumeCheckoutSession(
     quote: input.quote,
     ...(input.demoSessionId ? { demoSessionId: input.demoSessionId } : {})
   });
+  const partnerRef = parsePartnerRefParam(input.partnerRef);
+  if (partnerRef) {
+    metadata[PARTNER_REF_METADATA_KEY] = partnerRef;
+  }
   const appUrl = serverEnv.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
   const idempotencyKey =
     input.idempotencyKey?.trim() ||

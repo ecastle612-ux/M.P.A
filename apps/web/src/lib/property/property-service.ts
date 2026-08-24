@@ -39,6 +39,7 @@ export async function getMissionControlState(
     displayName?: string | null;
     organizationName?: string | null;
     roles?: UserRole[];
+    permissions?: readonly string[] | null;
   }
 ) {
   const properties = await listPortfolioProperties(supabase, organizationId);
