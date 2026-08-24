@@ -142,6 +142,18 @@ export async function assertMediaEntityAccess(input: {
     }
     return { ok: true };
   }
+  if (input.relatedEntityType === "partner_service_request") {
+    const { data: request } = await input.supabase
+      .from("platform_partner_service_requests")
+      .select("id")
+      .eq("organization_id", input.organizationId)
+      .eq("id", input.relatedEntityId)
+      .maybeSingle();
+    if (!request) {
+      return { error: NextResponse.json({ error: "Request not found" }, { status: 404 }) };
+    }
+    return { ok: true };
+  }
   if (input.relatedEntityType === "conversation_message") {
     const { canReadConversationMessageMedia } = await import("../communications/conversation-service");
     const allowed = await canReadConversationMessageMedia(

@@ -15,7 +15,8 @@ export const PLATFORM_ENTITLEMENTS = [
   "platform.guided_setup",
   "platform.billing_self",
   "platform.marketplace_vendor_consume",
-  "platform.ai"
+  "platform.ai",
+  "platform.partner_services"
 ] as const;
 
 export const PROPERTY_MANAGER_ENTITLEMENTS = [

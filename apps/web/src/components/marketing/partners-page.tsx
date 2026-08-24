@@ -186,11 +186,13 @@ export function PartnersPage({ isAuthenticated = false }: { isAuthenticated?: bo
             Planned — not Production-live
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--mpa-color-text-secondary)]">
-            Certified Service Partners are planned to receive branded customer request portals such
-            as <code className="text-xs">my-property-assistant.com/request/your-company</code>.
+            Give your customers a dedicated service-request link and QR code powered by M.P.A.
+            Certified Service and Strategic Partners are planned to receive branded customer request
+            portals such as{" "}
+            <code className="text-xs">my-property-assistant.com/request/your-company</code>.
             Customers will eventually be able to submit maintenance and service requests,
             descriptions, photos and videos, and property or unit information through that
-            partner-specific URL.
+            partner-specific URL. This is not Production-live.
           </p>
         </section>
 

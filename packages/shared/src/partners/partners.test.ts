@@ -7,6 +7,9 @@ import {
   isReservedPartnerSlug,
   normalizePartnerSlug,
   parsePartnerApplicationInput,
+  parsePartnerServiceRequestInput,
+  partnerPortalIsLive,
+  partnerServiceRequestPath,
   eligibleRevenueCentsFromInvoice,
   parsePartnerRefParam,
   partnerReferralPath,
@@ -107,5 +110,48 @@ describe("PARTNER-001 shared contracts", () => {
     });
     expect(spam.ok).toBe(false);
     if (!spam.ok) expect(spam.error).toBe("spam");
+  });
+
+  it("gates public portals and parses untrusted service requests", () => {
+    expect(partnerServiceRequestPath("northstar-property-services")).toBe(
+      "/request/northstar-property-services"
+    );
+    expect(
+      partnerPortalIsLive({
+        status: "active",
+        partnerType: "certified_service",
+        publicPortalEnabled: true,
+        organizationId: "org-1",
+        publicSlug: "northstar-property-services"
+      })
+    ).toBe(true);
+    expect(
+      partnerPortalIsLive({
+        status: "active",
+        partnerType: "referral",
+        publicPortalEnabled: true,
+        organizationId: "org-1",
+        publicSlug: "referral-only"
+      })
+    ).toBe(false);
+    const parsed = parsePartnerServiceRequestInput({
+      requesterName: "Jamie",
+      email: "jamie@example.test",
+      address: "100 Main",
+      category: "plumbing",
+      description: "Leak under the sink.",
+      urgency: "urgent"
+    });
+    expect(parsed.ok).toBe(true);
+    expect(
+      parsePartnerServiceRequestInput({
+        requesterName: "Jamie",
+        email: "jamie@example.test",
+        address: "100 Main",
+        category: "plumbing",
+        description: "Leak under the sink.",
+        organizationId: "x"
+      }).ok
+    ).toBe(false);
   });
 });

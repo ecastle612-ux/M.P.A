@@ -64,6 +64,11 @@ describe("PLAT-002 API entitlement catalog", () => {
     ).toBe(true);
     expect(requiredEntitlementForApiPath("/api/portal/tenant/conversations")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/commerce/checkout")).toBeNull();
+    expect(requiredEntitlementForApiPath("/api/partners/apply")).toBeNull();
+    expect(requiredEntitlementForApiPath("/api/partners/ref")).toBeNull();
+    expect(requiredEntitlementForApiPath("/api/public/partners/northstar-property-services")).toBeNull();
+    expect(requiredEntitlementForApiPath("/api/partners/requests")).toBe("platform.partner_services");
+    expect(requiredEntitlementForPath("/partner/services")).toBe("platform.partner_services");
   });
 
   it("denies FO SKU on finance and property APIs (C1/C2/C3)", () => {

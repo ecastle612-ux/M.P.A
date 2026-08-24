@@ -103,6 +103,9 @@ export async function persistApplication(
     partnerType: data.interestedPartnerType,
     status: "applied",
     publicSlug: slug,
+    organizationId: null,
+    publicPortalEnabled: false,
+    portalDescription: null,
     commissionBps: DEFAULT_COMMISSION_BPS,
     approvedAt: null,
     activatedAt: null,
@@ -151,6 +154,9 @@ export async function mutatePartner(
     partnerType?: string;
     commissionBps?: number;
     commissionId?: string;
+    organizationId?: string | null;
+    publicPortalEnabled?: boolean;
+    portalDescription?: string | null;
   },
   deps: PartnerServiceDeps = defaultPartnerDeps()
 ): Promise<{ ok: true; partner?: PlatformPartner; commission?: PartnerCommission } | { ok: false; error: string }> {
@@ -197,6 +203,15 @@ export async function mutatePartner(
       }
       next.publicSlug = slug.slug;
     }
+    if (input.organizationId !== undefined) {
+      next.organizationId = input.organizationId;
+    }
+    if (typeof input.publicPortalEnabled === "boolean") {
+      next.publicPortalEnabled = input.publicPortalEnabled;
+    }
+    if (input.portalDescription !== undefined) {
+      next.portalDescription = input.portalDescription;
+    }
   }
 
   if (input.action === "approve") {
@@ -229,6 +244,7 @@ export async function mutatePartner(
     }
     next.status = "suspended";
     next.suspendedAt = nowIso();
+    next.publicPortalEnabled = false;
   }
 
   await deps.store.updatePartner(next);

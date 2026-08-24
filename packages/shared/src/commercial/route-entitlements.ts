@@ -71,6 +71,9 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
   if (path.startsWith("/shared/")) {
     return "deny";
   }
+  if (path === "/partner/services" || path.startsWith("/partner/services/")) {
+    return "platform.partner_services";
+  }
 
   const pmRoutes: Array<[string, EntitlementKey]> = [
     ["/pm/mission-control", "pm.mission_control"],
@@ -144,9 +147,15 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
     path.startsWith("/api/invitations") ||
     path.startsWith("/api/profile") ||
     path.startsWith("/api/shared/media") ||
-    path.startsWith("/api/public/request")
+    path.startsWith("/api/public/request") ||
+    path.startsWith("/api/public/partners") ||
+    path.startsWith("/api/partners/apply") ||
+    path.startsWith("/api/partners/ref")
   ) {
     return null;
+  }
+  if (path.startsWith("/api/partners/")) {
+    return "platform.partner_services";
   }
 
   if (

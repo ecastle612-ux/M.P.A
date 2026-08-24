@@ -19,10 +19,16 @@ export async function GET(request: Request, context: Params) {
   }
   try {
     const result = await loadPublicRequestStatus(supabase, statusToken);
-    if (!result.ok) {
-      return NextResponse.json({ error: result.error }, { status: result.status });
+    if (result.ok) {
+      return NextResponse.json(result.view);
     }
-    return NextResponse.json(result.view);
+    const { loadPartnerRequestDeps } = await import("../../../../../../lib/partners/request-deps");
+    const { loadPartnerRequestPublicStatus } = await import("../../../../../../lib/partners/request-service");
+    const partnerView = await loadPartnerRequestPublicStatus(statusToken, await loadPartnerRequestDeps());
+    if (partnerView) {
+      return NextResponse.json(partnerView);
+    }
+    return NextResponse.json({ error: result.error }, { status: result.status });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to load status" },

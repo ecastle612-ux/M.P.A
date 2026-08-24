@@ -23,6 +23,9 @@ export type PlatformPartner = {
   partnerType: PartnerType;
   status: PartnerStatus;
   publicSlug: string | null;
+  organizationId: string | null;
+  publicPortalEnabled: boolean;
+  portalDescription: string | null;
   commissionBps: number;
   approvedAt: string | null;
   activatedAt: string | null;

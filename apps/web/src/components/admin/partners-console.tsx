@@ -19,6 +19,12 @@ type PartnerRow = {
   partnerTypeLabel: string;
   status: string;
   publicSlug: string | null;
+  organizationId: string | null;
+  publicPortalEnabled: boolean;
+  portalDescription: string | null;
+  portalLive: boolean;
+  portalPath: string | null;
+  requestCount: number;
   commissionBps: number;
   commissionPercent: number;
   createdAt: string;
@@ -62,6 +68,10 @@ export function PartnersConsole() {
   const [slug, setSlug] = useState("");
   const [partnerType, setPartnerType] = useState<PartnerType>("referral");
   const [commissionPercent, setCommissionPercent] = useState("20");
+  const [organizationId, setOrganizationId] = useState("");
+  const [portalEnabled, setPortalEnabled] = useState(false);
+  const [portalDescription, setPortalDescription] = useState("");
+  const [qrSvg, setQrSvg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -92,6 +102,10 @@ export function PartnersConsole() {
       setSlug(current.publicSlug ?? "");
       setPartnerType(current.partnerType);
       setCommissionPercent(String(current.commissionPercent));
+      setOrganizationId(current.organizationId ?? "");
+      setPortalEnabled(current.publicPortalEnabled);
+      setPortalDescription(current.portalDescription ?? "");
+      setQrSvg(null);
     }
   }
 
@@ -133,6 +147,10 @@ export function PartnersConsole() {
     setSlug(row.publicSlug ?? "");
     setPartnerType(row.partnerType);
     setCommissionPercent(String(row.commissionPercent));
+    setOrganizationId(row.organizationId ?? "");
+    setPortalEnabled(row.publicPortalEnabled);
+    setPortalDescription(row.portalDescription ?? "");
+    setQrSvg(null);
   }
 
   async function act(
@@ -188,6 +206,8 @@ export function PartnersConsole() {
               <th className="px-3 py-2 font-medium">Status</th>
               <th className="px-3 py-2 font-medium">Type</th>
               <th className="px-3 py-2 font-medium">Slug</th>
+              <th className="px-3 py-2 font-medium">Portal</th>
+              <th className="px-3 py-2 font-medium">Requests</th>
               <th className="px-3 py-2 font-medium">Rate</th>
             </tr>
           </thead>
@@ -207,6 +227,8 @@ export function PartnersConsole() {
                 <td className="px-3 py-2 capitalize">{row.status}</td>
                 <td className="px-3 py-2">{row.partnerTypeLabel}</td>
                 <td className="px-3 py-2">{row.publicSlug ?? "—"}</td>
+                <td className="px-3 py-2">{row.portalLive ? "Live" : row.publicPortalEnabled ? "Off" : "Disabled"}</td>
+                <td className="px-3 py-2">{row.requestCount}</td>
                 <td className="px-3 py-2">{row.commissionPercent}%</td>
               </tr>
             ))}
@@ -229,6 +251,13 @@ export function PartnersConsole() {
               Referral path: <code>{partnerReferralPath(selected.publicSlug)}</code>
             </p>
           ) : null}
+          {selected.portalPath ? (
+            <p className="text-sm">
+              Portal URL: <code>{selected.portalPath}</code>
+              {selected.portalLive ? " · live" : " · not live"}
+            </p>
+          ) : null}
+          <p className="text-sm">Request count: {selected.requestCount}</p>
 
           <div className="grid gap-3 md:grid-cols-3">
             <FormField id="partner-slug" label="Public slug">
@@ -254,6 +283,28 @@ export function PartnersConsole() {
                 onChange={(event) => setCommissionPercent(event.target.value)}
               />
             </FormField>
+            <FormField id="partner-org" label="Receiving organization ID">
+              <Input
+                id="partner-org"
+                value={organizationId}
+                onChange={(event) => setOrganizationId(event.target.value)}
+              />
+            </FormField>
+            <FormField id="partner-portal-description" label="Public portal description">
+              <Input
+                id="partner-portal-description"
+                value={portalDescription}
+                onChange={(event) => setPortalDescription(event.target.value)}
+              />
+            </FormField>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={portalEnabled}
+                onChange={(event) => setPortalEnabled(event.target.checked)}
+              />
+              Public Service Portal Enabled
+            </label>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -264,7 +315,10 @@ export function PartnersConsole() {
                 void act("update", {
                   publicSlug: slug,
                   partnerType,
-                  commissionPercent: Number(commissionPercent)
+                  commissionPercent: Number(commissionPercent),
+                  organizationId: organizationId || null,
+                  publicPortalEnabled: portalEnabled,
+                  portalDescription: portalDescription || null
                 })
               }
             >
@@ -282,7 +336,32 @@ export function PartnersConsole() {
             <Button type="button" disabled={loading} variant="secondary" onClick={() => void act("reject")}>
               Reject
             </Button>
+            <Button
+              type="button"
+              disabled={loading || !selected.id}
+              variant="secondary"
+              onClick={() => {
+                void (async () => {
+                  const response = await fetch(`/api/admin/partners/qr?partnerId=${selected.id}`);
+                  const payload = (await response.json()) as { qrSvg?: string; error?: string };
+                  if (!response.ok || !payload.qrSvg) {
+                    setError(payload.error ?? "QR is unavailable.");
+                    return;
+                  }
+                  setQrSvg(payload.qrSvg);
+                })();
+              }}
+            >
+              Show portal QR
+            </Button>
           </div>
+          {qrSvg ? (
+            <div
+              className="max-w-[220px] rounded-md border border-[var(--mpa-color-border-subtle)] bg-white p-3"
+              aria-label="Partner portal QR code"
+              dangerouslySetInnerHTML={{ __html: qrSvg }}
+            />
+          ) : null}
 
           <div>
             <h3 className="font-semibold">Referred organizations</h3>
