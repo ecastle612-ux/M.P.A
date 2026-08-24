@@ -125,7 +125,7 @@ describe("STAB-002 claim-password bind hardening", () => {
         body: JSON.stringify({
           sessionId: "cs_fake",
           email: "buyer@example.com",
-          password: "password123",
+          password: "password1234",
           bindToken: "anything"
         })
       })
@@ -147,7 +147,7 @@ describe("STAB-002 claim-password bind hardening", () => {
         body: JSON.stringify({
           sessionId,
           email: "buyer@example.com",
-          password: "password123"
+          password: "password1234"
         })
       })
     );
@@ -168,7 +168,7 @@ describe("STAB-002 claim-password bind hardening", () => {
         body: JSON.stringify({
           sessionId,
           email: "buyer@example.com",
-          password: "password123",
+          password: "password1234",
           bindToken: "forged"
         })
       })
@@ -188,7 +188,7 @@ describe("STAB-002 claim-password bind hardening", () => {
         body: JSON.stringify({
           sessionId,
           email: "buyer@example.com",
-          password: "password123",
+          password: "password1234",
           bindToken: issued.token
         })
       })
@@ -216,7 +216,7 @@ describe("STAB-002 claim-password bind hardening", () => {
         body: JSON.stringify({
           sessionId,
           email: "buyer@example.com",
-          password: "password123",
+          password: "password1234",
           bindToken: issued.token
         })
       })
@@ -229,7 +229,7 @@ describe("STAB-002 claim-password bind hardening", () => {
         body: JSON.stringify({
           sessionId,
           email: "buyer@example.com",
-          password: "password123",
+          password: "password1234",
           bindToken: issued.token
         })
       })
@@ -253,7 +253,7 @@ describe("STAB-002 claim-password bind hardening", () => {
         body: JSON.stringify({
           sessionId,
           email: "buyer@example.com",
-          password: "password123",
+          password: "password1234",
           bindToken: issued.token
         })
       })
@@ -275,7 +275,7 @@ describe("STAB-002 claim-password bind hardening", () => {
         body: JSON.stringify({
           sessionId,
           email: "attacker@example.com",
-          password: "password123",
+          password: "password1234",
           bindToken: issued.token
         })
       })
@@ -284,6 +284,23 @@ describe("STAB-002 claim-password bind hardening", () => {
     const body = (await res.json()) as { error: string };
     expect(body.error).toBe("email_mismatch");
     expect(JSON.stringify(body)).not.toContain(issued.token);
+  });
+
+  it("rejects a password shorter than 12 characters before bind work", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/commerce/provision/claim-password", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sessionId: "cs_short",
+          email: "buyer@example.com",
+          password: "password123",
+          bindToken: "anything"
+        })
+      })
+    );
+    expect(res.status).toBe(400);
+    expect(adminCalls).toHaveLength(0);
   });
 
   it("rate-limits repeated attempts", async () => {
@@ -303,7 +320,7 @@ describe("STAB-002 claim-password bind hardening", () => {
           body: JSON.stringify({
             sessionId,
             email: "buyer@example.com",
-            password: "password123",
+            password: "password1234",
             bindToken: "wrong-token"
           })
         })

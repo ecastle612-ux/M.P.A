@@ -21,7 +21,7 @@ export function PricingJsonLd() {
       {
         "@type": "Product",
         name: "Property Manager",
-        description: `Up to ${UNIT_BLOCK_SIZE} managed units included. Additional Unit Capacity available.`,
+        description: `Up to ${UNIT_BLOCK_SIZE} managed units included. Online rent collection — ACH, cards, and tenant AutoPay. Additional Unit Capacity available.`,
         offers: {
           "@type": "Offer",
           price: String(PM_BASE_MONTHLY_USD),
@@ -45,7 +45,7 @@ export function PricingJsonLd() {
       {
         "@type": "Product",
         name: "Complete Platform",
-        description: `Up to ${UNIT_BLOCK_SIZE} managed units included. Additional Unit Capacity available.`,
+        description: `Up to ${UNIT_BLOCK_SIZE} managed units included. Online rent collection on the Property Operations side — ACH, cards, and tenant AutoPay. Additional Unit Capacity available.`,
         offers: {
           "@type": "Offer",
           price: String(COMPLETE_BASE_MONTHLY_USD),

@@ -86,9 +86,24 @@ export const createFacilityWorkOrderInputSchema = z.object({
   unitId: z.string().uuid().optional(),
   facilityAssetLabel: z.string().trim().max(160).optional(),
   facilityAssetId: z.string().uuid().optional(),
-  dueAt: z.string().datetime().optional()
+  dueAt: z.string().datetime().optional(),
+  /** Optional active FO work template — snapshots checklist onto the new work order. */
+  templateId: z.string().uuid().optional()
 });
 export type CreateFacilityWorkOrderInput = z.infer<typeof createFacilityWorkOrderInputSchema>;
+
+export const createStaffResidentialWorkOrderInputSchema = z.object({
+  title: z.string().trim().min(3).max(160),
+  description: z.string().trim().min(3).max(4000),
+  category: z.enum(WORK_ORDER_CATEGORIES).default("general"),
+  priority: z.enum(WORK_ORDER_PRIORITIES).default("normal"),
+  propertyId: z.string().uuid(),
+  unitId: z.string().uuid().optional(),
+  residentId: z.string().uuid().optional()
+});
+export type CreateStaffResidentialWorkOrderInput = z.infer<
+  typeof createStaffResidentialWorkOrderInputSchema
+>;
 
 export const triageWorkOrderInputSchema = z.object({
   workOrderId: z.string().uuid(),
@@ -108,7 +123,9 @@ export type AssignWorkOrderInput = z.infer<typeof assignWorkOrderInputSchema>;
 export const progressWorkOrderInputSchema = z.object({
   workOrderId: z.string().uuid(),
   action: z.enum(["start", "progress", "complete"]),
-  note: z.string().trim().min(1).max(2000)
+  note: z.string().trim().min(1).max(2000),
+  /** Execution signal only — does not invent a new status enum (docs/207). */
+  executionSignal: z.enum(["paused", "blocked", "need_parts", "escalated"]).optional()
 });
 export type ProgressWorkOrderInput = z.infer<typeof progressWorkOrderInputSchema>;
 

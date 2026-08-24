@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  evaluatePathEntitlement,
   ownerDay1ChecklistForSku,
   skuIncludesFacilityOperations,
   skuIncludesPropertyManager,
@@ -20,11 +21,15 @@ import {
   workspaceSectionLabel
 } from "../../lib/commercial/complete-launcher-presentation";
 import { OwnerDay1ChecklistCard } from "./owner-day1-checklist";
+import { OnlinePaymentsDiscoveryLink } from "./online-payments-discovery";
 
 const linkFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mpa-color-border-focus,#0F6B56)] focus-visible:ring-offset-2";
 
 function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
+  const { canAccess, roles, operatingScope } = useCommercialContext();
+  const canOpenProperty = canAccess("pm.mission_control");
+  const canOpenFacility = canAccess("facility.mission_control");
   const [pmBody, setPmBody] = useState<PmMissionControlApiBody | null>(null);
   const [foBody, setFoBody] = useState<FoMissionControlApiBody | null>(null);
   const [pmError, setPmError] = useState<string | null>(null);
@@ -37,22 +42,26 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
 
     void (async () => {
       const [pmResult, foResult] = await Promise.allSettled([
-        fetch("/api/pm/mission-control", { signal: controller.signal }).then(async (response) => {
-          const body = (await response.json()) as PmMissionControlApiBody;
-          if (!response.ok) {
-            throw new Error(body.error ?? "Failed to load Property Operations");
-          }
-          return body;
-        }),
-        fetch("/api/facility/mission-control", { signal: controller.signal }).then(
-          async (response) => {
-            const body = (await response.json()) as FoMissionControlApiBody;
-            if (!response.ok || !body.snapshot) {
-              throw new Error(body.error ?? "Failed to load Facility Operations");
-            }
-            return body;
-          }
-        )
+        canOpenProperty
+          ? fetch("/api/pm/mission-control", { signal: controller.signal }).then(async (response) => {
+              const body = (await response.json()) as PmMissionControlApiBody;
+              if (!response.ok) {
+                throw new Error(body.error ?? "Failed to load Property Operations");
+              }
+              return body;
+            })
+          : Promise.resolve(null),
+        canOpenFacility
+          ? fetch("/api/facility/mission-control", { signal: controller.signal }).then(
+              async (response) => {
+                const body = (await response.json()) as FoMissionControlApiBody;
+                if (!response.ok || !body.snapshot) {
+                  throw new Error(body.error ?? "Failed to load Facility Operations");
+                }
+                return body;
+              }
+            )
+          : Promise.resolve(null)
       ]);
 
       if (controller.signal.aborted) {
@@ -87,7 +96,7 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
     })();
 
     return () => controller.abort();
-  }, [reloadToken]);
+  }, [canOpenFacility, canOpenProperty, reloadToken]);
 
   function retry() {
     setLoading(true);
@@ -101,8 +110,28 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
     pmBody,
     foBody,
     pmError,
-    foError
+    foError,
+    roles,
+    storedScope: operatingScope
   });
+  const day1 = ownerDay1ChecklistForSku("mpa_complete_platform");
+  const scopedDay1 = {
+    ...day1,
+    items: day1.items.filter((item) =>
+      evaluatePathEntitlement({
+        pathname: item.href.split("?")[0] ?? item.href,
+        sku: productSku,
+        roles,
+        storedScope: operatingScope
+      }).allowed
+    )
+  };
+  const todayWorkspaces = (
+    [
+      ["property_operations", view.propertyPriorities],
+      ["facility_operations", view.facilityPriorities]
+    ] as const
+  ).filter(([workspace]) => view.handoffs.some((handoff) => handoff.id === workspace));
 
   return (
     <main className="flex-1 space-y-6 bg-[var(--mpa-color-bg-app)] p-4 md:p-6">
@@ -121,10 +150,10 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
         </p>
       </section>
 
-      <OwnerDay1ChecklistCard
-        checklist={ownerDay1ChecklistForSku("mpa_complete_platform")}
-        showOwnerClarity
-      />
+      <OwnerDay1ChecklistCard checklist={scopedDay1} showOwnerClarity />
+      {canAccess("pm.financial_operations") ? (
+        <OnlinePaymentsDiscoveryLink productSku={productSku} className="max-w-3xl" />
+      ) : null}
 
       {view.loadErrors.length > 0 ? (
         <section
@@ -132,7 +161,9 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
           className="max-w-3xl rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"
         >
           <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-            Some attention data could not load. You can still open either workspace.
+            {view.handoffs.length > 1
+              ? "Some attention data could not load. You can still open either workspace."
+              : "Some attention data could not load. Retry, or open your workspace below."}
           </p>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--mpa-color-text-secondary)]">
             {view.loadErrors.map((message) => (
@@ -152,7 +183,9 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
           Operational capabilities
         </h2>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Same Complete Platform organization — switch capability, not product.
+          {view.handoffs.length > 1
+            ? "Same Complete Platform organization — switch capability, not product."
+            : "Your Complete Platform access is limited to the workspace assigned to you."}
         </p>
         <ul className="grid gap-3 md:grid-cols-2">
           {view.handoffs.map((handoff) => (
@@ -217,12 +250,7 @@ function CompleteUnifiedLauncher({ productSku }: { productSku: ProductSku }) {
 
         {!loading && view.priorities.length > 0 ? (
           <div className="grid gap-4 lg:grid-cols-2">
-            {(
-              [
-                ["property_operations", view.propertyPriorities],
-                ["facility_operations", view.facilityPriorities]
-              ] as const
-            ).map(([workspace, items]) => (
+            {todayWorkspaces.map(([workspace, items]) => (
               <div
                 key={workspace}
                 className="space-y-2 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4"

@@ -53,20 +53,22 @@ export function captureException(error: unknown, options: CaptureExceptionOption
 
   log("error", normalized.message, metadata);
 
-  void persistPlatformErrorEvent({
-    severity,
-    message: normalized.message,
-    ...(normalized.name ? { errorName: normalized.name } : {}),
-    ...(normalized.stack ? { stack: normalized.stack } : {}),
-    ...(options.requestId ? { requestId: options.requestId } : {}),
-    ...(options.organizationId ? { organizationId: options.organizationId } : {}),
-    ...(options.actorId ? { actorId: options.actorId } : {}),
-    ...(options.route ? { route: options.route } : {}),
-    source: options.source ?? "server",
-    metadata
-  }).catch(() => {
-    /* fail-open */
-  });
+  if (options.persistDurable !== false) {
+    void persistPlatformErrorEvent({
+      severity,
+      message: normalized.message,
+      ...(normalized.name ? { errorName: normalized.name } : {}),
+      ...(normalized.stack ? { stack: normalized.stack } : {}),
+      ...(options.requestId ? { requestId: options.requestId } : {}),
+      ...(options.organizationId ? { organizationId: options.organizationId } : {}),
+      ...(options.actorId ? { actorId: options.actorId } : {}),
+      ...(options.route ? { route: options.route } : {}),
+      source: options.source ?? "server",
+      metadata
+    }).catch(() => {
+      /* fail-open */
+    });
+  }
 
   void forwardToSentry({
     message: normalized.message,

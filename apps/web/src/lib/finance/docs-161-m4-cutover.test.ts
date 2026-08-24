@@ -224,7 +224,14 @@ describe("docs/161 FIN-OPS webhook pending-row contract", () => {
         organizationId: "org_1",
         payment: { ...pending, status: "succeeded" }
       }).action
-    ).toBe("refuse");
+    ).toBe("ignore");
+    expect(
+      resolveCheckoutFailure({
+        paymentId: "pay_1",
+        organizationId: "org_1",
+        payment: { ...pending, status: "processing" }
+      }).action
+    ).toBe("mark_failed");
     expect(resolveCheckoutFailure({ paymentId: null, organizationId: "org_1", payment: null })).toEqual({
       action: "ignore"
     });

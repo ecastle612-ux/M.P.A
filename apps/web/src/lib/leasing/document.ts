@@ -43,3 +43,16 @@ export function buildLeaseDocumentText(input: {
 export function leaseDocumentToBase64(documentBody: string): string {
   return Buffer.from(documentBody, "utf8").toString("base64");
 }
+
+/** SignWell create-document rejects .txt. HTML is a supported upload type. */
+export function leaseDocumentToSignWellUpload(documentName: string, documentBody: string) {
+  const escaped = documentBody
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Lease agreement</title></head><body><pre style="white-space:pre-wrap;font-family:ui-monospace,monospace">${escaped}</pre></body></html>`;
+  return {
+    fileName: documentName.replace(/\.txt$/i, ".html"),
+    fileBase64: Buffer.from(html, "utf8").toString("base64")
+  };
+}

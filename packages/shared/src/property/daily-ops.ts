@@ -3,6 +3,40 @@
  * Summarizes existing platform attention signals for Mission Control.
  */
 
+import { hasFinanceCapability } from "../finance/permissions";
+
+/** In-product label. This is not a chat or generative model. */
+export const MPA_ASSISTANT_LABEL = "M.P.A. Assistant";
+/** Honesty line — matches landing certification (docs/31): rule-based briefing only. */
+export const MPA_ASSISTANT_KIND = "Rule-based next-action briefing";
+
+export type DailyOpsBriefingAccess = {
+  includeFinance: boolean;
+  includeResidentLease: boolean;
+};
+
+/**
+ * Server-side visibility for the Mission Control briefing.
+ * Finance and resident/lease queues must not exceed the signed-in user's
+ * normal-app permissions. Prompt text is not a security boundary.
+ */
+export function resolveDailyOpsBriefingAccess(input: {
+  roles?: readonly string[] | null;
+  permissions?: readonly string[] | null;
+}): DailyOpsBriefingAccess {
+  const roles = input.roles ?? [];
+  const permissions = input.permissions ?? [];
+  return {
+    includeFinance: hasFinanceCapability(permissions, "pm.finance:read"),
+    includeResidentLease: roles.some(
+      (role) =>
+        role === "organization_admin" ||
+        role === "property_manager" ||
+        role === "leasing_agent"
+    )
+  };
+}
+
 export type DailyOpsAttentionItem = {
   id: string;
   domain: "finance" | "maintenance" | "leasing" | "resident" | "vendor" | "property";

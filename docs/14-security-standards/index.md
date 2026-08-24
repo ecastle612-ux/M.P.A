@@ -176,3 +176,5 @@ audit_log
 - **10** API Standards
 - **13** AI Strategy
 - **16** Testing Standards
+- **225** Backend Security / Firewall / Hardening Audit
+- **226** SEC-001 Pre-Onboarding Security Remediation (in-repo; stop before Production)
