@@ -86,6 +86,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | 58 | [V1 Capital Projects CF cleanup](./58-v1-capital-projects-cf-cleanup/index.md) | Capital CF removed + Background Screening Planned messaging · Owner LIVE accepted (PR #99) |
 | 73 | [MEDIA-001 Universal Media Attachment](./73-media-001-universal-media-attachment/index.md) | **Approved** · Universal media framework (ADR-023) |
 | 74 | [MEDIA-001 Implementation Certification](./74-media-001-implementation-certification/index.md) | Phase 1 foundation + FO work orders · no Production deploy |
+| 188 | [REC-001 Universal Receipt Uploads](./188-rec-001-universal-receipt-uploads/index.md) | **PASS** · receipts on MEDIA-001 · in-repo only · no Production apply |
 | 76 | [Complete Plan Validation Remediation](./76-complete-plan-validation-remediation/index.md) | MEDIA-001 + API/surface isolation · **READY FOR COMPLETE PLAN CUSTOMER TESTING** · no deploy |
 | 77 | [Complete Plan Production Certification Readiness](./77-complete-plan-production-certification-readiness/index.md) | RC validation · prior **BLOCKED** (merge/Preview) · no deploy |
 | 78 | [Vercel Preview Font Remediation](./78-vercel-preview-font-remediation/index.md) | Self-host IBM Plex · **READY** · Preview green · no Production deploy |
@@ -215,6 +216,7 @@ Full policy: [00 Governance — Implementation Gate](./00-governance/implementat
 | [185 Complimentary tester / gift access](./185-complimentary-tester-gift-access/index.md) | **Approved** — implemented; Production applied in 187 |
 | [186 Complimentary access implementation certification](./186-complimentary-tester-gift-access-implementation-certification/index.md) | **READY** — executed in 187 |
 | [187 Complimentary access Production release certification](./187-complimentary-access-production-release-certification/index.md) | **COMPLIMENTARY ACCESS PRODUCTION RELEASE SUCCESSFUL** — stamp `20260817064006`; SHA `f922da26` |
+| [188 REC-001 Universal Receipt Uploads](./188-rec-001-universal-receipt-uploads/index.md) | **PASS — REC-001 UNIVERSAL RECEIPT UPLOADS IMPLEMENTED** — MEDIA-001 reuse; in-repo only; no Production apply |
 
 ### 26 LAUNCH-001 (Customer Promise Roadmap)
 

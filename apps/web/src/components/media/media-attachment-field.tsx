@@ -27,6 +27,7 @@ type Props = {
   onChange?: (mediaIds: string[]) => void;
   readOnly?: boolean;
   label?: string;
+  attachmentCategory?: "evidence" | "receipt";
 };
 
 async function uploadViaSignedUrl(uploadUrl: string, file: File) {
@@ -82,7 +83,8 @@ export function MediaAttachmentField({
   value,
   onChange,
   readOnly = false,
-  label = "Photos & video"
+  label = "Photos & video",
+  attachmentCategory = "evidence"
 }: Props) {
   const [items, setItems] = useState<MediaAttachmentItem[]>([]);
   const [busy, setBusy] = useState(false);
@@ -97,7 +99,7 @@ export function MediaAttachmentField({
       setBusy(true);
       setError(null);
       const response = await fetch(
-        `/api/shared/media?relatedEntityType=${encodeURIComponent(relatedEntityType)}&relatedEntityId=${encodeURIComponent(relatedEntityId)}`
+        `/api/shared/media?relatedEntityType=${encodeURIComponent(relatedEntityType)}&relatedEntityId=${encodeURIComponent(relatedEntityId)}&attachmentCategory=${encodeURIComponent(attachmentCategory)}`
       );
       const payload = (await response.json()) as {
         media?: MediaAttachmentItem[];
@@ -127,7 +129,7 @@ export function MediaAttachmentField({
     return () => {
       cancelled = true;
     };
-  }, [relatedEntityId, relatedEntityType, readOnly]);
+  }, [relatedEntityId, relatedEntityType, readOnly, attachmentCategory]);
 
   async function addFiles(fileList: FileList | null) {
     if (!fileList || readOnly) return;
@@ -146,6 +148,7 @@ export function MediaAttachmentField({
             relatedEntityType,
             relatedEntityId: relatedEntityId ?? undefined,
             originalFileName: file.name,
+            attachmentCategory,
             ...(conversationId ? { conversationId } : {}),
             ...(tenantAccountId ? { tenantAccountId } : {})
           })

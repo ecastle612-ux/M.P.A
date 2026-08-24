@@ -36,6 +36,65 @@ describe("MEDIA-001 upload validation", () => {
     expect(mov.ok).toBe(true);
   });
 
+  it("accepts receipt images and PDF without loosening evidence uploads", () => {
+    for (const mimeType of ["image/jpeg", "image/png", "image/webp", "image/heic", "application/pdf"]) {
+      const result = validateMediaUploadIntent({
+        mimeType,
+        fileSize: 2048,
+        relatedEntityType: "vendor_invoice",
+        attachmentCategory: "receipt",
+        originalFileName: `receipt.${mimeType === "application/pdf" ? "pdf" : "jpg"}`
+      });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.attachmentCategory).toBe("receipt");
+        expect(result.fileType === "image" || result.fileType === "document").toBe(true);
+      }
+    }
+    const workOrderReceipt = validateMediaUploadIntent({
+      mimeType: "application/pdf",
+      fileSize: 4096,
+      relatedEntityType: "maintenance",
+      attachmentCategory: "receipt"
+    });
+    expect(workOrderReceipt.ok).toBe(true);
+  });
+
+  it("rejects receipt video, archives, and oversized receipt files", () => {
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "video/mp4",
+        fileSize: 1000,
+        relatedEntityType: "vendor_invoice",
+        attachmentCategory: "receipt"
+      }).ok
+    ).toBe(false);
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "application/zip",
+        fileSize: 1000,
+        relatedEntityType: "vendor_invoice",
+        attachmentCategory: "receipt"
+      }).ok
+    ).toBe(false);
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "application/x-msdownload",
+        fileSize: 1000,
+        relatedEntityType: "maintenance",
+        attachmentCategory: "receipt"
+      }).ok
+    ).toBe(false);
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "application/pdf",
+        fileSize: MEDIA_MAX_IMAGE_BYTES + 1,
+        relatedEntityType: "vendor_invoice",
+        attachmentCategory: "receipt"
+      }).ok
+    ).toBe(false);
+  });
+
   it("rejects disallowed MIME and oversized files", () => {
     expect(
       validateMediaUploadIntent({
