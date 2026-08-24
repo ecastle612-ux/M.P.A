@@ -5,12 +5,17 @@ export const MEDIA_ENTITY_TYPES = [
   "incident",
   "organization",
   "conversation_message",
-  "facility_asset"
+  "facility_asset",
+  "facility_request_intake",
+  "vendor_invoice"
 ] as const;
 
 export type MediaEntityType = (typeof MEDIA_ENTITY_TYPES)[number];
 
-export const MEDIA_FILE_TYPES = ["image", "video"] as const;
+export const MEDIA_ATTACHMENT_CATEGORIES = ["evidence", "receipt"] as const;
+export type MediaAttachmentCategory = (typeof MEDIA_ATTACHMENT_CATEGORIES)[number];
+
+export const MEDIA_FILE_TYPES = ["image", "video", "document"] as const;
 export type MediaFileType = (typeof MEDIA_FILE_TYPES)[number];
 
 export const MEDIA_STATUSES = [
@@ -33,38 +38,58 @@ export const MEDIA_IMAGE_MIME_TYPES = [
 
 export const MEDIA_VIDEO_MIME_TYPES = ["video/mp4", "video/quicktime"] as const;
 
+export const MEDIA_DOCUMENT_MIME_TYPES = ["application/pdf"] as const;
+
 export const MEDIA_ALLOWED_MIME_TYPES = [
   ...MEDIA_IMAGE_MIME_TYPES,
   ...MEDIA_VIDEO_MIME_TYPES
 ] as const;
 
+export const MEDIA_RECEIPT_MIME_TYPES = [
+  ...MEDIA_IMAGE_MIME_TYPES,
+  ...MEDIA_DOCUMENT_MIME_TYPES
+] as const;
+
 export type MediaAllowedMimeType = (typeof MEDIA_ALLOWED_MIME_TYPES)[number];
+export type MediaReceiptMimeType = (typeof MEDIA_RECEIPT_MIME_TYPES)[number];
 
 /** Design targets for Phase 1 validation. */
 export const MEDIA_MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 export const MEDIA_MAX_VIDEO_BYTES = 100 * 1024 * 1024;
+export const MEDIA_MAX_DOCUMENT_BYTES = MEDIA_MAX_IMAGE_BYTES;
 export const MEDIA_MAX_VIDEO_DURATION_SECONDS = 60;
 export const MEDIA_SIGNED_URL_TTL_SECONDS = 15 * 60;
+export const MEDIA_MAX_RECEIPTS_PER_ENTITY = 10;
 export const MEDIA_BUCKET = "media";
 
 export function isMediaEntityType(value: unknown): value is MediaEntityType {
   return typeof value === "string" && (MEDIA_ENTITY_TYPES as readonly string[]).includes(value);
 }
 
+export function isMediaAttachmentCategory(value: unknown): value is MediaAttachmentCategory {
+  return typeof value === "string" && (MEDIA_ATTACHMENT_CATEGORIES as readonly string[]).includes(value);
+}
+
 export function isMediaAllowedMimeType(value: unknown): value is MediaAllowedMimeType {
   return typeof value === "string" && (MEDIA_ALLOWED_MIME_TYPES as readonly string[]).includes(value);
+}
+
+export function isReceiptAllowedMimeType(value: unknown): value is MediaReceiptMimeType {
+  return typeof value === "string" && (MEDIA_RECEIPT_MIME_TYPES as readonly string[]).includes(value);
 }
 
 export function mediaFileTypeForMime(mime: string): MediaFileType | null {
   if ((MEDIA_IMAGE_MIME_TYPES as readonly string[]).includes(mime)) return "image";
   if ((MEDIA_VIDEO_MIME_TYPES as readonly string[]).includes(mime)) return "video";
+  if ((MEDIA_DOCUMENT_MIME_TYPES as readonly string[]).includes(mime)) return "document";
   return null;
 }
 
-export function maxBytesForMediaMime(mime: string): number {
+export function maxBytesForMediaMime(mime: string, category: MediaAttachmentCategory = "evidence"): number {
   const kind = mediaFileTypeForMime(mime);
   if (kind === "image") return MEDIA_MAX_IMAGE_BYTES;
-  if (kind === "video") return MEDIA_MAX_VIDEO_BYTES;
+  if (kind === "video") return category === "receipt" ? 0 : MEDIA_MAX_VIDEO_BYTES;
+  if (kind === "document") return category === "receipt" ? MEDIA_MAX_DOCUMENT_BYTES : 0;
   return 0;
 }
 
@@ -73,36 +98,51 @@ export function validateMediaUploadIntent(input: {
   fileSize: unknown;
   relatedEntityType: unknown;
   originalFileName?: unknown;
+  attachmentCategory?: unknown;
 }):
   | {
       ok: true;
-      mimeType: MediaAllowedMimeType;
+      mimeType: MediaAllowedMimeType | MediaReceiptMimeType;
       fileType: MediaFileType;
       fileSize: number;
       relatedEntityType: MediaEntityType;
       originalFileName: string | null;
+      attachmentCategory: MediaAttachmentCategory;
     }
   | { ok: false; error: string } {
   if (!isMediaEntityType(input.relatedEntityType)) {
     return { ok: false, error: "relatedEntityType is invalid." };
   }
-  if (!isMediaAllowedMimeType(input.mimeType)) {
+  const attachmentCategory: MediaAttachmentCategory = isMediaAttachmentCategory(input.attachmentCategory)
+    ? input.attachmentCategory
+    : "evidence";
+  const mimeAllowed =
+    attachmentCategory === "receipt"
+      ? isReceiptAllowedMimeType(input.mimeType)
+      : isMediaAllowedMimeType(input.mimeType);
+  if (!mimeAllowed) {
     return {
       ok: false,
-      error: "Unsupported file type. Allowed: JPG, PNG, HEIC, WebP, MP4, MOV."
+      error:
+        attachmentCategory === "receipt"
+          ? "Unsupported receipt file. Allowed: JPG, PNG, HEIC, WebP, PDF."
+          : "Unsupported file type. Allowed: JPG, PNG, HEIC, WebP, MP4, MOV."
     };
   }
   if (typeof input.fileSize !== "number" || !Number.isFinite(input.fileSize) || input.fileSize <= 0) {
     return { ok: false, error: "fileSize must be a positive number." };
   }
-  const max = maxBytesForMediaMime(input.mimeType);
-  if (input.fileSize > max) {
+  const max = maxBytesForMediaMime(String(input.mimeType), attachmentCategory);
+  if (max <= 0 || input.fileSize > max) {
     return {
       ok: false,
-      error: `File exceeds maximum size (${Math.floor(max / (1024 * 1024))} MB).`
+      error:
+        max <= 0
+          ? "Unsupported file type."
+          : `File exceeds maximum size (${Math.floor(max / (1024 * 1024))} MB).`
     };
   }
-  const fileType = mediaFileTypeForMime(input.mimeType);
+  const fileType = mediaFileTypeForMime(String(input.mimeType));
   if (!fileType) {
     return { ok: false, error: "Unsupported file type." };
   }
@@ -112,11 +152,12 @@ export function validateMediaUploadIntent(input: {
       : null;
   return {
     ok: true,
-    mimeType: input.mimeType,
+    mimeType: input.mimeType as MediaAllowedMimeType | MediaReceiptMimeType,
     fileType,
     fileSize: Math.floor(input.fileSize),
     relatedEntityType: input.relatedEntityType,
-    originalFileName
+    originalFileName,
+    attachmentCategory
   };
 }
 
@@ -132,7 +173,7 @@ export function buildMediaStoragePath(input: {
   return `${input.organizationId}/${input.relatedEntityType}/${entityFolder}/${input.mediaId}/original.${ext}`;
 }
 
-export function extensionForMediaMime(mime: MediaAllowedMimeType): string {
+export function extensionForMediaMime(mime: MediaAllowedMimeType | MediaReceiptMimeType): string {
   switch (mime) {
     case "image/jpeg":
       return "jpg";
@@ -147,6 +188,8 @@ export function extensionForMediaMime(mime: MediaAllowedMimeType): string {
       return "mp4";
     case "video/quicktime":
       return "mov";
+    case "application/pdf":
+      return "pdf";
     default:
       return "bin";
   }

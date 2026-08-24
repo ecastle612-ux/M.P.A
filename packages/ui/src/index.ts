@@ -1,5 +1,6 @@
 export * from "./lib/cn";
 export * from "./lib/status";
+export * from "./lib/focus-trap";
 export * from "./tokens/canopy";
 export * from "./providers/theme-provider";
 
@@ -29,3 +30,4 @@ export * from "./patterns/form-field";
 export * from "./patterns/metric-card";
 export * from "./patterns/timeline-view";
 export * from "./patterns/operations-console-shell";
+export * from "./icons/nav-icon";

@@ -41,7 +41,7 @@ export async function buildOwnerPortfolioHome(
         .limit(12),
       supabase
         .from("lease_agreements")
-        .select("id, status, rent_amount, property_id, pm_residents(display_name), property_properties(name)")
+        .select("id, status, rent_amount, property_id, pm_residents!resident_id(display_name), property_properties(name)")
         .eq("organization_id", organizationId)
         .eq("status", "active")
         .order("activated_at", { ascending: false })

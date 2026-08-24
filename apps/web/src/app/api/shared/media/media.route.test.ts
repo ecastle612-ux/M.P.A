@@ -36,10 +36,29 @@ async function mediaActor() {
 
 vi.mock("../../../../lib/media/authz", () => ({
   requireMediaActor: mediaActor,
+  requireReceiptFinanceActor: mediaActor,
   resolveMediaActorForEntity: mediaActor,
+  resolveMediaActorForMediaId: async (_mode: "read" | "write", mediaId: string) => {
+    const actor = await mediaActor();
+    if ("error" in actor) return actor;
+    return {
+      ...actor,
+      media: {
+        id: mediaId,
+        organization_id: actor.organizationId,
+        status: "ready",
+        storage_reference: `${actor.organizationId}/vendor_invoice/inv_1/${mediaId}/original.jpg`,
+        file_type: "image",
+        mime_type: "image/jpeg",
+        attachment_category: "receipt",
+        metadata: { original_filename: "receipt.jpg" }
+      }
+    };
+  },
   resolveMediaActorWithFallback: mediaActor,
   assertMediaEntityAccess: async () => ({ ok: true }),
-  isOrgManagerRoles: () => true
+  isOrgManagerRoles: () => true,
+  mediaActorPlane: (type: string) => (type === "vendor_invoice" ? "finance" : "operations")
 }));
 
 vi.mock("../../../../lib/media/media-service", () => ({
@@ -111,6 +130,25 @@ describe("MEDIA-001 media API authorization", () => {
       })
     );
     expect(response.status).toBe(403);
+  });
+
+  it("allows authorized PM vendor-invoice receipt intent", async () => {
+    state.userId = "user_1";
+    state.allowed = true;
+    const response = await uploadIntentPost(
+      new Request("http://localhost/api/shared/media/upload-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mimeType: "application/pdf",
+          fileSize: 100,
+          relatedEntityType: "vendor_invoice",
+          relatedEntityId: "inv_1",
+          attachmentCategory: "receipt"
+        })
+      })
+    );
+    expect(response.status).toBe(201);
   });
 
   it("allows authorized upload intent", async () => {

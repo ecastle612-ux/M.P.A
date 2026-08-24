@@ -41,7 +41,9 @@ export const FACILITY_ENTITLEMENTS = [
   "facility.inspections",
   "facility.safety",
   "facility.compliance",
-  "facility.building_systems"
+  "facility.building_systems",
+  "facility.request_forms",
+  "facility.routing"
   // facility.capital_projects intentionally off by default (future)
 ] as const;
 

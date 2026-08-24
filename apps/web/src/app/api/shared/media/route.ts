@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isMediaEntityType } from "@mpa/shared";
+import { isMediaAttachmentCategory, isMediaEntityType } from "@mpa/shared";
 import { assertMediaEntityAccess, resolveMediaActorForEntity } from "../../../../lib/media/authz";
 import { attachMediaToEntity, listMediaForEntity } from "../../../../lib/media/media-service";
 
@@ -7,6 +7,10 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const relatedEntityType = url.searchParams.get("relatedEntityType");
   const relatedEntityId = url.searchParams.get("relatedEntityId");
+  const attachmentCategoryParam = url.searchParams.get("attachmentCategory");
+  const attachmentCategory = isMediaAttachmentCategory(attachmentCategoryParam)
+    ? attachmentCategoryParam
+    : undefined;
   if (!isMediaEntityType(relatedEntityType) || !relatedEntityId) {
     return NextResponse.json(
       { error: "relatedEntityType and relatedEntityId are required" },
@@ -33,7 +37,8 @@ export async function GET(request: Request) {
       supabase: authz.supabase,
       organizationId: authz.organizationId,
       relatedEntityType,
-      relatedEntityId
+      relatedEntityId,
+      ...(attachmentCategory ? { attachmentCategory } : {})
     });
     return NextResponse.json({
       media: media.map((row) => ({
@@ -45,6 +50,11 @@ export async function GET(request: Request) {
         sortOrder: row.sort_order,
         uploadedByUserId: row.uploaded_by_user_id,
         createdAt: row.created_at,
+        attachmentCategory: row.attachment_category,
+        fileName:
+          typeof row.metadata?.["original_filename"] === "string"
+            ? row.metadata["original_filename"]
+            : null,
         metadata: row.metadata
       }))
     });
