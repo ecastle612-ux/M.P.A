@@ -32,7 +32,7 @@ export async function getPropertyCommandCenter(
   const { data: activeLeases } = await supabase
     .from("lease_agreements")
     .select(
-      "id, status, rent_amount, currency, rent_day_of_month, unit_id, resident_id, pm_residents(display_name, portal_status), property_units(unit_label)"
+      "id, status, rent_amount, currency, rent_day_of_month, unit_id, resident_id, pm_residents!resident_id(display_name, portal_status), property_units(unit_label)"
     )
     .eq("organization_id", organizationId)
     .eq("property_id", propertyId)

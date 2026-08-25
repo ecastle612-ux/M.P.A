@@ -25,7 +25,7 @@ describe("LAUNCH-001 J2 roles", () => {
     expect(toRoleLabel("maintenance_technician")).toBe("Maintenance Technician");
     expect(defaultHomeForRole("property_manager")).toBe("/pm/mission-control");
     expect(defaultHomeForRole("leasing_agent")).toBe("/pm/leasing");
-    expect(defaultHomeForRole("maintenance_technician")).toBe("/pm/maintenance");
+    expect(defaultHomeForRole("maintenance_technician")).toBe("/facility/my-work");
     expect(defaultHomeForRole("property_owner")).toBe("/portal/owner");
     expect(defaultHomeForRole("vendor")).toBe("/portal/vendor");
   });

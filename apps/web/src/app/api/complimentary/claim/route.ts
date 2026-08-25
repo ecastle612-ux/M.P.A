@@ -10,10 +10,14 @@ import {
   loadRuntimeComplimentaryStore,
   persistRuntimeComplimentaryState
 } from "../../../../lib/complimentary-access/runtime";
+import { consumeRateLimit, requestActorKey } from "../../../../lib/security/durable-rate-limit";
 
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
+  if (!(await consumeRateLimit({ class: "AUTH", key: `complimentary-claim:${requestActorKey(request)}` }))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
   const token = new URL(request.url).searchParams.get("token")?.trim() ?? "";
   const store = await loadRuntimeComplimentaryStore();
   const preview = complimentaryPreviewFromToken(token, { store });
@@ -24,6 +28,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!(await consumeRateLimit({ class: "AUTH", key: `complimentary-claim:${requestActorKey(request)}` }))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
   const body = (await request.json().catch(() => null)) as {
     token?: string;
     password?: string;
@@ -72,6 +79,14 @@ export async function POST(request: Request) {
       secure: process.env["NODE_ENV"] === "production",
       path: "/",
       maxAge: 60 * 60 * 24 * 30
+    });
+    const { readPartnerRefCookie } = await import("../../../../lib/partners/cookie");
+    const { safeAttributePartnerReferral } = await import("../../../../lib/partners/hooks");
+    await safeAttributePartnerReferral({
+      organizationId: result.organizationId,
+      slug: readPartnerRefCookie(request.headers.get("cookie")),
+      source: "complimentary_claim",
+      customerEmail: user?.email ?? result.grant.recipientEmail
     });
     return response;
   } catch (error) {

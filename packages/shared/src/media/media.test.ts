@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   MEDIA_MAX_IMAGE_BYTES,
+  MEDIA_MAX_PARTNER_LOGO_BYTES,
   MEDIA_MAX_VIDEO_BYTES,
   buildMediaStoragePath,
   validateMediaUploadIntent
@@ -36,6 +37,65 @@ describe("MEDIA-001 upload validation", () => {
     expect(mov.ok).toBe(true);
   });
 
+  it("accepts receipt images and PDF without loosening evidence uploads", () => {
+    for (const mimeType of ["image/jpeg", "image/png", "image/webp", "image/heic", "application/pdf"]) {
+      const result = validateMediaUploadIntent({
+        mimeType,
+        fileSize: 2048,
+        relatedEntityType: "vendor_invoice",
+        attachmentCategory: "receipt",
+        originalFileName: `receipt.${mimeType === "application/pdf" ? "pdf" : "jpg"}`
+      });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.attachmentCategory).toBe("receipt");
+        expect(result.fileType === "image" || result.fileType === "document").toBe(true);
+      }
+    }
+    const workOrderReceipt = validateMediaUploadIntent({
+      mimeType: "application/pdf",
+      fileSize: 4096,
+      relatedEntityType: "maintenance",
+      attachmentCategory: "receipt"
+    });
+    expect(workOrderReceipt.ok).toBe(true);
+  });
+
+  it("rejects receipt video, archives, and oversized receipt files", () => {
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "video/mp4",
+        fileSize: 1000,
+        relatedEntityType: "vendor_invoice",
+        attachmentCategory: "receipt"
+      }).ok
+    ).toBe(false);
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "application/zip",
+        fileSize: 1000,
+        relatedEntityType: "vendor_invoice",
+        attachmentCategory: "receipt"
+      }).ok
+    ).toBe(false);
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "application/x-msdownload",
+        fileSize: 1000,
+        relatedEntityType: "maintenance",
+        attachmentCategory: "receipt"
+      }).ok
+    ).toBe(false);
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "application/pdf",
+        fileSize: MEDIA_MAX_IMAGE_BYTES + 1,
+        relatedEntityType: "vendor_invoice",
+        attachmentCategory: "receipt"
+      }).ok
+    ).toBe(false);
+  });
+
   it("rejects disallowed MIME and oversized files", () => {
     expect(
       validateMediaUploadIntent({
@@ -51,6 +111,16 @@ describe("MEDIA-001 upload validation", () => {
         relatedEntityType: "maintenance"
       }).ok
     ).toBe(false);
+  });
+
+  it("keeps facility_request_intake valid after adding vendor_invoice", () => {
+    const result = validateMediaUploadIntent({
+      mimeType: "image/jpeg",
+      fileSize: 1024,
+      relatedEntityType: "facility_request_intake",
+      originalFileName: "intake.jpg"
+    });
+    expect(result.ok).toBe(true);
   });
 
   it("accepts facility_asset parent type", () => {
@@ -79,6 +149,46 @@ describe("MEDIA-001 upload validation", () => {
       originalFileName: "note.jpg"
     });
     expect(result.ok).toBe(true);
+  });
+
+  it("accepts partner branding images and rejects video or oversized logos", () => {
+    const ok = validateMediaUploadIntent({
+      mimeType: "image/png",
+      fileSize: 2048,
+      relatedEntityType: "partner_branding",
+      attachmentCategory: "partner_branding",
+      originalFileName: "logo.png"
+    });
+    expect(ok.ok).toBe(true);
+    if (ok.ok) {
+      expect(ok.attachmentCategory).toBe("partner_branding");
+      expect(ok.fileType).toBe("image");
+    }
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "video/mp4",
+        fileSize: 1000,
+        relatedEntityType: "partner_branding",
+        attachmentCategory: "partner_branding"
+      }).ok
+    ).toBe(false);
+    expect(
+      validateMediaUploadIntent({
+        mimeType: "image/png",
+        fileSize: MEDIA_MAX_PARTNER_LOGO_BYTES + 1,
+        relatedEntityType: "partner_branding",
+        attachmentCategory: "partner_branding"
+      }).ok
+    ).toBe(false);
+    expect(
+      buildMediaStoragePath({
+        organizationId: "org_1",
+        relatedEntityType: "partner_branding",
+        relatedEntityId: "partner_1",
+        mediaId: "media_logo",
+        extension: "png"
+      })
+    ).toBe("org_1/partner_branding/partner_1/media_logo/original.png");
   });
 
   it("builds org-isolated storage paths", () => {
