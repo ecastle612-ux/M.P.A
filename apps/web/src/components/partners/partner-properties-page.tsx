@@ -325,6 +325,13 @@ export function PartnerPropertiesPage() {
                 className="inline-flex min-h-10 items-center rounded-md border border-[var(--mpa-color-border-default)] px-3 text-sm"
                 href={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(selected.qrSvg)}`}
                 download={`${selected.publicSlug}-qr.svg`}
+                onClick={() => {
+                  void fetch("/api/partners/onboarding/ack", {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ action: "partner.qr_completed" })
+                  });
+                }}
               >
                 Download QR
               </a>
@@ -334,6 +341,13 @@ export function PartnerPropertiesPage() {
               href={`/partner/properties/${selected.id}/print`}
               target="_blank"
               rel="noreferrer"
+              onClick={() => {
+                void fetch("/api/partners/onboarding/ack", {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({ action: "partner.qr_completed" })
+                });
+              }}
             >
               Print QR
             </a>

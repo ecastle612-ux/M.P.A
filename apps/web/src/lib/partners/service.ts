@@ -4,9 +4,11 @@ import {
   calculateCommissionCents,
   commissionStatusForNewEntry,
   eligibleRevenueCentsFromInvoice,
+  isPartnerProfileSufficient,
   isPartnerType,
   parsePartnerApplicationInput,
   parsePartnerPublicProfileInput,
+  PARTNER_ONBOARDING_EVENTS,
   parsePartnerRefParam,
   partnerAcceptsReferrals,
   proposePartnerSlug,
@@ -30,7 +32,10 @@ export type PartnerNotificationKind =
   | "commission_earned"
   | "commission_paid"
   | "portal_disabled"
-  | "partner_suspended";
+  | "partner_suspended"
+  | "invitation_accepted"
+  | "onboarding_completed"
+  | "ready";
 
 export type PartnerServiceDeps = {
   store: PartnerStore;
@@ -634,6 +639,14 @@ export async function updatePartnerPublicProfile(
     actorUserId: input.actorUserId,
     payload: { fields: Object.keys(parsed.data) }
   });
+  if (isPartnerProfileSufficient(next)) {
+    await writeEvent(deps, {
+      partnerId: next.id,
+      action: PARTNER_ONBOARDING_EVENTS.profile_completed,
+      actorUserId: input.actorUserId,
+      payload: {}
+    });
+  }
   return { ok: true, partner: next };
 }
 

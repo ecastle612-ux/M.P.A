@@ -2,7 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button, FormField, Input, Select } from "@mpa/ui";
-import { PARTNER_TYPE_LABELS, bpsToPercent, partnerReferralPath, type PartnerType } from "@mpa/shared";
+import {
+  PARTNER_DIRECTORY_FILTERS,
+  PARTNER_TYPE_LABELS,
+  bpsToPercent,
+  isPartnerDirectoryFilter,
+  partnerMatchesDirectoryFilter,
+  partnerReferralPath,
+  type PartnerDirectoryFilter,
+  type PartnerType
+} from "@mpa/shared";
 
 type PartnerRow = {
   id: string;
@@ -28,6 +37,20 @@ type PartnerRow = {
   commissionBps: number;
   commissionPercent: number;
   createdAt: string;
+  invitationStatus: string | null;
+  invitationSentAt: string | null;
+  invitationAcceptedAt: string | null;
+  accountConnected: boolean;
+  propertyCount: number;
+  onboarding: {
+    onboardingStatus: "not_started" | "in_progress" | "complete";
+    readiness: "ready" | "not_ready";
+    percent: number;
+    nextLabel: string | null;
+    profileComplete: boolean;
+    portalConfigured: boolean;
+    qrComplete: boolean;
+  } | null;
 };
 
 type ReferralRow = {
@@ -93,6 +116,16 @@ export function PartnersConsole() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [directoryFilter, setDirectoryFilter] = useState<PartnerDirectoryFilter | "all">("all");
+  const [inviteCompany, setInviteCompany] = useState("");
+  const [inviteContact, setInviteContact] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteType, setInviteType] = useState<PartnerType>("certified_service");
+  const [invitePhone, setInvitePhone] = useState("");
+  const [inviteWebsite, setInviteWebsite] = useState("");
+  const [inviteArea, setInviteArea] = useState("");
+  const [inviteServices, setInviteServices] = useState("");
+  const [inviteNote, setInviteNote] = useState("");
 
   async function load() {
     setLoading(true);
@@ -160,6 +193,19 @@ export function PartnersConsole() {
     [partners, selectedId]
   );
 
+  const visiblePartners = useMemo(() => {
+    const rows = partners ?? [];
+    if (directoryFilter === "all" || !isPartnerDirectoryFilter(directoryFilter)) return rows;
+    return rows.filter((row) =>
+      partnerMatchesDirectoryFilter(directoryFilter, {
+        status: row.status as "applied" | "approved" | "active" | "suspended" | "rejected",
+        invitationStatus: (row.invitationStatus as "pending" | "accepted" | "expired" | "revoked") ?? null,
+        onboardingStatus: row.onboarding?.onboardingStatus ?? "not_started",
+        readiness: row.onboarding?.readiness ?? "not_ready"
+      })
+    );
+  }, [partners, directoryFilter]);
+
   async function loadPropertyPortals(partnerId: string) {
     const response = await fetch(`/api/admin/partners/property-portals?partnerId=${partnerId}`);
     const payload = (await response.json()) as { items?: PropertyPortalRow[]; error?: string };
@@ -212,9 +258,119 @@ export function PartnersConsole() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Partners</h1>
         <p className="text-sm text-[var(--mpa-color-text-secondary)]">
-          Review applications, assign partner type, reserve public slugs, and track commissions.
+          Review applications, invite recruited companies, assign partner type, and track onboarding.
           Payouts stay manual. This is platform administration only.
         </p>
+      </div>
+
+      <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+        <h2 className="font-display text-xl font-semibold">Invite Partner</h2>
+        <div className="grid gap-3 md:grid-cols-2">
+          <FormField id="invite-company" label="Company name">
+            <Input id="invite-company" value={inviteCompany} onChange={(event) => setInviteCompany(event.target.value)} />
+          </FormField>
+          <FormField id="invite-contact" label="Primary contact">
+            <Input id="invite-contact" value={inviteContact} onChange={(event) => setInviteContact(event.target.value)} />
+          </FormField>
+          <FormField id="invite-email" label="Email">
+            <Input id="invite-email" type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} />
+          </FormField>
+          <FormField id="invite-type" label="Partner type">
+            <Select id="invite-type" value={inviteType} onChange={(event) => setInviteType(event.target.value as PartnerType)}>
+              {(Object.keys(PARTNER_TYPE_LABELS) as PartnerType[]).map((type) => (
+                <option key={type} value={type}>
+                  {PARTNER_TYPE_LABELS[type]}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+          <FormField id="invite-phone" label="Phone (optional)">
+            <Input id="invite-phone" value={invitePhone} onChange={(event) => setInvitePhone(event.target.value)} />
+          </FormField>
+          <FormField id="invite-website" label="Website (optional)">
+            <Input id="invite-website" value={inviteWebsite} onChange={(event) => setInviteWebsite(event.target.value)} />
+          </FormField>
+          <FormField id="invite-area" label="Service area (optional)">
+            <Input id="invite-area" value={inviteArea} onChange={(event) => setInviteArea(event.target.value)} />
+          </FormField>
+          <FormField id="invite-services" label="Services (optional)">
+            <Input id="invite-services" value={inviteServices} onChange={(event) => setInviteServices(event.target.value)} />
+          </FormField>
+          <FormField id="invite-note" label="Internal note (optional)">
+            <Input id="invite-note" value={inviteNote} onChange={(event) => setInviteNote(event.target.value)} />
+          </FormField>
+        </div>
+        <Button
+          type="button"
+          disabled={loading}
+          onClick={() => {
+            void (async () => {
+              setLoading(true);
+              setError(null);
+              setNotice(null);
+              const response = await fetch("/api/admin/partners", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                  companyName: inviteCompany,
+                  contactName: inviteContact,
+                  email: inviteEmail,
+                  partnerType: inviteType,
+                  phone: invitePhone || undefined,
+                  website: inviteWebsite || undefined,
+                  serviceArea: inviteArea || undefined,
+                  servicesOffered: inviteServices || undefined,
+                  notes: inviteNote || undefined
+                })
+              });
+              const payload = (await response.json()) as { error?: string };
+              setLoading(false);
+              if (!response.ok) {
+                setError(payload.error ?? "Invite failed");
+                return;
+              }
+              setNotice("Invitation sent.");
+              setInviteCompany("");
+              setInviteContact("");
+              setInviteEmail("");
+              await load();
+            })();
+          }}
+        >
+          Invite Partner
+        </Button>
+      </section>
+
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Partner directory filters">
+        <Button
+          type="button"
+          size="sm"
+          variant={directoryFilter === "all" ? "primary" : "secondary"}
+          onClick={() => setDirectoryFilter("all")}
+        >
+          All
+        </Button>
+        {PARTNER_DIRECTORY_FILTERS.map((filter) => (
+          <Button
+            key={filter}
+            type="button"
+            size="sm"
+            variant={directoryFilter === filter ? "primary" : "secondary"}
+            onClick={() => setDirectoryFilter(filter)}
+          >
+            {filter === "applications"
+              ? "Applications"
+              : filter === "invited"
+                ? "Invited"
+                : filter === "onboarding"
+                  ? "Onboarding"
+                  : filter === "ready"
+                    ? "Ready"
+                    : filter === "active"
+                      ? "Active"
+                      : "Suspended"}
+          </Button>
+        ))}
       </div>
 
       {error ? (
@@ -242,7 +398,7 @@ export function PartnersConsole() {
             </tr>
           </thead>
           <tbody>
-            {(partners ?? []).map((row) => (
+            {visiblePartners.map((row) => (
               <tr key={row.id} className="border-t border-[var(--mpa-color-border-subtle)]">
                 <td className="px-3 py-2">
                   <button
@@ -288,6 +444,52 @@ export function PartnersConsole() {
             </p>
           ) : null}
           <p className="text-sm">Request count: {selected.requestCount}</p>
+          <dl className="grid gap-2 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="font-medium">Invitation</dt>
+              <dd>{selected.invitationStatus ?? "not sent"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Invitation sent</dt>
+              <dd>{selected.invitationSentAt ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Invitation accepted</dt>
+              <dd>{selected.invitationAcceptedAt ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Account connected</dt>
+              <dd>{selected.accountConnected ? "Yes" : "No"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Onboarding</dt>
+              <dd>
+                {selected.onboarding
+                  ? `${selected.onboarding.percent}% · ${selected.onboarding.onboardingStatus}`
+                  : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt className="font-medium">Readiness</dt>
+              <dd>{selected.onboarding?.readiness ?? "not_ready"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Profile</dt>
+              <dd>{selected.onboarding?.profileComplete ? "Complete" : "Incomplete"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Portal</dt>
+              <dd>{selected.onboarding?.portalConfigured ? "Configured" : "Not configured"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Property portals</dt>
+              <dd>{selected.propertyCount}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">QR</dt>
+              <dd>{selected.onboarding?.qrComplete ? "Completed" : "Not completed"}</dd>
+            </div>
+          </dl>
 
           <div className="grid gap-3 md:grid-cols-3">
             <FormField id="partner-slug" label="Public slug">
@@ -365,6 +567,15 @@ export function PartnersConsole() {
             </Button>
             <Button type="button" disabled={loading} variant="secondary" onClick={() => void act("reject")}>
               Reject
+            </Button>
+            <Button type="button" disabled={loading} onClick={() => void act("invite")}>
+              Send Invitation
+            </Button>
+            <Button type="button" disabled={loading} variant="secondary" onClick={() => void act("resend_invitation")}>
+              Resend Invitation
+            </Button>
+            <Button type="button" disabled={loading} variant="secondary" onClick={() => void act("send_setup_reminder")}>
+              Send Setup Reminder
             </Button>
             <Button
               type="button"

@@ -25,6 +25,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     path.startsWith("/accept-invitation") ||
     path.startsWith("/complimentary/claim") ||
     path.startsWith("/complimentary/expired") ||
+    path.startsWith("/partner/invite") ||
     path.startsWith("/unauthorized") ||
     path.startsWith("/api/") ||
     path.startsWith("/_next")
@@ -150,7 +151,8 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
     path.startsWith("/api/public/request") ||
     path.startsWith("/api/public/partners") ||
     path.startsWith("/api/partners/apply") ||
-    path.startsWith("/api/partners/ref")
+    path.startsWith("/api/partners/ref") ||
+    path.startsWith("/api/partners/invite")
   ) {
     return null;
   }
@@ -257,7 +259,7 @@ export function evaluateApiPathEntitlement(input: {
 
   if (!input.sku) {
     const bootstrap = new Set(["platform.org", "platform.guided_setup", "platform.billing_self", "platform.launcher"]);
-    if (!bootstrap.has(required)) {
+    if (!bootstrap.has(required) && !hasEntitlement(input.extraEntitlements ?? [], required)) {
       return {
         allowed: false,
         entitlement: required,
@@ -301,10 +303,10 @@ export function evaluatePathEntitlement(input: {
     ...(input.extraEntitlements ?? [])
   ]);
 
-  // No SKU: only setup/billing/launcher/org paths
+  // No SKU: setup/billing/launcher/org, plus extra entitlements (partner-bound orgs).
   if (!input.sku) {
     const bootstrap = new Set(["platform.org", "platform.guided_setup", "platform.billing_self", "platform.launcher"]);
-    if (!bootstrap.has(required)) {
+    if (!bootstrap.has(required) && !hasEntitlement(input.extraEntitlements ?? [], required)) {
       return {
         allowed: false,
         entitlement: required,
@@ -360,7 +362,10 @@ export function searchCatalogForSku(
   push(decisionPath("/launcher", "Workspace Launcher", "Home", "platform.launcher"));
   push(decisionPath("/setup", "Guided Setup", "Home", "platform.guided_setup"));
   push(decisionPath("/billing", "Billing & Plan", "Home", "platform.billing_self"));
-  push(decisionPath("/settings/organization", "Organization Settings", "Home", "platform.org"));
+    push(decisionPath("/settings/organization", "Organization Settings", "Home", "platform.org"));
+  push(
+    decisionPath("/partner", "Partner Command Center", "Shared Platform", "platform.partner_services")
+  );
 
   if (sku) {
     push(decisionPath("/pm/mission-control", "Mission Control", "Property Manager", "pm.mission_control"));
@@ -463,7 +468,6 @@ export function searchCatalogForSku(
       )
     );
 
-    push(decisionPath("/partner", "Partner Command Center", "Shared Platform", "platform.partner_services"));
     push(decisionPath("/shared/documents", "Documents", "Shared Platform", "platform.documents"));
     push(decisionPath("/shared/tables", "Tables", "Shared Platform", "platform.documents"));
     push(decisionPath("/shared/reports", "Reporting & Analytics", "Shared Platform", "platform.reports"));

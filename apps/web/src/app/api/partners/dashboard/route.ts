@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { requirePartnerServicesRead } from "../../../../lib/partners/authz";
 import { loadCommandCenterDeps, loadPartnerCommandCenter } from "../../../../lib/partners/command-center-service";
+import { buildPartnerOnboardingSnapshot } from "../../../../lib/partners/invitation-service";
+import { loadPartnerInvitationDeps } from "../../../../lib/partners/invitation-runtime";
 
 export const runtime = "nodejs";
 
@@ -13,5 +15,8 @@ export async function GET(request: Request) {
   }
   const deps = await loadCommandCenterDeps();
   const snapshot = await loadPartnerCommandCenter(authz.organizationId, deps);
-  return NextResponse.json(snapshot);
+  const inviteDeps = await loadPartnerInvitationDeps();
+  const partner = await inviteDeps.store.getPartnerByOrganization(authz.organizationId);
+  const onboarding = partner ? await buildPartnerOnboardingSnapshot(partner, inviteDeps) : null;
+  return NextResponse.json({ ...snapshot, onboarding });
 }

@@ -24,7 +24,14 @@ vi.mock("../../../../lib/partners/runtime", () => ({
   }
 }));
 
-import { GET, PATCH } from "./route";
+vi.mock("../../../../lib/partners/invitation-runtime", () => ({
+  loadPartnerInvitationDeps: async () => {
+    const { getMemoryPartnerStore } = await import("../../../../lib/partners/store");
+    return { store: getMemoryPartnerStore(), durable: true };
+  }
+}));
+
+import { GET, PATCH, POST } from "./route";
 import { persistApplication } from "../../../../lib/partners/service";
 import { getMemoryPartnerStore, resetMemoryPartnerStore } from "../../../../lib/partners/store";
 
@@ -80,5 +87,26 @@ describe("admin partners routes", () => {
       })
     );
     expect(approved.status).toBe(200);
+  });
+
+  it("lets operators invite a partner without a public application", async () => {
+    const invited = await POST(
+      new Request("http://localhost/api/admin/partners", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          companyName: "Invited HVAC",
+          contactName: "Casey",
+          email: "casey@invited.example",
+          partnerType: "certified_service"
+        })
+      })
+    );
+    expect(invited.status).toBe(200);
+    const listed = await GET();
+    const body = (await listed.json()) as {
+      partners: Array<{ email: string; invitationStatus: string | null; onboarding: { readiness: string } }>;
+    };
+    expect(body.partners.some((row) => row.email === "casey@invited.example")).toBe(true);
   });
 });

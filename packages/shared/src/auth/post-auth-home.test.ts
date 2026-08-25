@@ -240,6 +240,7 @@ describe("resolveLoginNextPath", () => {
     expect(resolveLoginNextPath("/portal/tenant")).toBe("/portal/tenant");
     expect(resolveLoginNextPath("/setup")).toBe("/setup");
     expect(resolveLoginNextPath("/accept-invitation/token-1")).toBe("/accept-invitation/token-1");
+    expect(resolveLoginNextPath("/partner/invite/token-1")).toBe("/partner/invite/token-1");
     expect(resolveLoginNextPath("/commerce/continue?session_id=1")).toBe(
       "/commerce/continue?session_id=1"
     );

@@ -69,6 +69,8 @@ describe("PLAT-002 API entitlement catalog", () => {
     expect(requiredEntitlementForApiPath("/api/public/partners/northstar-property-services")).toBeNull();
     expect(requiredEntitlementForApiPath("/api/partners/requests")).toBe("platform.partner_services");
     expect(requiredEntitlementForApiPath("/api/partners/dashboard")).toBe("platform.partner_services");
+    expect(requiredEntitlementForPath("/partner/invite/token")).toBeNull();
+    expect(requiredEntitlementForApiPath("/api/partners/invite/token")).toBeNull();
     expect(requiredEntitlementForPath("/partner")).toBe("platform.partner_services");
     expect(requiredEntitlementForPath("/partner/services")).toBe("platform.partner_services");
     expect(requiredEntitlementForPath("/partner/earnings")).toBe("platform.partner_services");
@@ -267,6 +269,38 @@ describe("PLAT-002 API entitlement catalog", () => {
       sku: "mpa_property_manager"
     });
     expect(decision.allowed).toBe(false);
+  });
+
+  it("allows partner-bound extra entitlement without a product SKU", () => {
+    expect(evaluatePathEntitlement({ pathname: "/partner", sku: null }).allowed).toBe(false);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/partner",
+        sku: null,
+        extraEntitlements: ["platform.partner_services"]
+      }).allowed
+    ).toBe(true);
+    expect(
+      evaluatePathEntitlement({
+        pathname: "/pm/mission-control",
+        sku: null,
+        extraEntitlements: ["platform.partner_services"]
+      }).allowed
+    ).toBe(false);
+    expect(
+      evaluateApiPathEntitlement({
+        pathname: "/api/partners/dashboard",
+        sku: null,
+        extraEntitlements: ["platform.partner_services"]
+      }).allowed
+    ).toBe(true);
+    expect(
+      evaluateApiPathEntitlement({
+        pathname: "/api/finance/snapshot",
+        sku: null,
+        extraEntitlements: ["platform.partner_services"]
+      }).allowed
+    ).toBe(false);
   });
 });
 

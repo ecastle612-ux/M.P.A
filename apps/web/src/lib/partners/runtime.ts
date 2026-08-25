@@ -1,4 +1,10 @@
-import type { PartnerCommissionStatus, PartnerStatus, PartnerType } from "@mpa/shared";
+import type {
+  PartnerCommissionStatus,
+  PartnerInvitationSource,
+  PartnerInvitationStatus,
+  PartnerStatus,
+  PartnerType
+} from "@mpa/shared";
 import { createServiceRoleClient } from "../supabase/service-role";
 import { notifyPartnerStaff } from "./partner-notifications";
 import { getMemoryPartnerStore } from "./store";
@@ -6,6 +12,7 @@ import type { PartnerServiceDeps } from "./service";
 import type {
   PartnerCommission,
   PartnerEvent,
+  PartnerInvitation,
   PartnerReferral,
   PartnerStore,
   PlatformPartner
@@ -348,6 +355,145 @@ class SupabasePartnerStore implements PartnerStore {
       created_at: row.createdAt
     });
   }
+
+  async getPartnerByEmail(email: string): Promise<PlatformPartner | null> {
+    const { data, error } = await this.db
+      .from("platform_partners")
+      .select("*")
+      .ilike("email", email.trim())
+      .order("updated_at", { ascending: false });
+    if (error || !data || data.length === 0) return null;
+    const mapped = data.map((row) => mapPartner(row as Record<string, unknown>));
+    mapped.sort((a, b) => {
+      const rank = (status: PlatformPartner["status"]) => (status === "rejected" ? 1 : 0);
+      if (rank(a.status) !== rank(b.status)) return rank(a.status) - rank(b.status);
+      return b.updatedAt.localeCompare(a.updatedAt);
+    });
+    return mapped.find((row) => row.email.toLowerCase() === email.trim().toLowerCase()) ?? mapped[0] ?? null;
+  }
+
+  async listInvitations(partnerId?: string): Promise<PartnerInvitation[]> {
+    let query = this.db
+      .from("platform_partner_invitations")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (partnerId) {
+      query = query.eq("partner_id", partnerId);
+    }
+    const { data, error } = await query;
+    if (error || !data) return [];
+    return data.map((row) => mapInvitation(row as Record<string, unknown>));
+  }
+
+  async getInvitation(id: string): Promise<PartnerInvitation | null> {
+    const { data, error } = await this.db
+      .from("platform_partner_invitations")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error || !data) return null;
+    return mapInvitation(data as Record<string, unknown>);
+  }
+
+  async getInvitationByTokenHash(hash: string): Promise<PartnerInvitation | null> {
+    const { data, error } = await this.db
+      .from("platform_partner_invitations")
+      .select("*")
+      .eq("token_hash", hash)
+      .maybeSingle();
+    if (error || !data) return null;
+    return mapInvitation(data as Record<string, unknown>);
+  }
+
+  async getPendingInvitationByPartner(partnerId: string): Promise<PartnerInvitation | null> {
+    const { data, error } = await this.db
+      .from("platform_partner_invitations")
+      .select("*")
+      .eq("partner_id", partnerId)
+      .eq("status", "pending")
+      .maybeSingle();
+    if (error || !data) return null;
+    return mapInvitation(data as Record<string, unknown>);
+  }
+
+  async getPendingInvitationByEmail(email: string): Promise<PartnerInvitation | null> {
+    const { data, error } = await this.db
+      .from("platform_partner_invitations")
+      .select("*")
+      .eq("status", "pending")
+      .ilike("email", email.trim())
+      .maybeSingle();
+    if (error || !data) return null;
+    const mapped = mapInvitation(data as Record<string, unknown>);
+    return mapped.email.toLowerCase() === email.trim().toLowerCase() ? mapped : null;
+  }
+
+  async insertInvitation(row: PartnerInvitation): Promise<PartnerInvitation> {
+    const { error } = await this.db.from("platform_partner_invitations").insert(invitationColumns(row));
+    if (error) {
+      throw new Error(error.message);
+    }
+    return row;
+  }
+
+  async updateInvitation(row: PartnerInvitation): Promise<PartnerInvitation> {
+    const { error } = await this.db
+      .from("platform_partner_invitations")
+      .update(invitationColumns(row))
+      .eq("id", row.id);
+    if (error) {
+      throw new Error(error.message);
+    }
+    return row;
+  }
+}
+
+function asInvitationStatus(value: unknown): PartnerInvitationStatus {
+  if (value === "pending" || value === "accepted" || value === "expired" || value === "revoked") {
+    return value;
+  }
+  return "pending";
+}
+
+function asInvitationSource(value: unknown): PartnerInvitationSource {
+  if (value === "application_approval" || value === "direct_invite" || value === "resend") {
+    return value;
+  }
+  return "direct_invite";
+}
+
+function mapInvitation(row: Record<string, unknown>): PartnerInvitation {
+  return {
+    id: String(row["id"]),
+    partnerId: String(row["partner_id"]),
+    email: String(row["email"] ?? ""),
+    tokenHash: String(row["token_hash"] ?? ""),
+    status: asInvitationStatus(row["status"]),
+    source: asInvitationSource(row["source"]),
+    expiresAt: String(row["expires_at"] ?? ""),
+    invitedBy: typeof row["invited_by"] === "string" ? row["invited_by"] : null,
+    acceptedAt: typeof row["accepted_at"] === "string" ? row["accepted_at"] : null,
+    acceptedUserId: typeof row["accepted_user_id"] === "string" ? row["accepted_user_id"] : null,
+    createdAt: String(row["created_at"] ?? new Date().toISOString()),
+    updatedAt: String(row["updated_at"] ?? new Date().toISOString())
+  };
+}
+
+function invitationColumns(row: PartnerInvitation): Record<string, unknown> {
+  return {
+    id: row.id,
+    partner_id: row.partnerId,
+    email: row.email,
+    token_hash: row.tokenHash,
+    status: row.status,
+    source: row.source,
+    expires_at: row.expiresAt,
+    invited_by: row.invitedBy,
+    accepted_at: row.acceptedAt,
+    accepted_user_id: row.acceptedUserId,
+    created_at: row.createdAt,
+    updated_at: row.updatedAt
+  };
 }
 
 export async function loadPartnerDeps(): Promise<PartnerServiceDeps & { durable: boolean }> {

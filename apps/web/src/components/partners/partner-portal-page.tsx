@@ -118,10 +118,28 @@ export function PartnerPortalPage() {
                 className="inline-flex min-h-10 items-center rounded-md border border-[var(--mpa-color-border-default)] px-3 text-sm"
                 href={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(portal.qrSvg)}`}
                 download={`${portal.companyName ?? "service-portal"}-qr.svg`}
+                onClick={() => {
+                  void fetch("/api/partners/onboarding/ack", {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ action: "partner.qr_completed" })
+                  });
+                }}
               >
                 Download QR
               </a>
-              <Button type="button" variant="secondary" onClick={() => window.print()}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  void fetch("/api/partners/onboarding/ack", {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ action: "partner.qr_completed" })
+                  });
+                  window.print();
+                }}
+              >
                 Print
               </Button>
             </div>

@@ -1,5 +1,7 @@
 import type {
   PartnerCommissionStatus,
+  PartnerInvitationSource,
+  PartnerInvitationStatus,
   PartnerStatus,
   PartnerType
 } from "@mpa/shared";
@@ -75,6 +77,21 @@ export type PartnerEvent = {
   createdAt: string;
 };
 
+export type PartnerInvitation = {
+  id: string;
+  partnerId: string;
+  email: string;
+  tokenHash: string;
+  status: PartnerInvitationStatus;
+  source: PartnerInvitationSource;
+  expiresAt: string;
+  invitedBy: string | null;
+  acceptedAt: string | null;
+  acceptedUserId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type PartnerStore = {
   listPartners(): Promise<PlatformPartner[]>;
   getPartner(id: string): Promise<PlatformPartner | null>;
@@ -92,4 +109,12 @@ export type PartnerStore = {
   updateCommission(row: PartnerCommission): Promise<PartnerCommission>;
   listEvents(partnerId?: string): Promise<PartnerEvent[]>;
   insertEvent(row: PartnerEvent): Promise<void>;
+  getPartnerByEmail(email: string): Promise<PlatformPartner | null>;
+  listInvitations(partnerId?: string): Promise<PartnerInvitation[]>;
+  getInvitation(id: string): Promise<PartnerInvitation | null>;
+  getInvitationByTokenHash(hash: string): Promise<PartnerInvitation | null>;
+  getPendingInvitationByPartner(partnerId: string): Promise<PartnerInvitation | null>;
+  getPendingInvitationByEmail(email: string): Promise<PartnerInvitation | null>;
+  insertInvitation(row: PartnerInvitation): Promise<PartnerInvitation>;
+  updateInvitation(row: PartnerInvitation): Promise<PartnerInvitation>;
 };

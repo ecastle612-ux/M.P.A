@@ -1,4 +1,11 @@
-import type { PartnerCommission, PartnerEvent, PartnerReferral, PartnerStore, PlatformPartner } from "./types";
+import type {
+  PartnerCommission,
+  PartnerEvent,
+  PartnerInvitation,
+  PartnerReferral,
+  PartnerStore,
+  PlatformPartner
+} from "./types";
 
 const globalStore = globalThis as typeof globalThis & {
   __mpaPartnerStore?: MemoryPartnerStore;
@@ -8,6 +15,7 @@ export class MemoryPartnerStore implements PartnerStore {
   partners = new Map<string, PlatformPartner>();
   referrals = new Map<string, PartnerReferral>();
   commissions = new Map<string, PartnerCommission>();
+  invitations = new Map<string, PartnerInvitation>();
   events: PartnerEvent[] = [];
 
   async listPartners(): Promise<PlatformPartner[]> {
@@ -91,6 +99,58 @@ export class MemoryPartnerStore implements PartnerStore {
 
   async insertEvent(row: PartnerEvent): Promise<void> {
     this.events.push(row);
+  }
+
+  async getPartnerByEmail(email: string): Promise<PlatformPartner | null> {
+    const normalized = email.trim().toLowerCase();
+    const rows = [...this.partners.values()].filter((row) => row.email.toLowerCase() === normalized);
+    rows.sort((a, b) => {
+      const rank = (status: PlatformPartner["status"]) =>
+        status === "rejected" ? 1 : 0;
+      if (rank(a.status) !== rank(b.status)) return rank(a.status) - rank(b.status);
+      return b.updatedAt.localeCompare(a.updatedAt);
+    });
+    return rows[0] ?? null;
+  }
+
+  async listInvitations(partnerId?: string): Promise<PartnerInvitation[]> {
+    return [...this.invitations.values()]
+      .filter((row) => !partnerId || row.partnerId === partnerId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  async getInvitation(id: string): Promise<PartnerInvitation | null> {
+    return this.invitations.get(id) ?? null;
+  }
+
+  async getInvitationByTokenHash(hash: string): Promise<PartnerInvitation | null> {
+    return [...this.invitations.values()].find((row) => row.tokenHash === hash) ?? null;
+  }
+
+  async getPendingInvitationByPartner(partnerId: string): Promise<PartnerInvitation | null> {
+    return (
+      [...this.invitations.values()].find((row) => row.partnerId === partnerId && row.status === "pending") ??
+      null
+    );
+  }
+
+  async getPendingInvitationByEmail(email: string): Promise<PartnerInvitation | null> {
+    const normalized = email.trim().toLowerCase();
+    return (
+      [...this.invitations.values()].find(
+        (row) => row.email.toLowerCase() === normalized && row.status === "pending"
+      ) ?? null
+    );
+  }
+
+  async insertInvitation(row: PartnerInvitation): Promise<PartnerInvitation> {
+    this.invitations.set(row.id, row);
+    return row;
+  }
+
+  async updateInvitation(row: PartnerInvitation): Promise<PartnerInvitation> {
+    this.invitations.set(row.id, row);
+    return row;
   }
 }
 

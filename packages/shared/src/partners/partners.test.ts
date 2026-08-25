@@ -9,6 +9,11 @@ import {
   parsePartnerApplicationInput,
   parsePartnerPublicProfileInput,
   PARTNER_COMMAND_CENTER_NAV,
+  PARTNER_INVITATION_TTL_MS,
+  derivePartnerOnboarding,
+  parsePartnerDirectInviteInput,
+  partnerInvitationPublicView,
+  partnerMatchesDirectoryFilter,
   parsePartnerServiceRequestInput,
   partnerDisplayStatus,
   partnerPortalIsLive,
@@ -270,5 +275,98 @@ describe("PARTNER-003 command center contracts", () => {
     const allowed = parsePartnerPublicProfileInput({ portalDescription: "Local HVAC" });
     expect(allowed.ok).toBe(true);
     expect(PARTNER_COMMAND_CENTER_NAV.map((item) => item.href)).toContain("/partner/properties");
+  });
+});
+
+describe("PARTNER-005 onboarding contracts", () => {
+  const base = {
+    status: "active" as const,
+    organizationId: "org-1",
+    publicSlug: "northstar",
+    publicPortalEnabled: true,
+    portalDescription: "Local HVAC",
+    phone: "612-555-0100",
+    email: "hello@northstar.example",
+    serviceArea: "Twin Cities",
+    servicesOffered: "HVAC",
+    logoMediaId: "media-1",
+    invitationStatus: "accepted" as const,
+    invitationAcceptedAt: "2026-08-25T00:00:00.000Z",
+    propertyPortalCount: 1,
+    eventActions: ["partner.qr_completed"]
+  };
+
+  it("keeps a single 7-day invitation TTL and type-aware checklists", () => {
+    expect(PARTNER_INVITATION_TTL_MS).toBe(7 * 24 * 60 * 60 * 1000);
+    const referral = derivePartnerOnboarding({ ...base, partnerType: "referral", propertyPortalCount: 0, eventActions: [] });
+    expect(referral.items.map((item) => item.id)).toEqual([
+      "company_profile",
+      "referral_link",
+      "understand_earnings",
+      "share_referral_link"
+    ]);
+    expect(referral.readiness).toBe("not_ready");
+    const certified = derivePartnerOnboarding({ ...base, partnerType: "certified_service" });
+    expect(certified.items).toHaveLength(6);
+    expect(certified.onboardingStatus).toBe("complete");
+    expect(certified.readiness).toBe("ready");
+    expect(certified.percent).toBe(100);
+    const strategic = derivePartnerOnboarding({
+      ...base,
+      partnerType: "strategic",
+      propertyPortalCount: 0,
+      eventActions: []
+    });
+    expect(strategic.items.map((item) => item.id)).toContain("first_property");
+    expect(strategic.readiness).toBe("not_ready");
+  });
+
+  it("does not treat approved as ready and hides expired invitation details", () => {
+    const approved = derivePartnerOnboarding({
+      ...base,
+      status: "approved",
+      partnerType: "certified_service"
+    });
+    expect(approved.readiness).toBe("not_ready");
+    const expired = partnerInvitationPublicView({
+      status: "expired",
+      expiresAt: "2026-01-01T00:00:00.000Z",
+      companyName: "Secret Co",
+      partnerType: "certified_service"
+    });
+    expect(expired.state).toBe("expired");
+    expect(expired.companyName).toBeNull();
+    expect(expired.message).toBe("This partner invitation has expired.");
+    const unknown = partnerInvitationPublicView({ status: null, expiresAt: null });
+    expect(unknown.state).toBe("unavailable");
+    expect(unknown.companyName).toBeNull();
+  });
+
+  it("rejects client org override on direct invite and filters directory states", () => {
+    expect(parsePartnerDirectInviteInput({ organizationId: "org-hijack" }).ok).toBe(false);
+    const parsed = parsePartnerDirectInviteInput({
+      companyName: "NorthStar",
+      contactName: "Alex",
+      email: "Alex@Northstar.example",
+      partnerType: "certified_service"
+    });
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) expect(parsed.data.email).toBe("alex@northstar.example");
+    expect(
+      partnerMatchesDirectoryFilter("invited", {
+        status: "approved",
+        invitationStatus: "pending",
+        onboardingStatus: "not_started",
+        readiness: "not_ready"
+      })
+    ).toBe(true);
+    expect(
+      partnerMatchesDirectoryFilter("applications", {
+        status: "applied",
+        invitationStatus: null,
+        onboardingStatus: "not_started",
+        readiness: "not_ready"
+      })
+    ).toBe(true);
   });
 });

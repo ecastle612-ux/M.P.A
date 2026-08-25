@@ -1,6 +1,7 @@
 import {
   formatCanonicalPropertyAddress,
   normalizePartnerPropertySlug,
+  PARTNER_ONBOARDING_EVENTS,
   paginatePartnerPropertyPortals,
   parsePartnerPropertyPortalCreateInput,
   parsePartnerPropertyPortalUpdateInput,
@@ -218,6 +219,14 @@ export async function createAuthorizedPropertyPortal(
     updatedAt: now
   };
   await deps.propertyPortals.insertPortal(row);
+  await deps.store.insertEvent({
+    id: newId(),
+    partnerId: partner.id,
+    action: PARTNER_ONBOARDING_EVENTS.property_added,
+    actorUserId: input.actorUserId,
+    payload: { portalId: row.id },
+    createdAt: now
+  });
   return { ok: true, portal: row };
 }
 

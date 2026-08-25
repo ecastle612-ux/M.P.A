@@ -184,6 +184,7 @@ export function resolveLoginNextPath(next: string | null | undefined): string {
     next === "/setup" ||
     next.startsWith("/setup?") ||
     next.startsWith("/accept-invitation") ||
+    next.startsWith("/partner/invite") ||
     next.startsWith("/commerce/") ||
     next === "/billing" ||
     next.startsWith("/billing?")

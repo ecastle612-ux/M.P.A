@@ -11,6 +11,7 @@ import {
 } from "@mpa/shared";
 import { Button, MetricCard } from "@mpa/ui";
 import { PartnerCommandCenterShell } from "./partner-command-center-shell";
+import { PartnerSetupCard, type PartnerSetupSnapshot } from "./partner-setup-card";
 
 type Snapshot = {
   bound: boolean;
@@ -56,6 +57,7 @@ type Snapshot = {
     voidCents: number;
   };
   activity: Array<{ id: string; label: string; createdAt: string }>;
+  onboarding: PartnerSetupSnapshot | null;
 };
 
 export function PartnerCommandCenterPage() {
@@ -96,6 +98,23 @@ export function PartnerCommandCenterPage() {
       ) : null}
       {data?.partner ? (
         <div className="space-y-6">
+          {data.onboarding && data.onboarding.onboardingStatus !== "complete" ? (
+            <PartnerSetupCard
+              onboarding={data.onboarding}
+              referralUrl={data.partner.referralAbsoluteUrl}
+              onAck={async (action) => {
+                const response = await fetch("/api/partners/onboarding/ack", {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({ action })
+                });
+                const payload = (await response.json()) as { onboarding?: PartnerSetupSnapshot };
+                if (response.ok && payload.onboarding) {
+                  setData({ ...data, onboarding: payload.onboarding });
+                }
+              }}
+            />
+          ) : null}
           <section className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[var(--mpa-color-bg-subtle,#F7F8FA)] px-3 py-1 text-sm">
               {data.partner.displayStatus.label}

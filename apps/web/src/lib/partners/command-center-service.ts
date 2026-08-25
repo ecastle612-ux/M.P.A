@@ -93,6 +93,26 @@ function sanitizeActivityAction(action: string): string {
       return "Profile updated";
     case "logo_updated":
       return "Logo updated";
+    case "partner.invited":
+      return "Invitation sent";
+    case "partner.invitation_resent":
+      return "Invitation resent";
+    case "partner.invitation_accepted":
+      return "Invitation accepted";
+    case "partner.onboarding_started":
+      return "Setup started";
+    case "partner.profile_completed":
+      return "Profile completed";
+    case "partner.portal_configured":
+      return "Service portal configured";
+    case "partner.property_added":
+      return "Property portal added";
+    case "partner.qr_completed":
+      return "QR code completed";
+    case "partner.onboarding_completed":
+      return "Setup completed";
+    case "partner.ready":
+      return "Ready to receive requests";
     default:
       return "Partner activity";
   }
