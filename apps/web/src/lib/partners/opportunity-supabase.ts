@@ -1,6 +1,5 @@
 import { createServiceRoleClient } from "../supabase/service-role";
 import type {
-  PartnerOpportunityEvent,
   PartnerOpportunityRoute,
   PartnerOpportunityStore,
   PartnerServiceOpportunity,

@@ -79,7 +79,23 @@ export function ServiceNetworkPage({ surface }: { surface: Surface }) {
   }
 
   useEffect(() => {
-    void load();
+    const controller = new AbortController();
+    void (async () => {
+      const response = await fetch(api, { signal: controller.signal });
+      const payload = (await response.json()) as {
+        properties?: PropertyRow[];
+        opportunities?: OpportunityRow[];
+        error?: string;
+      };
+      if (controller.signal.aborted) return;
+      if (!response.ok) {
+        setError(payload.error ?? "Could not load service opportunities.");
+        return;
+      }
+      setProperties(payload.properties ?? []);
+      setRows(payload.opportunities ?? []);
+    })().catch(() => undefined);
+    return () => controller.abort();
   }, [api]);
 
   async function createOpportunity() {

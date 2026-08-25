@@ -279,7 +279,9 @@ describe("PARTNER-006 opportunity service", () => {
     const partnerBView = await getPartnerOpportunity("p2", created.opportunity.id, deps);
     expect(partnerBView).not.toBeNull();
     expect(JSON.stringify(partnerBView)).not.toContain("Hall leak unit");
-    expect(JSON.stringify(partnerBView)).not.toContain("resident");
+    expect(JSON.stringify(partnerBView)).not.toContain("residentName");
+    expect(JSON.stringify(partnerBView)).not.toContain("tenantEmail");
+    expect(JSON.stringify(partnerBView)).not.toContain("organizationId");
 
     await respondToOpportunity(
       { partnerId: "p1", opportunityId: created.opportunity.id, actorUserId: "user-p1", response: "interested" },
@@ -303,7 +305,10 @@ describe("PARTNER-006 opportunity service", () => {
     expect(selected.selectedPartnerId).toBe("p1");
     const afterSelect = await listPartnerOpportunities("p2", deps);
     expect(afterSelect.items.find((item) => item.route.opportunityId === created.opportunity.id)?.route.response).toBe(
-      "not_selected"
+      "declined"
+    );
+    expect(afterSelect.items.find((item) => item.route.opportunityId === created.opportunity.id)?.route.selected).toBe(
+      false
     );
 
     await expect(

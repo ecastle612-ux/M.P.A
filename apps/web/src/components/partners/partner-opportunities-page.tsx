@@ -61,7 +61,23 @@ export function PartnerOpportunitiesPage() {
   }
 
   useEffect(() => {
-    void load();
+    const controller = new AbortController();
+    void (async () => {
+      const response = await fetch("/api/partners/opportunities", { signal: controller.signal });
+      const payload = (await response.json()) as {
+        items?: Item[];
+        metrics?: typeof metrics;
+        error?: string;
+      };
+      if (controller.signal.aborted) return;
+      if (!response.ok) {
+        setError(payload.error ?? "Could not load opportunities.");
+        return;
+      }
+      setItems(payload.items ?? []);
+      if (payload.metrics) setMetrics(payload.metrics);
+    })().catch(() => undefined);
+    return () => controller.abort();
   }, []);
 
   async function openDetail(opportunityId: string) {

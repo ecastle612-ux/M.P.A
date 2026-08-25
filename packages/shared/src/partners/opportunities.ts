@@ -314,7 +314,6 @@ export function summarizePlatformOpportunityAnalytics(
   geographicDemand: Array<{ region: string; city: string; count: number }>;
 } {
   const created = opportunities.length;
-  const matched = opportunities.filter((row) => row.status !== "open" || Boolean(row.closeReason)).length;
   const routed = opportunities.filter((row) =>
     ["routed", "partner_interested", "partner_selected", "closed", "cancelled"].includes(row.status)
   ).length;
@@ -423,7 +422,7 @@ export function parsePartnerOpportunityCreateInput(
       urgency,
       preferredTiming,
       workOrderId,
-      propertyType
+      ...(propertyType ? { propertyType } : {})
     }
   };
 }

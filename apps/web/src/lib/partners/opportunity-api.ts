@@ -260,7 +260,7 @@ export async function handlePartnerOpportunityDetail(request: Request, opportuni
           opportunityId,
           actorUserId: authz.user.id,
           response: payload.response,
-          declineReason: payload.declineReason
+          ...(payload.declineReason ? { declineReason: payload.declineReason } : {})
         },
         deps
       )

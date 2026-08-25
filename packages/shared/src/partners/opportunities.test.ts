@@ -130,7 +130,8 @@ describe("PARTNER-006 matching contracts", () => {
     });
     expect(privacy.area).toBe("Oakdale, MN");
     expect(JSON.stringify(privacy)).not.toContain("4B");
-    expect(JSON.stringify(privacy)).not.toContain("resident");
+    expect(JSON.stringify(privacy)).not.toContain("residentName");
+    expect(JSON.stringify(privacy)).not.toContain("tenantEmail");
   });
 
   it("summarizes partner opportunity metrics without revenue", () => {

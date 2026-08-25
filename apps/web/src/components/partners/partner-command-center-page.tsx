@@ -88,7 +88,9 @@ export function PartnerCommandCenterPage() {
       };
       setData({
         ...payload,
-        opportunities: opportunityResponse.ok ? opportunityPayload.metrics : undefined
+        ...(opportunityResponse.ok && opportunityPayload.metrics
+          ? { opportunities: opportunityPayload.metrics }
+          : {})
       });
     })().catch(() => undefined);
     return () => controller.abort();
