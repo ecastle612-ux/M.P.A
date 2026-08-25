@@ -1,10 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  chargeIsImmutableAmount,
+  defaultAutopayEligible,
+  defaultFeeCategoryForChargeType,
   deriveResidentFinancialStatus,
   formatMoney,
   nextChargeStatus,
+  nextSchedulePeriod,
   periodBoundsForDate,
   planPaymentAllocations,
+  refundReopenPaid,
   remainingBalance,
   roundMoney,
   type AllocatableCharge,
@@ -12,7 +17,9 @@ import {
   type CreateOneTimeChargeInput,
   type CreatePropertyInput,
   type CreateRecurringScheduleInput,
-  type RecordManualPaymentInput
+  type ChargeType,
+  type RecordManualPaymentInput,
+  type UpdateChargeScheduleInput
 } from "@mpa/shared";
 import { emitFinanceEvent, writeFinanceAudit, writeFinanceNotification } from "./events-audit";
 export { getRentReadiness } from "./rent-readiness";
@@ -187,6 +194,12 @@ export async function createRecurringScheduleAndCharge(
       currency: input.currency,
       day_of_month: input.dayOfMonth,
       next_run_on: bounds.nextRunOn,
+      fee_category: input.feeCategory ?? defaultFeeCategoryForChargeType(input.chargeType),
+      autopay_eligible: defaultAutopayEligible({
+        chargeType: input.chargeType,
+        ...(input.feeCategory ? { feeCategory: input.feeCategory } : {}),
+        ...(input.autopayEligible != null ? { autopayEligible: input.autopayEligible } : {})
+      }),
       created_by: actorId
     })
     .select("*")
@@ -212,6 +225,12 @@ export async function createRecurringScheduleAndCharge(
       dueAt: bounds.dueAt,
       periodStart: bounds.periodStart,
       periodEnd: bounds.periodEnd,
+      feeCategory: input.feeCategory ?? defaultFeeCategoryForChargeType(input.chargeType),
+      autopayEligible: defaultAutopayEligible({
+        chargeType: input.chargeType,
+        ...(input.feeCategory ? { feeCategory: input.feeCategory } : {}),
+        ...(input.autopayEligible != null ? { autopayEligible: input.autopayEligible } : {})
+      }),
       notifyUserId
     });
   }
@@ -243,6 +262,8 @@ export async function createOneTimeCharge(
     amount,
     currency: input.currency,
     dueAt: input.dueAt,
+    feeCategory: input.feeCategory ?? defaultFeeCategoryForChargeType(input.chargeType),
+    autopayEligible: false,
     ...(input.memo ? { memo: input.memo } : {}),
     notifyUserId
   });
@@ -267,6 +288,8 @@ async function createChargeRecord(
     periodEnd?: string;
     memo?: string;
     notifyUserId?: string | null;
+    feeCategory?: string;
+    autopayEligible?: boolean;
   }
 ) {
   const { data: charge, error } = await supabase
@@ -287,6 +310,8 @@ async function createChargeRecord(
       due_at: args.dueAt,
       period_start: args.periodStart ?? null,
       period_end: args.periodEnd ?? null,
+      fee_category: args.feeCategory ?? defaultFeeCategoryForChargeType(args.chargeType as ChargeType),
+      autopay_eligible: args.autopayEligible === true && (args.chargeType === "rent" || args.chargeType === "recurring_fee"),
       created_by: args.actorId
     })
     .select("*")
@@ -422,6 +447,208 @@ export async function voidCharge(
   return updated;
 }
 
+export async function adjustChargeAmount(
+  supabase: Db,
+  organizationId: string,
+  actorId: string,
+  chargeId: string,
+  amount: number,
+  reason: string
+) {
+  const { data: charge, error } = await supabase
+    .from("financial_charges")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .eq("id", chargeId)
+    .maybeSingle();
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!charge) {
+    throw new Error("Charge not found");
+  }
+  if (chargeIsImmutableAmount(charge.status)) {
+    throw new Error("charge_amount_immutable");
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from("financial_charges")
+    .update({
+      amount,
+      memo: reason,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", chargeId)
+    .eq("organization_id", organizationId)
+    .select("*")
+    .single();
+  if (updateError) {
+    throw new Error(updateError.message);
+  }
+
+  await writeFinanceAudit({
+    supabase,
+    organizationId,
+    actorId,
+    action: "finance.charge.created",
+    entityType: "financial_charge",
+    entityId: chargeId,
+    payload: { action: "adjust_amount", from: charge.amount, to: amount, reason }
+  });
+  return updated;
+}
+
+export async function updateChargeSchedule(
+  supabase: Db,
+  organizationId: string,
+  actorId: string,
+  input: UpdateChargeScheduleInput
+) {
+  const { data: schedule, error } = await supabase
+    .from("financial_charge_schedules")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .eq("id", input.scheduleId)
+    .maybeSingle();
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!schedule) {
+    throw new Error("Schedule not found");
+  }
+
+  const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (input.amount != null) {
+    patch["amount"] = input.amount;
+  }
+  if (input.dayOfMonth != null) {
+    patch["day_of_month"] = input.dayOfMonth;
+  }
+  if (input.autopayEligible != null) {
+    patch["autopay_eligible"] =
+      schedule.charge_type === "rent" || schedule.charge_type === "recurring_fee"
+        ? input.autopayEligible
+        : false;
+  }
+  if (input.active != null) {
+    patch["active"] = input.active;
+  }
+  if (input.label) {
+    patch["label"] = input.label;
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from("financial_charge_schedules")
+    .update(patch)
+    .eq("id", input.scheduleId)
+    .eq("organization_id", organizationId)
+    .select("*")
+    .single();
+  if (updateError) {
+    throw new Error(updateError.message);
+  }
+
+  await emitFinanceEvent({
+    supabase,
+    organizationId,
+    actorId,
+    eventType: "finance.schedule.updated",
+    aggregateType: "financial_charge_schedule",
+    aggregateId: input.scheduleId,
+    payload: { patch, historicalChargesUnchanged: true }
+  });
+  await writeFinanceAudit({
+    supabase,
+    organizationId,
+    actorId,
+    action: "finance.schedule.updated",
+    entityType: "financial_charge_schedule",
+    entityId: input.scheduleId,
+    payload: { patch, historicalChargesUnchanged: true }
+  });
+  return updated;
+}
+
+export async function postDueSchedules(
+  supabase: Db,
+  organizationId: string,
+  actorId: string | null,
+  input?: { asOfDate?: string; leaseId?: string }
+) {
+  const asOf = input?.asOfDate ?? new Date().toISOString().slice(0, 10);
+  let query = supabase
+    .from("financial_charge_schedules")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .eq("active", true)
+    .lte("next_run_on", asOf);
+  if (input?.leaseId) {
+    query = query.eq("lease_id", input.leaseId);
+  }
+  const { data: schedules, error } = await query;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const posted: string[] = [];
+  const skipped: string[] = [];
+  for (const schedule of schedules ?? []) {
+    const period = nextSchedulePeriod(schedule.next_run_on as string, Number(schedule.day_of_month));
+    const { data: existing } = await supabase
+      .from("financial_charges")
+      .select("id")
+      .eq("organization_id", organizationId)
+      .eq("schedule_id", schedule.id)
+      .eq("period_start", period.periodStart)
+      .maybeSingle();
+
+    if (!existing) {
+      const { lease, residents } = await loadLeaseContext(supabase, organizationId, schedule.lease_id);
+      const primary = residents.find((row) => row.is_primary) ?? residents[0] ?? null;
+      const notifyUserId = await resolveResidentNotifyUserId(supabase, organizationId, primary);
+      await createChargeRecord(supabase, {
+        organizationId,
+        actorId,
+        propertyId: lease.property_id,
+        unitId: lease.unit_id,
+        leaseId: lease.id,
+        residentId: primary?.id ?? null,
+        scheduleId: schedule.id,
+        chargeType: schedule.charge_type,
+        label: schedule.label,
+        amount: Number(schedule.amount),
+        currency: schedule.currency,
+        dueAt: period.dueAt,
+        periodStart: period.periodStart,
+        periodEnd: period.periodEnd,
+        feeCategory: schedule.fee_category,
+        autopayEligible: schedule.autopay_eligible === true,
+        notifyUserId
+      });
+      posted.push(schedule.id);
+    } else {
+      skipped.push(schedule.id);
+    }
+
+    await supabase
+      .from("financial_charge_schedules")
+      .update({ next_run_on: period.followingRunOn, updated_at: new Date().toISOString() })
+      .eq("id", schedule.id)
+      .eq("organization_id", organizationId);
+  }
+
+  await writeFinanceAudit({
+    supabase,
+    organizationId,
+    actorId,
+    action: "finance.schedule.updated",
+    entityType: "financial_charge_schedule",
+    entityId: organizationId,
+    payload: { posted, skipped, asOf }
+  });
+  return { posted: posted.length, skipped: skipped.length, asOf };
+}
+
 export async function applySucceededPayment(
   supabase: Db,
   args: {
@@ -436,17 +663,22 @@ export async function applySucceededPayment(
     stripePaymentIntentId?: string | null;
     paidAt?: string | null;
     correlationId?: string | null;
+    chargeIds?: string[] | null;
   }
 ) {
   const { lease, residents } = await loadLeaseContext(supabase, args.organizationId, args.leaseId);
   const primary = residents.find((row) => row.is_primary) ?? residents[0] ?? null;
 
-  const { data: openCharges, error: chargesError } = await supabase
+  let chargeQuery = supabase
     .from("financial_charges")
     .select("id, due_at, charge_type, amount, amount_paid, status")
     .eq("organization_id", args.organizationId)
     .eq("lease_id", args.leaseId)
     .in("status", ["open", "partially_paid"]);
+  if (args.chargeIds?.length) {
+    chargeQuery = chargeQuery.in("id", args.chargeIds);
+  }
+  const { data: openCharges, error: chargesError } = await chargeQuery;
   if (chargesError) {
     throw new Error(chargesError.message);
   }
@@ -757,6 +989,44 @@ export async function recordManualPayment(
   });
 }
 
+export async function markPaymentProcessing(
+  supabase: Db,
+  paymentId: string,
+  organizationId: string,
+  reason = "processing"
+) {
+  const { data: current, error: readError } = await supabase
+    .from("financial_payments")
+    .select("id, status")
+    .eq("id", paymentId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  if (readError) {
+    throw new Error(readError.message);
+  }
+  if (!current) {
+    throw new Error("pending_payment_missing");
+  }
+  if (current.status === "succeeded" || current.status === "failed" || current.status === "refunded") {
+    return current;
+  }
+  const { data: payment, error } = await supabase
+    .from("financial_payments")
+    .update({
+      status: "processing",
+      failure_reason: reason,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", paymentId)
+    .eq("organization_id", organizationId)
+    .select("*")
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+  return payment;
+}
+
 export async function markPaymentFailed(
   supabase: Db,
   paymentId: string,
@@ -764,6 +1034,23 @@ export async function markPaymentFailed(
   reason: string,
   correlationId?: string
 ) {
+  const { data: current, error: readError } = await supabase
+    .from("financial_payments")
+    .select("id, status")
+    .eq("id", paymentId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  if (readError) {
+    throw new Error(readError.message);
+  }
+  if (
+    current?.status === "succeeded" ||
+    current?.status === "refunded" ||
+    current?.status === "partially_refunded" ||
+    current?.status === "failed"
+  ) {
+    return current;
+  }
   const { data: payment, error } = await supabase
     .from("financial_payments")
     .update({
@@ -773,6 +1060,7 @@ export async function markPaymentFailed(
     })
     .eq("id", paymentId)
     .eq("organization_id", organizationId)
+    .in("status", ["pending", "processing"])
     .select("*")
     .single();
   if (error) {
@@ -818,6 +1106,185 @@ export async function markPaymentFailed(
   }
 
   return payment;
+}
+
+export async function applyPaymentRefund(
+  supabase: Db,
+  args: {
+    organizationId: string;
+    paymentId: string;
+    refundAmount: number;
+    stripeRefundId?: string | null;
+    correlationId?: string | null;
+  }
+) {
+  const { data: payment, error } = await supabase
+    .from("financial_payments")
+    .select("*")
+    .eq("id", args.paymentId)
+    .eq("organization_id", args.organizationId)
+    .maybeSingle();
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!payment) {
+    throw new Error("Payment not found");
+  }
+  if (payment.status !== "succeeded" && payment.status !== "partially_refunded") {
+    throw new Error("payment_not_refundable");
+  }
+
+  const refundAmount = roundMoney(args.refundAmount);
+  const alreadyRefunded = Number(payment.metadata?.refunded_amount ?? 0);
+  const nextRefunded = roundMoney(alreadyRefunded + refundAmount);
+  if (nextRefunded - Number(payment.amount) > 0.009) {
+    throw new Error("refund_exceeds_payment");
+  }
+
+  const { data: allocations, error: allocError } = await supabase
+    .from("financial_payment_allocations")
+    .select("charge_id, amount")
+    .eq("payment_id", args.paymentId)
+    .eq("organization_id", args.organizationId);
+  if (allocError) {
+    throw new Error(allocError.message);
+  }
+
+  let remainingRefund = refundAmount;
+  for (const allocation of allocations ?? []) {
+    if (remainingRefund <= 0) {
+      break;
+    }
+    const apply = roundMoney(Math.min(Number(allocation.amount), remainingRefund));
+    const { data: charge } = await supabase
+      .from("financial_charges")
+      .select("id, amount, amount_paid")
+      .eq("id", allocation.charge_id)
+      .maybeSingle();
+    if (!charge) {
+      continue;
+    }
+    const next = refundReopenPaid(
+      { amount: Number(charge.amount), amount_paid: Number(charge.amount_paid) },
+      apply
+    );
+    await supabase
+      .from("financial_charges")
+      .update({
+        amount_paid: next.amount_paid,
+        status: next.status,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", charge.id);
+    remainingRefund = roundMoney(remainingRefund - apply);
+  }
+
+  await insertLedgerEntry(supabase, {
+    organization_id: args.organizationId,
+    property_id: payment.property_id,
+    lease_id: payment.lease_id,
+    resident_id: payment.resident_id,
+    entry_type: "refund",
+    direction: "debit",
+    amount: refundAmount,
+    currency: payment.currency,
+    source_type: "financial_payments",
+    source_id: payment.id,
+    description: "Stripe refund",
+    idempotency_key: `refund:${args.stripeRefundId ?? args.paymentId}:${nextRefunded}`,
+    created_by: null,
+    stripe_object_id: args.stripeRefundId ?? null
+  });
+
+  const fullyRefunded = nextRefunded >= Number(payment.amount) - 0.009;
+  await supabase
+    .from("financial_payments")
+    .update({
+      status: fullyRefunded ? "refunded" : "partially_refunded",
+      stripe_refund_id: args.stripeRefundId ?? payment.stripe_refund_id,
+      metadata: { ...(payment.metadata ?? {}), refunded_amount: nextRefunded },
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", payment.id);
+
+  await emitFinanceEvent({
+    supabase,
+    organizationId: args.organizationId,
+    actorId: null,
+    eventType: "finance.payment.refunded",
+    aggregateType: "financial_payment",
+    aggregateId: payment.id,
+    payload: { refundAmount, stripeRefundId: args.stripeRefundId }
+  });
+  await writeFinanceAudit({
+    supabase,
+    organizationId: args.organizationId,
+    actorId: null,
+    action: "finance.payment.refunded",
+    entityType: "financial_payment",
+    entityId: payment.id,
+    payload: { refundAmount, stripeRefundId: args.stripeRefundId },
+    correlationId: args.correlationId ?? null
+  });
+  await refreshResidentFinancialStatus(supabase, args.organizationId, payment.lease_id);
+  return { paymentId: payment.id, refunded: nextRefunded, status: fullyRefunded ? "refunded" : "partially_refunded" };
+}
+
+export async function recordPaymentDispute(
+  supabase: Db,
+  args: {
+    organizationId: string;
+    paymentId: string;
+    disputeId: string;
+    disputeStatus: string;
+    lost?: boolean;
+    amount?: number;
+    correlationId?: string | null;
+  }
+) {
+  const { data: payment, error } = await supabase
+    .from("financial_payments")
+    .select("*")
+    .eq("id", args.paymentId)
+    .eq("organization_id", args.organizationId)
+    .maybeSingle();
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!payment) {
+    throw new Error("Payment not found");
+  }
+
+  await supabase
+    .from("financial_payments")
+    .update({
+      stripe_dispute_id: args.disputeId,
+      dispute_status: args.disputeStatus,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", payment.id);
+
+  await writeFinanceAudit({
+    supabase,
+    organizationId: args.organizationId,
+    actorId: null,
+    action: "finance.payment.disputed",
+    entityType: "financial_payment",
+    entityId: payment.id,
+    payload: { disputeId: args.disputeId, disputeStatus: args.disputeStatus, lost: args.lost === true },
+    correlationId: args.correlationId ?? null
+  });
+
+  if (args.lost) {
+    return applyPaymentRefund(supabase, {
+      organizationId: args.organizationId,
+      paymentId: payment.id,
+      refundAmount: args.amount ?? Number(payment.amount),
+      stripeRefundId: args.disputeId,
+      correlationId: args.correlationId ?? null
+    });
+  }
+  return { paymentId: payment.id, disputeStatus: args.disputeStatus };
 }
 
 export async function loadResidentFinancialStatus(supabase: Db, organizationId: string, leaseId: string) {

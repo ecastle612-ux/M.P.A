@@ -1,11 +1,20 @@
 import { NextResponse } from "next/server";
 import { requireResidentPermission } from "../../../../../lib/resident/authz";
 import { searchResidents } from "../../../../../lib/resident/resident-service";
+import { consumeRateLimit } from "../../../../../lib/security/durable-rate-limit";
 
 export async function GET(request: Request) {
   const authz = await requireResidentPermission("pm.residents:read");
   if ("error" in authz) {
     return authz.error;
+  }
+  if (
+    !(await consumeRateLimit({
+      class: "APPLICATION",
+      key: `pm-resident-search:${authz.organizationId}`
+    }))
+  ) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
   const url = new URL(request.url);

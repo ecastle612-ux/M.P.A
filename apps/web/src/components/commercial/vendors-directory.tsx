@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, Button, EmptyState, Input, Skeleton } from "@mpa/ui";
 import { ErrorRetry } from "../shell/error-retry";
 import {
@@ -22,6 +23,7 @@ type VendorRow = {
 };
 
 export function VendorsDirectory() {
+  const highlight = (useSearchParams().get("q") ?? "").trim().toLowerCase();
   const [vendors, setVendors] = useState<VendorRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +60,11 @@ export function VendorsDirectory() {
     })();
     return () => controller.abort();
   }, [refresh, reloadToken]);
+
+  const visibleVendors = useMemo(() => {
+    if (!highlight) return vendors;
+    return vendors.filter((vendor) => vendor.name.toLowerCase().includes(highlight));
+  }, [highlight, vendors]);
 
   function retry() {
     setLoading(true);
@@ -160,16 +167,16 @@ export function VendorsDirectory() {
         <ErrorRetry title="Unable to load vendors" description={error} onRetry={retry} />
       ) : null}
 
-      {!loading && !error && vendors.length === 0 ? (
+      {!loading && !error && visibleVendors.length === 0 ? (
         <EmptyState
           title="No vendors yet"
           description="Add your first vendor to assign work orders and track invoices against a shared directory."
         />
       ) : null}
 
-      {!loading && !error && vendors.length > 0 ? (
+      {!loading && !error && visibleVendors.length > 0 ? (
         <ul className="grid gap-3 md:grid-cols-2">
-          {vendors.map((vendor) => (
+          {visibleVendors.map((vendor) => (
             <PmEntityCard
               key={vendor.id}
               title={vendor.name}

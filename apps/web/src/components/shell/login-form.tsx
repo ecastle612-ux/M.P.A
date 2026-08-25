@@ -5,7 +5,10 @@ import { useMemo, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ACQUISITION_SKU_COOKIE,
+  MIN_PASSWORD_LENGTH,
+  PASSWORD_TOO_SHORT_MESSAGE,
   SKU_SUMMARIES,
+  meetsMinPasswordLength,
   parseAcquisitionSku,
   postPurchaseNextStepCopy,
   productDisplayLabel,
@@ -94,6 +97,10 @@ export function LoginForm() {
 
     if (mode === "sign_up" && password !== confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+    if (mode === "sign_up" && !meetsMinPasswordLength(password)) {
+      setError(PASSWORD_TOO_SHORT_MESSAGE);
       return;
     }
 
@@ -273,6 +280,7 @@ export function LoginForm() {
             id="password"
             type="password"
             required
+            minLength={mode === "sign_up" ? MIN_PASSWORD_LENGTH : undefined}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />

@@ -64,7 +64,8 @@ const siteUrl = (process.env["NEXT_PUBLIC_APP_URL"] ?? "https://mypropertyassist
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "M.P.A. — My Property Assistant",
-  description: "Property operations for portfolio managers, residents, vendors, and owners.",
+  description:
+    "Property management software for portfolio managers, residents, vendors, and owners. Online rent collection, ACH rent payments, and tenant AutoPay for eligible Property Operations accounts.",
   applicationName: MPA_BRAND_NAME,
   appleWebApp: {
     capable: true,
@@ -98,7 +99,8 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: MPA_BRAND_NAME,
     title: `${MPA_BRAND_NAME} — ${MPA_BRAND_TAGLINE}`,
-    description: "Property operations for portfolio managers, residents, vendors, and owners.",
+    description:
+      "Property management software for portfolio managers, residents, vendors, and owners. Online rent collection, ACH rent payments, and tenant AutoPay for eligible Property Operations accounts.",
     images: [{ url: MPA_LOGO_DARK_PATH, width: 512, height: 512, alt: `${MPA_BRAND_NAME} logo` }]
   }
 };

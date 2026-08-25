@@ -64,7 +64,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/shared") ||
     pathname.startsWith("/settings") ||
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/complimentary/expired");
+    pathname.startsWith("/complimentary/expired") ||
+    (pathname.startsWith("/partner") && !pathname.startsWith("/partner/invite"));
 
   const apiEntitlementRequired = requiredEntitlementForApiPath(pathname);
   if (apiEntitlementRequired !== null && !user) {
@@ -271,7 +272,20 @@ export async function middleware(request: NextRequest) {
       storedScope = isMemberOperatingScope(membership?.operating_scope) ? membership.operating_scope : null;
     }
 
-    const decision = evaluatePathEntitlement({ pathname, sku, roles, storedScope });
+    let extraEntitlements: string[] = [];
+    if (organizationId && (pathname.startsWith("/partner") || pathname.startsWith("/api/partners"))) {
+      const { data: boundPartner } = await supabase
+        .from("platform_partners")
+        .select("id")
+        .eq("organization_id", organizationId)
+        .limit(1)
+        .maybeSingle();
+      if (boundPartner) {
+        extraEntitlements = ["platform.partner_services"];
+      }
+    }
+
+    const decision = evaluatePathEntitlement({ pathname, sku, roles, storedScope, extraEntitlements });
     if (!decision.allowed) {
       const url = request.nextUrl.clone();
       if (!sku) {
@@ -316,7 +330,19 @@ export async function middleware(request: NextRequest) {
       roles = Array.isArray(membership?.roles) ? (membership.roles as string[]) : [];
       storedScope = isMemberOperatingScope(membership?.operating_scope) ? membership.operating_scope : null;
     }
-    const decision = evaluateApiPathEntitlement({ pathname, sku, roles, storedScope });
+    let extraEntitlements: string[] = [];
+    if (organizationId && pathname.startsWith("/api/partners")) {
+      const { data: boundPartner } = await supabase
+        .from("platform_partners")
+        .select("id")
+        .eq("organization_id", organizationId)
+        .limit(1)
+        .maybeSingle();
+      if (boundPartner) {
+        extraEntitlements = ["platform.partner_services"];
+      }
+    }
+    const decision = evaluateApiPathEntitlement({ pathname, sku, roles, storedScope, extraEntitlements });
     if (!decision.allowed) {
       return NextResponse.json(
         {
@@ -346,6 +372,8 @@ export const config = {
     "/settings/:path*",
     "/admin/:path*",
     "/complimentary/:path*",
+    "/partner",
+    "/partner/:path*",
     "/api/:path*",
     "/login",
     "/forgot-password",
