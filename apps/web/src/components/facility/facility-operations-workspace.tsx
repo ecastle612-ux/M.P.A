@@ -409,6 +409,7 @@ export function FacilityOperationsWorkspace({ domain }: { domain: FacilityWorksp
         actions={[
           { href: "/facility/mission-control", label: "Mission Control", primary: true },
           { href: "/facility/operations", label: "All operations" },
+          { href: "/facility/service-network", label: "Find a Service Partner" },
           { href: "/facility/assets", label: "Assets" },
           { href: documentsHref("maintenance"), label: "Documents" }
         ]}

@@ -82,6 +82,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     ["/pm/residents", "pm.residents"],
     ["/pm/leasing", "pm.leasing"],
     ["/pm/maintenance", "pm.maintenance"],
+    ["/pm/service-network", "pm.maintenance"],
     ["/pm/reports", "pm.maintenance"],
     ["/pm/vendors", "pm.vendors"],
     ["/pm/financial-operations", "pm.financial_operations"]
@@ -99,6 +100,7 @@ export function requiredEntitlementForPath(pathname: string): EntitlementKey | n
     ["/facility/mission-control", "facility.mission_control"],
     ["/facility/my-work", "facility.operations"],
     ["/facility/operations", "facility.operations"],
+    ["/facility/service-network", "facility.operations"],
     ["/facility/reports", "facility.operations"],
     ["/facility/vendors", "facility.operations"],
     ["/facility/assets", "facility.assets"],
@@ -173,6 +175,9 @@ export function requiredEntitlementForApiPath(pathname: string): ApiEntitlementR
 
   if (path.startsWith("/api/pm/properties") || path.startsWith("/api/pm/mission-control")) {
     return "pm.properties";
+  }
+  if (path.startsWith("/api/pm/service-network")) {
+    return "pm.maintenance";
   }
   if (path.startsWith("/api/pm/maintenance/vendors") || path.startsWith("/api/pm/vendors")) {
     return "pm.vendors";
@@ -366,6 +371,9 @@ export function searchCatalogForSku(
   push(
     decisionPath("/partner", "Partner Command Center", "Shared Platform", "platform.partner_services")
   );
+  push(
+    decisionPath("/partner/opportunities", "Opportunities", "Shared Platform", "platform.partner_services")
+  );
 
   if (sku) {
     push(decisionPath("/pm/mission-control", "Mission Control", "Property Manager", "pm.mission_control"));
@@ -381,6 +389,9 @@ export function searchCatalogForSku(
     push(decisionPath("/pm/residents", "Residents", "Property Manager", "pm.residents"));
     push(decisionPath("/pm/leasing", "Leasing", "Property Manager", "pm.leasing"));
     push(decisionPath("/pm/maintenance", "Maintenance", "Property Manager", "pm.maintenance"));
+    push(
+      decisionPath("/pm/service-network", "Find a Service Partner", "Property Manager", "pm.maintenance")
+    );
     push(
       decisionPath(
         "/pm/reports/work-orders",
@@ -435,6 +446,14 @@ export function searchCatalogForSku(
       decisionPath("/facility/mission-control", "Mission Control", "Facility Operations", "facility.mission_control")
     );
     push(decisionPath("/facility/operations", "Facility Operations", "Facility Operations", "facility.operations"));
+    push(
+      decisionPath(
+        "/facility/service-network",
+        "Find a Service Partner",
+        "Facility Operations",
+        "facility.operations"
+      )
+    );
     push(decisionPath("/facility/reports", "Work order reports", "Facility Operations", "facility.operations"));
     push(decisionPath("/facility/vendors", "Vendors", "Facility Operations", "facility.operations"));
     push(decisionPath("/facility/assets", "Assets", "Facility Operations", "facility.assets"));

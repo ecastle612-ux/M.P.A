@@ -275,6 +275,7 @@ describe("PARTNER-003 command center contracts", () => {
     const allowed = parsePartnerPublicProfileInput({ portalDescription: "Local HVAC" });
     expect(allowed.ok).toBe(true);
     expect(PARTNER_COMMAND_CENTER_NAV.map((item) => item.href)).toContain("/partner/properties");
+    expect(PARTNER_COMMAND_CENTER_NAV.map((item) => item.href)).toContain("/partner/opportunities");
   });
 });
 

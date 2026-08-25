@@ -58,6 +58,13 @@ type Snapshot = {
   };
   activity: Array<{ id: string; label: string; createdAt: string }>;
   onboarding: PartnerSetupSnapshot | null;
+  opportunities?: {
+    received: number;
+    interested: number;
+    declined: number;
+    selected: number;
+    responseRate: number | null;
+  };
 };
 
 export function PartnerCommandCenterPage() {
@@ -75,7 +82,14 @@ export function PartnerCommandCenterPage() {
         setError(payload.error ?? "Could not load Partner Command Center.");
         return;
       }
-      setData(payload);
+      const opportunityResponse = await fetch("/api/partners/opportunities", { signal: controller.signal });
+      const opportunityPayload = (await opportunityResponse.json()) as {
+        metrics?: Snapshot["opportunities"];
+      };
+      setData({
+        ...payload,
+        opportunities: opportunityResponse.ok ? opportunityPayload.metrics : undefined
+      });
     })().catch(() => undefined);
     return () => controller.abort();
   }, []);
@@ -128,6 +142,18 @@ export function PartnerCommandCenterPage() {
             <MetricCard label="Converted" value={data.requests.convertedCount} />
             <MetricCard label="Declined" value={data.requests.declinedCount} />
           </section>
+          {data.opportunities ? (
+            <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              <MetricCard label="Opportunities received" value={data.opportunities.received} />
+              <MetricCard label="Interested" value={data.opportunities.interested} />
+              <MetricCard label="Declined" value={data.opportunities.declined} />
+              <MetricCard label="Selected" value={data.opportunities.selected} />
+              <MetricCard
+                label="Response rate"
+                value={data.opportunities.responseRate == null ? "—" : `${data.opportunities.responseRate}%`}
+              />
+            </section>
+          ) : null}
 
           <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <MetricCard label="Referred organizations" value={data.referrals.totalAttributedOrganizations} />

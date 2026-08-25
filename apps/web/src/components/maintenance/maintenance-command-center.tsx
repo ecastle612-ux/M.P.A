@@ -284,6 +284,7 @@ export function MaintenanceCommandCenter() {
           actions={[
             { href: "/pm/mission-control", label: "Mission Control" },
             { href: "/pm/vendors", label: "Vendors" },
+            { href: "/pm/service-network", label: "Find a Service Partner" },
             { href: documentsHref("maintenance"), label: "Attachments" }
           ]}
         />

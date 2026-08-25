@@ -35,7 +35,8 @@ export type PartnerNotificationKind =
   | "partner_suspended"
   | "invitation_accepted"
   | "onboarding_completed"
-  | "ready";
+  | "ready"
+  | "opportunity_routed";
 
 export type PartnerServiceDeps = {
   store: PartnerStore;

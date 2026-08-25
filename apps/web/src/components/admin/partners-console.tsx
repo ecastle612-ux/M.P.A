@@ -126,6 +126,19 @@ export function PartnersConsole() {
   const [inviteArea, setInviteArea] = useState("");
   const [inviteServices, setInviteServices] = useState("");
   const [inviteNote, setInviteNote] = useState("");
+  const [opportunityOversight, setOpportunityOversight] = useState<{
+    opportunities: Array<{
+      id: string;
+      status: string;
+      category: string;
+      city: string | null;
+      region: string | null;
+      routedCount: number;
+      interestedCount: number;
+    }>;
+    unmetDemand: Array<{ serviceCategory: string; city: string | null; region: string | null; createdAt: string }>;
+    analytics: { created: number; matchRate: number | null; noMatchRate: number | null; partnerResponseRate: number | null; partnerSelectionRate: number | null };
+  } | null>(null);
 
   async function load() {
     setLoading(true);
@@ -180,6 +193,10 @@ export function PartnersConsole() {
       setReferrals(payload.referrals ?? []);
       setCommissions(payload.commissions ?? []);
       setEvents(payload.events ?? []);
+      const oversight = await fetch("/api/admin/partner-opportunities", { signal: controller.signal });
+      if (oversight.ok) {
+        setOpportunityOversight((await oversight.json()) as NonNullable<typeof opportunityOversight>);
+      }
     })().catch(() => {
       if (!controller.signal.aborted) {
         setError("Failed to load partners");
@@ -262,6 +279,42 @@ export function PartnersConsole() {
           Payouts stay manual. This is platform administration only.
         </p>
       </div>
+
+      {opportunityOversight ? (
+        <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
+          <h2 className="font-display text-xl font-semibold">Service opportunities</h2>
+          <p className="text-sm text-[var(--mpa-color-text-secondary)]">
+            Inspect routing, interest, selection, and unmet demand. Master Admin does not select a Partner for
+            the customer.
+          </p>
+          <p className="text-sm">
+            Created {opportunityOversight.analytics.created} · match {opportunityOversight.analytics.matchRate ?? "—"}%
+            · no-match {opportunityOversight.analytics.noMatchRate ?? "—"}% · response{" "}
+            {opportunityOversight.analytics.partnerResponseRate ?? "—"}% · selection{" "}
+            {opportunityOversight.analytics.partnerSelectionRate ?? "—"}%
+          </p>
+          <ul className="space-y-1 text-sm">
+            {opportunityOversight.opportunities.slice(0, 12).map((row) => (
+              <li key={row.id}>
+                {row.category} · {row.status} · {[row.city, row.region].filter(Boolean).join(", ") || "unspecified"} ·
+                routed {row.routedCount} · interested {row.interestedCount}
+              </li>
+            ))}
+          </ul>
+          {opportunityOversight.unmetDemand.length > 0 ? (
+            <div>
+              <h3 className="text-sm font-semibold">No-match areas</h3>
+              <ul className="text-sm">
+                {opportunityOversight.unmetDemand.slice(0, 8).map((row, index) => (
+                  <li key={`${row.serviceCategory}-${row.createdAt}-${index}`}>
+                    {row.serviceCategory} · {[row.city, row.region].filter(Boolean).join(", ") || "unspecified"}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       <section className="space-y-3 rounded-md border border-[var(--mpa-color-border-default)] bg-white p-4">
         <h2 className="font-display text-xl font-semibold">Invite Partner</h2>

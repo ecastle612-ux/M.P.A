@@ -85,6 +85,7 @@ export function VendorsDirectory() {
       <PmQuickActions
         actions={[
           { href: "/pm/maintenance", label: "Assign in Maintenance", primary: true },
+          { href: "/pm/service-network", label: "Find a Service Partner" },
           { href: "/pm/financial-operations#vendor-invoices", label: "Vendor invoices" },
           { href: documentsHref("vendor"), label: "Vendor contracts" }
         ]}

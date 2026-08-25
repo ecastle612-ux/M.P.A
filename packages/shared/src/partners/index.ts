@@ -7,3 +7,4 @@ export * from "./property-portals";
 export * from "./request";
 export * from "./command-center";
 export * from "./onboarding";
+export * from "./opportunities";

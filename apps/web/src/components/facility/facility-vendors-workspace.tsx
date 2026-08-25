@@ -77,6 +77,7 @@ export function FacilityVendorsWorkspace() {
       <FoQuickActions
         actions={[
           { href: "/facility/operations", label: "Assign in Operations", primary: true },
+          { href: "/facility/service-network", label: "Find a Service Partner" },
           { href: "/facility/mission-control", label: "Mission Control" },
           { href: "/facility/assets", label: "Assets" }
         ]}
