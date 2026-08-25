@@ -24,7 +24,9 @@ describe("PARTNER-003 hard boundaries", () => {
     expect(service).not.toContain("createCheckoutSession");
 
     const authz = readRepo("src/lib/partners/authz.ts");
-    expect(authz).toContain("requireAuthorizedAction");
+    expect(authz).toContain("resolveAuthorizationContext");
+    expect(authz).toContain("evaluatePermission");
+    expect(authz).toContain("platform.partner_services");
     expect(authz).not.toContain("partner_password");
     expect(authz).not.toContain("createUser");
 

@@ -75,7 +75,7 @@ export function PartnerInvitePage({
 
   return (
     <main className="mx-auto w-full max-w-xl space-y-5 px-4 py-10">
-      <h1 className="font-display text-3xl font-semibold">You're invited to M.P.A. Partners</h1>
+      <h1 className="font-display text-3xl font-semibold">You&apos;re invited to M.P.A. Partners</h1>
       {!view ? <p className="text-sm text-[var(--mpa-color-text-secondary)]">Checking invitation…</p> : null}
       {view?.state === "expired" ? (
         <section className="space-y-3" aria-live="polite">

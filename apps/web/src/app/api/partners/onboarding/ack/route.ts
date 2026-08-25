@@ -6,17 +6,23 @@ import { recordPartnerOnboardingAck } from "../../../../../lib/partners/invitati
 
 export const runtime = "nodejs";
 
-const ALLOWED = new Set([
+const ALLOWED = [
   PARTNER_ONBOARDING_EVENTS.qr_completed,
   PARTNER_ONBOARDING_EVENTS.earnings_acknowledged,
   PARTNER_ONBOARDING_EVENTS.referral_shared
-]);
+] as const;
+
+function isOnboardingAck(
+  value: string
+): value is (typeof ALLOWED)[number] {
+  return (ALLOWED as readonly string[]).includes(value);
+}
 
 export async function POST(request: Request) {
   const authz = await requirePartnerServicesWrite();
   if ("error" in authz) return authz.error;
   const body = (await request.json().catch(() => null)) as { action?: string } | null;
-  if (!body?.action || !ALLOWED.has(body.action)) {
+  if (!body?.action || !isOnboardingAck(body.action)) {
     return NextResponse.json({ error: "Unknown onboarding acknowledgement." }, { status: 400 });
   }
   const deps = await loadPartnerInvitationDeps();
@@ -28,10 +34,7 @@ export async function POST(request: Request) {
     {
       partner,
       actorUserId: authz.user.id,
-      action: body.action as
-        | typeof PARTNER_ONBOARDING_EVENTS.qr_completed
-        | typeof PARTNER_ONBOARDING_EVENTS.earnings_acknowledged
-        | typeof PARTNER_ONBOARDING_EVENTS.referral_shared
+      action: body.action
     },
     deps
   );
