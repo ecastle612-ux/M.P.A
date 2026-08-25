@@ -72,6 +72,7 @@ What other options were evaluated and why were they rejected?
 | [ADR-040](./adr-040-partner-command-center.md) | Partner Command Center | Accepted | 2026-08-24 |
 | [ADR-041](./adr-041-partner-property-portals.md) | Partner Property-Specific Service Portals | Accepted | 2026-08-24 |
 | [ADR-042](./adr-042-partner-onboarding.md) | Partner Onboarding, Invitations & Activation | **Accepted** | 2026-08-25 |
+| [ADR-043](./adr-043-partner-service-opportunity-routing.md) | Partner Service Opportunity Routing | **Accepted** | 2026-08-25 |
 
 ---
 
