@@ -67,6 +67,11 @@ What other options were evaluated and why were they rejected?
 | [ADR-034](./adr-034-facility-public-work-request-intake.md) | Facility Public Work Request Intake (Custom Forms + QR / Link) | **Accepted** | 2026-08-17 (accepted 2026-08-18) |
 | [ADR-036](./adr-036-fo-operational-efficiency-system.md) | FO Operational Efficiency System (PM / Assets QR / Checklists / Tech Mobile / Routing) | **Accepted** (Slice 1 authorized) | 2026-08-18 |
 | [ADR-037](./adr-037-app-wide-simplicity-navigation.md) | App-Wide Simplicity and Navigation Efficiency | **Accepted** (Slice 1 My Work / deep links only) | 2026-08-18 |
+| [ADR-038](./adr-038-partner-program-foundation.md) | Partner Program Foundation | Accepted | 2026-08-24 |
+| [ADR-039](./adr-039-partner-service-request-portals.md) | Branded Service Request Portals | Accepted | 2026-08-24 |
+| [ADR-040](./adr-040-partner-command-center.md) | Partner Command Center | Accepted | 2026-08-24 |
+| [ADR-041](./adr-041-partner-property-portals.md) | Partner Property-Specific Service Portals | Accepted | 2026-08-24 |
+| [ADR-042](./adr-042-partner-onboarding.md) | Partner Onboarding, Invitations & Activation | **Accepted** | 2026-08-25 |
 
 ---
 
