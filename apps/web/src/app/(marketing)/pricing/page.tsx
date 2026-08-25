@@ -6,7 +6,7 @@ import { createAuthServerClient } from "../../../lib/auth/server";
 export const metadata: Metadata = {
   title: "Pricing — My Property Assistant",
   description:
-    "Property Manager and Facility Operations from $59/month, Complete Platform from $109/month. Up to 500 managed units included. Additional Unit Capacity +$39/month per 500 units."
+    "Property Manager and Facility Operations from $59/month, Complete Platform from $109/month. Property Manager and Complete include online rent collection — ACH, cards, and tenant AutoPay. Up to 500 managed units included."
 };
 
 type Search = {

@@ -57,9 +57,23 @@ function makeClient() {
             return { data: result, error: null };
           }
           return { data: rows[0] ?? null, error: rows[0] ? null : { message: "missing" } };
-        },
-        then: undefined as undefined
+        }
       };
+
+      async function settle() {
+        if (patch) {
+          for (const row of rows) Object.assign(row, patch);
+          const result = rows.map((r) => ({ ...r }));
+          const updated = result.length;
+          patch = null;
+          return { data: result, error: null, count: updated };
+        }
+        return { data: rows, error: null, count: rows.length };
+      }
+      Object.assign(api, {
+        then: (resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) =>
+          settle().then(resolve, reject)
+      });
 
       // Make awaitable for `.select()` terminal without single (attach update path)
       return new Proxy(api, {
@@ -72,10 +86,11 @@ function makeClient() {
                   if (patch) {
                     for (const row of rows) Object.assign(row, patch);
                     const result = rows.map((r) => ({ ...r }));
+                    const updated = result.length;
                     patch = null;
-                    return { data: result, error: null };
+                    return { data: result, error: null, count: updated };
                   }
-                  return { data: rows, error: null };
+                  return { data: rows, error: null, count: rows.length };
                 })
                 .then(resolve, reject);
             };
@@ -123,6 +138,37 @@ describe("MEDIA-001 media-service", () => {
     expect(result.media.status).toBe("pending");
     expect(result.uploadUrl.startsWith("signed://")).toBe(true);
     expect(result.path.startsWith("org_1/maintenance/")).toBe(true);
+  });
+
+  it("creates a PDF receipt intent on vendor invoices and rejects evidence PDF", async () => {
+    const receipt = await createUploadIntent({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      supabase: makeClient() as any,
+      organizationId: "org_1",
+      userId: "user_1",
+      mimeType: "application/pdf",
+      fileSize: 4096,
+      relatedEntityType: "vendor_invoice",
+      relatedEntityId: "inv_1",
+      attachmentCategory: "receipt",
+      originalFileName: "store.pdf"
+    });
+    expect("error" in receipt).toBe(false);
+    if ("error" in receipt) return;
+    expect(receipt.media.attachment_category).toBe("receipt");
+    expect(receipt.media.file_type).toBe("document");
+    expect(receipt.path.startsWith("org_1/vendor_invoice/")).toBe(true);
+
+    const evidencePdf = await createUploadIntent({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      supabase: makeClient() as any,
+      organizationId: "org_1",
+      userId: "user_1",
+      mimeType: "application/pdf",
+      fileSize: 4096,
+      relatedEntityType: "maintenance"
+    });
+    expect("error" in evidencePdf).toBe(true);
   });
 
   it("rejects invalid MIME on upload intent", async () => {
@@ -207,6 +253,56 @@ describe("MEDIA-001 media-service", () => {
       storageReference: "org_2/maintenance/wo/x/original.jpg"
     });
     expect("error" in result).toBe(true);
+  });
+
+  it("accepts HEIC and WebP receipts and keeps deleted receipts out of ready lists", async () => {
+    const client = makeClient();
+    const heic = await createUploadIntent({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      supabase: client as any,
+      organizationId: "org_1",
+      userId: "user_1",
+      mimeType: "image/heic",
+      fileSize: 1500,
+      relatedEntityType: "maintenance",
+      relatedEntityId: "wo_1",
+      attachmentCategory: "receipt",
+      originalFileName: "parts.heic"
+    });
+    expect("error" in heic).toBe(false);
+    const webp = await createUploadIntent({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      supabase: client as any,
+      organizationId: "org_1",
+      userId: "user_1",
+      mimeType: "image/webp",
+      fileSize: 900,
+      relatedEntityType: "maintenance",
+      relatedEntityId: "wo_1",
+      attachmentCategory: "receipt"
+    });
+    expect("error" in webp).toBe(false);
+    if ("error" in heic) return;
+    const deleted = await softDeleteMedia({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      supabase: client as any,
+      organizationId: "org_1",
+      userId: "user_1",
+      mediaId: heic.media.id,
+      allowManager: false
+    });
+    expect("media" in deleted).toBe(true);
+    if ("media" in deleted) {
+      expect(deleted.media.status).toBe("deleted");
+      expect(deleted.media.deleted_at).toBeTruthy();
+    }
+    const remaining = db.rows.filter(
+      (row) =>
+        row["attachment_category"] === "receipt" &&
+        row["status"] === "ready" &&
+        row["deleted_at"] == null
+    );
+    expect(remaining).toHaveLength(0);
   });
 
   it("soft-deletes media for uploader", async () => {

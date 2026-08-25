@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { acquisitionHref } from "@mpa/shared";
 import { SiteLogo } from "../branding/site-logo";
 import { MarketingMobileMenu } from "./marketing-mobile-menu";
+import { PartnerReferralCapture } from "./partner-referral-capture";
 import { PublicLegalLinks } from "./public-legal-links";
 
 const primaryCtaClass = buttonClassName({ size: "lg", className: "font-semibold" });
@@ -21,7 +22,8 @@ const publicNav = [
     href: acquisitionHref("questionnaire"),
     label: "Get Started"
   },
-  { href: "/enterprise", label: "Enterprise" }
+  { href: "/enterprise", label: "Enterprise" },
+  { href: "/partners", label: "Partners" }
 ] as const;
 
 function PublicNavLinks({
@@ -96,6 +98,7 @@ export function MarketingChrome({
 }) {
   return (
     <div className="min-h-screen bg-[var(--mpa-color-bg-app)] text-[var(--mpa-color-text-primary)]">
+      <PartnerReferralCapture />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:text-[var(--mpa-color-text-primary)] focus:shadow-lg"
@@ -167,6 +170,9 @@ export function MarketingChrome({
             </Link>
             <Link href="/enterprise" className="hover:text-[var(--mpa-color-text-primary)]">
               Enterprise
+            </Link>
+            <Link href="/partners" className="hover:text-[var(--mpa-color-text-primary)]">
+              Partners
             </Link>
             <Link href="/login" className="hover:text-[var(--mpa-color-text-primary)]">
               Sign In

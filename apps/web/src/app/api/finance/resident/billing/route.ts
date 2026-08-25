@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuthServerClient } from "../../../../../lib/auth/server";
 import { getLeaseLedger } from "../../../../../lib/finance/billing-service";
-import { stripePaymentExecutionEnabled } from "../../../../../lib/finance/checkout-authz";
+import { connectAccountReady, offeredTenantPaymentMethods } from "@mpa/shared";
+import { describeAutopay, loadAutopayEnrollment } from "../../../../../lib/finance/autopay-service";
+import { loadTenantPaymentGate } from "../../../../../lib/finance/online-payments-service";
 import { residentOnlinePayAvailable } from "../../../../../lib/finance/resident-online-pay";
 import { createServiceRoleClient } from "../../../../../lib/supabase/service-role";
 
@@ -50,15 +52,16 @@ export async function GET() {
     ...new Set(residents.map((resident) => resident.organization_id as string).filter(Boolean))
   ];
   const executionByOrganization = new Map<string, boolean>();
+  const connectReadyByOrganization = new Map<string, boolean>();
+  const offeredMethodsByOrganization = new Map<string, Array<"card" | "us_bank_account">>();
   if (organizationIds.length > 0) {
-    const { data: settingsRows } = await settingsReader
-      .from("financial_module_settings")
-      .select("organization_id, stripe_payment_execution_enabled")
-      .in("organization_id", organizationIds);
-    for (const row of settingsRows ?? []) {
-      executionByOrganization.set(
-        row.organization_id as string,
-        stripePaymentExecutionEnabled(row)
+    for (const organizationId of organizationIds) {
+      const gate = await loadTenantPaymentGate(settingsReader, organizationId);
+      executionByOrganization.set(organizationId, gate.executionEnabled);
+      connectReadyByOrganization.set(organizationId, connectAccountReady(gate.connect));
+      offeredMethodsByOrganization.set(
+        organizationId,
+        offeredTenantPaymentMethods(gate.accepted, gate.supported)
       );
     }
   }
@@ -116,8 +119,22 @@ export async function GET() {
       onlinePaymentsEnabled: residentOnlinePayAvailable({
         stripePaymentExecutionEnabled:
           executionByOrganization.get(resident.organization_id as string) === true,
-        occupancyAccess: access
+        occupancyAccess: access,
+        connectReady: connectReadyByOrganization.get(resident.organization_id as string) === true
       }),
+      connectReady: connectReadyByOrganization.get(resident.organization_id as string) === true,
+      acceptedPaymentMethods:
+        offeredMethodsByOrganization.get(resident.organization_id as string) ?? [],
+      autopay: describeAutopay(
+        await loadAutopayEnrollment(settingsReader, resident.organization_id as string, resident.lease_id as string),
+        {
+          nextDue: upcoming[0]?.due_at ?? null,
+          nextAmount:
+            upcoming[0] != null
+              ? Number(upcoming[0].amount) - Number(upcoming[0].amount_paid ?? 0)
+              : null
+        }
+      ),
       balance,
       openCharges,
       paidCharges,
